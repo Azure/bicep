@@ -1,0 +1,137 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2825377514138805988"
+    }
+  },
+  "parameters": {
+    "dnsPrefix": {
+      "type": "string",
+      "defaultValue": "cl01",
+      "metadata": {
+        "description": "The DNS prefix to use with hosted Kubernetes API server FQDN."
+      }
+    },
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "aks101",
+      "metadata": {
+        "description": "The name of the Managed Cluster resource."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the Azure location where the key vault should be created."
+      }
+    },
+    "agentCount": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The number of nodes for the cluster. 1 Node is enough for Dev/Test and minimum 3 nodes, is recommended for Production"
+      },
+      "maxValue": 50,
+      "minValue": 1
+    },
+    "agentVMSize": {
+      "type": "string",
+      "defaultValue": "Standard_D2_v3",
+      "metadata": {
+        "description": "The size of the Virtual Machine."
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "subnetRef": "[format('{0}/subnets/{1}', resourceInfo('vn').id, variables('subnetName'))]",
+    "addressPrefix": "20.0.0.0/16",
+    "subnetName": "Subnet01",
+    "subnetPrefix": "20.0.0.0/24",
+    "virtualNetworkName": "MyVNET01",
+    "nodeResourceGroup": "[format('rg-{0}-{1}', parameters('dnsPrefix'), parameters('clusterName'))]",
+    "tags": {
+      "environment": "production",
+      "projectCode": "xyz"
+    },
+    "agentPoolName": "agentpool01"
+  },
+  "resources": {
+    "vn": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('addressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    "aks": {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2020-09-01",
+      "name": "[parameters('clusterName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "enableRBAC": true,
+        "dnsPrefix": "[parameters('dnsPrefix')]",
+        "agentPoolProfiles": [
+          {
+            "name": "[variables('agentPoolName')]",
+            "count": "[parameters('agentCount')]",
+            "mode": "System",
+            "vmSize": "[parameters('agentVMSize')]",
+            "type": "VirtualMachineScaleSets",
+            "osType": "Linux",
+            "enableAutoScaling": false,
+            "vnetSubnetID": "[variables('subnetRef')]"
+          }
+        ],
+        "servicePrincipalProfile": {
+          "clientId": "msi"
+        },
+        "nodeResourceGroup": "[variables('nodeResourceGroup')]",
+        "networkProfile": {
+          "networkPlugin": "azure",
+          "loadBalancerSku": "standard"
+        }
+      },
+      "dependsOn": [
+        "vn"
+      ]
+    }
+  },
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceInfo('aks').id]"
+    },
+    "apiServerAddress": {
+      "type": "string",
+      "value": "[reference('aks').fqdn]"
+    }
+  }
+}

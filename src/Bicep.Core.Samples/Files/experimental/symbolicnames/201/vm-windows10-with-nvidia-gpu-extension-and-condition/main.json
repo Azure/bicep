@@ -1,0 +1,158 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3183603680113590113"
+    }
+  },
+  "parameters": {
+    "localAdminName": {
+      "type": "string",
+      "defaultValue": "localadmin"
+    },
+    "localAdminPassword": {
+      "type": "secureString"
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "bicep-demo-vnet"
+    },
+    "vmSku": {
+      "type": "string",
+      "defaultValue": "Standard_NV6"
+    },
+    "vmOS": {
+      "type": "string",
+      "defaultValue": "20h2-ent"
+    },
+    "installNVidiaGPUDriver": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "bicep-demo-vm"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "defaultLocation": "[resourceGroup().location]",
+    "defaultVmNicName": "[format('{0}-nic', parameters('vmName'))]",
+    "vnetConfig": {
+      "vnetprefix": "10.0.0.0/16",
+      "subnet": {
+        "name": "bicep-demo-subnet",
+        "subnetPrefix": "10.0.66.0/24"
+      }
+    },
+    "privateIPAllocationMethod": "Dynamic"
+  },
+  "resources": {
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[variables('defaultLocation')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[variables('vnetConfig').vnetprefix]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vnetConfig').subnet.name]",
+            "properties": {
+              "addressPrefix": "[variables('vnetConfig').subnet.subnetPrefix]"
+            }
+          }
+        ]
+      }
+    },
+    "vmNic": {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2017-06-01",
+      "name": "[variables('defaultVmNicName')]",
+      "location": "[variables('defaultLocation')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, variables('vnetConfig').subnet.name)]"
+              },
+              "privateIPAllocationMethod": "[variables('privateIPAllocationMethod')]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "vnet"
+      ]
+    },
+    "vm": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "name": "[parameters('vmName')]",
+      "location": "[variables('defaultLocation')]",
+      "properties": {
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('localAdminName')]",
+          "adminPassword": "[parameters('localAdminPassword')]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSku')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsDesktop",
+            "offer": "Windows-10",
+            "sku": "[parameters('vmOS')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          }
+        },
+        "licenseType": "Windows_Client",
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "properties": {
+                "primary": true
+              },
+              "id": "[resourceInfo('vmNic').id]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "vmNic"
+      ]
+    },
+    "vmgpu": {
+      "condition": "[parameters('installNVidiaGPUDriver')]",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/NvidiaGpuDriverWindows', resourceInfo('vm').name)]",
+      "location": "[variables('defaultLocation')]",
+      "properties": {
+        "publisher": "Microsoft.HpcCompute",
+        "type": "NvidiaGpuDriverWindows",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {}
+      },
+      "dependsOn": [
+        "vm"
+      ]
+    }
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6711094734042549626"
+    }
+  },
+  "parameters": {
+    "parameters": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "mod": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "equals": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "functions": [],
+  "variables": {
+    "copy": [
+      {
+        "name": "incrementingNumbers",
+        "count": "[length(range(0, 10))]",
+        "input": "[range(0, 10)[copyIndex('incrementingNumbers')]]"
+      },
+      {
+        "name": "arrayOfStringsViaLoop",
+        "count": "[length(variables('loopInput'))]",
+        "input": "[format('prefix-{0}-{1}', copyIndex('arrayOfStringsViaLoop'), variables('loopInput')[copyIndex('arrayOfStringsViaLoop')])]"
+      },
+      {
+        "name": "arrayOfObjectsViaLoop",
+        "count": "[length(variables('loopInput'))]",
+        "input": {
+          "index": "[copyIndex('arrayOfObjectsViaLoop')]",
+          "name": "[variables('loopInput')[copyIndex('arrayOfObjectsViaLoop')]]",
+          "value": "[format('prefix-{0}-{1}-suffix', copyIndex('arrayOfObjectsViaLoop'), variables('loopInput')[copyIndex('arrayOfObjectsViaLoop')])]"
+        }
+      },
+      {
+        "name": "arrayOfArraysViaLoop",
+        "count": "[length(variables('loopInput'))]",
+        "input": "[createArray(copyIndex('arrayOfArraysViaLoop'), variables('loopInput')[copyIndex('arrayOfArraysViaLoop')], format('prefix-{0}-{1}-suffix', copyIndex('arrayOfArraysViaLoop'), variables('loopInput')[copyIndex('arrayOfArraysViaLoop')]))]"
+      },
+      {
+        "name": "arrayOfBooleans",
+        "count": "[length(variables('loopInput'))]",
+        "input": "[equals(mod(copyIndex('arrayOfBooleans'), 2), 0)]"
+      },
+      {
+        "name": "arrayOfHardCodedNumbers",
+        "count": "[length(range(0, 10))]",
+        "input": "[int(3)]"
+      },
+      {
+        "name": "arrayOfHardCodedBools",
+        "count": "[length(range(0, 10))]",
+        "input": "[false()]"
+      },
+      {
+        "name": "arrayOfHardCodedStrings",
+        "count": "[length(range(0, 3))]",
+        "input": "hi"
+      },
+      {
+        "name": "arrayOfNonRuntimeFunctionCalls",
+        "count": "[length(range(0, 3))]",
+        "input": "[concat('hi', range(0, 3)[copyIndex('arrayOfNonRuntimeFunctionCalls')])]"
+      }
+    ],
+    "myInt": 42,
+    "myStr": "str",
+    "curliesWithNoInterp": "}{1}{",
+    "interp1": "[format('abc{0}def', 123)]",
+    "interp2": "[format('{0}def', 123)]",
+    "interp3": "[format('abc{0}', 123)]",
+    "interp4": "[format('abc{0}{1}jk$l{2}p$', 123, 456, 789)]",
+    "doubleInterp": "[format('abc{0}_{1}', format('def{0}', 123), format('{0}{1}', 456, 789))]",
+    "curliesInInterp": "[format('{{{0}{{0}}{1}}}', 123, true())]",
+    "bracketInTheMiddle": "a[b]",
+    "bracketAtBeginning": "[test",
+    "enclosingBrackets": "[[test]",
+    "emptyJsonArray": "[[]",
+    "interpolatedBrackets": "[format('[{0}]', variables('myInt'))]",
+    "nestedBrackets": "[[test[]test2]",
+    "nestedInterpolatedBrackets": "[format('[{0}]', variables('emptyJsonArray'))]",
+    "bracketStringInExpression": "[concat('[', '''test''', ']')]",
+    "myTruth": true,
+    "myFalsehood": false,
+    "myEmptyObj": {},
+    "myEmptyArray": [],
+    "myObj": {
+      "a": "a",
+      "b": -12,
+      "c": true,
+      "d": "[not(true())]",
+      "list": [
+        1,
+        2,
+        "[add(2, 1)]",
+        {
+          "test": "[or(and(greater(144, 33), true()), lessOrEquals(99, 199))]"
+        },
+        "[equals(toLower('a'), toLower('b'))]"
+      ],
+      "obj": {
+        "nested": [
+          "hello"
+        ]
+      }
+    },
+    "objWithInterp": {
+      "[variables('myStr')]": 1,
+      "[format('abc{0}def', variables('myStr'))]": 2,
+      "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]": "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]"
+    },
+    "myArr": [
+      "pirates",
+      "say",
+      "arr"
+    ],
+    "myArrWithObjects": [
+      {
+        "name": "one",
+        "enable": true
+      },
+      {
+        "name": "two",
+        "enable": "[or(and(false(), false()), not(equals(toLower('two'), toLower('three'))))]"
+      }
+    ],
+    "expressionIndexOnAny": "[createObject()[resourceGroup().location]]",
+    "anyIndexOnAny": "[true()[false()]]",
+    "deploymentName": "[deployment().name]",
+    "templateLinkUri": "[deployment().properties.templateLink.uri]",
+    "templateLinkId": "[deployment().properties.templateLink.id]",
+    "portalEndpoint": "[environment().portal]",
+    "loginEndpoint": "[environment().authentication.loginEndpoint]",
+    "namedPropertyIndexer": "[createObject('foo', 's').foo]",
+    "intIndexer": "[createArray('s')[0]]",
+    "functionOnIndexer1": "[concat(createArray('s')[0], 's')]",
+    "functionOnIndexer2": "[concat(createArray()[0], 's')]",
+    "functionOnIndexer3": "[concat(createArray()[0], 's')]",
+    "singleQuote": "'",
+    "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]",
+    "previousEmitLimit": [
+      "[concat('s')]",
+      4,
+      {
+        "a": {
+          "b": "[base64('s')]",
+          "c": "[concat(createArray(add(12, 3)), createArray(not(true()), 'hello'))]",
+          "d": "[resourceGroup().location]",
+          "e": "[concat(createArray(true()))]",
+          "f": "[concat(createArray(equals('s', 12)))]"
+        }
+      }
+    ],
+    "previousEmitLimit2": [
+      "[concat('s')]",
+      4,
+      {
+        "a": {
+          "b": "[base64('s')]",
+          "c": "[union(createObject('a', add(12, 3)), createObject('b', not(true()), 'c', 'hello'))]",
+          "d": "[resourceGroup().location]",
+          "e": "[union(createObject('x', true()), createObject())]",
+          "f": "[intersection(createObject('q', equals('s', 12)), createObject())]"
+        }
+      }
+    ],
+    "previousEmitLimit3": {
+      "a": {
+        "b": "[equals(createObject('a', resourceGroup().location), 2)]",
+        "c": "[concat(createArray(), createArray(true()))]"
+      }
+    },
+    "myVar": "hello",
+    "myVar2": {
+      "something": "[variables('myVar')]"
+    },
+    "myVar3": {
+      "something": "[variables('myVar')]"
+    },
+    "myVar4": "[length(concat('s', 'a'))]",
+    "variables": true,
+    "if": true,
+    "createArray": true,
+    "createObject": true,
+    "add": true,
+    "sub": true,
+    "mul": true,
+    "div": true,
+    "less": true,
+    "lessOrEquals": true,
+    "greater": true,
+    "greaterOrEquals": true,
+    "not": true,
+    "and": true,
+    "or": true,
+    "I_WANT_IT_ALL": "[and(and(and(and(and(and(and(and(and(and(and(and(and(and(and(and(and(variables('variables'), parameters('parameters')), variables('if')), variables('createArray')), variables('createObject')), variables('add')), variables('sub')), variables('mul')), variables('div')), parameters('mod')), variables('less')), variables('lessOrEquals')), variables('greater')), variables('greaterOrEquals')), parameters('equals')), variables('not')), variables('and')), variables('or'))]",
+    "_": 3,
+    "__": "[mul(10, variables('_'))]",
+    "_0a_1b": true,
+    "_1_": "[or(variables('_0a_1b'), equals(add(variables('__'), mod(variables('_'), 2)), 0))]",
+    "resourceGroup": "something",
+    "resourceGroupName": "[resourceGroup().name]",
+    "resourceGroupObject": "[resourceGroup()]",
+    "propertyAccessFromObject": "[variables('resourceGroupObject').name]",
+    "isTrue": "[equals(max(1, 2), 3)]",
+    "isFalse": "[not(variables('isTrue'))]",
+    "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]",
+    "scopesWithoutArmRepresentation": {
+      "tenant": "[createObject()]",
+      "subscription": "[createObject()]",
+      "resourceGroup": "[createObject()]"
+    },
+    "issue1332_propname": "ptest",
+    "issue1332": "[if(true(), createObject('prop1', createObject(variables('issue1332_propname'), createObject())), createObject())]",
+    "myBigInt": 2199023255552,
+    "myIntExpression": "[mul(5, 5)]",
+    "myBigIntExpression": "[mul(json('2199023255552'), 2)]",
+    "myBigIntExpression2": "[mul(json('2199023255552'), json('2199023255552'))]",
+    "loopInput": [
+      "one",
+      "two"
+    ],
+    "multilineString": "HELLO!\n",
+    "multilineEmpty": "",
+    "multilineEmptyNewline": "",
+    "multilineExtraQuotes": "'abc'",
+    "multilineExtraQuotesNewlines": "'\nabc\n'",
+    "multilineSingleLine": "hello!",
+    "multilineFormatted": "[format('Hello,\nmy\nname is\n{0}\n', 'Anthony')]",
+    "multilineJavaScript": "// NOT RECOMMENDED PATTERN\nconst fs = require('fs');\n\nmodule.exports = function (context) {\n    fs.readFile('./hello.txt', (err, data) => {\n        if (err) {\n            context.log.error('ERROR', err);\n            // BUG #1: This will result in an uncaught exception that crashes the entire process\n            throw err;\n        }\n        context.log(`Data from file: ${data}`);\n        // context.done() should be called here\n    });\n    // BUG #2: Data is not guaranteed to be read before the Azure Function's invocation ends\n    context.done();\n}\n"
+  },
+  "resources": {}
+}

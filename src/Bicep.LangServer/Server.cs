@@ -34,7 +34,8 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             IResourceTypeProvider? ResourceTypeProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null);
+            IFeatureProvider? Features = null,
+            string? AssemblyFileVersion = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -96,12 +97,14 @@ namespace Bicep.LanguageServer
         private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
         {
             var fileResolver = creationOptions.FileResolver ?? new FileResolver();
+            var featureProvider = creationOptions.Features ?? new FeatureProvider();
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
+            services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver));
-            services.AddSingleton<IFileResolver>(services => fileResolver);
-            services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());
+            services.AddSingleton<IFileResolver>(fileResolver);
+            services.AddSingleton<IFeatureProvider>(featureProvider);
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();

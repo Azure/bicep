@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10301753709145241530"
+    }
+  },
+  "parameters": {
+    "udrName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "nextHopAddress": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "functions": [],
+  "resources": {
+    "udr": {
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('udrName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "routes": "[if(equals(parameters('addressPrefix'), ''), null(), createArray(createObject('name', 'Nested-VMs', 'properties', createObject('addressPrefix', parameters('addressPrefix'), 'nextHopType', 'VirtualAppliance', 'nextHopIpAddress', parameters('nextHopAddress')))))]"
+      }
+    }
+  },
+  "outputs": {
+    "udrId": {
+      "type": "string",
+      "value": "[resourceInfo('udr').id]"
+    }
+  }
+}

@@ -8,7 +8,9 @@ using System.IO;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -60,6 +62,21 @@ namespace Bicep.LangServer.IntegrationTests
                 var errors = semanticModel.GetAllDiagnostics().Where(x => x.Level == DiagnosticLevel.Error);
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContents, "\n", errors, diag => OutputHelper.GetDiagLoggingString(bicepContents, outputDirectory, diag));
                 Assert.Fail("Template with prefix {0} contains errors. Please fix following errors:\n {1}", completionData.Prefix, sourceTextWithDiags);
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void VerifySnippetTemplatesDoNotContainTargetScope(CompletionData completionData)
+        {
+            var parser = new Parser(completionData.SnippetText);
+            var programSyntax = parser.Program();
+            var children = programSyntax.Children;
+
+            if (children.Any(x => x is TargetScopeSyntax targetScopeSyntax && targetScopeSyntax is not null))
+            {
+                Assert.Fail("Snippet templates should not contain targetScope. Please remove targetScope from template with prefix {0}.", completionData.Prefix);
             }
         }
 

@@ -40,6 +40,11 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
+            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            {
+                Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
+            }
+
             var program = new Program(new InvocationContext(
                 AzResourceTypeProvider.CreateWithAzTypes(),
                 Console.Out,
@@ -54,11 +59,6 @@ namespace Bicep.Cli
         public async Task<int> RunAsync(string[] args)
         {
             var serviceProvider = ConfigureServices();
-
-            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
-            {
-                Trace.Listeners.Add(new TextWriterTraceListener(this.invocationContext.OutputWriter));
-            }
 
             try
             {

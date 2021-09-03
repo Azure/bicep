@@ -1,0 +1,923 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10970407163820051296"
+    }
+  },
+  "parameters": {
+    "_artifactsLocation": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-nested-vms-in-virtual-network/"
+    },
+    "_artifactsLocationSasToken": {
+      "type": "secureString",
+      "defaultValue": ""
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "HostPublicIPAddressName": {
+      "type": "string",
+      "defaultValue": "HVHOSTPIP"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "VirtualNetwork"
+    },
+    "virtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/22"
+    },
+    "NATSubnetName": {
+      "type": "string",
+      "defaultValue": "NAT"
+    },
+    "NATSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+    "hyperVSubnetName": {
+      "type": "string",
+      "defaultValue": "Hyper-V-LAN"
+    },
+    "hyperVSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24"
+    },
+    "ghostedSubnetName": {
+      "type": "string",
+      "defaultValue": "Ghosted"
+    },
+    "ghostedSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.2.0/24"
+    },
+    "azureVMsSubnetName": {
+      "type": "string",
+      "defaultValue": "Azure-VMs"
+    },
+    "azureVMsSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.3.0/24"
+    },
+    "HostNetworkInterface1Name": {
+      "type": "string",
+      "defaultValue": "HVHOSTNIC1"
+    },
+    "HostNetworkInterface2Name": {
+      "type": "string",
+      "defaultValue": "HVHOSTNIC2"
+    },
+    "HostVirtualMachineName": {
+      "type": "string",
+      "defaultValue": "HVHOST",
+      "maxLength": 15
+    },
+    "HostVirtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_D4s_v3",
+      "allowedValues": [
+        "Standard_D2_v3",
+        "Standard_D4_v3",
+        "Standard_D8_v3",
+        "Standard_D16_v3",
+        "Standard_D32_v3",
+        "Standard_D2s_v3",
+        "Standard_D4s_v3",
+        "Standard_D8s_v3",
+        "Standard_D16s_v3",
+        "Standard_D32s_v3",
+        "Standard_D64_v3",
+        "Standard_E2_v3",
+        "Standard_E4_v3",
+        "Standard_E8_v3",
+        "Standard_E16_v3",
+        "Standard_E32_v3",
+        "Standard_E64_v3",
+        "Standard_D64s_v3",
+        "Standard_E2s_v3",
+        "Standard_E4s_v3",
+        "Standard_E8s_v3",
+        "Standard_E16s_v3",
+        "Standard_E32s_v3",
+        "Standard_E64s_v3"
+      ]
+    },
+    "HostAdminUsername": {
+      "type": "string"
+    },
+    "HostAdminPassword": {
+      "type": "secureString"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "NATSubnetNSGName": "[format('{0}NSG', parameters('NATSubnetName'))]",
+    "hyperVSubnetNSGName": "[format('{0}NSG', parameters('hyperVSubnetName'))]",
+    "ghostedSubnetNSGName": "[format('{0}NSG', parameters('ghostedSubnetName'))]",
+    "azureVMsSubnetNSGName": "[format('{0}NSG', parameters('azureVMsSubnetName'))]",
+    "azureVMsSubnetUDRName": "[format('{0}UDR', parameters('azureVMsSubnetName'))]",
+    "DSCInstallWindowsFeaturesUri": "[uri(parameters('_artifactsLocation'), format('dsc/dscinstallwindowsfeatures.zip{0}', parameters('_artifactsLocationSasToken')))]",
+    "HVHostSetupScriptUri": "[uri(parameters('_artifactsLocation'), format('hvhostsetup.ps1{0}', parameters('_artifactsLocationSasToken')))]"
+  },
+  "resources": {
+    "publicIp": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2019-04-01",
+      "name": "[parameters('HostPublicIPAddressName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Basic"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[toLower(format('{0}-{1}', parameters('HostVirtualMachineName'), uniqueString(resourceGroup().id)))]"
+        }
+      }
+    },
+    "natNsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-04-01",
+      "name": "[variables('NATSubnetNSGName')]",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    "hyperVNsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-04-01",
+      "name": "[variables('hyperVSubnetNSGName')]",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    "ghostedNsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-04-01",
+      "name": "[variables('ghostedSubnetNSGName')]",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    "azureVmsSubnet": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2019-04-01",
+      "name": "[variables('azureVMsSubnetNSGName')]",
+      "location": "[parameters('location')]",
+      "properties": {}
+    },
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-04-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkAddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('NATSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('NATSubnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('natNsg').id]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('hyperVSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('hyperVSubnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('hyperVNsg').id]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('ghostedSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('ghostedSubnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('ghostedNsg').id]"
+              }
+            }
+          },
+          {
+            "name": "[parameters('azureVMsSubnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('azureVMsSubnetPrefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('azureVmsSubnet').id]"
+              },
+              "routeTable": {
+                "id": "[reference('createAzureVmUdr').outputs.udrId.value]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "azureVmsSubnet",
+        "createAzureVmUdr",
+        "ghostedNsg",
+        "hyperVNsg",
+        "natNsg"
+      ]
+    },
+    "hostVm": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-03-01",
+      "name": "[parameters('HostVirtualMachineName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('HostVirtualMachineSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[format('{0}OsDisk', parameters('HostVirtualMachineName'))]",
+            "createOption": "FromImage",
+            "managedDisk": {
+              "storageAccountType": "Premium_LRS"
+            },
+            "caching": "ReadWrite"
+          },
+          "dataDisks": [
+            {
+              "lun": 0,
+              "name": "[format('{0}DataDisk1', parameters('HostVirtualMachineName'))]",
+              "createOption": "Empty",
+              "diskSizeGB": 1024,
+              "caching": "ReadOnly",
+              "managedDisk": {
+                "storageAccountType": "Premium_LRS"
+              }
+            }
+          ]
+        },
+        "osProfile": {
+          "computerName": "[parameters('HostVirtualMachineName')]",
+          "adminUsername": "[parameters('HostAdminUsername')]",
+          "adminPassword": "[parameters('HostAdminPassword')]"
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[reference('createNic1').outputs.nicId.value]",
+              "properties": {
+                "primary": true
+              }
+            },
+            {
+              "id": "[reference('createNic2').outputs.nicId.value]",
+              "properties": {
+                "primary": false
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "createNic1",
+        "createNic2"
+      ]
+    },
+    "vmExtension": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-03-01",
+      "name": "[format('{0}/InstallWindowsFeatures', resourceInfo('hostVm').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.77",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "wmfVersion": "latest",
+          "configuration": {
+            "url": "[variables('DSCInstallWindowsFeaturesUri')]",
+            "script": "DSCInstallWindowsFeatures.ps1",
+            "function": "InstallWindowsFeatures"
+          }
+        }
+      },
+      "dependsOn": [
+        "hostVm"
+      ]
+    },
+    "hostVmSetupExtension": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-03-01",
+      "name": "[format('{0}/HVHOSTSetup', resourceInfo('hostVm').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.9",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[variables('HVHostSetupScriptUri')]"
+          ],
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference('createNic1').outputs.assignedIp.value, reference('createNic2').outputs.assignedIp.value, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
+        }
+      },
+      "dependsOn": [
+        "createNic1",
+        "createNic2",
+        "hostVm"
+      ]
+    },
+    "createNic1": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "createNic1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nicName": {
+            "value": "[parameters('HostNetworkInterface1Name')]"
+          },
+          "subnetId": {
+            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('NATSubnetName'))]"
+          },
+          "pipId": {
+            "value": "[resourceInfo('publicIp').id]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12266946764841305208"
+            }
+          },
+          "parameters": {
+            "nicName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "pipId": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "ipAllocationMethod": {
+              "type": "string",
+              "defaultValue": "Dynamic",
+              "allowedValues": [
+                "Dynamic",
+                "Static"
+              ]
+            },
+            "staticIpAddress": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "enableIPForwarding": {
+              "type": "bool",
+              "defaultValue": false
+            }
+          },
+          "functions": [],
+          "resources": {
+            "nic": {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('nicName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "primary": true,
+                      "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      },
+                      "publicIPAddress": "[if(equals(parameters('pipId'), ''), null(), createObject('id', parameters('pipId')))]"
+                    }
+                  }
+                ],
+                "enableIPForwarding": "[parameters('enableIPForwarding')]"
+              }
+            }
+          },
+          "outputs": {
+            "nicId": {
+              "type": "string",
+              "value": "[resourceInfo('nic').id]"
+            },
+            "assignedIp": {
+              "type": "string",
+              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "publicIp",
+        "vnet"
+      ]
+    },
+    "createNic2": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "createNic2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "nicName": {
+            "value": "[parameters('HostNetworkInterface2Name')]"
+          },
+          "enableIPForwarding": {
+            "value": true
+          },
+          "subnetId": {
+            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('hyperVSubnetName'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12266946764841305208"
+            }
+          },
+          "parameters": {
+            "nicName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "pipId": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "ipAllocationMethod": {
+              "type": "string",
+              "defaultValue": "Dynamic",
+              "allowedValues": [
+                "Dynamic",
+                "Static"
+              ]
+            },
+            "staticIpAddress": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "enableIPForwarding": {
+              "type": "bool",
+              "defaultValue": false
+            }
+          },
+          "functions": [],
+          "resources": {
+            "nic": {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('nicName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "primary": true,
+                      "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      },
+                      "publicIPAddress": "[if(equals(parameters('pipId'), ''), null(), createObject('id', parameters('pipId')))]"
+                    }
+                  }
+                ],
+                "enableIPForwarding": "[parameters('enableIPForwarding')]"
+              }
+            }
+          },
+          "outputs": {
+            "nicId": {
+              "type": "string",
+              "value": "[resourceInfo('nic').id]"
+            },
+            "assignedIp": {
+              "type": "string",
+              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "vnet"
+      ]
+    },
+    "updateNic1": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "updateNic1",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ipAllocationMethod": {
+            "value": "Static"
+          },
+          "staticIpAddress": {
+            "value": "[reference('createNic1').outputs.assignedIp.value]"
+          },
+          "nicName": {
+            "value": "[parameters('HostNetworkInterface1Name')]"
+          },
+          "subnetId": {
+            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('NATSubnetName'))]"
+          },
+          "pipId": {
+            "value": "[resourceInfo('publicIp').id]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12266946764841305208"
+            }
+          },
+          "parameters": {
+            "nicName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "pipId": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "ipAllocationMethod": {
+              "type": "string",
+              "defaultValue": "Dynamic",
+              "allowedValues": [
+                "Dynamic",
+                "Static"
+              ]
+            },
+            "staticIpAddress": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "enableIPForwarding": {
+              "type": "bool",
+              "defaultValue": false
+            }
+          },
+          "functions": [],
+          "resources": {
+            "nic": {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('nicName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "primary": true,
+                      "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      },
+                      "publicIPAddress": "[if(equals(parameters('pipId'), ''), null(), createObject('id', parameters('pipId')))]"
+                    }
+                  }
+                ],
+                "enableIPForwarding": "[parameters('enableIPForwarding')]"
+              }
+            }
+          },
+          "outputs": {
+            "nicId": {
+              "type": "string",
+              "value": "[resourceInfo('nic').id]"
+            },
+            "assignedIp": {
+              "type": "string",
+              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "createNic1",
+        "publicIp",
+        "vnet"
+      ]
+    },
+    "updateNic2": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "updateNic2",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ipAllocationMethod": {
+            "value": "Static"
+          },
+          "staticIpAddress": {
+            "value": "[reference('createNic2').outputs.assignedIp.value]"
+          },
+          "nicName": {
+            "value": "[parameters('HostNetworkInterface2Name')]"
+          },
+          "enableIPForwarding": {
+            "value": true
+          },
+          "subnetId": {
+            "value": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, parameters('hyperVSubnetName'))]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12266946764841305208"
+            }
+          },
+          "parameters": {
+            "nicName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "pipId": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "ipAllocationMethod": {
+              "type": "string",
+              "defaultValue": "Dynamic",
+              "allowedValues": [
+                "Dynamic",
+                "Static"
+              ]
+            },
+            "staticIpAddress": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "enableIPForwarding": {
+              "type": "bool",
+              "defaultValue": false
+            }
+          },
+          "functions": [],
+          "resources": {
+            "nic": {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('nicName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "primary": true,
+                      "privateIPAllocationMethod": "[parameters('ipAllocationMethod')]",
+                      "privateIPAddress": "[parameters('staticIpAddress')]",
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      },
+                      "publicIPAddress": "[if(equals(parameters('pipId'), ''), null(), createObject('id', parameters('pipId')))]"
+                    }
+                  }
+                ],
+                "enableIPForwarding": "[parameters('enableIPForwarding')]"
+              }
+            }
+          },
+          "outputs": {
+            "nicId": {
+              "type": "string",
+              "value": "[resourceInfo('nic').id]"
+            },
+            "assignedIp": {
+              "type": "string",
+              "value": "[reference('nic').ipConfigurations[0].properties.privateIPAddress]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "createNic2",
+        "vnet"
+      ]
+    },
+    "createAzureVmUdr": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "udrDeploy",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "udrName": {
+            "value": "[variables('azureVMsSubnetUDRName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10301753709145241530"
+            }
+          },
+          "parameters": {
+            "udrName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "addressPrefix": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "nextHopAddress": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "functions": [],
+          "resources": {
+            "udr": {
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('udrName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "routes": "[if(equals(parameters('addressPrefix'), ''), null(), createArray(createObject('name', 'Nested-VMs', 'properties', createObject('addressPrefix', parameters('addressPrefix'), 'nextHopType', 'VirtualAppliance', 'nextHopIpAddress', parameters('nextHopAddress')))))]"
+              }
+            }
+          },
+          "outputs": {
+            "udrId": {
+              "type": "string",
+              "value": "[resourceInfo('udr').id]"
+            }
+          }
+        }
+      }
+    },
+    "updateAzureVmUdr": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "udrUpdate",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "udrName": {
+            "value": "[variables('azureVMsSubnetUDRName')]"
+          },
+          "addressPrefix": {
+            "value": "[parameters('ghostedSubnetPrefix')]"
+          },
+          "nextHopAddress": {
+            "value": "[reference('createNic2').outputs.assignedIp.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10301753709145241530"
+            }
+          },
+          "parameters": {
+            "udrName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "addressPrefix": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "nextHopAddress": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "functions": [],
+          "resources": {
+            "udr": {
+              "type": "Microsoft.Network/routeTables",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('udrName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "routes": "[if(equals(parameters('addressPrefix'), ''), null(), createArray(createObject('name', 'Nested-VMs', 'properties', createObject('addressPrefix', parameters('addressPrefix'), 'nextHopType', 'VirtualAppliance', 'nextHopIpAddress', parameters('nextHopAddress')))))]"
+              }
+            }
+          },
+          "outputs": {
+            "udrId": {
+              "type": "string",
+              "value": "[resourceInfo('udr').id]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "createNic2"
+      ]
+    }
+  }
+}

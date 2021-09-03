@@ -8,5 +8,7 @@ namespace Bicep.Core.Features
         public string CacheRootDirectory { get; }
 
         public bool RegistryEnabled { get; }
+
+        bool SymbolicNameCodegenEnabled { get; }
     }
 }

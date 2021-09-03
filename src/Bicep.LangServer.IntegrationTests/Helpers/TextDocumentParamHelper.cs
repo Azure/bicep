@@ -3,6 +3,7 @@
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core;
+using System.IO;
 
 namespace Bicep.LangServer.IntegrationTests.Helpers
 {
@@ -19,6 +20,12 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
                     Text = text,
                 },
             };
+
+        public static DidOpenTextDocumentParams CreateDidOpenDocumentParamsFromFile(string filePath, int version) =>
+            CreateDidOpenDocumentParams(
+                DocumentUri.FromFileSystemPath(filePath),
+                File.ReadAllText(filePath),
+                version);
 
         public static DidChangeTextDocumentParams CreateDidChangeTextDocumentParams(DocumentUri documentUri, string text, int version) =>
             new DidChangeTextDocumentParams
