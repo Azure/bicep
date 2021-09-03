@@ -1,0 +1,143 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5973792154747211288"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the Azure location where the key vault should be created."
+      }
+    },
+    "vnetname": {
+      "type": "string",
+      "defaultValue": "[format('{0}-azfw-sample-vnet', parameters('location'))]",
+      "metadata": {
+        "description": "Specifies the name of the VNet."
+      }
+    },
+    "vnetaddressprefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "Specifies the address prefix to use for the VNet."
+      }
+    },
+    "firewallsubnetprefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/26",
+      "metadata": {
+        "description": "Specifies the address prefix to use for the AzureFirewallSubnet"
+      }
+    },
+    "ipprefixlength": {
+      "type": "int",
+      "defaultValue": 31,
+      "metadata": {
+        "description": "Specifies the size of the Public IP Prefix"
+      },
+      "allowedValues": [
+        28,
+        29,
+        30,
+        31
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "firewallname": "[format('{0}-fw', parameters('vnetname'))]",
+    "publicipname": "[format('{0}-pip', parameters('vnetname'))]",
+    "ipprefixname": "[format('{0}-ipprefix', parameters('vnetname'))]"
+  },
+  "resources": {
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('vnetname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetaddressprefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "AzureFirewallSubnet",
+            "properties": {
+              "addressPrefix": "[parameters('firewallsubnetprefix')]"
+            }
+          }
+        ]
+      }
+    },
+    "ipprefix": {
+      "type": "Microsoft.Network/publicIPPrefixes",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('ipprefixname')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "prefixLength": "[parameters('ipprefixlength')]",
+        "publicIPAddressVersion": "IPv4",
+        "ipTags": []
+      }
+    },
+    "publicip": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('publicipname')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "publicIPPrefix": {
+          "id": "[resourceInfo('ipprefix').id]"
+        }
+      },
+      "dependsOn": [
+        "ipprefix"
+      ]
+    },
+    "firewall": {
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('firewallname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "threatIntelMode": "Alert",
+        "ipConfigurations": [
+          {
+            "name": "[format('{0}-vnetIpconf', variables('firewallname'))]",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/AzureFirewallSubnet', resourceInfo('vnet').id)]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceInfo('publicip').id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "publicip",
+        "vnet"
+      ]
+    }
+  }
+}

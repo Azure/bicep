@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3243281388365321542"
+    }
+  },
+  "parameters": {
+    "templateSpecName": {
+      "type": "string",
+      "defaultValue": "ManagedDisk"
+    },
+    "templateSpecVersionName": {
+      "type": "string",
+      "defaultValue": "0.1"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "templateSpec": {
+      "type": "Microsoft.Resources/templateSpecs",
+      "apiVersion": "2019-06-01-preview",
+      "name": "[parameters('templateSpecName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "description": "A basic templateSpec - creates a managed disk.",
+        "displayName": "Managed Disk (Standard_LRS)"
+      }
+    },
+    "templateSpecVersion": {
+      "type": "Microsoft.Resources/templateSpecs/versions",
+      "apiVersion": "2019-06-01-preview",
+      "name": "[format('{0}/{1}', resourceInfo('templateSpec').name, parameters('templateSpecVersionName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "diskName": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string"
+            }
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Compute/disks",
+              "name": "[[parameters('diskName')]",
+              "apiVersion": "2020-05-01",
+              "location": "[[parameters('location')]",
+              "sku": {
+                "name": "Standard_LRS"
+              },
+              "properties": {
+                "creationData": {
+                  "createOption": "Empty"
+                },
+                "diskSizeGB": 64
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "templateSpec"
+      ]
+    }
+  }
+}

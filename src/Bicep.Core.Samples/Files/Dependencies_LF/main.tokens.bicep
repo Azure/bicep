@@ -68,11 +68,13 @@ var resourceDependency = {
 //@[19:20) Dot |.|
 //@[20:30) Identifier |deployTime|
 //@[30:31) NewLine |\n|
-    resA.eTag
+    resA.properties.eTag
 //@[4:8) Identifier |resA|
 //@[8:9) Dot |.|
-//@[9:13) Identifier |eTag|
-//@[13:14) NewLine |\n|
+//@[9:19) Identifier |properties|
+//@[19:20) Dot |.|
+//@[20:24) Identifier |eTag|
+//@[24:25) NewLine |\n|
   ]
 //@[2:3) RightSquare |]|
 //@[3:4) NewLine |\n|
@@ -111,14 +113,14 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
 //@[14:15) Colon |:|
 //@[16:28) Identifier |dependentVar|
 //@[28:29) NewLine |\n|
+    eTag: '1234'
+//@[4:8) Identifier |eTag|
+//@[8:9) Colon |:|
+//@[10:16) StringComplete |'1234'|
+//@[16:17) NewLine |\n|
   }
 //@[2:3) RightBrace |}|
 //@[3:4) NewLine |\n|
-  eTag: '1234'
-//@[2:6) Identifier |eTag|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'1234'|
-//@[14:15) NewLine |\n|
 }
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
@@ -281,4 +283,6 @@ output resourceCProperties object = resC.properties
 //@[36:40) Identifier |resC|
 //@[40:41) Dot |.|
 //@[41:51) Identifier |properties|
-//@[51:51) EndOfFile ||
+//@[51:52) NewLine |\n|
+
+//@[0:0) EndOfFile ||

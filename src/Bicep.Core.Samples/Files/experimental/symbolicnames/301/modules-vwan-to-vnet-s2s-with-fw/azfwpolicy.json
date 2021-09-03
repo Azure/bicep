@@ -1,0 +1,148 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11406935289322070369"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "policyname": {
+      "type": "string"
+    },
+    "dnsservers": {
+      "type": "array",
+      "defaultValue": [
+        "168.63.129.16"
+      ],
+      "metadata": {
+        "description": "Specify custom DNS Servers for Azure Firewall"
+      }
+    }
+  },
+  "functions": [],
+  "resources": {
+    "policy": {
+      "type": "Microsoft.Network/firewallPolicies",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('policyname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "threatIntelMode": "Alert",
+        "dnsSettings": {
+          "servers": "[parameters('dnsservers')]",
+          "enableProxy": true
+        }
+      }
+    },
+    "platformrcgroup": {
+      "type": "Microsoft.Network/firewallPolicies/ruleCollectionGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/Platform-Rules', resourceInfo('policy').name)]",
+      "properties": {
+        "priority": 100,
+        "ruleCollections": [
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "Allow-Azure-KMS",
+            "priority": 100,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "NetworkRule",
+                "name": "Azure-KMS-Service",
+                "description": "Allow traffic from all Address Spaces to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "ipProtocols": [
+                  "TCP"
+                ],
+                "destinationPorts": [
+                  "1688"
+                ],
+                "destinationIpGroups": [],
+                "destinationAddresses": [],
+                "destinationFqdns": [
+                  "kms.core.windows.net"
+                ]
+              }
+            ]
+          },
+          {
+            "ruleCollectionType": "FirewallPolicyFilterRuleCollection",
+            "name": "Allow-Windows-Update",
+            "priority": 200,
+            "action": {
+              "type": "Allow"
+            },
+            "rules": [
+              {
+                "ruleType": "ApplicationRule",
+                "name": "Http",
+                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "protocols": [
+                  {
+                    "protocolType": "Http",
+                    "port": 80
+                  }
+                ],
+                "targetFqdns": [],
+                "fqdnTags": [
+                  "WindowsUpdate"
+                ]
+              },
+              {
+                "ruleType": "ApplicationRule",
+                "name": "Https",
+                "description": "Allow traffic from all sources to Azure platform KMS Service",
+                "sourceAddresses": [
+                  "*"
+                ],
+                "sourceIpGroups": [],
+                "protocols": [
+                  {
+                    "protocolType": "Https",
+                    "port": 443
+                  }
+                ],
+                "targetFqdns": [],
+                "fqdnTags": [
+                  "WindowsUpdate"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "dependsOn": [
+        "policy"
+      ]
+    }
+  },
+  "outputs": {
+    "name": {
+      "type": "string",
+      "value": "[resourceInfo('policy').name]"
+    },
+    "id": {
+      "type": "string",
+      "value": "[resourceInfo('policy').id]"
+    }
+  }
+}

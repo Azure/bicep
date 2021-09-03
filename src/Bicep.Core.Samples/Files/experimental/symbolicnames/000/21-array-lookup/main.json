@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5706061224615216925"
+    }
+  },
+  "parameters": {
+    "azRegion": {
+      "type": "string",
+      "allowedValues": [
+        "eastus",
+        "eastus2",
+        "centralus",
+        "northcentralus",
+        "southcentralus",
+        "westcentralus",
+        "westus",
+        "westus2"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "regionToTimezone": {
+      "eastus": "Eastern Standard Time",
+      "eastus2": "Eastern Standard Time",
+      "centralus": "Central Standard Time",
+      "northcentralus": "Central Standard Time",
+      "southcentralus": "Central Standard Time",
+      "westcentralus": "Mountain Standard Time",
+      "westus": "Pacific Standard Time",
+      "westus2": "Pacific Standard Time"
+    },
+    "timezone": "[variables('regionToTimezone')[parameters('azRegion')]]"
+  },
+  "resources": {},
+  "outputs": {
+    "AzRegion": {
+      "type": "string",
+      "value": "[parameters('azRegion')]"
+    },
+    "Timezone": {
+      "type": "string",
+      "value": "[variables('timezone')]"
+    }
+  }
+}

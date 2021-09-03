@@ -1,0 +1,201 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "293210833048465123"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "appInsightsName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "appinsights": {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2018-05-01-preview",
+      "name": "[parameters('appInsightsName')]",
+      "location": "[parameters('location')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web"
+      }
+    },
+    "dashboard": {
+      "type": "Microsoft.Portal/dashboards",
+      "apiVersion": "2015-08-01-preview",
+      "name": "[guid(resourceGroup().name, 'dashboard')]",
+      "location": "[parameters('location')]",
+      "tags": {
+        "hidden-title": "Bicep Sample Dashboard"
+      },
+      "properties": {
+        "lenses": {
+          "0": {
+            "order": 0,
+            "parts": {
+              "0": {
+                "position": {
+                  "colSpan": 10,
+                  "rowSpan": 5,
+                  "x": 0,
+                  "y": 0
+                },
+                "metadata": {
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "inputs": [
+                    {
+                      "name": "Scope",
+                      "value": {
+                        "resourceIds": [
+                          "[resourceInfo('appinsights').id]"
+                        ]
+                      }
+                    },
+                    {
+                      "name": "Dimensions",
+                      "value": {
+                        "xAxis": {
+                          "name": "timestamp",
+                          "type": "datetime"
+                        },
+                        "yAxis": [
+                          {
+                            "name": "Number of Requests",
+                            "type": "long"
+                          }
+                        ],
+                        "splitBy": [
+                          {
+                            "name": "operation_Name",
+                            "type": "string"
+                          }
+                        ],
+                        "aggregation": "Sum"
+                      }
+                    },
+                    {
+                      "name": "PartId",
+                      "value": "[guid(resourceGroup().name, 'part0')]"
+                    },
+                    {
+                      "name": "Version",
+                      "value": "2.0"
+                    },
+                    {
+                      "name": "TimeRange",
+                      "value": "PT30M"
+                    },
+                    {
+                      "name": "Query",
+                      "value": "set query_bin_auto_size=5m;\r\nrequests\r\n| summarize ['Number of Requests']=count() by operation_Name, bin_auto(timestamp)\r\n| render areachart"
+                    },
+                    {
+                      "name": "PartTitle",
+                      "value": "Forwarded Requests per Backend"
+                    },
+                    {
+                      "name": "PartSubTitle",
+                      "value": "On 5-Minute aggregation"
+                    },
+                    {
+                      "name": "ControlType",
+                      "value": "FrameControlChart"
+                    },
+                    {
+                      "name": "SpecificChart",
+                      "value": "StackedArea"
+                    }
+                  ]
+                }
+              },
+              "1": {
+                "position": {
+                  "colSpan": 6,
+                  "rowSpan": 5,
+                  "x": 10,
+                  "y": 0
+                },
+                "metadata": {
+                  "type": "Extension/Microsoft_OperationsManagementSuite_Workspace/PartType/LogsDashboardPart",
+                  "inputs": [
+                    {
+                      "name": "Scope",
+                      "value": {
+                        "resourceIds": [
+                          "[resourceInfo('appinsights').id]"
+                        ]
+                      }
+                    },
+                    {
+                      "name": "Dimensions",
+                      "value": {
+                        "xAxis": {
+                          "name": "Region",
+                          "type": "string"
+                        },
+                        "yAxis": [
+                          {
+                            "name": "Count",
+                            "type": "long"
+                          }
+                        ],
+                        "splitBy": [],
+                        "aggregation": "Sum"
+                      }
+                    },
+                    {
+                      "name": "PartId",
+                      "value": "[guid(resourceGroup().name, 'part1')]"
+                    },
+                    {
+                      "name": "Version",
+                      "value": "2.0"
+                    },
+                    {
+                      "name": "TimeRange",
+                      "value": "PT30M"
+                    },
+                    {
+                      "name": "Query",
+                      "value": "requests\r\n| summarize Count=count() by Region=client_CountryOrRegion\r\n| render piechart"
+                    },
+                    {
+                      "name": "PartTitle",
+                      "value": "Requests by Client Region"
+                    },
+                    {
+                      "name": "PartSubTitle",
+                      "value": "A cool pie chart"
+                    },
+                    {
+                      "name": "ControlType",
+                      "value": "FrameControlChart"
+                    },
+                    {
+                      "name": "SpecificChart",
+                      "value": "Pie"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "appinsights"
+      ]
+    }
+  }
+}

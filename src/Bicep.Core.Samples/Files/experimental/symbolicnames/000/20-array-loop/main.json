@@ -1,0 +1,52 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3376488954149491149"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "bicepVarArray": [
+      "Michael",
+      "Dwight",
+      "Jim",
+      "Pam"
+    ]
+  },
+  "resources": {},
+  "outputs": {
+    "out1": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('bicepVarArray'))]",
+        "input": {
+          "element": "[variables('bicepVarArray')[copyIndex()]]"
+        }
+      }
+    },
+    "out2": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('bicepVarArray'))]",
+        "input": {
+          "element": "[variables('bicepVarArray')[copyIndex()]]"
+        }
+      }
+    },
+    "out3": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('bicepVarArray'))]",
+        "input": {
+          "element": "[variables('bicepVarArray')[copyIndex()]]"
+        }
+      }
+    }
+  }
+}

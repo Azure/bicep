@@ -1,0 +1,83 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8961250868775091784"
+    }
+  },
+  "parameters": {
+    "configStoreName": {
+      "type": "string",
+      "defaultValue": "myConfigStore"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "keyValueNames": {
+      "type": "array",
+      "defaultValue": [
+        "myKey",
+        "myKey2$myLabel"
+      ]
+    },
+    "keyValueValues": {
+      "type": "array",
+      "defaultValue": [
+        "key-value without label",
+        "key-value with label"
+      ]
+    },
+    "contentType": {
+      "type": "string",
+      "defaultValue": "the-content-type"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "config": {
+      "type": "Microsoft.AppConfiguration/configurationStores",
+      "apiVersion": "2020-07-01-preview",
+      "name": "[parameters('configStoreName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      }
+    },
+    "key1": {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2020-07-01-preview",
+      "name": "[format('{0}/{1}', resourceInfo('config').name, parameters('keyValueNames')[0])]",
+      "properties": {
+        "value": "[parameters('keyValueValues')[0]]",
+        "contentType": "[parameters('contentType')]"
+      },
+      "dependsOn": [
+        "config"
+      ]
+    },
+    "key2": {
+      "type": "Microsoft.AppConfiguration/configurationStores/keyValues",
+      "apiVersion": "2020-07-01-preview",
+      "name": "[format('{0}/{1}', resourceInfo('config').name, parameters('keyValueNames')[1])]",
+      "properties": {
+        "value": "[parameters('keyValueValues')[1]]",
+        "contentType": "[parameters('contentType')]"
+      },
+      "dependsOn": [
+        "config"
+      ]
+    }
+  },
+  "outputs": {
+    "keys": {
+      "type": "object",
+      "value": "[reference('key1', '2020-07-01-preview', 'full')]"
+    }
+  }
+}

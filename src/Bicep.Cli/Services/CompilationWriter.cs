@@ -23,13 +23,13 @@ namespace Bicep.Cli.Services
             var fileStream = CreateFileStream(outputPath);
             using (fileStream)
             {
-                return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.AssemblyFileVersion).Emit(fileStream);
+                return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).Emit(fileStream);
             }
         }
 
         public EmitResult ToStream(Compilation compilation, Stream stream)
         {
-            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.AssemblyFileVersion).Emit(stream);
+            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).Emit(stream);
         }
 
         public EmitResult ToStdout(Compilation compilation)
@@ -39,7 +39,7 @@ namespace Bicep.Cli.Services
                 Formatting = Formatting.Indented
             };
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.AssemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings);
 
             return emitter.Emit(writer);
         }

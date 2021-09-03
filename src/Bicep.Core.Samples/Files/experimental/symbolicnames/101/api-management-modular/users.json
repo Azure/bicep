@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12399821129382504434"
+    }
+  },
+  "parameters": {
+    "apimInstanceName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "functions": [],
+  "variables": {
+    "usersSet": [
+      {
+        "userId": "pvd",
+        "firstName": "Paul",
+        "lastName": "Van Dyk",
+        "email": "pvd@vonyc.de",
+        "state": "active",
+        "notes": "Good DJ"
+      },
+      {
+        "userId": "abuuren",
+        "firstName": "Armin",
+        "lastName": "van Buuren",
+        "email": "armin@armadamusic.com",
+        "state": "active",
+        "notes": "OK meh!"
+      }
+    ]
+  },
+  "resources": {
+    "parentAPIM": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2019-01-01",
+      "name": "[parameters('apimInstanceName')]",
+      "existing": true
+    },
+    "apimUser": {
+      "copy": {
+        "name": "apimUser",
+        "count": "[length(variables('usersSet'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/users",
+      "apiVersion": "2020-06-01-preview",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('usersSet')[copyIndex()].userId)]",
+      "properties": {
+        "firstName": "[variables('usersSet')[copyIndex()].firstName]",
+        "lastName": "[variables('usersSet')[copyIndex()].lastName]",
+        "email": "[variables('usersSet')[copyIndex()].email]",
+        "state": "[variables('usersSet')[copyIndex()].state]",
+        "note": "[variables('usersSet')[copyIndex()].notes]"
+      }
+    }
+  }
+}

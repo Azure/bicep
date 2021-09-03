@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6952691429387144402"
+    }
+  },
+  "parameters": {
+    "prefix": {
+      "type": "string"
+    },
+    "azFwlIp": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "route": {
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}-rot', parameters('prefix'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "disableBgpRoutePropagation": false,
+        "routes": [
+          {
+            "name": "DefaultRoute",
+            "properties": {
+              "addressPrefix": "0.0.0.0/0",
+              "nextHopType": "VirtualAppliance",
+              "nextHopIpAddress": "[parameters('azFwlIp')]"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceInfo('route').id]"
+    }
+  }
+}

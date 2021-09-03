@@ -1,0 +1,216 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10522944321173136296"
+    }
+  },
+  "parameters": {
+    "frontDoorName": {
+      "type": "string",
+      "defaultValue": "AzFd-TestingBicep-999"
+    },
+    "frontDoorEnabledState": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "healthProbe1EnabledState": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "frontDoorWafDeployed": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "frontDoorWafNamePrefix": {
+      "type": "string",
+      "defaultValue": "AzFdWafTestingBicep"
+    },
+    "frontDoorWafEnabledState": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "frontDoorWafMode": {
+      "type": "string",
+      "defaultValue": "Prevention",
+      "allowedValues": [
+        "Prevention",
+        "Detection"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "frontDoorNameLower": "[toLower(parameters('frontDoorName'))]",
+    "backendPool1Name": "[format('{0}-backendPool1', variables('frontDoorNameLower'))]",
+    "healthProbe1Name": "[format('{0}-healthProbe1', variables('frontDoorNameLower'))]",
+    "frontendEndpoint1Name": "[format('{0}-frontendEndpoint1', variables('frontDoorNameLower'))]",
+    "loadBalancing1Name": "[format('{0}-loadBalancing1', variables('frontDoorNameLower'))]",
+    "routingRule1Name": "[format('{0}-routingRule1', variables('frontDoorNameLower'))]",
+    "routingRule2Name": "[format('{0}-routingRule2', variables('frontDoorNameLower'))]",
+    "frontendEndpoint1hostName": "[format('{0}.azurefd.net', variables('frontDoorNameLower'))]",
+    "backendExampleTarget": "api.myip.com",
+    "redirectExampleTarget": "api.myip.com",
+    "frontDoorWafName": "[format('{0}{1}', parameters('frontDoorWafNamePrefix'), uniqueString(subscription().subscriptionId, resourceGroup().id, parameters('frontDoorWafNamePrefix')))]"
+  },
+  "resources": {
+    "resAzFd": {
+      "type": "Microsoft.Network/frontDoors",
+      "apiVersion": "2020-01-01",
+      "name": "[variables('frontDoorNameLower')]",
+      "location": "Global",
+      "properties": {
+        "enabledState": "[if(parameters('frontDoorEnabledState'), 'Enabled', 'Disabled')]",
+        "friendlyName": "[variables('frontDoorNameLower')]",
+        "frontendEndpoints": [
+          {
+            "name": "[variables('frontendEndpoint1Name')]",
+            "properties": {
+              "hostName": "[variables('frontendEndpoint1hostName')]",
+              "sessionAffinityEnabledState": "Disabled",
+              "sessionAffinityTtlSeconds": 0,
+              "webApplicationFirewallPolicyLink": {
+                "id": "[resourceInfo('resAzFdWaf').id]"
+              }
+            }
+          }
+        ],
+        "backendPoolsSettings": {
+          "enforceCertificateNameCheck": "Enabled",
+          "sendRecvTimeoutSeconds": 30
+        },
+        "backendPools": [
+          {
+            "name": "[variables('backendPool1Name')]",
+            "properties": {
+              "backends": [
+                {
+                  "address": "[variables('backendExampleTarget')]",
+                  "backendHostHeader": "[variables('backendExampleTarget')]",
+                  "enabledState": "Enabled",
+                  "httpPort": 80,
+                  "httpsPort": 443,
+                  "priority": 1,
+                  "weight": 50
+                }
+              ],
+              "healthProbeSettings": {
+                "id": "[resourceId('Microsoft.Network/frontDoors/healthProbeSettings', variables('frontDoorNameLower'), variables('healthProbe1Name'))]"
+              },
+              "loadBalancingSettings": {
+                "id": "[resourceId('Microsoft.Network/frontDoors/LoadBalancingSettings', variables('frontDoorNameLower'), variables('loadBalancing1Name'))]"
+              }
+            }
+          }
+        ],
+        "healthProbeSettings": [
+          {
+            "name": "[variables('healthProbe1Name')]",
+            "properties": {
+              "enabledState": "[if(parameters('healthProbe1EnabledState'), 'Enabled', 'Disabled')]",
+              "intervalInSeconds": 30,
+              "path": "/",
+              "protocol": "Https",
+              "healthProbeMethod": "HEAD"
+            }
+          }
+        ],
+        "loadBalancingSettings": [
+          {
+            "name": "[variables('loadBalancing1Name')]",
+            "properties": {
+              "additionalLatencyMilliseconds": 0,
+              "sampleSize": 4,
+              "successfulSamplesRequired": 2
+            }
+          }
+        ],
+        "routingRules": [
+          {
+            "name": "[variables('routingRule1Name')]",
+            "properties": {
+              "frontendEndpoints": [
+                {
+                  "id": "[resourceId('Microsoft.Network/frontDoors/FrontendEndpoints', variables('frontDoorNameLower'), variables('frontendEndpoint1Name'))]"
+                }
+              ],
+              "acceptedProtocols": [
+                "Https"
+              ],
+              "patternsToMatch": [
+                "/*"
+              ],
+              "enabledState": "Enabled",
+              "routeConfiguration": {
+                "@odata.type": "#Microsoft.Azure.FrontDoor.Models.FrontdoorForwardingConfiguration",
+                "forwardingProtocol": "HttpsOnly",
+                "backendPool": {
+                  "id": "[resourceId('Microsoft.Network/frontDoors/BackendPools', variables('frontDoorNameLower'), variables('backendPool1Name'))]"
+                }
+              }
+            }
+          },
+          {
+            "name": "[variables('routingRule2Name')]",
+            "properties": {
+              "frontendEndpoints": [
+                {
+                  "id": "[resourceId('Microsoft.Network/frontDoors/FrontendEndpoints', variables('frontDoorNameLower'), variables('frontendEndpoint1Name'))]"
+                }
+              ],
+              "acceptedProtocols": [
+                "Https"
+              ],
+              "patternsToMatch": [
+                "/redirect/*",
+                "/redirect"
+              ],
+              "enabledState": "Enabled",
+              "routeConfiguration": {
+                "@odata.type": "#Microsoft.Azure.FrontDoor.Models.FrontdoorRedirectConfiguration",
+                "customHost": "[variables('redirectExampleTarget')]",
+                "customPath": "/",
+                "redirectProtocol": "HttpsOnly",
+                "redirectType": "Found"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "resAzFdWaf"
+      ]
+    },
+    "resAzFdWaf": {
+      "type": "Microsoft.Network/FrontDoorWebApplicationFirewallPolicies",
+      "apiVersion": "2019-10-01",
+      "name": "[variables('frontDoorWafName')]",
+      "location": "Global",
+      "properties": {
+        "policySettings": {
+          "enabledState": "[if(parameters('frontDoorWafEnabledState'), 'Enabled', 'Disabled')]",
+          "mode": "[parameters('frontDoorWafMode')]",
+          "customBlockResponseStatusCode": 403
+        },
+        "customRules": {
+          "rules": []
+        },
+        "managedRules": {
+          "managedRuleSets": [
+            {
+              "ruleSetType": "DefaultRuleSet",
+              "ruleSetVersion": "1.0",
+              "ruleGroupOverrides": [],
+              "exclusions": []
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,625 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "25088583822025940"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "adminSshKey": {
+      "type": "string",
+      "defaultValue": "ssh-rsa APublicSshKey2EAAAADAQABAAACAQCpXKIzGlb9fnLJmwrVPFQyntzOngz8QE4SOMHyXueVb4bO2IgSdHk8cD2LDToX3lDOUQzzWz+AiUO3iIRNJPOzZj/6aN+BJZXpi8+cdGOyaQmDyzk0T2w0mwTxXBk3DkXAw+lw13Q9SlFY+YLKsqHyKF7aXiy7RiJl4O3QUMGLKuGtmsqRFcrarp20pyH1UXQbvXUUoPU92AU4cSmx4AS8coWaDoQxWr7EA6toF0hgXsKFf/8MlkzJty0P7IhZ8KPzJg9lFNfBCUZHFEQWSb7FQBV6mFXxVcus1eCtoLEXkIDSkkYGd+edMO6t/Hc73c66M1vL9Ae6RUx2m39kZGF9bpVmcs8pZ2Hy2QukcGR8r61Jx913a32hRmk5fWpCnEo0NfE9XQJ7ibMNU97XL/QSeNZp3yzAyZqIYBkaYp8bFNjjMnVNyVdaANw2rjmxTY2XJlc0jVgucMWim8zT4YDQgKR8UuzXZBtC5uxlqhgZ8Zj+tRqgq/ZGo1MBacj89gQJjiiyFgf9hewVtdxlAEnDUHo0KI/Ro2geI+f2ylf1m0bUuPpwjO8sybJg/ZkA48LyOMbwj9wLHbiNJnPmoJROGGO/pAdvrzMlDuD/2BLf5Xmn3RkvnseS6/qCXZAfsrwlhb/LtCkWF2j+7e5EWXArhT14fGdWHi+5f09UY7ybAQ== user@Somewhere"
+    },
+    "myIp": {
+      "type": "string",
+      "defaultValue": "20.49.199.4"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "ppg1": {
+      "type": "Microsoft.Compute/proximityPlacementGroups",
+      "apiVersion": "2020-06-01",
+      "name": "Zone1",
+      "location": "[parameters('location')]",
+      "properties": {
+        "proximityPlacementGroupType": "Standard"
+      }
+    },
+    "as1": {
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2020-06-01",
+      "name": "as1",
+      "location": "[parameters('location')]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 5,
+        "proximityPlacementGroup": {
+          "id": "[resourceInfo('ppg1').id]"
+        }
+      },
+      "sku": {
+        "name": "Aligned"
+      },
+      "dependsOn": [
+        "ppg1"
+      ]
+    },
+    "network": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "network",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "myIp": {
+            "value": "[parameters('myIp')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6480195888241511838"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "myIp": {
+              "type": "string",
+              "defaultValue": "1.1.1.1"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "nsg": {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "2020-06-01",
+              "name": "demo-nsg",
+              "location": "[parameters('location')]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "SSH",
+                    "properties": {
+                      "priority": 1000,
+                      "protocol": "Tcp",
+                      "access": "Allow",
+                      "direction": "Inbound",
+                      "sourceAddressPrefix": "[parameters('myIp')]",
+                      "sourcePortRange": "*",
+                      "destinationAddressPrefix": "*",
+                      "destinationPortRange": "22"
+                    }
+                  },
+                  {
+                    "name": "HTTP",
+                    "properties": {
+                      "priority": 1010,
+                      "protocol": "Tcp",
+                      "access": "Allow",
+                      "direction": "Inbound",
+                      "sourceAddressPrefix": "[parameters('myIp')]",
+                      "sourcePortRange": "*",
+                      "destinationAddressPrefix": "*",
+                      "destinationPortRange": "80"
+                    }
+                  },
+                  {
+                    "name": "HTTPS",
+                    "properties": {
+                      "priority": 1020,
+                      "protocol": "Tcp",
+                      "access": "Allow",
+                      "direction": "Inbound",
+                      "sourceAddressPrefix": "[parameters('myIp')]",
+                      "sourcePortRange": "*",
+                      "destinationAddressPrefix": "*",
+                      "destinationPortRange": "443"
+                    }
+                  }
+                ]
+              }
+            },
+            "vnet": {
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2020-05-01",
+              "name": "demo-vnet",
+              "location": "[parameters('location')]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "10.0.0.0/22"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "Default",
+                    "properties": {
+                      "addressPrefix": "10.0.0.0/24",
+                      "networkSecurityGroup": {
+                        "id": "[resourceInfo('nsg').id]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "nsg"
+              ]
+            }
+          },
+          "outputs": {
+            "vnetId": {
+              "type": "string",
+              "value": "[resourceInfo('vnet').id]"
+            }
+          }
+        }
+      }
+    },
+    "vmA": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "anchor",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "adminSshKey": {
+            "value": "[parameters('adminSshKey')]"
+          },
+          "proximityPlacementGroupId": {
+            "value": "[resourceInfo('ppg1').id]"
+          },
+          "subnetId": {
+            "value": "[format('{0}/subnets/Default', reference('network').outputs.vnetId.value)]"
+          },
+          "vmName": {
+            "value": "anchor"
+          },
+          "zone": {
+            "value": 1
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7664410653282450893"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "adminSshKey": {
+              "type": "string"
+            },
+            "proximityPlacementGroupId": {
+              "type": "string"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "vmName": {
+              "type": "string"
+            },
+            "zone": {
+              "type": "int",
+              "allowedValues": [
+                1,
+                2,
+                3
+              ]
+            }
+          },
+          "functions": [],
+          "resources": {
+            "pip": {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}-pip', parameters('vmName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "publicIPAllocationMethod": "Static"
+              },
+              "sku": {
+                "name": "Standard"
+              },
+              "zones": [
+                "[parameters('zone')]"
+              ]
+            },
+            "nic": {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}-nic', parameters('vmName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      },
+                      "publicIPAddress": {
+                        "id": "[resourceInfo('pip').id]"
+                      }
+                    }
+                  }
+                ]
+              },
+              "dependsOn": [
+                "pip"
+              ]
+            },
+            "vm": {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('vmName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "Standard_B4ms"
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceInfo('nic').id]"
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[parameters('vmName')]",
+                  "adminUsername": "vmadmin",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": true,
+                    "ssh": {
+                      "publicKeys": [
+                        {
+                          "path": "/home/vmadmin/.ssh/authorized_keys",
+                          "keyData": "[parameters('adminSshKey')]"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "proximityPlacementGroup": {
+                  "id": "[parameters('proximityPlacementGroupId')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "OpenLogic",
+                    "offer": "CentOS",
+                    "sku": "7.7",
+                    "version": "latest"
+                  },
+                  "osDisk": {
+                    "name": "[format('{0}-os', parameters('vmName'))]",
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "StandardSSD_LRS"
+                    }
+                  }
+                }
+              },
+              "zones": [
+                "[parameters('zone')]"
+              ],
+              "dependsOn": [
+                "nic"
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "network",
+        "ppg1"
+      ]
+    },
+    "vm01": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "vm01",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "adminSshKey": {
+            "value": "[parameters('adminSshKey')]"
+          },
+          "availabilitySetId": {
+            "value": "[resourceInfo('as1').id]"
+          },
+          "subnetId": {
+            "value": "[format('{0}/subnets/Default', reference('network').outputs.vnetId.value)]"
+          },
+          "vmName": {
+            "value": "vm01"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10716442026835589146"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "adminSshKey": {
+              "type": "string"
+            },
+            "availabilitySetId": {
+              "type": "string"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "vmName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "nic": {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}-nic', parameters('vmName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "vm": {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('vmName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "availabilitySet": {
+                  "id": "[parameters('availabilitySetId')]"
+                },
+                "hardwareProfile": {
+                  "vmSize": "Standard_B4ms"
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceInfo('nic').id]"
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[parameters('vmName')]",
+                  "adminUsername": "vmadmin",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": true,
+                    "ssh": {
+                      "publicKeys": [
+                        {
+                          "path": "/home/vmadmin/.ssh/authorized_keys",
+                          "keyData": "[parameters('adminSshKey')]"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "OpenLogic",
+                    "offer": "CentOS",
+                    "sku": "7.7",
+                    "version": "latest"
+                  },
+                  "osDisk": {
+                    "name": "[format('{0}-os', parameters('vmName'))]",
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "StandardSSD_LRS"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "nic"
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "as1",
+        "network"
+      ]
+    },
+    "vm02": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "vm02",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "adminSshKey": {
+            "value": "[parameters('adminSshKey')]"
+          },
+          "availabilitySetId": {
+            "value": "[resourceInfo('as1').id]"
+          },
+          "subnetId": {
+            "value": "[format('{0}/subnets/Default', reference('network').outputs.vnetId.value)]"
+          },
+          "vmName": {
+            "value": "vm02"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10716442026835589146"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "adminSshKey": {
+              "type": "string"
+            },
+            "availabilitySetId": {
+              "type": "string"
+            },
+            "subnetId": {
+              "type": "string"
+            },
+            "vmName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "nic": {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "2020-05-01",
+              "name": "[format('{0}-nic', parameters('vmName'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig",
+                    "properties": {
+                      "privateIPAllocationMethod": "Dynamic",
+                      "subnet": {
+                        "id": "[parameters('subnetId')]"
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            "vm": {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "2020-06-01",
+              "name": "[parameters('vmName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "availabilitySet": {
+                  "id": "[parameters('availabilitySetId')]"
+                },
+                "hardwareProfile": {
+                  "vmSize": "Standard_B4ms"
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceInfo('nic').id]"
+                    }
+                  ]
+                },
+                "osProfile": {
+                  "computerName": "[parameters('vmName')]",
+                  "adminUsername": "vmadmin",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": true,
+                    "ssh": {
+                      "publicKeys": [
+                        {
+                          "path": "/home/vmadmin/.ssh/authorized_keys",
+                          "keyData": "[parameters('adminSshKey')]"
+                        }
+                      ]
+                    }
+                  }
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "OpenLogic",
+                    "offer": "CentOS",
+                    "sku": "7.7",
+                    "version": "latest"
+                  },
+                  "osDisk": {
+                    "name": "[format('{0}-os', parameters('vmName'))]",
+                    "createOption": "FromImage",
+                    "managedDisk": {
+                      "storageAccountType": "StandardSSD_LRS"
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "nic"
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "as1",
+        "network"
+      ]
+    }
+  }
+}

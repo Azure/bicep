@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8074010830152231418"
+    }
+  },
+  "parameters": {
+    "serviceBusNamespaceName": {
+      "type": "string"
+    },
+    "virtualNetworkName": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "serviceBusNamespace": {
+      "type": "Microsoft.ServiceBus/namespaces",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[parameters('serviceBusNamespaceName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Premium",
+        "tier": "Premium"
+      },
+      "properties": {}
+    },
+    "virtualNetwork": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2017-09-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/23"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "10.0.0.0/23",
+              "serviceEndpoints": [
+                {
+                  "service": "Microsoft.ServiceBus"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "namespaceVirtualNetworkRule": {
+      "type": "Microsoft.ServiceBus/namespaces/virtualnetworkrules",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[format('{0}/{1}', resourceInfo('serviceBusNamespace').name, resourceInfo('virtualNetwork').name)]",
+      "properties": {
+        "virtualNetworkSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', resourceInfo('virtualNetwork').name, parameters('subnetName'))]"
+      },
+      "dependsOn": [
+        "serviceBusNamespace",
+        "virtualNetwork"
+      ]
+    }
+  }
+}
