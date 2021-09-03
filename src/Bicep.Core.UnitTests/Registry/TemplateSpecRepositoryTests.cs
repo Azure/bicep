@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Registry
     public class TemplateSpecRepositoryTests
     {
         [TestMethod]
-        public void FindTemplateSpecByIdAsync_TemplateSpecNotFound_ThrowsTemplateSpecException()
+        public async Task FindTemplateSpecByIdAsync_TemplateSpecNotFound_ThrowsTemplateSpecException()
         {
             var client = CreateMockClient(resourcesOperationsMock => resourcesOperationsMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -29,14 +29,14 @@ namespace Bicep.Core.UnitTests.Registry
 
             var repository = new TemplateSpecRepository(client);
 
-            Invoking(async () => await repository.FindTemplateSpecByIdAsync("foo"))
+            await Invoking(async () => await repository.FindTemplateSpecByIdAsync("foo"))
                 .Should()
-                .Throw<TemplateSpecException>()
+                .ThrowAsync<TemplateSpecException>()
                 .WithMessage("The referenced template spec does not exist. Not Found.");
         }
 
         [TestMethod]
-        public void FindTemplateSpecByIdAsync_GotUnexpectedRequestFailedException_ConvertsToTemplateSpecException()
+        public async Task FindTemplateSpecByIdAsync_GotUnexpectedRequestFailedException_ConvertsToTemplateSpecException()
         {
             var client = CreateMockClient(resourcesOperationsMock => resourcesOperationsMock
                 .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -44,9 +44,9 @@ namespace Bicep.Core.UnitTests.Registry
 
             var repository = new TemplateSpecRepository(client);
 
-            Invoking(async () => await repository.FindTemplateSpecByIdAsync("foo"))
+            await Invoking(async () => await repository.FindTemplateSpecByIdAsync("foo"))
                 .Should()
-                .Throw<TemplateSpecException>()
+                .ThrowAsync<TemplateSpecException>()
                 .WithMessage("Unexpected error.");
         }
 
