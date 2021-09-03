@@ -6,14 +6,11 @@ using Azure.Core;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Azure.Containers.ContainerRegistry.Specialized;
-//using Bicep.Core.RegistryClient;
-//using Bicep.Core.RegistryClient.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-//using UploadManifestOptions = Bicep.Core.RegistryClient.UploadManifestOptions;
 
 namespace Bicep.Core.Registry
 {
@@ -61,32 +58,28 @@ namespace Bicep.Core.Registry
 
             var blobClient = this.CreateBlobClient(moduleReference);
 
+            var manifest = new OciManifest();
             config.ResetStream();
             var configDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, config);
 
             config.ResetStream();
             var configUploadResult = await blobClient.UploadBlobAsync(config.Stream);
+            manifest.Config = configDescriptor;
 
-            var layerDescriptors = new List<ArtifactBlobDescriptor>(layers.Length);
+            var layerDescriptors = new List<OciBlobDescriptor>(layers.Length);
             foreach (var layer in layers)
             {
                 layer.ResetStream();
                 var layerDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, layer);
-                layerDescriptors.Add(layerDescriptor);
 
                 layer.ResetStream();
                 var layerUploadResult = await blobClient.UploadBlobAsync(layer.Stream);
+
+                manifest.Layers.Add(layerDescriptor);
             }
 
-            var manifest = new OciManifest(configDescriptor, layerDescriptors);
-            using var manifestStream = new MemoryStream();
-
-            // TODO: do this serialization in an overload on blobClient
-            //OciManifestSerialization.SerializeManifest(manifestStream, manifest);
-
-            manifestStream.Position = 0;
             // BUG: the client closes the stream :(
-            var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions() { Tag = moduleReference.Tag });
+            var manifestUploadResult = await blobClient.UploadManifestAsync(manifest, new UploadManifestOptions() { Tag = moduleReference.Tag });
         }
 
         public string GetLocalPackageDirectory(OciArtifactModuleReference reference)
@@ -142,7 +135,7 @@ namespace Bicep.Core.Registry
             Response<DownloadManifestResult> manifestResponse;
             try
             {
-                manifestResponse = await client.DownloadManifestAsync(moduleReference.Tag, new DownloadManifestOptions());
+                manifestResponse = await client.DownloadManifestAsync(moduleReference.Tag);
             }
             catch(RequestFailedException exception) when (exception.Status == 404)
             {
@@ -150,12 +143,7 @@ namespace Bicep.Core.Registry
                 throw new AcrManagerException("The module does not exist in the registry.", exception);
             }
 
-            // the SDK doesn't expose all the manifest properties we need
-            // so we need to deserialize the manifest ourselves to get everything
-            var stream = manifestResponse.Value.Content;
-            // TODO: Get this from the DownloadManifest overload
-            //stream.Position = 0;
-            //return DeserializeManifest(stream);
+            return manifestResponse.Value.Manifest;
         }
 
         private static async Task ProcessManifest(ContainerRegistryBlobClient client, OciManifest manifest, string modulePath)
@@ -171,7 +159,7 @@ namespace Bicep.Core.Registry
             await ProcessLayer(client, layer, modulePath);
         }
 
-        private static async Task ProcessLayer(ContainerRegistryBlobClient client, ArtifactBlobDescriptor layer, string modulePath)
+        private static async Task ProcessLayer(ContainerRegistryBlobClient client, OciBlobDescriptor layer, string modulePath)
         {
             if(!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
             {
@@ -194,7 +182,7 @@ namespace Bicep.Core.Registry
             await blobResult.Value.Content.CopyToAsync(fileStream);
         }
 
-        private static void ProcessConfig(ArtifactBlobDescriptor config)
+        private static void ProcessConfig(OciBlobDescriptor config)
         {
             // media types are case insensitive
             if(!string.Equals(config.MediaType, BicepMediaTypes.BicepModuleConfigV1, MediaTypeComparison))

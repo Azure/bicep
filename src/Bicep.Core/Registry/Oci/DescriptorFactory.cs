@@ -14,11 +14,16 @@ namespace Bicep.Core.Registry.Oci
         public const string AlgorithmIdentifierSha256 = "sha256";
         public const string AlgorithmIdentifierSha512 = "sha512";
 
-        public static ArtifactBlobDescriptor CreateDescriptor(string algorithmIdentifier, StreamDescriptor streamDescriptor)
+        public static OciBlobDescriptor CreateDescriptor(string algorithmIdentifier, StreamDescriptor streamDescriptor)
         {
             var digest = ComputeDigest(algorithmIdentifier, streamDescriptor.Stream);
 
-            return new ArtifactBlobDescriptor(streamDescriptor.MediaType, digest, streamDescriptor.Stream.Length);
+            return new OciBlobDescriptor()
+            {
+                MediaType = streamDescriptor.MediaType,
+                Digest = digest,
+                Size = streamDescriptor.Stream.Length
+            };
         }
 
         private static string ComputeDigest(string algorithmIdentifier, Stream stream)
