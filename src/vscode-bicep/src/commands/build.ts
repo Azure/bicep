@@ -18,6 +18,14 @@ export class BuildCommand implements Command {
       return;
     }
 
+    if (documentUri.scheme === "output") {
+      vscode.window.showInformationMessage(
+        "We are unable to get the Bicep file to build when the output panel is focused. Please focus a text editor first when running the command."
+      );
+
+      return;
+    }
+
     try {
       const buildOutput: string = await this.client.sendRequest(
         "workspace/executeCommand",

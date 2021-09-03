@@ -16,6 +16,14 @@ async function showVisualizer(
     return;
   }
 
+  if (documentUri.scheme === "output") {
+    vscode.window.showInformationMessage(
+      "We are unable to get the Bicep file to visualize when the output panel is focused. Please focus a text editor first when running the command."
+    );
+
+    return;
+  }
+
   const viewColumn = sideBySide
     ? vscode.ViewColumn.Beside
     : vscode.window.activeTextEditor?.viewColumn ?? vscode.ViewColumn.One;

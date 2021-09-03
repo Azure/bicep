@@ -7,7 +7,6 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
@@ -22,7 +21,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 namespace Bicep.LangServer.UnitTests.Handlers
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class BicepBuildCommandHandlerTests
     {
         [NotNull]
@@ -46,16 +44,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public void Handle_WithNullContext_ShouldThrowInvalidOperationException()
+        public async Task Handle_WithNullContext_ReturnsBuildFailedMessage()
         {
-            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, false);
-            BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, EmitterSettingsHelper.DefaultTestSettings);
+            var documentUri = DocumentUri.FromFileSystemPath("extension-output-ms-azuretools.vscode-bicep-#2");
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateEmptyCompilationManager();
+            var bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, EmitterSettingsHelper.DefaultTestSettings);
 
-            Action sut = () => bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
+            var result = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
 
-            sut.Should().Throw<InvalidOperationException>().WithMessage("Unable to get compilation context");
+            result.Should().Be("Build failed. The file \"/extension-output-ms-azuretools.vscode-bicep-#2\" may not be a Bicep file and is not tracked by the Bicep language server.");
         }
 
         [TestMethod]
@@ -74,7 +71,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             Uri bicepFileUri = new Uri(bicepFilePath);
 
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, EmitterSettingsHelper.DefaultTestSettings);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
@@ -100,7 +97,7 @@ targetScope = { }
 
 targetScope = true
 param accountName string = 'testAccount'
-", true);
+");
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, EmitterSettingsHelper.DefaultTestSettings);
             string expected = await bicepBuildCommandHandler.Handle(documentUri.Path, CancellationToken.None);
 
@@ -134,7 +131,7 @@ param accountName string = 'testAccount'
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, outputPath);
             FileHelper.SaveResultFile(TestContext, "input.json", string.Empty, outputPath);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, EmitterSettingsHelper.DefaultTestSettings);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
@@ -148,7 +145,7 @@ param accountName string = 'testAccount'
             string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, outputPath);
             FileHelper.SaveResultFile(TestContext, "input.json", "invalid json", outputPath);
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, EmitterSettingsHelper.DefaultTestSettings);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
@@ -165,7 +162,7 @@ param accountName string = 'testAccount'
 
 ");
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty);
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, EmitterSettingsHelper.DefaultTestSettings);
             string expected = await bicepBuildCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 

@@ -185,6 +185,11 @@
       ],
       "commandPalette": [
         {
+          "command": "bicep.build",
+          "when": "editorLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
           "command": "bicep.showVisualizer",
           "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
