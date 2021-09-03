@@ -117,25 +117,25 @@
       {
         "command": "bicep.showVisualizer",
         "title": "Open Visualizer",
-        "category": "bicep",
+        "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
       {
         "command": "bicep.showVisualizerToSide",
         "title": "Open Visualizer to the Side",
-        "category": "bicep",
+        "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
       {
         "command": "bicep.showSource",
         "title": "Open Source",
-        "category": "bicep",
+        "category": "Bicep",
         "icon": "$(go-to-file)"
       },
       {
         "command": "bicep.build",
         "title": "Build",
-        "category": "bicep"
+        "category": "Bicep"
       }
     ],
     "keybindings": [
