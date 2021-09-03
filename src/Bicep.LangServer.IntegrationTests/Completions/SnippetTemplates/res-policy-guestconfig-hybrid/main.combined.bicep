@@ -1,4 +1,4 @@
-﻿// $1 = 'name'
+// $1 = 'name'
 // $2 = guestConfigAssignment
 // $3 = 'name'
 // $4 = 'configurationName'
@@ -22,6 +22,5 @@ resource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationA
     }
   }
 }
-
-
 // Insert snippet here
+
