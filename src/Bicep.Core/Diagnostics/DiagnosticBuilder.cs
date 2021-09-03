@@ -1151,6 +1151,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP193",
                 $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"oci:<artifact uri>:<tag>\".");
+
+            public ErrorDiagnostic InvalidTemplateSpecReference(string invalidReference) => new(
+                TextSpan,
+                "BCP194",
+                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<resourceGroupName>/<templateSpecName>:<tag>\" or \"{ModuleReferenceSchemes.TemplateSpecs}:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -37,12 +37,13 @@ namespace Bicep.Core.IntegrationTests.Emit
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
 
             // emitting the template should be successful
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules)));
             Workspace workspace = new();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
@@ -129,12 +130,13 @@ namespace Bicep.Core.IntegrationTests.Emit
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             MemoryStream memoryStream = new MemoryStream();
 
             // emitting the template should be successful
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules)));
             var workspace = new Workspace();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))

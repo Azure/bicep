@@ -33,10 +33,12 @@ namespace Bicep.Core.Samples
         public const string TestFunctionsPrefix = TestFunctionsDirectory + "/";
         public const string TestPublishDirectory = "Publish";
         public const string TestPublishPrefix = TestPublishDirectory + "/";
+        public const string TestTemplateSpecsDirectory = "TemplateSpecs";
+        public const string TestTemplateSpecsPrefix = TestTemplateSpecsDirectory + "/";
 
-        public record PublishInfo(string ModuleSource, ModuleMetadata Metadata);
+        public record ExternalModuleInfo(string ModuleSource, ExternalModuleMetadata Metadata);
 
-        public record ModuleMetadata(string Target);
+        public record ExternalModuleMetadata(string Target);
 
         public static readonly string Prefix = typeof(DataSet).Namespace == null ? string.Empty : typeof(DataSet).Namespace + '/';
 
@@ -58,7 +60,9 @@ namespace Bicep.Core.Samples
 
         private readonly Lazy<ImmutableDictionary<string, string>> lazyCompletions;
 
-        private readonly Lazy<ImmutableDictionary<string, PublishInfo>> lazyModulesToPublish;
+        private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyModulesToPublish;
+
+        private readonly Lazy<ImmutableDictionary<string, ExternalModuleInfo>> lazyTemplateSpecs;
 
         public DataSet(string name)
         {
@@ -74,6 +78,7 @@ namespace Bicep.Core.Samples
             this.lazyFormatted = this.CreateRequired(TestFileMainFormatted);
             this.lazyCompletions = new(() => ReadDataSetDictionary(GetStreamName(TestCompletionsPrefix)), LazyThreadSafetyMode.PublicationOnly);
             this.lazyModulesToPublish = new(() => ReadPublishData(GetStreamName(TestPublishPrefix)), LazyThreadSafetyMode.PublicationOnly);
+            this.lazyTemplateSpecs = new(() => ReadTemplateSpecsData(GetStreamName(TestTemplateSpecsPrefix)), LazyThreadSafetyMode.PublicationOnly);
         }
 
         public string Name { get; }
@@ -98,9 +103,15 @@ namespace Bicep.Core.Samples
 
         public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
 
-        public ImmutableDictionary<string, PublishInfo> ModulesToPublish => this.lazyModulesToPublish.Value;
+        public ImmutableDictionary<string, ExternalModuleInfo> ModulesToPublish => this.lazyModulesToPublish.Value;
+
+        public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
         public bool HasModulesToPublish => this.ModulesToPublish.Any();
+
+        public bool HasTemplateSpecs => this.TemplateSpecs.Any();
+
+        public bool HasExternalModules => this.HasModulesToPublish || this.HasTemplateSpecs;
 
         // validity is set by naming convention
 
@@ -160,7 +171,13 @@ namespace Bicep.Core.Samples
         public static string GetBaselineUpdatePath(DataSet dataSet, string fileName)
             => Path.Combine("src", "Bicep.Core.Samples", "Files", dataSet.Name, fileName);
 
-        private static ImmutableDictionary<string, PublishInfo> ReadPublishData(string streamNamePrefix)
+        private static ImmutableDictionary<string, ExternalModuleInfo> ReadPublishData(string streamNamePrefix) =>
+            ReadExternalModuleData(streamNamePrefix, LanguageConstants.LanguageFileExtension);
+
+        private static ImmutableDictionary<string, ExternalModuleInfo> ReadTemplateSpecsData(string streamNamePrefix) =>
+            ReadExternalModuleData(streamNamePrefix, LanguageConstants.JsonFileExtension);
+
+        private static ImmutableDictionary<string, ExternalModuleInfo> ReadExternalModuleData(string streamNamePrefix, string moduleExtension)
         {
             static string GetModuleName(string fileName)
             {
@@ -176,10 +193,10 @@ namespace Bicep.Core.Samples
             var rawFiles = ReadDataSetDictionary(streamNamePrefix);
             var uniqueModulesToPublish = rawFiles.Keys.Select(GetModuleName).Distinct();
 
-            var builder = ImmutableDictionary.CreateBuilder<string, PublishInfo>();
+            var builder = ImmutableDictionary.CreateBuilder<string, ExternalModuleInfo>();
             foreach (var moduleName in uniqueModulesToPublish)
             {
-                var moduleSourceName = $"{moduleName}.bicep";
+                var moduleSourceName = $"{moduleName}{moduleExtension}";
                 var moduleMetadataName = $"{moduleName}.metadata.json";
 
                 if(!rawFiles.TryGetValue(moduleSourceName, out var moduleSource))
@@ -192,9 +209,9 @@ namespace Bicep.Core.Samples
                     throw new AssertFailedException($"The module metadata file '{moduleMetadataName}' is missing.");
                 }
 
-                var metadata = JsonConvert.DeserializeObject<ModuleMetadata>(moduleMetadataText) ?? throw new AssertFailedException($"Module metadata file '{moduleMetadataName}' deserialized into a null object.");
+                var metadata = JsonConvert.DeserializeObject<ExternalModuleMetadata>(moduleMetadataText) ?? throw new AssertFailedException($"Module metadata file '{moduleMetadataName}' deserialized into a null object.");
 
-                builder.Add(moduleName, new PublishInfo(moduleSource, metadata));
+                builder.Add(moduleName, new ExternalModuleInfo(moduleSource, metadata));
             }
 
             return builder.ToImmutable();

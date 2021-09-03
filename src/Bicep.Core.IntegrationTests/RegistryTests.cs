@@ -35,6 +35,7 @@ namespace Bicep.Core.IntegrationTests
 
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
 
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
@@ -51,7 +52,7 @@ namespace Bicep.Core.IntegrationTests
             features.Setup(m => m.RegistryEnabled).Returns(true);
             features.SetupGet(m => m.CacheRootDirectory).Returns(badCachePath);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, features.Object));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
             var workspace = new Workspace();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
@@ -76,6 +77,18 @@ namespace Bicep.Core.IntegrationTests
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
                     x.Message.Should().StartWith("Unable to restore the module with reference \"oci:mock-registry-two.invalid/demo/site:v3\": Unable to create the local module directory \"");
+                },
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP192");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0\": Unable to create the local module directory \"");
+                },
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP192");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2\": Unable to create the local module directory \"");
                 },
                 x =>
                 {

@@ -1,6 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 using Azure.Identity;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
@@ -8,15 +12,10 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.Tracing;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.Registry
 {
-    public class OciModuleRegistry : IModuleRegistry
+    public class OciModuleRegistry : ModuleRegistry<OciArtifactModuleReference>
     {
         private readonly IFileResolver fileResolver;
 
@@ -28,49 +27,46 @@ namespace Bicep.Core.Registry
             this.client = new AzureContainerRegistryManager(features.CacheRootDirectory, new DefaultAzureCredential(), clientFactory);
         }
 
-        public string Scheme => ModuleReferenceSchemes.Oci;
+        public override string Scheme => ModuleReferenceSchemes.Oci;
 
-        public RegistryCapabilities Capabilities => RegistryCapabilities.Publish;
+        public override RegistryCapabilities Capabilities => RegistryCapabilities.Publish;
 
-        public ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => OciArtifactModuleReference.TryParse(reference, out failureBuilder);
+        public override ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => OciArtifactModuleReference.TryParse(reference, out failureBuilder);
 
-        public bool IsModuleRestoreRequired(ModuleReference reference)
+        public override bool IsModuleRestoreRequired(OciArtifactModuleReference reference)
         {
             // TODO: This may need to be updated to account for concurrent processes updating the local cache
-            var typed = ConvertReference(reference);
 
             // if module is missing, it requires init
-            return !this.fileResolver.FileExists(GetEntryPointUri(typed));
+            return !this.fileResolver.FileExists(this.GetEntryPointUri(reference));
         }
 
-        public Uri? TryGetLocalModuleEntryPointPath(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, OciArtifactModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var typed = ConvertReference(reference);
             failureBuilder = null;
-            return GetEntryPointUri(typed);
+            return this.GetEntryPointUri(reference);
         }
 
-        public async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
-            foreach(var reference in references.OfType<OciArtifactModuleReference>())
-            {
-                using (var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}"))
-                {
-                    var result = await this.client.PullArtifactsync(reference);
 
-                    if (!result.Success)
+            foreach(var reference in references)
+            {
+                using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
+                var result = await this.client.PullArtifactsync(reference);
+
+                if (!result.Success)
+                {
+                    if (result.ErrorMessage is not null)
                     {
-                        if (result.ErrorMessage is not null)
-                        {
-                            statuses.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, result.ErrorMessage));
-                            timer.OnFail(result.ErrorMessage);
-                        }
-                        else
-                        {
-                            statuses.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
-                            timer.OnFail();
-                        }
+                        statuses.Add(reference, x => x.ModuleRestoreFailedWithMessage(reference.FullyQualifiedReference, result.ErrorMessage));
+                        timer.OnFail(result.ErrorMessage);
+                    }
+                    else
+                    {
+                        statuses.Add(reference, x => x.ModuleRestoreFailed(reference.FullyQualifiedReference));
+                        timer.OnFail();
                     }
                 }
             }
@@ -78,18 +74,15 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        public async Task PublishModule(ModuleReference moduleReference, Stream compiled)
+        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled)
         {
-            var typed = ConvertReference(moduleReference);
-
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
-            await this.client.PushArtifactAsync(typed, config, layer);
+            await this.client.PushArtifactAsync(moduleReference, config, layer);
         }
 
         
-
         private Uri GetEntryPointUri(OciArtifactModuleReference reference)
         {
             string localArtifactPath = this.client.GetLocalPackageEntryPointPath(reference);
@@ -99,16 +92,6 @@ namespace Bicep.Core.Registry
             }
 
             throw new NotImplementedException($"Local OCI artifact path is malformed: \"{localArtifactPath}\"");
-        }
-
-        private static OciArtifactModuleReference ConvertReference(ModuleReference reference)
-        {
-            if(reference is OciArtifactModuleReference typed)
-            {
-                return typed;
-            }
-
-            throw new ArgumentException($"Reference type '{reference.GetType().Name}' is not supported.");
         }
     }
 }

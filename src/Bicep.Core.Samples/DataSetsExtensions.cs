@@ -5,14 +5,17 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
+using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Registry;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -39,8 +42,9 @@ namespace Bicep.Core.Samples
             var outputDirectory = dataSet.SaveFilesToTestDirectory(testContext);
             var clientFactory = dataSet.CreateMockRegistryClients(testContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, testContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(testContext);
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasExternalModules)));
             var workspace = new Workspace();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
@@ -55,7 +59,7 @@ namespace Bicep.Core.Samples
         {
             var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
 
             foreach (var (moduleName, publishInfo) in dataSet.ModulesToPublish)
             {
@@ -91,9 +95,47 @@ namespace Bicep.Core.Samples
             return clientFactory.Object;
         }
 
+        public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext testContext)
+        {
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasTemplateSpecs)));
+            var repositoryMocksBySubscription = new Dictionary<(Uri? endpointUri, string subscriptionId), Mock<ITemplateSpecRepository>>();
+
+            foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
+            {
+                if(dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, out _) is not TemplateSpecModuleReference reference)
+                {
+                    throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
+                }
+
+                var genericResource = JsonConvert.DeserializeObject<GenericResource>(templateSpecInfo.ModuleSource);
+
+                if (genericResource is null)
+                {
+                    throw new InvalidOperationException($"The template spec is malformed.");
+                }
+
+                var templateSpec = TemplateSpec.FromGenericResource(genericResource);
+
+                repositoryMocksBySubscription.TryAdd((reference.EndpointUri, reference.SubscriptionId), StrictMock.Of<ITemplateSpecRepository>());
+                repositoryMocksBySubscription[(reference.EndpointUri, reference.SubscriptionId)]
+                    .Setup(x => x.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(templateSpec);
+            }
+
+            var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();
+            repositoryFactoryMock
+                .Setup(x => x.CreateRepository(It.IsAny<Uri?>(), It.IsAny<string>(), It.IsAny<TokenCredential>()))
+                .Returns<Uri?, string, TokenCredential>((endpointUri, subscriptionId, _) =>
+                    repositoryMocksBySubscription.TryGetValue((endpointUri, subscriptionId), out var repository)
+                        ? repository.Object
+                        : throw new InvalidOperationException($"No mock client was registered for endpoint '{endpointUri}' and subscription '{subscriptionId}'."));
+
+            return repositoryFactoryMock.Object;
+        }
+
         public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, TestContext testContext)
         {
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
 
             foreach (var (moduleName, publishInfo) in dataSet.ModulesToPublish)
             {

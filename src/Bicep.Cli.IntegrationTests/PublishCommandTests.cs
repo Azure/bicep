@@ -66,7 +66,7 @@ namespace Bicep.Cli.IntegrationTests
         [TestMethod]
         public async Task Publish_InvalidInputFile_ShouldProduceExpectedError()
         {
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), BicepTestConstants.ClientFactory);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "publish", "WrongFile.bicep", "--target", "oci:example.azurecr.io/hello/there:v1");
 
             result.Should().Be(1);
@@ -95,6 +95,7 @@ namespace Bicep.Cli.IntegrationTests
             var repository = $"test/{dataSet.Name}";
 
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext, (registryUri, repository));
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
@@ -102,7 +103,7 @@ namespace Bicep.Cli.IntegrationTests
             // mock client factory caches the clients
             var testClient = (MockRegistryBlobClient)clientFactory.CreateBlobClient(registryUri, repository, Repository.Create<TokenCredential>().Object);
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "publish", bicepFilePath, "--target", $"oci:{registryStr}/{repository}:v1");
             result.Should().Be(0);
@@ -133,9 +134,9 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             // publish won't actually happen, so broken client factory is fine
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), BicepTestConstants.ClientFactory);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory);
 
-            var diagnostics = GetAllDiagnostics(bicepFilePath, settings.ClientFactory);
+            var diagnostics = GetAllDiagnostics(bicepFilePath, settings.ClientFactory, settings.TemplateSpecRepositoryFactory);
 
             var (output, error, result) = await Bicep(settings, "publish", bicepFilePath, "--target", $"oci:example.com/fail/{dataSet.Name}:v1");
 
