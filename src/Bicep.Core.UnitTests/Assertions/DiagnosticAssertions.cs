@@ -28,12 +28,12 @@ namespace Bicep.Core.UnitTests.Assertions
                 return value is Diagnostic;
             }
 
-            public string Format(object value, FormattingContext context, FormatChild formatChild)
+            public void Format(object value, FormattedObjectGraph formattedGraph, FormattingContext context, FormatChild formatChild)
             {
                 var prefix = context.UseLineBreaks ? Environment.NewLine : string.Empty;
                 var diagnostic = (Diagnostic)value;
 
-                return $"{prefix}\"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message}\"";
+                formattedGraph.AddFragment($"{prefix}\"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message}\"");
             }
         }
 
