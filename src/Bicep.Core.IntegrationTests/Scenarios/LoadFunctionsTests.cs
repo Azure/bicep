@@ -425,7 +425,7 @@ output out string = script
     ("script.sh", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().NotBeEmpty().And.ContainDiagnostic("BCP091", Diagnostics.DiagnosticLevel.Error, "An error occurred reading file. Could not find file \"/path/to/script.cmd\"");
+            diags.Should().ContainDiagnostic("BCP091", Diagnostics.DiagnosticLevel.Error, "An error occurred reading file. Could not find file \"/path/to/script.cmd\"");
         }
     }
 }
