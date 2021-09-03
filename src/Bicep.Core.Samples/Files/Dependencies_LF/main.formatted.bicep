@@ -13,7 +13,7 @@ var resourceDependency = {
     resA.name
     resA.type
     resA.properties.deployTime
-    resA.eTag
+    resA.properties.eTag
   ]
 }
 
@@ -22,8 +22,8 @@ resource resA 'My.Rp/myResourceType@2020-01-01' = {
   name: 'resA'
   properties: {
     deployTime: dependentVar
+    eTag: '1234'
   }
-  eTag: '1234'
 }
 
 output resourceBId string = resB.id
