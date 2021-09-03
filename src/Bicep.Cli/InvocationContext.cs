@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem;
@@ -34,6 +35,9 @@ namespace Bicep.Cli
         public TextWriter ErrorWriter { get; }
 
         public string AssemblyFileVersion { get; }
+
+        public EmitterSettings EmitterSettings
+            => new EmitterSettings(AssemblyFileVersion, enableSymbolicNames: Features.SymbolicNameCodegenEnabled);
 
         public IFeatureProvider Features { get; }
 

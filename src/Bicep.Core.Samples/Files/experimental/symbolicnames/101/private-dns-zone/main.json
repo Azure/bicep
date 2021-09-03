@@ -1,0 +1,92 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "825104727402888112"
+    }
+  },
+  "parameters": {
+    "privateDnsZoneName": {
+      "type": "string",
+      "defaultValue": "contoso.com"
+    },
+    "autoVmRegistration": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "Vnet1"
+    },
+    "vnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "Subnet1"
+    },
+    "subnetAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "virtualNetwork": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressPrefix')]"
+          ]
+        }
+      }
+    },
+    "subnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', resourceInfo('virtualNetwork').name, parameters('subnetName'))]",
+      "properties": {
+        "addressPrefix": "[parameters('subnetAddressPrefix')]"
+      },
+      "dependsOn": [
+        "virtualNetwork"
+      ]
+    },
+    "privateDnsZone": {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2018-09-01",
+      "name": "[parameters('privateDnsZoneName')]",
+      "location": "global"
+    },
+    "virtualNetworkLink": {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2018-09-01",
+      "name": "[format('{0}/{1}-link', resourceInfo('privateDnsZone').name, resourceInfo('privateDnsZone').name)]",
+      "location": "global",
+      "properties": {
+        "registrationEnabled": "[parameters('autoVmRegistration')]",
+        "virtualNetwork": {
+          "id": "[resourceInfo('virtualNetwork').id]"
+        }
+      },
+      "dependsOn": [
+        "privateDnsZone",
+        "virtualNetwork"
+      ]
+    }
+  }
+}

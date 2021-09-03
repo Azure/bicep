@@ -1,0 +1,256 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12220362005994794569"
+    }
+  },
+  "parameters": {
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS",
+        "Standard_ZRS"
+      ]
+    },
+    "storageAccountName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]"
+    },
+    "siteName": {
+      "type": "string",
+      "defaultValue": "[parameters('storageAccountName')]"
+    },
+    "mySqlPassword": {
+      "type": "secureString"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "cpuCores": "0.5",
+    "memoryInGb": "0.7",
+    "scriptName": "createFileShare",
+    "wpShareName": "wordpress-share",
+    "sqlShareName": "mysql-share",
+    "roleDefinitionId": "[resourceId('microsoft.authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+    "roleAssignmentName": "[guid(resourceInfo('mi').name, variables('roleDefinitionId'), resourceGroup().id)]",
+    "uamiId": "[resourceId(resourceInfo('mi').type, resourceInfo('mi').name)]",
+    "wpScriptToExecute": "[format('Get-AzStorageAccount -StorageAccountName {0} -ResourceGroupName {1} | New-AzStorageShare -Name {2}', parameters('storageAccountName'), resourceGroup().name, variables('wpShareName'))]",
+    "sqlScriptToExecute": "[format('Get-AzStorageAccount -StorageAccountName {0} -ResourceGroupName {1} | New-AzStorageShare -Name {2}', parameters('storageAccountName'), resourceGroup().name, variables('sqlShareName'))]"
+  },
+  "resources": {
+    "mi": {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "name": "scratch",
+      "location": "[parameters('location')]"
+    },
+    "miRoleAssign": {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[variables('roleAssignmentName')]",
+      "properties": {
+        "roleDefinitionId": "[variables('roleDefinitionId')]",
+        "principalId": "[reference('mi').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "mi"
+      ]
+    },
+    "stg": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
+      },
+      "kind": "StorageV2",
+      "dependsOn": [
+        "miRoleAssign"
+      ]
+    },
+    "dScriptWp": {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2019-10-01-preview",
+      "name": "[format('{0}-{1}', variables('scriptName'), variables('wpShareName'))]",
+      "location": "[parameters('location')]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('uamiId')]": {}
+        }
+      },
+      "properties": {
+        "azPowerShellVersion": "3.0",
+        "storageAccountSettings": {
+          "storageAccountName": "[resourceInfo('stg').name]",
+          "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]"
+        },
+        "scriptContent": "[variables('wpScriptToExecute')]",
+        "cleanupPreference": "OnSuccess",
+        "retentionInterval": "P1D",
+        "timeout": "PT5M"
+      },
+      "dependsOn": [
+        "mi",
+        "stg"
+      ]
+    },
+    "dScriptSql": {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2019-10-01-preview",
+      "name": "[format('{0}-{1}', variables('scriptName'), variables('sqlShareName'))]",
+      "location": "[parameters('location')]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('uamiId')]": {}
+        }
+      },
+      "properties": {
+        "azPowerShellVersion": "3.0",
+        "storageAccountSettings": {
+          "storageAccountName": "[resourceInfo('stg').name]",
+          "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]"
+        },
+        "scriptContent": "[variables('sqlScriptToExecute')]",
+        "cleanupPreference": "OnSuccess",
+        "retentionInterval": "P1D",
+        "timeout": "PT5M"
+      },
+      "dependsOn": [
+        "mi",
+        "stg"
+      ]
+    },
+    "wpAci": {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2019-12-01",
+      "name": "wordpress-containerinstance",
+      "location": "[parameters('location')]",
+      "properties": {
+        "containers": [
+          {
+            "name": "wordpress",
+            "properties": {
+              "image": "wordpress:4.9-apache",
+              "ports": [
+                {
+                  "protocol": "TCP",
+                  "port": 80
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "WORDPRESS_DB_HOST",
+                  "value": "127.0.0.1:3306"
+                },
+                {
+                  "name": "WORDPRESS_DB_PASSWORD",
+                  "secureValue": "[parameters('mySqlPassword')]"
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/www/html",
+                  "name": "wordpressfile"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": "[variables('cpuCores')]",
+                  "memoryInGB": "[variables('memoryInGb')]"
+                }
+              }
+            }
+          },
+          {
+            "name": "mysql",
+            "properties": {
+              "image": "mysql:5.6",
+              "ports": [
+                {
+                  "protocol": "TCP",
+                  "port": 3306
+                }
+              ],
+              "environmentVariables": [
+                {
+                  "name": "MYSQL_ROOT_PASSWORD",
+                  "value": "[parameters('mySqlPassword')]"
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "mountPath": "/var/lib/mysql",
+                  "name": "mysqlfile"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": "[variables('cpuCores')]",
+                  "memoryInGB": "[variables('memoryInGb')]"
+                }
+              }
+            }
+          }
+        ],
+        "volumes": [
+          {
+            "azureFile": {
+              "shareName": "[variables('wpShareName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]",
+              "storageAccountName": "[resourceInfo('stg').name]"
+            },
+            "name": "wordpressfile"
+          },
+          {
+            "azureFile": {
+              "shareName": "[variables('sqlShareName')]",
+              "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', parameters('storageAccountName')), '2019-06-01').keys[0].value]",
+              "storageAccountName": "[resourceInfo('stg').name]"
+            },
+            "name": "mysqlfile"
+          }
+        ],
+        "ipAddress": {
+          "ports": [
+            {
+              "protocol": "TCP",
+              "port": 80
+            }
+          ],
+          "type": "Public",
+          "dnsNameLabel": "[parameters('siteName')]"
+        },
+        "osType": "Linux"
+      },
+      "dependsOn": [
+        "dScriptSql",
+        "dScriptWp",
+        "stg"
+      ]
+    }
+  },
+  "outputs": {
+    "siteFQDN": {
+      "type": "string",
+      "value": "[reference('wpAci').ipAddress.fqdn]"
+    }
+  }
+}

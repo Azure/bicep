@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15375990374214365506"
+    }
+  },
+  "parameters": {
+    "actionGroupName": {
+      "type": "string"
+    },
+    "actionGroupEnabled": {
+      "type": "bool"
+    },
+    "actionGroupShortName": {
+      "type": "string"
+    },
+    "actionGroupEmailName": {
+      "type": "string"
+    },
+    "actionGroupEmail": {
+      "type": "string"
+    },
+    "actionGroupAlertSchema": {
+      "type": "bool"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "actionGroup": {
+      "type": "microsoft.insights/actionGroups",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('actionGroupName')]",
+      "location": "global",
+      "properties": {
+        "enabled": "[parameters('actionGroupEnabled')]",
+        "groupShortName": "[parameters('actionGroupShortName')]",
+        "emailReceivers": [
+          {
+            "name": "[parameters('actionGroupEmailName')]",
+            "emailAddress": "[parameters('actionGroupEmail')]",
+            "useCommonAlertSchema": "[parameters('actionGroupAlertSchema')]"
+          }
+        ]
+      }
+    }
+  },
+  "outputs": {
+    "actionGroupId": {
+      "type": "string",
+      "value": "[resourceInfo('actionGroup').id]"
+    },
+    "actionGroupName": {
+      "type": "string",
+      "value": "[resourceInfo('actionGroup').name]"
+    }
+  }
+}

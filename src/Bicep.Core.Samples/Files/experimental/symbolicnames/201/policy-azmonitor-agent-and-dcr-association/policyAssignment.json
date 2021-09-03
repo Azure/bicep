@@ -1,0 +1,63 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3057911705389341300"
+    }
+  },
+  "parameters": {
+    "monitoringGovernanceId": {
+      "type": "string"
+    },
+    "assignmentIdentityLocation": {
+      "type": "string"
+    },
+    "assignmentEnforcementMode": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "monitoringGovernanceAssignment": {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "apiVersion": "2020-09-01",
+      "name": "monitoringGovernance",
+      "location": "[parameters('assignmentIdentityLocation')]",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "displayName": "Monitoring Governance Assignment",
+        "description": "Monitoring Governance Assignment",
+        "enforcementMode": "[parameters('assignmentEnforcementMode')]",
+        "metadata": {
+          "source": "Bicep",
+          "version": "0.1.0"
+        },
+        "policyDefinitionId": "[parameters('monitoringGovernanceId')]",
+        "nonComplianceMessages": [
+          {
+            "message": "Resource is not compliant with the Monitoring Governance Assignment DeployIfNotExists policy"
+          }
+        ]
+      }
+    },
+    "roleAssignment": {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceInfo('monitoringGovernanceAssignment').name, resourceInfo('monitoringGovernanceAssignment').type, subscription().subscriptionId)]",
+      "properties": {
+        "principalId": "[reference('monitoringGovernanceAssignment', '2020-09-01', 'full').identity.principalId]",
+        "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+      },
+      "dependsOn": [
+        "monitoringGovernanceAssignment"
+      ]
+    }
+  }
+}

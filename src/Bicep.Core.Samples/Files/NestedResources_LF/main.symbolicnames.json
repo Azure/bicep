@@ -1,0 +1,160 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6448654680612256108"
+    }
+  },
+  "parameters": {
+    "createParent": {
+      "type": "bool"
+    },
+    "createChild": {
+      "type": "bool"
+    },
+    "createGrandchild": {
+      "type": "bool"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "items": [
+      "a",
+      "b"
+    ]
+  },
+  "resources": {
+    "basicGrandchild": {
+      "type": "My.Rp/parentType/childType/grandchildType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}/{2}', 'basicParent', 'basicChild', 'basicGrandchild')]",
+      "properties": {
+        "size": "[reference('basicParent').size]",
+        "style": "[reference('basicChild').style]"
+      },
+      "dependsOn": [
+        "basicChild",
+        "basicParent"
+      ]
+    },
+    "basicChild": {
+      "type": "My.Rp/parentType/childType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', 'basicParent', 'basicChild')]",
+      "properties": {
+        "size": "[reference('basicParent').large]",
+        "style": "cool"
+      },
+      "dependsOn": [
+        "basicParent"
+      ]
+    },
+    "basicSibling": {
+      "type": "My.Rp/parentType/childType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', 'basicParent', 'basicSibling')]",
+      "properties": {
+        "size": "[reference('basicParent').size]",
+        "style": "[reference('basicGrandchild').style]"
+      },
+      "dependsOn": [
+        "basicGrandchild",
+        "basicParent"
+      ]
+    },
+    "existingGrandchild": {
+      "type": "My.Rp/parentType/childType/grandchildType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}/{2}', 'existingParent', 'existingChild', 'existingGrandchild')]",
+      "properties": {
+        "size": "[reference('existingParent').size]",
+        "style": "[reference('existingChild').style]"
+      }
+    },
+    "existingChild": {
+      "type": "My.Rp/parentType/childType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]",
+      "existing": true
+    },
+    "conditionGrandchild": {
+      "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
+      "type": "My.Rp/parentType/childType/grandchildType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}/{2}', 'conditionParent', 'conditionChild', 'conditionGrandchild')]",
+      "properties": {
+        "size": "[reference('conditionParent').size]",
+        "style": "[reference('conditionChild').style]"
+      },
+      "dependsOn": [
+        "conditionChild",
+        "conditionParent"
+      ]
+    },
+    "conditionChild": {
+      "condition": "[and(parameters('createParent'), parameters('createChild'))]",
+      "type": "My.Rp/parentType/childType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', 'conditionParent', 'conditionChild')]",
+      "dependsOn": [
+        "conditionParent"
+      ]
+    },
+    "loopChild": {
+      "copy": {
+        "name": "loopChild",
+        "count": "[length(variables('items'))]"
+      },
+      "type": "My.Rp/parentType/childType",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', 'loopParent', 'loopChild')]",
+      "dependsOn": [
+        "loopParent"
+      ]
+    },
+    "basicParent": {
+      "type": "My.Rp/parentType",
+      "apiVersion": "2020-12-01",
+      "name": "basicParent",
+      "properties": {
+        "size": "large"
+      }
+    },
+    "existingParent": {
+      "type": "My.Rp/parentType",
+      "apiVersion": "2020-12-01",
+      "name": "existingParent",
+      "existing": true
+    },
+    "conditionParent": {
+      "condition": "[parameters('createParent')]",
+      "type": "My.Rp/parentType",
+      "apiVersion": "2020-12-01",
+      "name": "conditionParent"
+    },
+    "loopParent": {
+      "type": "My.Rp/parentType",
+      "apiVersion": "2020-12-01",
+      "name": "loopParent"
+    }
+  },
+  "outputs": {
+    "referenceBasicChild": {
+      "type": "string",
+      "value": "[reference('basicChild').size]"
+    },
+    "referenceBasicGrandchild": {
+      "type": "string",
+      "value": "[reference('basicGrandchild').style]"
+    },
+    "loopChildOutput": {
+      "type": "string",
+      "value": "[resourceInfo(format('loopChild[{0}]', 0)).name]"
+    }
+  }
+}
