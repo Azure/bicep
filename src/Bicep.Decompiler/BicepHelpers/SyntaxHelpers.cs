@@ -103,6 +103,13 @@ namespace Bicep.Decompiler.BicepHelpers
             ["coalesce"] = TokenType.DoubleQuestion,
         };
 
+        private static IReadOnlyDictionary<string, TokenType> EmptyFunctionKeywordReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
+        {
+            ["null"] = TokenType.NullKeyword,
+            ["true"] = TokenType.TrueKeyword,
+            ["false"] = TokenType.FalseKeyword,
+        };
+
         public static string CorrectWellKnownFunctionCasing(string functionName)
         {
             if (WellKnownFunctions.TryGetValue(functionName, out var correctedFunctionName))
@@ -113,8 +120,11 @@ namespace Bicep.Decompiler.BicepHelpers
             return functionName;
         }
 
-        public static TokenType? TryGetBinaryOperatorReplacement(string bannedFunctionName)
-            => BinaryOperatorReplacements.TryGetValue(bannedFunctionName, out var tokenType) ? tokenType : null;
+        public static TokenType? TryGetBinaryOperatorReplacement(string functionName)
+            => BinaryOperatorReplacements.TryGetValue(functionName, out var tokenType) ? tokenType : null;
+
+        public static TokenType? TryGetEmptyFunctionKeywordReplacement(string functionName)
+            => EmptyFunctionKeywordReplacements.TryGetValue(functionName, out var tokenType) ? tokenType : null;
 
         public static Token CreatePlaceholderToken(TokenType tokenType, string trailingComment)
         {

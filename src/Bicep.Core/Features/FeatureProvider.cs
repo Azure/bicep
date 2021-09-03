@@ -26,7 +26,6 @@ namespace Bicep.Core.Features
 
         private static string GetDefaultCachePath()
         {
-            // TODO: Will NOT work if user profile is not loaded on Windows! (Az functions load executables like that)
             string basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             return Path.Combine(basePath, ".bicep", "artifacts");

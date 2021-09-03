@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <RunSettings>
+  <RunConfiguration>
+    <!-- Break builds when no tests are discovered. -->
+    <TreatNoTestsAsError>true</TreatNoTestsAsError>
+  </RunConfiguration>
   <DataCollectionRunSettings>
     <DataCollectors>
       <!-- Settings are documented at https://github.com/coverlet-coverage/coverlet/blob/master/Documentation/VSTestIntegration.md#advanced-options-supported-via-runsettings -->
