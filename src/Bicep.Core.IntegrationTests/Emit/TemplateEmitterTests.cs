@@ -6,7 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Azure.Deployments.Templates.Engines;
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
@@ -15,6 +15,7 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -214,7 +215,8 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, EmitterSettings emitterSettings, string filePath)
         {
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping);
+            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configHelper);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
             using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
@@ -223,7 +225,8 @@ this
 
         private EmitResult EmitTemplate(SourceFileGrouping sourceFileGrouping, EmitterSettings emitterSettings, MemoryStream memoryStream)
         {
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping);
+            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configHelper);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
             TextWriter tw = new StreamWriter(memoryStream);
