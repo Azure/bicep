@@ -124,20 +124,29 @@ namespace Bicep.Core.Emit
                         function.Arguments.Select(a => ConvertExpression(a.Expression)));
 
                 case InstanceFunctionCallSyntax instanceFunctionCall:
-                    var baseSymbol = context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression);
+                    var (baseSymbol, indexExpression) = instanceFunctionCall.BaseExpression switch
+                    {
+                        ArrayAccessSyntax arrayAccessSyntax => (context.SemanticModel.GetSymbolInfo(arrayAccessSyntax.BaseExpression), arrayAccessSyntax.IndexExpression),
+                        _ => (context.SemanticModel.GetSymbolInfo(instanceFunctionCall.BaseExpression), null),
+                    };
 
                     switch (baseSymbol)
                     {
                         case NamespaceSymbol namespaceSymbol:
+                            Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
                             return ConvertFunction(
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
-                        case ResourceSymbol _ when context.SemanticModel.ResourceMetadata.TryLookup(instanceFunctionCall.BaseExpression) is {} resource:
+                        case ResourceSymbol resourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource:
                             if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
                             {
+                                var converter = indexExpression is not null ?
+                                    CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, instanceFunctionCall) :
+                                    this;
+
                                 // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                                 var convertedArgs = instanceFunctionCall.Arguments.SelectArray(a => ConvertExpression(a.Expression));
-                                var resourceIdExpression = GetFullyQualifiedResourceId(resource);
+                                var resourceIdExpression = converter.GetFullyQualifiedResourceId(resource);
                                 var apiVersionExpression = new JTokenExpression(resource.TypeReference.ApiVersion);
 
                                 var listArgs = convertedArgs.Length switch {
