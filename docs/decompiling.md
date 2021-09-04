@@ -1,6 +1,6 @@
 # Decompiling an ARM Template
  
-> Requires Bicep CLI v0.2.59 or later
+> Requires Azure CLI version 2.20.0 or later, or Bicep CLI v0.2.59 or later
  
 The Bicep CLI provides the ability to decompile any existing ARM Template to a `.bicep` file, using the `decompile` command:
 ```sh
@@ -18,7 +18,7 @@ You can pass an exported template directly to the `bicep decompile` command to e
 The following will create a file named `main.bicep` in the current directory:
 ```sh
 az group export --name "your_resource_group_name" > main.json
-bicep decompile main.json
+az bicep decompile --file main.json
 ```
 ### Azure PowerShell
 The following will create a file named `main.bicep` in the current directory:
