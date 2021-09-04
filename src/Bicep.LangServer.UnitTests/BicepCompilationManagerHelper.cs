@@ -26,22 +26,18 @@ namespace Bicep.LangServer.UnitTests
         private static readonly FileResolver FileResolver = new();
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
-        public static BicepCompilationManager CreateEmptyCompilationManager()
+        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false)
         {
             PublishDiagnosticsParams? receivedParams = null;
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            var bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object);
+            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
-            return bicepCompilationManager;
-        }
-
-        public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents)
-        {
-            var bicepCompilationManager = CreateEmptyCompilationManager();
-
-            bicepCompilationManager.UpsertCompilation(documentUri, version: null, fileContents, LanguageConstants.LanguageId);
+            if (upsertCompilation)
+            {
+                bicepCompilationManager.UpsertCompilation(documentUri, version: null, fileContents, LanguageConstants.LanguageId);
+            }
 
             return bicepCompilationManager;
         }
