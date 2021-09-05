@@ -1,0 +1,51 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4815438706054484684"
+    }
+  },
+  "parameters": {
+    "environmentName": {
+      "type": "string"
+    },
+    "redisCacheSku": {
+      "type": "string"
+    },
+    "redisCacheFamily": {
+      "type": "string"
+    },
+    "redisCacheCapacity": {
+      "type": "int"
+    },
+    "location": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "redisCacheName": "[format('{0}{1}', parameters('environmentName'), uniqueString(resourceGroup().id))]"
+  },
+  "resources": {
+    "redisCache": {
+      "type": "Microsoft.Cache/Redis",
+      "apiVersion": "2019-07-01",
+      "name": "[variables('redisCacheName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "enableNonSslPort": false,
+        "minimumTlsVersion": "1.2",
+        "sku": {
+          "family": "[parameters('redisCacheFamily')]",
+          "capacity": "[parameters('redisCacheCapacity')]",
+          "name": "[parameters('redisCacheSku')]"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,675 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11040364202511077114"
+    }
+  },
+  "parameters": {
+    "applicationName": {
+      "type": "string",
+      "defaultValue": "[format('to-do-app{0}', uniqueString(resourceGroup().id))]"
+    },
+    "appServicePlanTier": {
+      "type": "string"
+    },
+    "appServicePlanInstances": {
+      "type": "int"
+    },
+    "webSiteName": {
+      "type": "string"
+    },
+    "cosmosDb": {
+      "type": "object"
+    },
+    "shouldDeployVm": {
+      "type": "bool",
+      "defaultValue": true
+    }
+  },
+  "functions": [],
+  "variables": {
+    "hostingPlanName": "[parameters('applicationName')]",
+    "location": "[resourceGroup().location]",
+    "cosmosDbResourceId": "[resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').account)]",
+    "_siteApiVersion": "[resourceInfo('site').apiVersion]",
+    "_siteType": "[resourceInfo('site').type]",
+    "resourceCRef": {
+      "id": "[resourceInfo('resourceC').id]"
+    },
+    "setResourceCRef": true,
+    "myInterpKey": "abc",
+    "storageAccounts": [
+      {
+        "name": "one",
+        "location": "eastus2"
+      },
+      {
+        "name": "two",
+        "location": "westus"
+      }
+    ],
+    "canHaveDuplicatesAcrossScopes": "hello",
+    "duplicatesEverywhere": "hello"
+  },
+  "resources": {
+    "basicStorage": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "basicblobs",
+      "location": "westus",
+      "kind": "BlobStorage",
+      "sku": {
+        "name": "Standard_GRS"
+      }
+    },
+    "dnsZone": {
+      "type": "Microsoft.Network/dnszones",
+      "apiVersion": "2018-05-01",
+      "name": "myZone",
+      "location": "global"
+    },
+    "myStorageAccount": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-10-01",
+      "name": "myencryptedone",
+      "location": "eastus2",
+      "properties": {
+        "supportsHttpsTrafficOnly": true,
+        "accessTier": "Hot",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": true
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    "withExpressions": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-10-01",
+      "name": "myencryptedone2",
+      "location": "eastus2",
+      "properties": {
+        "supportsHttpsTrafficOnly": "[not(false())]",
+        "accessTier": "[if(true(), 'Hot', 'Cold')]",
+        "encryption": {
+          "keySource": "Microsoft.Storage",
+          "services": {
+            "blob": {
+              "enabled": "[or(true(), false())]"
+            },
+            "file": {
+              "enabled": true
+            }
+          }
+        }
+      },
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "dependsOn": [
+        "myStorageAccount"
+      ]
+    },
+    "farm": {
+      "type": "Microsoft.Web/serverFarms",
+      "apiVersion": "2019-08-01",
+      "name": "[variables('hostingPlanName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "[parameters('appServicePlanTier')]",
+        "capacity": "[parameters('appServicePlanInstances')]"
+      },
+      "properties": {
+        "name": "[variables('hostingPlanName')]"
+      }
+    },
+    "site": {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2019-08-01",
+      "name": "[parameters('webSiteName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "CosmosDb:Account",
+              "value": "[reference(variables('cosmosDbResourceId')).documentEndpoint]"
+            },
+            {
+              "name": "CosmosDb:Key",
+              "value": "[listKeys(variables('cosmosDbResourceId'), '2020-04-01').primaryMasterKey]"
+            },
+            {
+              "name": "CosmosDb:DatabaseName",
+              "value": "[parameters('cosmosDb').databaseName]"
+            },
+            {
+              "name": "CosmosDb:ContainerName",
+              "value": "[parameters('cosmosDb').containerName]"
+            }
+          ]
+        }
+      }
+    },
+    "nested": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "resources": []
+        }
+      }
+    },
+    "accessingReadOnlyProperties": {
+      "type": "Microsoft.Foo/foos",
+      "apiVersion": "2019-10-01",
+      "name": "nestedTemplate1",
+      "properties": {
+        "otherId": "[resourceInfo('nested').id]",
+        "otherName": "[resourceInfo('nested').name]",
+        "otherVersion": "[resourceInfo('nested').apiVersion]",
+        "otherType": "[resourceInfo('nested').type]",
+        "otherThings": "[reference('nested').mode]"
+      },
+      "dependsOn": [
+        "nested"
+      ]
+    },
+    "resourceA": {
+      "type": "My.Rp/typeA",
+      "apiVersion": "2020-01-01",
+      "name": "resourceA"
+    },
+    "resourceB": {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/myName', resourceInfo('resourceA').name)]",
+      "dependsOn": [
+        "resourceA"
+      ]
+    },
+    "resourceC": {
+      "type": "My.Rp/typeA/typeB",
+      "apiVersion": "2020-01-01",
+      "name": "[format('{0}/myName', resourceInfo('resourceA').name)]",
+      "properties": {
+        "aId": "[resourceInfo('resourceA').id]",
+        "aType": "[resourceInfo('resourceA').type]",
+        "aName": "[resourceInfo('resourceA').name]",
+        "aApiVersion": "[resourceInfo('resourceA').apiVersion]",
+        "bProperties": "[reference('resourceB')]"
+      },
+      "dependsOn": [
+        "resourceA",
+        "resourceB"
+      ]
+    },
+    "resourceD": {
+      "type": "My.Rp/typeD",
+      "apiVersion": "2020-01-01",
+      "name": "constant",
+      "properties": {
+        "runtime": [
+          {
+            "bId": "[resourceInfo('resourceB').id]",
+            "bType": "[resourceInfo('resourceB').type]",
+            "bName": "[resourceInfo('resourceB').name]",
+            "bApiVersion": "[resourceInfo('resourceB').apiVersion]",
+            "aKind": "[reference('resourceA', '2020-01-01', 'full').kind]"
+          }
+        ],
+        "repro316": "[if(variables('setResourceCRef'), variables('resourceCRef'), null())]"
+      },
+      "dependsOn": [
+        "resourceA",
+        "resourceB",
+        "resourceC"
+      ]
+    },
+    "resourceWithInterp": {
+      "type": "My.Rp/interp",
+      "apiVersion": "2020-01-01",
+      "name": "interpTest",
+      "properties": {
+        "[variables('myInterpKey')]": 1,
+        "[format('abc{0}def', variables('myInterpKey'))]": 2,
+        "[format('{0}abc{1}', variables('myInterpKey'), variables('myInterpKey'))]": 3
+      }
+    },
+    "resourceWithEscaping": {
+      "type": "My.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "test",
+      "properties": {
+        "[[resourceGroup().location]": "[[resourceGroup().location]"
+      }
+    },
+    "vmWithCondition": {
+      "condition": "[parameters('shouldDeployVm')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "vmName",
+      "location": "westus",
+      "properties": {
+        "osProfile": {
+          "windowsConfiguration": {
+            "enableAutomaticUpdates": true
+          }
+        }
+      }
+    },
+    "extension1": {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[format('Microsoft.Compute/virtualMachines/{0}', 'vmName')]",
+      "name": "extension",
+      "dependsOn": [
+        "vmWithCondition"
+      ]
+    },
+    "extension2": {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+      "name": "extension",
+      "dependsOn": [
+        "extension1"
+      ]
+    },
+    "extensionDependencies": {
+      "type": "My.Rp/mockResource",
+      "apiVersion": "2020-01-01",
+      "name": "extensionDependencies",
+      "properties": {
+        "res1": "[resourceInfo('vmWithCondition').id]",
+        "res1runtime": "[reference('vmWithCondition').something]",
+        "res2": "[resourceInfo('extension1').id]",
+        "res2runtime": "[reference('extension1').something]",
+        "res3": "[resourceInfo('extension2').id]",
+        "res3runtime": "[reference('extension2').something]"
+      },
+      "dependsOn": [
+        "extension1",
+        "extension2",
+        "vmWithCondition"
+      ]
+    },
+    "existing1": {
+      "type": "Mock.Rp/existingExtensionResource",
+      "apiVersion": "2020-01-01",
+      "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
+      "name": "existing1",
+      "existing": true,
+      "dependsOn": [
+        "extension1"
+      ]
+    },
+    "existing2": {
+      "type": "Mock.Rp/existingExtensionResource",
+      "apiVersion": "2020-01-01",
+      "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
+      "name": "existing2",
+      "existing": true,
+      "dependsOn": [
+        "extension1"
+      ]
+    },
+    "extension3": {
+      "type": "My.Rp/extensionResource",
+      "apiVersion": "2020-12-01",
+      "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
+      "name": "extension3",
+      "dependsOn": [
+        "extension1"
+      ]
+    },
+    "storageResources": {
+      "copy": {
+        "name": "storageResources",
+        "count": "[length(variables('storageAccounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccounts')[copyIndex()].name]",
+      "location": "[variables('storageAccounts')[copyIndex()].location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    "storageResourcesWithIndex": {
+      "copy": {
+        "name": "storageResourcesWithIndex",
+        "count": "[length(variables('storageAccounts'))]"
+      },
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('{0}{1}', variables('storageAccounts')[copyIndex()].name, copyIndex())]",
+      "location": "[variables('storageAccounts')[copyIndex()].location]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    "vnet": {
+      "copy": {
+        "name": "vnet",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 3)[copyIndex()], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    "duplicateIdentifiersWithinLoop": {
+      "copy": {
+        "name": "duplicateIdentifiersWithinLoop",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    "duplicateInGlobalAndOneLoop": {
+      "copy": {
+        "name": "duplicateInGlobalAndOneLoop",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}-{1}', range(0, 4)[copyIndex('subnets')], range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    "duplicateInGlobalAndTwoLoops": {
+      "copy": {
+        "name": "duplicateInGlobalAndTwoLoops",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('vnet-{0}', range(0, 3)[copyIndex()])]",
+      "properties": {
+        "copy": [
+          {
+            "name": "subnets",
+            "count": "[length(range(0, 4))]",
+            "input": {
+              "name": "[format('subnet-{0}', range(0, 4)[copyIndex('subnets')])]"
+            }
+          }
+        ]
+      }
+    },
+    "dnsZones": {
+      "copy": {
+        "name": "dnsZones",
+        "count": "[length(range(0, 4))]"
+      },
+      "type": "Microsoft.Network/dnszones",
+      "apiVersion": "2018-05-01",
+      "name": "[format('zone{0}', range(0, 4)[copyIndex()])]",
+      "location": "global"
+    },
+    "locksOnZones": {
+      "copy": {
+        "name": "locksOnZones",
+        "count": "[length(range(0, 2))]"
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[range(0, 2)[copyIndex()]]))]",
+      "name": "[format('lock{0}', range(0, 2)[copyIndex()])]",
+      "properties": {
+        "level": "CanNotDelete"
+      },
+      "dependsOn": [
+        "[format('dnsZones[{0}]', range(0, 2)[copyIndex()])]"
+      ]
+    },
+    "moreLocksOnZones": {
+      "copy": {
+        "name": "moreLocksOnZones",
+        "count": "[length(range(0, 3))]"
+      },
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[copyIndex()]))]",
+      "name": "[format('another{0}', copyIndex())]",
+      "properties": {
+        "level": "ReadOnly"
+      },
+      "dependsOn": [
+        "[format('dnsZones[{0}]', copyIndex())]"
+      ]
+    },
+    "singleLockOnFirstZone": {
+      "type": "Microsoft.Authorization/locks",
+      "apiVersion": "2016-09-01",
+      "scope": "[format('Microsoft.Network/dnszones/{0}', format('zone{0}', range(0, 4)[0]))]",
+      "name": "single-lock",
+      "properties": {
+        "level": "ReadOnly"
+      },
+      "dependsOn": [
+        "[format('dnsZones[{0}]', 0)]"
+      ]
+    },
+    "p1_vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "myVnet",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/20"
+          ]
+        }
+      }
+    },
+    "p1_subnet1": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'myVnet', 'subnet1')]",
+      "properties": {
+        "addressPrefix": "10.0.0.0/24"
+      },
+      "dependsOn": [
+        "p1_vnet"
+      ]
+    },
+    "p1_subnet2": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'myVnet', 'subnet2')]",
+      "properties": {
+        "addressPrefix": "10.0.1.0/24"
+      },
+      "dependsOn": [
+        "p1_vnet"
+      ]
+    },
+    "p2_res1": {
+      "type": "Microsoft.Rp1/resource1",
+      "apiVersion": "2020-06-01",
+      "name": "res1"
+    },
+    "p2_res1child": {
+      "type": "Microsoft.Rp1/resource1/child1",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'res1', 'child1')]",
+      "dependsOn": [
+        "p2_res1"
+      ]
+    },
+    "p2_res2": {
+      "type": "Microsoft.Rp2/resource2",
+      "apiVersion": "2020-06-01",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+      "name": "res2",
+      "dependsOn": [
+        "p2_res1child"
+      ]
+    },
+    "p2_res2child": {
+      "type": "Microsoft.Rp2/resource2/child2",
+      "apiVersion": "2020-06-01",
+      "scope": "[format('Microsoft.Rp1/resource1/{0}/child1/{1}', 'res1', 'child1')]",
+      "name": "[format('{0}/{1}', 'res2', 'child2')]",
+      "dependsOn": [
+        "p2_res2"
+      ]
+    },
+    "p3_res1": {
+      "type": "Microsoft.Rp1/resource1",
+      "apiVersion": "2020-06-01",
+      "name": "res1",
+      "existing": true
+    },
+    "p3_child1": {
+      "type": "Microsoft.Rp1/resource1/child1",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', 'res1', 'child1')]"
+    },
+    "p4_res1": {
+      "type": "Microsoft.Rp1/resource1",
+      "apiVersion": "2020-06-01",
+      "scope": "/",
+      "name": "res1",
+      "existing": true
+    },
+    "p4_child1": {
+      "type": "Microsoft.Rp1/resource1/child1",
+      "apiVersion": "2020-06-01",
+      "scope": "/",
+      "name": "[format('{0}/{1}', 'res1', 'child1')]",
+      "existing": true
+    }
+  },
+  "outputs": {
+    "siteApiVersion": {
+      "type": "string",
+      "value": "[resourceInfo('site').apiVersion]"
+    },
+    "siteType": {
+      "type": "string",
+      "value": "[resourceInfo('site').type]"
+    },
+    "p1_subnet1prefix": {
+      "type": "string",
+      "value": "[reference('p1_subnet1').addressPrefix]"
+    },
+    "p1_subnet1name": {
+      "type": "string",
+      "value": "[resourceInfo('p1_subnet1').name]"
+    },
+    "p1_subnet1type": {
+      "type": "string",
+      "value": "[resourceInfo('p1_subnet1').type]"
+    },
+    "p1_subnet1id": {
+      "type": "string",
+      "value": "[resourceInfo('p1_subnet1').id]"
+    },
+    "p2_res2childprop": {
+      "type": "string",
+      "value": "[reference('p2_res2child').someProp]"
+    },
+    "p2_res2childname": {
+      "type": "string",
+      "value": "[resourceInfo('p2_res2child').name]"
+    },
+    "p2_res2childtype": {
+      "type": "string",
+      "value": "[resourceInfo('p2_res2child').type]"
+    },
+    "p2_res2childid": {
+      "type": "string",
+      "value": "[resourceInfo('p2_res2child').id]"
+    },
+    "p3_res1childprop": {
+      "type": "string",
+      "value": "[reference('p3_child1').someProp]"
+    },
+    "p3_res1childname": {
+      "type": "string",
+      "value": "[resourceInfo('p3_child1').name]"
+    },
+    "p3_res1childtype": {
+      "type": "string",
+      "value": "[resourceInfo('p3_child1').type]"
+    },
+    "p3_res1childid": {
+      "type": "string",
+      "value": "[resourceInfo('p3_child1').id]"
+    },
+    "p4_res1childprop": {
+      "type": "string",
+      "value": "[reference('p4_child1').someProp]"
+    },
+    "p4_res1childname": {
+      "type": "string",
+      "value": "[resourceInfo('p4_child1').name]"
+    },
+    "p4_res1childtype": {
+      "type": "string",
+      "value": "[resourceInfo('p4_child1').type]"
+    },
+    "p4_res1childid": {
+      "type": "string",
+      "value": "[resourceInfo('p4_child1').id]"
+    }
+  }
+}

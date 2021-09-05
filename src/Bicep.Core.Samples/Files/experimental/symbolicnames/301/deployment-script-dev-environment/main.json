@@ -1,0 +1,329 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17549779563265204198"
+    }
+  },
+  "parameters": {
+    "storageName": {
+      "type": "string",
+      "defaultValue": "[toLower(format('{0}st', take(format('deployscript{0}', uniqueString(resourceGroup().id)), 22)))]"
+    },
+    "containerName": {
+      "type": "string",
+      "defaultValue": "[toLower(format('{0}ci', take(format('deployscript{0}', uniqueString(resourceGroup().id)), 22)))]"
+    },
+    "type": {
+      "type": "string",
+      "defaultValue": "AzureCLI",
+      "allowedValues": [
+        "AzureCLI",
+        "AzurePowerShell"
+      ],
+      "metadata": {
+        "description": "Specify which type of dev environment to deploy"
+      }
+    },
+    "toolVersion": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Use to specify the version to use for Azure CLI or AzurePowerShell, if no version is specified latest will be used for AzCLI and 5.6 for AzPwsh"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "storage": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}-deploy', parameters('storageName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('storageName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5022879701253378012"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string"
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "Standard_LRS",
+              "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_RAGRS",
+                "Standard_ZRS",
+                "Premium_LRS",
+                "Premium_ZRS",
+                "Standard_GZRS",
+                "Standard_RAGZRS"
+              ]
+            },
+            "kind": {
+              "type": "string",
+              "defaultValue": "StorageV2",
+              "allowedValues": [
+                "Storage",
+                "StorageV2",
+                "BlobStorage",
+                "FileStorage",
+                "BlockBlobStorage"
+              ]
+            },
+            "accessTier": {
+              "type": "string",
+              "defaultValue": "Hot",
+              "allowedValues": [
+                "Hot",
+                "Cool"
+              ]
+            },
+            "fileShareName": {
+              "type": "string",
+              "defaultValue": "deployscript"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().id]"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "storage": {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2019-06-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "[parameters('sku')]"
+              },
+              "kind": "[parameters('kind')]",
+              "properties": {
+                "accessTier": "[parameters('accessTier')]"
+              }
+            },
+            "fileshare": {
+              "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+              "apiVersion": "2019-06-01",
+              "name": "[format('{0}/default/{1}', resourceInfo('storage').name, parameters('fileShareName'))]",
+              "dependsOn": [
+                "storage"
+              ]
+            }
+          },
+          "outputs": {
+            "resourceId": {
+              "type": "string",
+              "value": "[resourceInfo('storage').id]"
+            },
+            "storageName": {
+              "type": "string",
+              "value": "[resourceInfo('storage').name]"
+            },
+            "fileShareName": {
+              "type": "string",
+              "value": "[parameters('fileShareName')]"
+            }
+          }
+        }
+      }
+    },
+    "container": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}-deploy', parameters('containerName'))]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "name": {
+            "value": "[parameters('containerName')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "storageName": {
+            "value": "[reference('storage').outputs.storageName.value]"
+          },
+          "storageId": {
+            "value": "[reference('storage').outputs.resourceId.value]"
+          },
+          "fileShareName": {
+            "value": "[reference('storage').outputs.fileShareName.value]"
+          },
+          "type": {
+            "value": "[parameters('type')]"
+          },
+          "toolVersion": {
+            "value": "[parameters('toolVersion')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4346160734782299103"
+            }
+          },
+          "parameters": {
+            "name": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "defaultValue": "AzureCLI",
+              "allowedValues": [
+                "AzureCLI",
+                "AzurePowerShell"
+              ],
+              "metadata": {
+                "description": "Specify which type of dev environment to deploy"
+              }
+            },
+            "toolVersion": {
+              "type": "string",
+              "defaultValue": "",
+              "metadata": {
+                "description": "Use to overide the version to use for Azure CLI or AzurePowerShell"
+              }
+            },
+            "mountPath": {
+              "type": "string",
+              "defaultValue": "/mnt/azscripts/azscriptinput",
+              "metadata": {
+                "description": "This is the path in the container instance where it's mounted to the file share."
+              }
+            },
+            "sessionTime": {
+              "type": "string",
+              "defaultValue": "1800",
+              "metadata": {
+                "description": "Time in second before the container instance is suspended"
+              }
+            },
+            "fileShareName": {
+              "type": "string"
+            },
+            "storageName": {
+              "type": "string"
+            },
+            "storageId": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "version": "[if(and(equals(parameters('type'), 'AzureCLI'), equals(parameters('toolVersion'), '')), 'latest', if(and(equals(parameters('type'), 'AzurePowerShell'), equals(parameters('toolVersion'), '')), '5.6', parameters('toolVersion')))]",
+            "azcliImage": "[format('mcr.microsoft.com/azure-cli:{0}', variables('version'))]",
+            "azpwshImage": "[format('mcr.microsoft.com/azuredeploymentscripts-powershell:az{0}', variables('version'))]",
+            "azpwshCommand": [
+              "/bin/sh",
+              "-c",
+              "[format('pwsh -c ''Start-Sleep -Seconds {0}''', parameters('sessionTime'))]"
+            ],
+            "azcliCommand": [
+              "/bin/bash",
+              "-c",
+              "[format('echo hello; sleep {0}', parameters('sessionTime'))]"
+            ]
+          },
+          "resources": {
+            "containerGroupName": {
+              "type": "Microsoft.ContainerInstance/containerGroups",
+              "apiVersion": "2019-12-01",
+              "name": "[parameters('name')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "containers": [
+                  {
+                    "name": "[format('{0}cg', parameters('name'))]",
+                    "properties": {
+                      "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), ''))]",
+                      "resources": {
+                        "requests": {
+                          "cpu": 1,
+                          "memoryInGB": 2
+                        }
+                      },
+                      "ports": [
+                        {
+                          "protocol": "TCP",
+                          "port": 80
+                        }
+                      ],
+                      "volumeMounts": [
+                        {
+                          "name": "filesharevolume",
+                          "mountPath": "[parameters('mountPath')]"
+                        }
+                      ],
+                      "command": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliCommand'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshCommand'), null()))]"
+                    }
+                  }
+                ],
+                "osType": "Linux",
+                "volumes": [
+                  {
+                    "name": "filesharevolume",
+                    "azureFile": {
+                      "readOnly": false,
+                      "shareName": "[parameters('fileShareName')]",
+                      "storageAccountName": "[parameters('storageName')]",
+                      "storageAccountKey": "[listKeys(parameters('storageId'), '2019-06-01').keys[0].value]"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "storage"
+      ]
+    }
+  }
+}

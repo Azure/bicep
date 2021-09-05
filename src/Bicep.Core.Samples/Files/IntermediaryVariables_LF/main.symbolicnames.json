@@ -1,0 +1,86 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3804865924597182597"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "copy": [
+      {
+        "name": "ipConfigurations",
+        "count": "[length(range(0, 2))]",
+        "input": {
+          "id": true,
+          "name": "[format('asdf{0}', range(0, 2)[copyIndex('ipConfigurations')])]",
+          "properties": {
+            "madeUpProperty": "[variables('boolVal')]",
+            "subnet": "hello"
+          }
+        }
+      }
+    ],
+    "boolVal": true,
+    "vmProperties": {
+      "diagnosticsProfile": {
+        "bootDiagnostics": {
+          "enabled": 123,
+          "storageUri": true,
+          "unknownProp": "asdf"
+        }
+      },
+      "evictionPolicy": "[variables('boolVal')]"
+    }
+  },
+  "resources": {
+    "vm": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-12-01",
+      "name": "vm",
+      "location": "West US",
+      "properties": "[variables('vmProperties')]"
+    },
+    "nic": {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-11-01",
+      "name": "abc",
+      "properties": {
+        "ipConfigurations": "[variables('ipConfigurations')]"
+      }
+    },
+    "nicLoop": {
+      "copy": {
+        "name": "nicLoop",
+        "count": "[length(range(0, 2))]"
+      },
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-11-01",
+      "name": "[format('abc{0}', range(0, 2)[copyIndex()])]",
+      "properties": {
+        "ipConfigurations": [
+          "[variables('ipConfigurations')[range(0, 2)[copyIndex()]]]"
+        ]
+      }
+    },
+    "nicLoop2": {
+      "copy": {
+        "name": "nicLoop2",
+        "count": "[length(variables('ipConfigurations'))]"
+      },
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-11-01",
+      "name": "[format('abc{0}', variables('ipConfigurations')[copyIndex()].name)]",
+      "properties": {
+        "ipConfigurations": [
+          "[variables('ipConfigurations')[copyIndex()]]"
+        ]
+      }
+    }
+  }
+}

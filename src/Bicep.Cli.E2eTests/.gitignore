@@ -1,1 +1,3 @@
+out
+node_modules
 /examples/**/*.json

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "15735783156697902395"
+    }
+  },
+  "parameters": {
+    "prefix": {
+      "type": "string"
+    },
+    "hubId": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "publicIp": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}-fwl-ip', parameters('prefix'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static"
+      },
+      "sku": {
+        "name": "Standard"
+      }
+    },
+    "fwl": {
+      "type": "Microsoft.Network/azureFirewalls",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}-fwl', parameters('prefix'))]",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "[format('{0}-fwl-ipconf', parameters('prefix'))]",
+            "properties": {
+              "subnet": {
+                "id": "[format('{0}/subnets/AzureFirewallSubnet', parameters('hubId'))]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceInfo('publicIp').id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "publicIp"
+      ]
+    }
+  },
+  "outputs": {
+    "privateIp": {
+      "type": "string",
+      "value": "[reference('fwl').ipConfigurations[0].properties.privateIPAddress]"
+    }
+  }
+}

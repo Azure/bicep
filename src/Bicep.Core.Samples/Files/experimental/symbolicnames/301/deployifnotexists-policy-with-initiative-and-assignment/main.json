@@ -1,0 +1,683 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11333916421709127507"
+    }
+  },
+  "parameters": {
+    "resourceGroupName": {
+      "type": "string",
+      "defaultValue": "BicepExampleRG"
+    },
+    "resourceGrouplocation": {
+      "type": "string",
+      "defaultValue": "australiaeast"
+    },
+    "actionGroupName": {
+      "type": "string",
+      "defaultValue": "BicepExampleAG"
+    },
+    "actionGroupEnabled": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "actionGroupShortName": {
+      "type": "string",
+      "defaultValue": "bicepag"
+    },
+    "actionGroupEmailName": {
+      "type": "string",
+      "defaultValue": "jloudon"
+    },
+    "actionGroupEmail": {
+      "type": "string",
+      "defaultValue": "jesse.loudon@lab3.com.au"
+    },
+    "actionGroupAlertSchema": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "metricAlertResourceNamespace": {
+      "type": "string",
+      "defaultValue": "Microsoft.Network/loadBalancers"
+    },
+    "metricAlertName": {
+      "type": "string",
+      "defaultValue": "DipAvailability"
+    },
+    "metricAlertDimension1": {
+      "type": "string",
+      "defaultValue": "ProtocolType"
+    },
+    "metricAlertDimension2": {
+      "type": "string",
+      "defaultValue": "FrontendIPAddress"
+    },
+    "metricAlertDimension3": {
+      "type": "string",
+      "defaultValue": "BackendIPAddress"
+    },
+    "metricAlertDescription": {
+      "type": "string",
+      "defaultValue": "Average Load Balancer health probe status per time duration"
+    },
+    "metricAlertSeverity": {
+      "type": "string",
+      "defaultValue": "2"
+    },
+    "metricAlertEnabled": {
+      "type": "string",
+      "defaultValue": "true"
+    },
+    "metricAlertEvaluationFrequency": {
+      "type": "string",
+      "defaultValue": "PT15M"
+    },
+    "metricAlertWindowSize": {
+      "type": "string",
+      "defaultValue": "PT1H"
+    },
+    "metricAlertSensitivity": {
+      "type": "string",
+      "defaultValue": "Medium"
+    },
+    "metricAlertOperator": {
+      "type": "string",
+      "defaultValue": "LessThan"
+    },
+    "metricAlertTimeAggregation": {
+      "type": "string",
+      "defaultValue": "Average"
+    },
+    "metricAlertCriterionType": {
+      "type": "string",
+      "defaultValue": "DynamicThresholdCriterion"
+    },
+    "metricAlertAutoMitigate": {
+      "type": "string",
+      "defaultValue": "true"
+    },
+    "assignmentEnforcementMode": {
+      "type": "string",
+      "defaultValue": "Default"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "rg": {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('resourceGroupName')]",
+      "location": "[parameters('resourceGrouplocation')]"
+    },
+    "ag": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "actionGroup",
+      "resourceGroup": "[parameters('resourceGroupName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "actionGroupName": {
+            "value": "[parameters('actionGroupName')]"
+          },
+          "actionGroupEnabled": {
+            "value": "[parameters('actionGroupEnabled')]"
+          },
+          "actionGroupShortName": {
+            "value": "[parameters('actionGroupShortName')]"
+          },
+          "actionGroupEmailName": {
+            "value": "[parameters('actionGroupEmailName')]"
+          },
+          "actionGroupEmail": {
+            "value": "[parameters('actionGroupEmail')]"
+          },
+          "actionGroupAlertSchema": {
+            "value": "[parameters('actionGroupAlertSchema')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "15375990374214365506"
+            }
+          },
+          "parameters": {
+            "actionGroupName": {
+              "type": "string"
+            },
+            "actionGroupEnabled": {
+              "type": "bool"
+            },
+            "actionGroupShortName": {
+              "type": "string"
+            },
+            "actionGroupEmailName": {
+              "type": "string"
+            },
+            "actionGroupEmail": {
+              "type": "string"
+            },
+            "actionGroupAlertSchema": {
+              "type": "bool"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "actionGroup": {
+              "type": "microsoft.insights/actionGroups",
+              "apiVersion": "2019-06-01",
+              "name": "[parameters('actionGroupName')]",
+              "location": "global",
+              "properties": {
+                "enabled": "[parameters('actionGroupEnabled')]",
+                "groupShortName": "[parameters('actionGroupShortName')]",
+                "emailReceivers": [
+                  {
+                    "name": "[parameters('actionGroupEmailName')]",
+                    "emailAddress": "[parameters('actionGroupEmail')]",
+                    "useCommonAlertSchema": "[parameters('actionGroupAlertSchema')]"
+                  }
+                ]
+              }
+            }
+          },
+          "outputs": {
+            "actionGroupId": {
+              "type": "string",
+              "value": "[resourceInfo('actionGroup').id]"
+            },
+            "actionGroupName": {
+              "type": "string",
+              "value": "[resourceInfo('actionGroup').name]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "policy": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "policy",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "actionGroupName": {
+            "value": "[reference('ag').outputs.actionGroupName.value]"
+          },
+          "actionGroupRG": {
+            "value": "[parameters('resourceGroupName')]"
+          },
+          "actionGroupId": {
+            "value": "[reference('ag').outputs.actionGroupId.value]"
+          },
+          "metricAlertResourceNamespace": {
+            "value": "[parameters('metricAlertResourceNamespace')]"
+          },
+          "metricAlertName": {
+            "value": "[parameters('metricAlertName')]"
+          },
+          "metricAlertDimension1": {
+            "value": "[parameters('metricAlertDimension1')]"
+          },
+          "metricAlertDimension2": {
+            "value": "[parameters('metricAlertDimension2')]"
+          },
+          "metricAlertDimension3": {
+            "value": "[parameters('metricAlertDimension3')]"
+          },
+          "metricAlertDescription": {
+            "value": "[parameters('metricAlertDescription')]"
+          },
+          "metricAlertSeverity": {
+            "value": "[parameters('metricAlertSeverity')]"
+          },
+          "metricAlertEnabled": {
+            "value": "[parameters('metricAlertEnabled')]"
+          },
+          "metricAlertEvaluationFrequency": {
+            "value": "[parameters('metricAlertEvaluationFrequency')]"
+          },
+          "metricAlertWindowSize": {
+            "value": "[parameters('metricAlertWindowSize')]"
+          },
+          "metricAlertSensitivity": {
+            "value": "[parameters('metricAlertSensitivity')]"
+          },
+          "metricAlertOperator": {
+            "value": "[parameters('metricAlertOperator')]"
+          },
+          "metricAlertTimeAggregation": {
+            "value": "[parameters('metricAlertTimeAggregation')]"
+          },
+          "metricAlertCriterionType": {
+            "value": "[parameters('metricAlertCriterionType')]"
+          },
+          "metricAlertAutoMitigate": {
+            "value": "[parameters('metricAlertAutoMitigate')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "3257616718067046466"
+            }
+          },
+          "parameters": {
+            "actionGroupName": {
+              "type": "string"
+            },
+            "actionGroupRG": {
+              "type": "string"
+            },
+            "actionGroupId": {
+              "type": "string"
+            },
+            "metricAlertResourceNamespace": {
+              "type": "string"
+            },
+            "metricAlertName": {
+              "type": "string"
+            },
+            "metricAlertDimension1": {
+              "type": "string"
+            },
+            "metricAlertDimension2": {
+              "type": "string"
+            },
+            "metricAlertDimension3": {
+              "type": "string"
+            },
+            "metricAlertDescription": {
+              "type": "string"
+            },
+            "metricAlertSeverity": {
+              "type": "string"
+            },
+            "metricAlertEnabled": {
+              "type": "string"
+            },
+            "metricAlertEvaluationFrequency": {
+              "type": "string"
+            },
+            "metricAlertWindowSize": {
+              "type": "string"
+            },
+            "metricAlertSensitivity": {
+              "type": "string"
+            },
+            "metricAlertOperator": {
+              "type": "string"
+            },
+            "metricAlertTimeAggregation": {
+              "type": "string"
+            },
+            "metricAlertCriterionType": {
+              "type": "string"
+            },
+            "metricAlertAutoMitigate": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "policyDefCategory": "Custom",
+            "policySource": "Bicep"
+          },
+          "resources": {
+            "bicepExampleDINEpolicy": {
+              "type": "Microsoft.Authorization/policyDefinitions",
+              "apiVersion": "2020-09-01",
+              "name": "bicepExampleDINEpolicy",
+              "properties": {
+                "displayName": "DINE metric alert to Load Balancer for dipAvailability",
+                "description": "DeployIfNotExists a metric alert to Load Balancers for dipAvailability (Average Load Balancer health probe status per time duration)",
+                "policyType": "Custom",
+                "mode": "All",
+                "metadata": {
+                  "category": "[variables('policyDefCategory')]",
+                  "source": "[variables('policySource')]",
+                  "version": "0.1.0"
+                },
+                "parameters": {},
+                "policyRule": {
+                  "if": {
+                    "allOf": [
+                      {
+                        "field": "type",
+                        "equals": "[parameters('metricAlertResourceNamespace')]"
+                      },
+                      {
+                        "field": "Microsoft.Network/loadBalancers/sku.name",
+                        "equals": "Standard"
+                      }
+                    ]
+                  },
+                  "then": {
+                    "effect": "deployIfNotExists",
+                    "details": {
+                      "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                      ],
+                      "type": "Microsoft.Insights/metricAlerts",
+                      "existenceCondition": {
+                        "allOf": [
+                          {
+                            "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].metricNamespace",
+                            "equals": "[parameters('metricAlertResourceNamespace')]"
+                          },
+                          {
+                            "field": "Microsoft.Insights/metricAlerts/criteria.Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria.allOf[*].metricName",
+                            "equals": "[parameters('metricAlertName')]"
+                          },
+                          {
+                            "field": "Microsoft.Insights/metricalerts/scopes[*]",
+                            "equals": "[format('[concat(subscription().id, ''/resourceGroups/'', resourceGroup().name, ''/providers/{0}/'', field(''fullName''))]', parameters('metricAlertResourceNamespace'))]"
+                          }
+                        ]
+                      },
+                      "deployment": {
+                        "properties": {
+                          "mode": "incremental",
+                          "template": {
+                            "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                            "contentVersion": "1.0.0.0",
+                            "parameters": {
+                              "resourceName": {
+                                "type": "String",
+                                "metadata": {
+                                  "displayName": "resourceName",
+                                  "description": "Name of the resource"
+                                }
+                              },
+                              "resourceId": {
+                                "type": "String",
+                                "metadata": {
+                                  "displayName": "resourceId",
+                                  "description": "Resource ID of the resource emitting the metric that will be used for the comparison"
+                                }
+                              },
+                              "resourceLocation": {
+                                "type": "String",
+                                "metadata": {
+                                  "displayName": "resourceLocation",
+                                  "description": "Location of the resource"
+                                }
+                              },
+                              "actionGroupName": {
+                                "type": "String",
+                                "metadata": {
+                                  "displayName": "actionGroupName",
+                                  "description": "Name of the Action Group"
+                                }
+                              },
+                              "actionGroupRG": {
+                                "type": "String",
+                                "metadata": {
+                                  "displayName": "actionGroupRG",
+                                  "description": "Resource Group containing the Action Group"
+                                }
+                              },
+                              "actionGroupId": {
+                                "type": "String",
+                                "metadata": {
+                                  "displayName": "actionGroupId",
+                                  "description": "The ID of the action group that is triggered when the alert is activated or deactivated"
+                                }
+                              }
+                            },
+                            "variables": {},
+                            "resources": [
+                              {
+                                "type": "Microsoft.Insights/metricAlerts",
+                                "apiVersion": "2018-03-01",
+                                "name": "[format('[concat(parameters(''resourceName''), ''-{0}'')]', parameters('metricAlertName'))]",
+                                "location": "global",
+                                "properties": {
+                                  "description": "[parameters('metricAlertDescription')]",
+                                  "severity": "[parameters('metricAlertSeverity')]",
+                                  "enabled": "[parameters('metricAlertEnabled')]",
+                                  "scopes": [
+                                    "[[parameters('resourceId')]"
+                                  ],
+                                  "evaluationFrequency": "[parameters('metricAlertEvaluationFrequency')]",
+                                  "windowSize": "[parameters('metricAlertWindowSize')]",
+                                  "criteria": {
+                                    "allOf": [
+                                      {
+                                        "alertSensitivity": "[parameters('metricAlertSensitivity')]",
+                                        "failingPeriods": {
+                                          "numberOfEvaluationPeriods": "2",
+                                          "minFailingPeriodsToAlert": "1"
+                                        },
+                                        "name": "Metric1",
+                                        "metricNamespace": "[parameters('metricAlertResourceNamespace')]",
+                                        "metricName": "[parameters('metricAlertName')]",
+                                        "dimensions": [
+                                          {
+                                            "name": "[parameters('metricAlertDimension1')]",
+                                            "operator": "Include",
+                                            "values": [
+                                              "*"
+                                            ]
+                                          },
+                                          {
+                                            "name": "[parameters('metricAlertDimension2')]",
+                                            "operator": "Include",
+                                            "values": [
+                                              "*"
+                                            ]
+                                          },
+                                          {
+                                            "name": "[parameters('metricAlertDimension3')]",
+                                            "operator": "Include",
+                                            "values": [
+                                              "*"
+                                            ]
+                                          }
+                                        ],
+                                        "operator": "[parameters('metricAlertOperator')]",
+                                        "timeAggregation": "[parameters('metricAlertTimeAggregation')]",
+                                        "criterionType": "[parameters('metricAlertCriterionType')]"
+                                      }
+                                    ],
+                                    "odata.type": "Microsoft.Azure.Monitor.MultipleResourceMultipleMetricCriteria"
+                                  },
+                                  "autoMitigate": "[parameters('metricAlertAutoMitigate')]",
+                                  "targetResourceType": "[parameters('metricAlertResourceNamespace')]",
+                                  "targetResourceRegion": "[[parameters('resourceLocation')]",
+                                  "actions": [
+                                    {
+                                      "actionGroupId": "[parameters('actionGroupId')]",
+                                      "webHookProperties": {}
+                                    }
+                                  ]
+                                }
+                              }
+                            ]
+                          },
+                          "parameters": {
+                            "resourceName": {
+                              "value": "[[field('name')]"
+                            },
+                            "resourceId": {
+                              "value": "[[field('id')]"
+                            },
+                            "resourceLocation": {
+                              "value": "[[field('location')]"
+                            },
+                            "actionGroupName": {
+                              "value": "[parameters('actionGroupName')]"
+                            },
+                            "actionGroupRG": {
+                              "value": "[parameters('actionGroupRG')]"
+                            },
+                            "actionGroupID": {
+                              "value": "[parameters('actionGroupId')]"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "bicepExampleInitiative": {
+              "type": "Microsoft.Authorization/policySetDefinitions",
+              "apiVersion": "2020-09-01",
+              "name": "bicepExampleInitiative",
+              "properties": {
+                "policyType": "Custom",
+                "displayName": "Bicep Example Initiative",
+                "description": "Bicep Example Initiative",
+                "metadata": {
+                  "category": "[variables('policyDefCategory')]",
+                  "source": "[variables('policySource')]",
+                  "version": "0.1.0"
+                },
+                "parameters": {},
+                "policyDefinitions": [
+                  {
+                    "policyDefinitionId": "[resourceInfo('bicepExampleDINEpolicy').id]",
+                    "parameters": {}
+                  }
+                ]
+              },
+              "dependsOn": [
+                "bicepExampleDINEpolicy"
+              ]
+            }
+          },
+          "outputs": {
+            "bicepExampleInitiativeId": {
+              "type": "string",
+              "value": "[resourceInfo('bicepExampleInitiative').id]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "ag"
+      ]
+    },
+    "assignment": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "assignment",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "bicepExampleInitiativeId": {
+            "value": "[reference('policy').outputs.bicepExampleInitiativeId.value]"
+          },
+          "assignmentIdentityLocation": {
+            "value": "[parameters('resourceGrouplocation')]"
+          },
+          "assignmentEnforcementMode": {
+            "value": "[parameters('assignmentEnforcementMode')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "1688877772395552209"
+            }
+          },
+          "parameters": {
+            "bicepExampleInitiativeId": {
+              "type": "string"
+            },
+            "assignmentIdentityLocation": {
+              "type": "string"
+            },
+            "assignmentEnforcementMode": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "bicepExampleAssignment": {
+              "type": "Microsoft.Authorization/policyAssignments",
+              "apiVersion": "2020-09-01",
+              "name": "bicepExampleAssignment",
+              "location": "[parameters('assignmentIdentityLocation')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "properties": {
+                "displayName": "Bicep Example Assignment",
+                "description": "Bicep Example Assignment",
+                "enforcementMode": "[parameters('assignmentEnforcementMode')]",
+                "metadata": {
+                  "source": "Bicep",
+                  "version": "0.1.0"
+                },
+                "policyDefinitionId": "[parameters('bicepExampleInitiativeId')]",
+                "nonComplianceMessages": [
+                  {
+                    "message": "Resource is not compliant with a DeployIfNotExists policy"
+                  }
+                ]
+              }
+            },
+            "roleAssignment": {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "name": "[guid(resourceInfo('bicepExampleAssignment').name, resourceInfo('bicepExampleAssignment').type, subscription().subscriptionId)]",
+              "properties": {
+                "principalId": "[reference('bicepExampleAssignment', '2020-09-01', 'full').identity.principalId]",
+                "roleDefinitionId": "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+              },
+              "dependsOn": [
+                "bicepExampleAssignment"
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "policy"
+      ]
+    }
+  }
+}

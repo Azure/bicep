@@ -1,0 +1,1336 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10757179999301502675"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "myManagementGroupMod": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "myManagementGroupMod",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10280107214263124485"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "myTenantMod": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myTenantMod",
+              "scope": "/",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13795227476051739062"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {},
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "hello!"
+                    }
+                  }
+                }
+              }
+            },
+            "myManagementGroupModWithDuplicatedNameButInSeparateModule": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myManagementGroupMod",
+              "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "797197645865752552"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {}
+                }
+              }
+            },
+            "mySubscriptionModWithDuplicatedNameButInSeparateModule": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "mySubscriptionMod",
+              "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "7728902878217370074"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {}
+                }
+              }
+            }
+          },
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[reference('myTenantMod').outputs.myOutput.value]"
+            }
+          }
+        }
+      }
+    },
+    "myManagementGroupModWithDuplicatedNameButDifferentScope": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "myManagementGroupMod",
+      "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "797197645865752552"
+            }
+          },
+          "functions": [],
+          "resources": {}
+        }
+      }
+    },
+    "mySubscriptionMod": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "mySubscriptionMod",
+      "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "15823832126641608746"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "myResourceGroupMod": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13555647730104728538"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {
+                    "myTenantMod": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "13795227476051739062"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "myOtherResourceGroup": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "17932567062051050182"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "mySubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "mySubscription",
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    },
+                    "otherSubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "otherSubscription",
+                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    }
+                  },
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference('myTenantMod').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference('myOtherResourceGroup').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            "myResourceGroupMod2": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod2",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13555647730104728538"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {
+                    "myTenantMod": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "13795227476051739062"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "myOtherResourceGroup": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "17932567062051050182"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "mySubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "mySubscription",
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    },
+                    "otherSubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "otherSubscription",
+                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    }
+                  },
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference('myTenantMod').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference('myOtherResourceGroup').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            "myResourceGroupMod3": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod3",
+              "subscriptionId": "subId",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13555647730104728538"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {
+                    "myTenantMod": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "13795227476051739062"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "myOtherResourceGroup": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "17932567062051050182"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "mySubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "mySubscription",
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    },
+                    "otherSubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "otherSubscription",
+                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    }
+                  },
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference('myTenantMod').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference('myOtherResourceGroup').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            "myTenantMod": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myTenantMod",
+              "scope": "/",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13795227476051739062"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {},
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "hello!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[reference('myTenantMod').outputs.myOutput.value]"
+            },
+            "myOutputRgMod": {
+              "type": "string",
+              "value": "[reference('myResourceGroupMod').outputs.myOutput.value]"
+            },
+            "myOutputRgMod2": {
+              "type": "string",
+              "value": "[reference('myResourceGroupMod2').outputs.myOutput.value]"
+            }
+          }
+        }
+      }
+    },
+    "mySubscriptionModWithCondition": {
+      "condition": "[equals(length('foo'), 3)]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "mySubscriptionModWithCondition",
+      "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "15823832126641608746"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "myResourceGroupMod": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13555647730104728538"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {
+                    "myTenantMod": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "13795227476051739062"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "myOtherResourceGroup": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "17932567062051050182"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "mySubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "mySubscription",
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    },
+                    "otherSubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "otherSubscription",
+                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    }
+                  },
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference('myTenantMod').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference('myOtherResourceGroup').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            "myResourceGroupMod2": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod2",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13555647730104728538"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {
+                    "myTenantMod": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "13795227476051739062"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "myOtherResourceGroup": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "17932567062051050182"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "mySubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "mySubscription",
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    },
+                    "otherSubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "otherSubscription",
+                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    }
+                  },
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference('myTenantMod').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference('myOtherResourceGroup').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            "myResourceGroupMod3": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myResourceGroupMod3",
+              "subscriptionId": "subId",
+              "resourceGroup": "myRg",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13555647730104728538"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {
+                    "myTenantMod": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myTenantMod",
+                      "scope": "/",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "13795227476051739062"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "myOtherResourceGroup": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "myOtherResourceGroup",
+                      "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
+                      "resourceGroup": "myOtherRg",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "17932567062051050182"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {},
+                          "outputs": {
+                            "myOutput": {
+                              "type": "string",
+                              "value": "hello!"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "mySubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "mySubscription",
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    },
+                    "otherSubscription": {
+                      "type": "Microsoft.Resources/deployments",
+                      "apiVersion": "2019-10-01",
+                      "name": "otherSubscription",
+                      "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
+                      "location": "[resourceGroup().location]",
+                      "properties": {
+                        "expressionEvaluationOptions": {
+                          "scope": "inner"
+                        },
+                        "mode": "Incremental",
+                        "template": {
+                          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                          "languageVersion": "1.9-experimental",
+                          "contentVersion": "1.0.0.0",
+                          "metadata": {
+                            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                            "_generator": {
+                              "name": "bicep",
+                              "version": "dev",
+                              "templateHash": "7728902878217370074"
+                            }
+                          },
+                          "functions": [],
+                          "resources": {}
+                        }
+                      }
+                    }
+                  },
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "[reference('myTenantMod').outputs.myOutput.value]"
+                    },
+                    "myOutputResourceGroup": {
+                      "type": "string",
+                      "value": "[reference('myOtherResourceGroup').outputs.myOutput.value]"
+                    }
+                  }
+                }
+              }
+            },
+            "myTenantMod": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myTenantMod",
+              "scope": "/",
+              "location": "[deployment().location]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "13795227476051739062"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {},
+                  "outputs": {
+                    "myOutput": {
+                      "type": "string",
+                      "value": "hello!"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[reference('myTenantMod').outputs.myOutput.value]"
+            },
+            "myOutputRgMod": {
+              "type": "string",
+              "value": "[reference('myResourceGroupMod').outputs.myOutput.value]"
+            },
+            "myOutputRgMod2": {
+              "type": "string",
+              "value": "[reference('myResourceGroupMod2').outputs.myOutput.value]"
+            }
+          }
+        }
+      }
+    },
+    "mySubscriptionModWithDuplicatedNameButDifferentScope": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "mySubscriptionMod",
+      "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
+      "location": "[deployment().location]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7728902878217370074"
+            }
+          },
+          "functions": [],
+          "resources": {}
+        }
+      }
+    }
+  },
+  "outputs": {
+    "myManagementGroupOutput": {
+      "type": "string",
+      "value": "[reference('myManagementGroupMod').outputs.myOutput.value]"
+    },
+    "mySubscriptionOutput": {
+      "type": "string",
+      "value": "[reference('mySubscriptionMod').outputs.myOutput.value]"
+    }
+  }
+}

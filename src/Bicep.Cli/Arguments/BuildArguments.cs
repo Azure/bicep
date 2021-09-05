@@ -8,7 +8,7 @@ namespace Bicep.Cli.Arguments
 {
     public class BuildArguments : ArgumentsBase
     {
-        public BuildArguments(string[] args, string commandName) : base(commandName)
+        public BuildArguments(string[] args) : base(Constants.Command.Build)
         {
             for (var i = 0; i < args.Length; i++)
             {
@@ -17,6 +17,11 @@ namespace Bicep.Cli.Arguments
                     case "--stdout":
                         OutputToStdOut = true;
                         break;
+
+                    case "--no-restore":
+                        NoRestore = true;
+                        break;
+
                     case "--outdir":
                         if (args.Length == i + 1)
                         {
@@ -29,6 +34,7 @@ namespace Bicep.Cli.Arguments
                         OutputDir = args[i + 1];
                         i++;
                         break;
+
                     case "--outfile":
                         if (args.Length == i + 1)
                         {
@@ -41,6 +47,7 @@ namespace Bicep.Cli.Arguments
                         OutputFile = args[i + 1];
                         i++;
                         break;
+
                     default:
                         if (args[i].StartsWith("--"))
                         {
@@ -93,5 +100,7 @@ namespace Bicep.Cli.Arguments
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
+
+        public bool NoRestore { get; }
     }
 }

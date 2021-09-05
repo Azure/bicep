@@ -1,0 +1,48 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7752773588692600778"
+    }
+  },
+  "parameters": {
+    "batchAccountName": {
+      "type": "string"
+    },
+    "allocationMode": {
+      "type": "string",
+      "defaultValue": "BatchService",
+      "allowedValues": [
+        "BatchService",
+        "UserSubscription"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "batchAccount": {
+      "type": "Microsoft.Batch/batchAccounts",
+      "apiVersion": "2020-09-01",
+      "name": "[parameters('batchAccountName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "poolAllocationMode": "[parameters('allocationMode')]"
+      }
+    }
+  },
+  "outputs": {
+    "batchaccountFQDN": {
+      "type": "string",
+      "value": "[reference('batchAccount').accountEndpoint]"
+    }
+  }
+}

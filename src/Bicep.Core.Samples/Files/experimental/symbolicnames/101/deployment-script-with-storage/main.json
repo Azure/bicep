@@ -1,0 +1,88 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "808776994688706621"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "scriptToExecute": {
+      "type": "string",
+      "defaultValue": "date"
+    },
+    "subId": {
+      "type": "string",
+      "defaultValue": "[subscription().id]"
+    },
+    "rgName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "uamiName": {
+      "type": "string",
+      "defaultValue": "alex-test-deny"
+    },
+    "currentTime": {
+      "type": "string",
+      "defaultValue": "[utcNow()]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "uamiId": "[resourceId(parameters('subId'), parameters('rgName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
+  },
+  "resources": {
+    "stg": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[format('dscript{0}', uniqueString(resourceGroup().id))]",
+      "location": "[parameters('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    "dScript": {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2019-10-01-preview",
+      "name": "scriptWithStorage",
+      "location": "[parameters('location')]",
+      "kind": "AzureCLI",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[variables('uamiId')]": {}
+        }
+      },
+      "properties": {
+        "azCliVersion": "2.0.80",
+        "storageAccountSettings": {
+          "storageAccountName": "[resourceInfo('stg').name]",
+          "storageAccountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('dscript{0}', uniqueString(resourceGroup().id))), '2019-06-01').keys[0].value]"
+        },
+        "scriptContent": "[parameters('scriptToExecute')]",
+        "cleanupPreference": "OnSuccess",
+        "retentionInterval": "P1D",
+        "forceUpdateTag": "[parameters('currentTime')]"
+      },
+      "dependsOn": [
+        "stg"
+      ]
+    }
+  },
+  "outputs": {
+    "scriptLogs": {
+      "type": "string",
+      "value": "[reference(format('{0}/logs/default', resourceInfo('dScript').id), resourceInfo('dScript').apiVersion, 'Full').properties.log]"
+    }
+  }
+}

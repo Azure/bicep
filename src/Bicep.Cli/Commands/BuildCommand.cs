@@ -5,30 +5,43 @@ using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.FileSystem;
+using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {
     public class BuildCommand : ICommand
     {
+        private readonly ILogger logger;
         private readonly IDiagnosticLogger diagnosticLogger;
+        private readonly InvocationContext invocationContext;
         private readonly CompilationService compilationService;
         private readonly CompilationWriter writer;
 
         public BuildCommand(
+            ILogger logger,
             IDiagnosticLogger diagnosticLogger,
+            InvocationContext invocationContext,
             CompilationService compilationService,
             CompilationWriter writer)
         {
+            this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;
+            this.invocationContext = invocationContext;
             this.compilationService = compilationService;
             this.writer = writer;
         }
 
-        public int Run(BuildArguments args)
+        public async Task<int> RunAsync(BuildArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
 
-            var compilation = compilationService.Compile(inputPath);
+            if (invocationContext.EmitterSettings.EnableSymbolicNames)
+            {
+                logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
+            }
+
+            var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
             if (diagnosticLogger.ErrorCount < 1)
             {

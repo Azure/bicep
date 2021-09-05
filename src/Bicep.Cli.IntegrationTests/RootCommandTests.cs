@@ -1,20 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
     [TestClass]
     public class RootCommandTests : TestBase
     {
+        
+
         [TestMethod]
-        public void Build_WithWrongArgs_ShouldFail_WithExpectedErrorMessage()
+        public async Task Build_WithWrongArgs_ShouldFail_WithExpectedErrorMessage()
         {
-            var (output, error, result) = Bicep("wrong", "fake", "broken");
+            var (output, error, result) = await Bicep("wrong", "fake", "broken");
 
             using (new AssertionScope())
             {
@@ -27,10 +31,9 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void BicepVersionShouldPrintVersionInformation()
+        public async Task BicepVersionShouldPrintVersionInformation()
         {
-
-            var (output, error, result) = Bicep("--version");
+            var (output, error, result) = await Bicep("--version");
 
             using (new AssertionScope())
             {
@@ -43,9 +46,14 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public void BicepHelpShouldPrintHelp()
+        public async Task BicepHelpShouldPrintHelp()
         {
-            var (output, error, result) = Bicep("--help");
+            var featuresMock = Repository.Create<IFeatureProvider>();
+            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
+
+            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+
+            var (output, error, result) = await Bicep(settings, "--help");
 
             using (new AssertionScope())
             {
@@ -70,6 +78,54 @@ namespace Bicep.Cli.IntegrationTests
                     "bicep",
                     "usage");
             }
+        }
+
+        [TestMethod]
+        public async Task BicepHelpShouldIncludePublishWhenRegistryEnabled()
+        {
+            var featuresMock = Repository.Create<IFeatureProvider>();
+            featuresMock.Setup(m => m.RegistryEnabled).Returns(true);
+
+            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+
+            var (output, error, result) = await Bicep(settings, "--help");
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+
+            output.Should().NotBeEmpty();
+            output.Should().ContainAll(
+                "publish",
+                "Publishes",
+                "registry",
+                "reference",
+                "azurecr.io",
+                "oci",
+                "--target");
+        }
+
+        [TestMethod]
+        public async Task BicepHelpShouldNotIncludePublishWhenRegistryDisabled()
+        {
+            var featuresMock = Repository.Create<IFeatureProvider>();
+            featuresMock.Setup(m => m.RegistryEnabled).Returns(false);
+
+            var settings = CreateDefaultSettings() with { Features = featuresMock.Object };
+
+            var (output, error, result) = await Bicep(settings, "--help");
+
+            result.Should().Be(0);
+            error.Should().BeEmpty();
+
+            output.Should().NotBeEmpty();
+            output.Should().NotContainAny(
+                "publish",
+                "Publishes",
+                "registry",
+                "reference",
+                "azurecr.io",
+                "oci",
+                "--target");
         }
     }
 }

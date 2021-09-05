@@ -11,25 +11,25 @@ var dependentVar = {
 }
 
 var resourceDependency = {
-//@[4:22) Variable resourceDependency. Type: object. Declaration start char: 0, length: 136
+//@[4:22) Variable resourceDependency. Type: object. Declaration start char: 0, length: 147
   dependenciesA: [
     resA.id
     resA.name
     resA.type
     resA.properties.deployTime
-    resA.eTag
+    resA.properties.eTag
   ]
 }
 
 output resourceAType string = resA.type
 //@[7:20) Output resourceAType. Type: string. Declaration start char: 0, length: 39
 resource resA 'My.Rp/myResourceType@2020-01-01' = {
-//@[9:13) Resource resA. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 132
+//@[9:13) Resource resA. Type: My.Rp/myResourceType@2020-01-01. Declaration start char: 0, length: 134
   name: 'resA'
   properties: {
     deployTime: dependentVar
+    eTag: '1234'
   }
-  eTag: '1234'
 }
 
 output resourceBId string = resB.id
@@ -73,3 +73,4 @@ resource resE 'My.Rp/myResourceType/childType@2020-01-01' = {
 
 output resourceCProperties object = resC.properties
 //@[7:26) Output resourceCProperties. Type: object. Declaration start char: 0, length: 51
+

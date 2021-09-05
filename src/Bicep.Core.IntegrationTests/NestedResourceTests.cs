@@ -170,7 +170,7 @@ output fromGrandchild string = parent::child::grandchild.properties.style
             references = model.FindReferences(sibling);
             references.Should().HaveCount(1);
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
             using var outputStream = new MemoryStream();
             emitter.Emit(outputStream);
 

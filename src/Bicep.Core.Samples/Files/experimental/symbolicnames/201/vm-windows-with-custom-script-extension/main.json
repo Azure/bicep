@@ -1,0 +1,302 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1052641397051283830"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "suffix": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "publicIpDnsLabel": {
+      "type": "string"
+    },
+    "virtualNetworkAddressPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "virtualNetworkSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+    "virtualMachineAdminUsername": {
+      "type": "string"
+    },
+    "virtualMachineAdminPassword": {
+      "type": "secureString"
+    },
+    "virtualMachineSize": {
+      "type": "string",
+      "defaultValue": "Standard_D8s_v3",
+      "allowedValues": [
+        "Standard_D2s_v3",
+        "Standard_D4s_v3",
+        "Standard_D8s_v3"
+      ]
+    },
+    "virtualMachinePublisher": {
+      "type": "string",
+      "defaultValue": "MicrosoftWindowsDesktop",
+      "allowedValues": [
+        "MicrosoftVisualStudio",
+        "MicrosoftWindowsDesktop"
+      ]
+    },
+    "virtualMachineOffer": {
+      "type": "string",
+      "defaultValue": "Windows-10",
+      "allowedValues": [
+        "visualstudio2019latest",
+        "Windows-10"
+      ]
+    },
+    "virtualMachineSku": {
+      "type": "string",
+      "defaultValue": "20h1-pro-g2",
+      "allowedValues": [
+        "vs-2019-comm-latest-ws2019",
+        "vs-2019-ent-latest-ws2019",
+        "20h1-pro-g2",
+        "20h1-ent-g2"
+      ]
+    },
+    "virtualMachineExtensionCustomScriptUri": {
+      "type": "string",
+      "defaultValue": "https://raw.githubusercontent.com/Azure/bicep/main/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "metadata": {
+      "longName": "[format('{{0}}-{0}-{1}', parameters('name'), if(equals(coalesce(parameters('suffix'), ''), ''), '', concat('-', parameters('suffix'))))]",
+      "shortName": "[format('{{0}}{0}{1}', replace(parameters('name'), '-', ''), if(equals(coalesce(parameters('suffix'), ''), ''), '', parameters('suffix')))]"
+    },
+    "storageAccount": {
+      "name": "[replace(variables('metadata').shortName, '{0}', 'st')]",
+      "location": "[parameters('location')]"
+    },
+    "publicIp": {
+      "name": "[replace(variables('metadata').longName, '{0}', 'pip')]",
+      "location": "[parameters('location')]"
+    },
+    "networkSecurityGroup": {
+      "name": "[replace(variables('metadata').longName, '{0}', 'nsg')]",
+      "location": "[parameters('location')]",
+      "securityRules": [
+        {
+          "name": "default-allow-3389",
+          "properties": {
+            "priority": 1000,
+            "access": "Allow",
+            "direction": "Inbound",
+            "protocol": "TCP",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "destinationPortRange": 3389
+          }
+        }
+      ]
+    },
+    "subnetName": "default",
+    "virtualNetwork": {
+      "name": "[replace(variables('metadata').longName, '{0}', 'vnet')]",
+      "location": "[parameters('location')]",
+      "addressPrefixes": [
+        "[parameters('virtualNetworkAddressPrefix')]"
+      ],
+      "subnets": [
+        {
+          "name": "[variables('subnetName')]",
+          "properties": {
+            "addressPrefix": "[parameters('virtualNetworkSubnetPrefix')]",
+            "networkSecurityGroup": {
+              "id": "[resourceInfo('nsg').id]"
+            }
+          }
+        }
+      ]
+    },
+    "networkInterface": {
+      "name": "[replace(variables('metadata').longName, '{0}', 'nic')]",
+      "location": "[parameters('location')]",
+      "ipConfigurations": [
+        {
+          "name": "ipconfig1",
+          "properties": {
+            "privateIPAllocationMethod": "Dynamic",
+            "publicIPAddress": {
+              "id": "[resourceInfo('pip').id]"
+            },
+            "subnet": {
+              "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('vnet').name, variables('subnetName'))]"
+            }
+          }
+        }
+      ]
+    },
+    "virtualMachine": {
+      "name": "[replace(variables('metadata').shortName, '{0}', 'vm')]",
+      "location": "[parameters('location')]",
+      "vmSize": "[parameters('virtualMachineSize')]",
+      "vmComputerName": "[replace(variables('metadata').shortName, '{0}', 'vm')]",
+      "vmAdminUsername": "[parameters('virtualMachineAdminUsername')]",
+      "vmAdminPassword": "[parameters('virtualMachineAdminPassword')]",
+      "vmImagePublisher": "[parameters('virtualMachinePublisher')]",
+      "vmImageOffer": "[parameters('virtualMachineOffer')]",
+      "vmImageSku": "[parameters('virtualMachineSku')]",
+      "vmOSDiskName": "[replace(variables('metadata').longName, '{0}', 'osdisk')]",
+      "vmDataDisks": [],
+      "networkInterfaces": [
+        {
+          "id": "[resourceInfo('nic').id]"
+        }
+      ]
+    },
+    "virtualMachineExtensionCustomScript": {
+      "name": "[format('{0}/config-app', resourceInfo('vm').name)]",
+      "location": "[parameters('location')]",
+      "fileUris": [
+        "[parameters('virtualMachineExtensionCustomScriptUri')]"
+      ],
+      "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File ./{0}', last(split(parameters('virtualMachineExtensionCustomScriptUri'), '/')))]"
+    }
+  },
+  "resources": {
+    "st": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storageAccount').name]",
+      "location": "[variables('storageAccount').location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    "pip": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('publicIp').name]",
+      "location": "[variables('publicIp').location]",
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[if(equals(coalesce(parameters('publicIpDnsLabel'), ''), ''), replace(variables('metadata').shortName, '{0}', 'vm'), parameters('publicIpDnsLabel'))]"
+        }
+      }
+    },
+    "nsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('networkSecurityGroup').name]",
+      "location": "[variables('networkSecurityGroup').location]",
+      "properties": {
+        "securityRules": "[variables('networkSecurityGroup').securityRules]"
+      }
+    },
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualNetwork').name]",
+      "location": "[variables('virtualNetwork').location]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": "[variables('virtualNetwork').addressPrefixes]"
+        },
+        "subnets": "[variables('virtualNetwork').subnets]"
+      },
+      "dependsOn": [
+        "nsg"
+      ]
+    },
+    "nic": {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('networkInterface').name]",
+      "location": "[variables('networkInterface').location]",
+      "properties": {
+        "ipConfigurations": "[variables('networkInterface').ipConfigurations]"
+      },
+      "dependsOn": [
+        "pip",
+        "vnet"
+      ]
+    },
+    "vm": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualMachine').name]",
+      "location": "[variables('virtualMachine').location]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('virtualMachine').vmSize]"
+        },
+        "osProfile": {
+          "computerName": "[variables('virtualMachine').vmComputerName]",
+          "adminUsername": "[variables('virtualMachine').vmAdminUsername]",
+          "adminPassword": "[variables('virtualMachine').vmAdminPassword]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('virtualMachine').vmImagePublisher]",
+            "offer": "[variables('virtualMachine').vmImageOffer]",
+            "sku": "[variables('virtualMachine').vmImageSku]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[variables('virtualMachine').vmOSDiskName]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": "[variables('virtualMachine').vmDataDisks]"
+        },
+        "networkProfile": {
+          "networkInterfaces": "[variables('virtualMachine').networkInterfaces]"
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference('st').primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "nic",
+        "st"
+      ]
+    },
+    "vmext": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('virtualMachineExtensionCustomScript').name]",
+      "location": "[variables('virtualMachineExtensionCustomScript').location]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": "[variables('virtualMachineExtensionCustomScript').fileUris]",
+          "commandToExecute": "[variables('virtualMachineExtensionCustomScript').commandToExecute]"
+        },
+        "protectedSettings": {}
+      },
+      "dependsOn": [
+        "vm"
+      ]
+    }
+  }
+}

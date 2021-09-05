@@ -1,0 +1,321 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14559356783569879088"
+    }
+  },
+  "parameters": {
+    "hostpoolName": {
+      "type": "string"
+    },
+    "hostpoolFriendlyName": {
+      "type": "string"
+    },
+    "appgroupName": {
+      "type": "string"
+    },
+    "appgroupNameFriendlyName": {
+      "type": "string"
+    },
+    "workspaceName": {
+      "type": "string"
+    },
+    "workspaceNameFriendlyName": {
+      "type": "string"
+    },
+    "applicationgrouptype": {
+      "type": "string",
+      "defaultValue": "Desktop"
+    },
+    "preferredAppGroupType": {
+      "type": "string",
+      "defaultValue": "Desktop"
+    },
+    "avdbackplanelocation": {
+      "type": "string",
+      "defaultValue": "eastus"
+    },
+    "hostPoolType": {
+      "type": "string",
+      "defaultValue": "pooled"
+    },
+    "loadBalancerType": {
+      "type": "string",
+      "defaultValue": "BreadthFirst"
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string"
+    },
+    "logAnalyticslocation": {
+      "type": "string"
+    },
+    "logAnalyticsWorkspaceSku": {
+      "type": "string",
+      "defaultValue": "pergb2018"
+    },
+    "logAnalyticsResourceGroup": {
+      "type": "string"
+    },
+    "avdBackplaneResourceGroup": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "hp": {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2019-12-10-preview",
+      "name": "[parameters('hostpoolName')]",
+      "location": "[parameters('avdbackplanelocation')]",
+      "properties": {
+        "friendlyName": "[parameters('hostpoolFriendlyName')]",
+        "hostPoolType": "[parameters('hostPoolType')]",
+        "loadBalancerType": "[parameters('loadBalancerType')]",
+        "preferredAppGroupType": "[parameters('preferredAppGroupType')]"
+      }
+    },
+    "ag": {
+      "type": "Microsoft.DesktopVirtualization/applicationGroups",
+      "apiVersion": "2019-12-10-preview",
+      "name": "[parameters('appgroupName')]",
+      "location": "[parameters('avdbackplanelocation')]",
+      "properties": {
+        "friendlyName": "[parameters('appgroupNameFriendlyName')]",
+        "applicationGroupType": "[parameters('applicationgrouptype')]",
+        "hostPoolArmPath": "[resourceInfo('hp').id]"
+      },
+      "dependsOn": [
+        "hp"
+      ]
+    },
+    "ws": {
+      "type": "Microsoft.DesktopVirtualization/workspaces",
+      "apiVersion": "2019-12-10-preview",
+      "name": "[parameters('workspaceName')]",
+      "location": "[parameters('avdbackplanelocation')]",
+      "properties": {
+        "friendlyName": "[parameters('workspaceNameFriendlyName')]",
+        "applicationGroupReferences": [
+          "[resourceInfo('ag').id]"
+        ]
+      },
+      "dependsOn": [
+        "ag"
+      ]
+    },
+    "avdmonitor": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "LAWorkspace",
+      "resourceGroup": "[parameters('logAnalyticsResourceGroup')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "logAnalyticsWorkspaceName": {
+            "value": "[parameters('logAnalyticsWorkspaceName')]"
+          },
+          "logAnalyticslocation": {
+            "value": "[parameters('logAnalyticslocation')]"
+          },
+          "logAnalyticsWorkspaceSku": {
+            "value": "[parameters('logAnalyticsWorkspaceSku')]"
+          },
+          "hostpoolName": {
+            "value": "[resourceInfo('hp').name]"
+          },
+          "workspaceName": {
+            "value": "[resourceInfo('ws').name]"
+          },
+          "avdBackplaneResourceGroup": {
+            "value": "[parameters('avdBackplaneResourceGroup')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5656609608047258861"
+            }
+          },
+          "parameters": {
+            "logAnalyticsWorkspaceName": {
+              "type": "string"
+            },
+            "logAnalyticslocation": {
+              "type": "string",
+              "defaultValue": "westeurope"
+            },
+            "logAnalyticsWorkspaceSku": {
+              "type": "string",
+              "defaultValue": "pergb2018"
+            },
+            "hostpoolName": {
+              "type": "string"
+            },
+            "workspaceName": {
+              "type": "string"
+            },
+            "avdBackplaneResourceGroup": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "avdla": {
+              "type": "Microsoft.OperationalInsights/workspaces",
+              "apiVersion": "2020-08-01",
+              "name": "[parameters('logAnalyticsWorkspaceName')]",
+              "location": "[parameters('logAnalyticslocation')]",
+              "properties": {
+                "sku": {
+                  "name": "[parameters('logAnalyticsWorkspaceSku')]"
+                }
+              }
+            },
+            "avdmonitor": {
+              "type": "Microsoft.Resources/deployments",
+              "apiVersion": "2019-10-01",
+              "name": "myBicepLADiag",
+              "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
+              "properties": {
+                "expressionEvaluationOptions": {
+                  "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                  "logAnalyticsWorkspaceID": {
+                    "value": "[resourceInfo('avdla').id]"
+                  },
+                  "hostpoolName": {
+                    "value": "[parameters('hostpoolName')]"
+                  },
+                  "workspaceName": {
+                    "value": "[parameters('workspaceName')]"
+                  }
+                },
+                "template": {
+                  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                  "languageVersion": "1.9-experimental",
+                  "contentVersion": "1.0.0.0",
+                  "metadata": {
+                    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+                    "_generator": {
+                      "name": "bicep",
+                      "version": "dev",
+                      "templateHash": "10996175173856467619"
+                    }
+                  },
+                  "parameters": {
+                    "logAnalyticsWorkspaceID": {
+                      "type": "string"
+                    },
+                    "hostpoolName": {
+                      "type": "string"
+                    },
+                    "workspaceName": {
+                      "type": "string"
+                    }
+                  },
+                  "functions": [],
+                  "resources": {
+                    "hostPool": {
+                      "type": "Microsoft.DesktopVirtualization/hostPools",
+                      "apiVersion": "2020-11-02-preview",
+                      "name": "[parameters('hostpoolName')]",
+                      "existing": true
+                    },
+                    "workspace": {
+                      "type": "Microsoft.DesktopVirtualization/workspaces",
+                      "apiVersion": "2020-11-02-preview",
+                      "name": "[parameters('workspaceName')]",
+                      "existing": true
+                    },
+                    "avdhpds": {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+                      "name": "hostpool-diag",
+                      "properties": {
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+                        "logs": [
+                          {
+                            "category": "Checkpoint",
+                            "enabled": true
+                          },
+                          {
+                            "category": "Error",
+                            "enabled": true
+                          },
+                          {
+                            "category": "Management",
+                            "enabled": true
+                          },
+                          {
+                            "category": "Connection",
+                            "enabled": true
+                          },
+                          {
+                            "category": "HostRegistration",
+                            "enabled": true
+                          }
+                        ]
+                      }
+                    },
+                    "avdwsds": {
+                      "type": "Microsoft.Insights/diagnosticSettings",
+                      "apiVersion": "2017-05-01-preview",
+                      "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
+                      "name": "workspacepool-diag",
+                      "properties": {
+                        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+                        "logs": [
+                          {
+                            "category": "Checkpoint",
+                            "enabled": true
+                          },
+                          {
+                            "category": "Error",
+                            "enabled": true
+                          },
+                          {
+                            "category": "Management",
+                            "enabled": true
+                          },
+                          {
+                            "category": "Feed",
+                            "enabled": true
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              },
+              "dependsOn": [
+                "avdla"
+              ]
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "hp",
+        "ws"
+      ]
+    }
+  }
+}

@@ -1,0 +1,104 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "5787402335250242721"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    },
+    "vnetId": {
+      "type": "string"
+    },
+    "storageAccountId": {
+      "type": "string"
+    },
+    "privateEndpointName": {
+      "type": "string",
+      "defaultValue": "[format('privateEndpoint{0}', uniqueString(resourceGroup().name))]"
+    },
+    "privateLinkConnectionName": {
+      "type": "string",
+      "defaultValue": "[format('privateLink{0}', uniqueString(resourceGroup().name))]"
+    },
+    "privateDNSZoneName": {
+      "type": "string",
+      "defaultValue": "privatelink.file.core.windows.net"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "privateDNSZoneGroup": {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', parameters('privateEndpointName'), 'dnsgroupname')]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "config1",
+            "properties": {
+              "privateDnsZoneId": "[resourceInfo('privateDNSZone').id]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSZone",
+        "privateEndpoint"
+      ]
+    },
+    "virtualNetworkLink": {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', parameters('privateDNSZoneName'), format('{0}-link', resourceInfo('privateDNSZone').name))]",
+      "location": "global",
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": {
+          "id": "[parameters('vnetId')]"
+        }
+      },
+      "dependsOn": [
+        "privateDNSZone"
+      ]
+    },
+    "privateEndpoint": {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('privateEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "subnet": {
+          "id": "[parameters('subnetId')]"
+        },
+        "privateLinkServiceConnections": [
+          {
+            "name": "[parameters('privateLinkConnectionName')]",
+            "properties": {
+              "privateLinkServiceId": "[parameters('storageAccountId')]",
+              "groupIds": [
+                "file"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "privateDNSZone": {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('privateDNSZoneName')]",
+      "location": "global"
+    }
+  }
+}

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -26,6 +28,9 @@ namespace Bicep.Core.IntegrationTests
     public class ModuleTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+
+        [NotNull]
+        public TestContext? TestContext {  get; set; }
 
         [TestMethod]
         public void Modules_can_be_compiled_successfully()
@@ -223,7 +228,7 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, mainFileUri, mainFileContents, null);
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainFileUri, "modulea.bicep")).Returns((Uri?)null);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri));
 
@@ -367,7 +372,7 @@ module modulea 'modulea.bicep' = {
             SetupFileReaderMock(mockFileResolver, moduleAUri, null, x => x.ErrorOccurredReadingFile("Mock read failure!"));
             mockFileResolver.Setup(x => x.TryResolveFilePath(mainUri, "modulea.bicep")).Returns(moduleAUri);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri));
 
@@ -378,13 +383,26 @@ module modulea 'modulea.bicep' = {
         }
 
         [TestMethod]
-        public void External_module_reference_should_be_rejected()
+        public void External_module_reference_with_unknown_scheme_should_be_rejected()
         {
-            var result = CompilationHelper.Compile(@"module test 'fake:totally-fake' = {}");
+            var context = new CompilationHelper.CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true));
+            var result = CompilationHelper.Compile(context, @"module test 'fake:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"fake\" is not recognized. Specify a path to a local module file.")
+                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"fake\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"oci\", \"ts\"")
+            });
+        }
+
+        [TestMethod]
+        public void External_module_reference_with_oci_scheme_should_be_rejected_if_registry_disabled()
+        {
+            var context = new CompilationHelper.CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
+            var result = CompilationHelper.Compile(context, @"module test 'oci:totally-fake' = {}");
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"oci\" is not recognized. Specify a path to a local module file.")
             });
         }
 
@@ -393,7 +411,7 @@ module modulea 'modulea.bicep' = {
             var stringBuilder = new StringBuilder();
             var stringWriter = new StringWriter(stringBuilder);
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();

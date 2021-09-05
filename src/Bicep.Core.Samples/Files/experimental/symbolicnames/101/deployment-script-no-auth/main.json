@@ -1,0 +1,49 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3130066377201847090"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "westus"
+    },
+    "timestamp": {
+      "type": "string",
+      "defaultValue": "[utcNow()]"
+    },
+    "dsName": {
+      "type": "string",
+      "defaultValue": "[format('ds{0}', uniqueString(resourceGroup().name))]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "script": {
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "[parameters('dsName')]",
+      "kind": "AzurePowerShell",
+      "location": "[parameters('location')]",
+      "properties": {
+        "azPowerShellVersion": "3.0",
+        "scriptContent": "$DeploymentScriptOutputs[\"test\"] = \"test this output\"\n",
+        "forceUpdateTag": "[parameters('timestamp')]",
+        "retentionInterval": "PT4H"
+      }
+    }
+  },
+  "outputs": {
+    "scriptOutput": {
+      "type": "string",
+      "value": "[reference('script').outputs.test]"
+    }
+  }
+}

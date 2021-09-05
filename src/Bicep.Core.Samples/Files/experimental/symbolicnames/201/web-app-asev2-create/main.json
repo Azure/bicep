@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8438970366294898221"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "vnet-01"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "subnet-01"
+    },
+    "aseName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().name)]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "virtualNetwork": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        }
+      }
+    },
+    "subNet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('subnetName')]",
+      "properties": {
+        "addressPrefix": "10.0.1.0/25"
+      }
+    },
+    "ase": {
+      "type": "Microsoft.Web/hostingEnvironments",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('aseName')]",
+      "location": "[parameters('location')]",
+      "kind": "ASEV2",
+      "properties": {
+        "location": "[parameters('location')]",
+        "name": "[parameters('aseName')]",
+        "workerPools": [],
+        "virtualNetwork": {
+          "id": "[resourceInfo('subNet').id]"
+        }
+      },
+      "dependsOn": [
+        "subNet"
+      ]
+    }
+  }
+}

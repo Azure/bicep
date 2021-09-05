@@ -8,10 +8,13 @@ namespace Bicep.Core.RegistryClient
 {
     public class DownloadManifestResult
     {
-        internal DownloadManifestResult(Stream content)
+        public DownloadManifestResult(string digest, Stream content)
         {
+            Digest = digest;
             Content = content;
         }
+
+        public string Digest { get; }
 
         /// <summary>
         /// </summary>

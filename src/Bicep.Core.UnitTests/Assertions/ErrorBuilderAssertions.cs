@@ -17,8 +17,8 @@ namespace Bicep.Core.UnitTests.Assertions
     public class ErrorBuilderAssertions : ReferenceTypeAssertions<DiagnosticBuilder.ErrorBuilderDelegate, ErrorBuilderAssertions>
     {
         public ErrorBuilderAssertions(DiagnosticBuilder.ErrorBuilderDelegate errorBuilder)
+            : base(errorBuilder)
         {
-            this.Subject = errorBuilder;
         }
 
         protected override string Identifier => "ErrorBuilderDelegate";
