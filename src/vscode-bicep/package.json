@@ -237,7 +237,7 @@
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
-    "@typescript-eslint/parser": "^4.29.3",
+    "@typescript-eslint/parser": "^4.31.0",
     "copy-webpack-plugin": "^9.0.1",
     "esbuild-loader": "^2.15.1",
     "eslint": "^7.32.0",
@@ -259,7 +259,7 @@
     "ts-jest": "^26.5.5",
     "ts-node": "^10.2.1",
     "typescript": "^4.3.5",
-    "vsce": "^1.96.1",
+    "vsce": "^1.97.0",
     "vscode-test": "^1.6.1",
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0"
