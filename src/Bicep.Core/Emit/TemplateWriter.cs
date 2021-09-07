@@ -55,6 +55,15 @@ namespace Bicep.Core.Emit
             LanguageConstants.ResourceDependsOnPropertyName,
         }.ToImmutableHashSet();
 
+        private static readonly ImmutableHashSet<string> DecoratorsToEmitAsResourceProperties = new[] {
+            "minValue",
+            "maxValue",
+            "minLength",
+            "maxLength",
+            "metadata",
+            "description",
+        }.ToImmutableHashSet();
+
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
@@ -164,16 +173,14 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType, bool skipBatchSize = false)
+        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
         {
             var result = input;
             foreach (var decoratorSyntax in statement.Decorators.Reverse())
             {
                 var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
-                // batchSize decorator isn't evaluated as merely a property; it is instead handled like a copy object
-                if (symbol is FunctionSymbol decoratorSymbol && 
-                    !(skipBatchSize && string.Equals(symbol.Name, "batchSize", StringComparison.OrdinalIgnoreCase)))
+                if (symbol is FunctionSymbol decoratorSymbol && DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
                 {
                     var argumentTypes = decoratorSyntax.Arguments
                         .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
@@ -315,16 +322,15 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private long? GetBatchSize(StatementSyntax decoratedSyntax)
+        private long? GetBatchSize(StatementSyntax statement)
         {
-            var evaluated = this.EvaluateDecorators(decoratedSyntax, SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), LanguageConstants.Array);
-            var batchSizeProperty = evaluated.SafeGetPropertyByName("batchSize");
-
-            return batchSizeProperty switch
+            if (statement.TryGetDecoratorSyntax("batchSize")?.Arguments?.ToList() is var arguments
+                && arguments.Count() == 1
+                && arguments![0].Expression is IntegerLiteralSyntax integerLiteral)
             {
-                ObjectPropertySyntax { Value: IntegerLiteralSyntax integerLiteral } => integerLiteral.Value,
-                _ => null
-            };
+                return integerLiteral.Value;
+            }
+            return null;
         }
 
         private void EmitResource(JsonTextWriter jsonWriter, ResourceMetadata resource, ExpressionEmitter emitter)
@@ -426,7 +432,7 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteValue(true);
             }
             
-            body = EvaluateDecorators(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type, skipBatchSize: true);
+            body = EvaluateDecorators(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
@@ -513,7 +519,7 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("type", NestedDeploymentResourceType);
             emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
-            body = EvaluateDecorators(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type, skipBatchSize: true);
+            body = EvaluateDecorators(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type);
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
