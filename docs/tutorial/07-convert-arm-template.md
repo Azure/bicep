@@ -3,7 +3,7 @@
 Since Bicep is a transparent abstraction of ARM templates, any resource that can be deployed via an ARM template can be authored in Bicep. There are still a *very* small set of limitations that would prevent converting to Bicep based on current [known limitations].
 
 ## Decompiling an ARM Template
-> Requires Bicep CLI v0.3.0 or later
+> Requires Bicep CLI v0.3.0 or later ([see here for setting up your Bicep environment](https://github.com/Azure/bicep/blob/main/docs/installing.md))
  
 The Bicep CLI provides the ability to [decompile](../decompiling.md) any existing ARM Template to a `.bicep` file, using the `bicep decompile` command.
 
