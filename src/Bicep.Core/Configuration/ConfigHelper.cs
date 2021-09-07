@@ -100,7 +100,7 @@ namespace Bicep.Core.Configuration
             }
         }
 
-        private string? DiscoverLocalConfigurationFile(string? nextDir)
+        public static string? DiscoverLocalConfigurationFile(string? nextDir)
         {
             try
             {
