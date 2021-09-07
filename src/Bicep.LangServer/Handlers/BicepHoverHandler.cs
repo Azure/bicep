@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer.Handlers
                     return CodeBlock(GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
 
                 case PropertySymbol property:
-                    return $"{CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description)}";
+                    return CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description);
 
                 case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
                     return CodeBlock(
@@ -115,7 +115,7 @@ namespace Bicep.LanguageServer.Handlers
         $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```";
         
         // Markdown needs two leading whitespaces before newline to insert a line break
-        private static string CodeBlockWithDescription(string markdown, string? description) =>  description is not null ? markdown + $"\n{description.Replace("\n", "  \n")}\n" : markdown;
+        private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"\n{description.Replace("\n", "  \n")}\n" : string.Empty);
 
         private static string CodeBlockWithDescriptionDecorator(string content, DecoratorSyntax? descriptionDecorator)
         {

@@ -75,19 +75,12 @@ namespace Bicep.Core
         // Decorators
         public const string ParameterAllowedPropertyName = "allowed";
         public const string ParameterSecurePropertyName = "secure";
-        
         public const string ParameterMinValuePropertyName = "minValue";
-        
         public const string ParameterMaxValuePropertyName = "maxValue";
-        
         public const string ParameterMinLengthPropertyName = "minLength";
-        
         public const string ParameterMaxLengthPropertyName = "maxLength";
-        
         public const string ParameterMetadataPropertyName = "metadata";
-        
         public const string MetadataDescriptionPropertyName = "description";
-        
         public const string BatchSizePropertyName = "batchSize";
 
         // module properties

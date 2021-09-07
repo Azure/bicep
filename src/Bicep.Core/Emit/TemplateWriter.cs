@@ -326,9 +326,9 @@ namespace Bicep.Core.Emit
 
         private long? GetBatchSize(StatementSyntax statement)
         {
-            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName)?.Arguments?.ToList() is var arguments
+            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName)?.Arguments is IEnumerable<FunctionArgumentSyntax> arguments
                 && arguments.Count() == 1
-                && arguments![0].Expression is IntegerLiteralSyntax integerLiteral)
+                && arguments.ToList()[0].Expression is IntegerLiteralSyntax integerLiteral)
             {
                 return integerLiteral.Value;
             }
