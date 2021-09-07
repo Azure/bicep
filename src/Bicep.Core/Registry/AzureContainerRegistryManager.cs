@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Azure.Containers.ContainerRegistry;
+using Azure.Identity;
 
 namespace Bicep.Core.Registry
 {
@@ -135,7 +137,9 @@ namespace Bicep.Core.Registry
             Response<DownloadManifestResult> manifestResponse;
             try
             {
-                manifestResponse = await client.DownloadManifestAsync(moduleReference.Tag);
+                ContainerRegistryClient registryClient = new ContainerRegistryClient(new Uri("example.azurecr.io"), new DefaultAzureCredential());
+                var tagProperties = registryClient.GetArtifact(moduleReference.Repository, moduleReference.Tag).GetTagProperties(moduleReference.Tag);
+                manifestResponse = await client.DownloadManifestAsync(tagProperties.Value.Digest);
             }
             catch(RequestFailedException exception) when (exception.Status == 404)
             {
