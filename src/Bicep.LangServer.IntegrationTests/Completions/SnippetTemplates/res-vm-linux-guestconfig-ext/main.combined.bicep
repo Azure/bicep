@@ -18,6 +18,7 @@ resource linuxVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensio
     type: 'ConfigurationforLinux'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
     settings: {}
     protectedSettings: {}
   }

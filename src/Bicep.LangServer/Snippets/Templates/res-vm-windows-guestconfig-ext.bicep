@@ -16,6 +16,7 @@ resource /*${2:windowsVMGuestConfigExtension}*/windowsVMGuestConfigExtension 'Mi
     type: 'ConfigurationforWindows'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
     settings: {}
     protectedSettings: {}
   }
