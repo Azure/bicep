@@ -56,12 +56,14 @@ namespace Bicep.Core.Emit
         }.ToImmutableHashSet();
 
         private static readonly ImmutableHashSet<string> DecoratorsToEmitAsResourceProperties = new[] {
-            "minValue",
-            "maxValue",
-            "minLength",
-            "maxLength",
-            "metadata",
-            "description",
+            LanguageConstants.ParameterSecurePropertyName,
+            LanguageConstants.ParameterAllowedPropertyName,
+            LanguageConstants.ParameterMinValuePropertyName,
+            LanguageConstants.ParameterMaxValuePropertyName,
+            LanguageConstants.ParameterMinLengthPropertyName,
+            LanguageConstants.ParameterMaxLengthPropertyName,
+            LanguageConstants.ParameterMetadataPropertyName,
+            LanguageConstants.MetadataDescriptionPropertyName,
         }.ToImmutableHashSet();
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
@@ -324,7 +326,7 @@ namespace Bicep.Core.Emit
 
         private long? GetBatchSize(StatementSyntax statement)
         {
-            if (statement.TryGetDecoratorSyntax("batchSize")?.Arguments?.ToList() is var arguments
+            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName)?.Arguments?.ToList() is var arguments
                 && arguments.Count() == 1
                 && arguments![0].Expression is IntegerLiteralSyntax integerLiteral)
             {
