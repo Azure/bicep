@@ -20,7 +20,6 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static Bicep.Core.Semantics.ResourceAncestorGraph;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 

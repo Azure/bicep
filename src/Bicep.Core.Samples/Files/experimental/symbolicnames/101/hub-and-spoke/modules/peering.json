@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1640248940128810957"
+    }
+  },
+  "parameters": {
+    "localVnetName": {
+      "type": "string"
+    },
+    "remoteVnetName": {
+      "type": "string"
+    },
+    "remoteVnetId": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "peer": {
+      "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/to-{1}', parameters('localVnetName'), parameters('remoteVnetName'))]",
+      "properties": {
+        "allowForwardedTraffic": false,
+        "allowGatewayTransit": false,
+        "allowVirtualNetworkAccess": true,
+        "useRemoteGateways": false,
+        "remoteVirtualNetwork": {
+          "id": "[parameters('remoteVnetId')]"
+        }
+      }
+    }
+  }
+}

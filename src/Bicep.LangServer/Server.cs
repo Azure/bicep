@@ -3,7 +3,6 @@
 using System;
 using System.IO;
 using System.IO.Pipelines;
-using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Diagnostics;
@@ -24,21 +23,19 @@ using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Bicep.LanguageServer.Utils;
+using Bicep.Core.Features;
 
 namespace Bicep.LanguageServer
 {
     public class Server
     {
-        public class CreationOptions
-        {
-            public ISnippetsProvider? SnippetsProvider { get; set; }
-
-            public IResourceTypeProvider? ResourceTypeProvider { get; set; }
-
-            public IFileResolver? FileResolver { get; set; }
-        }
+        public record CreationOptions(
+            ISnippetsProvider? SnippetsProvider = null,
+            IResourceTypeProvider? ResourceTypeProvider = null,
+            IFileResolver? FileResolver = null,
+            IFeatureProvider? Features = null,
+            string? AssemblyFileVersion = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -91,7 +88,7 @@ namespace Bicep.LanguageServer
                 Trace.Listeners.Add(new ServerLogTraceListener(server));
             }
 
-            var scheduler = server.GetService<IModuleRestoreScheduler>();
+            var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
             scheduler.Start();
 
             await server.WaitForExit;
@@ -100,12 +97,17 @@ namespace Bicep.LanguageServer
         private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
         {
             var fileResolver = creationOptions.FileResolver ?? new FileResolver();
+            var featureProvider = creationOptions.Features ?? new FeatureProvider();
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
+            services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver));
-            services.AddSingleton<IFileResolver>(services => fileResolver);
+            services.AddSingleton<IFileResolver>(fileResolver);
+            services.AddSingleton<IFeatureProvider>(featureProvider);
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
+            services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
+            services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();

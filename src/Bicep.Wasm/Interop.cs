@@ -59,7 +59,8 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri, bicepUri);
+                var decompiler = new TemplateDecompiler(resourceTypeProvider, fileResolver, new EmptyModuleRegistryProvider());
+                var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -121,7 +122,8 @@ namespace Bicep.Wasm
             {
                 var lineStarts = TextCoordinateConverter.GetLineStarts(content);
                 var compilation = GetCompilation(content);
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), ThisAssembly.AssemblyFileVersion);
+                var emitterSettings = new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: false);
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
                 // memory stream is not ideal for frequent large allocations
                 using var stream = new MemoryStream();

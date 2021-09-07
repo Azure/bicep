@@ -1,0 +1,357 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13281876479922823735"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "websites": [
+      {
+        "name": "fancy",
+        "tag": "latest"
+      },
+      {
+        "name": "plain",
+        "tag": "plain-text"
+      }
+    ],
+    "vnets": [
+      {
+        "name": "vnet1",
+        "subnetName": "subnet1.1"
+      },
+      {
+        "name": "vnet2",
+        "subnetName": "subnet2.1"
+      }
+    ]
+  },
+  "resources": {
+    "rg": {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "adotfrank-rg",
+      "location": "[deployment().location]"
+    },
+    "appPlanDeploy": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "planDeploy",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "namePrefix": {
+            "value": "hello"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "4938872769570543882"
+            }
+          },
+          "parameters": {
+            "namePrefix": {
+              "type": "string"
+            },
+            "sku": {
+              "type": "string",
+              "defaultValue": "B1"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Web/serverfarms",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}appPlan', parameters('namePrefix'))]",
+              "location": "[resourceGroup().location]",
+              "kind": "linux",
+              "sku": {
+                "name": "[parameters('sku')]"
+              },
+              "properties": {
+                "reserved": true
+              }
+            }
+          ],
+          "outputs": {
+            "planId": {
+              "type": "string",
+              "value": "[resourceId('Microsoft.Web/serverfarms', format('{0}appPlan', parameters('namePrefix')))]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "siteDeploy": {
+      "copy": {
+        "name": "siteDeploy",
+        "count": "[length(variables('websites'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}siteDeploy', variables('websites')[copyIndex()].name)]",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "appPlanId": {
+            "value": "[reference('appPlanDeploy').outputs.planId.value]"
+          },
+          "namePrefix": {
+            "value": "[variables('websites')[copyIndex()].name]"
+          },
+          "dockerImage": {
+            "value": "nginxdemos/hello"
+          },
+          "dockerImageTag": {
+            "value": "[variables('websites')[copyIndex()].tag]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "228337352270462398"
+            }
+          },
+          "parameters": {
+            "namePrefix": {
+              "type": "string"
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "dockerImage": {
+              "type": "string"
+            },
+            "dockerImageTag": {
+              "type": "string"
+            },
+            "appPlanId": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [
+            {
+              "type": "Microsoft.Web/sites",
+              "apiVersion": "2020-06-01",
+              "name": "[format('{0}site', parameters('namePrefix'))]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "siteConfig": {
+                  "appSettings": [
+                    {
+                      "name": "DOCKER_REGISTRY_SERVER_URL",
+                      "value": "https://index.docker.io"
+                    },
+                    {
+                      "name": "DOCKER_REGISTRY_SERVER_USERNAME",
+                      "value": ""
+                    },
+                    {
+                      "name": "DOCKER_REGISTRY_SERVER_PASSWORD",
+                      "value": ""
+                    },
+                    {
+                      "name": "WEBSITES_ENABLE_APP_SERVICE_STORAGE",
+                      "value": "false"
+                    }
+                  ],
+                  "linuxFxVersion": "[format('DOCKER|{0}:{1}', parameters('dockerImage'), parameters('dockerImageTag'))]"
+                },
+                "serverFarmId": "[parameters('appPlanId')]"
+              }
+            }
+          ],
+          "outputs": {
+            "siteUrl": {
+              "type": "string",
+              "value": "[reference(resourceId('Microsoft.Web/sites', format('{0}site', parameters('namePrefix')))).hostNames[0]]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "appPlanDeploy",
+        "rg"
+      ]
+    },
+    "storageDeploy": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "storageDeploy",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "location": {
+            "value": "eastus"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "storageAccountType": {
+              "type": "string",
+              "defaultValue": "Standard_LRS",
+              "allowedValues": [
+                "Standard_LRS",
+                "Standard_GRS",
+                "Standard_ZRS",
+                "Premium_LRS"
+              ],
+              "metadata": {
+                "description": "Storage Account type"
+              }
+            },
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]",
+              "metadata": {
+                "description": "Location for all resources."
+              }
+            }
+          },
+          "variables": {
+            "storageAccountName": "[concat('store', uniquestring(resourceGroup().id))]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Storage/storageAccounts",
+              "apiVersion": "2019-06-01",
+              "name": "[variables('storageAccountName')]",
+              "location": "[parameters('location')]",
+              "sku": {
+                "name": "[parameters('storageAccountType')]"
+              },
+              "kind": "StorageV2",
+              "properties": {}
+            }
+          ],
+          "outputs": {
+            "storageAccountName": {
+              "type": "string",
+              "value": "[variables('storageAccountName')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "vnetDeploy": {
+      "copy": {
+        "name": "vnetDeploy",
+        "count": "[length(variables('vnets'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}Deploy', variables('vnets')[copyIndex()].name)]",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "vnetName": {
+            "value": "[variables('vnets')[copyIndex()].name]"
+          },
+          "subnetName": {
+            "value": "[variables('vnets')[copyIndex()].subnetName]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "vnetName": {
+              "type": "string"
+            },
+            "vnetPrefix": {
+              "type": "string",
+              "defaultValue": "10.0.0.0/16"
+            },
+            "subnetName": {
+              "type": "string"
+            },
+            "subnetPrefix": {
+              "type": "string",
+              "defaultValue": "10.0.0.0/24"
+            }
+          },
+          "variables": {},
+          "resources": [
+            {
+              "name": "[parameters('vnetName')]",
+              "type": "Microsoft.Network/virtualNetworks",
+              "apiVersion": "2019-11-01",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[parameters('vnetPrefix')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "[parameters('subnetName')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnetPrefix')]"
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "outputs": {}
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    }
+  },
+  "outputs": {
+    "siteUrls": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('websites'))]",
+        "input": "[reference(format('siteDeploy[{0}]', copyIndex())).outputs.siteUrl.value]"
+      }
+    }
+  }
+}

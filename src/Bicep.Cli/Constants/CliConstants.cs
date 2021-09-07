@@ -7,6 +7,8 @@ namespace Bicep.Cli.Constants
     {
         public const string Build = "build";
         public const string Decompile = "decompile";
+        public const string Publish = "publish";
+        public const string Restore = "restore";
         public const string Root = "";
     }
 

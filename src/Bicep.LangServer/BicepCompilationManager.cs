@@ -44,22 +44,18 @@ namespace Bicep.LanguageServer
 
         public void RefreshCompilation(DocumentUri documentUri)
         {
-            if(this.GetCompilation(documentUri) is null)
+            var compilationContext = this.GetCompilation(documentUri);
+            if (compilationContext is null)
             {
                 // the compilation we are refreshing no longer exists
                 return;
             }
 
-            // TODO: This likely has a race condition if the user is modifying the file at the same time
-            var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
-            var (_, removedTrees) = UpdateCompilationInternal(documentUri, null, modelLookup, Enumerable.Empty<ISourceFile>());
-            foreach (var (entrypointUri, context) in activeContexts)
-            {
-                if (removedTrees.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
-                {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, Enumerable.Empty<ISourceFile>());
-                }
-            }
+            // TODO: This may cause race condition if the user is modifying the file at the same time
+            // need to make a shallow copy so it counts as a different file even though all the content is identical
+            // this was the easiest way to force the compilation to be regenerated
+            var shallowCopy = new BicepFile(compilationContext.Compilation.SourceFileGrouping.EntryPoint);
+            UpsertCompilationInternal(documentUri, null, shallowCopy);
         }
 
         public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
@@ -67,22 +63,26 @@ namespace Bicep.LanguageServer
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
                 var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
-                var firstChanges = workspace.UpsertSourceFile(newFile);
-                var removedFiles = firstChanges.removed;
+                UpsertCompilationInternal(documentUri, version, newFile);
+            }
+        }
 
-                var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
-                if (newFile is BicepFile)
-                {
-                    // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                    UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles);
-                }
+        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile)
+        {
+            var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
 
-                foreach (var (entrypointUri, context) in activeContexts)
+            var modelLookup = new Dictionary<ISourceFile, ISemanticModel>();
+            if (newFile is BicepFile)
+            {
+                // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
+                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles);
+            }
+
+            foreach (var (entrypointUri, context) in activeContexts)
+            {
+                if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
-                    {
-                        UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles);
-                    }
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles);
                 }
             }
         }

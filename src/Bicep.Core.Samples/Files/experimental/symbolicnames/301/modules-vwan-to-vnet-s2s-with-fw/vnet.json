@@ -1,0 +1,227 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7986398767681664162"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "vnetname": {
+      "type": "string"
+    },
+    "addressprefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Specifies the VNet Address Prefix."
+      }
+    },
+    "serversubnetprefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/26",
+      "metadata": {
+        "description": "Specifies the Subnet Address Prefix for the server subnet"
+      }
+    },
+    "bastionsubnetprefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.64/26",
+      "metadata": {
+        "description": "Specifies the Subnet Address Prefix for the bastion subnet"
+      }
+    },
+    "gatewaysubnetprefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.128/26",
+      "metadata": {
+        "description": "Specifies the Subnet Address Prefix for the GatewaySubnet"
+      }
+    },
+    "firewallsubnetprefix": {
+      "type": "string",
+      "defaultValue": "10.0.1.192/26",
+      "metadata": {
+        "description": "Specifies the Subnet Address Prefix for the AzureFirewallSubnet"
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "servernsgname": "[format('{0}-snet-servers-nsg', parameters('vnetname'))]",
+    "bastionnsgname": "[format('{0}-AzureBastionSubnet-nsg', parameters('vnetname'))]",
+    "bastionnsgrules": {
+      "securityRules": [
+        {
+          "name": "bastion-in-allow",
+          "properties": {
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationPortRange": "443",
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 100,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "bastion-control-in-allow",
+          "properties": {
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "GatewayManager",
+            "destinationPortRanges": [
+              "443",
+              "4443"
+            ],
+            "destinationAddressPrefix": "*",
+            "access": "Allow",
+            "priority": 120,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "bastion-in-deny",
+          "properties": {
+            "protocol": "*",
+            "sourcePortRange": "*",
+            "destinationPortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationAddressPrefix": "*",
+            "access": "Deny",
+            "priority": 4096,
+            "direction": "Inbound"
+          }
+        },
+        {
+          "name": "bastion-vnet-ssh-out-allow",
+          "properties": {
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationPortRange": "22",
+            "destinationAddressPrefix": "VirtualNetwork",
+            "access": "Allow",
+            "priority": 100,
+            "direction": "Outbound"
+          }
+        },
+        {
+          "name": "bastion-vnet-rdp-out-allow",
+          "properties": {
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationPortRange": "3389",
+            "destinationAddressPrefix": "VirtualNetwork",
+            "access": "Allow",
+            "priority": 110,
+            "direction": "Outbound"
+          }
+        },
+        {
+          "name": "bastion-azure-out-allow",
+          "properties": {
+            "protocol": "Tcp",
+            "sourcePortRange": "*",
+            "sourceAddressPrefix": "*",
+            "destinationPortRange": "443",
+            "destinationAddressPrefix": "AzureCloud",
+            "access": "Allow",
+            "priority": 120,
+            "direction": "Outbound"
+          }
+        }
+      ]
+    }
+  },
+  "resources": {
+    "servernsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('servernsgname')]",
+      "location": "[parameters('location')]"
+    },
+    "bastionnsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('bastionnsgname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": "[variables('bastionnsgrules').securityRules]"
+      }
+    },
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "[parameters('vnetname')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('addressprefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "snet-servers",
+            "properties": {
+              "addressPrefix": "[parameters('serversubnetprefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('servernsg').id]"
+              }
+            }
+          },
+          {
+            "name": "AzureBastionSubnet",
+            "properties": {
+              "addressPrefix": "[parameters('bastionsubnetprefix')]",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('bastionnsg').id]"
+              }
+            }
+          },
+          {
+            "name": "GatewaySubnet",
+            "properties": {
+              "addressPrefix": "[parameters('gatewaysubnetprefix')]"
+            }
+          },
+          {
+            "name": "AzureFirewallSubnet",
+            "properties": {
+              "addressPrefix": "[parameters('firewallsubnetprefix')]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "bastionnsg",
+        "servernsg"
+      ]
+    }
+  },
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceInfo('vnet').id]"
+    },
+    "subnets": {
+      "type": "array",
+      "value": "[reference('vnet').subnets]"
+    },
+    "vnetaddress": {
+      "type": "array",
+      "value": "[reference('vnet').addressSpace.addressPrefixes]"
+    }
+  }
+}

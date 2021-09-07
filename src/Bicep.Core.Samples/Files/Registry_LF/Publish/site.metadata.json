@@ -1,0 +1,3 @@
+{
+  "target": "oci:mock-registry-two.invalid/demo/site:v3"
+}

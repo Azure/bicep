@@ -24,7 +24,7 @@ namespace Bicep.Core.Workspaces
         private readonly Dictionary<ModuleDeclarationSyntax, ISourceFile> sourceFilesByModuleDeclaration;
         private readonly Dictionary<ModuleDeclarationSyntax, ErrorBuilderDelegate> errorBuildersByModuleDeclaration;
 
-        private readonly HashSet<ModuleDeclarationSyntax> modulesToInit;
+        private readonly HashSet<ModuleDeclarationSyntax> modulesToRestore;
 
         // uri -> successfully loaded syntax tree
         private readonly Dictionary<Uri, ISourceFile> sourceFilesByUri;
@@ -39,7 +39,7 @@ namespace Bicep.Core.Workspaces
             this.workspace = workspace;
             this.sourceFilesByModuleDeclaration = new();
             this.errorBuildersByModuleDeclaration = new();
-            this.modulesToInit = new();
+            this.modulesToRestore = new();
             this.sourceFilesByUri = new();
             this.errorBuildersByUri = new();
         }
@@ -53,7 +53,7 @@ namespace Bicep.Core.Workspaces
             this.sourceFilesByModuleDeclaration = new(current.SourceFilesByModuleDeclaration);
             this.errorBuildersByModuleDeclaration = new(current.ErrorBuildersByModuleDeclaration);
 
-            this.modulesToInit = new();
+            this.modulesToRestore = new();
             
             this.sourceFilesByUri = current.SourceFiles.ToDictionary(tree => tree.FileUri);
             this.errorBuildersByUri = new();
@@ -107,7 +107,7 @@ namespace Bicep.Core.Workspaces
                 sourceFilesByModuleDeclaration.ToImmutableDictionary(),
                 sourceFileDependencies.InvertLookup().ToImmutableDictionary(),
                 errorBuildersByModuleDeclaration.ToImmutableDictionary(),
-                modulesToInit.ToImmutableHashSet());
+                modulesToRestore.ToImmutableHashSet());
         }
 
         private ISourceFile? TryGetSourceFile(Uri fileUri, bool isEntryFile, out ErrorBuilderDelegate? failureBuilder)
@@ -168,21 +168,30 @@ namespace Bicep.Core.Workspaces
 
             foreach (var module in GetModuleDeclarations(bicepFile))
             {
-                if(!this.moduleDispatcher.ValidateModuleReference(module, out var parseReferenceFailureBuilder))
+                var moduleReference = this.moduleDispatcher.TryGetModuleReference(module, out var parseReferenceFailureBuilder);
+                if(moduleReference is null)
                 {
                     // module reference is not valid
-                    errorBuildersByModuleDeclaration[module] = parseReferenceFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.ValidateModuleReference)} to provide failure diagnostics.");
+                    errorBuildersByModuleDeclaration[module] = parseReferenceFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.TryGetModuleReference)} to provide failure diagnostics.");
                     continue;
                 }
 
-                if(!this.moduleDispatcher.IsModuleAvailable(module, out var restoreErrorBuilder))
+                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
+                if (restoreStatus != ModuleRestoreStatus.Succeeded)
                 {
-                    errorBuildersByModuleDeclaration[module] = restoreErrorBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.IsModuleAvailable)} to provide failure diagnostics.");
-                    modulesToInit.Add(module);
+                    if(restoreStatus == ModuleRestoreStatus.Unknown)
+                    {
+                        // we have not yet attempted to restore the module, so let's do it
+                        modulesToRestore.Add(module);
+                    }
+
+                    // the module has not yet been restored or restore failed
+                    // in either case, set the error
+                    errorBuildersByModuleDeclaration[module] = restoreErrorBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.GetModuleRestoreStatus)} to provide failure diagnostics.");
                     continue;
                 }
 
-                var moduleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, module, out var moduleGetPathFailureBuilder);
+                var moduleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, moduleReference, out var moduleGetPathFailureBuilder);
                 if (moduleFileUri is null)
                 {
                     // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:

@@ -19,6 +19,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -166,15 +167,22 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public string Scheme => "mock";
 
+            public RegistryCapabilities Capabilities => throw new NotImplementedException();
+
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 
-            public IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate> RestoreModules(IEnumerable<ModuleReference> references)
+            public Task PublishModule(ModuleReference moduleReference, Stream compiled)
             {
-                this.ModuleRestores.Push(references);
-                return new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+                throw new NotImplementedException();
             }
 
-            public Uri? TryGetLocalModuleEntryPointPath(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references)
+            {
+                this.ModuleRestores.Push(references);
+                return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>());
+            }
+
+            public Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 throw new NotImplementedException();
             }

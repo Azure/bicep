@@ -18,8 +18,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
     public class RangeAssertions : ReferenceTypeAssertions<Range, RangeAssertions>
     {
         public RangeAssertions(Range instance)
+            : base(instance)
         {
-            Subject = instance;
         }
 
         protected override string Identifier => "range";

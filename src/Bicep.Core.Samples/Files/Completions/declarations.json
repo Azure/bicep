@@ -1173,6 +1173,35 @@
     }
   },
   {
+    "label": "res-expressroute-gateway",
+    "kind": "snippet",
+    "detail": "ExpressRoute Gateway",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource expressRouteGateways 'Microsoft.Network/expressRouteGateways@2021-02-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    virtualHub: {\n      id: 'virtualHub.id'\n    }\n    autoScaleConfiguration: {\n      bounds: {\n        min: 1\n        max: 1\n      }\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-expressroute-gateway",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:expressRouteGateways} 'Microsoft.Network/expressRouteGateways@2021-02-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  properties: {\n    virtualHub: {\n      id: ${3:'virtualHub.id'}\n    }\n    autoScaleConfiguration: {\n      bounds: {\n        min: ${4|1,2,3,4,5,6,7,8|}\n        max: ${5|1,2,3,4,5,6,7,8|}\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-expressroute-gateway"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-firewall",
     "kind": "snippet",
     "detail": "Azure Firewall",
@@ -1927,6 +1956,93 @@
     }
   },
   {
+    "label": "res-policy-guestconfig",
+    "kind": "snippet",
+    "detail": "Guest configuration assignment for virtual machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'Audit'\n      version: 'version'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-guestconfig",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}\n      version: ${6:'version'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-guestconfig"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policy-guestconfig-hybrid",
+    "kind": "snippet",
+    "detail": "Guest configuration assignment for virtual machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: arcEnabledMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'Audit'\n      version: 'version'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-guestconfig-hybrid",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: arcEnabledMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}\n      version: ${6:'version'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-guestconfig-hybrid"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-policy-guestconfig-params",
+    "kind": "snippet",
+    "detail": "Guest configuration assignment with parameters, for virtual machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'Audit'\n      version: 'version'\n      configurationParameter: [\n        {\n          name: 'parameter1[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter1Value'\n        }\n        {\n          name: 'parameter2[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter2Value'\n        }\n      ]\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-policy-guestconfig-params",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}\n      version: ${6:'version'}\n      configurationParameter: [\n        {\n          name: ${7:'parameter1[dscResourceType]dscResourceName;propertyName'}\n          value: ${8:'parameter1Value'}\n        }\n        {\n          name: ${9:'parameter2[dscResourceType]dscResourceName;propertyName'}\n          value: ${10:'parameter2Value'}\n        }\n      ]\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-policy-guestconfig-params"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-policy-remediation",
     "kind": "snippet",
     "detail": "olicy Remediation",
@@ -2066,6 +2182,35 @@
           "EventName": "TopLevelDeclarationSnippetInsertion",
           "Properties": {
             "name": "res-rg"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-route-server",
+    "kind": "snippet",
+    "detail": "Route Server",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  properties: {\n    sku: 'Standard'\n  }\n}\n\nresource ipConfiguration 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02-01' = {\n  name: 'name'\n  parent: virtualHub\n  properties: {\n    subnet: {\n      id: 'subnet.id'\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-route-server",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  properties: {\n    sku: 'Standard'\n  }\n}\n\nresource ${2:ipConfiguration} 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02-01' = {\n  name: ${3:'name'}\n  parent: virtualHub\n  properties: {\n    subnet: {\n      id: ${4:'subnet.id'}\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-route-server"
           }
         }
       ]
@@ -2391,6 +2536,35 @@
     }
   },
   {
+    "label": "res-vm-linux-guestconfig-ext",
+    "kind": "snippet",
+    "detail": "Guest configuration extension for Linux virtual machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vm-linux-guestconfig-ext",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-linux-guestconfig-ext"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-vm-script-linux",
     "kind": "snippet",
     "detail": "Custom script extension for Linux Virtual Machine",
@@ -2530,6 +2704,35 @@
           "EventName": "TopLevelDeclarationSnippetInsertion",
           "Properties": {
             "name": "res-vm-windows-diagnostics"
+          }
+        }
+      ]
+    }
+  },
+  {
+    "label": "res-vm-windows-guestconfig-ext",
+    "kind": "snippet",
+    "detail": "Guest configuration assignment for Windows virtual machine",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-vm-windows-guestconfig-ext",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-vm-windows-guestconfig-ext"
           }
         }
       ]

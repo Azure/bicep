@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "2678384896391539051"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string",
+      "defaultValue": "acilinuxpublicipcontainergroup",
+      "metadata": {
+        "description": "Name for the container group"
+      }
+    },
+    "image": {
+      "type": "string",
+      "defaultValue": "mcr.microsoft.com/azuredocs/aci-helloworld",
+      "metadata": {
+        "description": "Container image to deploy. Should be of the form repoName/imagename:tag for images stored in public Docker Hub, or a fully qualified URI for other registries. Images from private registries require additional registry credentials."
+      }
+    },
+    "port": {
+      "type": "int",
+      "defaultValue": 80,
+      "metadata": {
+        "description": "Port to open on the container and the public IP address."
+      }
+    },
+    "cpuCores": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The number of CPU cores to allocate to the container."
+      }
+    },
+    "memoryInGb": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "The amount of memory to allocate to the container in gigabytes."
+      }
+    },
+    "restartPolicy": {
+      "type": "string",
+      "defaultValue": "Always",
+      "allowedValues": [
+        "Always",
+        "Never",
+        "OnFailure"
+      ],
+      "metadata": {
+        "description": "The behavior of Azure runtime if container has stopped."
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    }
+  },
+  "functions": [],
+  "resources": {
+    "containerGroup": {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2019-12-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "containers": [
+          {
+            "name": "[parameters('name')]",
+            "properties": {
+              "image": "[parameters('image')]",
+              "ports": [
+                {
+                  "port": "[parameters('port')]",
+                  "protocol": "TCP"
+                }
+              ],
+              "resources": {
+                "requests": {
+                  "cpu": "[parameters('cpuCores')]",
+                  "memoryInGB": "[parameters('memoryInGb')]"
+                }
+              }
+            }
+          }
+        ],
+        "osType": "Linux",
+        "restartPolicy": "[parameters('restartPolicy')]",
+        "ipAddress": {
+          "type": "Public",
+          "ports": [
+            {
+              "port": "[parameters('port')]",
+              "protocol": "TCP"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "outputs": {
+    "containerIPv4Address": {
+      "type": "string",
+      "value": "[reference('containerGroup').ipAddress.ip]"
+    }
+  }
+}

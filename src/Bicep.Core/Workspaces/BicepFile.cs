@@ -18,6 +18,14 @@ namespace Bicep.Core.Workspaces
             Hierarchy.AddRoot(ProgramSyntax);
         }
 
+        public BicepFile(BicepFile original)
+        {
+            FileUri = original.FileUri;
+            LineStarts = original.LineStarts;
+            ProgramSyntax = original.ProgramSyntax;
+            Hierarchy = original.Hierarchy;
+        }
+
         public Uri FileUri { get; }
 
         public ImmutableArray<int> LineStarts { get; }

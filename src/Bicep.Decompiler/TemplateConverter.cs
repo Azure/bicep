@@ -242,6 +242,22 @@ namespace Bicep.Decompiler
                 return true;
             }
 
+            if (SyntaxHelpers.TryGetEmptyFunctionKeywordReplacement(expression.Function) is TokenType keywordTokenType)
+            {
+                if (expression.Parameters.Any())
+                {
+                    throw new ArgumentException($"Expected 0 parameters for function {expression.Function}");
+                }
+
+                if (expression.Properties.Any())
+                {
+                    throw new ArgumentException($"Expected 0 properties for function {expression.Function}");
+                }
+
+                syntax = SyntaxFactory.CreateToken(keywordTokenType);
+                return true;
+            }
+
             if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "not"))
             {
                 if (expression.Parameters.Length != 1)

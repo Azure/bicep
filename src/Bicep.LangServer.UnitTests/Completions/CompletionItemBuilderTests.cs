@@ -52,5 +52,27 @@ namespace Bicep.LangServer.UnitTests.Completions
 
             fail.Should().Throw<InvalidOperationException>().WithMessage("Unable to set the specified insert text because a text edit is already set.");
         }
+
+        [TestMethod]
+        public void SnippetCompletionItemTextEditTextShouldNotContainCarriageReturnCharacter()
+        {
+            var snippet = "module testModule 'main.bicep' = {\r\n  name: 'myModule'\r\n  }";
+            var completionItemBuilder = CompletionItemBuilder.Create(CompletionItemKind.Snippet, "label")
+                .WithSnippetEdit(new Range(), snippet);
+            string completionItemTextEditText = completionItemBuilder.Build().TextEdit!.TextEdit!.NewText;
+
+            completionItemTextEditText.Should().Be("module testModule 'main.bicep' = {\n  name: 'myModule'\n  }");         
+        }
+
+        [TestMethod]
+        public void PlainTextCompletionItemTextEditTextShouldNotContainCarriageReturnCharacter()
+        {
+            var text = "module testModule 'main.bicep' = {\r\n  name: 'myModule'\r\n  }";
+            var completionItemBuilder = CompletionItemBuilder.Create(CompletionItemKind.Text, "label")
+                .WithPlainTextEdit(new Range(), text);
+            string completionItemTextEditText = completionItemBuilder.Build().TextEdit!.TextEdit!.NewText;
+
+            completionItemTextEditText.Should().Be("module testModule 'main.bicep' = {\n  name: 'myModule'\n  }");
+        }
     }
 }

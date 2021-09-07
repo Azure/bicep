@@ -1,0 +1,389 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13500409291415472659"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location of AKS cluster."
+      }
+    },
+    "virtualNetworkId": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the id of the virtual network."
+      }
+    },
+    "vmSubnetId": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the idof the subnet which contains the virtual machine."
+      }
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "TestVm",
+      "metadata": {
+        "description": "Specifies the name of the virtual machine."
+      }
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2",
+      "metadata": {
+        "description": "Specifies the size of the virtual machine."
+      }
+    },
+    "imagePublisher": {
+      "type": "string",
+      "defaultValue": "Canonical",
+      "metadata": {
+        "description": "Specifies the image publisher of the disk image used to create the virtual machine."
+      }
+    },
+    "imageOffer": {
+      "type": "string",
+      "defaultValue": "UbuntuServer",
+      "metadata": {
+        "description": "Specifies the offer of the platform image or marketplace image used to create the virtual machine."
+      }
+    },
+    "imageSku": {
+      "type": "string",
+      "defaultValue": "18.04-LTS",
+      "metadata": {
+        "description": "Specifies the Ubuntu version for the VM. This will pick a fully patched image of this given Ubuntu version."
+      }
+    },
+    "authenticationType": {
+      "type": "string",
+      "defaultValue": "password",
+      "metadata": {
+        "description": "Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended."
+      },
+      "allowedValues": [
+        "sshPublicKey",
+        "password"
+      ]
+    },
+    "vmAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the administrator account of the virtual machine."
+      }
+    },
+    "vmAdminPasswordOrKey": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Specifies the SSH Key or password for the virtual machine. SSH key is recommended."
+      }
+    },
+    "diskStorageAccounType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "metadata": {
+        "description": "Specifies the storage account type for OS and data disk."
+      },
+      "allowedValues": [
+        "Premium_LRS",
+        "StandardSSD_LRS",
+        "Standard_LRS",
+        "UltraSSD_LRS"
+      ]
+    },
+    "numDataDisks": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "Specifies the number of data disks of the virtual machine."
+      },
+      "maxValue": 64,
+      "minValue": 0
+    },
+    "osDiskSize": {
+      "type": "int",
+      "defaultValue": 50,
+      "metadata": {
+        "description": "Specifies the size in GB of the OS disk of the VM."
+      }
+    },
+    "dataDiskSize": {
+      "type": "int",
+      "defaultValue": 50,
+      "metadata": {
+        "description": "Specifies the size in GB of the OS disk of the virtual machine."
+      }
+    },
+    "dataDiskCaching": {
+      "type": "string",
+      "defaultValue": "ReadWrite",
+      "metadata": {
+        "description": "Specifies the caching requirements for the data disks."
+      }
+    },
+    "blobStorageAccountName": {
+      "type": "string",
+      "defaultValue": "[format('blob{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Specifies the globally unique name for the storage account used to store the boot diagnostics logs of the virtual machine."
+      }
+    },
+    "blobStorageAccountPrivateEndpointName": {
+      "type": "string",
+      "defaultValue": "BlobStorageAccountPrivateEndpoint",
+      "metadata": {
+        "description": "Specifies the name of the private link to the boot diagnostics storage account."
+      }
+    },
+    "logAnalyticsWorkspaceId": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the id of the Log Analytics Workspace."
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
+    "vmNicId": "[resourceInfo('vmNic').id]",
+    "blobPublicDNSZoneForwarder": "[format('.blob.{0}', environment().suffixes.storage)]",
+    "blobPrivateDnsZoneName": "[format('privatelink{0}', variables('blobPublicDNSZoneForwarder'))]",
+    "blobStorageAccountPrivateEndpointGroupName": "blob",
+    "omsAgentForLinuxName": "LogAnalytics",
+    "omsDependencyAgentForLinuxName": "DependencyAgent",
+    "linuxConfiguration": {
+      "disablePasswordAuthentication": true,
+      "ssh": {
+        "publicKeys": [
+          {
+            "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('vmAdminUsername'))]",
+            "keyData": "[parameters('vmAdminPasswordOrKey')]"
+          }
+        ]
+      },
+      "provisionVMAgent": true
+    },
+    "virtualNetworkName": "[last(split(parameters('virtualNetworkId'), '/'))]",
+    "logAnalyticsWorkspaceName": "[last(split(parameters('logAnalyticsWorkspaceId'), '/'))]"
+  },
+  "resources": {
+    "logAnalyticsWorkspace": {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-10-01",
+      "name": "[variables('logAnalyticsWorkspaceName')]",
+      "existing": true
+    },
+    "blobStorageAccount": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2021-01-01",
+      "name": "[parameters('blobStorageAccountName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard_LRS"
+      },
+      "kind": "StorageV2"
+    },
+    "vmNic": {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-08-01",
+      "name": "[variables('vmNicName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('vmSubnetId')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "virtualMachines": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-12-01",
+      "name": "[parameters('vmName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('vmAdminUsername')]",
+          "adminPassword": "[parameters('vmAdminPasswordOrKey')]",
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+        },
+        "storageProfile": {
+          "copy": [
+            {
+              "name": "dataDisks",
+              "count": "[length(range(0, parameters('numDataDisks')))]",
+              "input": {
+                "caching": "[parameters('dataDiskCaching')]",
+                "diskSizeGB": "[parameters('dataDiskSize')]",
+                "lun": "[range(0, parameters('numDataDisks'))[copyIndex('dataDisks')]]",
+                "name": "[format('{0}-DataDisk{1}', parameters('vmName'), range(0, parameters('numDataDisks'))[copyIndex('dataDisks')])]",
+                "createOption": "Empty",
+                "managedDisk": {
+                  "storageAccountType": "[parameters('diskStorageAccounType')]"
+                }
+              }
+            }
+          ],
+          "imageReference": {
+            "publisher": "[parameters('imagePublisher')]",
+            "offer": "[parameters('imageOffer')]",
+            "sku": "[parameters('imageSku')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[format('{0}_OSDisk', parameters('vmName'))]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage",
+            "diskSizeGB": "[parameters('osDiskSize')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('diskStorageAccounType')]"
+            }
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceInfo('vmNic').id]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference('blobStorageAccount').primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "blobStorageAccount",
+        "vmNic"
+      ]
+    },
+    "omsAgentForLinux": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', parameters('vmName'), variables('omsAgentForLinuxName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.EnterpriseCloud.Monitoring",
+        "type": "OmsAgentForLinux",
+        "typeHandlerVersion": "1.13",
+        "settings": {
+          "workspaceId": "[reference('logAnalyticsWorkspace').customerId]",
+          "stopOnMultipleConnections": false
+        },
+        "protectedSettings": {
+          "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').primarySharedKey]"
+        }
+      },
+      "dependsOn": [
+        "virtualMachines"
+      ]
+    },
+    "omsDependencyAgentForLinux": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-12-01",
+      "name": "[format('{0}/{1}', parameters('vmName'), variables('omsDependencyAgentForLinuxName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",
+        "type": "DependencyAgentLinux",
+        "typeHandlerVersion": "9.10",
+        "autoUpgradeMinorVersion": true
+      },
+      "dependsOn": [
+        "virtualMachines"
+      ]
+    },
+    "blobPrivateDnsZone": {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('blobPrivateDnsZoneName')]",
+      "location": "global"
+    },
+    "blobPrivateDnsZoneLinkToVirtualNetwork": {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', variables('blobPrivateDnsZoneName'), format('link_to_{0}', toLower(variables('virtualNetworkName'))))]",
+      "location": "global",
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": {
+          "id": "[parameters('virtualNetworkId')]"
+        }
+      },
+      "dependsOn": [
+        "blobPrivateDnsZone"
+      ]
+    },
+    "blobStorageAccountPrivateEndpoint": {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-08-01",
+      "name": "[parameters('blobStorageAccountPrivateEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "privateLinkServiceConnections": [
+          {
+            "name": "[parameters('blobStorageAccountPrivateEndpointName')]",
+            "properties": {
+              "privateLinkServiceId": "[resourceInfo('blobStorageAccount').id]",
+              "groupIds": [
+                "[variables('blobStorageAccountPrivateEndpointGroupName')]"
+              ]
+            }
+          }
+        ],
+        "subnet": {
+          "id": "[parameters('vmSubnetId')]"
+        },
+        "customDnsConfigs": [
+          {
+            "fqdn": "[concat(parameters('blobStorageAccountName'), variables('blobPublicDNSZoneForwarder'))]"
+          }
+        ]
+      },
+      "dependsOn": [
+        "blobStorageAccount"
+      ]
+    },
+    "blobPrivateDnsZoneGroup": {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2020-08-01",
+      "name": "[format('{0}/{1}', parameters('blobStorageAccountPrivateEndpointName'), format('{0}PrivateDnsZoneGroup', variables('blobStorageAccountPrivateEndpointGroupName')))]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "dnsConfig",
+            "properties": {
+              "privateDnsZoneId": "[resourceInfo('blobPrivateDnsZone').id]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "blobPrivateDnsZone",
+        "blobStorageAccountPrivateEndpoint"
+      ]
+    }
+  }
+}

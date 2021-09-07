@@ -1,0 +1,50 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1310292062566099270"
+    }
+  },
+  "parameters": {
+    "availabilitySetName": {
+      "type": "string"
+    },
+    "vmLocation": {
+      "type": "string"
+    },
+    "availabilitySetTags": {
+      "type": "object"
+    },
+    "availabilitySetUpdateDomainCount": {
+      "type": "int"
+    },
+    "availabilitySetFaultDomainCount": {
+      "type": "int"
+    },
+    "avSetSKU": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "availabilitySet": {
+      "type": "Microsoft.Compute/availabilitySets",
+      "apiVersion": "2018-10-01",
+      "name": "[parameters('availabilitySetName')]",
+      "location": "[parameters('vmLocation')]",
+      "tags": "[parameters('availabilitySetTags')]",
+      "properties": {
+        "platformUpdateDomainCount": "[parameters('availabilitySetUpdateDomainCount')]",
+        "platformFaultDomainCount": "[parameters('availabilitySetFaultDomainCount')]"
+      },
+      "sku": {
+        "name": "[parameters('avSetSKU')]"
+      }
+    }
+  }
+}

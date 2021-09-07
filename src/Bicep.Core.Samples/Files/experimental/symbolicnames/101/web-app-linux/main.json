@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "12704738746034970308"
+    }
+  },
+  "parameters": {
+    "webAppName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]"
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "S1"
+    },
+    "linuxFxVersion": {
+      "type": "string",
+      "defaultValue": "php|7.4"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "appServicePlanName": "[toLower(format('AppServicePlan-{0}', parameters('webAppName')))]",
+    "webSiteName": "[toLower(format('wapp-{0}', parameters('webAppName')))]"
+  },
+  "resources": {
+    "appServicePlan": {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('sku')]"
+      },
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      }
+    },
+    "appService": {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('webSiteName')]",
+      "location": "[parameters('location')]",
+      "kind": "app",
+      "properties": {
+        "serverFarmId": "[resourceInfo('appServicePlan').id]",
+        "siteConfig": {
+          "linuxFxVersion": "[parameters('linuxFxVersion')]"
+        }
+      },
+      "dependsOn": [
+        "appServicePlan"
+      ]
+    }
+  }
+}

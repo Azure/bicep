@@ -1,0 +1,128 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4346160734782299103"
+    }
+  },
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "defaultValue": "AzureCLI",
+      "allowedValues": [
+        "AzureCLI",
+        "AzurePowerShell"
+      ],
+      "metadata": {
+        "description": "Specify which type of dev environment to deploy"
+      }
+    },
+    "toolVersion": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Use to overide the version to use for Azure CLI or AzurePowerShell"
+      }
+    },
+    "mountPath": {
+      "type": "string",
+      "defaultValue": "/mnt/azscripts/azscriptinput",
+      "metadata": {
+        "description": "This is the path in the container instance where it's mounted to the file share."
+      }
+    },
+    "sessionTime": {
+      "type": "string",
+      "defaultValue": "1800",
+      "metadata": {
+        "description": "Time in second before the container instance is suspended"
+      }
+    },
+    "fileShareName": {
+      "type": "string"
+    },
+    "storageName": {
+      "type": "string"
+    },
+    "storageId": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "version": "[if(and(equals(parameters('type'), 'AzureCLI'), equals(parameters('toolVersion'), '')), 'latest', if(and(equals(parameters('type'), 'AzurePowerShell'), equals(parameters('toolVersion'), '')), '5.6', parameters('toolVersion')))]",
+    "azcliImage": "[format('mcr.microsoft.com/azure-cli:{0}', variables('version'))]",
+    "azpwshImage": "[format('mcr.microsoft.com/azuredeploymentscripts-powershell:az{0}', variables('version'))]",
+    "azpwshCommand": [
+      "/bin/sh",
+      "-c",
+      "[format('pwsh -c ''Start-Sleep -Seconds {0}''', parameters('sessionTime'))]"
+    ],
+    "azcliCommand": [
+      "/bin/bash",
+      "-c",
+      "[format('echo hello; sleep {0}', parameters('sessionTime'))]"
+    ]
+  },
+  "resources": {
+    "containerGroupName": {
+      "type": "Microsoft.ContainerInstance/containerGroups",
+      "apiVersion": "2019-12-01",
+      "name": "[parameters('name')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "containers": [
+          {
+            "name": "[format('{0}cg', parameters('name'))]",
+            "properties": {
+              "image": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliImage'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshImage'), ''))]",
+              "resources": {
+                "requests": {
+                  "cpu": 1,
+                  "memoryInGB": 2
+                }
+              },
+              "ports": [
+                {
+                  "protocol": "TCP",
+                  "port": 80
+                }
+              ],
+              "volumeMounts": [
+                {
+                  "name": "filesharevolume",
+                  "mountPath": "[parameters('mountPath')]"
+                }
+              ],
+              "command": "[if(equals(parameters('type'), 'AzureCLI'), variables('azcliCommand'), if(equals(parameters('type'), 'AzurePowerShell'), variables('azpwshCommand'), null()))]"
+            }
+          }
+        ],
+        "osType": "Linux",
+        "volumes": [
+          {
+            "name": "filesharevolume",
+            "azureFile": {
+              "readOnly": false,
+              "shareName": "[parameters('fileShareName')]",
+              "storageAccountName": "[parameters('storageName')]",
+              "storageAccountKey": "[listKeys(parameters('storageId'), '2019-06-01').keys[0].value]"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

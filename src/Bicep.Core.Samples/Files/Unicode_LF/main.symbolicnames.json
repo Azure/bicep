@@ -1,0 +1,42 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16711869089173829770"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "emojis": "💪😊😈🍕☕",
+    "ninjaCat": "🐱‍👤",
+    "variousAlphabets": {
+      "α": "α",
+      "Ωω": [
+        "Θμ"
+      ],
+      "ążźćłóę": "Cześć!",
+      "áéóúñü": "¡Hola!",
+      "二头肌": "二头肌"
+    },
+    "surrogate_char": "𐐷",
+    "surrogate_codepoint": "𐐷",
+    "surrogate_pairs": "𐐷",
+    "hello": "❆ Hello World! ❁"
+  },
+  "resources": {},
+  "outputs": {
+    "concatUnicodeStrings": {
+      "type": "string",
+      "value": "[concat('Θμ', '二头肌', 'α')]"
+    },
+    "interpolateUnicodeStrings": {
+      "type": "string",
+      "value": "[format('Θμ二{0}头肌{1}α', variables('emojis'), variables('ninjaCat'))]"
+    }
+  }
+}

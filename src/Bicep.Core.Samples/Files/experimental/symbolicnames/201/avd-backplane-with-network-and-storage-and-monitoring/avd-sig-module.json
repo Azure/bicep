@@ -1,0 +1,136 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1899033175673285632"
+    }
+  },
+  "parameters": {
+    "sigName": {
+      "type": "string"
+    },
+    "sigLocation": {
+      "type": "string"
+    },
+    "imagePublisher": {
+      "type": "string"
+    },
+    "imageDefinitionName": {
+      "type": "string"
+    },
+    "imageOffer": {
+      "type": "string"
+    },
+    "imageSKU": {
+      "type": "string"
+    },
+    "uamiName": {
+      "type": "string"
+    },
+    "roleNameGalleryImage": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "avdsig": {
+      "type": "Microsoft.Compute/galleries",
+      "apiVersion": "2020-09-30",
+      "name": "[parameters('sigName')]",
+      "location": "[parameters('sigLocation')]"
+    },
+    "managedidentity": {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "name": "[parameters('uamiName')]",
+      "location": "[resourceGroup().location]"
+    },
+    "gallerydef": {
+      "type": "Microsoft.Authorization/roleDefinitions",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[guid(parameters('roleNameGalleryImage'))]",
+      "properties": {
+        "roleName": "[parameters('roleNameGalleryImage')]",
+        "description": "Custom role for SIG and AIB",
+        "permissions": [
+          {
+            "actions": [
+              "Microsoft.Compute/galleries/read",
+              "Microsoft.Compute/galleries/images/read",
+              "Microsoft.Compute/galleries/images/versions/read",
+              "Microsoft.Compute/galleries/images/versions/write",
+              "Microsoft.Compute/images/write",
+              "Microsoft.Compute/images/read",
+              "Microsoft.Compute/images/delete"
+            ]
+          }
+        ],
+        "assignableScopes": [
+          "[resourceGroup().id]"
+        ]
+      },
+      "dependsOn": [
+        "managedidentity"
+      ]
+    },
+    "galleryassignment": {
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id, resourceInfo('gallerydef').id, resourceInfo('managedidentity').id)]",
+      "properties": {
+        "roleDefinitionId": "[resourceInfo('gallerydef').id]",
+        "principalId": "[reference('managedidentity').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "gallerydef",
+        "managedidentity"
+      ]
+    },
+    "avdid": {
+      "type": "Microsoft.Compute/galleries/images",
+      "apiVersion": "2019-07-01",
+      "name": "[format('{0}/{1}', resourceInfo('avdsig').name, parameters('imageDefinitionName'))]",
+      "location": "[parameters('sigLocation')]",
+      "properties": {
+        "osType": "Windows",
+        "osState": "Generalized",
+        "identifier": {
+          "publisher": "[parameters('imagePublisher')]",
+          "offer": "[parameters('imageOffer')]",
+          "sku": "[parameters('imageSKU')]"
+        },
+        "recommended": {
+          "vCPUs": {
+            "min": 2,
+            "max": 32
+          },
+          "memory": {
+            "min": 4,
+            "max": 64
+          }
+        },
+        "hyperVGeneration": "V2"
+      },
+      "tags": {},
+      "dependsOn": [
+        "avdsig"
+      ]
+    }
+  },
+  "outputs": {
+    "sigid": {
+      "type": "string",
+      "value": "[reference('gallerydef').roleName]"
+    },
+    "avdidoutput": {
+      "type": "string",
+      "value": "[resourceInfo('avdid').id]"
+    }
+  }
+}

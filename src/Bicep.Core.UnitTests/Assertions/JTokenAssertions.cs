@@ -8,8 +8,8 @@ namespace Bicep.Core.UnitTests.Assertions
     public class JTokenAssertions : ReferenceTypeAssertions<JToken?, JTokenAssertions>
     {
         public JTokenAssertions(JToken? instance)
+            : base(instance)
         {
-            Subject = instance;
         }
 
         protected override string Identifier => "jtoken";

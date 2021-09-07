@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
+using Bicep.Cli.Services;
 using System;
 
 namespace Bicep.Cli.Commands
@@ -37,15 +38,37 @@ namespace Bicep.Cli.Commands
             var exeName = ThisAssembly.AssemblyName;
             var versionString = GetVersionString();
 
+            var registryText = 
+$@"
+  {exeName} publish <file> --target <ref>
+    Publishes the .bicep file to the module registry.
+
+    Arguments:
+      <file>        The input file
+      <ref>         The module reference
+
+    Examples:
+      bicep publish file.bicep --target oci:example.azurecr.io/hello/world:v1
+
+  {exeName} restore <file>
+    Restores external modules from the specified Bicep file to the local module cache.
+
+    Arguments:
+      <file>        The input file
+
+";
+
+            var registryPlaceholder = this.invocationContext.Features.RegistryEnabled ? registryText : Environment.NewLine;
+
             var output =
 $@"Bicep CLI version {versionString}
 
 Usage:
   {exeName} build [options] <file>
-    Builds a .bicep file
+    Builds a .bicep file.
 
     Arguments:
-      <file>        The input file.
+      <file>        The input file
 
     Options:
       --outdir <dir>    Saves the output at the specified directory.
@@ -61,10 +84,10 @@ Usage:
       bicep build file.bicep --outfile file.json
 
   {exeName} decompile [options] <file>
-    Attempts to decompile a template .json file to .bicep
+    Attempts to decompile a template .json file to .bicep.
 
     Arguments:
-      <file>        The input file.
+      <file>        The input file
 
     Options:
       --outdir <dir>    Saves the output at the specified directory.
@@ -76,8 +99,7 @@ Usage:
       bicep decompile file.json --stdout
       bicep decompile file.json --outdir dir1
       bicep decompile file.json --outfile file.bicep
-
-  {exeName} [options]
+{registryPlaceholder}  {exeName} [options]
     Options:
       --version  -v   Shows bicep version information
       --help     -h   Shows this usage information

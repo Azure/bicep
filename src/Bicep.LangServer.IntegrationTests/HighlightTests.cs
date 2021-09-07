@@ -35,7 +35,7 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task HighlightsShouldShowAllReferencesOfTheSymbol(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var symbolTable = compilation.ReconstructSymbolTable();
@@ -82,7 +82,7 @@ namespace Bicep.LangServer.IntegrationTests
                 node is not ITopLevelNamedDeclarationSyntax &&
                 node is not Token;
 
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
             using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
