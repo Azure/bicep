@@ -11,8 +11,8 @@ resource /*${2:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestCon
   properties: {
     guestConfiguration: {
       name: /*${4:'configurationName'}*/'configurationName'
-      assignmentType: /*${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}*/'ApplyAndMonitor'
-      version: /*${6:'version'}*/'1.*'
+      assignmentType: /*${5|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}*/'ApplyAndMonitor'
+      version: /*${6:'1.*'}*/'1.*'
     }
   }
 }
