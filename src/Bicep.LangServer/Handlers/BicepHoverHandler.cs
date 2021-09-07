@@ -61,28 +61,28 @@ namespace Bicep.LanguageServer.Handlers
             switch (result.Symbol)
             {
                 case ParameterSymbol parameter:
-                    return CodeBlockWithDescription(
-                        $"param {parameter.Name}: {parameter.Type}", parameter.GetDescription());
+                    return CodeBlockWithDescriptionDecorator(
+                        $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax("description"));
 
                 case VariableSymbol variable:
-                    return CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", variable.GetDescription());
+                    return CodeBlockWithDescriptionDecorator($"var {variable.Name}: {variable.Type}", variable.DeclaringVariable.TryGetDecoratorSyntax("description"));
 
                 case ResourceSymbol resource:
-                    return CodeBlockWithDescription(
-                        $"resource {resource.Name}\n{resource.Type}", resource.GetDescription());
+                    return CodeBlockWithDescriptionDecorator(
+                        $"resource {resource.Name}\n{resource.Type}", resource.DeclaringResource.TryGetDecoratorSyntax("description"));
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
                     if (filePath != null)
                     {
-                        return CodeBlockWithDescription($"module {module.Name}\n'{filePath}'", module.GetDescription());
+                        return CodeBlockWithDescriptionDecorator($"module {module.Name}\n'{filePath}'", module.DeclaringModule.TryGetDecoratorSyntax("description"));
                     }
 
-                    return CodeBlockWithDescription($"module {module.Name}", module.GetDescription());
+                    return CodeBlockWithDescriptionDecorator($"module {module.Name}", module.DeclaringModule.TryGetDecoratorSyntax("description"));
 
                 case OutputSymbol output:
-                    return CodeBlockWithDescription(
-                        $"output {output.Name}: {output.Type}", output.GetDescription());
+                    return CodeBlockWithDescriptionDecorator(
+                        $"output {output.Name}: {output.Type}", output.DeclaringOutput.TryGetDecoratorSyntax("description"));
 
                 case NamespaceSymbol namespaceSymbol:
                     return CodeBlock($"{namespaceSymbol.Name} namespace");
@@ -114,12 +114,17 @@ namespace Bicep.LanguageServer.Handlers
         private static string CodeBlock(string content) =>
         $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```";
         
-        private static string CodeBlockWithDescription(string content, string? description)
+        // Markdown needs two leading whitespaces before newline to insert a line break
+        private static string CodeBlockWithDescription(string markdown, string? description) =>  description is not null ? markdown + $"\n{description.Replace("\n", "  \n")}\n" : markdown;
+
+        private static string CodeBlockWithDescriptionDecorator(string content, DecoratorSyntax? descriptionDecorator)
         {
             var markdown = CodeBlock(content);
-            if (description is not null)
+            if (descriptionDecorator is not null &&
+                descriptionDecorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string description)
             {
-                return markdown + $"\n{description}\n";
+                return CodeBlockWithDescription(markdown, description);
             }
             return markdown;
         }

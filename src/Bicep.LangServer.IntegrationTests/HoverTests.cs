@@ -273,7 +273,7 @@ module test|mod './dummy.bicep' = {
 @description('this is my param')
 var test|Param string
 
-@description('this is my var')
+@sys.description('this is my var')
 var test|Var string = 'hello'
 
 @description('''this is my
@@ -287,15 +287,15 @@ resource test|Output string = 'str'
 ");
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n\n"), 
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource\n\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output\n\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"), 
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output\n"));
         }
 
         [DataTestMethod]
