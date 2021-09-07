@@ -45,10 +45,7 @@ namespace Bicep.Core.Workspaces
 
         public void RemoveBicepConfig(Uri uri)
         {
-            if (activeBicepConfigs.ContainsKey(uri))
-            {
-                activeBicepConfigs.TryRemove(uri, out _);
-            }
+            activeBicepConfigs.TryRemove(uri, out _);
         }
 
         public (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpsertSourceFiles(IEnumerable<ISourceFile> files)

@@ -258,36 +258,22 @@ namespace Bicep.LanguageServer
 
         private void ReloadBicepConfig(DocumentUri documentUri)
         {
-            var folderContainingBicepFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
+            BicepConfig? bicepConfig = null;
+            string? folderContainingBicepFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
 
-            if (folderContainingBicepFile is not null)
+            if (folderContainingBicepFile is not null &&
+                ConfigHelper.DiscoverLocalConfigurationFile(folderContainingBicepFile) is string localBicepConfig &&
+                localBicepConfig is not null)
             {
-                string localBicepConfig = Path.Combine(folderContainingBicepFile, LanguageConstants.BicepConfigSettingsFileName);
-                BicepConfig? bicepConfig = null;
-
-                // If bicepconfig.json exists in the folder containing the source files, we'll use local config settings.
-                // Otherwise use settings from parent directory(if bicepconfig.json is found in one of parent directories) or default settings
-                if (File.Exists(localBicepConfig))
-                {
-                    bicepConfig = workspace.GetBicepConfig(new Uri(localBicepConfig));
-                }
-                else
-                {
-                    string bicepConfigInCurrentDirectory = Path.Combine(Directory.GetCurrentDirectory(), LanguageConstants.BicepConfigSettingsFileName);
-
-                    if (File.Exists(bicepConfigInCurrentDirectory))
-                    {
-                        bicepConfig = workspace.GetBicepConfig(new Uri(bicepConfigInCurrentDirectory));
-                    }
-                }
-
-                ConfigHelper configHelper = new ConfigHelper(bicepConfig: bicepConfig, localFolder: folderContainingBicepFile);
-
-                activeConfigHelpers.AddOrUpdate(
-                    documentUri,
-                    (documentUri) => configHelper,
-                    (documentUri, prevConfigHelper) => configHelper);
+                bicepConfig = workspace.GetBicepConfig(new Uri(localBicepConfig));
             }
+
+            ConfigHelper configHelper = new ConfigHelper(bicepConfig: bicepConfig, localFolder: folderContainingBicepFile);
+
+            activeConfigHelpers.AddOrUpdate(
+                documentUri,
+                (documentUri) => configHelper,
+                (documentUri, prevConfigHelper) => configHelper);
         }
 
         private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
