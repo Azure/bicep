@@ -1961,7 +1961,7 @@
     "detail": "Guest configuration assignment for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'Audit'\n      version: 'version'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1970,7 +1970,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}\n      version: ${6:'version'}\n    }\n  }\n}\n"
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${6:'1.*'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1990,7 +1990,7 @@
     "detail": "Guest configuration assignment for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: arcEnabledMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'Audit'\n      version: 'version'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: arcEnabledMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1999,7 +1999,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: arcEnabledMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}\n      version: ${6:'version'}\n    }\n  }\n}\n"
+      "newText": "resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: arcEnabledMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${6:'1.*'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2019,7 +2019,7 @@
     "detail": "Guest configuration assignment with parameters, for virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'Audit'\n      version: 'version'\n      configurationParameter: [\n        {\n          name: 'parameter1[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter1Value'\n        }\n        {\n          name: 'parameter2[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter2Value'\n        }\n      ]\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n}\n\nresource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: 'name'\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: 'configurationName'\n      assignmentType: 'ApplyAndMonitor'\n      version: '1.*'\n      configurationParameter: [\n        {\n          name: 'parameter1[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter1Value'\n        }\n        {\n          name: 'parameter2[dscResourceType]dscResourceName;propertyName'\n          value: 'parameter2Value'\n        }\n      ]\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2028,7 +2028,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}\n      version: ${6:'version'}\n      configurationParameter: [\n        {\n          name: ${7:'parameter1[dscResourceType]dscResourceName;propertyName'}\n          value: ${8:'parameter1Value'}\n        }\n        {\n          name: ${9:'parameter2[dscResourceType]dscResourceName;propertyName'}\n          value: ${10:'parameter2Value'}\n        }\n      ]\n    }\n  }\n}\n"
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n\nresource ${2:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${3:'name'}\n  scope: virtualMachine\n  location: resourceGroup().location\n  properties: {\n    guestConfiguration: {\n      name: ${4:'configurationName'}\n      assignmentType: ${5|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${6:'1.*'}\n      configurationParameter: [\n        {\n          name: ${7:'parameter1[dscResourceType]dscResourceName;propertyName'}\n          value: ${8:'parameter1Value'}\n        }\n        {\n          name: ${9:'parameter2[dscResourceType]dscResourceName;propertyName'}\n          value: ${10:'parameter2Value'}\n        }\n      ]\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2541,7 +2541,7 @@
     "detail": "Guest configuration extension for Linux virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2550,7 +2550,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2715,7 +2715,7 @@
     "detail": "Guest configuration assignment for Windows virtual machine",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2724,7 +2724,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
+      "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: resourceGroup().location\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${2:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: resourceGroup().location\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",

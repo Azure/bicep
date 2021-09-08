@@ -18,6 +18,7 @@ resource windowsVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extens
     type: 'ConfigurationforWindows'
     typeHandlerVersion: '1.0'
     autoUpgradeMinorVersion: true
+    enableAutomaticUpgrade: true
     settings: {}
     protectedSettings: {}
   }

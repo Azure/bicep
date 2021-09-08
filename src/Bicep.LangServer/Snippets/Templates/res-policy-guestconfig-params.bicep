@@ -2,9 +2,6 @@
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: /*${1:'name'}*/'name'
   location: resourceGroup().location
-  identity: {
-    type:'SystemAssigned'
-  }
 }
 
 resource /*${2:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
@@ -14,8 +11,8 @@ resource /*${2:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestCon
   properties: {
     guestConfiguration: {
       name: /*${4:'configurationName'}*/'configurationName'
-      assignmentType: /*${5|'Audit','ApplyAndMonitor','ApplyAndAutoCorrect'|}*/'ApplyAndMonitor'
-      version: /*${6:'version'}*/'1.*'
+      assignmentType: /*${5|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}*/'ApplyAndMonitor'
+      version: /*${6:'1.*'}*/'1.*'
       configurationParameter: [
         {
           name: /*${7:'parameter1[dscResourceType]dscResourceName;propertyName'}*/'parameter1[dscResourceType]dscResourceName;propertyName'

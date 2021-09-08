@@ -8,9 +8,6 @@
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
   location: resourceGroup().location
-  identity: {
-    type:'SystemAssigned'
-  }
 }
 
 resource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
