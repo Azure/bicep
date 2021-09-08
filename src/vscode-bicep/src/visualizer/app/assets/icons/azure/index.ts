@@ -57,6 +57,11 @@ export async function importResourceIconInline(
       return (await import("./general/10007-icon-service-Resource-Groups.svg"))
         .default;
 
+    // Microsoft.Security
+    case "microsoft.keyvault/vaults":
+      return (await import("./security/10245-icon-service-Key-Vaults.svg"))
+        .default;
+
     // Microsoft.Subscriptions
     case "microsoft.subscription/aliases":
       return (await import("./general/10002-icon-service-Subscriptions.svg"))
