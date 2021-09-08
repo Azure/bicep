@@ -18,7 +18,13 @@ namespace Bicep.Core.Modules
         // obtained from https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pull
         private static readonly Regex ModulePathSegmentRegex = new(@"^[a-z0-9]+([._-][a-z0-9]+)*$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
+        // must be kept in sync with the tag max length
         private static readonly Regex TagRegex = new(@"^[a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+
+        // must be kept in sync with the tag name regex
+        private static readonly int MaxTagLength = 128;
+
+        private static readonly int MaxRepositoryLength = 255;
 
         // these exist to keep equals and hashcode implementations in sync
         public static readonly IEqualityComparer<string> RegistryComparer = StringComparer.OrdinalIgnoreCase;
@@ -81,12 +87,7 @@ namespace Bicep.Core.Modules
 
         public static OciArtifactModuleReference? TryParse(string rawValue, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            static DiagnosticBuilder.ErrorBuilderDelegate CreateErrorFunc(string rawValue, string? innerError) => x => x.InvalidOciArtifactReference($"{ModuleReferenceSchemes.Oci}:{rawValue}", innerError);
-
-            static DiagnosticBuilder.ErrorBuilderDelegate CreateInvalidSegmentErrorFunc(string rawValue, string badSegment) =>
-                CreateErrorFunc(
-                    rawValue,
-                    $"The mpdule path segment \"{badSegment}\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
+            static string GetBadReference(string rawValue) => $"{ModuleReferenceSchemes.Oci}:{rawValue}";
 
             static string UnescapeSegment(string segment) => HttpUtility.UrlDecode(segment);
 
@@ -96,7 +97,7 @@ namespace Bicep.Core.Modules
                 artifactUri.Segments.Length <= 1 ||
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
-                failureBuilder = CreateErrorFunc(rawValue, null);
+                failureBuilder = x => x.InvalidOciArtifactReference(GetBadReference(rawValue));
                 return null;
             }
 
@@ -110,8 +111,8 @@ namespace Bicep.Core.Modules
                 var pathMatch = ModulePathSegmentRegex.Match(current, 0, current.Length - 1);
                 if (!pathMatch.Success)
                 {
-                    var invalidSegment = UnescapeSegment(current.Substring(0, current.Length - 1));
-                    failureBuilder = CreateInvalidSegmentErrorFunc(rawValue, invalidSegment);
+                    var invalidSegment = UnescapeSegment(current[0..^1]);
+                    failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(GetBadReference(rawValue), invalidSegment);
                     return null;
                 }
 
@@ -131,28 +132,47 @@ namespace Bicep.Core.Modules
             var name = UnescapeSegment(!HasTag(indexOfColon) ? lastSegment : lastSegment.Substring(0, indexOfColon));
             if (!ModulePathSegmentRegex.IsMatch(name))
             {
-                failureBuilder = CreateInvalidSegmentErrorFunc(rawValue, name);
+                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(GetBadReference(rawValue), name);
                 return null;
             }
 
             repoBuilder.Append(name);
 
-            // now we can complain about the missing tag
-            if (!HasTag(indexOfColon))
+            string repository = repoBuilder.ToString();
+            if (repository.Length > MaxRepositoryLength)
             {
-                failureBuilder = CreateErrorFunc(rawValue, "The module tag is missing.");
+                failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(GetBadReference(rawValue), repository, MaxRepositoryLength);
                 return null;
             }
 
-            var tag = UnescapeSegment(lastSegment.Substring(indexOfColon + 1));
+            // now we can complain about the missing tag
+            if (!HasTag(indexOfColon))
+            {
+                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(GetBadReference(rawValue));
+                return null;
+            }
+
+            var tag = UnescapeSegment(lastSegment[(indexOfColon + 1)..]);
+            if(string.IsNullOrEmpty(tag))
+            {
+                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(GetBadReference(rawValue));
+                return null;
+            }
+
+            if(tag.Length > MaxTagLength)
+            {
+                failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(GetBadReference(rawValue), tag, MaxTagLength);
+                return null;
+            }
+
             if (!TagRegex.IsMatch(tag))
             {
-                failureBuilder = CreateErrorFunc(rawValue, $"The tag \"{tag}\" is not valid. The tag must be a string with maximum length 128 characters. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".");
+                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(GetBadReference(rawValue), tag);
                 return null;
             }
 
             failureBuilder = null;
-            return new OciArtifactModuleReference(artifactUri.Authority, repoBuilder.ToString(), tag);
+            return new OciArtifactModuleReference(artifactUri.Authority, repository, tag);
         }
     }
 }

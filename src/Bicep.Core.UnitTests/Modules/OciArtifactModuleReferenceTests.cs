@@ -4,6 +4,7 @@
 using Bicep.Core.Modules;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Modules
@@ -13,6 +14,8 @@ namespace Bicep.Core.UnitTests.Modules
     {
         public const string ExampleTagOfMaxLength = "abcdefghijklmnopqrstuvxyz0123456789._-._-._-._-ABCDEFGHIJKLMNOPQRSTUVXYZ0123456789._-._-._-._-abcdefghijklmnopqrstuvxyz012345678";
 
+        public const string ExampleRepositoryOfMaxLength = "abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abc";
+
         public const string ExamplePathSegment1 = "abcdefghijklmnopqrstuvxyz0123456789.abcdefghijklmnopqrstuvxyz0123456789-abcdefghijklmnopqrstuvxyz0123456789_abcdefghijklmnopqrstuvxyz0123456789";
 
         public const string ExamplePathSegment2 = "a.b-0_1";
@@ -21,6 +24,7 @@ namespace Bicep.Core.UnitTests.Modules
         public void ExamplesShouldMatchExpectedConstraints()
         {
             ExampleTagOfMaxLength.Should().HaveLength(128);
+            ExampleRepositoryOfMaxLength.Should().HaveLength(255);
         }
 
         [DataRow("a/b:C", "a", "b", "C")]
@@ -28,15 +32,20 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("localhost:123/hello:V1", "localhost:123", "hello", "V1")]
         [DataRow("test.azurecr.io/foo/bar:latest", "test.azurecr.io", "foo/bar", "latest")]
         [DataRow("test.azurecr.io/foo/bar:" + ExampleTagOfMaxLength, "test.azurecr.io", "foo/bar", ExampleTagOfMaxLength)]
-        [DataRow("example.com/"+ ExamplePathSegment1 + "/" + ExamplePathSegment2 + ":1", "example.com", ExamplePathSegment1 + "/" + ExamplePathSegment2, "1")]
+        [DataRow("example.com/" + ExamplePathSegment1 + "/" + ExamplePathSegment2 + ":1", "example.com", ExamplePathSegment1 + "/" + ExamplePathSegment2, "1")]
+        [DataRow("example.com/" + ExampleRepositoryOfMaxLength + ":v3", "example.com", ExampleRepositoryOfMaxLength, "v3")]
         [DataTestMethod]
         public void ValidReferencesShouldParseCorrectly(string value, string expectedRegistry, string expectedRepository, string expectedTag)
         {
             var parsed = Parse(value);
-            parsed.Registry.Should().Be(expectedRegistry);
-            parsed.Repository.Should().Be(expectedRepository);
-            parsed.Tag.Should().Be(expectedTag);
-            parsed.ArtifactId.Should().Be(value);
+
+            using (new AssertionScope())
+            {
+                parsed.Registry.Should().Be(expectedRegistry);
+                parsed.Repository.Should().Be(expectedRepository);
+                parsed.Tag.Should().Be(expectedTag);
+                parsed.ArtifactId.Should().Be(value);
+            }
         }
 
         [DataRow("a/b:C")]
@@ -45,6 +54,8 @@ namespace Bicep.Core.UnitTests.Modules
         [DataRow("test.azurecr.io/foo/bar:latest")]
         [DataRow("test.azurecr.io/foo/bar:" + ExampleTagOfMaxLength)]
         [DataRow("example.com/" + ExamplePathSegment1 + "/" + ExamplePathSegment2 + ":1")]
+        [DataRow("example.com/" + ExampleRepositoryOfMaxLength + ":v3")]
+        [DataTestMethod]
         public void ValidReferenceShouldBeEqualToItself(string value)
         {
             var first = Parse(value);
@@ -55,24 +66,30 @@ namespace Bicep.Core.UnitTests.Modules
         }
 
         // bad
-        [DataRow("", "The specified OCI artifact reference \"br:\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
-        [DataRow("a", "The specified OCI artifact reference \"br:a\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
-        [DataRow("a/", "The specified OCI artifact reference \"br:a/\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
-        [DataRow("a/b", "The specified OCI artifact reference \"br:a/b\" is not valid. The module tag is missing.")]
-        [DataRow("a/b:", "The specified OCI artifact reference \"br:a/b:\" is not valid. The tag \"\" is not valid. The tag must be a string with maximum length 128 characters. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".")]
-        [DataRow("example.com/hello.", "The specified OCI artifact reference \"br:example.com/hello.\" is not valid. The mpdule path segment \"hello.\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
-        [DataRow("example.com/hello./there", "The specified OCI artifact reference \"br:example.com/hello./there\" is not valid. The mpdule path segment \"hello.\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
-        [DataRow("example.com/hello./there:v1", "The specified OCI artifact reference \"br:example.com/hello./there:v1\" is not valid. The mpdule path segment \"hello.\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
-        [DataRow("example.com/hello/there^", "The specified OCI artifact reference \"br:example.com/hello/there^\" is not valid. The mpdule path segment \"there^\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
-        [DataRow("example.com/hello^/there:v1", "The specified OCI artifact reference \"br:example.com/hello^/there:v1\" is not valid. The mpdule path segment \"hello^\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
+        [DataRow("", "BCP193", "The specified OCI artifact reference \"br:\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
+        [DataRow("a", "BCP193", "The specified OCI artifact reference \"br:a\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
+        [DataRow("a/", "BCP193", "The specified OCI artifact reference \"br:a/\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
+        [DataRow("a/b", "BCP196", "The specified OCI artifact reference \"br:a/b\" is not valid. The module tag is missing.")]
+        [DataRow("a/b:", "BCP196", "The specified OCI artifact reference \"br:a/b:\" is not valid. The module tag is missing.")]
+        [DataRow("a/b:$", "BCP198", "The specified OCI artifact reference \"br:a/b:$\" is not valid. The tag \"$\" is not valid. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".")]
+        [DataRow("example.com/hello.", "BCP195", "The specified OCI artifact reference \"br:example.com/hello.\" is not valid. The module path segment \"hello.\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
+        [DataRow("example.com/hello./there", "BCP195", "The specified OCI artifact reference \"br:example.com/hello./there\" is not valid. The module path segment \"hello.\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
+        [DataRow("example.com/hello./there:v1", "BCP195", "The specified OCI artifact reference \"br:example.com/hello./there:v1\" is not valid. The module path segment \"hello.\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
+        [DataRow("example.com/hello/there^", "BCP195", "The specified OCI artifact reference \"br:example.com/hello/there^\" is not valid. The module path segment \"there^\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
+        [DataRow("example.com/hello^/there:v1", "BCP195", "The specified OCI artifact reference \"br:example.com/hello^/there:v1\" is not valid. The module path segment \"hello^\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".")]
+        [DataRow("test.azurecr.io/foo/bar:" + ExampleTagOfMaxLength + "a", "BCP197", "The specified OCI artifact reference \"br:test.azurecr.io/foo/bar:abcdefghijklmnopqrstuvxyz0123456789._-._-._-._-ABCDEFGHIJKLMNOPQRSTUVXYZ0123456789._-._-._-._-abcdefghijklmnopqrstuvxyz012345678a\" is not valid. The tag \"abcdefghijklmnopqrstuvxyz0123456789._-._-._-._-ABCDEFGHIJKLMNOPQRSTUVXYZ0123456789._-._-._-._-abcdefghijklmnopqrstuvxyz012345678a\" exceeds the maximum length of 128 characters.")]
+        [DataRow("example.com/" + ExampleRepositoryOfMaxLength + "a:v3", "BCP199", "The specified OCI artifact reference \"br:example.com/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abca:v3\" is not valid. Module path \"abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abcdefghijklmnopqrstuvxyz0123456789/abca\" exceeds the maximum length of 255 characters.")]
         [DataTestMethod]
-        public void InvalidReferencesShouldProduceExpectedError(string value, string expectedError)
+        public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
             OciArtifactModuleReference.TryParse(value, out var failureBuilder).Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
-            failureBuilder!.Should().HaveCode("BCP193");
-            failureBuilder!.Should().HaveMessage(expectedError);
+            using (new AssertionScope())
+            {
+                failureBuilder!.Should().HaveCode(expectedCode);
+                failureBuilder!.Should().HaveMessage(expectedError);
+            }
         }
 
         [DataRow("TEST.azurecr.IO/foo/bar:latest", "test.azurecr.io/foo/bar:latest")]
