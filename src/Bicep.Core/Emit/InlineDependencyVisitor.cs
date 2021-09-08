@@ -1,10 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
+
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -14,9 +12,14 @@ namespace Bicep.Core.Emit
 {
     public class InlineDependencyVisitor : SyntaxVisitor
     {
+        private enum Decision
+        {
+            NotEvaluated,
+            Inline,
+            DoNotInline
+        }
         private readonly SemanticModel model;
-        private readonly IDictionary<VariableSymbol, bool> shouldInlineCache;
-        private readonly HashSet<VariableSymbol> shouldNotInlineCache;
+        private readonly IDictionary<VariableSymbol, Decision> shouldInlineCache;
 
         private VariableSymbol? currentDeclaration;
 
@@ -28,8 +31,7 @@ namespace Bicep.Core.Emit
         private InlineDependencyVisitor(SemanticModel model, VariableDeclarationSyntax? targetVariable)
         {
             this.model = model;
-            this.shouldInlineCache = new Dictionary<VariableSymbol, bool>();
-            this.shouldNotInlineCache = new HashSet<VariableSymbol>();
+            this.shouldInlineCache = new Dictionary<VariableSymbol, Decision>();
             this.targetVariable = targetVariable;
             this.currentDeclaration = null;
 
@@ -51,7 +53,7 @@ namespace Bicep.Core.Emit
             visitor.Visit(model.Root.Syntax);
 
             return visitor.shouldInlineCache
-                .Where(kvp => kvp.Value)
+                .Where(kvp => kvp.Value == Decision.Inline)
                 .Select(kvp => kvp.Key)
                 .ToImmutableHashSet();
         }
@@ -75,12 +77,10 @@ namespace Bicep.Core.Emit
             var visitor = new InlineDependencyVisitor(model, variable);
             visitor.Visit(variable);
 
-            if (!visitor.shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline) || !shouldInline)
+            if (!visitor.shouldInlineCache.TryGetValue(variableSymbol, out var shouldInline) || shouldInline != Decision.Inline)
             {
                 return false;
             }
-
-            Debug.Assert(shouldInline);
 
             variableAccessChain = visitor.capturedSequence?.Reverse().ToImmutableArray() ?? ImmutableArray<string>.Empty;
             return true;
@@ -99,7 +99,7 @@ namespace Bicep.Core.Emit
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = variableSymbol;
-            this.shouldInlineCache[variableSymbol] = false;
+            this.shouldInlineCache[variableSymbol] = Decision.NotEvaluated;
             base.VisitVariableDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -137,7 +137,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration])
+            if (shouldInlineCache[currentDeclaration] != Decision.NotEvaluated)
             {
                 // we've already made a decision
                 return;
@@ -156,7 +156,7 @@ namespace Bicep.Core.Emit
 
                         shouldInline = shouldInlineCache[variableSymbol];
 
-                        if (shouldInline && this.targetVariable is not null && this.capturedSequence is null)
+                        if (shouldInline == Decision.Inline && this.targetVariable is not null && this.capturedSequence is null)
                         {
                             // this point is where the decision is made to inline the variable
                             // the variable access stack will be the deepest here
@@ -169,7 +169,7 @@ namespace Bicep.Core.Emit
                     }
 
                     // if we depend on a variable that requires inlining, then we also require inlining
-                    bool newValue = shouldInlineCache[currentDeclaration] || shouldInline;
+                    var newValue = shouldInlineCache[currentDeclaration] == Decision.Inline || shouldInline == Decision.Inline;
                     SetInlineCache(newValue);
 
                     this.currentStack = previousStack;
@@ -177,7 +177,7 @@ namespace Bicep.Core.Emit
 
                 case ResourceSymbol:
                 case ModuleSymbol:
-                    if (this.currentDeclaration is not null && !this.shouldNotInlineCache.Contains(this.currentDeclaration))
+                    if (this.currentDeclaration is not null && shouldInlineCache[currentDeclaration] != Decision.DoNotInline)
                     {
                         //inline only if declaration wasn't explicitly excluded from inlining, to avoid inlining usages which are permitted
                         SetInlineCache(true);
@@ -209,7 +209,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration])
+            if (shouldInlineCache[currentDeclaration] != Decision.NotEvaluated)
             {
                 // we've already made a decision
                 return;
@@ -263,7 +263,7 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration])
+            if (shouldInlineCache[currentDeclaration] != Decision.NotEvaluated)
             {
                 // we've already made a decision
                 return;
@@ -272,27 +272,23 @@ namespace Bicep.Core.Emit
             switch (model.GetSymbolInfo(syntax))
             {
                 case FunctionSymbol functionSymbol:
-                    SetInlineCache(shouldInlineCache[currentDeclaration] || functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining));
+                    SetInlineCache(functionSymbol.FunctionFlags.HasFlag(FunctionFlags.RequiresInlining));
                     return;
             }
         }
 
         private void SetInlineCache(bool shouldInline)
         {
-            if (this.currentDeclaration is not null)
+            if (this.currentDeclaration is not null && shouldInline)
             {
-                this.shouldInlineCache[this.currentDeclaration] = shouldInline;
+                this.shouldInlineCache[this.currentDeclaration] = Decision.Inline;
             }
         }
         private void SetNotInlineCache(bool shouldNotInline)
         {
-            if (this.currentDeclaration is not null)
+            if (this.currentDeclaration is not null && shouldNotInline)
             {
-                this.shouldInlineCache[this.currentDeclaration] = !shouldNotInline;
-                if (shouldNotInline)
-                {
-                    this.shouldNotInlineCache.Add(this.currentDeclaration);
-                }
+                this.shouldInlineCache[this.currentDeclaration] = Decision.DoNotInline;
             }
         }
     }
