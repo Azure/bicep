@@ -17,6 +17,14 @@ export async function importResourceIconInline(
       return (await import("./compute/10034-icon-service-VM-Scale-Sets.svg"))
         .default;
 
+    // Microsoft.Database
+    case "microsoft.sql/servers":
+      return (await import("./databases/10132-icon-service-SQL-Server.svg"))
+        .default;
+    case "microsoft.sql/servers/databases":
+        return (await import("./databases/10130-icon-service-SQL-Database.svg"))
+        .default;
+
     // Microsoft.Network
     case "microsoft.network/dnszones":
       return (await import("./networking/10064-icon-service-DNS-Zones.svg"))
