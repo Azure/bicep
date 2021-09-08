@@ -27,6 +27,12 @@ namespace Bicep.Core.UnitTests.Assertions
             actualLocation = GetAbsolutePathRelativeToRepoRoot(actualLocation);
             expectedLocation = GetAbsolutePathRelativeToRepoRoot(expectedLocation);
 
+            if (Path.GetDirectoryName(expectedLocation) is {} parentDir &&
+                !Directory.Exists(parentDir))
+            {
+                Directory.CreateDirectory(parentDir);
+            }
+
             File.Copy(actualLocation, expectedLocation, overwrite: true);
         }
 
@@ -62,7 +68,7 @@ Found diffs between actual and expected:
             if (isBaselineUpdate)
             {
                 output.Append(@"
-Baseline has been updated.
+Baseline {2} has been updated.
 ");
             }
             else

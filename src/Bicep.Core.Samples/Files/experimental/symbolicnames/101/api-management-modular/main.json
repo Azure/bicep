@@ -1,0 +1,421 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7982873186068282912"
+    }
+  },
+  "parameters": {
+    "apimInstanceName": {
+      "type": "string",
+      "defaultValue": "[format('PGAPIM-{0}', uniqueString(resourceGroup().id))]"
+    },
+    "appInsightsName": {
+      "type": "string",
+      "defaultValue": "[parameters('apimInstanceName')]"
+    },
+    "resourceTags": {
+      "type": "object",
+      "defaultValue": {
+        "ProjectType": "API Management",
+        "Purpose": "Demo"
+      }
+    },
+    "publisherEmail": {
+      "type": "string",
+      "metadata": {
+        "description": "The email address of the owner of the service"
+      },
+      "minLength": 1
+    },
+    "publisherName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name of the owner of the service"
+      },
+      "minLength": 1
+    },
+    "sku": {
+      "type": "string",
+      "defaultValue": "Developer",
+      "metadata": {
+        "description": "The pricing tier of this API Management service"
+      },
+      "allowedValues": [
+        "Consumption",
+        "Developer",
+        "Basic",
+        "Standard",
+        "Premium"
+      ]
+    },
+    "skuCount": {
+      "type": "int",
+      "defaultValue": 1,
+      "metadata": {
+        "description": "The instance size of this API Management service."
+      },
+      "allowedValues": [
+        1,
+        2
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "deployGroups": true,
+    "deployUsers": true,
+    "deployNameValuePairs": true
+  },
+  "resources": {
+    "applicationInsights": {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2015-05-01",
+      "name": "[parameters('appInsightsName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "kind": "web",
+      "properties": {
+        "Application_Type": "web"
+      }
+    },
+    "apiManagement": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2019-01-01",
+      "name": "[parameters('apimInstanceName')]",
+      "location": "[parameters('location')]",
+      "tags": "[parameters('resourceTags')]",
+      "sku": {
+        "name": "[parameters('sku')]",
+        "capacity": "[parameters('skuCount')]"
+      },
+      "properties": {
+        "publisherEmail": "[parameters('publisherEmail')]",
+        "publisherName": "[parameters('publisherName')]"
+      }
+    },
+    "apiManagementLogger": {
+      "type": "Microsoft.ApiManagement/service/loggers",
+      "apiVersion": "2019-01-01",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), parameters('appInsightsName'))]",
+      "properties": {
+        "loggerType": "applicationInsights",
+        "description": "Logger resources to APIM",
+        "credentials": {
+          "instrumentationKey": "[reference('applicationInsights').InstrumentationKey]"
+        }
+      },
+      "dependsOn": [
+        "apiManagement",
+        "applicationInsights"
+      ]
+    },
+    "apimInstanceDiagnostics": {
+      "type": "Microsoft.ApiManagement/service/diagnostics",
+      "apiVersion": "2020-06-01-preview",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), 'applicationinsights')]",
+      "properties": {
+        "loggerId": "[resourceInfo('apiManagementLogger').id]",
+        "alwaysLog": "allErrors",
+        "logClientIp": true,
+        "sampling": {
+          "percentage": 100,
+          "samplingType": "fixed"
+        }
+      },
+      "dependsOn": [
+        "apiManagement",
+        "apiManagementLogger"
+      ]
+    },
+    "apimGroups": {
+      "condition": "[variables('deployGroups')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "apimGroups",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "apimInstanceName": {
+            "value": "[resourceInfo('apiManagement').name]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "10004024546362286984"
+            }
+          },
+          "parameters": {
+            "apimInstanceName": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "functions": [],
+          "variables": {
+            "groupsSet": [
+              {
+                "groupName": "APIMGroup1",
+                "groupDisplayName": "APIM Group 1",
+                "groupDescription": "Description for this group"
+              },
+              {
+                "groupName": "APIMGroup2",
+                "groupDisplayName": "APIM Group 2",
+                "groupDescription": "Description for this group"
+              }
+            ]
+          },
+          "resources": {
+            "parentAPIM": {
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]",
+              "existing": true
+            },
+            "apimGroup": {
+              "copy": {
+                "name": "apimGroup",
+                "count": "[length(variables('groupsSet'))]"
+              },
+              "type": "Microsoft.ApiManagement/service/groups",
+              "apiVersion": "2020-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]",
+              "properties": {
+                "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
+                "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
+              }
+            }
+          },
+          "outputs": {
+            "apimGroups": {
+              "type": "array",
+              "copy": {
+                "count": "[length(variables('groupsSet'))]",
+                "input": {
+                  "groupId": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).id]",
+                  "groupName": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).name]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "apiManagement"
+      ]
+    },
+    "apimUsers": {
+      "condition": "[variables('deployUsers')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "apimUsers",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "apimInstanceName": {
+            "value": "[resourceInfo('apiManagement').name]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "12399821129382504434"
+            }
+          },
+          "parameters": {
+            "apimInstanceName": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "functions": [],
+          "variables": {
+            "usersSet": [
+              {
+                "userId": "pvd",
+                "firstName": "Paul",
+                "lastName": "Van Dyk",
+                "email": "pvd@vonyc.de",
+                "state": "active",
+                "notes": "Good DJ"
+              },
+              {
+                "userId": "abuuren",
+                "firstName": "Armin",
+                "lastName": "van Buuren",
+                "email": "armin@armadamusic.com",
+                "state": "active",
+                "notes": "OK meh!"
+              }
+            ]
+          },
+          "resources": {
+            "parentAPIM": {
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]",
+              "existing": true
+            },
+            "apimUser": {
+              "copy": {
+                "name": "apimUser",
+                "count": "[length(variables('usersSet'))]"
+              },
+              "type": "Microsoft.ApiManagement/service/users",
+              "apiVersion": "2020-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('usersSet')[copyIndex()].userId)]",
+              "properties": {
+                "firstName": "[variables('usersSet')[copyIndex()].firstName]",
+                "lastName": "[variables('usersSet')[copyIndex()].lastName]",
+                "email": "[variables('usersSet')[copyIndex()].email]",
+                "state": "[variables('usersSet')[copyIndex()].state]",
+                "note": "[variables('usersSet')[copyIndex()].notes]"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "apiManagement"
+      ]
+    },
+    "apimNVPairs": {
+      "condition": "[variables('deployNameValuePairs')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "apimNameValuePairs",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "apimInstanceName": {
+            "value": "[resourceInfo('apiManagement').name]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "8513514407798096027"
+            }
+          },
+          "parameters": {
+            "apimInstanceName": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "functions": [],
+          "variables": {
+            "apimNameValueSet": [
+              {
+                "displayName": "NameValue1",
+                "value": "SomeValue1",
+                "tags": [
+                  "Example"
+                ],
+                "isSecret": false
+              },
+              {
+                "displayName": "NameSecretValue",
+                "value": "SomeSecretValue",
+                "tags": [
+                  "Example",
+                  "AnotherExampleTag"
+                ],
+                "isSecret": true
+              }
+            ]
+          },
+          "resources": {
+            "parentAPIM": {
+              "type": "Microsoft.ApiManagement/service",
+              "apiVersion": "2019-01-01",
+              "name": "[parameters('apimInstanceName')]",
+              "existing": true
+            },
+            "apiManagementNVPair": {
+              "copy": {
+                "name": "apiManagementNVPair",
+                "count": "[length(variables('apimNameValueSet'))]"
+              },
+              "type": "Microsoft.ApiManagement/service/namedValues",
+              "apiVersion": "2020-06-01-preview",
+              "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]",
+              "properties": {
+                "displayName": "[variables('apimNameValueSet')[copyIndex()].displayName]",
+                "secret": "[variables('apimNameValueSet')[copyIndex()].isSecret]",
+                "value": "[variables('apimNameValueSet')[copyIndex()].value]",
+                "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
+              }
+            }
+          },
+          "outputs": {
+            "apimNameValues": {
+              "type": "array",
+              "copy": {
+                "count": "[length(variables('apimNameValueSet'))]",
+                "input": {
+                  "nameValueId": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).id]",
+                  "nameValueName": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).name]"
+                }
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "apiManagement"
+      ]
+    }
+  },
+  "outputs": {
+    "appInsightsInstrumentationKey": {
+      "type": "string",
+      "value": "[reference('applicationInsights').InstrumentationKey]"
+    },
+    "apimURL": {
+      "type": "string",
+      "value": "[reference('apiManagement').portalUrl]"
+    }
+  }
+}

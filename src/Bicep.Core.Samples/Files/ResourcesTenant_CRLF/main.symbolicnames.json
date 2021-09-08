@@ -1,0 +1,95 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9543823438320420064"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "managementGroups": [
+      {
+        "name": "one",
+        "displayName": "The first"
+      },
+      {
+        "name": "two",
+        "displayName": "The second"
+      }
+    ]
+  },
+  "resources": {
+    "singleGroup": {
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "myMG",
+      "properties": {
+        "displayName": "This one is mine!"
+      }
+    },
+    "manyGroups": {
+      "copy": {
+        "name": "manyGroups",
+        "count": "[length(variables('managementGroups'))]"
+      },
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[variables('managementGroups')[copyIndex()].name]",
+      "properties": {
+        "displayName": "[format('{0} ({1})', variables('managementGroups')[copyIndex()].displayName, reference('singleGroup').displayName)]"
+      },
+      "dependsOn": [
+        "singleGroup"
+      ]
+    },
+    "anotherSet": {
+      "copy": {
+        "name": "anotherSet",
+        "count": "[length(variables('managementGroups'))]"
+      },
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[concat(variables('managementGroups')[copyIndex()].name, '-one-', copyIndex())]",
+      "properties": {
+        "displayName": "[format('{0} ({1}) (set 1) (index {2})', variables('managementGroups')[copyIndex()].displayName, reference('singleGroup').displayName, copyIndex())]"
+      },
+      "dependsOn": [
+        "manyGroups",
+        "singleGroup"
+      ]
+    },
+    "yetAnotherSet": {
+      "copy": {
+        "name": "yetAnotherSet",
+        "count": "[length(variables('managementGroups'))]"
+      },
+      "type": "Microsoft.Management/managementGroups",
+      "apiVersion": "2020-05-01",
+      "name": "[concat(variables('managementGroups')[copyIndex()].name, '-two')]",
+      "properties": {
+        "displayName": "[format('{0} ({1}) (set 2)', variables('managementGroups')[copyIndex()].displayName, reference('singleGroup').displayName)]"
+      },
+      "dependsOn": [
+        "[format('anotherSet[{0}]', 0)]",
+        "singleGroup"
+      ]
+    }
+  },
+  "outputs": {
+    "managementGroupIds": {
+      "type": "array",
+      "copy": {
+        "count": "[length(range(0, length(variables('managementGroups'))))]",
+        "input": {
+          "name": "[resourceInfo(format('yetAnotherSet[{0}]', range(0, length(variables('managementGroups')))[copyIndex()])).name]",
+          "displayName": "[reference(format('yetAnotherSet[{0}]', range(0, length(variables('managementGroups')))[copyIndex()])).displayName]"
+        }
+      }
+    }
+  }
+}

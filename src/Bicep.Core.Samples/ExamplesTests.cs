@@ -126,7 +126,7 @@ namespace Bicep.Core.Samples
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
 
             // quiet the linter diagnostics
             var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
@@ -165,6 +165,75 @@ namespace Bicep.Core.Samples
                         exampleExists ? JToken.Parse(File.ReadAllText(jsonFileName)) : new JObject(),
                         example.JsonStreamName,
                         jsonFileName + ".actual");
+
+                    // validate that the template is parseable by the deployment engine
+                    TemplateHelper.TemplateShouldBeValid(generated);
+                }
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetExampleData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(ExampleData), DynamicDataDisplayName = nameof(ExampleData.GetDisplayName))]
+        [TestCategory(BaselineHelper.BaselineTestCategory)]
+        public void ExampleIsValid_using_experimental_symbolic_names(ExampleData example)
+        {
+            example.JsonStreamName.Should().StartWith("docs/examples/");
+            var relativeJsonStreamName = "experimental/symbolicnames/" + example.JsonStreamName.Substring("docs/examples/".Length);
+
+            // save all the files in the containing directory to disk so that we can test module resolution
+            var parentStream = GetParentStreamName(example.BicepStreamName);
+            var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, parentStream);
+            var bicepFileName = Path.Combine(outputDirectory, Path.GetFileName(example.BicepStreamName));
+
+            var jsonParentStream = GetParentStreamName($"Bicep.Core.Samples/{relativeJsonStreamName}");
+            var jsonOutputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(ExamplesTests).Assembly, jsonParentStream);
+            var jsonFileName = Path.Combine(jsonOutputDirectory, Path.GetFileName(relativeJsonStreamName));
+
+            var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
+            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.WithSymbolicNamesEnabled);
+
+            // quiet the linter diagnostics
+            var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
+
+            foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
+            {
+                DiagnosticAssertions.DoWithDiagnosticAnnotations(
+                    bicepFile,
+                    diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x)),
+                    diagnostics => {
+                        diagnostics.Should().BeEmpty("{0} should not have warnings or errors", bicepFile.FileUri.LocalPath);
+                    });
+            }
+
+            // group assertion failures using AssertionScope, rather than reporting the first failure
+            using (new AssertionScope())
+            {
+                var exampleExists = File.Exists(jsonFileName);
+                exampleExists.Should().BeTrue($"Generated example \"{jsonFileName}\" should be checked in");
+
+                using var stream = new MemoryStream();
+                var result = emitter.Emit(stream);
+            
+                result.Status.Should().Be(EmitStatus.Succeeded);
+
+                if (result.Status == EmitStatus.Succeeded)
+                {
+                    stream.Position = 0;
+                    var generated = new StreamReader(stream).ReadToEnd();
+
+                    var actual = JToken.Parse(generated);
+                    File.WriteAllText(jsonFileName + ".actual", generated);
+
+                    actual.Should().EqualWithJsonDiffOutput(
+                        TestContext, 
+                        exampleExists ? JToken.Parse(File.ReadAllText(jsonFileName)) : new JObject(),
+                        $"src/Bicep.Core.Samples/Files/{relativeJsonStreamName}",
+                        jsonFileName + ".actual");
+
+                    // validate that the template is parseable by the deployment engine
+                    TemplateHelper.TemplateShouldBeValid(generated);
                 }
             }
         }

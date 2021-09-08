@@ -118,7 +118,7 @@ namespace Bicep.Core.Registry
             }
 
             var registry = this.GetRegistry(moduleReference);
-            return registry.TryGetLocalModuleEntryPointPath(parentModuleUri, moduleReference, out failureBuilder);
+            return registry.TryGetLocalModuleEntryPointUri(parentModuleUri, moduleReference, out failureBuilder);
         }
 
         public async Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences)

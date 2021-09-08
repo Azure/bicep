@@ -1,0 +1,215 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4176017426826292338"
+    }
+  },
+  "parameters": {
+    "managedInstanceName": {
+      "type": "string"
+    },
+    "adminLogin": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "secureString"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "vnet-01"
+    },
+    "virtualNetworkPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "subnet-01"
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/24"
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "GP_Gen5",
+      "allowedValues": [
+        "GP_Gen5",
+        "BC_Gen5"
+      ]
+    },
+    "vCores": {
+      "type": "int",
+      "defaultValue": 8,
+      "allowedValues": [
+        8,
+        16,
+        24,
+        32,
+        40,
+        64,
+        80
+      ]
+    },
+    "storageSizeInGB": {
+      "type": "int",
+      "defaultValue": 256,
+      "maxValue": 8192,
+      "minValue": 32
+    }
+  },
+  "functions": [],
+  "variables": {
+    "networkSecurityGroupName": "[format('{0}-nsg', parameters('managedInstanceName'))]",
+    "routeTableName": "[format('{0}-routetable', parameters('managedInstanceName'))]"
+  },
+  "resources": {
+    "networkSecurityGroup": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "allow_tds_inbound",
+            "properties": {
+              "description": "Allow access to data",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "1433",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1000,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "allow_redirect_inbound",
+            "properties": {
+              "description": "Allow inbound redirect traffic to Managed Instance inside the virtual network",
+              "protocol": "Tcp",
+              "sourcePortRange": "*",
+              "destinationPortRange": "11000-11999",
+              "sourceAddressPrefix": "VirtualNetwork",
+              "destinationAddressPrefix": "*",
+              "access": "Allow",
+              "priority": 1100,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "deny_all_inbound",
+            "properties": {
+              "description": "Deny all other inbound traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 4096,
+              "direction": "Inbound"
+            }
+          },
+          {
+            "name": "deny_all_outbound",
+            "properties": {
+              "description": "Deny all other outbound traffic",
+              "protocol": "*",
+              "sourcePortRange": "*",
+              "destinationPortRange": "*",
+              "sourceAddressPrefix": "*",
+              "destinationAddressPrefix": "*",
+              "access": "Deny",
+              "priority": 4096,
+              "direction": "Outbound"
+            }
+          }
+        ]
+      }
+    },
+    "routeTable": {
+      "type": "Microsoft.Network/routeTables",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('routeTableName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "disableBgpRoutePropagation": false
+      }
+    },
+    "virtualNetwork": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkPrefix')]"
+          ]
+        }
+      }
+    },
+    "subnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('subnetName')]",
+      "properties": {
+        "addressPrefix": "[parameters('subnetPrefix')]",
+        "routeTable": {
+          "id": "[resourceInfo('routeTable').id]"
+        },
+        "networkSecurityGroup": {
+          "id": "[resourceInfo('networkSecurityGroup').id]"
+        },
+        "delegations": [
+          {
+            "name": "managedInstanceDelegation",
+            "properties": {
+              "serviceName": "Microsoft.Sql/managedInstances"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "networkSecurityGroup",
+        "routeTable"
+      ]
+    },
+    "managedInstance": {
+      "type": "Microsoft.Sql/managedInstances",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[parameters('managedInstanceName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('skuName')]"
+      },
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "administratorLogin": "[parameters('adminLogin')]",
+        "administratorLoginPassword": "[parameters('adminPassword')]",
+        "subnetId": "[resourceInfo('subnet').id]",
+        "storageSizeInGB": "[parameters('storageSizeInGB')]",
+        "vCores": "[parameters('vCores')]",
+        "licenseType": "LicenseIncluded"
+      },
+      "dependsOn": [
+        "subnet"
+      ]
+    }
+  }
+}

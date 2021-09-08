@@ -1,0 +1,164 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1386858963616796432"
+    }
+  },
+  "parameters": {
+    "prefix": {
+      "type": "string",
+      "defaultValue": "majastrz"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "groups": [
+      "bicep1",
+      "bicep2",
+      "bicep3",
+      "bicep4"
+    ],
+    "scripts": "[take(variables('groups'), 2)]"
+  },
+  "resources": {
+    "resourceGroups": {
+      "copy": {
+        "name": "resourceGroups",
+        "count": "[length(variables('groups'))]"
+      },
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}-{1}', parameters('prefix'), variables('groups')[copyIndex()])]",
+      "location": "westus"
+    },
+    "scopedToSymbolicName": {
+      "copy": {
+        "name": "scopedToSymbolicName",
+        "count": "[length(variables('scripts'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
+      "resourceGroup": "[format('{0}-{1}', parameters('prefix'), variables('groups')[copyIndex()])]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "scriptName": {
+            "value": "[format('test-{0}-{1}', variables('scripts')[copyIndex()], copyIndex())]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7808808203419259898"
+            }
+          },
+          "parameters": {
+            "scriptName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "script": {
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "[parameters('scriptName')]",
+              "kind": "AzurePowerShell",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "azPowerShellVersion": "3.0",
+                "retentionInterval": "PT6H",
+                "scriptContent": "      Write-Output 'Hello World!'\n"
+              }
+            }
+          },
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('scriptName')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[format('resourceGroups[{0}]', copyIndex())]"
+      ]
+    },
+    "scopedToResourceGroupFunction": {
+      "copy": {
+        "name": "scopedToResourceGroupFunction",
+        "count": "[length(variables('scripts'))]"
+      },
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2019-10-01",
+      "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
+      "resourceGroup": "[concat(variables('scripts')[copyIndex()], '-extra')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "scriptName": {
+            "value": "[format('test-{0}-{1}', variables('scripts')[copyIndex()], copyIndex())]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "7808808203419259898"
+            }
+          },
+          "parameters": {
+            "scriptName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": {
+            "script": {
+              "type": "Microsoft.Resources/deploymentScripts",
+              "apiVersion": "2020-10-01",
+              "name": "[parameters('scriptName')]",
+              "kind": "AzurePowerShell",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "azPowerShellVersion": "3.0",
+                "retentionInterval": "PT6H",
+                "scriptContent": "      Write-Output 'Hello World!'\n"
+              }
+            }
+          },
+          "outputs": {
+            "myOutput": {
+              "type": "string",
+              "value": "[parameters('scriptName')]"
+            }
+          }
+        }
+      }
+    }
+  }
+}

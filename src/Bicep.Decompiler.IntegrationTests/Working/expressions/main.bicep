@@ -19,3 +19,4 @@ output coalesceIntOutput int = ((coalesceObjectToTest.null1 ?? coalesceObjectToT
 output coalesceObjectOutput object = ((coalesceObjectToTest.null1 ?? coalesceObjectToTest.null2) ?? coalesceObjectToTest.object)
 output coalesceArrayOutput array = ((coalesceObjectToTest.null1 ?? coalesceObjectToTest.null2) ?? coalesceObjectToTest.array)
 output coalesceEmptyOutput bool = empty((coalesceObjectToTest.null1 ?? coalesceObjectToTest.null2))
+output emptyFunctionsOutput bool = ((null == json('null')) ? true : false)

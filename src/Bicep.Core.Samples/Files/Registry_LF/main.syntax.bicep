@@ -270,6 +270,207 @@ module siteDeploy 'oci:mock-registry-two.invalid/demo/site:v3' = [for site in we
 //@[1:2)   RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
+module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
+//@[0:168) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:20)  IdentifierSyntax
+//@[7:20)   Identifier |storageDeploy|
+//@[21:87)  StringSyntax
+//@[21:87)   StringComplete |'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0'|
+//@[88:89)  Assignment |=|
+//@[90:168)  ObjectSyntax
+//@[90:91)   LeftBrace |{|
+//@[91:92)   NewLine |\n|
+  name: 'storageDeploy'
+//@[2:23)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:23)    StringSyntax
+//@[8:23)     StringComplete |'storageDeploy'|
+//@[23:24)   NewLine |\n|
+  scope: rg
+//@[2:11)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:11)    VariableAccessSyntax
+//@[9:11)     IdentifierSyntax
+//@[9:11)      Identifier |rg|
+//@[11:12)   NewLine |\n|
+  params: {
+//@[2:38)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:38)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:12)     NewLine |\n|
+    location: 'eastus'
+//@[4:22)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |location|
+//@[12:13)      Colon |:|
+//@[14:22)      StringSyntax
+//@[14:22)       StringComplete |'eastus'|
+//@[22:23)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var vnets = [
+//@[0:123) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:9)  IdentifierSyntax
+//@[4:9)   Identifier |vnets|
+//@[10:11)  Assignment |=|
+//@[12:123)  ArraySyntax
+//@[12:13)   LeftSquare |[|
+//@[13:14)   NewLine |\n|
+  {
+//@[2:53)   ArrayItemSyntax
+//@[2:53)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:4)     NewLine |\n|
+    name: 'vnet1'
+//@[4:17)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:17)      StringSyntax
+//@[10:17)       StringComplete |'vnet1'|
+//@[17:18)     NewLine |\n|
+    subnetName: 'subnet1.1'
+//@[4:27)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |subnetName|
+//@[14:15)      Colon |:|
+//@[16:27)      StringSyntax
+//@[16:27)       StringComplete |'subnet1.1'|
+//@[27:28)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+  {
+//@[2:53)   ArrayItemSyntax
+//@[2:53)    ObjectSyntax
+//@[2:3)     LeftBrace |{|
+//@[3:4)     NewLine |\n|
+    name: 'vnet2'
+//@[4:17)     ObjectPropertySyntax
+//@[4:8)      IdentifierSyntax
+//@[4:8)       Identifier |name|
+//@[8:9)      Colon |:|
+//@[10:17)      StringSyntax
+//@[10:17)       StringComplete |'vnet2'|
+//@[17:18)     NewLine |\n|
+    subnetName: 'subnet2.1'
+//@[4:27)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |subnetName|
+//@[14:15)      Colon |:|
+//@[16:27)      StringSyntax
+//@[16:27)       StringComplete |'subnet2.1'|
+//@[27:28)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+]
+//@[0:1)   RightSquare |]|
+//@[1:3) NewLine |\n\n|
+
+module vnetDeploy 'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
+//@[0:241) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:17)  IdentifierSyntax
+//@[7:17)   Identifier |vnetDeploy|
+//@[18:101)  StringSyntax
+//@[18:101)   StringComplete |'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'|
+//@[102:103)  Assignment |=|
+//@[104:241)  ForSyntax
+//@[104:105)   LeftSquare |[|
+//@[105:108)   Identifier |for|
+//@[109:113)   LocalVariableSyntax
+//@[109:113)    IdentifierSyntax
+//@[109:113)     Identifier |vnet|
+//@[114:116)   Identifier |in|
+//@[117:122)   VariableAccessSyntax
+//@[117:122)    IdentifierSyntax
+//@[117:122)     Identifier |vnets|
+//@[122:123)   Colon |:|
+//@[124:240)   ObjectSyntax
+//@[124:125)    LeftBrace |{|
+//@[125:126)    NewLine |\n|
+  name: '${vnet.name}Deploy'
+//@[2:28)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:28)     StringSyntax
+//@[8:11)      StringLeftPiece |'${|
+//@[11:20)      PropertyAccessSyntax
+//@[11:15)       VariableAccessSyntax
+//@[11:15)        IdentifierSyntax
+//@[11:15)         Identifier |vnet|
+//@[15:16)       Dot |.|
+//@[16:20)       IdentifierSyntax
+//@[16:20)        Identifier |name|
+//@[20:28)      StringRightPiece |}Deploy'|
+//@[28:29)    NewLine |\n|
+  scope: rg
+//@[2:11)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:11)     VariableAccessSyntax
+//@[9:11)      IdentifierSyntax
+//@[9:11)       Identifier |rg|
+//@[11:12)    NewLine |\n|
+  params: {
+//@[2:71)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:71)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+    vnetName: vnet.name
+//@[4:23)      ObjectPropertySyntax
+//@[4:12)       IdentifierSyntax
+//@[4:12)        Identifier |vnetName|
+//@[12:13)       Colon |:|
+//@[14:23)       PropertyAccessSyntax
+//@[14:18)        VariableAccessSyntax
+//@[14:18)         IdentifierSyntax
+//@[14:18)          Identifier |vnet|
+//@[18:19)        Dot |.|
+//@[19:23)        IdentifierSyntax
+//@[19:23)         Identifier |name|
+//@[23:24)      NewLine |\n|
+    subnetName: vnet.subnetName
+//@[4:31)      ObjectPropertySyntax
+//@[4:14)       IdentifierSyntax
+//@[4:14)        Identifier |subnetName|
+//@[14:15)       Colon |:|
+//@[16:31)       PropertyAccessSyntax
+//@[16:20)        VariableAccessSyntax
+//@[16:20)         IdentifierSyntax
+//@[16:20)          Identifier |vnet|
+//@[20:21)        Dot |.|
+//@[21:31)        IdentifierSyntax
+//@[21:31)         Identifier |subnetName|
+//@[31:32)      NewLine |\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
 //@[0:82) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|

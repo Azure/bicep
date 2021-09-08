@@ -1,0 +1,122 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "17086860997343722388"
+    }
+  },
+  "parameters": {
+    "listOfAllowedLocations": {
+      "type": "array",
+      "defaultValue": [
+        "eastus",
+        "eastus2",
+        "westus",
+        "westus2"
+      ]
+    },
+    "listOfAllowedSKUs": {
+      "type": "array",
+      "defaultValue": [
+        "Standard_B1ls",
+        "Standard_B1ms",
+        "Standard_B1s",
+        "Standard_B2ms",
+        "Standard_B2s",
+        "Standard_B4ms",
+        "Standard_B4s",
+        "Standard_D2s_v3",
+        "Standard_D4s_v3"
+      ]
+    }
+  },
+  "functions": [],
+  "variables": {
+    "initiativeDefinitionName": "BICEP Example Initiative"
+  },
+  "resources": {
+    "initiativeDefinition": {
+      "type": "Microsoft.Authorization/policySetDefinitions",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('initiativeDefinitionName')]",
+      "properties": {
+        "policyType": "Custom",
+        "displayName": "[variables('initiativeDefinitionName')]",
+        "description": "Initiative Definition for Resource Locatoin and VM SKUs",
+        "metadata": {
+          "category": "BICEP Example Initiative"
+        },
+        "parameters": {
+          "listOfAllowedLocations": {
+            "type": "Array",
+            "metadata": "[createObject('description', 'The List of Allowed Locations for Resource Groups and Resources.', 'strongtype', 'location', 'displayName', 'Allowed Locations')]"
+          },
+          "listOfAllowedSKUs": {
+            "type": "Array",
+            "metadata": {
+              "description": "The List of Allowed SKUs for Virtual Machines.",
+              "strongtype": "vmSKUs",
+              "displayName": "Allowed Virtual Machine Size SKUs"
+            }
+          }
+        },
+        "policyDefinitions": [
+          {
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e765b5de-1225-4ba3-bd56-1ac6695af988",
+            "parameters": {
+              "listOfAllowedLocations": {
+                "value": "[[parameters('listOfAllowedLocations')]"
+              }
+            }
+          },
+          {
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/e56962a6-4747-49cd-b67b-bf8b01975c4c",
+            "parameters": {
+              "listOfAllowedLocations": {
+                "value": "[[parameters('listOfAllowedLocations')]"
+              }
+            }
+          },
+          {
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/cccc23c7-8427-4f53-ad12-b6a63eb452b3",
+            "parameters": {
+              "listOfAllowedSKUs": {
+                "value": "[[parameters('listOfAllowedSKUs')]"
+              }
+            }
+          },
+          {
+            "policyDefinitionId": "/providers/Microsoft.Authorization/policyDefinitions/0015ea4d-51ff-4ce3-8d8c-f3f8f0179a56",
+            "parameters": {}
+          }
+        ]
+      }
+    },
+    "initiativeDefinitionPolicyAssignment": {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "apiVersion": "2019-09-01",
+      "name": "[variables('initiativeDefinitionName')]",
+      "properties": {
+        "scope": "[subscription().id]",
+        "enforcementMode": "Default",
+        "policyDefinitionId": "[resourceInfo('initiativeDefinition').id]",
+        "parameters": {
+          "listOfAllowedLocations": {
+            "value": "[parameters('listOfAllowedLocations')]"
+          },
+          "listOfAllowedSKUs": {
+            "value": "[parameters('listOfAllowedSKUs')]"
+          }
+        }
+      },
+      "dependsOn": [
+        "initiativeDefinition"
+      ]
+    }
+  }
+}

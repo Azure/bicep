@@ -1,0 +1,62 @@
+﻿{
+  "location": "westus",
+  "tags": {},
+  "properties": {
+    "mainTemplate": {
+      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "vnetName": {
+          "type": "string"
+        },
+        "vnetPrefix": {
+          "type": "string",
+          "defaultValue": "10.0.0.0/16"
+        },
+        "subnetName": {
+          "type": "string"
+        },
+        "subnetPrefix": {
+          "type": "string",
+          "defaultValue": "10.0.0.0/24"
+        }
+      },
+      "variables": {},
+      "resources": [
+        {
+          "name": "[parameters('vnetName')]",
+          "type": "Microsoft.Network/virtualNetworks",
+          "apiVersion": "2019-11-01",
+          "location": "[resourceGroup().location]",
+          "properties": {
+            "addressSpace": {
+              "addressPrefixes": [
+                "[parameters('vnetPrefix')]"
+              ]
+            },
+            "subnets": [
+              {
+                "name": "[parameters('subnetName')]",
+                "properties": {
+                  "addressPrefix": "[parameters('subnetPrefix')]"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {}
+    }
+  },
+  "systemData": {
+    "createdBy": "user@test.com",
+    "createdByType": "User",
+    "createdAt": "2021-09-01T23:33:12.3789454Z",
+    "lastModifiedBy": "user@test.com",
+    "lastModifiedByType": "User",
+    "lastModifiedAt": "2021-09-01T23:33:12.3789454Z"
+  },
+  "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/prod-rg/providers/Microsoft.Resources/templateSpecs/vnet-spec/versions/v2",
+  "type": "Microsoft.Resources/templateSpecs/versions",
+  "name": "v2"
+}

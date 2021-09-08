@@ -117,25 +117,25 @@
       {
         "command": "bicep.showVisualizer",
         "title": "Open Visualizer",
-        "category": "bicep",
+        "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
       {
         "command": "bicep.showVisualizerToSide",
         "title": "Open Visualizer to the Side",
-        "category": "bicep",
+        "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
       {
         "command": "bicep.showSource",
         "title": "Open Source",
-        "category": "bicep",
+        "category": "Bicep",
         "icon": "$(go-to-file)"
       },
       {
         "command": "bicep.build",
         "title": "Build",
-        "category": "bicep"
+        "category": "Bicep"
       }
     ],
     "keybindings": [
@@ -185,6 +185,11 @@
       ],
       "commandPalette": [
         {
+          "command": "bicep.build",
+          "when": "editorLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
           "command": "bicep.showVisualizer",
           "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
@@ -223,7 +228,7 @@
     "@types/jest": "^27.0.1",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.7.8",
-    "@types/react": "^17.0.19",
+    "@types/react": "^17.0.20",
     "@types/react-dom": "^17.0.9",
     "@types/react-test-renderer": "^17.0.1",
     "@types/semver": "^7.3.8",
@@ -232,7 +237,7 @@
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
     "@typescript-eslint/eslint-plugin": "^4.29.3",
-    "@typescript-eslint/parser": "^4.29.3",
+    "@typescript-eslint/parser": "^4.31.0",
     "copy-webpack-plugin": "^9.0.1",
     "esbuild-loader": "^2.15.1",
     "eslint": "^7.32.0",
@@ -240,7 +245,7 @@
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^24.4.0",
     "eslint-plugin-prettier": "^4.0.0",
-    "eslint-plugin-react": "^7.24.0",
+    "eslint-plugin-react": "^7.25.1",
     "fork-ts-checker-webpack-plugin": "^6.3.2",
     "jest": "^26.6.2",
     "jest-styled-components": "^7.0.5",
@@ -254,7 +259,7 @@
     "ts-jest": "^26.5.5",
     "ts-node": "^10.2.1",
     "typescript": "^4.3.5",
-    "vsce": "^1.96.1",
+    "vsce": "^1.97.0",
     "vscode-test": "^1.6.1",
     "webpack": "^5.51.1",
     "webpack-cli": "^4.8.0"

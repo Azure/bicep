@@ -18,8 +18,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
     public class PositionAssertions : ReferenceTypeAssertions<Position, PositionAssertions>
     {
         public PositionAssertions(Position instance)
+            : base(instance)
         {
-            Subject = instance;
         }
 
         protected override string Identifier => "position";

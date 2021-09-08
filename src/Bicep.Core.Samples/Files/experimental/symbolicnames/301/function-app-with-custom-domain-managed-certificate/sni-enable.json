@@ -1,0 +1,36 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10952594413755937991"
+    }
+  },
+  "parameters": {
+    "functionAppName": {
+      "type": "string"
+    },
+    "functionAppHostname": {
+      "type": "string"
+    },
+    "certificateThumbprint": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "functionAppCustomHostEnable": {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', parameters('functionAppName'), parameters('functionAppHostname'))]",
+      "properties": {
+        "sslState": "SniEnabled",
+        "thumbprint": "[parameters('certificateThumbprint')]"
+      }
+    }
+  }
+}

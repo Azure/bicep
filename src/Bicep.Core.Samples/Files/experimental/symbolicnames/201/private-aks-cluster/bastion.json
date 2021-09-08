@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3181622900167712412"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Specifies the location of AKS cluster."
+      }
+    },
+    "bastionHostName": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the name of the Azure Bastion resource."
+      }
+    },
+    "bastionSubnetId": {
+      "type": "string",
+      "metadata": {
+        "description": "Specifies the id of the Azure Bastion subnet resource id."
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "bastionPublicIpAddressName": "[format('{0}PublicIp', parameters('bastionHostName'))]"
+  },
+  "resources": {
+    "bastionPublicIpAddress": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-08-01",
+      "name": "[variables('bastionPublicIpAddressName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static"
+      }
+    },
+    "bastionHost": {
+      "type": "Microsoft.Network/bastionHosts",
+      "apiVersion": "2020-08-01",
+      "name": "[parameters('bastionHostName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "IpConf",
+            "properties": {
+              "subnet": {
+                "id": "[parameters('bastionSubnetId')]"
+              },
+              "publicIPAddress": {
+                "id": "[resourceInfo('bastionPublicIpAddress').id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "bastionPublicIpAddress"
+      ]
+    }
+  }
+}

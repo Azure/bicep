@@ -40,12 +40,13 @@ namespace Bicep.Cli.IntegrationTests
         public async Task Restore_ShouldSucceed(DataSet dataSet)
         {
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
 
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
-            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasModulesToPublish), clientFactory);
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
@@ -55,7 +56,7 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEmpty();
             }
 
-            if(dataSet.HasModulesToPublish)
+            if(dataSet.HasExternalModules)
             {
                 // ensure something got restored
                 Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();

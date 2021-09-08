@@ -2404,6 +2404,7 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/3617
         public void Test_Issue3617()
         {
             var result = CompilationHelper.Compile(@"
@@ -2436,6 +2437,48 @@ resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@
 ");
 
             result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/4156
+        public void Test_Issue4156()
+        {
+            var result = CompilationHelper.Compile(@"
+var location = resourceGroup().location
+var topics = [
+  'topicA'
+  'topicB'
+]
+
+resource eventGridTopics 'Microsoft.EventGrid/topics@2021-06-01-preview' = [for topic in topics: {
+  name: '${topic}-ZZZ'
+  location: location
+  sku: {
+    name: 'Basic'
+  }
+  kind: 'Azure'
+  identity: {
+    type: 'SystemAssigned'
+  }
+}]
+
+resource testR 'Microsoft.EventGrid/topics@2021-06-01-preview' existing = {
+  name: 'myExistingEventGridTopic'
+}
+
+output deployedTopics array = [for (topicName, i) in topics: {
+  name: topicName
+  accessKey1: testR.listKeys().key1
+  accessKey2: eventGridTopics[i].listKeys().key1
+}]
+");
+
+            result.Template!.Should().HaveValueAtPath("$.outputs.deployedTopics.copy.input", new JObject
+            {
+                ["name"] = "[variables('topics')[copyIndex()]]",
+                ["accessKey1"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', 'myExistingEventGridTopic'), '2021-06-01-preview').key1]",
+                ["accessKey2"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', format('{0}-ZZZ', variables('topics')[copyIndex()])), '2021-06-01-preview').key1]"
+            });
         }
     }
 }
