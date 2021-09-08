@@ -8,7 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
-using Azure.ResourceManager.Resources.Models;
+using Azure.ResourceManager.Resources;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -22,6 +22,7 @@ using Bicep.Core.Workspaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Samples
 {
@@ -107,14 +108,24 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
 
-                var genericResource = JsonConvert.DeserializeObject<GenericResource>(templateSpecInfo.ModuleSource);
+                // Using JObject.Parse as a workaround because we cannot deserilize the source to a GenericResourceData object directly:
+                // - GenericResourceData.DeserializeGenericResource is internal
+                // - JsonConvert.Deserialize will cause InvalidCastException
+                var templateSpecJObject = JObject.Parse(templateSpecInfo.ModuleSource);
 
-                if (genericResource is null)
+                if (templateSpecJObject is null ||
+                    templateSpecJObject["location"] is not JValue locationJValue ||
+                    templateSpecJObject["properties"] is not JObject propertiesJObject)
                 {
                     throw new InvalidOperationException($"The template spec is malformed.");
                 }
 
-                var templateSpec = TemplateSpec.FromGenericResource(genericResource);
+                var genericResource = new GenericResourceData(locationJValue.Value<string>())
+                {
+                    Properties = propertiesJObject
+                };
+
+                var templateSpec = TemplateSpec.FromGenericResourceData(genericResource);
 
                 repositoryMocksBySubscription.TryAdd((reference.EndpointUri, reference.SubscriptionId), StrictMock.Of<ITemplateSpecRepository>());
                 repositoryMocksBySubscription[(reference.EndpointUri, reference.SubscriptionId)]

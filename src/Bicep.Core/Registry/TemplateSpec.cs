@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using Azure.ResourceManager.Resources.Models;
+using Azure.ResourceManager.Resources;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -18,11 +18,11 @@ namespace Bicep.Core.Registry
 
         public string MainTemplateContents { get; }
 
-        public static TemplateSpec FromGenericResource(GenericResource resource)
+        public static TemplateSpec FromGenericResourceData(GenericResourceData data)
         {
             try
             {
-                var templateSpecProperties = JObject.FromObject(resource.Properties);
+                var templateSpecProperties = JObject.FromObject(data.Properties);
 
                 if (!templateSpecProperties.TryGetValue("mainTemplate", out var mainTemplate))
                 {

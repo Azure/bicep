@@ -6,8 +6,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
+using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
-using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
@@ -20,16 +20,18 @@ namespace Bicep.Core.UnitTests.Registry
     [TestClass]
     public class TemplateSpecRepositoryTests
     {
+        private static readonly string TestTemplateSpecId = "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/testRG/providers/Microsoft.Resources/templateSpecs/testSpec/versions/v1";
+
         [TestMethod]
         public async Task FindTemplateSpecByIdAsync_TemplateSpecNotFound_ThrowsTemplateSpecException()
         {
-            var client = CreateMockClient(resourcesOperationsMock => resourcesOperationsMock
-                .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            var client = CreateMockClient(genericResourceMock => genericResourceMock
+                .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException(404, "Not found.")));
 
             var repository = new TemplateSpecRepository(client);
 
-            await Invoking(async () => await repository.FindTemplateSpecByIdAsync("foo"))
+            await Invoking(async () => await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId))
                 .Should()
                 .ThrowAsync<TemplateSpecException>()
                 .WithMessage("The referenced template spec does not exist. Not Found.");
@@ -38,13 +40,13 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task FindTemplateSpecByIdAsync_GotUnexpectedRequestFailedException_ConvertsToTemplateSpecException()
         {
-            var client = CreateMockClient(resourcesOperationsMock => resourcesOperationsMock
-                .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            var client = CreateMockClient(genericResourceMock => genericResourceMock
+                .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new RequestFailedException("Unexpected error.")));
 
             var repository = new TemplateSpecRepository(client);
 
-            await Invoking(async () => await repository.FindTemplateSpecByIdAsync("foo"))
+            await Invoking(async () => await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId))
                 .Should()
                 .ThrowAsync<TemplateSpecException>()
                 .WithMessage("Unexpected error.");
@@ -53,32 +55,40 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task FindTemplateSpecByIdAsync_TemlateSpecFound_ReturnsTemplateSpec()
         {
-            var mockResponse = CreateMockResponse(new GenericResource
+            var data = new GenericResourceData("westus")
             {
                 Properties = new Dictionary<string, string>
                 {
                     ["mainTemplate"] = "{}"
                 }
-            });
+            };
 
-            var client = CreateMockClient(resourcesOperationsMock => resourcesOperationsMock
-                .Setup(x => x.GetByIdAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(mockResponse));
+            var client = CreateMockClient(
+                genericResourceMock => genericResourceMock
+                    .SetupGet(x => x.Data)
+                    .Returns(data),
+                genericResourceMock => genericResourceMock
+                    .Setup(x => x.GetAsync(It.IsAny<CancellationToken>()))
+                    .ReturnsAsync(CreateMockResponse(genericResourceMock.Object)));
 
             var repository = new TemplateSpecRepository(client);
 
-            var templateSpec = await repository.FindTemplateSpecByIdAsync("foo");
+            var templateSpec = await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId);
 
             templateSpec.MainTemplateContents.Should().Be("{}");
         }
 
-        private static ResourcesManagementClient CreateMockClient(Action<Mock<ResourcesOperations>> setupResourcesOperationsMockAction)
+        private static ArmClient CreateMockClient(params Action<Mock<GenericResource>>[] setUpGenericResourceMockActions)
         {
-            var resourcesOperationsMock = StrictMock.Of<ResourcesOperations>();
-            setupResourcesOperationsMockAction(resourcesOperationsMock);
+            var genericResourceMock = StrictMock.Of<GenericResource>();
 
-            var clientMock = StrictMock.Of<ResourcesManagementClient>();
-            clientMock.Setup(x => x.Resources).Returns(resourcesOperationsMock.Object);
+            foreach (var action in setUpGenericResourceMockActions)
+            {
+                action.Invoke(genericResourceMock);
+            }
+
+            var clientMock = StrictMock.Of<ArmClient>();
+            clientMock.Setup(x => x.GetGenericResource(It.IsAny<ResourceIdentifier>())).Returns(genericResourceMock.Object);
 
             return clientMock.Object;
         }

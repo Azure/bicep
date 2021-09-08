@@ -159,8 +159,8 @@
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.14.0",
-        "contentHash": "kUMUOZX4FcmfHmy7OjyP5LovO5FMXco9uUYB76l77mtqMVbZ0cLobv+XCy/j6LpStc8cZo2sI1+dMXhk0YROEQ==",
+        "resolved": "1.18.0",
+        "contentHash": "h0DQLyIKvowm6n9XV2njDiiI5Et0QecpE2VcGfhps9J4m9MJ6tBD4Qxl+fbL8k/41sD7UXP4nAWgxC81oV11oQ==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "1.0.0",
           "System.Buffers": "4.5.1",
@@ -215,12 +215,22 @@
           "System.Threading.Tasks.Extensions": "4.5.2"
         }
       },
+      "Azure.ResourceManager": {
+        "type": "Transitive",
+        "resolved": "1.0.0-beta.2",
+        "contentHash": "y0EMHnpvzCFODGquSGu7oD51qaxOLgqjVVLXw0nzf+dyuVdFL0UYkdcDg2EHABW+LEowYbTw/Ji6PlU1XlrKWA==",
+        "dependencies": {
+          "Azure.Core": "1.18.0",
+          "System.Text.Json": "4.6.0"
+        }
+      },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.0.0-preview.2",
-        "contentHash": "dCFubyUeVaVGVn8+/gOAZ/Zt3YASDwOrs5eJMJNC3/N4AgDZqlF5LQ5a5gR19L6ZEQcIO/ZkMO1NdOrZzQ3SkQ==",
+        "resolved": "1.0.0-beta.1",
+        "contentHash": "Ym9FwOScPl2sb+jUV7cxyYGX/qttevm8lWOCtK/+CCTEz41qwx0Q2wi99M28MtccOYREiL1XyeMeNUy9TknzRw==",
         "dependencies": {
-          "Azure.Core": "1.5.0",
+          "Azure.Core": "1.18.0",
+          "Azure.ResourceManager": "1.0.0-beta.2",
           "System.Text.Json": "4.6.0"
         }
       },
@@ -2231,7 +2241,7 @@
           "Azure.Deployments.Expression": "1.0.247",
           "Azure.Deployments.Templates": "1.0.247",
           "Azure.Identity": "1.4.0",
-          "Azure.ResourceManager.Resources": "1.0.0-preview.2",
+          "Azure.ResourceManager.Resources": "1.0.0-beta.1",
           "Bicep.Core.RegistryClient": "1.0.0",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",

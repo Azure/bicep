@@ -1,13 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Azure.Deployments.Core.Uri;
-using Azure.ResourceManager.Resources.Models;
+using Azure.ResourceManager.Resources;
 using Bicep.Core.Registry;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,9 +15,9 @@ namespace Bicep.Core.UnitTests.Registry
     {
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
-        public void FromGenericResource_InvalidTemplateSpecResource_ThrowsTemplateSpecException(GenericResource resource)
+        public void FromGenericResource_InvalidTemplateSpecResource_ThrowsTemplateSpecException(GenericResourceData data)
         {
-            Invoking(() => TemplateSpec.FromGenericResource(resource))
+            Invoking(() => TemplateSpec.FromGenericResourceData(data))
                 .Should()
                 .Throw<TemplateSpecException>()
                 .WithMessage("The referenced Template Spec is malformed.");
@@ -31,7 +26,7 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void FromGenericResource_ValidTemplateSpecResource_ReturnsTemplateSpec()
         {
-            var resource = new GenericResource
+            var data = new GenericResourceData("westus")
             {
                 Properties = new Dictionary<string, string>
                 {
@@ -39,7 +34,7 @@ namespace Bicep.Core.UnitTests.Registry
                 },
             };
 
-            var templateSpec = TemplateSpec.FromGenericResource(resource);
+            var templateSpec = TemplateSpec.FromGenericResourceData(data);
 
             templateSpec.MainTemplateContents.Should().Be("contents");
         }
@@ -48,7 +43,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             yield return new object[]
             {
-                new GenericResource
+                new GenericResourceData("westus")
                 {
                     Properties = 123,
                 },
@@ -56,7 +51,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             yield return new object[]
             {
-                new GenericResource
+                new GenericResourceData("westus")
                 {
                     Properties = new Dictionary<string, string>
                     {
