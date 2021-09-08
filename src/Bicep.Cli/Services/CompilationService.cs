@@ -2,8 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Logging;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
@@ -23,7 +25,7 @@ namespace Bicep.Cli.Services
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
 
-        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleDispatcher moduleDispatcher, TemplateDecompiler decompiler) 
+        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleDispatcher moduleDispatcher, TemplateDecompiler decompiler)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
@@ -43,7 +45,7 @@ namespace Bicep.Cli.Services
             await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore));
         }
 
-        public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
+        public async Task<Compilation?> CompileAsync(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
@@ -61,11 +63,27 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping, null);
+            try
+            {
+                var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping);
 
-            LogDiagnostics(compilation);
+                LogDiagnostics(compilation);
 
-            return compilation;
+                return compilation;
+            }
+            catch (Exception exception)
+            {
+                var diagnostic = new Diagnostic(
+                    new TextSpan(0, 0),
+                    DiagnosticLevel.Error,
+                    string.Empty,
+                    exception.Message,
+                    inputUri);
+
+                diagnosticLogger.LogDiagnostic(inputUri, diagnostic, sourceFileGrouping.EntryPoint.LineStarts);
+
+                return null;
+            }
         }
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
@@ -83,7 +101,7 @@ namespace Bicep.Cli.Services
             }
 
             // to verify success we recompile and check for syntax errors.
-            await CompileAsync(decompilation.entrypointUri.AbsolutePath, skipRestore: true); 
+            await CompileAsync(decompilation.entrypointUri.AbsolutePath, skipRestore: true);
 
             return decompilation;
         }

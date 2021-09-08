@@ -11,6 +11,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -24,6 +25,8 @@ namespace Bicep.Cli.IntegrationTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        private string CurrentDirectory = Directory.GetCurrentDirectory();
 
         [TestMethod]
         public async Task Build_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
@@ -286,6 +289,88 @@ output myOutput string = 'hello!'
             }
         }
 
+        [TestMethod]
+        // ConfigHelper looks for bicepconfig.json in CurrentDirectory. We'll set the CurrentDirectory
+        // in this test. To avoid conflicts, we'll disable parallelation 
+        [DoNotParallelize]
+        public async Task Build_WithEmptyBicepConfig_ShouldProduceExpectedError()
+        {
+            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", string.Empty, testOutputPath);
+
+            Directory.SetCurrentDirectory(testOutputPath);
+
+            var (output, error, result) = await Bicep("build", inputFile);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain("main.bicep(1,1) : Error : Could not load configuration file. The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
+        }
+
+        [TestMethod]
+        // ConfigHelper looks for bicepconfig.json in CurrentDirectory. We'll set the CurrentDirectory
+        // in this test. To avoid conflicts, we'll disable parallelation
+        [DoNotParallelize]
+        public async Task Build_WithInvalidBicepConfig_ShouldProduceExpectedError()
+        {
+            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
+            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+", testOutputPath);
+
+            Directory.SetCurrentDirectory(testOutputPath);
+
+            var (output, error, result) = await Bicep("build", inputFile);
+
+            result.Should().Be(1);
+            output.Should().BeEmpty();
+            error.Should().Contain("main.bicep(1,1) : Error : Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.");
+        }
+
+        [TestMethod]
+        // ConfigHelper looks for bicepconfig.json in CurrentDirectory. We'll set the CurrentDirectory
+        // in this test. To avoid conflicts, we'll disable parallelation
+        [DoNotParallelize]
+        public async Task Build_WithValidBicepConfig_ShouldProduceExpectedError()
+        {
+            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
+            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}", testOutputPath);
+
+            Directory.SetCurrentDirectory(testOutputPath);
+
+            var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
+
+            File.Exists(expectedOutputFile).Should().BeFalse();
+
+            var (output, error, result) = await Bicep("build", "--outdir", testOutputPath, inputFile);
+
+            File.Exists(expectedOutputFile).Should().BeTrue();
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            error.Should().Contain(@"main.bicep(1,7) : Warning no-unused-params: Parameter ""storageAccountName"" is declared but never used. [https://aka.ms/bicep/linter/no-unused-params]");
+        }
+
         private static IEnumerable<object[]> GetValidDataSets() => DataSets
             .AllDataSets
             .Where(ds => ds.IsValid)
@@ -300,6 +385,15 @@ output myOutput string = 'hello!'
             .AllDataSets
             .Where(ds => ds.IsValid && ds.HasExternalModules)
             .ToDynamicTestData();
+
+        [TestCleanup]
+        public void Cleanup()
+        {
+            if (!string.Equals(Directory.GetCurrentDirectory(), CurrentDirectory, StringComparison.OrdinalIgnoreCase))
+            {
+                Directory.SetCurrentDirectory(CurrentDirectory);
+            }
+        }
     }
 }
 

@@ -43,7 +43,7 @@ namespace Bicep.Cli.Commands
 
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-            if (diagnosticLogger.ErrorCount < 1)
+            if (compilation is not null && diagnosticLogger.ErrorCount < 1)
             {
                 if (args.OutputToStdOut)
                 {
