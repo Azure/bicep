@@ -28,7 +28,7 @@ namespace Bicep.Core.Syntax
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);
 
-        public static DecoratorSyntax? TryGetDecoratorSyntax(this StatementSyntax statement, string decoratorName, string @namespace = "sys")
+        public static DecoratorSyntax? TryGetDecoratorSyntax(this StatementSyntax statement, string decoratorName, string @namespace)
             => statement.Decorators
                 .Where(d => d.Expression is FunctionCallSyntax function && function.NameEquals(decoratorName)
                     || (d.Expression is InstanceFunctionCallSyntax { BaseExpression: VariableAccessSyntax namespaceSyntax, Name: IdentifierSyntax nameSyntax } 

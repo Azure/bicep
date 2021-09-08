@@ -2,9 +2,9 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -312,7 +312,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
         }
 
         private static void ValidateHover(Hover? hover, Symbol symbol)
@@ -328,7 +328,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
             hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
             hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
-            hover.Contents.MarkupContent.Value.Should().EndWith("```");
+            Regex.Matches(hover.Contents.MarkupContent.Value, "```").Count.Should().Be(2);
 
             switch (symbol)
             {

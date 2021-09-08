@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -62,27 +62,27 @@ namespace Bicep.LanguageServer.Handlers
             {
                 case ParameterSymbol parameter:
                     return CodeBlockWithDescriptionDecorator(
-                        $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax("description"));
+                        $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case VariableSymbol variable:
-                    return CodeBlockWithDescriptionDecorator($"var {variable.Name}: {variable.Type}", variable.DeclaringVariable.TryGetDecoratorSyntax("description"));
+                    return CodeBlockWithDescriptionDecorator($"var {variable.Name}: {variable.Type}", variable.DeclaringVariable.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case ResourceSymbol resource:
                     return CodeBlockWithDescriptionDecorator(
-                        $"resource {resource.Name}\n{resource.Type}", resource.DeclaringResource.TryGetDecoratorSyntax("description"));
+                        $"resource {resource.Name}\n{resource.Type}", resource.DeclaringResource.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
                     if (filePath != null)
                     {
-                        return CodeBlockWithDescriptionDecorator($"module {module.Name}\n'{filePath}'", module.DeclaringModule.TryGetDecoratorSyntax("description"));
+                        return CodeBlockWithDescriptionDecorator($"module {module.Name}\n'{filePath}'", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
                     }
 
-                    return CodeBlockWithDescriptionDecorator($"module {module.Name}", module.DeclaringModule.TryGetDecoratorSyntax("description"));
+                    return CodeBlockWithDescriptionDecorator($"module {module.Name}", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case OutputSymbol output:
                     return CodeBlockWithDescriptionDecorator(
-                        $"output {output.Name}: {output.Type}", output.DeclaringOutput.TryGetDecoratorSyntax("description"));
+                        $"output {output.Name}: {output.Type}", output.DeclaringOutput.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case NamespaceSymbol namespaceSymbol:
                     return CodeBlock($"{namespaceSymbol.Name} namespace");
@@ -112,21 +112,20 @@ namespace Bicep.LanguageServer.Handlers
         //if we reach limit in a code block vscode will truncate it automatically, the block will not be terminated so the hover will not be properly formatted
         //therefore we need to check for the limit ourselves and truncate text inside code block, making sure it's terminated properly.
         private static string CodeBlock(string content) =>
-        $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```";
+        $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```\n";
         
         // Markdown needs two leading whitespaces before newline to insert a line break
-        private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"\n{description.Replace("\n", "  \n")}\n" : string.Empty);
+        private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
 
         private static string CodeBlockWithDescriptionDecorator(string content, DecoratorSyntax? descriptionDecorator)
         {
-            var markdown = CodeBlock(content);
             if (descriptionDecorator is not null &&
                 descriptionDecorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
                 && stringSyntax.TryGetLiteralValue() is string description)
             {
-                return CodeBlockWithDescription(markdown, description);
+                return CodeBlockWithDescription(content, description);
             }
-            return markdown;
+            return CodeBlock(content);
         }
 
         private static string GetFunctionMarkdown(FunctionSymbol function, ImmutableArray<FunctionArgumentSyntax> arguments, SyntaxBase functionCall, SemanticModel model)

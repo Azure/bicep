@@ -175,7 +175,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
+        private ObjectSyntax AddDecoratorsToBody(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
         {
             var result = input;
             foreach (var decoratorSyntax in statement.Decorators.Reverse())
@@ -219,7 +219,7 @@ namespace Bicep.Core.Emit
                 parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
             }
 
-            parameterObject = EvaluateDecorators(declaringParameter, parameterObject, primitiveType);
+            parameterObject = AddDecoratorsToBody(declaringParameter, parameterObject, primitiveType);
 
             foreach (var property in parameterObject.Properties)
             {
@@ -326,7 +326,7 @@ namespace Bicep.Core.Emit
 
         private long? GetBatchSize(StatementSyntax statement)
         {
-            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName)?.Arguments is IEnumerable<FunctionArgumentSyntax> arguments
+            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName, "sys")?.Arguments is { } arguments
                 && arguments.Count() == 1
                 && arguments.ToList()[0].Expression is IntegerLiteralSyntax integerLiteral)
             {
@@ -433,7 +433,7 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteValue(true);
             }
             
-            body = EvaluateDecorators(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
+            body = AddDecoratorsToBody(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
@@ -520,7 +520,7 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("type", NestedDeploymentResourceType);
             emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
-            body = EvaluateDecorators(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type);
+            body = AddDecoratorsToBody(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type);
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
@@ -739,15 +739,13 @@ namespace Bicep.Core.Emit
             {
                 emitter.EmitProperty("value", outputSymbol.Value);
                 // emit any decorators on this output
-                if (EvaluateDecorators(
-                    outputSymbol.DeclaringOutput, 
-                    SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
-                    outputSymbol.Type) is ObjectSyntax body)
+                var body = AddDecoratorsToBody(
+                outputSymbol.DeclaringOutput, 
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                outputSymbol.Type);
+                foreach (var (property, val) in body.ToNamedPropertyValueDictionary())
                 {
-                    foreach (var (property, val) in body.ToNamedPropertyValueDictionary())
-                    {
-                        emitter.EmitProperty(property, val);
-                    }
+                    emitter.EmitProperty(property, val);
                 }
             }
             jsonWriter.WriteEndObject();
