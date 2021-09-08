@@ -88,6 +88,10 @@ export async function importResourceIconInline(
     case "microsoft.web/sites":
       return (await import("./appServices/10035-icon-service-App-Services.svg"))
         .default;
+    case "microsoft.apimanagement/service":
+      return (
+        await import("./appServices/10042-icon-service-API-Management-Services.svg")
+      ).default;
 
     default:
       return (await import("./custom/resource.svg")).default;
