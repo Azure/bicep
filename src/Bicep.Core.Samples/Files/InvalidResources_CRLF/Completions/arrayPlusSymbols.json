@@ -211,7 +211,10 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "az"
+      "newText": "az."
+    },
+    "command": {
+      "command": "editor.action.triggerSuggest"
     }
   },
   {
@@ -5154,7 +5157,10 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "sys"
+      "newText": "sys."
+    },
+    "command": {
+      "command": "editor.action.triggerSuggest"
     }
   },
   {

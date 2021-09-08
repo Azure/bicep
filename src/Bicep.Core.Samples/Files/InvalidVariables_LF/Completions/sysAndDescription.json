@@ -1,0 +1,36 @@
+[
+  {
+    "label": "description",
+    "kind": "function",
+    "detail": "description()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_description",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "description($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "sys",
+    "kind": "folder",
+    "detail": "sys",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_sys",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "sys."
+    },
+    "command": {
+      "command": "editor.action.triggerSuggest"
+    }
+  }
+]

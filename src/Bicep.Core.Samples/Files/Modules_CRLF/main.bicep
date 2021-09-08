@@ -1,5 +1,8 @@
-﻿param deployTimeSuffix string = newGuid()
+﻿
+@sys.description('this is deployTimeSuffix param')
+param deployTimeSuffix string = newGuid()
 
+@sys.description('this module a')
 module modATest './modulea.bicep' = {
   name: 'modATest'
   params: {
@@ -16,6 +19,8 @@ module modATest './modulea.bicep' = {
   }
 }
 
+
+@sys.description('this module b')
 module modB './child/moduleb.bicep' = {
   name: 'modB'
   params: {
@@ -23,6 +28,7 @@ module modB './child/moduleb.bicep' = {
   }
 }
 
+@sys.description('this is just module b with a condition')
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
   name: 'modBWithCondition'
   params: {
@@ -123,6 +129,8 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 /*
   valid loop cases
 */ 
+
+@sys.description('this is myModules')
 var myModules = [
   {
     name: 'one'

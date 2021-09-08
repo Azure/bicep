@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1561777716896820971"
+      "templateHash": "17667959681982738381"
     }
   },
   "parameters": {
@@ -64,13 +64,19 @@
       "kind": "BlobStorage",
       "sku": {
         "name": "Standard_GRS"
+      },
+      "metadata": {
+        "description": "this is basicStorage"
       }
     },
     {
       "type": "Microsoft.Network/dnszones",
       "apiVersion": "2018-05-01",
       "name": "myZone",
-      "location": "global"
+      "location": "global",
+      "metadata": {
+        "description": "this is dnsZone"
+      }
     },
     {
       "type": "Microsoft.Storage/storageAccounts",
@@ -275,6 +281,9 @@
             "enableAutomaticUpdates": true
           }
         }
+      },
+      "metadata": {
+        "description": "this is vmWithCondition"
       }
     },
     {
@@ -334,7 +343,10 @@
       "sku": {
         "name": "Standard_LRS"
       },
-      "kind": "StorageV2"
+      "kind": "StorageV2",
+      "metadata": {
+        "description": "this is just a storage account loop"
+      }
     },
     {
       "copy": {
@@ -348,7 +360,10 @@
       "sku": {
         "name": "Standard_LRS"
       },
-      "kind": "StorageV2"
+      "kind": "StorageV2",
+      "metadata": {
+        "description": "this is just a storage account loop with index"
+      }
     },
     {
       "copy": {
@@ -368,6 +383,9 @@
             }
           }
         ]
+      },
+      "metadata": {
+        "description": "this is just a basic nested loop"
       }
     },
     {

@@ -1,7 +1,16 @@
 
 //@[0:1) NewLine |\n|
-// an int variable
-//@[18:19) NewLine |\n|
+// int
+//@[6:7) NewLine |\n|
+@sys.description('an int variable')
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:34) StringComplete |'an int variable'|
+//@[34:35) RightParen |)|
+//@[35:36) NewLine |\n|
 var myInt = 42
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |myInt|
@@ -9,8 +18,17 @@ var myInt = 42
 //@[12:14) Integer |42|
 //@[14:16) NewLine |\n\n|
 
-// a string variable
-//@[20:21) NewLine |\n|
+// string
+//@[9:10) NewLine |\n|
+@sys.description('a string variable')
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:36) StringComplete |'a string variable'|
+//@[36:37) RightParen |)|
+//@[37:38) NewLine |\n|
 var myStr = 'str'
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |myStr|
@@ -157,6 +175,15 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 
 // booleans
 //@[11:12) NewLine |\n|
+@sys.description('a bool variable')
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:34) StringComplete |'a bool variable'|
+//@[34:35) RightParen |)|
+//@[35:36) NewLine |\n|
 var myTruth = true
 //@[0:3) Identifier |var|
 //@[4:11) Identifier |myTruth|
@@ -187,6 +214,15 @@ var myEmptyArray = [ ]
 
 // object
 //@[9:10) NewLine |\n|
+@sys.description('a object variable')
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:36) StringComplete |'a object variable'|
+//@[36:37) RightParen |)|
+//@[37:38) NewLine |\n|
 var myObj = {
 //@[0:3) Identifier |var|
 //@[4:9) Identifier |myObj|
@@ -281,6 +317,15 @@ var myObj = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+@sys.description('a object with interp')
+//@[0:1) At |@|
+//@[1:4) Identifier |sys|
+//@[4:5) Dot |.|
+//@[5:16) Identifier |description|
+//@[16:17) LeftParen |(|
+//@[17:39) StringComplete |'a object with interp'|
+//@[39:40) RightParen |)|
+//@[40:41) NewLine |\n|
 var objWithInterp = {
 //@[0:3) Identifier |var|
 //@[4:17) Identifier |objWithInterp|

@@ -1,8 +1,10 @@
 
-// an int variable
+// int
+@sys.description('an int variable')
 var myInt = 42
 
-// a string variable
+// string
+@sys.description('a string variable')
 var myStr = 'str'
 var curliesWithNoInterp = '}{1}{'
 //@[4:23) [no-unused-vars (Warning)] Variable "curliesWithNoInterp" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |curliesWithNoInterp|
@@ -40,6 +42,7 @@ var bracketStringInExpression = concat('[', '\'test\'',']')
 //@[32:59) [prefer-interpolation (Warning)] Use string interpolation instead of the concat function. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-interpolation)) |concat('[', '\'test\'',']')|
 
 // booleans
+@sys.description('a bool variable')
 var myTruth = true
 //@[4:11) [no-unused-vars (Warning)] Variable "myTruth" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myTruth|
 var myFalsehood = false
@@ -51,6 +54,7 @@ var myEmptyArray = [ ]
 //@[4:16) [no-unused-vars (Warning)] Variable "myEmptyArray" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myEmptyArray|
 
 // object
+@sys.description('a object variable')
 var myObj = {
 //@[4:9) [no-unused-vars (Warning)] Variable "myObj" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |myObj|
   a: 'a'
@@ -73,6 +77,7 @@ var myObj = {
   }
 }
 
+@sys.description('a object with interp')
 var objWithInterp = {
 //@[4:17) [no-unused-vars (Warning)] Variable "objWithInterp" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |objWithInterp|
   '${myStr}': 1

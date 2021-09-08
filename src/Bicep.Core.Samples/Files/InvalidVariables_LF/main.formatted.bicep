@@ -146,13 +146,13 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 // Issue 486
 var myFloat = 3. 14
 
-// secure cannot be used as a varaible decorator
+// secure cannot be used as a variable decorator
 @sys.secure()
 var something = 1
 
-// #completionTest(1) -> empty
+// #completionTest(1) -> sysAndDescription
 @
-// #completionTest(5) -> empty
+// #completionTest(5) -> description
 @sys.
 var anotherThing = true
 

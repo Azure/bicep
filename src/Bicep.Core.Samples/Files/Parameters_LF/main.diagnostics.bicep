@@ -3,6 +3,10 @@
 */
 
 // parameters without default value
+@sys.description('''
+this is my multi line 
+description for my myString
+''')
 param myString string
 //@[6:14) [no-unused-params (Warning)] Parameter "myString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString|
 param myInt int
@@ -11,6 +15,10 @@ param myBool bool
 //@[6:12) [no-unused-params (Warning)] Parameter "myBool" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myBool|
 
 // parameters with default value
+@sys.description('this is myString2')
+@metadata({
+  description: 'overwrite but still valid'
+})
 param myString2 string = 'string value'
 //@[6:15) [no-unused-params (Warning)] Parameter "myString2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myString2|
 param myInt2 int = 42
@@ -23,6 +31,11 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[6:21) [no-unused-params (Warning)] Parameter "myEscapedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myEscapedString|
 
 // object default value
+@sys.description('this is foo')
+@metadata({
+  description: 'overwrite but still valid'
+  another: 'just for fun'
+})
 param foo object = {
 //@[6:9) [no-unused-params (Warning)] Parameter "foo" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |foo|
   enabled: true
