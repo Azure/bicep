@@ -22,7 +22,7 @@ export async function importResourceIconInline(
       return (await import("./databases/10132-icon-service-SQL-Server.svg"))
         .default;
     case "microsoft.sql/servers/databases":
-        return (await import("./databases/10130-icon-service-SQL-Database.svg"))
+      return (await import("./databases/10130-icon-service-SQL-Database.svg"))
         .default;
 
     // Microsoft.Network
@@ -92,14 +92,15 @@ export async function importResourceIconInline(
     // Microsoft.ApiManagement
     case "microsoft.apimanagement/service":
       return (
-        await import("./appServices/10042-icon-service-API-Management-Services.svg")
+        await import(
+          "./appServices/10042-icon-service-API-Management-Services.svg"
+        )
       ).default;
-    
+
     // Microsoft.Cdn
     case "microsoft.cdn/service":
-      return (
-        await import("./appServices/00056-icon-service-CDN-Profiles.svg")
-      ).default;
+      return (await import("./appServices/00056-icon-service-CDN-Profiles.svg"))
+        .default;
 
     default:
       return (await import("./custom/resource.svg")).default;
