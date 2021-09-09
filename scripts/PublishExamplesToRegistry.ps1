@@ -31,7 +31,7 @@ try
 
       if((Test-Path $bicep) -and (Test-Path $json))
       {
-        $artifactRef = "oci:majastrzoci.azurecr.io/examples/$($levelDir.Name)/$($moduleDir.Name):$($Tag)";
+        $artifactRef = "br:majastrzoci.azurecr.io/examples/$($levelDir.Name)/$($moduleDir.Name):$($Tag)";
         Write-Output $artifactRef;
         .\bicep.exe publish $bicep --target $artifactRef
       }

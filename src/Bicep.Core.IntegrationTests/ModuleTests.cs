@@ -312,7 +312,7 @@ output outputc2 int = inputb + 1
             var templateString = GetTemplate(compilation);
             var template = JToken.Parse(templateString);
             template.Should().NotBeNull();
-            
+
             var mainTemplateHash = template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString()!;
             var moduleATemplateHash = template.SelectToken("resources[0].properties.template.metadata._generator.templateHash")?.ToString()!;
             var moduleBTemplateHash = template.SelectToken("resources[1].properties.template.metadata._generator.templateHash")?.ToString()!;
@@ -327,25 +327,25 @@ output outputc2 int = inputb + 1
 
             // Confirming hashes equal individual template hashes
             ModuleTemplateHashValidator(
-              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
+              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
                 [moduleAUri] = files[moduleAUri]
-              }, 
+              },
               moduleAUri, BicepTestConstants.FileResolver)), moduleATemplateHash);
 
             ModuleTemplateHashValidator(
-              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
+              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
                 [moduleBUri] = files[moduleBUri],
                 [moduleCUri] = files[moduleCUri]
-              }, 
+              },
               moduleBUri, BicepTestConstants.FileResolver)), moduleBTemplateHash);
 
             ModuleTemplateHashValidator(
-              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string> 
+              new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
                 [moduleCUri] = files[moduleCUri]
-              }, 
+              },
               moduleCUri, BicepTestConstants.FileResolver)), moduleCTemplateHash);
         }
 
@@ -390,7 +390,7 @@ module modulea 'modulea.bicep' = {
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"fake\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"oci\", \"ts\"")
+                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"fake\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: \"br\", \"ts\"")
             });
         }
 
@@ -398,11 +398,11 @@ module modulea 'modulea.bicep' = {
         public void External_module_reference_with_oci_scheme_should_be_rejected_if_registry_disabled()
         {
             var context = new CompilationHelper.CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
-            var result = CompilationHelper.Compile(context, @"module test 'oci:totally-fake' = {}");
+            var result = CompilationHelper.Compile(context, @"module test 'br:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"oci\" is not recognized. Specify a path to a local module file.")
+                ("BCP189", DiagnosticLevel.Error, "The specified module reference scheme \"br\" is not recognized. Specify a path to a local module file.")
             });
         }
 

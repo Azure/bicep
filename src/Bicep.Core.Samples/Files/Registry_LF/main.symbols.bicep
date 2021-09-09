@@ -6,8 +6,8 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   location: deployment().location
 }
 
-module appPlanDeploy 'oci:mock-registry-one.invalid/demo/plan:v2' = {
-//@[7:20) Module appPlanDeploy. Type: module. Declaration start char: 0, length: 144
+module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
+//@[7:20) Module appPlanDeploy. Type: module. Declaration start char: 0, length: 143
   name: 'planDeploy'
   scope: rg
   params: {
@@ -27,9 +27,9 @@ var websites = [
   }
 ]
 
-module siteDeploy 'oci:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
-//@[70:74) Local site. Type: any. Declaration start char: 70, length: 4
-//@[7:17) Module siteDeploy. Type: module[]. Declaration start char: 0, length: 288
+module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
+//@[69:73) Local site. Type: any. Declaration start char: 69, length: 4
+//@[7:17) Module siteDeploy. Type: module[]. Declaration start char: 0, length: 287
   name: '${site.name}siteDeploy'
   scope: rg
   params: {

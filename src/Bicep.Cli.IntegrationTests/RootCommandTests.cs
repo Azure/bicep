@@ -13,8 +13,6 @@ namespace Bicep.Cli.IntegrationTests
     [TestClass]
     public class RootCommandTests : TestBase
     {
-        
-
         [TestMethod]
         public async Task Build_WithWrongArgs_ShouldFail_WithExpectedErrorMessage()
         {
@@ -100,7 +98,7 @@ namespace Bicep.Cli.IntegrationTests
                 "registry",
                 "reference",
                 "azurecr.io",
-                "oci",
+                "br",
                 "--target");
         }
 
@@ -124,7 +122,7 @@ namespace Bicep.Cli.IntegrationTests
                 "registry",
                 "reference",
                 "azurecr.io",
-                "oci",
+                "br",
                 "--target");
         }
     }
