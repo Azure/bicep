@@ -14,13 +14,13 @@ using Azure.Deployments.Core.Json;
 using Bicep.Core;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -34,12 +34,16 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
         private readonly EmitterSettings emitterSettings;
+        private readonly IFileResolver fileResolver;
+        private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
             : base(LanguageConstants.Build, serializer)
         {
             this.compilationManager = compilationManager;
             this.emitterSettings = emitterSettings;
+            this.fileResolver = fileResolver;
+            this.moduleDispatcher = moduleDispatcher;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -68,14 +72,19 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             CompilationContext? context = compilationManager.GetCompilation(documentUri);
+            Compilation compilation;
 
             if (context is null)
             {
-                throw new InvalidOperationException($"Unable to get compilation context");
+                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), documentUri.ToUri());
+                compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
+            }
+            else
+            {
+                compilation = context.Compilation;
             }
 
-            SemanticModel semanticModel = context.Compilation.GetEntrypointSemanticModel();
-            KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = context.Compilation.GetAllDiagnosticsByBicepFile()
+            KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile()
                 .FirstOrDefault(x => x.Key.FileUri == documentUri.ToUri());
 
             if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))
@@ -85,7 +94,7 @@ namespace Bicep.LanguageServer.Handlers
 
             using (FileStream fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite))
             {
-                TemplateEmitter emitter = new TemplateEmitter(semanticModel, emitterSettings);
+                TemplateEmitter emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
                 EmitResult result = emitter.Emit(fileStream);
 
                 return "Build succeeded. Created file " + compiledFile;
