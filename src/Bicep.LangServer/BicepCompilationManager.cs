@@ -50,7 +50,14 @@ namespace Bicep.LanguageServer
 
             if (compilationContext is null)
             {
-                // the compilation we are refreshing no longer exists
+                // This check handles the scenario when bicepconfig.json was updated, but we
+                // couldn't find an entry for the documentUri in activeContexts.
+                // This can happen if bicepconfig.json file was previously invalid, in which case
+                // we wouldn't have upserted compilation. This is intentional as it's not possible to
+                // compute diagnostics till errors in bicepconfig.json are fixed.
+                // When errors are fixed in bicepconfig.json and file is saved, we'll get called into this
+                // method again. CompilationContext will be null. We'll get the souceFile from workspace and
+                // upsert compulation.
                 if (reloadBicepConfig &&
                     workspace.TryGetSourceFile(documentUri.ToUri(), out ISourceFile? sourceFile) &&
                     sourceFile is BicepFile)
