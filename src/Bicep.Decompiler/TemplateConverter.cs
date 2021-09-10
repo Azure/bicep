@@ -1169,6 +1169,11 @@ namespace Bicep.Decompiler
             var paramProperties = new List<ObjectPropertySyntax>();
             foreach (var param in parameters)
             {
+                if (param.Value["reference"] is {} referenceValue)
+                {
+                    throw new ConversionFailedException($"Failed to convert parameter \"{param.Name}\": KeyVault secret references are not currently supported by the decompiler.", referenceValue);
+                }
+
                 paramProperties.Add(SyntaxFactory.CreateObjectProperty(param.Name, ParseJToken(param.Value["value"])));
             }
 

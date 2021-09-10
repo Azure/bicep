@@ -144,6 +144,7 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
         [DataRow("NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
+        [DataRow("NonWorking/keyvault-secret-reference.json", "[25:38]: Failed to convert parameter \"mySecret\": KeyVault secret references are not currently supported by the decompiler.")]
         public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
             Action onDecompile = () => {
