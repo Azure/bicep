@@ -35,10 +35,10 @@ namespace Bicep.LanguageServer.Providers
             return this.CreateContext(syntaxTreeGrouping, modelLookup, configHelper);
         }
 
-        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)
+        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var syntaxTreeGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup, configHelper);
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, null);
         }
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)

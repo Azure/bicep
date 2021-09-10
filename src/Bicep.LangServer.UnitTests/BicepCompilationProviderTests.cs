@@ -41,7 +41,7 @@ namespace Bicep.LangServer.UnitTests
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
-            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var configHelper = new ConfigHelper(null).GetDisabledLinterConfig();
             var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, configHelper);
 
             context.Compilation.Should().NotBeNull();

@@ -31,7 +31,7 @@ namespace Bicep.LangServer.IntegrationTests
     {
         private const int DefaultTimeout = 20000;
 
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver, new ConfigHelper(loadDefaultConfig: true));
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver, new ConfigHelper(null));
 
         public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, Server.CreationOptions? creationOptions = null)
         {

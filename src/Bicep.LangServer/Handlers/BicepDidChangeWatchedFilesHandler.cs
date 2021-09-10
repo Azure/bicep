@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,13 +32,15 @@ namespace Bicep.LanguageServer.Handlers
         public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
         {
             Container<FileEvent> fileEvents = request.Changes;
-            IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => x.Uri.Path.EndsWith(LanguageConstants.BicepConfigSettingsFileName));
+            IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => string.Equals(Path.GetFileName(x.Uri.Path),
+                                                                                       LanguageConstants.BicepConfigSettingsFileName,
+                                                                                       StringComparison.OrdinalIgnoreCase));
 
             // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed 
             if (bicepConfigFileChangeEvents.Any())
             {
                 Uri uri = bicepConfigFileChangeEvents.First().Uri.ToUri();
-                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, uri, workspace, null);
+                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, workspace);
             }
 
             compilationManager.HandleFileChanges(fileEvents);

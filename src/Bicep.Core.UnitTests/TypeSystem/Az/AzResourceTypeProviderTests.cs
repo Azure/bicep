@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
 
-        private static ConfigHelper configHelper = new ConfigHelper().GetDisabledLinterConfig();
+        private static ConfigHelper configHelper = new ConfigHelper(null).GetDisabledLinterConfig();
 
         [DataTestMethod]
         [DataRow(ResourceTypeGenerationFlags.None)]

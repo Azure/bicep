@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class BicepConfigSchemaTests
     {
-        private readonly ConfigHelper configHelper = new();
+        private readonly ConfigHelper configHelper = new(null);
 
         private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
         {

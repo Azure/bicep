@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class LinterAnalyzerTests
     {
-        private readonly ConfigHelper configHelper = new();
+        private readonly ConfigHelper configHelper = new(null);
 
         [TestMethod]
         public void HasBuiltInRules()
