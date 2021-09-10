@@ -48,6 +48,9 @@ namespace Bicep.Core.Workspaces
         public ISourceFile LookUpModuleSourceFile(ModuleDeclarationSyntax moduleDeclaration) =>
             this.SourceFilesByModuleDeclaration[moduleDeclaration];
 
+        public ISourceFile? TryLookupModuleSourceFile(ModuleDeclarationSyntax moduleDeclaration) =>
+            this.SourceFilesByModuleDeclaration.TryGetValue(moduleDeclaration, out var sourceFile) ? sourceFile : null;
+
         public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)
         {
             var filesToCheck = new Queue<ISourceFile>(new [] { sourceFile });

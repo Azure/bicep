@@ -49,28 +49,28 @@ namespace Bicep.LanguageServer.Handlers
             {
                 return Task.FromResult(new LocationOrLocationLinks());
             }
+
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
+
             // No parent Symbol: ad hoc syntax matching
-            if (result is null)
+            switch (result)
             {
-                return HandleUnboundSymbolLocationAsync(request, context);
+                case null:
+                    return HandleUnboundSymbolLocationAsync(request, context);
+
+                case { Symbol: DeclaredSymbol declaration }:
+                    return HandleDeclaredDefinitionLocationAsync(request, result, declaration);
+
+                case { Origin: ObjectPropertySyntax }:
+                    // Object property: currently only used for module param goto
+                    return HandleObjectPropertyLocationAsync(request, result, context);
+
+                case { Symbol: PropertySymbol }:
+                    // Used for module (name), variable or resource property access
+                    return HandlePropertyLocationAsync(request, result, context);
             }
-            // Declared symbols: go to definition
-            else if (result.Symbol is DeclaredSymbol declaration)
-            {
-                return HandleDeclaredDefinitionLocationAsync(request, result, declaration);
-            }
-            // Object property: currently only used for module param goto
-            else if (result.Origin is ObjectPropertySyntax objectPropertySyntax)
-            {
-                return HandleObjectPropertyLocationAsync(request, result, context);
-            }
-            // Used for module (name), variable or resource property access
-            else if (result.Symbol is PropertySymbol)
-            {
-                return HandlePropertyLocationAsync(request, result, context);
-            }
-            return Task.FromResult(new LocationOrLocationLinks()); 
+
+            return Task.FromResult(new LocationOrLocationLinks());
         }
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
@@ -89,7 +89,7 @@ namespace Bicep.LanguageServer.Handlers
                 (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
                 && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                 && matchingNodes[^2] is StringSyntax stringToken
-                && context.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile)
+                && context.Compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile)
             {
                 // goto beginning of the module file.
                 return GetModuleDefinitionLocationAsync(
@@ -138,42 +138,43 @@ namespace Bicep.LanguageServer.Handlers
 
         private Task<LocationOrLocationLinks> HandlePropertyLocationAsync(DefinitionParams request, SymbolResolutionResult result, CompilationContext context)
         {
-                var semanticModel = context.Compilation.GetEntrypointSemanticModel();
+            var semanticModel = context.Compilation.GetEntrypointSemanticModel();
 
-                // Find the underlying VariableSyntax being accessed
-                var syntax = result.Origin;
-                var propertyAccesses = new List<string>();
-                while (syntax is PropertyAccessSyntax propertyAccessSyntax)
+            // Find the underlying VariableSyntax being accessed
+            var syntax = result.Origin;
+            var propertyAccesses = new List<string>();
+            while (syntax is PropertyAccessSyntax propertyAccessSyntax)
+            {
+                // since we are traversing bottom up, add this access to the beginning of the list
+                propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName.IdentifierName);
+                syntax = propertyAccessSyntax.BaseExpression;
+            }
+
+            if (syntax is VariableAccessSyntax ancestor
+                && semanticModel.GetSymbolInfo(ancestor) is DeclaredSymbol ancestorSymbol)
+            {
+                // If the symbol is a module, we need to redirect the user to the module file
+                // note: module.name doesn't follow this: it should refer to the declaration of the module in the current file, like regular variable and resource property accesses
+                if (propertyAccesses.Count == 2
+                && ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax)
                 {
-                    // since we are traversing bottom up, add this access to the beginning of the list
-                    propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName.IdentifierName);
-                    syntax = propertyAccessSyntax.BaseExpression;
+                    return GetModuleSymbolLocationAsync(result, context, moduleDeclarationSyntax, propertyAccesses[0], propertyAccesses[1]);
                 }
 
-                if (syntax is VariableAccessSyntax ancestor
-                    && semanticModel.GetSymbolInfo(ancestor) is DeclaredSymbol ancestorSymbol)
+                // Otherwise, we redirect user to the specified module, variable, or resource declaration
+                if (GetObjectSyntaxFromDeclaration(ancestorSymbol.DeclaringSyntax) is ObjectSyntax objectSyntax
+                    && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses) is ObjectPropertySyntax resultingSyntax)
                 {
-                    // If the symbol is a module, we need to redirect the user to the module file
-                    // note: module.name doesn't follow this: it should refer to the declaration of the module in the current file, like regular variable and resource property accesses
-                    if (propertyAccesses.Count == 2
-                    && ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax)
+                    return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
                     {
-                        return GetModuleSymbolLocationAsync(result, context, moduleDeclarationSyntax, propertyAccesses[0], propertyAccesses[1]);
-                    }
-
-                    // Otherwise, we redirect user to the specified module, variable, or resource declaration
-                    if (GetObjectSyntaxFromDeclaration(ancestorSymbol.DeclaringSyntax) is ObjectSyntax objectSyntax
-                        && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses) is ObjectPropertySyntax resultingSyntax)
-                    {
-                        return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
-                        {
-                            OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
-                            TargetUri = request.TextDocument.Uri,
-                            TargetRange = resultingSyntax.ToRange(result.Context.LineStarts),
-                            TargetSelectionRange = resultingSyntax.ToRange(result.Context.LineStarts)
-                        })));
-                    }
+                        OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
+                        TargetUri = request.TextDocument.Uri,
+                        TargetRange = resultingSyntax.ToRange(result.Context.LineStarts),
+                        TargetSelectionRange = resultingSyntax.ToRange(result.Context.LineStarts)
+                    })));
                 }
+            }
+
             return Task.FromResult(new LocationOrLocationLinks());
         }
 
