@@ -77,7 +77,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), documentUri.ToUri());
-                compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
+                compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, null);
             }
             else
             {
