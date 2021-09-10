@@ -1,13 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
-using System.Text;
-using Microsoft.Extensions.Configuration;
 
 namespace Bicep.Core.Configuration
 {
@@ -21,16 +20,15 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        public ConfigHelper(bool loadDefaultConfig = false, BicepConfig? bicepConfig = null, string? localFolder = null)
+        public ConfigHelper(string? localFolder)
         {
-            if (loadDefaultConfig)
+            if (localFolder is not null)
             {
-                this.Config = BuildConfig((string?)null);
+                this.Config = BuildConfig(localFolder);
             }
             else
             {
-                localFolder = localFolder ?? Directory.GetCurrentDirectory();
-                this.Config = BuildConfig(localFolder, bicepConfig);
+                this.Config = BuildConfig(Directory.GetCurrentDirectory());
             }
         }
 
@@ -40,7 +38,7 @@ namespace Bicep.Core.Configuration
             return BuildConfig(localFolder);
         }
 
-        private IConfigurationRoot BuildConfig(string? localFolder, BicepConfig? bicepConfig = null)
+        private IConfigurationRoot BuildConfig(string? localFolder)
         {
             var configBuilder = new ConfigurationBuilder();
 
@@ -56,24 +54,9 @@ namespace Bicep.Core.Configuration
                 // last added json settings take precedent - add local settings last
                 if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
-                    // bicepconfig.json file was modified but not saved. If the
-                    // file path matches, we'll rebuild the config with updated contents
-                    if (bicepConfig is not null &&
-                        !string.IsNullOrWhiteSpace(bicepConfig.Contents) &&
-                        bicepConfig.Uri.LocalPath is string localPath &&
-                        string.Equals(localPath, localConfig, StringComparison.OrdinalIgnoreCase))
-                    {
-                        byte[] byteArray = Encoding.UTF8.GetBytes(bicepConfig.Contents);
-                        MemoryStream stream = new MemoryStream(byteArray);
-                        configBuilder.AddJsonStream(stream);
-                    }
-                    else
-                    {
-                        // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
-                        // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)
-                        configBuilder.AddJsonFile(localConfig, optional: true, reloadOnChange: false);
-                    }
-
+                    // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
+                    // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)
+                    configBuilder.AddJsonFile(localConfig, optional: true, reloadOnChange: false);
                     this.CustomSettingsFileName = localConfig;
                 }
                 else
@@ -100,7 +83,7 @@ namespace Bicep.Core.Configuration
             }
         }
 
-        public static string? DiscoverLocalConfigurationFile(string? nextDir)
+        private string? DiscoverLocalConfigurationFile(string? nextDir)
         {
             try
             {
@@ -179,6 +162,5 @@ namespace Bicep.Core.Configuration
         }
 
         #endregion
-
     }
 }

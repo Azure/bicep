@@ -22,7 +22,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class FallbackTopLevelResourcePropertiesTests
     {
-        private static ConfigHelper configHelper = new ConfigHelper().GetDisabledLinterConfig();
+        private static ConfigHelper configHelper = new ConfigHelper(null).GetDisabledLinterConfig();
         private static Compilation CreateCompilation(string program) => new(BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configHelper);
 
         public static IEnumerable<object[]> FallbackProperties

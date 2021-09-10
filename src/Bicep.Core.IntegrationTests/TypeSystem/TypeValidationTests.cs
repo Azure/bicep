@@ -21,7 +21,7 @@ namespace Bicep.Core.IntegrationTests
         private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
         {
             var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
-            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var configHelper = new ConfigHelper(null).GetDisabledLinterConfig();
 
             var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configHelper);
             return compilation.GetEntrypointSemanticModel();
@@ -383,7 +383,7 @@ var invalidPropAccess = objectJson.invalidProp
 
             GetTypeForNamedSymbol(model, "invalidPropAccess").Name.Should().Be("error");
 
-            var noLinterConfig = new ConfigHelper().GetDisabledLinterConfig();
+            var noLinterConfig = new ConfigHelper(null).GetDisabledLinterConfig();
             model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP083", DiagnosticLevel.Error).And.HaveMessage("The type \"object\" does not contain property \"invalidProp\". Did you mean \"validProp\"?")
             );

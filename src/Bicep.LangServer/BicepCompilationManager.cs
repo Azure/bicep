@@ -34,7 +34,6 @@ namespace Bicep.LanguageServer
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
-        private readonly ConcurrentDictionary<DocumentUri, ConfigHelper> activeConfigHelpers = new ConcurrentDictionary<DocumentUri, ConfigHelper>();
 
         public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace, IFileResolver fileResolver, IModuleRestoreScheduler scheduler)
         {
@@ -51,14 +50,13 @@ namespace Bicep.LanguageServer
 
             if (compilationContext is null)
             {
+                // the compilation we are refreshing no longer exists
                 if (reloadBicepConfig &&
                     workspace.TryGetSourceFile(documentUri.ToUri(), out ISourceFile? sourceFile) &&
                     sourceFile is BicepFile)
                 {
                     UpsertCompilationInternal(documentUri, null, sourceFile, reloadBicepConfig);
                 }
-
-                // the compilation we are refreshing no longer exists
                 return;
             }
 
@@ -69,12 +67,12 @@ namespace Bicep.LanguageServer
             UpsertCompilationInternal(documentUri, null, shallowCopy, reloadBicepConfig);
         }
 
-        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null, bool reloadBicepConfig = false)
+        public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
         {
             if (this.ShouldUpsertCompilation(documentUri, languageId))
             {
                 var newFile = SourceFileFactory.CreateSourceFile(documentUri.ToUri(), fileContents);
-                UpsertCompilationInternal(documentUri, version, newFile, reloadBicepConfig);
+                UpsertCompilationInternal(documentUri, version, newFile);
             }
         }
 
@@ -184,16 +182,10 @@ namespace Bicep.LanguageServer
         {
             try
             {
-                if (reloadBicepConfig)
-                {
-                    ReloadBicepConfig(documentUri);
-                }
-
-                activeConfigHelpers.TryGetValue(documentUri, out ConfigHelper? configHelper);
-
+                var folderContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configHelper),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), new ConfigHelper(folderContainingSourceFile)),
                     (documentUri, prevContext) =>
                     {
                         var sourceDependencies = removedFiles
@@ -208,6 +200,17 @@ namespace Bicep.LanguageServer
                                 // if we have a file with no dependencies on the modified file(s), we can reuse the previous model
                                 modelLookup[sourceFile] = prevContext.Compilation.GetSemanticModel(sourceFile);
                             }
+                        }
+
+                        ConfigHelper configHelper;
+
+                        if (reloadBicepConfig)
+                        {
+                            configHelper = new ConfigHelper(folderContainingSourceFile);
+                        }
+                        else
+                        {
+                            configHelper = prevContext.Compilation.ConfigHelper;
                         }
 
                         return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configHelper);
@@ -254,26 +257,6 @@ namespace Bicep.LanguageServer
 
                 return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
             }
-        }
-
-        private void ReloadBicepConfig(DocumentUri documentUri)
-        {
-            BicepConfig? bicepConfig = null;
-            string? folderContainingBicepFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
-
-            if (folderContainingBicepFile is not null &&
-                ConfigHelper.DiscoverLocalConfigurationFile(folderContainingBicepFile) is string localBicepConfig &&
-                localBicepConfig is not null)
-            {
-                bicepConfig = workspace.GetBicepConfig(new Uri(localBicepConfig));
-            }
-
-            ConfigHelper configHelper = new ConfigHelper(bicepConfig: bicepConfig, localFolder: folderContainingBicepFile);
-
-            activeConfigHelpers.AddOrUpdate(
-                documentUri,
-                (documentUri) => configHelper,
-                (documentUri, prevConfigHelper) => configHelper);
         }
 
         private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();

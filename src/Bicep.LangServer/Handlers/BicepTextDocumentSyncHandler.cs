@@ -1,13 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -21,12 +18,10 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepTextDocumentSyncHandler : TextDocumentSyncHandlerBase
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IWorkspace workspace;
 
-        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager, IWorkspace workspace)
+        public BicepTextDocumentSyncHandler(ICompilationManager compilationManager)
         {
             this.compilationManager = compilationManager;
-            this.workspace = workspace;
         }
 
         public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
@@ -36,26 +31,17 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken token)
         {
-            DocumentUri documentUri = request.TextDocument.Uri;
             // we have full sync enabled, so apparently first change is the whole document
             var contents = request.ContentChanges.First().Text;
 
-            if (string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigSettingsFileName))
-            {
-                // Refresh compilation of source files in workspace when local bicepconfig.json file is edited
-                BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(compilationManager, documentUri.ToUri(), workspace, contents);
-            }
-            else
-            {
-                this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
-            }
+            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, contents);
 
             return Unit.Task;
         }
 
         public override Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken)
         {
-            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId, reloadBicepConfig: true);
+            this.compilationManager.UpsertCompilation(request.TextDocument.Uri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
 
             return Unit.Task;
         }

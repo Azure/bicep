@@ -100,9 +100,9 @@ namespace Bicep.Core.IntegrationTests
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri);
-            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var configHelper = new ConfigHelper(null).GetDisabledLinterConfig();
             var compilation = new Compilation(typeProvider, sourceFileGrouping, configHelper);
-            var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper().GetDisabledLinterConfig());
+            var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper(null).GetDisabledLinterConfig());
 
             using (new AssertionScope())
             {

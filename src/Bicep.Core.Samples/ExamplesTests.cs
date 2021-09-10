@@ -122,12 +122,12 @@ namespace Bicep.Core.Samples
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
-            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var configHelper = new ConfigHelper(null).GetDisabledLinterConfig();
             var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configHelper);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
 
             // quiet the linter diagnostics
-            var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
+            var overrideConfig = new ConfigHelper(null).GetDisabledLinterConfig();
 
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
             {
@@ -189,12 +189,12 @@ namespace Bicep.Core.Samples
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
-            var configHelper = new ConfigHelper().GetDisabledLinterConfig();
+            var configHelper = new ConfigHelper(null).GetDisabledLinterConfig();
             var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configHelper);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.WithSymbolicNamesEnabled);
 
             // quiet the linter diagnostics
-            var overrideConfig = new ConfigHelper().GetDisabledLinterConfig();
+            var overrideConfig = new ConfigHelper(null).GetDisabledLinterConfig();
 
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
             {
