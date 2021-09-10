@@ -1165,7 +1165,7 @@ module mod2 './|' = {}
                 var completionList = await client.RequestCompletion(new CompletionParams
                 {
                     TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
-                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor),
+                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
                 });
 
                 completions.Add(completionList);
