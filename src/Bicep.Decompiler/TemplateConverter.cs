@@ -1459,6 +1459,11 @@ namespace Bicep.Decompiler
                 statements.Add(targetScope);
             }
 
+            if (TemplateHelpers.GetProperty(template, "resources")?.Value is JObject resourcesObject)
+            {
+                throw new ConversionFailedException($"Decompilation of symbolic name templates is not currently supported", resourcesObject);
+            }
+
             var parameters = (TemplateHelpers.GetProperty(template, "parameters")?.Value as JObject ?? new JObject()).Properties();
             var resources = TemplateHelpers.GetProperty(template, "resources")?.Value as JArray ?? new JArray();
             var variables = (TemplateHelpers.GetProperty(template, "variables")?.Value as JObject ?? new JObject()).Properties();
