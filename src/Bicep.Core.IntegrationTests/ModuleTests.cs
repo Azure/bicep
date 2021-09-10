@@ -11,7 +11,6 @@ using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -30,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
 
         [NotNull]
-        public TestContext? TestContext {  get; set; }
+        public TestContext? TestContext { get; set; }
 
         [TestMethod]
         public void Modules_can_be_compiled_successfully()
@@ -329,25 +328,23 @@ output outputc2 int = inputb + 1
             ModuleTemplateHashValidator(
               new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
-                [moduleAUri] = files[moduleAUri]
-              }, 
+                  [moduleAUri] = files[moduleAUri]
+              },
               moduleAUri, BicepTestConstants.FileResolver), null), moduleATemplateHash);
 
             ModuleTemplateHashValidator(
               new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
-                [moduleBUri] = files[moduleBUri],
-                [moduleCUri] = files[moduleCUri]
+                  [moduleBUri] = files[moduleBUri],
+                  [moduleCUri] = files[moduleCUri]
               },
-              moduleBUri, BicepTestConstants.FileResolver)), moduleBTemplateHash);
-              }, 
               moduleBUri, BicepTestConstants.FileResolver), null), moduleBTemplateHash);
 
             ModuleTemplateHashValidator(
               new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
-                [moduleCUri] = files[moduleCUri]
-              }, 
+                  [moduleCUri] = files[moduleCUri]
+              },
               moduleCUri, BicepTestConstants.FileResolver), null), moduleCTemplateHash);
         }
 
@@ -440,13 +437,13 @@ module modulea 'modulea.bicep' = {
 
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
-          var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-          diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-          success.Should().BeTrue();
-          var templateString = GetTemplate(compilation);
-          var template = JToken.Parse(templateString);
-          template.Should().NotBeNull();
-          template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString().Should().Be(expectedTemplateHash);
+            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
+            success.Should().BeTrue();
+            var templateString = GetTemplate(compilation);
+            var template = JToken.Parse(templateString);
+            template.Should().NotBeNull();
+            template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString().Should().Be(expectedTemplateHash);
         }
     }
 }
