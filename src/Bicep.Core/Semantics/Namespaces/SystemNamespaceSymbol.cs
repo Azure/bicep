@@ -413,7 +413,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
                 .WithDynamicReturnType(LoadContentAsBase64TypeBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
-                .Build()
+                .Build(),
+
+            new FunctionOverloadBuilder("items")
+                .WithDescription("Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.")
+                .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys and values for")
+                .WithDynamicReturnType(ItemsTypeBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
+                .Build(),
         }.ToImmutableArray();
 
         private static Uri? GetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, string filePath, SyntaxBase filePathArgument)
@@ -506,6 +512,50 @@ namespace Bicep.Core.Semantics.Namespaces
                 throw new InvalidOperationException($"Expecting function to return {nameof(StringLiteralType)}, but {typeSymbol.GetType().Name} received.");
             }
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
+        }
+
+        private static TypeSymbol GetItemsReturnType(TypeSymbol keyType, TypeSymbol valueType)
+            => new TypedArrayType(
+                new ObjectType(
+                    "object",
+                    TypeSymbolValidationFlags.Default,
+                    new [] {
+                        new TypeProperty("key", keyType, description: "The key of the object property being iterated over."),
+                        new TypeProperty("value", valueType, description: "The value of the object property being iterated over."),
+                    },
+                    null),
+                TypeSymbolValidationFlags.Default);
+
+        private static TypeSymbol ItemsTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            if (argumentTypes[0] is not ObjectType objectType)
+            {
+                return GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any);
+            }
+
+            var keyTypes = new List<TypeSymbol>();
+            var valueTypes = new List<TypeSymbol>();
+            foreach (var property in objectType.Properties.Values)
+            {
+                if (property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                {
+                    // we're reading the values - exclude write-only properties
+                    continue;
+                }
+
+                keyTypes.Add(new StringLiteralType(property.Name));
+                valueTypes.Add(property.TypeReference.Type);
+            }
+
+            if (objectType.AdditionalPropertiesType?.Type is {} additionalPropertiesType)
+            {
+                keyTypes.Add(LanguageConstants.String);
+                valueTypes.Add(additionalPropertiesType);
+            }
+
+            return GetItemsReturnType(
+                keyType: UnionType.Create(keyTypes),
+                valueType: UnionType.Create(valueTypes));
         }
 
         private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)

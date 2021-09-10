@@ -18,14 +18,15 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
+        private static SemanticModel GetSemanticModelForTest(string programText, IResourceTypeProvider typeProvider)
         {
-            var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
             var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-
             var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configHelper);
+
             return compilation.GetEntrypointSemanticModel();
         }
+        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
+            => GetSemanticModelForTest(programText, TestTypeHelper.CreateProviderWithTypes(definedTypes));
 
         [DataTestMethod]
         [DataRow(TypeSymbolValidationFlags.Default, DiagnosticLevel.Error)]
@@ -403,6 +404,70 @@ var invalidJson = json('{""prop"": ""value')
             model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP186", DiagnosticLevel.Error).And.HaveMessage("Unable to parse literal JSON value. Please ensure that it is well-formed.")
             );
+        }
+
+        [TestMethod]
+        public void Items_function_builds_type_definition_from_source_type()
+        {
+            var program = @"
+var basicObject = {
+  abc: 'string'
+  DEF: true
+  '123': {
+    abc: 'test'
+  }
+  'arr': [
+    1
+    2
+    3
+  ]
+}
+var itemsOutput = items(basicObject)
+var singleItemKey = itemsOutput[0].key
+var singleItemValue = itemsOutput[0].value
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            
+            GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
+            GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
+            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("'string' | bool | int[] | object");
+        }
+
+        [TestMethod]
+        public void Items_function_permits_any_and_returns_generic_type()
+        {
+            var program = @"
+var itemsOutput = items(any('hello!'))
+var singleItemKey = itemsOutput[0].key
+var singleItemValue = itemsOutput[0].value
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            
+            GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
+            GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("string");
+            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
+        }
+
+        [TestMethod]
+        public void Items_function_works_for_resources()
+        {
+            var program = @"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing = {
+  name: 'testRes'
+}
+
+var itemsOutput = items(testRes.properties)
+var singleItemKey = itemsOutput[0].key
+var singleItemValue = itemsOutput[0].value
+";
+
+            var model = GetSemanticModelForTest(program, BuiltInTestTypes.Create());
+            
+            GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
+            GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'readonly' | 'readwrite' | 'required'");
+            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("string");
         }
 
         private static TypeSymbol GetTypeForNamedSymbol(SemanticModel model, string symbolName)
