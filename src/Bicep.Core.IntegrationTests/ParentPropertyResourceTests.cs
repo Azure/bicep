@@ -249,6 +249,7 @@ resource res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
         {
             var (template, diags, _) = CompilationHelper.Compile(@"
 resource vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
+  name: 'vmExt'
   parent: vmExt
   location: 'eastus'
 }
