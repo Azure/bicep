@@ -2440,6 +2440,26 @@ resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/4007
+        public void Test_Issue4007()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+var map = {
+    '1': 'hello'
+}
+
+output one string = map['1']
+");
+
+            result.Template.Should().HaveValueAtPath("$.outputs.one.value", "[variables('map')['1']]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.outputs.one.value", "hello");
+        }
+
+        [TestMethod]
         // https://github.com/Azure/bicep/issues/4156
         public void Test_Issue4156()
         {
