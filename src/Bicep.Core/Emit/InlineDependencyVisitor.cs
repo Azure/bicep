@@ -14,9 +14,9 @@ namespace Bicep.Core.Emit
     {
         private enum Decision
         {
-            NotEvaluated,
+            NotInline,
             Inline,
-            DoNotInline
+            SkipInline //decision to not inline, however it might be overriden if outer syntax requires inlining
         }
         private readonly SemanticModel model;
         private readonly IDictionary<VariableSymbol, Decision> shouldInlineCache;
@@ -99,7 +99,7 @@ namespace Bicep.Core.Emit
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = variableSymbol;
-            this.shouldInlineCache[variableSymbol] = Decision.NotEvaluated;
+            this.shouldInlineCache[variableSymbol] = Decision.NotInline;
             base.VisitVariableDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -137,9 +137,9 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration] != Decision.NotEvaluated)
+            if (shouldInlineCache[currentDeclaration] == Decision.Inline)
             {
-                // we've already made a decision
+                // we've already made a decision to inline
                 return;
             }
 
@@ -177,7 +177,7 @@ namespace Bicep.Core.Emit
 
                 case ResourceSymbol:
                 case ModuleSymbol:
-                    if (this.currentDeclaration is not null && shouldInlineCache[currentDeclaration] != Decision.DoNotInline)
+                    if (this.currentDeclaration is not null && shouldInlineCache[currentDeclaration] != Decision.SkipInline)
                     {
                         //inline only if declaration wasn't explicitly excluded from inlining, to avoid inlining usages which are permitted
                         SetInlineCache(true);
@@ -209,9 +209,9 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration] != Decision.NotEvaluated)
+            if (shouldInlineCache[currentDeclaration] == Decision.Inline)
             {
-                // we've already made a decision
+                // we've already made a decision to inline
                 return;
             }
 
@@ -226,8 +226,7 @@ namespace Bicep.Core.Emit
                 if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
                     if (resourceSymbol is not null &&
-                        !LanguageConstants.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer) &&
-                        resourceSymbol.SafeGetBodyProperty(propertyName) is null)
+                        !LanguageConstants.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
                     {
                         // The property is not declared in the resource - we should inline event it is a deploy-time constant.
                         // We skip standardized properties (id, name, type, and apiVersion) since their values are always known
@@ -247,11 +246,11 @@ namespace Bicep.Core.Emit
                 // This means that we may encounter a DiscriminatedObjectType. For now we should accept this limitation,
                 // and move to using the assigned type once https://github.com/Azure/bicep/issues/1177 is fixed.
                 case ResourceSymbol resourceSymbol when resourceSymbol.TryGetBodyObjectType() is { } bodyObjectType:
-                    SetNotInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSymbol));
+                    SetSkipInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName, resourceSymbol));
                     return;
 
                 case ModuleSymbol moduleSymbol when moduleSymbol.TryGetBodyObjectType() is { } bodyObjectType:
-                    SetNotInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
+                    SetSkipInlineCache(ShouldSkipInlining(bodyObjectType, syntax.PropertyName.IdentifierName));
                     return;
             }
         }
@@ -263,9 +262,9 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if (shouldInlineCache[currentDeclaration] != Decision.NotEvaluated)
+            if (shouldInlineCache[currentDeclaration] == Decision.Inline)
             {
-                // we've already made a decision
+                // we've already made a decision to inline
                 return;
             }
 
@@ -279,16 +278,16 @@ namespace Bicep.Core.Emit
 
         private void SetInlineCache(bool shouldInline)
         {
-            if (this.currentDeclaration is not null && shouldInline)
+            if (this.currentDeclaration is not null)
             {
-                this.shouldInlineCache[this.currentDeclaration] = Decision.Inline;
+                this.shouldInlineCache[this.currentDeclaration] = shouldInline ? Decision.Inline : Decision.NotInline;
             }
         }
-        private void SetNotInlineCache(bool shouldNotInline)
+        private void SetSkipInlineCache(bool shouldNotInline)
         {
-            if (this.currentDeclaration is not null && shouldNotInline)
+            if (this.currentDeclaration is not null)
             {
-                this.shouldInlineCache[this.currentDeclaration] = Decision.DoNotInline;
+                this.shouldInlineCache[this.currentDeclaration] = shouldNotInline ? Decision.SkipInline : Decision.Inline;
             }
         }
     }

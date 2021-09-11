@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -405,6 +406,113 @@ output test bool = true
             }
         }
 
+        [TestMethod]
+        public void ObjectVariablesWithResourceReference_ShouldBeInlined()
+        {
+            var result = CompilationHelper.Compile(("main.bicep", @"
+resource storage 'Microsoft.Storage/storageAccounts@2019-06-01'  =  {
+  name: 'test'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+}
+
+var routingPreference = {
+  publishInternetEndpoints: true
+  publishMicrosoftEndpoints: false
+  routingChoice: storage.properties.routingPreference.routingChoice
+}
+
+resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'test2'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  properties: {
+    routingPreference: routingPreference
+  }
+}
+"));
+
+            result.Should().NotHaveAnyDiagnostics();
+            using (new AssertionScope())
+            {
+                result.Template.Should().NotHaveValueAtPath("$.variables", "variable should not be generated");
+                result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].dependsOn",
+                    new JArray
+                    {
+                        "[resourceId('Microsoft.Storage/storageAccounts', 'test')]"
+                    },
+                    "Referenced resource should be added to depends on section");
+                result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.routingPreference.routingChoice",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).routingPreference.routingChoice]",
+                    "Object should be in-lined");
+            }
+        }
+        [TestMethod]
+        public void ObjectVariablesWithUnknownTypeResourceReference_ShouldBeInlined()
+        {
+            var result = CompilationHelper.Compile(("main.bicep", @"
+var resourceDependency = {
+  dependenciesA: [
+    resA.id
+    resA.name
+    resA.type
+    resA.properties.deployTime
+    resA.properties.eTag
+  ]
+}
+
+output resourceAType string = resA.type
+resource resA 'My.Rp/myResourceType@2020-01-01' = {
+  name: 'resA'
+  properties: {
+    eTag: '1234'
+  }
+}
+
+output resourceBId string = resB.id
+resource resB 'My.Rp/myResourceType@2020-01-01' = {
+  name: 'resB'
+  properties: {
+    dependencies: resourceDependency
+  }
+}
+"));
+
+            result.Should().GenerateATemplate().And.HaveDiagnostics(new[] {
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResourceType@2020-01-01\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.Rp/myResourceType@2020-01-01\" does not have types available.")
+            });
+            using (new AssertionScope())
+            {
+                result.Template.Should().NotHaveValueAtPath("$.variables", "variable should not be generated");
+                result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'resB')].dependsOn",
+                    new JArray
+                    {
+                        "[resourceId('My.Rp/myResourceType', 'resA')]"
+                    },
+                    "Referenced resource should be added to depends on section");
+                result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'resB')].properties.dependencies.dependenciesA",
+                    new JArray()
+                    {
+                        "[resourceId('My.Rp/myResourceType', 'resA')]",
+                        "resA",
+                        "My.Rp/myResourceType",
+                        "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
+                        "[reference(resourceId('My.Rp/myResourceType', 'resA')).eTag]"
+                    },
+                    "Object should be in-lined");
+            }
+        }
+
 
         [TestMethod]
         public void VariableThatLooksLikeModule_ShouldGenerateVariables()
@@ -494,6 +602,44 @@ output id string = storageId
                 result.Template.Should().HaveValueAtPath("$.outputs.id.value",
                     "[variables('storageId')]",
                     "Variable should be accessed correctly");
+            }
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4331
+        /// </summary>
+        [TestMethod]
+        public void TopLevelProperties_ShouldBeInlined_Issue4331()
+        {
+            var result = CompilationHelper.Compile(("main.bicep", @"
+
+param identity string = ''
+resource storage 'Microsoft.Storage/storageAccounts@2019-06-01'  =  {
+  name: 'test'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties:{
+    accessTier: 'Cool'
+  }
+}
+
+var ref = empty(identity) ? storage.identity.principalId : identity
+output id string = ref
+"));
+
+            result.Should().NotHaveAnyDiagnostics();
+            using (new AssertionScope())
+            {
+                result.Template.Should().NotHaveValueAtPath("$.variables", "variable should not be generated");
+                result.Template.Should().HaveValueAtPath("$.outputs.id.value",
+                    "[if(empty(parameters('identity')), reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01', 'full').identity.principalId, parameters('identity'))]",
+                    "Variable should be inlined");
             }
         }
     }
