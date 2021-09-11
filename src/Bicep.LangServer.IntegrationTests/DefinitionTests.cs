@@ -19,6 +19,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.Core.Workspaces;
+using System;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using Bicep.Core.Text;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -146,6 +152,59 @@ namespace Bicep.LangServer.IntegrationTests
                 // go to definition on a syntax node that isn't bound to a symbol should produce an empty response
                 response.Should().BeEmpty();
             }
+        }
+
+        [TestMethod]
+        public async Task GoToDefinitionOnInvalidModuleShouldNotThrow()
+        {
+            var text = @"
+module appPlanDeploy 'fake:fa|ke' = {
+  name: 'planDeploy'
+  scope: rg
+  params: {
+    namePrefix: 'hello'
+  }
+}
+
+module appPlanDeploy2 'wrong|.bicep' = {
+  name: 'planDeploy'
+  scope: rg
+  params: {
+    namePrefix: 'hello'
+  }
+}
+";
+            await RunDefinitionScenarioTest(this.TestContext, text, results => results.Should().SatisfyRespectively(
+                x => x.Should().BeEmpty(),
+                x => x.Should().BeEmpty()));
+        }
+
+        private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, Action<List<LocationOrLocationLinks>> assertAction)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
+            var results = await RequestDefinitions(client, bicepFile, cursors);
+
+            assertAction(results);
+        }
+
+        private static async Task<List<LocationOrLocationLinks>> RequestDefinitions(ILanguageClient client, BicepFile bicepFile, IEnumerable<int> cursors)
+        {
+            var results = new List<LocationOrLocationLinks>();
+            foreach (var cursor in cursors)
+            {
+                var result = await client.RequestDefinition(new DefinitionParams()
+                {
+                    TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                    Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursor)
+                });
+
+                results.Add(result);
+            }
+
+            return results;
         }
 
         private bool ValidUnboundNode(List<SyntaxBase> accumulated, int index)
