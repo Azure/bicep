@@ -1806,7 +1806,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 // parent property with 'existing' resource at different scope
 resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
-  scope: tenant()
+  scope: subscription()
   name: 'res1'
 }
 

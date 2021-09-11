@@ -2440,6 +2440,30 @@ resource eventSubscription 'Microsoft.EventGrid/systemTopics/eventSubscriptions@
         }
 
         [TestMethod]
+        // https://github.com/Azure/bicep/issues/2990
+        public void Test_Issue2990()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+param managementGroupName string
+param subscriptionId string
+
+resource myManagementGroup 'Microsoft.Management/managementGroups@2021-04-01' existing = {
+  scope: tenant()
+  name: managementGroupName
+}
+
+resource subscriptionAssociation 'Microsoft.Management/managementGroups/subscriptions@2021-04-01' = {
+  parent: myManagementGroup
+  name: subscriptionId
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         // https://github.com/Azure/bicep/issues/4156
         public void Test_Issue4156()
         {

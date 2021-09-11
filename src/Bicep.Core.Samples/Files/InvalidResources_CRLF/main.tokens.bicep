@@ -6292,13 +6292,13 @@ resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[63:64) Assignment |=|
 //@[65:66) LeftBrace |{|
 //@[66:68) NewLine |\r\n|
-  scope: tenant()
+  scope: subscription()
 //@[2:7) Identifier |scope|
 //@[7:8) Colon |:|
-//@[9:15) Identifier |tenant|
-//@[15:16) LeftParen |(|
-//@[16:17) RightParen |)|
-//@[17:19) NewLine |\r\n|
+//@[9:21) Identifier |subscription|
+//@[21:22) LeftParen |(|
+//@[22:23) RightParen |)|
+//@[23:25) NewLine |\r\n|
   name: 'res1'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|

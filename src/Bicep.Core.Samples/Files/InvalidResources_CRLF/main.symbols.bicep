@@ -1673,8 +1673,8 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 
 // parent property with 'existing' resource at different scope
 resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[9:16) Resource p1_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 104
-  scope: tenant()
+//@[9:16) Resource p1_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 110
+  scope: subscription()
   name: 'res1'
 }
 
