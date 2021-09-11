@@ -490,47 +490,29 @@ namespace Bicep.LanguageServer.Completions
             // var foo = a|
             SyntaxMatcher.IsTailMatch<VariableDeclarationSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier);
 
-        private static bool IsResourceBodyContext(List<SyntaxBase> matchingNodes, int offset)
-        {
+        private static bool IsResourceBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // resources only allow {} as the body so we don't need to worry about
             // providing completions for a partially-typed identifier
-            switch (matchingNodes[^1])
-            {
-                case ResourceDeclarationSyntax resource:
-                    return !resource.Name.Span.ContainsInclusive(offset) &&
-                           !resource.Type.Span.ContainsInclusive(offset) &&
-                           !resource.Assignment.Span.ContainsInclusive(offset) &&
-                           resource.Value is SkippedTriviaSyntax && offset == resource.Value.Span.Position;
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource =>
+                    !resource.Name.Span.ContainsInclusive(offset) &&
+                    !resource.Type.Span.ContainsInclusive(offset) &&
+                    !resource.Assignment.Span.ContainsInclusive(offset) &&
+                    resource.Value is SkippedTriviaSyntax && offset == resource.Value.Span.Position) ||
+            // cursor is after the = token
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (_, token) =>
+                token.Type == TokenType.Assignment &&
+                offset == token.GetEndPosition());
 
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
-                    // cursor is after the = token
-                    // check the type
-                    return matchingNodes[^2] is ResourceDeclarationSyntax;
-        }
-
-            return false;
-        }
-
-        private static bool IsModuleBodyContext(List<SyntaxBase> matchingNodes, int offset)
-        {
+        private static bool IsModuleBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // modules only allow {} as the body so we don't need to worry about
             // providing completions for a partially-typed identifier
-            switch (matchingNodes[^1])
-            {
-                case ModuleDeclarationSyntax module:
-                    return !module.Name.Span.ContainsInclusive(offset) &&
-                           !module.Path.Span.ContainsInclusive(offset) &&
-                           !module.Assignment.Span.ContainsInclusive(offset) &&
-                           module.Value is SkippedTriviaSyntax && offset == module.Value.Span.Position;
-
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
-                    // cursor is after the = token
-                    // check the type
-                    return matchingNodes[^2] is ModuleDeclarationSyntax;
-            }
-
-            return false;
-        }
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax>(matchingNodes, module =>
+                !module.Name.Span.ContainsInclusive(offset) &&
+                !module.Path.Span.ContainsInclusive(offset) &&
+                !module.Assignment.Span.ContainsInclusive(offset) &&
+                module.Value is SkippedTriviaSyntax && offset == module.Value.Span.Position) ||
+            // cursor is after the = token
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Assignment && offset == token.GetEndPosition());
 
         private static bool IsDecoratorNameContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
