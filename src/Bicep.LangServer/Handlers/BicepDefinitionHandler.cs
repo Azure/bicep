@@ -53,24 +53,20 @@ namespace Bicep.LanguageServer.Handlers
             var result = this.symbolResolver.ResolveSymbol(request.TextDocument.Uri, request.Position);
 
             // No parent Symbol: ad hoc syntax matching
-            switch (result)
+            return result switch
             {
-                case null:
-                    return HandleUnboundSymbolLocationAsync(request, context);
+                null => HandleUnboundSymbolLocationAsync(request, context),
 
-                case { Symbol: DeclaredSymbol declaration }:
-                    return HandleDeclaredDefinitionLocationAsync(request, result, declaration);
+                { Symbol: DeclaredSymbol declaration } => HandleDeclaredDefinitionLocationAsync(request, result, declaration),
 
-                case { Origin: ObjectPropertySyntax }:
-                    // Object property: currently only used for module param goto
-                    return HandleObjectPropertyLocationAsync(request, result, context);
+                // Object property: currently only used for module param goto
+                { Origin: ObjectPropertySyntax } => HandleObjectPropertyLocationAsync(request, result, context),
 
-                case { Symbol: PropertySymbol }:
-                    // Used for module (name), variable or resource property access
-                    return HandlePropertyLocationAsync(request, result, context);
-            }
+                // Used for module (name), variable or resource property access
+                { Symbol: PropertySymbol } => HandlePropertyLocationAsync(request, result, context),
 
-            return Task.FromResult(new LocationOrLocationLinks());
+                _ => Task.FromResult(new LocationOrLocationLinks()),
+            };
         }
 
         protected override DefinitionRegistrationOptions CreateRegistrationOptions(DefinitionCapability capability, ClientCapabilities clientCapabilities) => new()
