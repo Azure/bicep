@@ -72,13 +72,22 @@ namespace Bicep.Core
             [NullKeyword] = TokenType.NullKeyword
         }.ToImmutableDictionary();
 
+        // Decorators
         public const string ParameterAllowedPropertyName = "allowed";
-        public const string ParameterDefaultPropertyName = "default";
         public const string ParameterSecurePropertyName = "secure";
+        public const string ParameterMinValuePropertyName = "minValue";
+        public const string ParameterMaxValuePropertyName = "maxValue";
+        public const string ParameterMinLengthPropertyName = "minLength";
+        public const string ParameterMaxLengthPropertyName = "maxLength";
+        public const string ParameterMetadataPropertyName = "metadata";
+        public const string MetadataDescriptionPropertyName = "description";
+        public const string BatchSizePropertyName = "batchSize";
 
+        // module properties
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
 
+        // resource properties
         public const string ResourceIdPropertyName = "id";
         public const string ResourceLocationPropertyName = "location";
         public const string ResourceNamePropertyName = "name";
@@ -87,6 +96,8 @@ namespace Bicep.Core
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
+
+        // types
         public const string TypeNameString = "string";
         public const string TypeNameModule = "module";
 

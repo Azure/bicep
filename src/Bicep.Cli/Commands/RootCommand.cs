@@ -38,7 +38,7 @@ namespace Bicep.Cli.Commands
             var exeName = ThisAssembly.AssemblyName;
             var versionString = GetVersionString();
 
-            var registryText = 
+            var registryText =
 $@"
   {exeName} publish <file> --target <ref>
     Publishes the .bicep file to the module registry.
@@ -48,7 +48,7 @@ $@"
       <ref>         The module reference
 
     Examples:
-      bicep publish file.bicep --target oci:example.azurecr.io/hello/world:v1
+      bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
 
   {exeName} restore <file>
     Restores external modules from the specified Bicep file to the local module cache.

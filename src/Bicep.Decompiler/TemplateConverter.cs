@@ -1169,6 +1169,11 @@ namespace Bicep.Decompiler
             var paramProperties = new List<ObjectPropertySyntax>();
             foreach (var param in parameters)
             {
+                if (param.Value["reference"] is {} referenceValue)
+                {
+                    throw new ConversionFailedException($"Failed to convert parameter \"{param.Name}\": KeyVault secret references are not currently supported by the decompiler.", referenceValue);
+                }
+
                 paramProperties.Add(SyntaxFactory.CreateObjectProperty(param.Name, ParseJToken(param.Value["value"])));
             }
 
@@ -1452,6 +1457,11 @@ namespace Bicep.Decompiler
             if (targetScope != null)
             {
                 statements.Add(targetScope);
+            }
+
+            if (TemplateHelpers.GetProperty(template, "resources")?.Value is JObject resourcesObject)
+            {
+                throw new ConversionFailedException($"Decompilation of symbolic name templates is not currently supported", resourcesObject);
             }
 
             var parameters = (TemplateHelpers.GetProperty(template, "parameters")?.Value as JObject ?? new JObject()).Properties();

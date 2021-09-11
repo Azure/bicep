@@ -7,13 +7,16 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17059361217514647436"
+      "templateHash": "7421288550055402377"
     }
   },
   "parameters": {
     "deployTimeSuffix": {
       "type": "string",
-      "defaultValue": "[newGuid()]"
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "this is deployTimeSuffix param"
+      }
     }
   },
   "functions": [],
@@ -109,6 +112,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "modATest",
+      "metadata": {
+        "description": "this module a"
+      },
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -202,6 +208,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "modB",
+      "metadata": {
+        "description": "this module b"
+      },
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -252,6 +261,9 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2019-10-01",
       "name": "modBWithCondition",
+      "metadata": {
+        "description": "this is just module b with a condition"
+      },
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"

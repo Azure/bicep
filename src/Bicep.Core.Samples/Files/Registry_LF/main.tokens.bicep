@@ -29,13 +29,13 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-module appPlanDeploy 'oci:mock-registry-one.invalid/demo/plan:v2' = {
+module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
 //@[0:6) Identifier |module|
 //@[7:20) Identifier |appPlanDeploy|
-//@[21:65) StringComplete |'oci:mock-registry-one.invalid/demo/plan:v2'|
-//@[66:67) Assignment |=|
-//@[68:69) LeftBrace |{|
-//@[69:70) NewLine |\n|
+//@[21:64) StringComplete |'br:mock-registry-one.invalid/demo/plan:v2'|
+//@[65:66) Assignment |=|
+//@[67:68) LeftBrace |{|
+//@[68:69) NewLine |\n|
   name: 'planDeploy'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -105,19 +105,19 @@ var websites = [
 //@[0:1) RightSquare |]|
 //@[1:3) NewLine |\n\n|
 
-module siteDeploy 'oci:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
+module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in websites: {
 //@[0:6) Identifier |module|
 //@[7:17) Identifier |siteDeploy|
-//@[18:62) StringComplete |'oci:mock-registry-two.invalid/demo/site:v3'|
-//@[63:64) Assignment |=|
-//@[65:66) LeftSquare |[|
-//@[66:69) Identifier |for|
-//@[70:74) Identifier |site|
-//@[75:77) Identifier |in|
-//@[78:86) Identifier |websites|
-//@[86:87) Colon |:|
-//@[88:89) LeftBrace |{|
-//@[89:90) NewLine |\n|
+//@[18:61) StringComplete |'br:mock-registry-two.invalid/demo/site:v3'|
+//@[62:63) Assignment |=|
+//@[64:65) LeftSquare |[|
+//@[65:68) Identifier |for|
+//@[69:73) Identifier |site|
+//@[74:76) Identifier |in|
+//@[77:85) Identifier |websites|
+//@[85:86) Colon |:|
+//@[87:88) LeftBrace |{|
+//@[88:89) NewLine |\n|
   name: '${site.name}siteDeploy'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|

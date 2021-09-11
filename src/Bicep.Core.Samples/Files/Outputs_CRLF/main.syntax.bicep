@@ -1,7 +1,23 @@
 
 //@[0:2) NewLine |\r\n|
+@sys.description('string output description')
+//@[0:76) OutputDeclarationSyntax
+//@[0:45)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:45)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:44)    FunctionArgumentSyntax
+//@[17:44)     StringSyntax
+//@[17:44)      StringComplete |'string output description'|
+//@[44:45)    RightParen |)|
+//@[45:47)  NewLine |\r\n|
 output myStr string = 'hello'
-//@[0:29) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myStr|
@@ -12,8 +28,24 @@ output myStr string = 'hello'
 //@[22:29)   StringComplete |'hello'|
 //@[29:33) NewLine |\r\n\r\n|
 
+@sys.description('int output description')
+//@[0:64) OutputDeclarationSyntax
+//@[0:42)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:42)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:41)    FunctionArgumentSyntax
+//@[17:41)     StringSyntax
+//@[17:41)      StringComplete |'int output description'|
+//@[41:42)    RightParen |)|
+//@[42:44)  NewLine |\r\n|
 output myInt int = 7
-//@[0:20) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myInt|
@@ -49,8 +81,24 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[40:41)      Integer |4|
 //@[41:45) NewLine |\r\n\r\n|
 
+@sys.description('bool output description')
+//@[0:72) OutputDeclarationSyntax
+//@[0:43)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:43)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:42)    FunctionArgumentSyntax
+//@[17:42)     StringSyntax
+//@[17:42)      StringComplete |'bool output description'|
+//@[42:43)    RightParen |)|
+//@[43:45)  NewLine |\r\n|
 output myBool bool = !false
-//@[0:27) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:13)  IdentifierSyntax
 //@[7:13)   Identifier |myBool|
@@ -74,8 +122,24 @@ output myOtherBool bool = true
 //@[26:30)   TrueKeyword |true|
 //@[30:34) NewLine |\r\n\r\n|
 
+@sys.description('object array description')
+//@[0:75) OutputDeclarationSyntax
+//@[0:44)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:44)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:43)    FunctionArgumentSyntax
+//@[17:43)     StringSyntax
+//@[17:43)      StringComplete |'object array description'|
+//@[43:44)    RightParen |)|
+//@[44:46)  NewLine |\r\n|
 output suchEmpty array = [
-//@[0:29) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
 //@[7:16)   Identifier |suchEmpty|
@@ -104,8 +168,24 @@ output suchEmpty2 object = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+@sys.description('object output description')
+//@[0:225) OutputDeclarationSyntax
+//@[0:45)  DecoratorSyntax
+//@[0:1)   At |@|
+//@[1:45)   InstanceFunctionCallSyntax
+//@[1:4)    VariableAccessSyntax
+//@[1:4)     IdentifierSyntax
+//@[1:4)      Identifier |sys|
+//@[4:5)    Dot |.|
+//@[5:16)    IdentifierSyntax
+//@[5:16)     Identifier |description|
+//@[16:17)    LeftParen |(|
+//@[17:44)    FunctionArgumentSyntax
+//@[17:44)     StringSyntax
+//@[17:44)      StringComplete |'object output description'|
+//@[44:45)    RightParen |)|
+//@[45:47)  NewLine |\r\n|
 output obj object = {
-//@[0:178) OutputDeclarationSyntax
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |obj|
@@ -531,4 +611,6 @@ output generatedArray array = [for i in range(0,10): i]
 //@[53:54)    IdentifierSyntax
 //@[53:54)     Identifier |i|
 //@[54:55)   RightSquare |]|
-//@[55:55) EndOfFile ||
+//@[55:57) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||

@@ -910,7 +910,7 @@ var myFloat = 3.14
 //@[16:18)  Integer |14|
 //@[18:20)  NewLine |\n\n|
 
-// secure cannot be used as a varaible decorator
+// secure cannot be used as a variable decorator
 //@[48:49) NewLine |\n|
 @sys.secure()
 //@[0:31) VariableDeclarationSyntax
@@ -935,16 +935,16 @@ var something = 1
 //@[16:17)   Integer |1|
 //@[17:19) NewLine |\n\n|
 
-// #completionTest(1) -> empty
-//@[30:31) NewLine |\n|
+// #completionTest(1) -> sysAndDescription
+//@[42:43) NewLine |\n|
 @
-//@[0:62) VariableDeclarationSyntax
+//@[0:68) VariableDeclarationSyntax
 //@[0:1)  DecoratorSyntax
 //@[0:1)   At |@|
 //@[1:1)   SkippedTriviaSyntax
 //@[1:2)  NewLine |\n|
-// #completionTest(5) -> empty
-//@[30:31)  NewLine |\n|
+// #completionTest(5) -> description
+//@[36:37)  NewLine |\n|
 @sys.
 //@[0:5)  DecoratorSyntax
 //@[0:1)   At |@|

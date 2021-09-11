@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -54,35 +55,34 @@ namespace Bicep.LanguageServer.Handlers
 
         private static string? GetMarkdown(SymbolResolutionResult result)
         {
-            //we need to check for overflow due to using code blocks.
-            //if we reach limit in a code block vscode will truncate it automatically, the block will not be terminated so the hover will not be properly formatted
-            //therefore we need to check for the limit ourselves and truncate text inside code block, making sure it's terminated properly.
-            static string CodeBlock(string content) => $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```";
-
             // all of the generated markdown includes the language id to avoid VS code rendering 
             // with multiple borders
+            var compilation = result.Context.Compilation;
             switch (result.Symbol)
             {
                 case ParameterSymbol parameter:
-                    return CodeBlock($"param {parameter.Name}: {parameter.Type}");
+                    return CodeBlockWithDescriptionDecorator(
+                        $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case VariableSymbol variable:
-                    return CodeBlock($"var {variable.Name}: {variable.Type}");
+                    return CodeBlockWithDescriptionDecorator($"var {variable.Name}: {variable.Type}", variable.DeclaringVariable.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case ResourceSymbol resource:
-                    return CodeBlock($"resource {resource.Name}\n{resource.Type}");
+                    return CodeBlockWithDescriptionDecorator(
+                        $"resource {resource.Name}\n{resource.Type}", resource.DeclaringResource.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
                     if (filePath != null)
                     {
-                        return CodeBlock($"module {module.Name}\n{filePath}");
+                        return CodeBlockWithDescriptionDecorator($"module {module.Name}\n'{filePath}'", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
                     }
 
-                    return CodeBlock($"module {module.Name}");
+                    return CodeBlockWithDescriptionDecorator($"module {module.Name}", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case OutputSymbol output:
-                    return CodeBlock($"output {output.Name}: {output.Type}");
+                    return CodeBlockWithDescriptionDecorator(
+                        $"output {output.Name}: {output.Type}", output.DeclaringOutput.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
 
                 case NamespaceSymbol namespaceSymbol:
                     return CodeBlock($"{namespaceSymbol.Name} namespace");
@@ -93,16 +93,11 @@ namespace Bicep.LanguageServer.Handlers
                     return CodeBlock(GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
 
                 case PropertySymbol property:
-                    var markdown = $"{CodeBlock($"{property.Name}: {property.Type}")}\n";
-                    if (property.Description is not null)
-                    {
-                        markdown += $"{property.Description}\n";
-                    }
-
-                    return markdown;
+                    return CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description);
 
                 case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
-                    return CodeBlock(GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
+                    return CodeBlock(
+                        GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
 
                 case LocalVariableSymbol local:
                     return CodeBlock($"{local.Name}: {local.Type}");
@@ -110,6 +105,27 @@ namespace Bicep.LanguageServer.Handlers
                 default:
                     return null;
             }
+        }
+
+        
+        //we need to check for overflow due to using code blocks.
+        //if we reach limit in a code block vscode will truncate it automatically, the block will not be terminated so the hover will not be properly formatted
+        //therefore we need to check for the limit ourselves and truncate text inside code block, making sure it's terminated properly.
+        private static string CodeBlock(string content) =>
+        $"```bicep\n{(content.Length > MaxHoverMarkdownCodeBlockLength ? content.Substring(0, MaxHoverMarkdownCodeBlockLength) : content)}\n```\n";
+        
+        // Markdown needs two leading whitespaces before newline to insert a line break
+        private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
+
+        private static string CodeBlockWithDescriptionDecorator(string content, DecoratorSyntax? descriptionDecorator)
+        {
+            if (descriptionDecorator is not null &&
+                descriptionDecorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string description)
+            {
+                return CodeBlockWithDescription(content, description);
+            }
+            return CodeBlock(content);
         }
 
         private static string GetFunctionMarkdown(FunctionSymbol function, ImmutableArray<FunctionArgumentSyntax> arguments, SyntaxBase functionCall, SemanticModel model)

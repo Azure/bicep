@@ -5,12 +5,15 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2537872389677377067"
+      "templateHash": "1706136566230351855"
     }
   },
   "parameters": {
     "myString": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "this is my multi line \ndescription for my myString\n"
+      }
     },
     "myInt": {
       "type": "int"
@@ -20,7 +23,10 @@
     },
     "myString2": {
       "type": "string",
-      "defaultValue": "string value"
+      "defaultValue": "string value",
+      "metadata": {
+        "description": "this is myString2"
+      }
     },
     "myInt2": {
       "type": "int",
@@ -60,6 +66,10 @@
             "a": "b"
           }
         ]
+      },
+      "metadata": {
+        "description": "this is foo",
+        "another": "just for fun"
       }
     },
     "myArrayParam": {

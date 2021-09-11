@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11040364202511077114"
+      "templateHash": "11577929366169342351"
     }
   },
   "parameters": {
@@ -66,13 +66,19 @@
       "kind": "BlobStorage",
       "sku": {
         "name": "Standard_GRS"
+      },
+      "metadata": {
+        "description": "this is basicStorage"
       }
     },
     "dnsZone": {
       "type": "Microsoft.Network/dnszones",
       "apiVersion": "2018-05-01",
       "name": "myZone",
-      "location": "global"
+      "location": "global",
+      "metadata": {
+        "description": "this is dnsZone"
+      }
     },
     "myStorageAccount": {
       "type": "Microsoft.Storage/storageAccounts",
@@ -277,6 +283,9 @@
             "enableAutomaticUpdates": true
           }
         }
+      },
+      "metadata": {
+        "description": "this is vmWithCondition"
       }
     },
     "extension1": {
@@ -321,6 +330,9 @@
       "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
       "name": "existing1",
       "existing": true,
+      "metadata": {
+        "description": "this is existing1"
+      },
       "dependsOn": [
         "extension1"
       ]
@@ -356,7 +368,10 @@
       "sku": {
         "name": "Standard_LRS"
       },
-      "kind": "StorageV2"
+      "kind": "StorageV2",
+      "metadata": {
+        "description": "this is just a storage account loop"
+      }
     },
     "storageResourcesWithIndex": {
       "copy": {
@@ -370,7 +385,10 @@
       "sku": {
         "name": "Standard_LRS"
       },
-      "kind": "StorageV2"
+      "kind": "StorageV2",
+      "metadata": {
+        "description": "this is just a storage account loop with index"
+      }
     },
     "vnet": {
       "copy": {
@@ -390,6 +408,9 @@
             }
           }
         ]
+      },
+      "metadata": {
+        "description": "this is just a basic nested loop"
       }
     },
     "duplicateIdentifiersWithinLoop": {
