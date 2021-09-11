@@ -9,7 +9,6 @@ using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
-using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -38,7 +37,7 @@ namespace Bicep.Core.Emit
         {
             // Allow local variable symbol replacements to be overwritten, as there are scenarios where we recursively generate expressions for the same index symbol
             return new(this.context, this.localReplacements.SetItem(symbol, replacement));
-        }            
+        }
 
         /// <summary>
         /// Converts the specified bicep expression tree into an ARM template expression tree.
@@ -137,7 +136,7 @@ namespace Bicep.Core.Emit
                             return ConvertFunction(
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
-                        case ResourceSymbol resourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource:
+                        case ResourceSymbol resourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is { } resource:
                             if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
                             {
                                 var converter = indexExpression is not null ?
@@ -494,7 +493,7 @@ namespace Bicep.Core.Emit
                         GenerateSymbolicReference(moduleSymbol.Name, indexExpression)),
                     new JTokenExpression("outputs"));
             }
-            
+
             return AppendProperties(
                 CreateFunction(
                     "reference",
@@ -505,8 +504,8 @@ namespace Bicep.Core.Emit
 
         public FunctionExpression GetReferenceExpression(ResourceMetadata resource, SyntaxBase? indexExpression, bool full)
         {
-            var referenceExpression = context.Settings.EnableSymbolicNames ? 
-                GenerateSymbolicReference(resource.Symbol.Name, indexExpression) : 
+            var referenceExpression = context.Settings.EnableSymbolicNames ?
+                GenerateSymbolicReference(resource.Symbol.Name, indexExpression) :
                 GetFullyQualifiedResourceId(resource);
 
             // full gives access to top-level resource properties, but generates a longer statement
