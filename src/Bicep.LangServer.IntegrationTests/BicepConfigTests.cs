@@ -23,7 +23,6 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [DoNotParallelize]
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class BicepConfigTests
     {
