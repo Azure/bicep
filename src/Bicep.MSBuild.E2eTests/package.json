@@ -6,7 +6,7 @@
     "@types/cross-spawn": "^6.0.2",
     "@types/jest": "^27.0.1",
     "@typescript-eslint/eslint-plugin": "^4.31.0",
-    "@typescript-eslint/parser": "^4.31.0",
+    "@typescript-eslint/parser": "^4.31.1",
     "cross-spawn": "^7.0.3",
     "jest": "^27.1.1",
     "prettier": "^2.4.0",
