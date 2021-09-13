@@ -192,7 +192,7 @@ namespace Bicep.LanguageServer
                 var folderContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), new ConfigHelper(folderContainingSourceFile)),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), new ConfigHelper(folderContainingSourceFile, fileResolver)),
                     (documentUri, prevContext) =>
                     {
                         var sourceDependencies = removedFiles
@@ -213,7 +213,7 @@ namespace Bicep.LanguageServer
 
                         if (reloadBicepConfig)
                         {
-                            configHelper = new ConfigHelper(folderContainingSourceFile);
+                            configHelper = new ConfigHelper(folderContainingSourceFile, fileResolver);
                         }
                         else
                         {

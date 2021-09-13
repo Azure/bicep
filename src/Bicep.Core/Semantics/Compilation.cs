@@ -21,7 +21,8 @@ namespace Bicep.Core.Semantics
             this.SourceFileGrouping = sourceFileGrouping;
             this.ResourceTypeProvider = resourceTypeProvider;
 
-            ConfigHelper = configHelper ?? new ConfigHelper(null);
+            var fileResolver = SourceFileGrouping.FileResolver;
+            ConfigHelper = configHelper ?? new ConfigHelper(null, fileResolver);
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
@@ -29,7 +30,7 @@ namespace Bicep.Core.Semantics
                     new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch
                     {
-                        BicepFile bicepFile => new SemanticModel(this, bicepFile, SourceFileGrouping.FileResolver, ConfigHelper),
+                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, ConfigHelper),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));

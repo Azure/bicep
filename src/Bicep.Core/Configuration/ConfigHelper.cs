@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,7 @@ namespace Bicep.Core.Configuration
     public class ConfigHelper
     {
         private const string bicepConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
+        private readonly IFileResolver fileResolver;
 
         /// <summary>
         /// Property exposes the configuration root
@@ -20,8 +22,10 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        public ConfigHelper(string? localFolder)
+        public ConfigHelper(string? localFolder, IFileResolver fileResolver)
         {
+            this.fileResolver = fileResolver;
+
             if (localFolder is not null)
             {
                 this.Config = BuildConfig(localFolder);
@@ -92,7 +96,7 @@ namespace Bicep.Core.Configuration
                     while (!string.IsNullOrEmpty(nextDir))
                     {
                         var fileName = Path.Combine(nextDir, LanguageConstants.BicepConfigSettingsFileName);
-                        if (File.Exists(fileName))
+                        if (fileResolver.FileExists(new Uri(fileName)))
                         {
                             return fileName;
                         }
