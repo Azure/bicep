@@ -281,19 +281,13 @@ namespace Bicep.LangServer.IntegrationTests
 
             var bicepConfigFilePath = SaveFileAndUpdateFileSystemDictionary("bicepConfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
 
-            if (!File.Exists(bicepConfigFilePath.GetFileSystemPath()))
-            {
-                Assert.Fail("bicepconfig.json not found in path {0} " + bicepConfigFilePath.GetFileSystemPath());
-            }
+            TestContext.WriteLine("bicepconfig.json found in path {0}", bicepConfigFilePath.GetFileSystemPath());
 
             var childDirectoryPath = Path.Combine(parentDirectoryPath, "child");
             var bicepFileContents = @"param storageAccountName string = 'test'";
             var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, childDirectoryPath, fileSystemDict);
 
-            if (!File.Exists(mainUri.GetFileSystemPath()))
-            {
-                Assert.Fail("main.bicep not found in path {0} " + mainUri.GetFileSystemPath());
-            }
+            TestContext.WriteLine("main.bicep found in path {0}", mainUri.GetFileSystemPath());
 
             // open the main document and verify diagnostics
             {
@@ -565,7 +559,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         private async Task VerifyDiagnosticsAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener,
             string message,
-            DocumentUri documentUri, 
+            DocumentUri documentUri,
             DiagnosticSeverity diagnosticSeverity,
             Position start,
             Position end,
@@ -600,7 +594,7 @@ namespace Bicep.LangServer.IntegrationTests
                 },
                 serverOptions);
 
-           var testOutputPath = Path.Combine(TestContext.ResultsDirectory, TestContext.TestName, Guid.NewGuid().ToString());
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, TestContext.TestName, Guid.NewGuid().ToString());
 
             return (client, fileSystemDict, diagsListener, testOutputPath);
         }
