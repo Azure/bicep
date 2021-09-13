@@ -47,8 +47,8 @@ namespace Bicep.LangServer.IntegrationTests
 
             var server = new Server(serverPipe.Reader, clientPipe.Writer, creationOptions);
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
-            
-            var client = LanguageClient.PreInit(options => 
+
+            var client = LanguageClient.PreInit(options =>
             {
                 options
                     .WithInput(clientPipe.Reader)
@@ -105,7 +105,8 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions ??= new Server.CreationOptions();
             creationOptions = creationOptions with
             {
-                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, })
+                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, }),
+                ResourceTypeProvider = creationOptions.ResourceTypeProvider ?? TestTypeHelper.CreateEmptyProvider(),
             };
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 testContext,
