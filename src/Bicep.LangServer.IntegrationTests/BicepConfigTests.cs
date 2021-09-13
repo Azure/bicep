@@ -590,7 +590,7 @@ namespace Bicep.LangServer.IntegrationTests
                 },
                 serverOptions);
 
-           var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+           var testOutputPath = Path.Combine(TestContext.ResultsDirectory, TestContext.TestName, Guid.NewGuid().ToString());
 
             return (client, fileSystemDict, diagsListener, testOutputPath);
         }
