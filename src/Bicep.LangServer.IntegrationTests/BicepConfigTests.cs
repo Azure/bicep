@@ -279,7 +279,7 @@ namespace Bicep.LangServer.IntegrationTests
   }
 }";
 
-            SaveFileAndUpdateFileSystemDictionary("bicepConfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
+            SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
 
             var childDirectoryPath = Path.Combine(parentDirectoryPath, "child");
             var bicepFileContents = @"param storageAccountName string = 'test'";
