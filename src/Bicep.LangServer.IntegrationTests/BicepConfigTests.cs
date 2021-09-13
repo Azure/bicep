@@ -279,7 +279,7 @@ namespace Bicep.LangServer.IntegrationTests
   }
 }";
 
-            var bicepConfigFilePath = SaveFileAndUpdateFileSystemDictionary("bicepConfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
+            var bicepConfigFilePath = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
 
             TestContext.WriteLine("bicepconfig.json found in path {0}", bicepConfigFilePath.GetFileSystemPath());
 
@@ -594,7 +594,7 @@ namespace Bicep.LangServer.IntegrationTests
                 },
                 serverOptions);
 
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, TestContext.TestName, Guid.NewGuid().ToString());
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
             return (client, fileSystemDict, diagsListener, testOutputPath);
         }
