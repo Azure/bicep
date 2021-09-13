@@ -115,8 +115,8 @@
       },
       "Azure.Deployments.Core": {
         "type": "Transitive",
-        "resolved": "1.0.247",
-        "contentHash": "i+ADEA+sRZkcctq0VhswkYTOolYC4ESjCcm6SxkbHKYc0qphD8PQWjt/3BogBQAwNfOfKHeCQOi3rD5Dg1haJQ==",
+        "resolved": "1.0.253",
+        "contentHash": "bF/scScUsZkrYWy6GVYQlUmSuPpbja081N91uqXwv9N/PU1wnh7pXI2JuYO/xYtb52uZGYaaZJPQBsFkfdrPAQ==",
         "dependencies": {
           "Newtonsoft.Json": "11.0.2",
           "System.Reflection.Emit.Lightweight": "4.7.0"
@@ -124,20 +124,20 @@
       },
       "Azure.Deployments.Expression": {
         "type": "Transitive",
-        "resolved": "1.0.247",
-        "contentHash": "mKS8KDkR37+onV3p85/wTPzBvbQHn0A+vZdq4p2lHTkDcwOO/QZjHlLuE7iO6adYnduAfr1KZ2IDIpBi1X7g6w==",
+        "resolved": "1.0.253",
+        "contentHash": "NdMIPL7XoxphLGV2gyxEzaV5tgPJr3VHMe4bAAJsvQ4HYnZMMIauNIXEYiES/4Jd1erfBshJc0UMh01D/9pgMw==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.247",
+          "Azure.Deployments.Core": "1.0.253",
           "Newtonsoft.Json": "11.0.2"
         }
       },
       "Azure.Deployments.Templates": {
         "type": "Transitive",
-        "resolved": "1.0.247",
-        "contentHash": "cl2SFBlTV/zSiPRsUCh2LcCjkBDzHe63takQKv7zuskF0oTjSvsnWfIgOYIN/ZU9wCQ1t5g/zPPwSpJkuMwe7w==",
+        "resolved": "1.0.253",
+        "contentHash": "kh+GCwSurLDbf7HRr0S5dI7E1m7fmk5SSUfmmzDAUKpEa62KpPR8eycK6xUGlJXv81KBvmqRth2cWGIjzJDl9g==",
         "dependencies": {
-          "Azure.Deployments.Core": "1.0.247",
-          "Azure.Deployments.Expression": "1.0.247",
+          "Azure.Deployments.Core": "1.0.253",
+          "Azure.Deployments.Expression": "1.0.253",
           "Newtonsoft.Json": "11.0.2"
         }
       },
@@ -2254,9 +2254,9 @@
         "dependencies": {
           "Azure.Bicep.Types": "0.1.245",
           "Azure.Bicep.Types.Az": "0.1.245",
-          "Azure.Deployments.Core": "1.0.247",
-          "Azure.Deployments.Expression": "1.0.247",
-          "Azure.Deployments.Templates": "1.0.247",
+          "Azure.Deployments.Core": "1.0.253",
+          "Azure.Deployments.Expression": "1.0.253",
+          "Azure.Deployments.Templates": "1.0.253",
           "Azure.Identity": "1.4.0",
           "Azure.ResourceManager.Resources": "1.0.0-beta.1",
           "Bicep.Core.RegistryClient": "1.0.0",
@@ -2305,7 +2305,6 @@
       "bicep.decompiler": {
         "type": "Project",
         "dependencies": {
-          "Azure.Deployments.Expression": "1.0.247",
           "Bicep.Core": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
           "System.Collections.Immutable": "5.0.0"
