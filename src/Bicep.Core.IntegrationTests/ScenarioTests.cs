@@ -2555,5 +2555,22 @@ output test string = res.id
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/2703
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue2703()
+        {
+            var result = CompilationHelper.Compile(@"
+resource test 'Microsoft.Resources/deploymentScripts@2020-10-01' existing = {
+  name: 'test'
+}
+
+output expTime string = test.properties.status.expirationTime
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
     }
 }
