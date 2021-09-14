@@ -16,21 +16,27 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping, ConfigHelper? configHelper, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.SourceFileGrouping = sourceFileGrouping;
             this.ResourceTypeProvider = resourceTypeProvider;
+
+            var fileResolver = SourceFileGrouping.FileResolver;
+            ConfigHelper = configHelper ?? new ConfigHelper(null, fileResolver);
+
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
-                sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ? 
-                    new(existingModel) : 
+                sourceFile => (modelLookup is not null && modelLookup.TryGetValue(sourceFile, out var existingModel)) ?
+                    new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch
                     {
-                        BicepFile bicepFile => new SemanticModel(this, bicepFile, SourceFileGrouping.FileResolver),
+                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, ConfigHelper),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }
+
+        public ConfigHelper ConfigHelper { get; }
 
         public SourceFileGrouping SourceFileGrouping { get; }
 
@@ -51,7 +57,7 @@ namespace Bicep.Core.Semantics
         public IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> GetAllDiagnosticsByBicepFile(ConfigHelper? overrideConfig = default)
             => SourceFileGrouping.SourceFiles.OfType<BicepFile>().ToDictionary(
                 bicepFile => bicepFile,
-                bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics(overrideConfig));
+                bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics());
 
         private T GetSemanticModel<T>(ISourceFile sourceFile) where T : class, ISemanticModel =>
             this.GetSemanticModel(sourceFile) as T ??

@@ -25,6 +25,7 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
 using Bicep.LanguageServer.Utils;
 using Bicep.Core.Features;
+using Bicep.Core.Configuration;
 
 namespace Bicep.LanguageServer
 {
@@ -102,9 +103,9 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
-            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver));
-            services.AddSingleton<IFileResolver>(fileResolver);
-            services.AddSingleton<IFeatureProvider>(featureProvider);
+            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver, new ConfigHelper(null, new FileResolver())));
+            services.AddSingleton<IFileResolver>(services => fileResolver);
+            services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();

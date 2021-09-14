@@ -4,10 +4,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Configuration;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
 using FluentAssertions;
@@ -18,7 +20,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver);
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver, new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig());
 
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()

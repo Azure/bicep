@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -29,21 +29,21 @@ namespace Bicep.LanguageServer.Providers
             this.moduleDispatcher = moduleDispatcher;
         }
 
-        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)
         {
             var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri());
-            return this.CreateContext(syntaxTreeGrouping, modelLookup);
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, configHelper);
         }
 
         public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
         {
             var syntaxTreeGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup);
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, null);
         }
 
-        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup)
+        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)
         {
-            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping, modelLookup);
+            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping, configHelper, modelLookup);
             return new CompilationContext(compilation);
         }
     }

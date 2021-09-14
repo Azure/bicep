@@ -11,7 +11,6 @@ using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -30,7 +29,7 @@ namespace Bicep.Core.IntegrationTests
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
 
         [NotNull]
-        public TestContext? TestContext {  get; set; }
+        public TestContext? TestContext { get; set; }
 
         [TestMethod]
         public void Modules_can_be_compiled_successfully()
@@ -79,7 +78,7 @@ output outputb string = '${inputa}-${inputb}'
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver), null);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -109,7 +108,7 @@ module mainRecursive 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver), null);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -164,7 +163,7 @@ module main 'main.bicep' = {
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver), null);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -230,7 +229,7 @@ module modulea 'modulea.bicep' = {
 
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainFileUri), null);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainFileUri].Should().HaveDiagnostics(new[] {
@@ -303,7 +302,7 @@ output outputc2 int = inputb + 1
             };
 
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver), null);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
@@ -329,24 +328,24 @@ output outputc2 int = inputb + 1
             ModuleTemplateHashValidator(
               new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
-                [moduleAUri] = files[moduleAUri]
+                  [moduleAUri] = files[moduleAUri]
               },
-              moduleAUri, BicepTestConstants.FileResolver)), moduleATemplateHash);
+              moduleAUri, BicepTestConstants.FileResolver), null), moduleATemplateHash);
 
             ModuleTemplateHashValidator(
               new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
-                [moduleBUri] = files[moduleBUri],
-                [moduleCUri] = files[moduleCUri]
+                  [moduleBUri] = files[moduleBUri],
+                  [moduleCUri] = files[moduleCUri]
               },
-              moduleBUri, BicepTestConstants.FileResolver)), moduleBTemplateHash);
+              moduleBUri, BicepTestConstants.FileResolver), null), moduleBTemplateHash);
 
             ModuleTemplateHashValidator(
               new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
               {
-                [moduleCUri] = files[moduleCUri]
+                  [moduleCUri] = files[moduleCUri]
               },
-              moduleCUri, BicepTestConstants.FileResolver)), moduleCTemplateHash);
+              moduleCUri, BicepTestConstants.FileResolver), null), moduleCTemplateHash);
         }
 
         [TestMethod]
@@ -374,7 +373,7 @@ module modulea 'modulea.bicep' = {
 
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(mockFileResolver.Object, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingBuilder.Build(mockFileResolver.Object, dispatcher, new Workspace(), mainUri), null);
 
             var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
             diagnosticsByFile[mainUri].Should().HaveDiagnostics(new[] {
@@ -438,13 +437,13 @@ module modulea 'modulea.bicep' = {
 
         private static void ModuleTemplateHashValidator(Compilation compilation, string expectedTemplateHash)
         {
-          var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
-          diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
-          success.Should().BeTrue();
-          var templateString = GetTemplate(compilation);
-          var template = JToken.Parse(templateString);
-          template.Should().NotBeNull();
-          template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString().Should().Be(expectedTemplateHash);
+            var (success, diagnosticsByFile) = GetSuccessAndDiagnosticsByFile(compilation);
+            diagnosticsByFile.Values.SelectMany(x => x).Should().BeEmpty();
+            success.Should().BeTrue();
+            var templateString = GetTemplate(compilation);
+            var template = JToken.Parse(templateString);
+            template.Should().NotBeNull();
+            template.SelectToken(BicepTestConstants.GeneratorTemplateHashPath)?.ToString().Should().Be(expectedTemplateHash);
         }
     }
 }
