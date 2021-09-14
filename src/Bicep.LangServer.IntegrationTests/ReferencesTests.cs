@@ -12,6 +12,8 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -36,13 +38,19 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        public static readonly IResourceTypeProvider TypeProvider = TestTypeHelper.CreateEmptyProvider();
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task FindReferencesWithDeclarationsShouldProduceCorrectResults(DataSet dataSet)
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                this.TestContext,
+                dataSet.Bicep,
+                uri,
+                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
@@ -88,7 +96,11 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                this.TestContext,
+                dataSet.Bicep,
+                uri,
+                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
@@ -142,7 +154,11 @@ namespace Bicep.LangServer.IntegrationTests
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                this.TestContext,
+                dataSet.Bicep,
+                uri,
+                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
             var wrongNodes = SyntaxAggregator.Aggregate(

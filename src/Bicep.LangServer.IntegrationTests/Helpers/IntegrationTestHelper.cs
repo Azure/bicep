@@ -105,8 +105,7 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions ??= new Server.CreationOptions();
             creationOptions = creationOptions with
             {
-                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, }),
-                ResourceTypeProvider = creationOptions.ResourceTypeProvider ?? TestTypeHelper.CreateEmptyProvider(),
+                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, })
             };
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 testContext,

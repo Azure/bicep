@@ -150,7 +150,7 @@ namespace Bicep.LangServer.IntegrationTests
                 placeholderFile,
                 documentUri,
                 null,
-                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -182,7 +182,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var uri = DocumentUri.FromFileSystemPath(entryPoint);
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
 
             var intermediate = new List<(Position position, JToken actual)>();
 

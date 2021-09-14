@@ -11,7 +11,10 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -32,13 +35,19 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        public static readonly IResourceTypeProvider TypeProvider = TestTypeHelper.CreateEmptyProvider();
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task ShouldProvideSignatureHelpBetweenFunctionParentheses(DataSet dataSet)
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                this.TestContext,
+                dataSet.Bicep,
+                uri,
+                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
             var symbolTable = compilation.ReconstructSymbolTable();
             var tree = compilation.SourceFileGrouping.EntryPoint;
 
@@ -77,7 +86,11 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task NonExistentUriShouldProvideNoSignatureHelp()
         {
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, string.Empty, DocumentUri.From("/fake.bicep"));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                this.TestContext,
+                string.Empty,
+                DocumentUri.From("/fake.bicep"),
+                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
 
             var signatureHelp = await RequestSignatureHelp(client, new Position(0, 0), DocumentUri.From("/fake2.bicep"));
             signatureHelp.Should().BeNull();
@@ -89,7 +102,12 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(
+                this.TestContext,
+                dataSet.Bicep,
+                uri,
+                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver, Features: BicepTestConstants.Features));
+
             var bicepFile = compilation.SourceFileGrouping.EntryPoint;
 
             var nonFunctions = SyntaxAggregator.Aggregate(
