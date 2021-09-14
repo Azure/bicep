@@ -214,7 +214,7 @@ namespace Bicep.Core.TypeSystem.Az
             // add the 'parent' property for child resource types that are not nested inside a parent resource
             if (!typeReference.IsRootType && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
-                var parentType = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
+                var parentType = new ResourceParentType(typeReference);
                 var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
 
                 properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
+using System.Runtime.CompilerServices;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics.Metadata
@@ -23,13 +24,15 @@ namespace Bicep.Core.Semantics.Metadata
 
         protected override ResourceMetadata? Calculate(SyntaxBase syntax)
         {
+            RuntimeHelpers.EnsureSufficientExecutionStack();
+
             switch (syntax)
             {
                 case ResourceAccessSyntax _:
                 case VariableAccessSyntax _:
                 {
                     var symbol = semanticModel.GetSymbolInfo(syntax);
-                    if (symbol is DeclaredSymbol declaredSymbol)
+                    if (symbol is DeclaredSymbol declaredSymbol && semanticModel.Binder.TryGetCycle(declaredSymbol) is null)
                     {
                         return this.TryLookup(declaredSymbol.DeclaringSyntax);
                     }
@@ -42,6 +45,11 @@ namespace Bicep.Core.Semantics.Metadata
                     if (!resourceSymbols.Value.TryGetValue(resourceDeclarationSyntax, out var symbol) || 
                         symbol.TryGetResourceType() is not {} resourceType ||
                         symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not {} nameSyntax)
+                    {
+                        break;
+                    }
+
+                    if (semanticModel.Binder.TryGetCycle(symbol) is not null)
                     {
                         break;
                     }

@@ -2110,7 +2110,7 @@ resource cname 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"scope\" expected a value of type \"resource | tenant\" but the provided value is of type \"null\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"string\" but the provided value is of type \"null\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"resource\" but the provided value is of type \"null\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/dnsZones\" but the provided value is of type \"null\"."),
             });
         }
 
@@ -2498,6 +2498,37 @@ output deployedTopics array = [for (topicName, i) in topics: {
                 ["name"] = "[variables('topics')[copyIndex()]]",
                 ["accessKey1"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', 'myExistingEventGridTopic'), '2021-06-01-preview').key1]",
                 ["accessKey2"] = "[listKeys(resourceId('Microsoft.EventGrid/topics', format('{0}-ZZZ', variables('topics')[copyIndex()])), '2021-06-01-preview').key1]"
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/4212
+        public void Test_Issue4212()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+module mod 'mod.bicep' = {
+  name: 'mod'
+}
+
+resource res 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
+  name: 'abc/def'
+  parent: mod
+}
+
+resource res2 'Microsoft.Network/virtualNetworks/subnets@2020-11-01' existing = {
+  name: 'res2'
+  parent: tenant()
+}
+
+output test string = res.id
+"),
+                ("mod.bicep", ""));
+
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"module\"."),
+                ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
             });
         }
     }
