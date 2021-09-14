@@ -796,6 +796,46 @@ var nullLit = |n|ull|
         }
 
         [TestMethod]
+        public async Task RequestingCompletionsForLoopBodyShouldReturnNonLoopCompletions()
+        {
+            var fileWithCursors = @"
+resource foo 'Microsoft.AgFoodPlatform/farmBeats@2020-05-12-preview' = [for item in list: |]
+
+module bar 'doesNotExist.bicep' = [for item in list:|]
+
+module bar2 'test.bicep' = [for item in list: |  ]
+";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [new Uri("file:///test.bicep")] = @"param foo string",
+                [mainUri] = file
+            });
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
+            var creationOptions = new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            var completions = await RequestCompletions(client, bicepFile, cursors);
+
+            completions.Should().SatisfyRespectively(
+                y => y.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("{}"),
+                    x => x.Label.Should().Be("required-properties"),
+                    x => x.Label.Should().Be("if")),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("{}"),
+                    // no required-properties because the module doesn't exist
+                    x => x.Label.Should().Be("if")),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("{}"),
+                    // valid module with a parameter, so we should have required-properties
+                    x => x.Label.Should().Be("required-properties"),
+                    x => x.Label.Should().Be("if")));
+        }
+
+        [TestMethod]
         public async Task RequestModulePathCompletions_ArmTemplateFilesInDir_ReturnsCompletionsIncludingArmTemplatePaths()
         {
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
@@ -1031,7 +1071,7 @@ module mod2 './|' = {}
         private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
             var completions = await RequestCompletions(client, bicepFile, cursors);
 

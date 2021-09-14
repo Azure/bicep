@@ -499,9 +499,13 @@ namespace Bicep.LanguageServer.Completions
                     !resource.Assignment.Span.ContainsInclusive(offset) &&
                     resource.Value is SkippedTriviaSyntax && offset == resource.Value.Span.Position) ||
             // cursor is after the = token
-            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (_, token) =>
-                token.Type == TokenType.Assignment &&
-                offset == token.GetEndPosition());
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
+            // [for x in y: |]
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ForSyntax, SkippedTriviaSyntax>(matchingNodes, (resource, @for, skipped) => resource.Value == @for && @for.Body == skipped) ||
+            // [for x in y: | ];
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ForSyntax>(matchingNodes, (resource, @for) => resource.Value == @for) ||
+            // [for x in y:|]
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ForSyntax, Token>(matchingNodes, (resource, @for, token) => resource.Value == @for && @for.Colon == token && token.Type == TokenType.Colon && offset == token.Span.GetEndPosition());
 
         private static bool IsModuleBodyContext(List<SyntaxBase> matchingNodes, int offset) =>
             // modules only allow {} as the body so we don't need to worry about
@@ -512,7 +516,13 @@ namespace Bicep.LanguageServer.Completions
                 !module.Assignment.Span.ContainsInclusive(offset) &&
                 module.Value is SkippedTriviaSyntax && offset == module.Value.Span.Position) ||
             // cursor is after the = token
-            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Assignment && offset == token.GetEndPosition());
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Assignment && offset == token.GetEndPosition()) ||
+            // [for x in y: |]
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax, SkippedTriviaSyntax>(matchingNodes, (module, @for, skipped) => module.Value == @for && @for.Body == skipped) ||
+            // [for x in y: | ];
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax>(matchingNodes, (module, @for) => module.Value == @for) ||
+            // [for x in y:|]
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ForSyntax, Token>(matchingNodes, (module, @for, token) => module.Value == @for && @for.Colon == token && token.Type == TokenType.Colon && offset == token.Span.GetEndPosition());
 
         private static bool IsDecoratorNameContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<DecoratorSyntax, VariableAccessSyntax, IdentifierSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.Identifier) ||
