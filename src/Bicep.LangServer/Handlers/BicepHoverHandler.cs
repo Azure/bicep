@@ -1,15 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
+using Bicep.LanguageServer.Completions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -36,7 +41,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<Hover?>(null);
             }
 
-            var markdown = GetMarkdown(result);
+            var markdown = GetMarkdown(request, result);
             if (markdown == null)
             {
                 return Task.FromResult<Hover?>(null);
@@ -53,11 +58,10 @@ namespace Bicep.LanguageServer.Handlers
             });
         }
 
-        private static string? GetMarkdown(SymbolResolutionResult result)
+        private static string? GetMarkdown(HoverParams request, SymbolResolutionResult result)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering 
             // with multiple borders
-            var compilation = result.Context.Compilation;
             switch (result.Symbol)
             {
                 case ParameterSymbol parameter:
@@ -93,6 +97,10 @@ namespace Bicep.LanguageServer.Handlers
                     return CodeBlock(GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
 
                 case PropertySymbol property:
+                    if (GetModuleParameterOrOutputDescription(request, result, out var descriptionDecorator))
+                    {
+                        return CodeBlockWithDescriptionDecorator($"{property.Name}: {property.Type}", descriptionDecorator); 
+                    }
                     return CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description);
 
                 case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
@@ -154,6 +162,74 @@ namespace Bicep.LanguageServer.Handlers
             buffer.Append(model.GetTypeInfo(functionCall));
 
             return buffer.ToString();
+        }
+
+        private static bool GetModuleParameterOrOutputDescription(HoverParams request, SymbolResolutionResult result, [NotNullWhen(true)] out DecoratorSyntax? decorator)
+        {
+            var context = result.Context;
+            var compilation = context.Compilation;
+
+            // Check if hovering over a module's parameter's assignment
+            if (result.Origin is ObjectPropertySyntax)
+            {
+                int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
+                var matchingNodes = SyntaxMatcher.FindNodesMatchingOffset(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax, offset);
+                if (SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax, ObjectSyntax, ObjectPropertySyntax, IdentifierSyntax, Token>(
+                    matchingNodes, (_, _, _, _, _, _, _) => true)
+                    && matchingNodes[^7] is ModuleDeclarationSyntax paramModDec
+                    && matchingNodes[^5] is ObjectPropertySyntax outerPropSyntax // params : {}
+                    && matchingNodes[^3] is ObjectPropertySyntax innerPropSyntax  // <paramName>: ...)
+                    && outerPropSyntax.TryGetKeyText() is string symbolType
+                    && innerPropSyntax.TryGetKeyText() is string symbolName)
+                {
+                    decorator = RetrieveModuleDescriptionDecorators(
+                        compilation, 
+                        paramModDec, 
+                        symbolType,
+                        symbolName);
+                    return decorator is not null;
+                }
+            }
+
+            // Check if hovering over a module's output reference
+            if (result.Origin is PropertyAccessSyntax secondPropertyAccess // .out1
+            && secondPropertyAccess.BaseExpression is PropertyAccessSyntax firstPropertyAccess // .outputs
+            && firstPropertyAccess.BaseExpression is VariableAccessSyntax variableAccess // mod1
+            && result.Context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(variableAccess) is ModuleSymbol moduleSymbol
+            && moduleSymbol.DeclaringSyntax is ModuleDeclarationSyntax outputModDec)
+            {
+                decorator = RetrieveModuleDescriptionDecorators(
+                    compilation, 
+                    outputModDec, 
+                    firstPropertyAccess.PropertyName.IdentifierName, // outputs
+                    secondPropertyAccess.PropertyName.IdentifierName); // <outputName>
+                return decorator is not null;
+            }
+            decorator = null;
+            return false;
+        }
+
+        private static DecoratorSyntax? RetrieveModuleDescriptionDecorators(Compilation compilation, ModuleDeclarationSyntax moduleDeclaration, string symbolType, string symbolName)
+        {
+            if (compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclaration) is BicepFile bicepFile
+                && compilation.GetSemanticModel(bicepFile) is SemanticModel model)
+            {
+                if (string.Equals(symbolType, LanguageConstants.ModuleParamsPropertyName, StringComparison.Ordinal))
+                {
+                    return model.Root.ParameterDeclarations
+                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
+                        ?.DeclaringParameter
+                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys");
+                }
+                if (string.Equals(symbolType, LanguageConstants.ModuleOutputsPropertyName, StringComparison.Ordinal))
+                {
+                    return model.Root.OutputDeclarations
+                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
+                        ?.DeclaringOutput
+                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys");
+                }    
+            }
+            return null;
         }
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
