@@ -66,7 +66,8 @@ namespace Bicep.Core.Semantics
                         GetType(parameterProperty.Value),
                         parameterProperty.Value.DefaultValue is null
                             ? TypePropertyFlags.WriteOnly | TypePropertyFlags.Required
-                            : TypePropertyFlags.WriteOnly))
+                            : TypePropertyFlags.WriteOnly,
+                        parameterProperty.Value.Metadata?.Value?.SelectToken("description")?.ToString()))
                     .ToImmutableArray();
             });
 
@@ -81,7 +82,8 @@ namespace Bicep.Core.Semantics
                     .Select(outputProperty => new TypeProperty(
                         outputProperty.Key,
                         GetType(outputProperty.Value),
-                        TypePropertyFlags.ReadOnly))
+                        TypePropertyFlags.ReadOnly,
+                        outputProperty.Value.Metadata?.Value?.SelectToken("description")?.ToString()))
                     .ToImmutableArray();
             });
         }

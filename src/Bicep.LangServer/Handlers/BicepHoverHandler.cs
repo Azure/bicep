@@ -97,9 +97,9 @@ namespace Bicep.LanguageServer.Handlers
                     return CodeBlock(GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
 
                 case PropertySymbol property:
-                    if (GetModuleParameterOrOutputDescription(request, result, out var descriptionDecorator))
+                    if (GetModuleParameterOrOutputDescription(request, result, $"{property.Name}: {property.Type}", out var codeBlock))
                     {
-                        return CodeBlockWithDescriptionDecorator($"{property.Name}: {property.Type}", descriptionDecorator); 
+                        return codeBlock;
                     }
                     return CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description);
 
@@ -164,7 +164,7 @@ namespace Bicep.LanguageServer.Handlers
             return buffer.ToString();
         }
 
-        private static bool GetModuleParameterOrOutputDescription(HoverParams request, SymbolResolutionResult result, [NotNullWhen(true)] out DecoratorSyntax? decorator)
+        private static bool GetModuleParameterOrOutputDescription(HoverParams request, SymbolResolutionResult result, string content, [NotNullWhen(true)] out string? codeBlock)
         {
             var context = result.Context;
             var compilation = context.Compilation;
@@ -182,12 +182,13 @@ namespace Bicep.LanguageServer.Handlers
                     && outerPropSyntax.TryGetKeyText() is string symbolType
                     && innerPropSyntax.TryGetKeyText() is string symbolName)
                 {
-                    decorator = RetrieveModuleDescriptionDecorators(
+                    codeBlock = RetrieveModuleDescriptionCodeBlock(
                         compilation, 
-                        paramModDec, 
+                        paramModDec,
+                        content, 
                         symbolType,
                         symbolName);
-                    return decorator is not null;
+                    return codeBlock is not null;
                 }
             }
 
@@ -198,35 +199,68 @@ namespace Bicep.LanguageServer.Handlers
             && result.Context.Compilation.GetEntrypointSemanticModel().GetSymbolInfo(variableAccess) is ModuleSymbol moduleSymbol
             && moduleSymbol.DeclaringSyntax is ModuleDeclarationSyntax outputModDec)
             {
-                decorator = RetrieveModuleDescriptionDecorators(
+                codeBlock = RetrieveModuleDescriptionCodeBlock(
                     compilation, 
-                    outputModDec, 
+                    outputModDec,
+                    content, 
                     firstPropertyAccess.PropertyName.IdentifierName, // outputs
                     secondPropertyAccess.PropertyName.IdentifierName); // <outputName>
-                return decorator is not null;
+                return codeBlock is not null;
             }
-            decorator = null;
+            codeBlock = null;
             return false;
         }
 
-        private static DecoratorSyntax? RetrieveModuleDescriptionDecorators(Compilation compilation, ModuleDeclarationSyntax moduleDeclaration, string symbolType, string symbolName)
+        private static string? RetrieveModuleDescriptionCodeBlock(Compilation compilation, ModuleDeclarationSyntax moduleDeclaration, string content, string symbolType, string symbolName)
         {
             if (compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclaration) is BicepFile bicepFile
                 && compilation.GetSemanticModel(bicepFile) is SemanticModel model)
             {
                 if (string.Equals(symbolType, LanguageConstants.ModuleParamsPropertyName, StringComparison.Ordinal))
                 {
-                    return model.Root.ParameterDeclarations
+                    var moduleParamDecorator = model.Root.ParameterDeclarations
                         .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
                         ?.DeclaringParameter
                         ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys");
+                    if (moduleParamDecorator is not null)
+                    {
+                        return CodeBlockWithDescriptionDecorator(content, moduleParamDecorator);
+                    }
                 }
-                if (string.Equals(symbolType, LanguageConstants.ModuleOutputsPropertyName, StringComparison.Ordinal))
+                else if (string.Equals(symbolType, LanguageConstants.ModuleOutputsPropertyName, StringComparison.Ordinal))
                 {
-                    return model.Root.OutputDeclarations
+                    var moduleOutputDecorator = model.Root.OutputDeclarations
                         .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
                         ?.DeclaringOutput
                         ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys");
+                    if (moduleOutputDecorator is not null)
+                    {
+                        return CodeBlockWithDescriptionDecorator(content, moduleOutputDecorator);
+                    }
+                }    
+            }
+            else if (compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclaration) is ArmTemplateFile armTemplate
+                && compilation.GetSemanticModel(armTemplate) is ArmTemplateSemanticModel armModel)
+            {
+                if (string.Equals(symbolType, LanguageConstants.ModuleParamsPropertyName, StringComparison.Ordinal))
+                {
+                    var armTemplateParamDescription = armModel.ParameterTypeProperties
+                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
+                        ?.Description;
+                    if (armTemplateParamDescription is not null)
+                    {
+                        return CodeBlockWithDescription(content, armTemplateParamDescription);
+                    }
+                }
+                else if (string.Equals(symbolType, LanguageConstants.ModuleOutputsPropertyName, StringComparison.Ordinal))
+                {
+                    var armTemplateOutputDescription = armModel.OutputTypeProperties
+                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
+                        ?.Description;
+                    if (armTemplateOutputDescription is not null)
+                    {
+                        return CodeBlockWithDescription(content, armTemplateOutputDescription);
+                    }
                 }    
             }
             return null;

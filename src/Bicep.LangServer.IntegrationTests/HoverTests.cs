@@ -300,7 +300,7 @@ resource test|Output string = 'str'
         }
 
         [DataTestMethod]
-        public async Task Hovers_are_displayed_on_discription_decorator_objects_across_modules()
+        public async Task Hovers_are_displayed_on_discription_decorator_objects_across_bicep_modules()
         {
             var modFile = @"
 @description('this is my testParam')
@@ -338,6 +338,63 @@ output moduleOutput string = '${moduleOutpu|tVar}-${testMod.outputs.testOutp|ut2
                 { 
                     [bicepFile.FileUri] = file, 
                     [moduleFile.FileUri] = modFile
+                }));
+
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testMod\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testParam\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testOutput1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my moduleOutputVar\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \ntestOutput2\n"));
+        }
+
+         [DataTestMethod]
+        public async Task Hovers_are_displayed_on_discription_decorator_objects_across_arm_modules()
+        {
+            var modFile = @"
+@description('this is my testParam')
+param testParam string
+
+@sys.description('this is my testOutput1')
+output testOutput1 string = '${testParam}-out1'
+
+@description('''this is my
+multiline
+testOutput2''')
+output testOutput2 string = '${testParam}-out2'
+";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@description('''this is my testMod''')
+module test|Mod './mod.json' = {
+  name: 'myMod'
+  params: {
+    testP|aram: 's'
+  }
+}
+
+@description('''this is my moduleOutputVar''')
+var moduleOutputVar = testMod.outputs.te|stOutput1
+
+output moduleOutput string = '${moduleOutpu|tVar}-${testMod.outputs.testOutp|ut2}'
+");
+
+            var (template, diags, _) = CompilationHelper.Compile(modFile);
+            template!.Should().NotBeNull();
+            diags.Should().BeEmpty();
+
+            var moduleTemplateFile = SourceFileFactory.CreateArmTemplateFile(new Uri("file:///path/to/mod.json"), template!.ToString());
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+
+            var creationOptions = new LanguageServer.Server.CreationOptions(
+                ResourceTypeProvider: BuiltInTestTypes.Create(),
+                FileResolver: new InMemoryFileResolver(new Dictionary<Uri, string> 
+                { 
+                    [bicepFile.FileUri] = file, 
+                    [moduleTemplateFile.FileUri] = template!.ToString()
                 }));
 
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
