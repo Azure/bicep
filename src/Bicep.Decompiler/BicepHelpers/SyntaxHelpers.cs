@@ -98,6 +98,7 @@ namespace Bicep.Decompiler.BicepHelpers
             ["greater"] = TokenType.GreaterThan,
             ["greaterOrEquals"] = TokenType.GreaterThanOrEqual,
             ["equals"] = TokenType.Equals,
+            ["notEquals"] = TokenType.NotEquals,
             ["and"] = TokenType.LogicalAnd,
             ["or"] = TokenType.LogicalOr,
             ["coalesce"] = TokenType.DoubleQuestion,
