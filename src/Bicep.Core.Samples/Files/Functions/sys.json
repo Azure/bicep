@@ -531,7 +531,7 @@
     "minimumArgumentCount": 1,
     "maximumArgumentCount": 1,
     "flags": "default",
-    "typeSignature": "(object: object): items[]",
+    "typeSignature": "(object: object): object[]",
     "parameterTypeSignatures": [
       "object: object"
     ]
