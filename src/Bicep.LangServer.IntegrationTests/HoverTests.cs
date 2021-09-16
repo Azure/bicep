@@ -303,30 +303,30 @@ resource test|Output string = 'str'
         public async Task Hovers_are_displayed_on_discription_decorator_objects_across_bicep_modules()
         {
             var modFile = @"
-@description('this is my testParam')
-param testParam string
+@description('this is param1')
+param param1 string
 
-@sys.description('this is my testOutput1')
-output testOutput1 string = '${testParam}-out1'
+@sys.description('this is out1')
+output out1 string = '${param1}-out1'
 
-@description('''this is my
-multiline
-testOutput2''')
-output testOutput2 string = '${testParam}-out2'
+@description('''this
+is
+out2''')
+output out2 string = '${param1}-out2'
 ";
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
-@description('''this is my testMod''')
-module test|Mod './mod.bicep' = {
+@description('''this is mod1''')
+module mod|1 './mod.bicep' = {
   name: 'myMod'
   params: {
-    testP|aram: 's'
+    para|m1: 's'
   }
 }
 
-@description('''this is my moduleOutputVar''')
-var moduleOutputVar = testMod.outputs.te|stOutput1
+@description('''this is var1''')
+var var1 = mod1.outputs.ou|t1
 
-output moduleOutput string = '${moduleOutpu|tVar}-${testMod.outputs.testOutp|ut2}'
+output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
 ");
 
             var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), modFile);
@@ -345,41 +345,47 @@ output moduleOutput string = '${moduleOutpu|tVar}-${testMod.outputs.testOutp|ut2
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testMod\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testParam\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testOutput1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my moduleOutputVar\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \ntestOutput2\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is mod1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is out1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is var1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
         }
 
          [DataTestMethod]
         public async Task Hovers_are_displayed_on_discription_decorator_objects_across_arm_modules()
         {
             var modFile = @"
-@description('this is my testParam')
-param testParam string
+@description('this is param1')
+param param1 string
 
-@sys.description('this is my testOutput1')
-output testOutput1 string = '${testParam}-out1'
+@metadata({
+    description: 'this is param2'
+})
+param param2 string = '${param1}-2'
 
-@description('''this is my
-multiline
-testOutput2''')
-output testOutput2 string = '${testParam}-out2'
+@sys.description('this is out1')
+output out1 string = '${param1}-out1'
+
+@description('''this
+is
+out2''')
+output out2 string = '${param2}-out2'
 ";
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
-@description('''this is my testMod''')
-module test|Mod './mod.json' = {
+@description('''this is mod1''')
+module mo|d1 './mod.json' = {
   name: 'myMod'
   params: {
-    testP|aram: 's'
+    para|m1: 's'
+    p|aram2: 's'
   }
 }
 
-@description('''this is my moduleOutputVar''')
-var moduleOutputVar = testMod.outputs.te|stOutput1
+@description('''this is var1''')
+var var1 = mod1.outputs.out|1
 
-output moduleOutput string = '${moduleOutpu|tVar}-${testMod.outputs.testOutp|ut2}'
+output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
 ");
 
             var (template, diags, _) = CompilationHelper.Compile(modFile);
@@ -402,11 +408,12 @@ output moduleOutput string = '${moduleOutpu|tVar}-${testMod.outputs.testOutp|ut2
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testMod\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testParam\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my testOutput1\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my moduleOutputVar\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \ntestOutput2\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is mod1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param2\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is out1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is var1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
         }
 
         [DataTestMethod]

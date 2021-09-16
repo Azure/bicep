@@ -67,7 +67,7 @@ namespace Bicep.Core.Semantics
                         parameterProperty.Value.DefaultValue is null
                             ? TypePropertyFlags.WriteOnly | TypePropertyFlags.Required
                             : TypePropertyFlags.WriteOnly,
-                        parameterProperty.Value.Metadata?.Value?.SelectToken("description")?.ToString()))
+                        TryGetMetadataDescription(parameterProperty.Value.Metadata)))
                     .ToImmutableArray();
             });
 
@@ -83,7 +83,7 @@ namespace Bicep.Core.Semantics
                         outputProperty.Key,
                         GetType(outputProperty.Value),
                         TypePropertyFlags.ReadOnly,
-                        outputProperty.Value.Metadata?.Value?.SelectToken("description")?.ToString()))
+                        TryGetMetadataDescription(outputProperty.Value.Metadata)))
                     .ToImmutableArray();
             });
         }
@@ -174,6 +174,16 @@ namespace Bicep.Core.Semantics
                     _ => new StringLiteralType(allowedValue.ToString()),
                 };
             }
+        }
+        
+        private static string? TryGetMetadataDescription(TemplateGenericProperty<JToken>? metadata)
+        {
+            if (metadata?.Value?.SelectToken(LanguageConstants.MetadataDescriptionPropertyName) is { } descriptionToken
+            && descriptionToken.Type is JTokenType.String)
+            {
+                return descriptionToken.ToString();
+            }
+            return null;
         }
     }
 }
