@@ -16,21 +16,12 @@ namespace Bicep.Core.Workspaces
 {
     public static class SourceFileFactory
     {
-        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
-        {
-            if (moduleReference is null)
-            {
-                // The file is an entry point bicep file since it's not referenced as a module.
-                return CreateBicepFile(fileUri, fileContents);
-            }
-
-            return
-                PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
-                PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension) ||
-                PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension)
-                    ? CreateArmTemplateFile(fileUri, fileContents, moduleReference)
-                    : CreateBicepFile(fileUri, fileContents);
-        }
+        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null) =>
+            PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
+            PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension) ||
+            PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension)
+                ? CreateArmTemplateFile(fileUri, fileContents, moduleReference)
+                : CreateBicepFile(fileUri, fileContents);
 
         public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
