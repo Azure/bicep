@@ -108,29 +108,27 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
 
-                // Using JObject.Parse as a workaround because we cannot deserilize the source to a GenericResourceData object directly:
-                // - GenericResourceData.DeserializeGenericResource is internal
+                // Using JObject.Parse as a workaround because we cannot deserilize the source to a TemplateSpecVersionData object directly:
+                // - TemplateSpecVersionData.DeserializeGenericResource is internal
                 // - JsonConvert.Deserialize will cause InvalidCastException
                 var templateSpecJObject = JObject.Parse(templateSpecInfo.ModuleSource);
 
                 if (templateSpecJObject is null ||
                     templateSpecJObject["location"] is not JValue locationJValue ||
-                    templateSpecJObject["properties"] is not JObject propertiesJObject)
+                    templateSpecJObject.SelectToken("properties.mainTemplate") is not JObject mainTemplateJObject)
                 {
                     throw new InvalidOperationException($"The template spec is malformed.");
                 }
 
-                var genericResource = new GenericResourceData(locationJValue.Value<string>())
+                var templateSpecVersionData = new TemplateSpecVersionData(locationJValue.Value<string>())
                 {
-                    Properties = propertiesJObject
+                    MainTemplate = mainTemplateJObject
                 };
-
-                var templateSpec = TemplateSpec.FromGenericResourceData(genericResource);
 
                 repositoryMocksBySubscription.TryAdd((reference.EndpointUri, reference.SubscriptionId), StrictMock.Of<ITemplateSpecRepository>());
                 repositoryMocksBySubscription[(reference.EndpointUri, reference.SubscriptionId)]
                     .Setup(x => x.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(templateSpec);
+                    .ReturnsAsync(templateSpecVersionData);
             }
 
             var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();

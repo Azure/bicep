@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1628028490283910307"
+      "templateHash": "11634997279449412299"
     }
   },
   "parameters": {
@@ -44,7 +44,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}-deploy', parameters('storageName'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -158,7 +158,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}-deploy', parameters('containerName'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -173,13 +173,13 @@
             "value": "[parameters('location')]"
           },
           "storageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2019-10-01').outputs.storageName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-06-01').outputs.storageName.value]"
           },
           "storageId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2019-10-01').outputs.resourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-06-01').outputs.resourceId.value]"
           },
           "fileShareName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2019-10-01').outputs.fileShareName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-06-01').outputs.fileShareName.value]"
           },
           "type": {
             "value": "[parameters('type')]"

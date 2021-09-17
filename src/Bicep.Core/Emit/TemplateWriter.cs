@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Semantics.Metadata;
 using System.Diagnostics;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -30,7 +31,7 @@ namespace Bicep.Core.Emit
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2019-10-01";
+        public const string NestedDeploymentResourceApiVersion = "2020-06-01";
 
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
@@ -564,16 +565,29 @@ namespace Bicep.Core.Emit
 
                 EmitModuleParameters(jsonWriter, moduleSymbol, emitter);
 
-                jsonWriter.WritePropertyName("template");
+                var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
+
+                if (moduleSemanticModel is ArmTemplateSemanticModel { SourceFile: TemplateSpecMainTemplateFile sourceFile })
                 {
-                    var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    ITemplateWriter moduleWriter = moduleSemanticModel switch
+                    jsonWriter.WritePropertyName("templateLink");
                     {
-                        ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
-                        SemanticModel bicepModel => new TemplateWriter(bicepModel, this.settings),
-                        _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
-                    };
-                    moduleWriter.Write(jsonWriter);
+                        jsonWriter.WriteStartObject();
+                        emitter.EmitProperty("id", sourceFile.ModuleReference.TemplateSpecResourceId);
+                        jsonWriter.WriteEndObject();
+                    }
+                }
+                else
+                {
+                    jsonWriter.WritePropertyName("template");
+                    {
+                        ITemplateWriter moduleWriter = moduleSemanticModel switch
+                        {
+                            ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
+                            SemanticModel bicepModel => new TemplateWriter(bicepModel, this.settings),
+                            _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
+                        };
+                        moduleWriter.Write(jsonWriter);
+                    }
                 }
 
                 jsonWriter.WriteEndObject();
