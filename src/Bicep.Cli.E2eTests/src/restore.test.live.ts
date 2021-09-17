@@ -33,21 +33,21 @@ describe("bicep restore", () => {
 
     expectFileExists(
       pathToCachedTsModuleFile(
-        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/storageAccountSpec-df/v1",
+        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/storageaccountspec-df/v1",
         "main.json"
       )
     );
 
     expectFileExists(
       pathToCachedTsModuleFile(
-        "61E0A28A-63ED-4AFC-9827-2ED09B7B30F3/BICEP-CI/STORAGEACCOUNTSPEC-DF/V2",
+        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/storageaccountspec-df/v2",
         "main.json"
       )
     );
 
     expectFileExists(
       pathToCachedTsModuleFile(
-        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/webAppSpec-df/1.0.0",
+        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/webappspec-df/1.0.0",
         "main.json"
       )
     );

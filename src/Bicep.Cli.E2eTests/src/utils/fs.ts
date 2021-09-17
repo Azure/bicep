@@ -14,18 +14,18 @@ export const bicepCli = path.resolve(
     "../../../Bicep.Cli/bin/Debug/net5.0/bicep"
 );
 
-export const moduleCacheRoot = path.resolve(homedir(), ".bicep");
+export const moduleCacheRoot = path.resolve(homedir(), ".bicep/artifacts");
 
 export function pathToExampleFile(...pathNames: string[]): string {
   return path.join(__dirname, "../examples", ...pathNames);
 }
 
 export function pathToCachedTsModuleFile(...pathNames: string[]): string {
-  return path.join(moduleCacheRoot, "artifacts/ts", ...pathNames);
+  return path.join(moduleCacheRoot, "ts", ...pathNames);
 }
 
 export function pathToCachedBrModuleFile(...pathNames: string[]): string {
-  return path.join(moduleCacheRoot, "artifacts/br", ...pathNames);
+  return path.join(moduleCacheRoot, "br", ...pathNames);
 }
 
 export function readFileSync(filePath: string): string {
