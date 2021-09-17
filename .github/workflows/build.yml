@@ -86,9 +86,9 @@ jobs:
 
       - name: Run Bicep E2E Tests
         if: ${{ matrix.rid != 'linux-musl-x64' }}
-        run: npm ci && npm run compile && npm test
+        run: npm ci && npm test
         env:
-          BICEP_CLI_EXECUTABLE: ../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
@@ -96,9 +96,9 @@ jobs:
         uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
           entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm run compile --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
+          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
-          BICEP_CLI_EXECUTABLE: ../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
       
       - name: Upload Language Server
         uses: actions/upload-artifact@v2

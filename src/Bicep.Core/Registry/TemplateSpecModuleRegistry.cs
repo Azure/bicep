@@ -84,10 +84,10 @@ namespace Bicep.Core.Registry
         private string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
             this.featureProvider.CacheRootDirectory,
             this.Scheme,
-            reference.SubscriptionId,
-            reference.ResourceGroupName,
-            reference.TemplateSpecName,
-            reference.Version);
+            reference.SubscriptionId.ToLowerInvariant(),
+            reference.ResourceGroupName.ToLowerInvariant(),
+            reference.TemplateSpecName.ToLowerInvariant(),
+            reference.Version.ToLowerInvariant());
 
         private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => Path.Combine(this.GetModuleDirectoryPath(reference), "main.json");
 
