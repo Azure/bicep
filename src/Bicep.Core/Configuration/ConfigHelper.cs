@@ -15,6 +15,7 @@ namespace Bicep.Core.Configuration
     {
         private const string bicepConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
         private readonly IFileResolver fileResolver;
+        private readonly bool useDefaultConfig;
 
         /// <summary>
         /// Property exposes the configuration root
@@ -22,9 +23,10 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        public ConfigHelper(string? localFolder, IFileResolver fileResolver)
+        public ConfigHelper(string? localFolder, IFileResolver fileResolver, bool useDefaultConfig = false)
         {
             this.fileResolver = fileResolver;
+            this.useDefaultConfig = useDefaultConfig;
 
             if (localFolder is not null)
             {
@@ -32,7 +34,7 @@ namespace Bicep.Core.Configuration
             }
             else
             {
-                this.Config = BuildConfig(Directory.GetCurrentDirectory());
+                this.Config = BuildConfig(Directory.GetCurrentDirectory(), useDefaultConfig);
             }
         }
 
@@ -42,7 +44,7 @@ namespace Bicep.Core.Configuration
             return BuildConfig(localFolder);
         }
 
-        private IConfigurationRoot BuildConfig(string? localFolder)
+        private IConfigurationRoot BuildConfig(string? localFolder, bool useDefaultConfig = false)
         {
             var configBuilder = new ConfigurationBuilder();
 
@@ -56,7 +58,7 @@ namespace Bicep.Core.Configuration
                 configBuilder.AddJsonStream(defaultConfigStream);
 
                 // last added json settings take precedent - add local settings last
-                if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
+                if (!useDefaultConfig && DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
                     // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
                     // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)
@@ -82,7 +84,7 @@ namespace Bicep.Core.Configuration
                 catch (Exception ex)
                 {
                     throw new Exception(
-                        string.Format("Could not load configuration file. {0}", ex.InnerException?.Message ?? ex.Message));
+                        string.Format("Could not load configuration file. {0} Please fix errors in the following configuration file: {1}", ex.InnerException?.Message ?? ex.Message, this.CustomSettingsFileName));
                 }
             }
         }
@@ -149,7 +151,7 @@ namespace Bicep.Core.Configuration
         public ConfigHelper OverrideSetting(string name, object value)
         {
             SettingOverrides[name] = value;
-            this.Config = BuildConfig(Directory.GetCurrentDirectory());
+            this.Config = BuildConfig(Directory.GetCurrentDirectory(), useDefaultConfig);
             return this;
         }
 

@@ -2,16 +2,17 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Logging;
-using Bicep.Core.Diagnostics;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Services
@@ -63,27 +64,37 @@ namespace Bicep.Cli.Services
                 }
             }
 
+            ConfigHelper configHelper = GetConfigHelper(inputUri);
+            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping, configHelper);
+
+            LogDiagnostics(compilation);
+
+            return compilation;
+        }
+
+        private ConfigHelper GetConfigHelper(Uri uri)
+        {
+            ConfigHelper configHelper;
+
             try
             {
-                var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping);
-
-                LogDiagnostics(compilation);
-
-                return compilation;
+                configHelper = new ConfigHelper(Path.GetDirectoryName(uri.LocalPath), fileResolver);
             }
-            catch (Exception exception)
+            catch (Exception ex)
             {
-                var diagnostic = new Diagnostic(
-                    new TextSpan(0, 0),
-                    DiagnosticLevel.Error,
-                    string.Empty,
-                    exception.Message,
-                    inputUri);
+                var invocationContext = new InvocationContext(
+                    AzResourceTypeProvider.CreateWithAzTypes(),
+                    Console.Out,
+                    Console.Error,
+                    ThisAssembly.AssemblyFileVersion,
+                    features: null,
+                    clientFactory: null);
+                invocationContext.OutputWriter.WriteLine(ex.Message);
 
-                diagnosticLogger.LogDiagnostic(inputUri, diagnostic, sourceFileGrouping.EntryPoint.LineStarts);
-
-                return null;
+                configHelper = new ConfigHelper(null, fileResolver, useDefaultConfig: true).GetDisabledLinterConfig();
             }
+
+            return configHelper;
         }
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)

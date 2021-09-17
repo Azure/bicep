@@ -26,8 +26,6 @@ namespace Bicep.Cli.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private string CurrentDirectory = Directory.GetCurrentDirectory();
-
         [TestMethod]
         public async Task Build_ZeroFiles_ShouldFail_WithExpectedErrorMessage()
         {
@@ -290,29 +288,25 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        // ConfigHelper looks for bicepconfig.json in CurrentDirectory. We'll set the CurrentDirectory
-        // in this test. To avoid conflicts, we'll disable parallelation 
-        [DoNotParallelize]
-        public async Task Build_WithEmptyBicepConfig_ShouldProduceExpectedError()
+        public async Task Build_WithEmptyBicepConfig_ShouldProduceOutputFile()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
             FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", string.Empty, testOutputPath);
 
-            Directory.SetCurrentDirectory(testOutputPath);
-
             var (output, error, result) = await Bicep("build", inputFile);
 
-            result.Should().Be(1);
+            result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().Contain("main.bicep(1,1) : Error : Could not load configuration file. The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.");
+            error.Should().BeEmpty();
+
+            var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
+
+            File.Exists(expectedOutputFile).Should().BeTrue();
         }
 
         [TestMethod]
-        // ConfigHelper looks for bicepconfig.json in CurrentDirectory. We'll set the CurrentDirectory
-        // in this test. To avoid conflicts, we'll disable parallelation
-        [DoNotParallelize]
-        public async Task Build_WithInvalidBicepConfig_ShouldProduceExpectedError()
+        public async Task Build_WithInvalidBicepConfig_ShouldProduceOutputFile()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
@@ -326,19 +320,18 @@ output myOutput string = 'hello!'
           ""level"": ""info""
 ", testOutputPath);
 
-            Directory.SetCurrentDirectory(testOutputPath);
-
             var (output, error, result) = await Bicep("build", inputFile);
 
-            result.Should().Be(1);
+            result.Should().Be(0);
             output.Should().BeEmpty();
-            error.Should().Contain("main.bicep(1,1) : Error : Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.");
+            error.Should().BeEmpty();
+
+            var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
+
+            File.Exists(expectedOutputFile).Should().BeTrue();
         }
 
         [TestMethod]
-        // ConfigHelper looks for bicepconfig.json in CurrentDirectory. We'll set the CurrentDirectory
-        // in this test. To avoid conflicts, we'll disable parallelation
-        [DoNotParallelize]
         public async Task Build_WithValidBicepConfig_ShouldProduceExpectedError()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
@@ -356,8 +349,6 @@ output myOutput string = 'hello!'
     }
   }
 }", testOutputPath);
-
-            Directory.SetCurrentDirectory(testOutputPath);
 
             var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
 
@@ -385,15 +376,6 @@ output myOutput string = 'hello!'
             .AllDataSets
             .Where(ds => ds.IsValid && ds.HasExternalModules)
             .ToDynamicTestData();
-
-        [TestCleanup]
-        public void Cleanup()
-        {
-            if (!string.Equals(Directory.GetCurrentDirectory(), CurrentDirectory, StringComparison.OrdinalIgnoreCase))
-            {
-                Directory.SetCurrentDirectory(CurrentDirectory);
-            }
-        }
     }
 }
 

@@ -97,7 +97,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             diagnostics.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Message.Should().Be("Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 13.");
+                    x.Message.Should().Contain("Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 13.");
                     x.Severity.Should().Be(DiagnosticSeverity.Error);
                     x.Code?.String.Should().Be("Fatal");
                     x.Range.Should().Be(new Range
