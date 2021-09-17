@@ -2403,6 +2403,39 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
             });
         }
 
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/1833
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue1833()
+        {
+            var result = CompilationHelper.Compile(
+                ("managementGroup.bicep", @"
+targetScope = 'managementGroup'
+"),
+                ("main.bicep", @"
+targetScope = 'tenant'
+
+param mainMgName string
+param managementGroups array
+
+resource mainMg 'Microsoft.Management/managementGroups@2020-05-01' = {
+  name: mainMgName
+}
+
+resource mgs 'Microsoft.Management/managementGroups@2020-05-01' = [for (mg, i) in managementGroups: {
+  name: mg
+}]
+
+module singleMgModule 'managementGroup.bicep' = {
+  name: 'single-mg'
+  scope: mainMg
+}
+"));
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
         [TestMethod]
         // https://github.com/Azure/bicep/issues/3617
         public void Test_Issue3617()
