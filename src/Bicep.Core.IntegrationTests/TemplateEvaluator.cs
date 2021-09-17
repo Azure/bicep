@@ -172,6 +172,18 @@ namespace Bicep.Core.IntegrationTests
                     ["location"] = config.RgLocation,
                 };
             };
+            if (deploymentScope == TemplateDeploymentScope.ManagementGroup)
+            {
+                metadata["managementGroup"] = new JObject {
+                    ["id"] = $"/providers/Microsoft.Management/managementGroups/{config.ManagementGroup}",
+                    ["name"] = config.ManagementGroup,
+                    ["type"] = "Microsoft.Management/managementGroups",
+                };
+            };
+            // tenant() function is available at all scopes
+            metadata["tenant"] = new JObject {
+                ["tenantId"] = config.TenantId,
+            };
 
             try
             {

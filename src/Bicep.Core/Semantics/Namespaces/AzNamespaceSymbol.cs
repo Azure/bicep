@@ -16,6 +16,11 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public class AzNamespaceSymbol : NamespaceSymbol
     {
+        private static SyntaxBase RestrictedObjectReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
+        {
+            return SyntaxFactory.CreateObject(ImmutableArray<ObjectPropertySyntax>.Empty);
+        }
+
         private static ObjectType GetRestrictedResourceGroupReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
             => new ResourceGroupScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
@@ -25,8 +30,47 @@ namespace Bicep.Core.Semantics.Namespaces
         private static ObjectType GetRestrictedManagementGroupReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
             => new ManagementGroupScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
-        private static ObjectType GetRestrictedTenantReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
-            => new TenantScopeType(arguments, Enumerable.Empty<TypeProperty>());
+        private static ObjectType GetTenantReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+            => new TenantScopeType(arguments, new[]
+            {
+                new TypeProperty("tenantId", LanguageConstants.String),
+                new TypeProperty("country", LanguageConstants.String),
+                new TypeProperty("countryCode", LanguageConstants.String),
+                new TypeProperty("displayName", LanguageConstants.String),
+            });
+
+        private static ObjectType GetManagementGroupReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            var summary = new ObjectType("summary", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("id", LanguageConstants.String),
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("type", LanguageConstants.String),
+            }, null);
+
+            var details = new ObjectType("details", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("version", LanguageConstants.String),
+                new TypeProperty("updatedTime", LanguageConstants.String),
+                new TypeProperty("updatedBy", LanguageConstants.String),
+                new TypeProperty("parent", summary)
+            }, null);
+
+            var properties = new ObjectType("properties", TypeSymbolValidationFlags.Default, new[]
+            {
+                new TypeProperty("tenantId", LanguageConstants.String),
+                new TypeProperty("displayName", LanguageConstants.String),
+                new TypeProperty("details", details)
+            }, null);
+
+            return new ManagementGroupScopeType(arguments, new[]
+            {
+                new TypeProperty("id", LanguageConstants.String),
+                new TypeProperty("name", LanguageConstants.String),
+                new TypeProperty("type", LanguageConstants.String),
+                new TypeProperty("properties", properties),
+            });
+        }
 
         private static ObjectType GetResourceGroupReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
@@ -152,14 +196,14 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return (
                 new FunctionOverloadBuilder("tenant")
-                    .WithDynamicReturnType(GetRestrictedTenantReturnType, new TenantScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithDynamicReturnType(GetTenantReturnType, new TenantScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
                     .WithDescription("Returns the current tenant scope.")
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
-                    .WithDynamicReturnType(GetRestrictedManagementGroupReturnType, new ManagementGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithDynamicReturnType(GetManagementGroupReturnType, new ManagementGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
                     .WithDescription("Returns the current management group scope. **This function can only be used in managementGroup deployments.**")
                     .Build(),
                 ResourceScope.ManagementGroup);
@@ -168,6 +212,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDynamicReturnType(GetRestrictedManagementGroupReturnType, new ManagementGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
                     .WithDescription("Returns the scope for a named management group.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
+                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
@@ -182,6 +227,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDynamicReturnType(GetRestrictedSubscriptionReturnType, new SubscriptionScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
                     .WithDescription("Returns a named subscription scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
+                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
@@ -196,6 +242,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDynamicReturnType(GetRestrictedResourceGroupReturnType, new ResourceGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
                     .WithDescription("Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
@@ -204,6 +251,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     .WithDescription("Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
+                    .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
         }

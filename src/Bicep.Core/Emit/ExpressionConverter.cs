@@ -118,7 +118,7 @@ namespace Bicep.Core.Emit
             switch (functionCall)
             {
                 case FunctionCallSyntax function:
-                    return ConvertFunction(
+                    return CreateFunction(
                         function.Name.IdentifierName,
                         function.Arguments.Select(a => ConvertExpression(a.Expression)));
 
@@ -133,7 +133,7 @@ namespace Bicep.Core.Emit
                     {
                         case NamespaceSymbol namespaceSymbol:
                             Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
-                            return ConvertFunction(
+                            return CreateFunction(
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
                         case ResourceSymbol resourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is { } resource:
@@ -730,33 +730,6 @@ namespace Bicep.Core.Emit
             }
 
             throw new NotImplementedException($"Unexpected expression type '{converted.GetType().Name}'.");
-        }
-
-        private static LanguageExpression ConvertFunction(string functionName, IEnumerable<LanguageExpression> arguments)
-        {
-            if (ShouldReplaceUnsupportedFunction(functionName, arguments, out var replacementExpression))
-            {
-                return replacementExpression;
-            }
-
-            return CreateFunction(functionName, arguments);
-        }
-
-        private static bool ShouldReplaceUnsupportedFunction(string functionName, IEnumerable<LanguageExpression> arguments, [NotNullWhen(true)] out LanguageExpression? replacementExpression)
-        {
-            switch (functionName)
-            {
-                // These functions have not yet been implemented in ARM. For now, we will just return an empty object if they are accessed directly.
-                case "tenant":
-                case "managementGroup":
-                case "subscription" when arguments.Any():
-                case "resourceGroup" when arguments.Any():
-                    replacementExpression = GetCreateObjectExpression();
-                    return true;
-            }
-
-            replacementExpression = null;
-            return false;
         }
 
         private FunctionExpression ConvertArray(ArraySyntax syntax)
