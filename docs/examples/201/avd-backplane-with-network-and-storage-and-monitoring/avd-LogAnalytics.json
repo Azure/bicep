@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3864819428445360434"
+      "templateHash": "4464042552642153847"
     }
   },
   "parameters": {
@@ -45,7 +45,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "myBicepLADiag",
       "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
       "properties": {

@@ -13,7 +13,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Azure.Identity" Version="1.4.0" />
-		<PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.1" />
+		<PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.2" />
 		<PackageReference Include="JetBrains.Annotations" Version="2021.2.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>

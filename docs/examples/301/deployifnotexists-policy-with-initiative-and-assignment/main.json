@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5825216232717295639"
+      "templateHash": "14151164023474411165"
     }
   },
   "parameters": {
@@ -116,7 +116,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "actionGroup",
       "resourceGroup": "[parameters('resourceGroupName')]",
       "properties": {
@@ -212,7 +212,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "policy",
       "location": "[deployment().location]",
       "properties": {
@@ -222,13 +222,13 @@
         "mode": "Incremental",
         "parameters": {
           "actionGroupName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2019-10-01').outputs.actionGroupName.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2020-06-01').outputs.actionGroupName.value]"
           },
           "actionGroupRG": {
             "value": "[parameters('resourceGroupName')]"
           },
           "actionGroupId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2019-10-01').outputs.actionGroupId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, parameters('resourceGroupName')), 'Microsoft.Resources/deployments', 'actionGroup'), '2020-06-01').outputs.actionGroupId.value]"
           },
           "metricAlertResourceNamespace": {
             "value": "[parameters('metricAlertResourceNamespace')]"
@@ -586,7 +586,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "assignment",
       "location": "[deployment().location]",
       "properties": {
@@ -596,7 +596,7 @@
         "mode": "Incremental",
         "parameters": {
           "bicepExampleInitiativeId": {
-            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2019-10-01').outputs.bicepExampleInitiativeId.value]"
+            "value": "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'policy'), '2020-06-01').outputs.bicepExampleInitiativeId.value]"
           },
           "assignmentIdentityLocation": {
             "value": "[parameters('resourceGrouplocation')]"

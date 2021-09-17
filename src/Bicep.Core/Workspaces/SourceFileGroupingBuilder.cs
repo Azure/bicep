@@ -7,6 +7,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
@@ -81,7 +82,7 @@ namespace Bicep.Core.Workspaces
 
         private SourceFileGrouping Build(Uri entryFileUri)
         {
-            var sourceFile = this.PopulateRecursive(entryFileUri, isEntryFile: true, out var entryPointLoadFailureBuilder);
+            var sourceFile = this.PopulateRecursive(entryFileUri, null, out var entryPointLoadFailureBuilder);
 
             if (sourceFile is null)
             {
@@ -110,7 +111,7 @@ namespace Bicep.Core.Workspaces
                 modulesToRestore.ToImmutableHashSet());
         }
 
-        private ISourceFile? TryGetSourceFile(Uri fileUri, bool isEntryFile, out ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? TryGetSourceFile(Uri fileUri, ModuleReference? moduleReference, out ErrorBuilderDelegate? failureBuilder)
         {
             if (workspace.TryGetSourceFile(fileUri, out var sourceFile))
             {
@@ -137,21 +138,21 @@ namespace Bicep.Core.Workspaces
             }
 
             failureBuilder = null;
-            return AddSourceFile(fileUri, fileContents, isEntryFile);
+            return AddSourceFile(fileUri, fileContents, moduleReference);
         }
 
-        private ISourceFile AddSourceFile(Uri fileUri, string fileContents, bool isEntryFile)
+        private ISourceFile AddSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference)
         {
-            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, isEntryFile);
+            var sourceFile = SourceFileFactory.CreateSourceFile(fileUri, fileContents, moduleReference);
 
             sourceFilesByUri[fileUri] = sourceFile;
 
             return sourceFile;
         }
 
-        private ISourceFile? PopulateRecursive(Uri fileUri, bool isEntryFile, out ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, out ErrorBuilderDelegate? failureBuilder)
         {
-            var sourceFile = this.TryGetSourceFile(fileUri, isEntryFile, out var getSourceFileFailureBuilder);
+            var sourceFile = this.TryGetSourceFile(fileUri, moduleReference, out var getSourceFileFailureBuilder);
 
             if (sourceFile is null)
             {
@@ -166,60 +167,60 @@ namespace Bicep.Core.Workspaces
                 return sourceFile;
             }
 
-            foreach (var module in GetModuleDeclarations(bicepFile))
+            foreach (var childModule in GetModuleDeclarations(bicepFile))
             {
-                var moduleReference = this.moduleDispatcher.TryGetModuleReference(module, out var parseReferenceFailureBuilder);
-                if(moduleReference is null)
+                var childModuleReference = this.moduleDispatcher.TryGetModuleReference(childModule, out var parseReferenceFailureBuilder);
+                if(childModuleReference is null)
                 {
                     // module reference is not valid
-                    errorBuildersByModuleDeclaration[module] = parseReferenceFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.TryGetModuleReference)} to provide failure diagnostics.");
+                    errorBuildersByModuleDeclaration[childModule] = parseReferenceFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.TryGetModuleReference)} to provide failure diagnostics.");
                     continue;
                 }
 
-                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(moduleReference, out var restoreErrorBuilder);
+                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, out var restoreErrorBuilder);
                 if (restoreStatus != ModuleRestoreStatus.Succeeded)
                 {
                     if(restoreStatus == ModuleRestoreStatus.Unknown)
                     {
                         // we have not yet attempted to restore the module, so let's do it
-                        modulesToRestore.Add(module);
+                        modulesToRestore.Add(childModule);
                     }
 
                     // the module has not yet been restored or restore failed
                     // in either case, set the error
-                    errorBuildersByModuleDeclaration[module] = restoreErrorBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.GetModuleRestoreStatus)} to provide failure diagnostics.");
+                    errorBuildersByModuleDeclaration[childModule] = restoreErrorBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.GetModuleRestoreStatus)} to provide failure diagnostics.");
                     continue;
                 }
 
-                var moduleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, moduleReference, out var moduleGetPathFailureBuilder);
-                if (moduleFileUri is null)
+                var childModuleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, childModuleReference, out var moduleGetPathFailureBuilder);
+                if (childModuleFileUri is null)
                 {
                     // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                     // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
-                    errorBuildersByModuleDeclaration[module] = moduleGetPathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(moduleDispatcher.TryGetLocalModuleEntryPointUri)} to provide failure diagnostics.");
+                    errorBuildersByModuleDeclaration[childModule] = moduleGetPathFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(moduleDispatcher.TryGetLocalModuleEntryPointUri)} to provide failure diagnostics.");
                     continue;
                 }
 
                 // only recurse if we've not seen this module before - to avoid infinite loops
-                if (!sourceFilesByUri.TryGetValue(moduleFileUri, out var moduleFile))
+                if (!sourceFilesByUri.TryGetValue(childModuleFileUri, out var childModuleFile))
                 {
-                    moduleFile = PopulateRecursive(moduleFileUri, isEntryFile: false, out var modulePopulateFailureBuilder);
+                    childModuleFile = PopulateRecursive(childModuleFileUri, childModuleReference, out var modulePopulateFailureBuilder);
                     
-                    if (moduleFile is null)
+                    if (childModuleFile is null)
                     {
                         // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
                         // https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/attributes/nullable-analysis
-                        errorBuildersByModuleDeclaration[module] = modulePopulateFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics.");
+                        errorBuildersByModuleDeclaration[childModule] = modulePopulateFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(PopulateRecursive)} to provide failure diagnostics.");
                         continue;
                     }
                 }
 
-                if (moduleFile is null)
+                if (childModuleFile is null)
                 {
                     continue;
                 }
 
-                sourceFilesByModuleDeclaration[module] = moduleFile;
+                sourceFilesByModuleDeclaration[childModule] = childModuleFile;
             }
 
             failureBuilder = null;
