@@ -289,8 +289,7 @@ namespace Bicep.Decompiler
 
                 // Check to see if the inner expression is also a function and if it is equals we can
                 // simplify the expression from (!(a == b)) to (a != b)
-                if (expression.Parameters[0].GetType() == typeof(FunctionExpression)){
-                    FunctionExpression functionExpression = (FunctionExpression)expression.Parameters[0];
+                if (expression.Parameters[0] is FunctionExpression functionExpression){
                     if (StringComparer.OrdinalIgnoreCase.Equals(functionExpression.Function, "equals")){
                         return TryReplaceBannedFunction(
                             new FunctionExpression("notEquals", functionExpression.Parameters, functionExpression.Properties),
