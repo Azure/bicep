@@ -66,17 +66,9 @@
       "type": "bool",
       "value": "[equals(toLower(parameters('insensitiveToTest').leftInsensitive),toLower(parameters('insensitiveToTest').rightInsensitive))]"
     },
-    "equalsInsensitiveWithUpper": {
-      "type": "bool",
-      "value": "[equals(toUpper(parameters('insensitiveToTest').leftInsensitive),toUpper(parameters('insensitiveToTest').rightInsensitive))]"
-    },
     "notEqualsInsensitiveWithLower": {
       "type": "bool",
       "value": "[not(equals(toLower(parameters('insensitiveToTest').leftInsensitive),toLower(parameters('insensitiveToTest').rightInsensitive)))]"
-    },
-    "notEqualsInsensitiveWithUpper": {
-      "type": "bool",
-      "value": "[not(equals(toUpper(parameters('insensitiveToTest').leftInsensitive),toUpper(parameters('insensitiveToTest').rightInsensitive)))]"
     },
     "notEquals": {
       "type": "bool",

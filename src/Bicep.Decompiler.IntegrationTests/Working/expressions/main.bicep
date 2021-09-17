@@ -27,7 +27,5 @@ output coalesceArrayOutput array = ((coalesceObjectToTest.null1 ?? coalesceObjec
 output coalesceEmptyOutput bool = empty((coalesceObjectToTest.null1 ?? coalesceObjectToTest.null2))
 output emptyFunctionsOutput bool = ((null == json('null')) ? true : false)
 output equalsInsensitiveWithLower bool = (insensitiveToTest.leftInsensitive =~ insensitiveToTest.rightInsensitive)
-output equalsInsensitiveWithUpper bool = (insensitiveToTest.leftInsensitive =~ insensitiveToTest.rightInsensitive)
 output notEqualsInsensitiveWithLower bool = (insensitiveToTest.leftInsensitive !~ insensitiveToTest.rightInsensitive)
-output notEqualsInsensitiveWithUpper bool = (insensitiveToTest.leftInsensitive !~ insensitiveToTest.rightInsensitive)
 output notEquals bool = (insensitiveToTest.left != insensitiveToTest.right)

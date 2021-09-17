@@ -229,7 +229,8 @@ namespace Bicep.Decompiler
                 {
                     if(leftParameter is FunctionExpression leftFunctionExpression &&
                         rightParameter is FunctionExpression rightFunctionExpression &&
-                        IsCaseInsensitiveCondition(leftFunctionExpression, rightFunctionExpression))
+                        leftFunctionExpression.Function == "toLower" &&
+                        rightFunctionExpression.Function == "toLower")
                     {
                         leftParameter = leftFunctionExpression.Parameters[0];
                         rightParameter = rightFunctionExpression.Parameters[0];
@@ -331,12 +332,6 @@ namespace Bicep.Decompiler
 
             syntax = null;
             return false;
-        }
-
-        private bool IsCaseInsensitiveCondition(FunctionExpression left, FunctionExpression right)
-        {
-            return (left.Function == "toLower" && right.Function == "toLower")
-                || (left.Function == "toUpper" && right.Function == "toUpper");
         }
 
         private SyntaxBase? TryParseStringExpression(LanguageExpression expression)
