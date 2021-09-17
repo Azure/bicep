@@ -34,7 +34,7 @@ namespace Bicep.Core.Configuration
             }
             else
             {
-                this.Config = BuildConfig(Directory.GetCurrentDirectory(), useDefaultConfig);
+                this.Config = BuildConfig(Directory.GetCurrentDirectory());
             }
         }
 
@@ -44,7 +44,7 @@ namespace Bicep.Core.Configuration
             return BuildConfig(localFolder);
         }
 
-        private IConfigurationRoot BuildConfig(string? localFolder, bool useDefaultConfig = false)
+        private IConfigurationRoot BuildConfig(string? localFolder)
         {
             var configBuilder = new ConfigurationBuilder();
 
@@ -151,7 +151,7 @@ namespace Bicep.Core.Configuration
         public ConfigHelper OverrideSetting(string name, object value)
         {
             SettingOverrides[name] = value;
-            this.Config = BuildConfig(Directory.GetCurrentDirectory(), useDefaultConfig);
+            this.Config = BuildConfig(Directory.GetCurrentDirectory());
             return this;
         }
 
