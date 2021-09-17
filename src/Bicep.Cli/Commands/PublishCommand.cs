@@ -42,7 +42,7 @@ namespace Bicep.Cli.Commands
 
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-            if(compilation is null || diagnosticLogger.ErrorCount > 0)
+            if(diagnosticLogger.ErrorCount > 0)
             {
                 // can't publish if we can't compile
                 return 1;

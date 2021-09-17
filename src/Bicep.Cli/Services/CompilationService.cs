@@ -46,7 +46,7 @@ namespace Bicep.Cli.Services
             await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore));
         }
 
-        public async Task<Compilation?> CompileAsync(string inputPath, bool skipRestore)
+        public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
 
