@@ -69,50 +69,58 @@ namespace Bicep.LanguageServer.Handlers
             {
                 if (JsonConvert.DeserializeObject(bicepConfig) is JObject root &&
                     root["analyzers"] is JObject analyzers &&
-                    analyzers["core"] is JObject core &&
-                    core["rules"] is JObject rules)
+                    analyzers["core"] is JObject core)
                 {
-                    if (rules[code] is JObject ruleName)
+                    if (core["rules"] is JObject rules)
                     {
-                        if (ruleName.ContainsKey("level"))
+                        if (rules[code] is JObject ruleName)
                         {
-                            ruleName["level"] = "off";
+                            if (ruleName.ContainsKey("level"))
+                            {
+                                ruleName["level"] = "off";
+                            }
+                            else
+                            {
+                                ruleName.Add("level", "off");
+                            }
                         }
                         else
                         {
-                            ruleName.Add("level", "off");
+                            SetRuleLevelToOff(rules, code);
                         }
                     }
                     else
                     {
-                        rules.Add(code, JToken.Parse(@"{
-  ""level"": ""off""
-}"));
+                        JObject rule = new JObject();
+                        SetRuleLevelToOff(rule, code);
+
+                        core.Add("rules", rule);
                     }
 
                     return root.ToString(Formatting.Indented);
                 }
-                else
+
+                if (JsonConvert.DeserializeObject(DefaultBicepConfig) is JObject defaultConfigRoot &&
+                    defaultConfigRoot["analyzers"]?["core"]?["rules"] is JObject defaultRules)
                 {
-                    return JObject.Parse(@"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        " + code + @": {
-          ""level"": ""off""
-        }
-      }
-    }
-  }
-}").ToString(Formatting.Indented);
+                    SetRuleLevelToOff(defaultRules, code);
+
+                    return defaultConfigRoot.ToString();
                 }
+
+                return String.Empty;
             }
             catch (Exception)
             {
                 throw new Exception("File bicepconfig.json already exists and is invalid. If overwriting the file is intended, delete it manually and retry disable linter rule lightBulb option again");
             }
+        }
+
+        private void SetRuleLevelToOff(JObject jObject, string code)
+        {
+            jObject.Add(code, JToken.Parse(@"{
+  ""level"": ""off""
+}"));
         }
     }
 }

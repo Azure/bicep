@@ -68,7 +68,7 @@ namespace Bicep.LangServer.IntegrationTests
                     // Assert.
                     quickFixes.Should().NotBeNull();
 
-                    var quickFixList = quickFixes.ToList();
+                    var quickFixList = quickFixes.Where(x => x.CodeAction.Kind == CodeActionKind.QuickFix).ToList();
                     var bicepFixList = fixable.Fixes.ToList();
 
                     quickFixList.Should().HaveSameCount(bicepFixList);
@@ -184,6 +184,167 @@ namespace Bicep.LangServer.IntegrationTests
                                                   expectedBicepConfigContents);
 
         }
+
+        [TestMethod]
+        public async Task DisableLinterRule_CodeActionInvocation_WithoutRulesNodeInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
+        {
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepConfigContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true
+    }
+  }
+}";
+            var expectedBicepConfigContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}";
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
+                                                  bicepConfigContents,
+                                                  DiagnosticLevel.Warning,
+                                                  @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigContents);
+
+        }
+
+        [TestMethod]
+        public async Task DisableLinterRule_CodeActionInvocation_WithoutRuleInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
+        {
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepConfigContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-vars"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}";
+            var expectedBicepConfigContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-vars"": {
+          ""level"": ""warning""
+        },
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}";
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
+                                                  bicepConfigContents,
+                                                  DiagnosticLevel.Warning,
+                                                  @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigContents);
+
+        }
+
+        [TestMethod]
+        public async Task DisableLinterRule_CodeActionInvocation_WithoutLevelNodeInRule_ShouldUpdateConfigFileAndDisableRule()
+        {
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepConfigContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+        }
+      }
+    }
+  }
+}";
+            var expectedBicepConfigContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}";
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
+                                                  bicepConfigContents,
+                                                  DiagnosticLevel.Warning,
+                                                  @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigContents);
+
+        }
+
+        [TestMethod]
+        public async Task DisableLinterRule_CodeActionInvocation_WithOnlyCurlyBracesBicepConfig_ShouldCreateConfigFileAndDisableRule()
+        {
+            var bicepFileContents = "param storageAccountName string = 'testAccount'";
+            var bicepConfigContents = @"{}";
+            var expectedBicepConfigContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""gallery.azure.com"",
+            ""management.core.windows.net"",
+            ""management.azure.com"",
+            ""database.windows.net"",
+            ""core.windows.net"",
+            ""login.microsoftonline.com"",
+            ""graph.windows.net"",
+            ""trafficmanager.net"",
+            ""datalake.azure.net"",
+            ""azuredatalakestore.net"",
+            ""azuredatalakeanalytics.net"",
+            ""vault.azure.net"",
+            ""api.loganalytics.io"",
+            ""asazure.windows.net"",
+            ""region.asazure.windows.net"",
+            ""batch.core.windows.net""
+          ],
+          ""excludedhosts"": [
+            ""schema.management.azure.com""
+          ]
+        },
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}";
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
+                                                  bicepConfigContents,
+                                                  DiagnosticLevel.Warning,
+                                                  @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigContents);
+        }
+
 
         private async Task VerifyLinterRuleIsDisabledAsync(string bicepFileContents, string? bicepConfigFileContents, DiagnosticLevel expectedDiagnosticLevel, string expectedDiagnosticMessage, string expectedBicepConfigFileContents)
         {
