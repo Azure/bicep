@@ -127,16 +127,16 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
         {
             var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
-                    new TypeProperty("stringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("unspecifiedStringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDef", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("unspecifiedAbcOrDef", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
+                    new TypeProperty("stringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("unspecifiedStringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("abcOrDef", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("unspecifiedAbcOrDef", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myDependentType", "2020-01-01", validationFlags,
                     new TypeProperty("stringOnly", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("abcOnly", new StringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("abcOnlyUnNarrowed", new StringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("stringOrIntUnNarrowed", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDefUnNarrowed", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def"), new StringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
+                    new TypeProperty("stringOrIntUnNarrowed", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("abcOrDefUnNarrowed", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def"), new StringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
             };
             var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
@@ -431,7 +431,7 @@ var singleItemValue = itemsOutput[0].value
             
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
-            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("'string' | bool | int[] | object");
+            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
         }
 
         [TestMethod]

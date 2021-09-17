@@ -1187,7 +1187,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
                     ResourceScope.ResourceGroup,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent/child@2020-10-01",
-                        ("name", UnionType.Create(new StringLiteralType("val1"), new StringLiteralType("val2"))),
+                        ("name", TypeHelper.CreateTypeUnion(new StringLiteralType("val1"), new StringLiteralType("val2"))),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnEnum", LanguageConstants.Bool))))),

@@ -131,8 +131,8 @@ namespace Bicep.Core.UnitTests.TypeSystem
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.String);
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Object);
             yield return CreateRow("length", LanguageConstants.Int, LanguageConstants.Array);
-            yield return CreateRow("length", LanguageConstants.Int, UnionType.Create(LanguageConstants.Array, LanguageConstants.String));
-            yield return CreateRow("length", LanguageConstants.Int, UnionType.Create(LanguageConstants.Array, LanguageConstants.String, LanguageConstants.Object));
+            yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.Array, LanguageConstants.String));
+            yield return CreateRow("length", LanguageConstants.Int, TypeHelper.CreateTypeUnion(LanguageConstants.Array, LanguageConstants.String, LanguageConstants.Object));
         }
 
         private static IEnumerable<object[]> GetAmbiguousMatchData()
@@ -140,7 +140,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             // local function
             object[] CreateRow(string functionName, int argumentCount, params TypeSymbol[] expectedReturnTypes)
             {
-                string displayName = $"{functionName}({Enumerable.Repeat(LanguageConstants.Any, argumentCount).Select(a => a.ToString()).ConcatString(", ")}): {UnionType.Create(expectedReturnTypes)}";
+                string displayName = $"{functionName}({Enumerable.Repeat(LanguageConstants.Any, argumentCount).Select(a => a.ToString()).ConcatString(", ")}): {TypeHelper.CreateTypeUnion(expectedReturnTypes)}";
                 return new object[] { displayName, functionName, argumentCount, expectedReturnTypes };
             }
 

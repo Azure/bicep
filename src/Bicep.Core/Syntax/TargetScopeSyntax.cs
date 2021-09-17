@@ -48,7 +48,7 @@ namespace Bicep.Core.Syntax
         public TypeSymbol GetDeclaredType()
         {
             // TODO: Implement the ability to declare a file targeting multiple scopes
-            return UnionType.Create(
+            return TypeHelper.CreateTypeUnion(
                 new StringLiteralType(LanguageConstants.TargetScopeTypeTenant),
                 new StringLiteralType(LanguageConstants.TargetScopeTypeManagementGroup),
                 new StringLiteralType(LanguageConstants.TargetScopeTypeSubscription),

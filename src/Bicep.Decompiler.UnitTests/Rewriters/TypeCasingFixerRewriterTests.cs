@@ -61,8 +61,8 @@ output myObj object = {
                 new TypeProperty("camelCaseQuoted=+.Prop", LanguageConstants.String),
                 new TypeProperty("lowerCaseEnumProp", new StringLiteralType("myenum")),
                 new TypeProperty("pascalCaseEnumProp", new StringLiteralType("MyEnum")),
-                new TypeProperty("lowerCaseEnumUnionProp", UnionType.Create(new StringLiteralType("myenum"), new StringLiteralType("blahblah"))),
-                new TypeProperty("pascalCaseEnumUnionProp", UnionType.Create(new StringLiteralType("MyEnum"), new StringLiteralType("BlahBlah"))));
+                new TypeProperty("lowerCaseEnumUnionProp", TypeHelper.CreateTypeUnion(new StringLiteralType("myenum"), new StringLiteralType("blahblah"))),
+                new TypeProperty("pascalCaseEnumUnionProp", TypeHelper.CreateTypeUnion(new StringLiteralType("MyEnum"), new StringLiteralType("BlahBlah"))));
             var typeProvider = TestTypeHelper.CreateProviderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
