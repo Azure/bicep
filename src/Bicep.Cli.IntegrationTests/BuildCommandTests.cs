@@ -332,7 +332,7 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        public async Task Build_WithValidBicepConfig_ShouldProduceExpectedError()
+        public async Task Build_WithValidBicepConfig_ShouldProduceOutputFileAndExpectedError()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", @"param storageAccountName string = 'test'", testOutputPath);
