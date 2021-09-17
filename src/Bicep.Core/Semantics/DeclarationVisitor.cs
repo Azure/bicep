@@ -92,6 +92,14 @@ namespace Bicep.Core.Semantics
             DeclareSymbol(symbol);
         }
 
+        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        {
+            base.VisitImportDeclarationSyntax(syntax);
+
+            var symbol = new ImportedNamespaceSymbol(this.context, syntax.Name.IdentifierName, syntax);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitForSyntax(ForSyntax syntax)
         {
             // create new scope without any descendants

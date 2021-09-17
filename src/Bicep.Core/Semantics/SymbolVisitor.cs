@@ -81,6 +81,11 @@ namespace Bicep.Core.Semantics
             VisitDescendants(symbol);
         }
 
+        public virtual void VisitImportedNamespaceSymbol(ImportedNamespaceSymbol symbol)
+        {
+            VisitDescendants(symbol);
+        }
+
         protected void VisitDescendants(Symbol symbol)
         {
             foreach (Symbol descendant in symbol.Descendants)

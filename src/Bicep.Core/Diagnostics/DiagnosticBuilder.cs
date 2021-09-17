@@ -1182,6 +1182,16 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP199",
                 $"The specified OCI artifact reference \"{badRef}\" is not valid. Module path \"{badRepository}\" exceeds the maximum length of {maxLength} characters.");
+
+            public ErrorDiagnostic ExpectedImportProviderName() => new(
+                TextSpan,
+                "BCP200",
+                "Expected an import provider name at this location.");
+
+            public ErrorDiagnostic ExpectedImportAliasName() => new(
+                TextSpan,
+                "BCP200",
+                "Expected an import alias name at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

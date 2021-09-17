@@ -28,17 +28,12 @@ namespace Bicep.Core.Semantics
             this.bindings = GetBindings(bicepFile, uniqueDeclarations, builtInNamespaces, outermostScopes);
             this.cyclesBySymbol = GetCyclesBySymbol(bicepFile, this.bindings);
 
-            // TODO: Avoid looping 5 times?
             this.FileSymbol = new FileSymbol(
                 bicepFile.FileUri.LocalPath,
                 bicepFile.ProgramSyntax,
                 builtInNamespaces,
                 outermostScopes,
-                declarations.OfType<ParameterSymbol>(),
-                declarations.OfType<VariableSymbol>(),
-                declarations.OfType<ResourceSymbol>(),
-                declarations.OfType<ModuleSymbol>(),
-                declarations.OfType<OutputSymbol>(),
+                declarations,
                 bicepFile.FileUri);
         }
 

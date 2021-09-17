@@ -19,11 +19,7 @@ namespace Bicep.Core.Semantics
             ProgramSyntax syntax,
             ImmutableDictionary<string, NamespaceSymbol> importedNamespaces,
             IEnumerable<LocalScope> outermostScopes,
-            IEnumerable<ParameterSymbol> parameterDeclarations,
-            IEnumerable<VariableSymbol> variableDeclarations,
-            IEnumerable<ResourceSymbol> resourceDeclarations,
-            IEnumerable<ModuleSymbol> moduleDeclarations,
-            IEnumerable<OutputSymbol> outputDeclarations,
+            IEnumerable<DeclaredSymbol> declarations,
             Uri fileUri)
             : base(name)
         {
@@ -32,17 +28,20 @@ namespace Bicep.Core.Semantics
             FileUri = fileUri;
             this.LocalScopes = outermostScopes.ToImmutableArray();
 
-            this.ParameterDeclarations = parameterDeclarations.ToImmutableArray();
-            this.VariableDeclarations = variableDeclarations.ToImmutableArray();
-            this.ResourceDeclarations = resourceDeclarations.ToImmutableArray();
-            this.ModuleDeclarations = moduleDeclarations.ToImmutableArray();
-            this.OutputDeclarations = outputDeclarations.ToImmutableArray();
+            // TODO: Avoid looping 6 times?
+            this.ImportDeclarations = declarations.OfType<ImportedNamespaceSymbol>().ToImmutableArray();
+            this.ParameterDeclarations = declarations.OfType<ParameterSymbol>().ToImmutableArray();
+            this.VariableDeclarations = declarations.OfType<VariableSymbol>().ToImmutableArray();
+            this.ResourceDeclarations = declarations.OfType<ResourceSymbol>().ToImmutableArray();
+            this.ModuleDeclarations = declarations.OfType<ModuleSymbol>().ToImmutableArray();
+            this.OutputDeclarations = declarations.OfType<OutputSymbol>().ToImmutableArray();
 
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
         }
 
         public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
             .Concat<Symbol>(this.LocalScopes)
+            .Concat(this.ImportDeclarations)
             .Concat(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
@@ -56,6 +55,8 @@ namespace Bicep.Core.Semantics
         public ImmutableDictionary<string, NamespaceSymbol> ImportedNamespaces { get; }
 
         public ImmutableArray<LocalScope> LocalScopes { get; }
+
+        public ImmutableArray<ImportedNamespaceSymbol> ImportDeclarations { get; }
 
         public ImmutableArray<ParameterSymbol> ParameterDeclarations { get; }
 

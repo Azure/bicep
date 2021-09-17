@@ -64,6 +64,10 @@ namespace Bicep.LanguageServer.Handlers
             // with multiple borders
             switch (result.Symbol)
             {
+                case ImportedNamespaceSymbol import:
+                    return CodeBlockWithDescriptionDecorator(
+                        $"import {import.Name}", import.DeclaringImport.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+
                 case ParameterSymbol parameter:
                     return CodeBlockWithDescriptionDecorator(
                         $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));

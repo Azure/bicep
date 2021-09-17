@@ -94,6 +94,7 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
                             _ => leadingNodes.Count > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
@@ -297,13 +298,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(name),
                 TokenType.Assignment, TokenType.NewLine);
 
-            Token? existingKeyword = null;
-            var current = reader.Peek();
-            if (current.Type == TokenType.Identifier && current.Text == LanguageConstants.ExistingKeyword)
-            {
-                existingKeyword = reader.Read();
-            }
-
+            var existingKeyword = GetOptionalKeyword(LanguageConstants.ExistingKeyword);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
 
             var value = this.WithRecovery(() =>
@@ -350,6 +345,26 @@ namespace Bicep.Core.Parsing
                 TokenType.NewLine);
 
             return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+        }
+
+        private SyntaxBase ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
+            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+
+            var asKeyword = GetOptionalKeyword(LanguageConstants.AsKeyword);
+            IdentifierSyntax? aliasName = null;
+            if (asKeyword is not null)
+            {
+                aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
+            }
+
+            var config = this.WithRecovery(
+                () => this.Object(ExpressionFlags.AllowComplexLiterals),
+                GetSuppressionFlag((asKeyword as SyntaxBase) ?? providerName),
+                TokenType.NewLine);
+
+            return new ImportDeclarationSyntax(leadingNodes, keyword, providerName, asKeyword, aliasName, config);
         }
 
         private Token? NewLineOrEof()
@@ -1286,6 +1301,12 @@ namespace Bicep.Core.Parsing
 
         private Token ExpectKeyword(string expectedKeyword)
         {
+            return GetOptionalKeyword(expectedKeyword) ?? 
+                throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
+        }
+
+        private Token? GetOptionalKeyword(string expectedKeyword)
+        {
             if (this.CheckKeyword(expectedKeyword))
             {
                 // only read the token if it matches the expectations
@@ -1293,7 +1314,7 @@ namespace Bicep.Core.Parsing
                 return reader.Read();
             }
 
-            throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
+            return null;
         }
 
         private bool Match(params TokenType[] types)

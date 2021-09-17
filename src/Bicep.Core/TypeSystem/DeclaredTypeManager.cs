@@ -43,6 +43,9 @@ namespace Bicep.Core.TypeSystem
 
             switch (syntax)
             {
+                case ImportDeclarationSyntax import:
+                    return GetImportType(import);
+
                 case ParameterDeclarationSyntax parameter:
                     return GetParameterType(parameter);
 
@@ -108,6 +111,8 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
+
+        private DeclaredTypeAssignment GetImportType(ImportDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
 
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {

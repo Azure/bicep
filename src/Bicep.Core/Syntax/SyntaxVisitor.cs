@@ -315,6 +315,16 @@ namespace Bicep.Core.Syntax
             this.VisitNodes(syntax.LeadingNodes);
         }
 
+        public virtual void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.ProviderName);
+            this.Visit(syntax.AsKeyword);
+            this.Visit(syntax.AliasName);
+            this.Visit(syntax.Config);
+        }
+
         protected void VisitTokens(IEnumerable<Token> tokens)
         {
             foreach (Token token in tokens)

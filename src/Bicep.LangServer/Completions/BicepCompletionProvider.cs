@@ -1125,6 +1125,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 SymbolKind.Function => CompletionPriority.Low,
                 SymbolKind.Namespace => CompletionPriority.Low,
+                SymbolKind.ImportedNamespace => CompletionPriority.Low,
                 _ => CompletionPriority.Medium
             };
 
@@ -1135,6 +1136,7 @@ namespace Bicep.LanguageServer.Completions
                 SymbolKind.File => CompletionItemKind.File,
                 SymbolKind.Variable => CompletionItemKind.Variable,
                 SymbolKind.Namespace => CompletionItemKind.Folder,
+                SymbolKind.ImportedNamespace => CompletionItemKind.Folder,
                 SymbolKind.Output => CompletionItemKind.Value,
                 SymbolKind.Parameter => CompletionItemKind.Field,
                 SymbolKind.Resource => CompletionItemKind.Interface,
