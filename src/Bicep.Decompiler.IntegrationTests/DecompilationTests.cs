@@ -204,7 +204,9 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("greater(variables('a'), variables('b'))", "boolean", "a > b")]
         [DataRow("greaterOrEquals(variables('a'), variables('b'))", "boolean", "a >= b")]
         [DataRow("equals(variables('a'), variables('b'))", "boolean", "a == b")]
+        [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "a =~ b")]
         [DataRow("not(equals(variables('a'),variables('b')))","boolean", "a != b")]
+        [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "a !~ b")]
         public void Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {
             var template = @"{
