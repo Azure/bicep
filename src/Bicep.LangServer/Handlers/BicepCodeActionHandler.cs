@@ -72,16 +72,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static CommandOrCodeAction DisableLinterRule(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
         {
-            Command command;
-
-            if (string.IsNullOrWhiteSpace(bicepConfigFilePath))
-            {
-                command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, string.Empty);
-            }
-            else
-            {
-                command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath);
-            }
+            var command  = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty);
 
             return new CodeAction
             {

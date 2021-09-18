@@ -29,7 +29,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void DisableLinterRule_WithInvalidBicepConfig_ShouldThrow()
         {
-
             string bicepConfig = @"{
               ""analyzers"": {
                 ""core"": {
@@ -48,7 +47,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void DisableLinterRule_WithRuleEnabledInBicepConfig_ShouldTurnOffRule()
         {
-
             string bicepConfigFileContents = @"{
   ""analyzers"": {
     ""core"": {
@@ -62,7 +60,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-
             string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
 
             actual.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -83,7 +80,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void DisableLinterRule_WithRuleDisabledInBicepConfig_DoesNothing()
         {
-
             string bicepConfigFileContents = @"{
   ""analyzers"": {
     ""core"": {
@@ -97,7 +93,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-
             string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
 
             actual.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -118,7 +113,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void DisableLinterRule_WithNoRuleInBicepConfig_ShouldAddAnEntryInBicepConfig()
         {
-
             string bicepConfigFileContents = @"{
   ""analyzers"": {
     ""core"": {
@@ -129,7 +123,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-
             string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
 
             actual.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -150,7 +143,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void DisableLinterRule_WithNoLevelPropertyInRule_ShouldAddAnEntryInBicepConfigAndTurnOffRule()
         {
-
             string bicepConfigFileContents = @"{
   ""analyzers"": {
     ""core"": {
@@ -163,7 +155,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-
             string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
 
             actual.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -184,7 +175,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void DisableLinterRule_WithNoRulesNode_ShouldAddAnEntryInBicepConfigAndTurnOffRule()
         {
-
             string bicepConfigFileContents = @"{
   ""analyzers"": {
     ""core"": {
@@ -193,7 +183,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-
             string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
 
             actual.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -214,9 +203,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         [TestMethod]
         public void DisableLinterRule_WithOnlyCurlyBraces_ShouldUseDefaultConfigAndTurnOffRule()
         {
-            string bicepConfigFileContents = "{}";
-
-            string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
+            string actual = BicepDisableLinterRuleHandler.DisableLinterRule("{}", "no-unused-params");
 
             actual.Should().BeEquivalentToIgnoringNewlines(@"{
   ""analyzers"": {

@@ -258,7 +258,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithoutLevelNodeInRule_ShouldUpdateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithoutLevelPropertyInRule_ShouldUpdateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{
@@ -295,7 +295,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithOnlyCurlyBracesInBicepConfig_ShouldCreateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithOnlyCurlyBracesInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{}";

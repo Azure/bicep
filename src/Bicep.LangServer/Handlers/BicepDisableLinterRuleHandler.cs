@@ -36,7 +36,6 @@ namespace Bicep.LanguageServer.Handlers
         public override async Task<Unit> Handle(DocumentUri documentUri, string code, string bicepConfigFilePath, CancellationToken cancellationToken)
         {
             (string updatedBicepConfigFilePath, string bicepConfigContents) = GetBicepConfigFilePathAndContents(documentUri, code, bicepConfigFilePath);
-
             File.WriteAllText(updatedBicepConfigFilePath, bicepConfigContents);
 
             return await Unit.Task;
