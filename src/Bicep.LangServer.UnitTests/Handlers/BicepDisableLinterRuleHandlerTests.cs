@@ -373,6 +373,5 @@ namespace Bicep.LangServer.UnitTests.Handlers
   }
 }");
         }
-
     }
 }
