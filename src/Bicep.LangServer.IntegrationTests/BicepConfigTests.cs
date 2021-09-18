@@ -586,8 +586,6 @@ namespace Bicep.LangServer.IntegrationTests
 
                 await diagsListener.WaitNext();
 
-                mockFileResolver.Verify(x => x.FileExists(bicepConfigUri.ToUri()), Times.Once);
-
                 File.WriteAllText(bicepConfigUri.GetFileSystemPath(), @"{
   ""analyzers"": {
     ""core"": {
@@ -610,7 +608,10 @@ namespace Bicep.LangServer.IntegrationTests
                     })
                 });
 
-                mockFileResolver.Verify(x => x.FileExists(bicepConfigUri.ToUri()), Times.Once);
+                // FileExists(..) should get called twice:
+                // 1. When .bicep file is opened
+                // 2. When bicepconfig.json file is modified and saved to disk
+                mockFileResolver.Verify(x => x.FileExists(bicepConfigUri.ToUri()), Times.Exactly(2));
             }
         }
 
