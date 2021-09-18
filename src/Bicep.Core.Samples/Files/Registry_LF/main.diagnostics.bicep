@@ -65,3 +65,42 @@ module vnetDeploy 'ts:management.azure.com/11111111-1111-1111-1111-111111111111/
 
 output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUrl]
 
+module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
+  scope: rg
+  name: 'port'
+  params: {
+    port: 'test'
+  }
+}
+
+module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
+  scope: rg
+  name: 'ipv4'
+  params: {
+    ipv4: 'test'
+  }
+}
+
+module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
+  scope: rg
+  name: 'ipv4port'
+  params: {
+    ipv4port: 'test'
+  }
+}
+
+module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
+  scope: rg
+  name: 'ipv6'
+  params: {
+    ipv6: 'test'
+  }
+}
+
+module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
+  scope: rg
+  name: 'ipv6port'
+  params: {
+    ipv6port: 'test'
+  }
+}

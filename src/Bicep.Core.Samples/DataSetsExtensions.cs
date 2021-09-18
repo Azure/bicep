@@ -60,9 +60,9 @@ namespace Bicep.Core.Samples
         {
             var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasRegistryModules)));
 
-            foreach (var (moduleName, publishInfo) in dataSet.ModulesToPublish)
+            foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
                 if(dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) is not OciArtifactModuleReference targetReference)
                 {
@@ -144,9 +144,9 @@ namespace Bicep.Core.Samples
 
         public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, TestContext testContext)
         {
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasRegistryModules)));
 
-            foreach (var (moduleName, publishInfo) in dataSet.ModulesToPublish)
+            foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
                 var targetReference = dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) ?? throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
 

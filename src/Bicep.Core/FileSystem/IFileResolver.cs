@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Text;
 using Bicep.Core.Diagnostics;
 
@@ -10,6 +11,12 @@ namespace Bicep.Core.FileSystem
 {
     public interface IFileResolver
     {
+        /// <summary>
+        /// Attempts to acquire a cross-process lock via a zero-length lock file. The lock file should not be used to store any content. Returns null if lock was not taken.
+        /// </summary>
+        /// <param name="fileUri">The URI of the lock file</param>
+        IDisposable? TryAcquireFileLock(Uri fileUri);
+
         /// <summary>
         /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
         /// </summary>
@@ -23,6 +30,8 @@ namespace Bicep.Core.FileSystem
         bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding);
 
         bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents);
+
+        void Write(Uri fileUri, Stream contents);
 
         /// <summary>
         /// Tries to resolve a child file path relative to a parent module file path.

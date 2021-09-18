@@ -47,6 +47,18 @@ namespace Bicep.Core.UnitTests.Assertions
             return new(this);
         }
 
+        public AndConstraint<ErrorBuilderAssertions> HaveMessageStartWith(string prefix, string because = "", params object[] becauseArgs)
+        {
+            ErrorDiagnostic error = GetErrorFromSubject();
+
+            using (new AssertionScope())
+            {
+                error.Should().HaveMessageStartWith(prefix, because, becauseArgs);
+            }
+
+            return new(this);
+        }
+
         private ErrorDiagnostic GetErrorFromSubject() => this.Subject(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)));
     }
 }
