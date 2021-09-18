@@ -27,39 +27,34 @@ namespace Bicep.LanguageServer.Handlers
             : base(LanguageConstants.DisableLinterRuleCommandName, serializer)
         {
             var assembly = Assembly.GetExecutingAssembly();
-            Stream? stream = assembly.GetManifestResourceStream(bicepConfigResourceName);
+            var stream = assembly.GetManifestResourceStream(bicepConfigResourceName);
             var streamReader = new StreamReader(stream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
 
             DefaultBicepConfig = streamReader.ReadToEnd();
         }
 
-        public override async Task<Unit> Handle(DocumentUri documentUri, string code, string bicepConfigSettingsFilePath, CancellationToken cancellationToken)
+        public override async Task<Unit> Handle(DocumentUri documentUri, string code, string bicepConfigFilePath, CancellationToken cancellationToken)
         {
-            (string updatedBicepConfigFilePath, string bicepConfigContents) = GetBicepConfigSettingsFilePathAndContents(documentUri, code, bicepConfigSettingsFilePath);
+            (string updatedBicepConfigFilePath, string bicepConfigContents) = GetBicepConfigFilePathAndContents(documentUri, code, bicepConfigFilePath);
 
             File.WriteAllText(updatedBicepConfigFilePath, bicepConfigContents);
 
             return await Unit.Task;
         }
 
-        public (string, string) GetBicepConfigSettingsFilePathAndContents(DocumentUri documentUri, string code, string bicepConfigSettingsFilePath)
+        public (string, string) GetBicepConfigFilePathAndContents(DocumentUri documentUri, string code, string bicepConfigFilePath)
         {
-            if (File.Exists(bicepConfigSettingsFilePath))
+            if (File.Exists(bicepConfigFilePath))
             {
-                return (bicepConfigSettingsFilePath, DisableLinterRule(File.ReadAllText(bicepConfigSettingsFilePath), code));
+                return (bicepConfigFilePath, DisableLinterRule(File.ReadAllText(bicepConfigFilePath), code));
             }
             else
             {
-                var directoryContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
-
-                if (string.IsNullOrWhiteSpace(directoryContainingSourceFile))
-                {
+                var directoryContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath()) ??
                     throw new ArgumentException("Unable to find directory information");
-                }
 
-                string updatedBicepConfigSettingsFilePath = Path.Combine(directoryContainingSourceFile, LanguageConstants.BicepConfigSettingsFileName);
-
-                return (updatedBicepConfigSettingsFilePath, DisableLinterRule(DefaultBicepConfig, code));
+                bicepConfigFilePath = Path.Combine(directoryContainingSourceFile, LanguageConstants.BicepConfigSettingsFileName);
+                return (bicepConfigFilePath, DisableLinterRule(string.Empty, code));
             }
         }
 
@@ -100,15 +95,15 @@ namespace Bicep.LanguageServer.Handlers
                     return root.ToString(Formatting.Indented);
                 }
 
-                if (JsonConvert.DeserializeObject(DefaultBicepConfig) is JObject defaultConfigRoot &&
-                    defaultConfigRoot["analyzers"]?["core"]?["rules"] is JObject defaultRules)
+                if (JsonConvert.DeserializeObject(DefaultBicepConfig) is JObject defaultBicepConfigRoot &&
+                    defaultBicepConfigRoot["analyzers"]?["core"]?["rules"] is JObject defaultRules)
                 {
                     SetRuleLevelToOff(defaultRules, code);
 
-                    return defaultConfigRoot.ToString();
+                    return defaultBicepConfigRoot.ToString();
                 }
 
-                return String.Empty;
+                return string.Empty;
             }
             catch (Exception)
             {

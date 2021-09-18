@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
@@ -30,7 +29,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using Diagnostic = Bicep.Core.Diagnostics.Diagnostic;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -100,7 +98,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
         [TestMethod]
-        public async Task DisableLinterRule_CodeActionInvocation_WithoutBicepConfig_ShouldCreateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithoutBicepConfig_ShouldCreateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var expectedBicepConfigContents = @"{
@@ -140,15 +138,15 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
-                                                  null,
-                                                  DiagnosticLevel.Warning,
-                                                  @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigContents);
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
+                                                  bicepConfigFileContents: null,
+                                                  diagnosticLevel: DiagnosticLevel.Warning,
+                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
         }
 
         [TestMethod]
-        public async Task DisableLinterRule_CodeActionInvocation_WithBicepConfig_ShouldUpdateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithBicepConfig_ShouldUpdateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{
@@ -177,16 +175,16 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
-                                                  bicepConfigContents,
-                                                  DiagnosticLevel.Info,
-                                                  @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigContents);
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
+                                                  bicepConfigFileContents: bicepConfigContents,
+                                                  diagnosticLevel: DiagnosticLevel.Info,
+                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
 
         }
 
         [TestMethod]
-        public async Task DisableLinterRule_CodeActionInvocation_WithoutRulesNodeInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithoutRulesNodeInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{
@@ -210,16 +208,16 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
-                                                  bicepConfigContents,
-                                                  DiagnosticLevel.Warning,
-                                                  @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigContents);
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
+                                                  bicepConfigFileContents: bicepConfigContents,
+                                                  diagnosticLevel: DiagnosticLevel.Warning,
+                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
 
         }
 
         [TestMethod]
-        public async Task DisableLinterRule_CodeActionInvocation_WithoutRuleInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithoutRuleInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{
@@ -251,16 +249,16 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
-                                                  bicepConfigContents,
-                                                  DiagnosticLevel.Warning,
-                                                  @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigContents);
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
+                                                  bicepConfigFileContents: bicepConfigContents,
+                                                  diagnosticLevel: DiagnosticLevel.Warning,
+                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
 
         }
 
         [TestMethod]
-        public async Task DisableLinterRule_CodeActionInvocation_WithoutLevelNodeInRule_ShouldUpdateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithoutLevelNodeInRule_ShouldUpdateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{
@@ -288,16 +286,16 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
-                                                  bicepConfigContents,
-                                                  DiagnosticLevel.Warning,
-                                                  @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigContents);
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
+                                                  bicepConfigFileContents: bicepConfigContents,
+                                                  diagnosticLevel: DiagnosticLevel.Warning,
+                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
 
         }
 
         [TestMethod]
-        public async Task DisableLinterRule_CodeActionInvocation_WithOnlyCurlyBracesBicepConfig_ShouldCreateConfigFileAndDisableRule()
+        public async Task DisableLinterRuleCodeActionInvocation_WithOnlyCurlyBracesInBicepConfig_ShouldCreateConfigFileAndDisableRule()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{}";
@@ -338,15 +336,15 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents,
-                                                  bicepConfigContents,
-                                                  DiagnosticLevel.Warning,
-                                                  @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigContents);
+            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
+                                                  bicepConfigFileContents: bicepConfigContents,
+                                                  diagnosticLevel: DiagnosticLevel.Warning,
+                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
+                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
         }
 
 
-        private async Task VerifyLinterRuleIsDisabledAsync(string bicepFileContents, string? bicepConfigFileContents, DiagnosticLevel expectedDiagnosticLevel, string expectedDiagnosticMessage, string expectedBicepConfigFileContents)
+        private async Task VerifyLinterRuleIsDisabledAsync(string bicepFileContents, string? bicepConfigFileContents, DiagnosticLevel diagnosticLevel, string diagnosticMessage, string expectedBicepConfigFileContents)
         {
             var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
@@ -387,8 +385,8 @@ namespace Bicep.LangServer.IntegrationTests
             diagnostics.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Level.Should().Be(expectedDiagnosticLevel);
-                    x.Message.Should().Be(expectedDiagnosticMessage);
+                    x.Level.Should().Be(diagnosticLevel);
+                    x.Message.Should().Be(diagnosticMessage);
                 });
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
             var disableLinterRuleCodeActionSpan = diagnostics.OfType<AnalyzerDiagnostic>().First().Span;

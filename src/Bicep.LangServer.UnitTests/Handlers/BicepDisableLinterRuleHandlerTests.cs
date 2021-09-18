@@ -148,7 +148,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public void DisableLinterRule_WithNoLevelFieldInRule_ShouldAddAnEntryInBicepConfig()
+        public void DisableLinterRule_WithNoLevelPropertyInRule_ShouldAddAnEntryInBicepConfigAndTurnOffRule()
         {
 
             string bicepConfigFileContents = @"{
@@ -182,13 +182,43 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public void GetBicepConfigSettingsFilePathAndContents_WithInvalidBicepConfigSettingsFilePath_ShouldCreateBicepConfigFileUsingDefaultSettings()
+        public void DisableLinterRule_WithNoRulesNode_ShouldAddAnEntryInBicepConfigAndTurnOffRule()
         {
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            (string bicepConfigSettingsFilePath, string bicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigSettingsFilePathAndContents(documentUri, "no-unused-params", string.Empty);
 
-            bicepConfigSettingsFilePath.Should().Be(@"\path\to\bicepconfig.json");
-            bicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
+            string bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true
+    }
+  }
+}";
+
+            string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
+
+            actual.Should().BeEquivalentToIgnoringNewlines(@"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}");
+        }
+
+        [TestMethod]
+        public void DisableLinterRule_WithOnlyCurlyBraces_ShouldUseDefaultConfigAndTurnOffRule()
+        {
+            string bicepConfigFileContents = "{}";
+
+            string actual = BicepDisableLinterRuleHandler.DisableLinterRule(bicepConfigFileContents, "no-unused-params");
+
+            actual.Should().BeEquivalentToIgnoringNewlines(@"{
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -228,13 +258,13 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public void GetBicepConfigSettingsFilePathAndContents_WithNonExistentBicepConfigSettingsFile_ShouldCreateBicepConfigFileUsingDefaultSettings()
+        public void GetBicepConfigFilePathAndContents_WithInvalidBicepConfigFilePath_ShouldCreateBicepConfigFileUsingDefaultSettings()
         {
             DocumentUri documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            (string bicepConfigSettingsFilePath, string bicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigSettingsFilePathAndContents(documentUri, "no-unused-params", @"\path\to\bicepconfig.json");
+            (string actualBicepConfigFilePath, string actualBicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigFilePathAndContents(documentUri, "no-unused-params", string.Empty);
 
-            bicepConfigSettingsFilePath.Should().Be(@"\path\to\bicepconfig.json");
-            bicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
+            actualBicepConfigFilePath.Should().Be(@"\path\to\bicepconfig.json");
+            actualBicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -274,7 +304,53 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public void GetBicepConfigSettingsFilePathAndContents_WithValidBicepConfigSettingsFile_ShouldReturnUpdatedBicepConfigFile()
+        public void GetBicepConfigFilePathAndContents_WithNonExistentBicepConfigFile_ShouldCreateBicepConfigFileUsingDefaultSettings()
+        {
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
+            (string actualBicepConfigFilePath, string actualBicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigFilePathAndContents(documentUri, "no-unused-params", @"\nonExistent\bicepconfig.json");
+
+            actualBicepConfigFilePath.Should().Be(@"\path\to\bicepconfig.json");
+            actualBicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""gallery.azure.com"",
+            ""management.core.windows.net"",
+            ""management.azure.com"",
+            ""database.windows.net"",
+            ""core.windows.net"",
+            ""login.microsoftonline.com"",
+            ""graph.windows.net"",
+            ""trafficmanager.net"",
+            ""datalake.azure.net"",
+            ""azuredatalakestore.net"",
+            ""azuredatalakeanalytics.net"",
+            ""vault.azure.net"",
+            ""api.loganalytics.io"",
+            ""asazure.windows.net"",
+            ""region.asazure.windows.net"",
+            ""batch.core.windows.net""
+          ],
+          ""excludedhosts"": [
+            ""schema.management.azure.com""
+          ]
+        },
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}");
+        }
+
+        [TestMethod]
+        public void GetBicepConfigFilePathAndContents_WithValidBicepConfigFile_ShouldReturnUpdatedBicepConfigFile()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             string bicepConfigFileContents = @"{
@@ -293,10 +369,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath, Encoding.UTF8);
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
-            (string bicepConfigSettingsFilePath, string bicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigSettingsFilePathAndContents(documentUri, "no-unused-params", bicepConfigFilePath);
+            (string actualBicepConfigFilePath, string actualBicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigFilePathAndContents(documentUri, "no-unused-params", bicepConfigFilePath);
 
-            bicepConfigSettingsFilePath.Should().Be(bicepConfigFilePath);
-            bicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
+            actualBicepConfigFilePath.Should().Be(bicepConfigFilePath);
+            actualBicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
