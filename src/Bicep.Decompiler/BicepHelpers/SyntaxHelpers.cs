@@ -101,6 +101,8 @@ namespace Bicep.Decompiler.BicepHelpers
             ["and"] = TokenType.LogicalAnd,
             ["or"] = TokenType.LogicalOr,
             ["coalesce"] = TokenType.DoubleQuestion,
+            // not an actual ARM template function but is used by Bicep to simplify the expression when decompiling
+            ["notEquals"] = TokenType.NotEquals,
         };
 
         private static IReadOnlyDictionary<string, TokenType> EmptyFunctionKeywordReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)

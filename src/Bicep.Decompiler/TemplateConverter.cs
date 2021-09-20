@@ -222,10 +222,27 @@ namespace Bicep.Decompiler
                     throw new ArgumentException($"Expected 0 properties for binary function {expression.Function}");
                 }
 
+                var leftParameter = expression.Parameters[0];
+                var rightParameter = expression.Parameters[1];
+                // if token is = or != check to see if they are insensitive conditions i.e =~ or !~
+                if (binaryTokenType is TokenType.Equals || binaryTokenType is TokenType.NotEquals)
+                {
+                    if(leftParameter is FunctionExpression leftFunctionExpression &&
+                        rightParameter is FunctionExpression rightFunctionExpression &&
+                        leftFunctionExpression.Function == "toLower" &&
+                        rightFunctionExpression.Function == "toLower")
+                    {
+                        leftParameter = leftFunctionExpression.Parameters[0];
+                        rightParameter = rightFunctionExpression.Parameters[0];
+                        binaryTokenType = binaryTokenType == TokenType.Equals ? TokenType.EqualsInsensitive : TokenType.NotEqualsInsensitive;
+                        binaryOperator = Operators.TokenTypeToBinaryOperator[binaryTokenType];
+                    }
+                }
+
                 var binaryOperation = new BinaryOperationSyntax(
-                    ParseLanguageExpression(expression.Parameters[0]),
+                    ParseLanguageExpression(leftParameter),
                     SyntaxFactory.CreateToken(binaryTokenType, Operators.BinaryOperatorToText[binaryOperator]),
-                    ParseLanguageExpression(expression.Parameters[1]));
+                    ParseLanguageExpression(rightParameter));
 
                 foreach (var parameter in expression.Parameters.Skip(2))
                 {
@@ -268,6 +285,16 @@ namespace Bicep.Decompiler
                 if (expression.Properties.Any())
                 {
                     throw new ArgumentException($"Expected 0 properties for unary function {expression.Function}");
+                }
+
+                // Check to see if the inner expression is also a function and if it is equals we can
+                // simplify the expression from (!(a == b)) to (a != b)
+                if (expression.Parameters[0] is FunctionExpression functionExpression){
+                    if (StringComparer.OrdinalIgnoreCase.Equals(functionExpression.Function, "equals")){
+                        return TryReplaceBannedFunction(
+                            new FunctionExpression("notEquals", functionExpression.Parameters, functionExpression.Properties),
+                        out syntax);
+                    }
                 }
 
                 syntax = new ParenthesizedExpressionSyntax(
