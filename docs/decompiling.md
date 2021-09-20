@@ -1,7 +1,7 @@
 # Decompiling an ARM Template
- 
+
 > Requires Bicep CLI v0.2.59 or later
- 
+
 The Bicep CLI provides the ability to decompile any existing ARM Template to a `.bicep` file, using the `decompile` command:
 ```sh
 bicep decompile "path/to/file.json"
@@ -35,3 +35,4 @@ See [Export Template](https://aka.ms/armexport) for guidance. Use `bicep decompi
 The following are temporary limitations on the `bicep decompile` command:
 * Templates using copy loops cannot be decompiled.
 * Nested templates can only be decompiled if they are using ['inner' expression evaluation scope](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/linked-templates#expression-evaluation-scope-in-nested-templates).
+* Only comparisions using `toLower` function will result in case-insensitive comparision in bicep. For example `equals(toLower(variables('a')),tolower(variables('b')))` will result in `a =~ b` but using `toUpper` will not.
