@@ -664,7 +664,7 @@ namespace Bicep.LangServer.IntegrationTests
             diagsParams.Diagnostics.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Message.Should().Be(message);
+                    x.Message.Should().Contain(message);
                     x.Severity.Should().Be(diagnosticSeverity);
                     x.Code?.String.Should().Be(code);
                     x.Range.Should().Be(new Range

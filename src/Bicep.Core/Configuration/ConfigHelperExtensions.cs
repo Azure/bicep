@@ -2,14 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Bicep.Core.UnitTests.Configuration
+namespace Bicep.Core.Configuration
 {
     public static class ConfigHelperExtensions
     {

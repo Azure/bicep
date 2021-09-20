@@ -10,7 +10,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Providers;
