@@ -34,6 +34,7 @@ namespace Bicep.Core.FileSystem
             catch (IOException exception) when (exception.GetType() == typeof(IOException))
             {
                 // when file is locked, an IOException is thrown
+                // there are other cases where an exception derived from IOException is thrown, but we want to filter them out
                 // TODO: What are the other cases where IOException will be thrown?
                 return null;
             }
