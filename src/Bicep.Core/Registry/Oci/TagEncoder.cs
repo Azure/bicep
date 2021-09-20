@@ -40,11 +40,11 @@ namespace Bicep.Core.Registry.Oci
             var mask = new ulong[MaskComponents];
             for (int i = 0; i < tag.Length; i++)
             {
-                int maskIndex = i / BitsInUnsignedLong;
-                ulong maskValue = 1UL << (i % BitsInUnsignedLong);
-
                 if (char.IsUpper(tag, i))
                 {
+                    int maskIndex = i / BitsInUnsignedLong;
+                    ulong maskValue = 1UL << (i % BitsInUnsignedLong);
+
                     mask[maskIndex] |= maskValue;
                 }
             }
