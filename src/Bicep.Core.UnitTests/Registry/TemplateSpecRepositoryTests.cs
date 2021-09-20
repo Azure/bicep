@@ -73,7 +73,7 @@ namespace Bicep.Core.UnitTests.Registry
 
             var templateSpec = await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId);
 
-            templateSpec.MainTemplate.Should().Be("{}");
+            templateSpec.MainTemplate.ValueEquals("{}").Should().BeTrue();
         }
 
         private static ArmClient CreateMockClient(params Action<Mock<TemplateSpecVersion>>[] setUpTemplateSpecVersionMockActions)
