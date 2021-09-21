@@ -17,13 +17,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDisableLinterRuleHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
+    public class BicepDisableLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {
         private const string bicepConfigResourceName = "Bicep.LanguageServer.bicepconfig.json";
 
         private readonly string DefaultBicepConfig;
 
-        public BicepDisableLinterRuleHandler(ISerializer serializer)
+        public BicepDisableLinterRuleCommandHandler(ISerializer serializer)
             : base(LanguageConstants.DisableLinterRuleCommandName, serializer)
         {
             var assembly = Assembly.GetExecutingAssembly();

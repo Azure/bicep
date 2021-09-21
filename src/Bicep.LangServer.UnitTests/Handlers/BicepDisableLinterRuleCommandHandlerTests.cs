@@ -18,14 +18,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 namespace Bicep.LangServer.UnitTests.Handlers
 {
     [TestClass]
-    public class BicepDisableLinterRuleHandlerTests
+    public class BicepDisableLinterRuleCommandHandlerTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
 
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
-        private BicepDisableLinterRuleHandler BicepDisableLinterRuleHandler = new(Serializer);
+        private BicepDisableLinterRuleCommandHandler BicepDisableLinterRuleHandler = new(Serializer);
 
         [TestMethod]
         public void DisableLinterRule_WithInvalidBicepConfig_ShouldThrow()
