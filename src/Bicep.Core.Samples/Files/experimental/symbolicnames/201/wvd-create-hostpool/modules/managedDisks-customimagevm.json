@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "620996144273061072"
+      "templateHash": "17353466569456978138"
     }
   },
   "parameters": {
@@ -473,7 +473,7 @@
     },
     "NSG": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "NSG-linkedTemplate",
       "properties": {
         "expressionEvaluationOptions": {

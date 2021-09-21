@@ -9,7 +9,6 @@ using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Snippets;
@@ -21,7 +20,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(TestTypeHelper.CreateWithAzTypes(), BicepTestConstants.FileResolver, new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig());
+        private readonly SnippetsProvider snippetsProvider = new(TestTypeHelper.CreateWithAzTypes(), BicepTestConstants.FileResolver);
 
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()

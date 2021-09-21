@@ -16,7 +16,6 @@ using Bicep.Core.Extensions;
 using Moq;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Configuration;
-using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az

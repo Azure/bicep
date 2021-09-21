@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2826065891150404164"
+      "templateHash": "11875800929175748875"
     }
   },
   "parameters": {
@@ -414,7 +414,7 @@
     },
     "singleModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "test",
       "properties": {
         "expressionEvaluationOptions": {
@@ -462,7 +462,7 @@
         "batchSize": 3
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -512,7 +512,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -558,7 +558,7 @@
     },
     "singleModuleWithIndexedDependencies": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "hello",
       "properties": {
         "expressionEvaluationOptions": {
@@ -609,7 +609,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -660,7 +660,7 @@
         "count": "[length(variables('regions'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('apim-{0}-{1}-{2}', variables('regions')[copyIndex()], parameters('name'), copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {

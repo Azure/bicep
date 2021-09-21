@@ -19,7 +19,6 @@ using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
 using Bicep.Core.Configuration;
-using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
 
@@ -204,6 +203,9 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("greater(variables('a'), variables('b'))", "boolean", "a > b")]
         [DataRow("greaterOrEquals(variables('a'), variables('b'))", "boolean", "a >= b")]
         [DataRow("equals(variables('a'), variables('b'))", "boolean", "a == b")]
+        [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "a =~ b")]
+        [DataRow("not(equals(variables('a'),variables('b')))","boolean", "a != b")]
+        [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "a !~ b")]
         public void Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {
             var template = @"{

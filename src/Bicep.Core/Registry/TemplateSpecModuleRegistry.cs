@@ -5,11 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+using Azure.ResourceManager.Resources;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Tracing;
+using Newtonsoft.Json;
 
 namespace Bicep.Core.Registry
 {
@@ -84,16 +86,16 @@ namespace Bicep.Core.Registry
         private string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
             this.featureProvider.CacheRootDirectory,
             this.Scheme,
-            reference.SubscriptionId,
-            reference.ResourceGroupName,
-            reference.TemplateSpecName,
-            reference.Version);
+            reference.SubscriptionId.ToLowerInvariant(),
+            reference.ResourceGroupName.ToLowerInvariant(),
+            reference.TemplateSpecName.ToLowerInvariant(),
+            reference.Version.ToLowerInvariant());
 
         private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => Path.Combine(this.GetModuleDirectoryPath(reference), "main.json");
 
         private Uri GetModuleEntryPointUri(TemplateSpecModuleReference reference) => new(this.GetModuleEntryPointPath(reference), UriKind.Absolute);
 
-        private async Task SaveModuleToDisk(TemplateSpecModuleReference reference, TemplateSpec templateSpec)
+        private async Task SaveModuleToDisk(TemplateSpecModuleReference reference, TemplateSpecVersionData templateSpec)
         {
             var moduleDirectoryPath = this.GetModuleDirectoryPath(reference);
 
@@ -106,7 +108,9 @@ namespace Bicep.Core.Registry
                 throw new TemplateSpecException($"Unable to create the local module directory \"{moduleDirectoryPath}\".", exception);
             }
 
-            await File.WriteAllTextAsync(this.GetModuleEntryPointPath(reference), templateSpec.MainTemplateContents);
+            var mainTemplateContents = JsonConvert.SerializeObject(templateSpec.MainTemplate);
+
+            await File.WriteAllTextAsync(this.GetModuleEntryPointPath(reference), mainTemplateContents);
         }
     }
 }

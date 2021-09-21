@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "25088583822025940"
+      "templateHash": "4384405675809608344"
     }
   },
   "parameters": {
@@ -56,7 +56,7 @@
     },
     "network": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "network",
       "properties": {
         "expressionEvaluationOptions": {
@@ -180,7 +180,7 @@
     },
     "vmA": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "anchor",
       "properties": {
         "expressionEvaluationOptions": {
@@ -351,7 +351,7 @@
     },
     "vm01": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vm01",
       "properties": {
         "expressionEvaluationOptions": {
@@ -487,7 +487,7 @@
     },
     "vm02": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vm02",
       "properties": {
         "expressionEvaluationOptions": {

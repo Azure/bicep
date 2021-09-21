@@ -77,8 +77,8 @@
       },
       "Azure.Core": {
         "type": "Transitive",
-        "resolved": "1.18.0",
-        "contentHash": "h0DQLyIKvowm6n9XV2njDiiI5Et0QecpE2VcGfhps9J4m9MJ6tBD4Qxl+fbL8k/41sD7UXP4nAWgxC81oV11oQ==",
+        "resolved": "1.19.0",
+        "contentHash": "lcDjG635DPE4fU5tqSueVMmzrx0QrIfPuY0+y6evHN5GanQ0GB+/4nuMHMmoNPwEow6OUPkJu4cZQxfHJQXPdA==",
         "dependencies": {
           "Microsoft.Bcl.AsyncInterfaces": "1.0.0",
           "System.Buffers": "4.5.1",
@@ -135,20 +135,20 @@
       },
       "Azure.ResourceManager": {
         "type": "Transitive",
-        "resolved": "1.0.0-beta.2",
-        "contentHash": "y0EMHnpvzCFODGquSGu7oD51qaxOLgqjVVLXw0nzf+dyuVdFL0UYkdcDg2EHABW+LEowYbTw/Ji6PlU1XlrKWA==",
+        "resolved": "1.0.0-beta.3",
+        "contentHash": "X5m16xERightEwIfn5gqkl2F4VsLsbkko7ZhpuGXJTiadJoyYA2OywwDBpNv4iYgSgmZoMr4TZwdxdSwpLoJwg==",
         "dependencies": {
-          "Azure.Core": "1.18.0",
+          "Azure.Core": "1.19.0",
           "System.Text.Json": "4.6.0"
         }
       },
       "Azure.ResourceManager.Resources": {
         "type": "Transitive",
-        "resolved": "1.0.0-beta.1",
-        "contentHash": "Ym9FwOScPl2sb+jUV7cxyYGX/qttevm8lWOCtK/+CCTEz41qwx0Q2wi99M28MtccOYREiL1XyeMeNUy9TknzRw==",
+        "resolved": "1.0.0-beta.2",
+        "contentHash": "LqcMKCg12Ukzr9oCpAAIlBlUcEXIxnK/c8TGG5Bh9YW8MKdm5+1yQjaE7liJ9P6M+uyZfzNb4ghaSXsU/JASvA==",
         "dependencies": {
-          "Azure.Core": "1.18.0",
-          "Azure.ResourceManager": "1.0.0-beta.2",
+          "Azure.Core": "1.19.0",
+          "Azure.ResourceManager": "1.0.0-beta.3",
           "System.Text.Json": "4.6.0"
         }
       },
@@ -2245,7 +2245,7 @@
           "Azure.Deployments.Expression": "1.0.253",
           "Azure.Deployments.Templates": "1.0.253",
           "Azure.Identity": "1.4.0",
-          "Azure.ResourceManager.Resources": "1.0.0-beta.1",
+          "Azure.ResourceManager.Resources": "1.0.0-beta.2",
           "Bicep.Core.RegistryClient": "1.0.0",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",

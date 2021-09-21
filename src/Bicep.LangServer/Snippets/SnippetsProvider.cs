@@ -69,11 +69,9 @@ namespace Bicep.LanguageServer.Snippets
         };
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
-        private readonly ConfigHelper configHelper;
 
-        public SnippetsProvider(INamespaceProvider namespaceProvider, IFileResolver fileResolver, ConfigHelper configHelper)
+        public SnippetsProvider(INamespaceProvider namespaceProvider, IFileResolver fileResolver)
         {
-            this.configHelper = configHelper;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
 
@@ -223,6 +221,9 @@ namespace Bicep.LanguageServer.Snippets
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
+            // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
+            // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
+            var configHelper = new ConfigHelper(null, fileResolver, useDefaultConfig: true);
             Compilation compilation = new Compilation(namespaceProvider, sourceFileGrouping, configHelper);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();

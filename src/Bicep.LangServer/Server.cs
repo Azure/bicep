@@ -106,7 +106,7 @@ namespace Bicep.LanguageServer
             AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(services, creationOptions.NamespaceProvider);
             services.AddSingleton<INamespaceProvider, DefaultNamespaceProvider>();
             services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
-            services.AddSingleton<ConfigHelper>(services => new ConfigHelper(null, fileResolver));
+            services.AddSingleton<ConfigHelper>(services => new ConfigHelper(null, fileResolver, useDefaultConfig: false));
             AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(services, creationOptions.SnippetsProvider);
             services.AddSingleton<IFileResolver>(services => fileResolver);
             services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());

@@ -32,7 +32,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
-        private static readonly SnippetsProvider snippetsProvider = new(TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, new ConfigHelper(null, BicepTestConstants.FileResolver));
+        private static readonly SnippetsProvider snippetsProvider = new(TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver);
 
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
