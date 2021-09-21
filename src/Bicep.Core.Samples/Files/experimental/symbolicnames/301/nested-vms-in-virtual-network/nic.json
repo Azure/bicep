@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12266946764841305208"
+      "templateHash": "717246726249430269"
     }
   },
   "parameters": {
@@ -15,8 +15,7 @@
       "type": "string"
     },
     "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "type": "string"
     },
     "subnetId": {
       "type": "string"

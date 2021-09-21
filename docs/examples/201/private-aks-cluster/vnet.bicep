@@ -24,11 +24,8 @@ param virtualNetworkAddressPrefixes string = '10.0.0.0/8'
 
 var bastionSubnetName = 'AzureBastionSubnet'
 var bastionSubnetNsgName = '${bastionSubnetName}Nsg'
-var bastionSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, bastionSubnetName)
 
 var vmSubnetNsgName = '${vmSubnetName}Nsg'
-var vmSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, vmSubnetName)
-var aksSubnetId = resourceId('Microsoft.Network/virtualNetworks/subnets', virtualNetwork.name, aksSubnetName)
 
 resource vmSubnetNsg 'Microsoft.Network/networkSecurityGroups@2020-08-01' = {
   name: vmSubnetNsgName

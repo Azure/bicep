@@ -1,12 +1,6 @@
 @description('Specifies the location of AKS cluster.')
 param location string = resourceGroup().location
 
-//@description('Specifies the Bastion subnet IP prefix. This prefix must be within vnet IP prefix address space.')
-//param bastionSubnetAddressPrefix string = '10.1.1.0/26'
-
-//@description('Specifies the name of the AKS cluster.')
-//param aksClusterName string = 'aks-${uniqueString(resourceGroup().id)}'
-
 @description('Specifies the name of the Azure Bastion resource.')
 param bastionHostName string
 

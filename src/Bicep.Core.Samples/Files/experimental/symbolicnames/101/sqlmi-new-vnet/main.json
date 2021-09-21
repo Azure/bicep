@@ -7,38 +7,62 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4176017426826292338"
+      "templateHash": "17902856121658511403"
     }
   },
   "parameters": {
     "managedInstanceName": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Enter managed instance name."
+      }
     },
-    "adminLogin": {
-      "type": "string"
+    "administratorLogin": {
+      "type": "string",
+      "metadata": {
+        "description": "Enter user name."
+      }
     },
-    "adminPassword": {
-      "type": "secureString"
+    "administratorLoginPassword": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Enter password."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Enter location. If you leave this field blank resource group location would be used."
+      }
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "vnet-01"
+      "defaultValue": "SQLMI-VNET",
+      "metadata": {
+        "description": "Enter virtual network name. If you leave this field blank name will be created by the template."
+      }
     },
-    "virtualNetworkPrefix": {
+    "addressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/16"
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "Enter virtual network address prefix."
+      }
     },
     "subnetName": {
       "type": "string",
-      "defaultValue": "subnet-01"
+      "defaultValue": "ManagedInstance",
+      "metadata": {
+        "description": "Enter subnet name."
+      }
     },
     "subnetPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/24"
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "Enter subnet address prefix."
+      }
     },
     "skuName": {
       "type": "string",
@@ -46,11 +70,14 @@
       "allowedValues": [
         "GP_Gen5",
         "BC_Gen5"
-      ]
+      ],
+      "metadata": {
+        "description": "Enter sku name."
+      }
     },
     "vCores": {
       "type": "int",
-      "defaultValue": 8,
+      "defaultValue": 16,
       "allowedValues": [
         8,
         16,
@@ -59,19 +86,36 @@
         40,
         64,
         80
-      ]
+      ],
+      "metadata": {
+        "description": "Enter number of vCores."
+      }
     },
     "storageSizeInGB": {
       "type": "int",
       "defaultValue": 256,
       "maxValue": 8192,
-      "minValue": 32
+      "minValue": 32,
+      "metadata": {
+        "description": "Enter storage size."
+      }
+    },
+    "licenseType": {
+      "type": "string",
+      "defaultValue": "LicenseIncluded",
+      "allowedValues": [
+        "BasePrice",
+        "LicenseIncluded"
+      ],
+      "metadata": {
+        "description": "Enter license type."
+      }
     }
   },
   "functions": [],
   "variables": {
-    "networkSecurityGroupName": "[format('{0}-nsg', parameters('managedInstanceName'))]",
-    "routeTableName": "[format('{0}-routetable', parameters('managedInstanceName'))]"
+    "networkSecurityGroupName": "[format('SQLMI-{0}-NSG', parameters('managedInstanceName'))]",
+    "routeTableName": "[format('SQLMI-{0}-Route-Table', parameters('managedInstanceName'))]"
   },
   "resources": {
     "networkSecurityGroup": {
@@ -157,28 +201,28 @@
       "properties": {
         "addressSpace": {
           "addressPrefixes": [
-            "[parameters('virtualNetworkPrefix')]"
+            "[parameters('addressPrefix')]"
           ]
-        }
-      }
-    },
-    "subnet": {
-      "type": "Microsoft.Network/virtualNetworks/subnets",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('subnetName')]",
-      "properties": {
-        "addressPrefix": "[parameters('subnetPrefix')]",
-        "routeTable": {
-          "id": "[resourceInfo('routeTable').id]"
         },
-        "networkSecurityGroup": {
-          "id": "[resourceInfo('networkSecurityGroup').id]"
-        },
-        "delegations": [
+        "subnets": [
           {
-            "name": "managedInstanceDelegation",
+            "name": "[parameters('subnetName')]",
             "properties": {
-              "serviceName": "Microsoft.Sql/managedInstances"
+              "addressPrefix": "[parameters('subnetPrefix')]",
+              "routeTable": {
+                "id": "[resourceInfo('routeTable').id]"
+              },
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('networkSecurityGroup').id]"
+              },
+              "delegations": [
+                {
+                  "name": "managedInstanceDelegation",
+                  "properties": {
+                    "serviceName": "Microsoft.Sql/managedInstances"
+                  }
+                }
+              ]
             }
           }
         ]
@@ -200,15 +244,15 @@
         "type": "SystemAssigned"
       },
       "properties": {
-        "administratorLogin": "[parameters('adminLogin')]",
-        "administratorLoginPassword": "[parameters('adminPassword')]",
-        "subnetId": "[resourceInfo('subnet').id]",
+        "administratorLogin": "[parameters('administratorLogin')]",
+        "administratorLoginPassword": "[parameters('administratorLoginPassword')]",
+        "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('virtualNetworkName'), parameters('subnetName'))]",
         "storageSizeInGB": "[parameters('storageSizeInGB')]",
         "vCores": "[parameters('vCores')]",
-        "licenseType": "LicenseIncluded"
+        "licenseType": "[parameters('licenseType')]"
       },
       "dependsOn": [
-        "subnet"
+        "virtualNetwork"
       ]
     }
   }

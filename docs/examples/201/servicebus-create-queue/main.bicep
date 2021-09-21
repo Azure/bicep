@@ -1,5 +1,10 @@
+@description('Name of the Service Bus namespace')
 param serviceBusNamespaceName string
+
+@description('Name of the Queue')
 param serviceBusQueueName string
+
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2017-04-01' = {
@@ -12,7 +17,8 @@ resource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2017-04-01' = {
 }
 
 resource serviceBusQueue 'Microsoft.ServiceBus/namespaces/queues@2017-04-01' = {
-  name: '${serviceBusNamespace.name}/${serviceBusQueueName}'
+  parent: serviceBusNamespace
+  name: serviceBusQueueName
   properties: {
     lockDuration: 'PT5M'
     maxSizeInMegabytes: 1024

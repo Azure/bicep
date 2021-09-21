@@ -1,19 +1,43 @@
-param location string = resourceGroup().location
+@description('Name of the App Service Environment')
 param aseName string
 
+@description('The name of the vnet')
+param virtualNetworkName string
+
+@description('The resource group name that contains the vnet')
+param vnetResourceGroupName string
+
+@description('Subnet name that will contain the App Service Environment')
+param subnetName string
+
+@description('Location for the resources')
+param location string = resourceGroup().location
+
+@description('None: public VIP only. Publishing: only ports 80/443 are mapped to ILB VIP. Web: only FTP ports are mapped to ILB VIP:  Web,Publishing: ports 80/443 and FTP ports are mapped to an ILB VIP.')
 @allowed([
   'None'
   'Publishing'
   'Web'
-  'Web,Publishing'
+  'Web, Publishing'
 ])
-param internalLoadBalancingMode string = 'Web,Publishing'
+param internalLoadBalancingMode string = 'Web, Publishing'
 
-param dnsSuffix string
-param websiteName string
+@description('Used when deploying an ILB enabled ASE.  Set this to the root domain associated with the ASE.  For example: contoso.com')
+param dnsSuffix string = ''
+
+@description('The name of the web app that will be created.')
+param siteName string
+
+@description('The name of the App Service plan to use for hosting the web app.')
 param appServicePlanName string
+
+@description('The owner of the resource will be used for tagging.')
+param owner string
+
+@description('Defines the number of workers from the worker pool that will be used by the app service plan.')
 param numberOfWorkers int = 1
 
+@description('Defines which worker pool\'s (WP1, WP2 or WP3) resources will be used for the app service plan.')
 @allowed([
   '1'
   '2'
@@ -21,43 +45,45 @@ param numberOfWorkers int = 1
 ])
 param workerPool string = '1'
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-  name: 'vnet-01'
-  location: location
-  properties: {
-    addressSpace: {
-      addressPrefixes: [
-        '10.0.0.0/16'
-      ]
-    }
-  }
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-02-01' existing = {
+  scope: resourceGroup(vnetResourceGroupName)
+  name: virtualNetworkName
 }
-resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
-  name: '${virtualNetwork.name}/subnet-01'
-  properties: {
-    addressPrefix: '10.0.1.0/24'
-  }
+
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' existing = {
+  parent: virtualNetwork
+  name: subnetName
 }
-resource hostingEnvironment 'Microsoft.Web/hostingEnvironments@2020-06-01' = {
+
+resource hostingEnvironment 'Microsoft.Web/hostingEnvironments@2020-12-01' = {
   name: aseName
-  location: location
   kind: 'ASEV2'
+  location: location
+  tags: {
+    displayName: 'ASE Environment'
+    usage: 'Hosting PaaS applications'
+    category: 'Environment'
+    owner: owner
+  }
   properties: {
-    name: aseName
-    location: location
     ipsslAddressCount: 0
     internalLoadBalancingMode: internalLoadBalancingMode
     dnsSuffix: dnsSuffix
     virtualNetwork: {
-      id: virtualNetwork.id
-      subnet: subnet.name
+      id: subnet.id
     }
-    workerPools: []
   }
 }
-resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
+
+resource serverFarm 'Microsoft.Web/serverFarms@2020-12-01' = {
   name: appServicePlanName
   location: location
+  tags: {
+    displayName: 'ASE Hosting Plan'
+    usage: 'Hosting Plan within ASE'
+    category: 'Hosting'
+    owner: owner
+  }
   properties: {
     hostingEnvironmentProfile: {
       id: hostingEnvironment.id
@@ -71,9 +97,16 @@ resource serverFarm 'Microsoft.Web/serverfarms@2020-06-01' = {
     capacity: numberOfWorkers
   }
 }
-resource website 'Microsoft.Web/sites@2020-06-01' = {
-  name: websiteName
+
+resource website 'Microsoft.Web/sites@2020-12-01' = {
+  name: siteName
   location: location
+  tags: {
+    displayName: 'ASE Web App'
+    usage: 'Web App Hosted within ASE'
+    category: 'Web App'
+    owner: owner
+  }
   properties: {
     serverFarmId: serverFarm.id
     hostingEnvironmentProfile: {

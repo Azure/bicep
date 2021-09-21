@@ -1,38 +1,50 @@
-param suffix string = '001'
-param owner string = 'alex'
-param costCenter string = '12345'
-param addressPrefix string = '10.0.0.0/15'
+@description('VNet name')
+param vnetName string = 'VNet1'
 
-var vnetName = 'vnet-${suffix}'
+@description('Address prefix')
+param vnetAddressPrefix string = '10.0.0.0/16'
+
+@description('Subnet 1 Prefix')
+param subnet1Prefix string = '10.0.0.0/24'
+
+@description('Subnet 1 Name')
+param subnet1Name string = 'Subnet1'
+
+@description('Subnet 2 Prefix')
+param subnet2Prefix string = '10.0.1.0/24'
+
+@description('Subnet 2 Name')
+param subnet2Name string = 'Subnet2'
+
+@description('Location for all resources.')
+param location string = resourceGroup().location
 
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: vnetName
-  location: resourceGroup().location
-  tags: {
-    Owner: owner
-    CostCenter: costCenter
-  }
+  location: location
   properties: {
     addressSpace: {
       addressPrefixes: [
-        addressPrefix
+        vnetAddressPrefix
       ]
     }
-    enableVmProtection: false
-    enableDdosProtection: false
-    subnets: [
-      {
-        name: 'subnet001'
-        properties: {
-          addressPrefix: '10.0.0.0/24'
-        }
-      }
-      {
-        name: 'subnet002'
-        properties: {
-          addressPrefix: '10.0.1.0/24'
-        }
-      }
+  }
+
+  resource subnet1 'subnets' = {
+    name: subnet1Name
+    properties: {
+      addressPrefix: subnet1Prefix
+    }
+  }
+
+  resource subnet2 'subnets' = {
+    name: subnet2Name
+    dependsOn: [
+      // This ensures only one subnets is created at a time (so they're not both trying to modify the vnet at the same)
+      subnet1
     ]
+    properties: {
+      addressPrefix: subnet2Prefix
+    }
   }
 }

@@ -84,7 +84,7 @@ resource website 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'CosmosDb:Key'
-          value: cosmosAccount.listKeys().primaryMasterKey
+          value: listKeys(cosmosAccount.id, cosmosAccount.apiVersion).primaryMasterKey
         }
         {
           name: 'CosmosDb:DatabaseName'

@@ -231,7 +231,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-02-01' = {
       dockerBridgeCidr: aksClusterDockerBridgeCidr
       loadBalancerSku: aksClusterLoadBalancerSku
     }
-    aadProfile: (aadEnabled ? aadProfileConfiguration : null)
+    aadProfile: (aadEnabled ? aadProfileConfiguration : json('null'))
     apiServerAccessProfile: {
       enablePrivateCluster: aksClusterEnablePrivateCluster
     }

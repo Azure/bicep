@@ -7,67 +7,70 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8438970366294898221"
+      "templateHash": "15143262702721931689"
     }
   },
   "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
-    },
-    "virtualNetworkName": {
-      "type": "string",
-      "defaultValue": "vnet-01"
-    },
-    "subnetName": {
-      "type": "string",
-      "defaultValue": "subnet-01"
-    },
     "aseName": {
       "type": "string",
-      "defaultValue": "[uniqueString(resourceGroup().name)]"
+      "metadata": {
+        "description": "Name of the App Service Environment"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location of the App Service Environment"
+      }
+    },
+    "existingVirtualNetworkName": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing VNET"
+      }
+    },
+    "existingVirtualNetworkResourceGroup": {
+      "type": "string",
+      "metadata": {
+        "description": "Name of the existing VNET resource group"
+      }
+    },
+    "existingSubnetName": {
+      "type": "string",
+      "metadata": {
+        "description": "Subnet name that will contain the App Service Environment"
+      }
     }
   },
   "functions": [],
   "resources": {
-    "virtualNetwork": {
+    "existingVnet": {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2020-06-01",
-      "name": "[parameters('virtualNetworkName')]",
-      "location": "[parameters('location')]",
-      "properties": {
-        "addressSpace": {
-          "addressPrefixes": [
-            "10.0.0.0/16"
-          ]
-        }
-      }
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('existingVirtualNetworkName')]",
+      "existing": true
     },
-    "subNet": {
+    "existingSubnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-06-01",
-      "name": "[parameters('subnetName')]",
-      "properties": {
-        "addressPrefix": "10.0.1.0/25"
-      }
+      "name": "[format('{0}/{1}', parameters('existingVirtualNetworkName'), parameters('existingSubnetName'))]",
+      "existing": true
     },
     "ase": {
       "type": "Microsoft.Web/hostingEnvironments",
       "apiVersion": "2020-06-01",
       "name": "[parameters('aseName')]",
-      "location": "[parameters('location')]",
       "kind": "ASEV2",
+      "location": "[parameters('location')]",
       "properties": {
         "location": "[parameters('location')]",
         "name": "[parameters('aseName')]",
         "workerPools": [],
         "virtualNetwork": {
-          "id": "[resourceInfo('subNet').id]"
+          "id": "[resourceInfo('existingSubnet').id]"
         }
-      },
-      "dependsOn": [
-        "subNet"
-      ]
+      }
     }
   }
 }

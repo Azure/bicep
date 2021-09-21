@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18011505267539576780"
+      "templateHash": "12250656582760990913"
     }
   },
   "parameters": {
@@ -77,29 +77,22 @@
     },
     "webApp": {
       "type": "Microsoft.Web/sites",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-01-01",
       "name": "[parameters('appName')]",
       "location": "[parameters('location')]",
       "kind": "app",
       "properties": {
-        "serverFarmId": "[resourceInfo('appServicePlan').id]"
+        "serverFarmId": "[resourceInfo('appServicePlan').id]",
+        "virtualNetworkSubnetId": "[reference('vnet').subnets[0].id]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "vnetRouteAllEnabled": true,
+          "http20Enabled": true
+        }
       },
       "dependsOn": [
         "appServicePlan",
         "vnet"
-      ]
-    },
-    "webappVnet": {
-      "type": "Microsoft.Web/sites/networkConfig",
-      "apiVersion": "2020-06-01",
-      "name": "[format('{0}/{1}', parameters('appName'), 'virtualNetwork')]",
-      "properties": {
-        "subnetResourceId": "[reference('vnet').subnets[0].id]",
-        "swiftSupported": true
-      },
-      "dependsOn": [
-        "vnet",
-        "webApp"
       ]
     }
   }

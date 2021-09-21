@@ -1,14 +1,21 @@
-param virtualMachineAdminUserName string = 'azadmin'
+@description('Administrator Username for the local admin account')
+param virtualMachineAdminUserName string
 
+@description('Administrator password for the local admin account')
 @secure()
 param virtualMachineAdminPassword string
 
+@description('Name of the virtual machine to be created')
+@maxLength(15)
 param virtualMachineNamePrefix string = 'MyVM0'
 
+@description('Number of  virtual machines to be created')
 param virtualMachineCount int = 3
 
+@description('Virtual Machine Size')
 param virtualMachineSize string = 'Standard_DS2_v2'
 
+@description('Operating System of the Server')
 @allowed([
   'Server2012R2'
   'Server2016'
@@ -16,10 +23,15 @@ param virtualMachineSize string = 'Standard_DS2_v2'
 ])
 param operatingSystem string = 'Server2019'
 
+@description('Availability Set Name where the VM will be placed')
 param availabilitySetName string = 'MyAvailabilitySet'
 
+@description('Globally unique DNS prefix for the Public IPs used to access the Virtual Machines')
+@minLength(2)
+@maxLength(14)
 param dnsPrefixForPublicIP string = uniqueString(resourceGroup().id)
 
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var myVNETName = 'myVNET'
@@ -73,6 +85,9 @@ resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2020-06-0
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   name: myVNETName
   location: location
+  tags: {
+    displayName: myVNETName
+  }
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -82,8 +97,9 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   }
 }
 
-resource subNet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
-  name: '${myVNETName}/${myVNETSubnet1Name}'
+resource subnet 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = {
+  parent: virtualNetwork
+  name: myVNETSubnet1Name
   properties: {
     addressPrefix: myVNETSubnet1Prefix
     networkSecurityGroup: {
@@ -92,11 +108,14 @@ resource subNet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   }
 }
 
-resource storageAccount 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
+resource storageAccount 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: diagnosticStorageAccountName
   location: location
   sku: {
     name: 'Standard_LRS'
+  }
+  tags: {
+    displayName: 'diagnosticStorageAccount'
   }
   kind: 'StorageV2'
 }
@@ -131,7 +150,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i
         name: '${virtualMachineNamePrefix}${i + 1}'
         createOption: 'FromImage'
         managedDisk: {
-          storageAccountType: 'Standard_LRS'
+          storageAccountType: 'StandardSSD_LRS'
         }
         caching: 'ReadWrite'
       }
@@ -147,7 +166,7 @@ resource virtualMachines 'Microsoft.Compute/virtualMachines@2020-06-01' = [for i
     networkProfile: {
       networkInterfaces: [
         {
-          id: resourceId('Microsoft.Network/networkInterfaces', '${virtualMachineNamePrefix}${i + 1}-NIC1')
+          id: networkInterfaces[i].id
         }
       ]
     }
@@ -173,10 +192,10 @@ resource networkInterfaces 'Microsoft.Network/networkInterfaces@2020-06-01' = [f
         properties: {
           privateIPAllocationMethod: 'Dynamic'
           publicIPAddress: {
-            id: resourceId('Microsoft.Network/publicIPAddresses', '${virtualMachineNamePrefix}${i + 1}-PIP1')
+            id: publicIPAddresses[i].id
           }
           subnet: {
-            id: subNet.id
+            id: subnet.id
           }
         }
       }
@@ -184,9 +203,13 @@ resource networkInterfaces 'Microsoft.Network/networkInterfaces@2020-06-01' = [f
     enableIPForwarding: false
   }
 }]
-resource publicIPAddresses 'Microsoft.Network/publicIPAddresses@2020-06-01' = [for i in range(0, virtualMachineCount): {
+
+resource publicIPAddresses 'Microsoft.Network/publicIPAddresses@2020-05-01' = [for i in range(0, virtualMachineCount): {
   name: '${virtualMachineNamePrefix}${i + 1}-PIP1'
   location: location
+  tags: {
+    displayName: '${virtualMachineNamePrefix}${i + 1}-PIP1'
+  }
   properties: {
     publicIPAllocationMethod: 'Dynamic'
     dnsSettings: {

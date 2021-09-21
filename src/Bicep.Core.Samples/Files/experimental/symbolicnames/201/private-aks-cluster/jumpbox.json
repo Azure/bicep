@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13500409291415472659"
+      "templateHash": "5274913298734581753"
     }
   },
   "parameters": {
@@ -155,7 +155,6 @@
   "functions": [],
   "variables": {
     "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
-    "vmNicId": "[resourceInfo('vmNic').id]",
     "blobPublicDNSZoneForwarder": "[format('.blob.{0}', environment().suffixes.storage)]",
     "blobPrivateDnsZoneName": "[format('privatelink{0}', variables('blobPublicDNSZoneForwarder'))]",
     "blobStorageAccountPrivateEndpointGroupName": "blob",
@@ -225,7 +224,7 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('vmAdminUsername')]",
           "adminPassword": "[parameters('vmAdminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
         },
         "storageProfile": {
           "copy": [
@@ -293,7 +292,7 @@
           "stopOnMultipleConnections": false
         },
         "protectedSettings": {
-          "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').primarySharedKey]"
+          "workspaceKey": "[listKeys(resourceInfo('logAnalyticsWorkspace').id, resourceInfo('logAnalyticsWorkspace').apiVersion).primarySharedKey]"
         }
       },
       "dependsOn": [
@@ -358,7 +357,7 @@
         },
         "customDnsConfigs": [
           {
-            "fqdn": "[concat(parameters('blobStorageAccountName'), variables('blobPublicDNSZoneForwarder'))]"
+            "fqdn": "[format('{0}{1}', parameters('blobStorageAccountName'), variables('blobPublicDNSZoneForwarder'))]"
           }
         ]
       },

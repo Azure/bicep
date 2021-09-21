@@ -5,13 +5,16 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15303513457722336163"
+      "templateHash": "8150406609686728864"
     }
   },
   "parameters": {
     "vmSku": {
       "type": "string",
-      "defaultValue": "Standard_A1_v2"
+      "defaultValue": "Standard_A1_v2",
+      "metadata": {
+        "description": "Size of VMs in the VM Scale Set."
+      }
     },
     "windowsOSVersion": {
       "type": "string",
@@ -21,26 +24,44 @@
         "2016-Datacenter",
         "2012-R2-Datacenter",
         "2012-Datacenter"
-      ]
+      ],
+      "metadata": {
+        "description": "The Windows version for the VM. This will pick a fully patched image of this given Windows version."
+      }
     },
     "vmssName": {
       "type": "string",
-      "maxLength": 61
+      "maxLength": 61,
+      "metadata": {
+        "description": "String used as a base for naming resources. Must be 3-61 characters in length and globally unique across Azure. A hash is prepended to this string for some resources, and resource-specific information is appended."
+      }
     },
     "instanceCount": {
       "type": "int",
       "maxValue": 100,
-      "minValue": 1
+      "minValue": 1,
+      "metadata": {
+        "description": "Number of VM instances (100 or less)."
+      }
     },
     "adminUsername": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Admin username on all VMs."
+      }
     },
     "adminPassword": {
-      "type": "secureString"
+      "type": "secureString",
+      "metadata": {
+        "description": "Admin password on all VMs."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     }
   },
   "functions": [],
@@ -58,7 +79,7 @@
     "natStartPort": 50000,
     "natEndPort": 50119,
     "natBackendPort": 3389,
-    "nicname": "[format('{0}nic', variables('namingInfix'))]",
+    "nicName": "[format('{0}nic', variables('namingInfix'))]",
     "ipConfigName": "[format('{0}ipconfig', variables('namingInfix'))]",
     "osType": {
       "publisher": "MicrosoftWindowsServer",
@@ -70,8 +91,8 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/virtualnetworks",
-      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-02-01",
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -92,7 +113,7 @@
     },
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-02-01",
       "name": "[variables('publicIPAddressName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -104,7 +125,7 @@
     },
     {
       "type": "Microsoft.Network/loadBalancers",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-02-01",
       "name": "[variables('loadBalancerName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -144,7 +165,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachineScaleSets",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2021-03-01",
       "name": "[parameters('vmssName')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -173,7 +194,7 @@
           "networkProfile": {
             "networkInterfaceConfigurations": [
               {
-                "name": "[variables('nicname')]",
+                "name": "[variables('nicName')]",
                 "properties": {
                   "primary": true,
                   "ipConfigurations": [
@@ -181,16 +202,16 @@
                       "name": "[variables('ipConfigName')]",
                       "properties": {
                         "subnet": {
-                          "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualnetworks', variables('virtualNetworkName')), variables('subnetName'))]"
+                          "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('subnetName'))]"
                         },
                         "loadBalancerBackendAddressPools": [
                           {
-                            "id": "[format('{0}/backendAddressPools/{1}', resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), variables('bePoolName'))]"
+                            "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('loadBalancerName'), variables('bePoolName'))]"
                           }
                         ],
                         "loadBalancerInboundNatPools": [
                           {
-                            "id": "[format('{0}/inboundNatPools/{1}', resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName')), variables('natPoolName'))]"
+                            "id": "[resourceId('Microsoft.Network/loadBalancers/inboundNatPools', variables('loadBalancerName'), variables('natPoolName'))]"
                           }
                         ]
                       }
@@ -204,7 +225,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName'))]",
-        "[resourceId('Microsoft.Network/virtualnetworks', variables('virtualNetworkName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
       ]
     },
     {
@@ -228,7 +249,6 @@
               {
                 "metricTrigger": {
                   "metricName": "Percentage CPU",
-                  "metricNamespace": "",
                   "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
                   "timeGrain": "PT1M",
                   "timeWindow": "PT5M",
@@ -247,7 +267,6 @@
               {
                 "metricTrigger": {
                   "metricName": "Percentage CPU",
-                  "metricNamespace": "",
                   "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', parameters('vmssName'))]",
                   "timeGrain": "PT1M",
                   "timeWindow": "PT5M",

@@ -5,78 +5,129 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6697841974774740985"
+      "templateHash": "6243442219024588657"
     }
   },
   "parameters": {
     "_artifactsLocation": {
       "type": "string",
-      "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/301-nested-vms-in-virtual-network/"
+      "defaultValue": "[deployment().properties.templateLink.uri]",
+      "metadata": {
+        "description": "The base URI where artifacts required by this template are located including a trailing '/'"
+      }
     },
     "_artifactsLocationSasToken": {
       "type": "secureString",
-      "defaultValue": ""
+      "defaultValue": "",
+      "metadata": {
+        "description": "The sasToken required to access _artifactsLocation.  When the template is deployed using the accompanying scripts, a sasToken will be automatically generated. Use the defaultValue if the staging location is not secured."
+      }
     },
     "location": {
       "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources."
+      }
     },
     "HostPublicIPAddressName": {
       "type": "string",
-      "defaultValue": "HVHOSTPIP"
+      "defaultValue": "HVHOSTPIP",
+      "metadata": {
+        "description": "Resource Name for Public IP address attached to Hyper-V Host"
+      }
     },
     "virtualNetworkName": {
       "type": "string",
-      "defaultValue": "VirtualNetwork"
+      "defaultValue": "VirtualNetwork",
+      "metadata": {
+        "description": "Hyper-V Host and Guest VMs Virtual Network"
+      }
     },
     "virtualNetworkAddressPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/22"
+      "defaultValue": "10.0.0.0/22",
+      "metadata": {
+        "description": "Virtual Network Address Space"
+      }
     },
     "NATSubnetName": {
       "type": "string",
-      "defaultValue": "NAT"
+      "defaultValue": "NAT",
+      "metadata": {
+        "description": "NAT Subnet Name"
+      }
     },
     "NATSubnetPrefix": {
       "type": "string",
-      "defaultValue": "10.0.0.0/24"
+      "defaultValue": "10.0.0.0/24",
+      "metadata": {
+        "description": "NAT Subnet Address Space"
+      }
     },
     "hyperVSubnetName": {
       "type": "string",
-      "defaultValue": "Hyper-V-LAN"
+      "defaultValue": "Hyper-V-LAN",
+      "metadata": {
+        "description": "Hyper-V Host Subnet Name"
+      }
     },
     "hyperVSubnetPrefix": {
       "type": "string",
-      "defaultValue": "10.0.1.0/24"
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Hyper-V Host Subnet Address Space"
+      }
     },
     "ghostedSubnetName": {
       "type": "string",
-      "defaultValue": "Ghosted"
+      "defaultValue": "Ghosted",
+      "metadata": {
+        "description": "Ghosted Subnet Name"
+      }
     },
     "ghostedSubnetPrefix": {
       "type": "string",
-      "defaultValue": "10.0.2.0/24"
+      "defaultValue": "10.0.2.0/24",
+      "metadata": {
+        "description": "Ghosted Subnet Address Space"
+      }
     },
     "azureVMsSubnetName": {
       "type": "string",
-      "defaultValue": "Azure-VMs"
+      "defaultValue": "Azure-VMs",
+      "metadata": {
+        "description": "Azure VMs Subnet Name"
+      }
     },
     "azureVMsSubnetPrefix": {
       "type": "string",
-      "defaultValue": "10.0.3.0/24"
+      "defaultValue": "10.0.3.0/24",
+      "metadata": {
+        "description": "Azure VMs Address Space"
+      }
     },
     "HostNetworkInterface1Name": {
       "type": "string",
-      "defaultValue": "HVHOSTNIC1"
+      "defaultValue": "HVHOSTNIC1",
+      "metadata": {
+        "description": "Hyper-V Host Network Interface 1 Name, attached to NAT Subnet"
+      }
     },
     "HostNetworkInterface2Name": {
       "type": "string",
-      "defaultValue": "HVHOSTNIC2"
+      "defaultValue": "HVHOSTNIC2",
+      "metadata": {
+        "description": "Hyper-V Host Network Interface 2 Name, attached to Hyper-V LAN Subnet"
+      }
     },
     "HostVirtualMachineName": {
       "type": "string",
       "defaultValue": "HVHOST",
-      "maxLength": 15
+      "maxLength": 15,
+      "metadata": {
+        "description": "Name of Hyper-V Host Virtual Machine, Maximum of 15 characters, use letters and numbers only."
+      }
     },
     "HostVirtualMachineSize": {
       "type": "string",
@@ -106,13 +157,22 @@
         "Standard_E16s_v3",
         "Standard_E32s_v3",
         "Standard_E64s_v3"
-      ]
+      ],
+      "metadata": {
+        "description": "Size of the Host Virtual Machine"
+      }
     },
     "HostAdminUsername": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Admin Username for the Host Virtual Machine"
+      }
     },
     "HostAdminPassword": {
-      "type": "secureString"
+      "type": "secureString",
+      "metadata": {
+        "description": "Admin User Password for the Host Virtual Machine"
+      }
     }
   },
   "functions": [],
@@ -128,7 +188,7 @@
   "resources": [
     {
       "type": "Microsoft.Network/publicIPAddresses",
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2021-02-01",
       "name": "[parameters('HostPublicIPAddressName')]",
       "location": "[parameters('location')]",
       "sku": {
@@ -143,35 +203,35 @@
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2021-02-01",
       "name": "[variables('NATSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2021-02-01",
       "name": "[variables('hyperVSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2021-02-01",
       "name": "[variables('ghostedSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "type": "Microsoft.Network/networkSecurityGroups",
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2021-02-01",
       "name": "[variables('azureVMsSubnetNSGName')]",
       "location": "[parameters('location')]",
       "properties": {}
     },
     {
       "type": "Microsoft.Network/virtualNetworks",
-      "apiVersion": "2019-04-01",
+      "apiVersion": "2021-02-01",
       "name": "[parameters('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -232,7 +292,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines",
-      "apiVersion": "2019-03-01",
+      "apiVersion": "2021-03-01",
       "name": "[parameters('HostVirtualMachineName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -296,8 +356,8 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2019-03-01",
-      "name": "[format('{0}/InstallWindowsFeatures', parameters('HostVirtualMachineName'))]",
+      "apiVersion": "2021-03-01",
+      "name": "[format('{0}/{1}', parameters('HostVirtualMachineName'), 'InstallWindowsFeatures')]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Powershell",
@@ -319,8 +379,8 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "apiVersion": "2019-03-01",
-      "name": "[format('{0}/HVHOSTSetup', parameters('HostVirtualMachineName'))]",
+      "apiVersion": "2021-03-01",
+      "name": "[format('{0}/{1}', parameters('HostVirtualMachineName'), 'HVHOSTSetup')]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Compute",
@@ -337,7 +397,8 @@
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'createNic1')]",
         "[resourceId('Microsoft.Resources/deployments', 'createNic2')]",
-        "[resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName'))]"
+        "[resourceId('Microsoft.Compute/virtualMachines', parameters('HostVirtualMachineName'))]",
+        "[resourceId('Microsoft.Compute/virtualMachines/extensions', parameters('HostVirtualMachineName'), 'InstallWindowsFeatures')]"
       ]
     },
     {
@@ -350,6 +411,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "nicName": {
             "value": "[parameters('HostNetworkInterface1Name')]"
           },
@@ -367,7 +431,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5178671891762549219"
             }
           },
           "parameters": {
@@ -375,8 +439,7 @@
               "type": "string"
             },
             "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
+              "type": "string"
             },
             "subnetId": {
               "type": "string"
@@ -455,6 +518,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "nicName": {
             "value": "[parameters('HostNetworkInterface2Name')]"
           },
@@ -472,7 +538,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5178671891762549219"
             }
           },
           "parameters": {
@@ -480,8 +546,7 @@
               "type": "string"
             },
             "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
+              "type": "string"
             },
             "subnetId": {
               "type": "string"
@@ -559,6 +624,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "ipAllocationMethod": {
             "value": "Static"
           },
@@ -582,7 +650,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5178671891762549219"
             }
           },
           "parameters": {
@@ -590,8 +658,7 @@
               "type": "string"
             },
             "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
+              "type": "string"
             },
             "subnetId": {
               "type": "string"
@@ -671,6 +738,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "ipAllocationMethod": {
             "value": "Static"
           },
@@ -694,7 +764,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5178671891762549219"
             }
           },
           "parameters": {
@@ -702,8 +772,7 @@
               "type": "string"
             },
             "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
+              "type": "string"
             },
             "subnetId": {
               "type": "string"
@@ -782,6 +851,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "udrName": {
             "value": "[variables('azureVMsSubnetUDRName')]"
           }
@@ -793,7 +865,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13461864852699596542"
+              "templateHash": "15352657167901066204"
             }
           },
           "parameters": {
@@ -801,8 +873,7 @@
               "type": "string"
             },
             "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
+              "type": "string"
             },
             "addressPrefix": {
               "type": "string",
@@ -844,6 +915,9 @@
         },
         "mode": "Incremental",
         "parameters": {
+          "location": {
+            "value": "[parameters('location')]"
+          },
           "udrName": {
             "value": "[variables('azureVMsSubnetUDRName')]"
           },
@@ -861,7 +935,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13461864852699596542"
+              "templateHash": "15352657167901066204"
             }
           },
           "parameters": {
@@ -869,8 +943,7 @@
               "type": "string"
             },
             "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]"
+              "type": "string"
             },
             "addressPrefix": {
               "type": "string",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17825352019709356692"
+      "templateHash": "17670053226406671781"
     }
   },
   "parameters": {
@@ -45,24 +45,24 @@
     "aksClusterNetworkPlugin": {
       "type": "string",
       "defaultValue": "azure",
-      "metadata": {
-        "description": "Specifies the network plugin used for building Kubernetes network. - azure or kubenet."
-      },
       "allowedValues": [
         "azure",
         "kubenet"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the network plugin used for building Kubernetes network. - azure or kubenet."
+      }
     },
     "aksClusterNetworkPolicy": {
       "type": "string",
       "defaultValue": "azure",
-      "metadata": {
-        "description": "Specifies the network policy used for building Kubernetes network. - calico or azure"
-      },
       "allowedValues": [
         "azure",
         "calico"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the network policy used for building Kubernetes network. - calico or azure"
+      }
     },
     "aksClusterPodCidr": {
       "type": "string",
@@ -75,7 +75,7 @@
       "type": "string",
       "defaultValue": "10.2.0.0/16",
       "metadata": {
-        "description": "A CIDR notation IP range from which to assign service cluster IPs. It must not overlap with any st IP ranges."
+        "description": "A CIDR notation IP range from which to assign service cluster IPs. It must not overlap with any Subnet IP ranges."
       }
     },
     "aksClusterDnsServiceIP": {
@@ -95,28 +95,28 @@
     "aksClusterLoadBalancerSku": {
       "type": "string",
       "defaultValue": "standard",
-      "metadata": {
-        "description": "Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools."
-      },
       "allowedValues": [
         "basic",
         "standard"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the sku of the load balancer used by the virtual machine scale sets used by nodepools."
+      }
     },
     "aksClusterSkuTier": {
       "type": "string",
       "defaultValue": "Paid",
-      "metadata": {
-        "description": "Specifies the tier of a managed cluster SKU: Paid or Free"
-      },
       "allowedValues": [
         "Paid",
         "Free"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the tier of a managed cluster SKU: Paid or Free"
+      }
     },
     "aksClusterKubernetesVersion": {
       "type": "string",
-      "defaultValue": "1.19.7",
+      "defaultValue": "1.21.1",
       "metadata": {
         "description": "Specifies the version of Kubernetes specified when creating the managed cluster."
       }
@@ -184,7 +184,7 @@
     },
     "nodePoolVmSize": {
       "type": "string",
-      "defaultValue": "Standard_DS3_v2",
+      "defaultValue": "Standard_D4s_v3",
       "metadata": {
         "description": "Specifies the vm size of nodes in the node pool."
       }
@@ -198,7 +198,7 @@
     },
     "nodePoolCount": {
       "type": "int",
-      "defaultValue": 3,
+      "defaultValue": 5,
       "metadata": {
         "description": "Specifies the number of agents (VMs) to host docker containers. Allowed values must be in the range of 1 to 100 (inclusive). The default value is 1."
       }
@@ -206,13 +206,13 @@
     "nodePoolOsType": {
       "type": "string",
       "defaultValue": "Linux",
-      "metadata": {
-        "description": "Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux."
-      },
       "allowedValues": [
         "Linux",
         "Windows"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the OS type for the vms in the node pool. Choose from Linux and Windows. Default to Linux."
+      }
     },
     "nodePoolMaxPods": {
       "type": "int",
@@ -245,13 +245,13 @@
     "nodePoolScaleSetPriority": {
       "type": "string",
       "defaultValue": "Regular",
-      "metadata": {
-        "description": "Specifies the virtual machine scale set priority: Spot or Regular."
-      },
       "allowedValues": [
         "Spot",
         "Regular"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the virtual machine scale set priority: Spot or Regular."
+      }
     },
     "nodePoolNodeLabels": {
       "type": "object",
@@ -270,24 +270,24 @@
     "nodePoolMode": {
       "type": "string",
       "defaultValue": "System",
-      "metadata": {
-        "description": "Specifies the mode of an agent pool: System or User"
-      },
       "allowedValues": [
         "System",
         "User"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the mode of an agent pool: System or User"
+      }
     },
     "nodePoolType": {
       "type": "string",
       "defaultValue": "VirtualMachineScaleSets",
-      "metadata": {
-        "description": "Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet"
-      },
       "allowedValues": [
         "VirtualMachineScaleSets",
         "AvailabilitySet"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the type of a node pool: VirtualMachineScaleSets or AvailabilitySet"
+      }
     },
     "nodePoolAvailabilityZones": {
       "type": "array",
@@ -333,15 +333,15 @@
     "logAnalyticsSku": {
       "type": "string",
       "defaultValue": "PerGB2018",
-      "metadata": {
-        "description": "Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB."
-      },
       "allowedValues": [
         "Free",
         "Standalone",
         "PerNode",
         "PerGB2018"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the service tier of the workspace: Free, Standalone, PerNode, Per-GB."
+      }
     },
     "logAnalyticsRetentionInDays": {
       "type": "int",
@@ -373,7 +373,7 @@
     },
     "vmSize": {
       "type": "string",
-      "defaultValue": "Standard_DS3_v2",
+      "defaultValue": "Standard_D4s_v3",
       "metadata": {
         "description": "Specifies the size of the virtual machine."
       }
@@ -402,13 +402,13 @@
     "authenticationType": {
       "type": "string",
       "defaultValue": "password",
-      "metadata": {
-        "description": "Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended."
-      },
       "allowedValues": [
         "sshPublicKey",
         "password"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the type of authentication when accessing the Virtual Machine. SSH key is recommended."
+      }
     },
     "vmAdminUsername": {
       "type": "string",
@@ -425,24 +425,24 @@
     "diskStorageAccounType": {
       "type": "string",
       "defaultValue": "Premium_LRS",
-      "metadata": {
-        "description": "Specifies the storage account type for OS and data disk."
-      },
       "allowedValues": [
         "Premium_LRS",
         "StandardSSD_LRS",
         "Standard_LRS",
         "UltraSSD_LRS"
-      ]
+      ],
+      "metadata": {
+        "description": "Specifies the storage account type for OS and data disk."
+      }
     },
     "numDataDisks": {
       "type": "int",
       "defaultValue": 1,
+      "maxValue": 64,
+      "minValue": 0,
       "metadata": {
         "description": "Specifies the number of data disks of the virtual machine."
-      },
-      "maxValue": 64,
-      "minValue": 0
+      }
     },
     "osDiskSize": {
       "type": "int",
@@ -540,7 +540,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17038988552482683858"
+              "templateHash": "12176435859540118044"
             }
           },
           "parameters": {
@@ -604,10 +604,7 @@
           "variables": {
             "bastionSubnetName": "AzureBastionSubnet",
             "bastionSubnetNsgName": "[format('{0}Nsg', variables('bastionSubnetName'))]",
-            "bastionSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('virtualNetwork').name, variables('bastionSubnetName'))]",
-            "vmSubnetNsgName": "[format('{0}Nsg', parameters('vmSubnetName'))]",
-            "vmSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('virtualNetwork').name, parameters('vmSubnetName'))]",
-            "aksSubnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', resourceInfo('virtualNetwork').name, parameters('aksSubnetName'))]"
+            "vmSubnetNsgName": "[format('{0}Nsg', parameters('vmSubnetName'))]"
           },
           "resources": {
             "vmSubnetNsg": {
@@ -1113,7 +1110,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13500409291415472659"
+              "templateHash": "5274913298734581753"
             }
           },
           "parameters": {
@@ -1261,7 +1258,6 @@
           "functions": [],
           "variables": {
             "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
-            "vmNicId": "[resourceInfo('vmNic').id]",
             "blobPublicDNSZoneForwarder": "[format('.blob.{0}', environment().suffixes.storage)]",
             "blobPrivateDnsZoneName": "[format('privatelink{0}', variables('blobPublicDNSZoneForwarder'))]",
             "blobStorageAccountPrivateEndpointGroupName": "blob",
@@ -1331,7 +1327,7 @@
                   "computerName": "[parameters('vmName')]",
                   "adminUsername": "[parameters('vmAdminUsername')]",
                   "adminPassword": "[parameters('vmAdminPasswordOrKey')]",
-                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+                  "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
                 },
                 "storageProfile": {
                   "copy": [
@@ -1399,7 +1395,7 @@
                   "stopOnMultipleConnections": false
                 },
                 "protectedSettings": {
-                  "workspaceKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2020-10-01').primarySharedKey]"
+                  "workspaceKey": "[listKeys(resourceInfo('logAnalyticsWorkspace').id, resourceInfo('logAnalyticsWorkspace').apiVersion).primarySharedKey]"
                 }
               },
               "dependsOn": [
@@ -1464,7 +1460,7 @@
                 },
                 "customDnsConfigs": [
                   {
-                    "fqdn": "[concat(parameters('blobStorageAccountName'), variables('blobPublicDNSZoneForwarder'))]"
+                    "fqdn": "[format('{0}{1}', parameters('blobStorageAccountName'), variables('blobPublicDNSZoneForwarder'))]"
                   }
                 ]
               },
@@ -1636,7 +1632,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3548758362621322445"
+              "templateHash": "16144405591637478871"
             }
           },
           "parameters": {
@@ -2032,7 +2028,7 @@
                   "dockerBridgeCidr": "[parameters('aksClusterDockerBridgeCidr')]",
                   "loadBalancerSku": "[parameters('aksClusterLoadBalancerSku')]"
                 },
-                "aadProfile": "[if(parameters('aadEnabled'), variables('aadProfileConfiguration'), null())]",
+                "aadProfile": "[if(parameters('aadEnabled'), variables('aadProfileConfiguration'), json('null'))]",
                 "apiServerAccessProfile": {
                   "enablePrivateCluster": "[parameters('aksClusterEnablePrivateCluster')]"
                 }

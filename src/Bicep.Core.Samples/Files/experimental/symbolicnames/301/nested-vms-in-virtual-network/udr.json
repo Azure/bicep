@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10301753709145241530"
+      "templateHash": "12158486999785110149"
     }
   },
   "parameters": {
@@ -15,8 +15,7 @@
       "type": "string"
     },
     "location": {
-      "type": "string",
-      "defaultValue": "[resourceGroup().location]"
+      "type": "string"
     },
     "addressPrefix": {
       "type": "string",

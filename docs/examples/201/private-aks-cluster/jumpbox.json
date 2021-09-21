@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6673211936035085652"
+      "templateHash": "1289539502223865656"
     }
   },
   "parameters": {
@@ -153,7 +153,6 @@
   "functions": [],
   "variables": {
     "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
-    "vmNicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]",
     "blobPublicDNSZoneForwarder": "[format('.blob.{0}', environment().suffixes.storage)]",
     "blobPrivateDnsZoneName": "[format('privatelink{0}', variables('blobPublicDNSZoneForwarder'))]",
     "blobStorageAccountPrivateEndpointGroupName": "blob",
@@ -217,7 +216,7 @@
           "computerName": "[parameters('vmName')]",
           "adminUsername": "[parameters('vmAdminUsername')]",
           "adminPassword": "[parameters('vmAdminPasswordOrKey')]",
-          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), null(), variables('linuxConfiguration'))]"
+          "linuxConfiguration": "[if(equals(parameters('authenticationType'), 'password'), json('null'), variables('linuxConfiguration'))]"
         },
         "storageProfile": {
           "copy": [
@@ -350,7 +349,7 @@
         },
         "customDnsConfigs": [
           {
-            "fqdn": "[concat(parameters('blobStorageAccountName'), variables('blobPublicDNSZoneForwarder'))]"
+            "fqdn": "[format('{0}{1}', parameters('blobStorageAccountName'), variables('blobPublicDNSZoneForwarder'))]"
           }
         ]
       },

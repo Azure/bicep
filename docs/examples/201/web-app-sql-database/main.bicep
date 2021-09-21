@@ -1,3 +1,4 @@
+@description('Describes plan\'s pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/')
 @allowed([
   'F1'
   'D1'
@@ -14,24 +15,32 @@
 ])
 param skuName string = 'F1'
 
+@description('Describes plan\'s instance count')
 @minValue(1)
+@maxValue(3)
 param skuCapacity int = 1
 
+@description('The admin user of the SQL Server')
 param sqlAdministratorLogin string
 
+@description('The password of the admin user of the SQL Server')
 @secure()
 param sqlAdministratorLoginPassword string
 
+@description('Location for all resources.')
 param location string = resourceGroup().location
 
 var hostingPlanName = 'hostingplan${uniqueString(resourceGroup().id)}'
-var webSiteName = 'webSite${uniqueString(resourceGroup().id)}'
-var sqlserverName = 'sqlserver${uniqueString(resourceGroup().id)}'
+var websiteName = 'website${uniqueString(resourceGroup().id)}'
+var sqlserverName = 'sqlServer${uniqueString(resourceGroup().id)}'
 var databaseName = 'sampledb'
 
-resource sqlserver 'Microsoft.Sql/servers@2019-06-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
   name: sqlserverName
   location: location
+  tags: {
+    displayName: 'SQL Server'
+  }
   properties: {
     administratorLogin: sqlAdministratorLogin
     administratorLoginPassword: sqlAdministratorLoginPassword
@@ -39,9 +48,13 @@ resource sqlserver 'Microsoft.Sql/servers@2019-06-01-preview' = {
   }
 }
 
-resource sqlserverName_databaseName 'Microsoft.Sql/servers/databases@2020-08-01-preview' = {
-  name: '${sqlserver.name}/${databaseName}'
+resource sqlDatabase 'Microsoft.Sql/servers/databases@2021-02-01-preview' = {
+  parent: sqlServer
+  name: databaseName
   location: location
+  tags: {
+    displayName: 'Database'
+  }
   sku: {
     name: 'Basic'
   }
@@ -51,25 +64,29 @@ resource sqlserverName_databaseName 'Microsoft.Sql/servers/databases@2020-08-01-
   }
 }
 
-resource sqlserverName_AllowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2014-04-01' = {
-  name: '${sqlserver.name}/AllowAllWindowsAzureIps'
+resource allowAllWindowsAzureIps 'Microsoft.Sql/servers/firewallRules@2021-02-01-preview' = {
+  parent: sqlServer
+  name: 'AllowAllWindowsAzureIps'
   properties: {
     endIpAddress: '0.0.0.0'
     startIpAddress: '0.0.0.0'
   }
 }
 
-resource hostingPlan 'Microsoft.Web/serverfarms@2020-06-01' = {
+resource hostingPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
   name: hostingPlanName
   location: location
+  tags: {
+    displayName: 'HostingPlan'
+  }
   sku: {
     name: skuName
     capacity: skuCapacity
   }
 }
 
-resource webSite 'Microsoft.Web/sites@2020-06-01' = {
-  name: webSiteName
+resource website 'Microsoft.Web/sites@2020-12-01' = {
+  name: websiteName
   location: location
   tags: {
     'hidden-related:${hostingPlan.id}': 'empty'
@@ -80,21 +97,22 @@ resource webSite 'Microsoft.Web/sites@2020-06-01' = {
   }
 }
 
-resource webSiteConnectionStrings 'Microsoft.Web/sites/config@2020-06-01' = {
-  name: '${webSite.name}/connectionstrings'
+resource webSiteConnectionStrings 'Microsoft.Web/sites/config@2020-12-01' = {
+  parent: website
+  name: 'connectionstrings'
   properties: {
     DefaultConnection: {
-      value: 'Data Source=tcp:${sqlserver.properties.fullyQualifiedDomainName},1433;Initial Catalog=${databaseName};User Id=${sqlAdministratorLogin}@${sqlserver.properties.fullyQualifiedDomainName};Password=${sqlAdministratorLoginPassword};'
+      value: 'Data Source=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${databaseName};User Id=${sqlAdministratorLogin}@${sqlServer.properties.fullyQualifiedDomainName};Password=${sqlAdministratorLoginPassword};'
       type: 'SQLAzure'
     }
   }
 }
 
-resource AppInsights_webSiteName 'Microsoft.Insights/components@2018-05-01-preview' = {
-  name: 'AppInsights${webSite.name}'
+resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
+  name: 'AppInsights${website.name}'
   location: location
   tags: {
-    'hidden-link:${webSite.id}': 'Resource'
+    'hidden-link:${website.id}': 'Resource'
     displayName: 'AppInsightsComponent'
   }
   kind: 'web'
