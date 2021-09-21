@@ -39,7 +39,7 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<(string output, string error, int result)> Bicep(InvocationSettings settings, params string[] args) =>
             TextWriterHelper.InvokeWriterAction((@out, err) =>
                 new Program(new InvocationContext(
-                    AzResourceTypeProvider.CreateWithAzTypes(),
+                    TestTypeHelper.CreateEmptyAzResourceTypeProvider(),
                     @out,
                     err,
                     BicepTestConstants.DevAssemblyFileVersion,

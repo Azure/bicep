@@ -38,8 +38,14 @@ namespace Bicep.Core.UnitTests.Utils
                 => resourceTypes.Keys;
         }
 
+        public static AzResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
+            => AzResourceTypeProvider.CreateWithLoader(new TestResourceTypeLoader(resourceTypes), false);
+
+        public static AzResourceTypeProvider CreateEmptyAzResourceTypeProvider()
+            => CreateAzResourceTypeProviderWithTypes(Enumerable.Empty<ResourceType>());
+
         public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
-            => new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithLoader(new TestResourceTypeLoader(resourceTypes), false), BicepTestConstants.Features);
+            => new DefaultNamespaceProvider(CreateAzResourceTypeProviderWithTypes(resourceTypes), BicepTestConstants.Features);
 
         public static INamespaceProvider CreateEmptyProvider()
             => CreateProviderWithTypes(Enumerable.Empty<ResourceType>());
