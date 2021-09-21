@@ -10,7 +10,7 @@ namespace Bicep.Core.Semantics
 {
     public class FunctionSymbol : Symbol
     {
-        public FunctionSymbol(string name, IEnumerable<FunctionOverload> overloads)
+        public FunctionSymbol(ObjectType declaringObject, string name, IEnumerable<FunctionOverload> overloads)
             : base(name)
         {
             Overloads = overloads.ToImmutableArray();
@@ -21,6 +21,7 @@ namespace Bicep.Core.Semantics
                 // we should catch this as early as possible
                 throw new ArgumentException("Inconsistent function flags found on overloads");
             }
+            DeclaringObject = declaringObject;
         }
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitFunctionSymbol(this);
@@ -30,5 +31,7 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<FunctionOverload> Overloads { get; }
 
         public FunctionFlags FunctionFlags { get; }
+
+        public ObjectType DeclaringObject { get; }
     }
 }

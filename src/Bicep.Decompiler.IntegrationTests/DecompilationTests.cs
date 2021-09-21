@@ -88,7 +88,7 @@ namespace Bicep.Core.IntegrationTests
             var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, parentStream);
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
-            var typeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+            var typeProvider = TestTypeHelper.CreateWithAzTypes();
 
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFileName);
             var decompiler = new TemplateDecompiler(typeProvider, new FileResolver(), BicepTestConstants.RegistryProvider);

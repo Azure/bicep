@@ -17,6 +17,7 @@ using Moq;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Configuration;
 using Bicep.Core.UnitTests.Configuration;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -50,7 +51,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             foreach (var availableType in availableTypes)
             {
                 resourceTypeProvider.HasType(availableType).Should().BeTrue();
-                var resourceType = resourceTypeProvider.GetType(availableType, flags);
+                var resourceType = resourceTypeProvider.TryGetType(availableType, flags)!;
 
                 try
                 {
@@ -111,7 +112,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
             Compilation createCompilation(string program)
-                    => new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configHelper);
+                    => new Compilation(new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configHelper);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

@@ -9,6 +9,7 @@ using Azure.Bicep.Types.Az;
 using Azure.Bicep.Types.Az.Index;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.Providers;
@@ -37,11 +38,14 @@ namespace Bicep.Core.UnitTests.Utils
                 => resourceTypes.Keys;
         }
 
-        public static IResourceTypeProvider CreateProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
-            => AzResourceTypeProvider.CreateWithLoader(new TestResourceTypeLoader(resourceTypes), false);
+        public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
+            => new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithLoader(new TestResourceTypeLoader(resourceTypes), false), BicepTestConstants.Features);
 
-        public static IResourceTypeProvider CreateEmptyProvider()
+        public static INamespaceProvider CreateEmptyProvider()
             => CreateProviderWithTypes(Enumerable.Empty<ResourceType>());
+
+        public static INamespaceProvider CreateWithAzTypes()
+            => new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features);
 
         public static ResourceType CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
         {

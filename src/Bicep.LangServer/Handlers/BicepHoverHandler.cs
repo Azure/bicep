@@ -18,6 +18,7 @@ using Bicep.LanguageServer.Completions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -66,34 +67,34 @@ namespace Bicep.LanguageServer.Handlers
             {
                 case ImportedNamespaceSymbol import:
                     return CodeBlockWithDescriptionDecorator(
-                        $"import {import.Name}", import.DeclaringImport.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+                        $"import {import.Name}", import.DeclaringImport.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
 
                 case ParameterSymbol parameter:
                     return CodeBlockWithDescriptionDecorator(
-                        $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+                        $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
 
                 case VariableSymbol variable:
-                    return CodeBlockWithDescriptionDecorator($"var {variable.Name}: {variable.Type}", variable.DeclaringVariable.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+                    return CodeBlockWithDescriptionDecorator($"var {variable.Name}: {variable.Type}", variable.DeclaringVariable.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
 
                 case ResourceSymbol resource:
                     return CodeBlockWithDescriptionDecorator(
-                        $"resource {resource.Name}\n{resource.Type}", resource.DeclaringResource.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+                        $"resource {resource.Name}\n{resource.Type}", resource.DeclaringResource.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
                     if (filePath != null)
                     {
-                        return CodeBlockWithDescriptionDecorator($"module {module.Name}\n'{filePath}'", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+                        return CodeBlockWithDescriptionDecorator($"module {module.Name}\n'{filePath}'", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
                     }
 
-                    return CodeBlockWithDescriptionDecorator($"module {module.Name}", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+                    return CodeBlockWithDescriptionDecorator($"module {module.Name}", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
 
                 case OutputSymbol output:
                     return CodeBlockWithDescriptionDecorator(
-                        $"output {output.Name}: {output.Type}", output.DeclaringOutput.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys"));
+                        $"output {output.Name}: {output.Type}", output.DeclaringOutput.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
 
-                case NamespaceSymbol namespaceSymbol:
-                    return CodeBlock($"{namespaceSymbol.Name} namespace");
+                case BuiltInNamespaceSymbol builtInNamespace:
+                    return CodeBlock($"{builtInNamespace.Name} namespace");
 
                 case FunctionSymbol function when result.Origin is FunctionCallSyntax functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
@@ -225,7 +226,7 @@ namespace Bicep.LanguageServer.Handlers
                     var moduleParamDecorator = model.Root.ParameterDeclarations
                         .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
                         ?.DeclaringParameter
-                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys");
+                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName);
                     if (moduleParamDecorator is not null)
                     {
                         return CodeBlockWithDescriptionDecorator(content, moduleParamDecorator);
@@ -236,7 +237,7 @@ namespace Bicep.LanguageServer.Handlers
                     var moduleOutputDecorator = model.Root.OutputDeclarations
                         .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
                         ?.DeclaringOutput
-                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, "sys");
+                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName);
                     if (moduleOutputDecorator is not null)
                     {
                         return CodeBlockWithDescriptionDecorator(content, moduleOutputDecorator);

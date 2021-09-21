@@ -4,7 +4,9 @@
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using System.IO;
 
 namespace Bicep.Cli
@@ -12,7 +14,7 @@ namespace Bicep.Cli
     public class InvocationContext
     {
         public InvocationContext(
-            IResourceTypeProvider resourceTypeProvider,
+            AzResourceTypeProvider azResourceTypeProvider,
             TextWriter outputWriter,
             TextWriter errorWriter,
             string assemblyFileVersion,
@@ -21,16 +23,16 @@ namespace Bicep.Cli
             ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null)
         {
             // keep the list of services in this class in sync with the logic in the AddInvocationContext() extension method
-            ResourceTypeProvider = resourceTypeProvider;
             OutputWriter = outputWriter;
             ErrorWriter = errorWriter;
             AssemblyFileVersion = assemblyFileVersion;
             Features = features ?? new FeatureProvider();
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory();
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory();
+            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeProvider, Features);
         }
 
-        public IResourceTypeProvider ResourceTypeProvider { get; }
+        public INamespaceProvider NamespaceProvider { get; }
 
         public TextWriter OutputWriter { get; } 
 

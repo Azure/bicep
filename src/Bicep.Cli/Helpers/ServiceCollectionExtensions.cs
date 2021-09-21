@@ -51,7 +51,7 @@ namespace Bicep.Cli.Helpers
             services.AddSingleton(context);
 
             // add contents of the context
-            services.AddSingleton(context.ResourceTypeProvider);
+            services.AddSingleton(context.NamespaceProvider);
             services.AddSingleton(context.Features);
             services.AddSingleton(context.ClientFactory);
             services.AddSingleton(context.TemplateSpecRepositoryFactory);

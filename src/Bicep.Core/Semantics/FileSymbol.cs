@@ -6,8 +6,11 @@ using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics.Metadata;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
@@ -17,14 +20,14 @@ namespace Bicep.Core.Semantics
 
         public FileSymbol(string name,
             ProgramSyntax syntax,
-            ImmutableDictionary<string, NamespaceSymbol> importedNamespaces,
+            NamespaceResolver namespaceResolver,
             IEnumerable<LocalScope> outermostScopes,
             IEnumerable<DeclaredSymbol> declarations,
             Uri fileUri)
             : base(name)
         {
             this.Syntax = syntax;
-            this.ImportedNamespaces = importedNamespaces;
+            this.NamespaceResolver = namespaceResolver;
             FileUri = fileUri;
             this.LocalScopes = outermostScopes.ToImmutableArray();
 
@@ -39,20 +42,25 @@ namespace Bicep.Core.Semantics
             this.declarationsByName = this.Declarations.ToLookup(decl => decl.Name, LanguageConstants.IdentifierComparer);
         }
 
-        public override IEnumerable<Symbol> Descendants => this.ImportedNamespaces.Values
-            .Concat<Symbol>(this.LocalScopes)
-            .Concat(this.ImportDeclarations)
+        public override IEnumerable<Symbol> Descendants =>
+            this.NamespaceResolver.BuiltIns.Values
+            .Concat<Symbol>(this.ImportDeclarations)
+            .Concat(this.LocalScopes)
             .Concat(this.ParameterDeclarations)
             .Concat(this.VariableDeclarations)
             .Concat(this.ResourceDeclarations)
             .Concat(this.ModuleDeclarations)
             .Concat(this.OutputDeclarations);
 
+        public IEnumerable<Symbol> Namespaces =>
+            this.NamespaceResolver.BuiltIns.Values
+            .Concat<Symbol>(this.ImportDeclarations);
+
         public override SymbolKind Kind => SymbolKind.File;
 
         public ProgramSyntax Syntax { get; }
 
-        public ImmutableDictionary<string, NamespaceSymbol> ImportedNamespaces { get; }
+        public NamespaceResolver NamespaceResolver { get; }
 
         public ImmutableArray<LocalScope> LocalScopes { get; }
 
@@ -86,16 +94,16 @@ namespace Bicep.Core.Semantics
 
         private sealed class DuplicateIdentifierValidatorVisitor : SymbolVisitor
         {
-            private readonly ImmutableDictionary<string, NamespaceSymbol> importedNamespaces;
+            private readonly ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces;
 
-            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, NamespaceSymbol> importedNamespaces)
+            private DuplicateIdentifierValidatorVisitor(ImmutableDictionary<string, BuiltInNamespaceSymbol> builtInNamespaces)
             {
-                this.importedNamespaces = importedNamespaces;
+                this.builtInNamespaces = builtInNamespaces;
             }
 
             public static IEnumerable<ErrorDiagnostic> GetDiagnostics(FileSymbol file)
             {
-                var visitor = new DuplicateIdentifierValidatorVisitor(file.ImportedNamespaces);
+                var visitor = new DuplicateIdentifierValidatorVisitor(file.NamespaceResolver.BuiltIns);
                 visitor.Visit(file);
 
                 return visitor.Diagnostics;
@@ -136,8 +144,8 @@ namespace Bicep.Core.Semantics
                 // otherwise the user could accidentally hide a namespace which would remove the ability
                 // to fully qualify a function
                 this.Diagnostics.AddRange(nonOutputDeclarations
-                    .Where(decl => decl.NameSyntax.IsValid && this.importedNamespaces.ContainsKey(decl.Name))
-                    .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.importedNamespaces.Keys)));
+                    .Where(decl => decl.NameSyntax.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
+                    .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)

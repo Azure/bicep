@@ -26,6 +26,8 @@ namespace Bicep.Core.Features
 
         public bool SymbolicNameCodegenEnabled => bool.TryParse(Environment.GetEnvironmentVariable("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL"), out var enabled) ? enabled : false;
 
+        public bool ImportsEnabled => bool.TryParse(Environment.GetEnvironmentVariable("BICEP_IMPORTS_ENABLED_EXPERIMENTAL"), out var enabled) ? enabled : false;
+
         private static string GetDefaultCachePath()
         {
             string basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

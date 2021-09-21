@@ -1190,8 +1190,23 @@ namespace Bicep.Core.Diagnostics
 
             public ErrorDiagnostic ExpectedImportAliasName() => new(
                 TextSpan,
-                "BCP200",
+                "BCP201",
                 "Expected an import alias name at this location.");
+
+            public ErrorDiagnostic ImportsAreDisabled() => new(
+                TextSpan,
+                "BCP202",
+                "Import statements are currently not supported.");
+
+            public ErrorDiagnostic UnrecognizedImportProvider(string provider) => new(
+                TextSpan,
+                "BCP203",
+                $"Imported namespace \"{provider}\" is not recognized.");
+
+            public ErrorDiagnostic ImportProviderDoesNotSupportConfiguration(string provider) => new(
+                TextSpan,
+                "BCP204",
+                $"Imported namespace \"{provider}\" does not support configuration.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

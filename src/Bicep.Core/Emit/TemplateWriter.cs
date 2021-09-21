@@ -184,16 +184,16 @@ namespace Bicep.Core.Emit
             {
                 var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
-                if (symbol is FunctionSymbol decoratorSymbol && DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
+                if (symbol is FunctionSymbol decoratorSymbol &&
+                    decoratorSymbol.DeclaringObject is NamespaceType namespaceType &&
+                    DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
                 {
                     var argumentTypes = decoratorSyntax.Arguments
                         .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
                         .ToArray();
 
                     // There should be exact one matching decorator since there's no errors.
-                    Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
-                        .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
-                        .Single();
+                    var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
 
                     result = decorator.Evaluate(decoratorSyntax, targetType, result);
                 }
@@ -342,7 +342,10 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteStartObject();
 
                 emitter.EmitProperty("provider", import.DeclaringImport.ProviderName);
-                emitter.EmitProperty("config", import.DeclaringImport.Config);
+                if (import.DeclaringImport.Config is {} importConfig)
+                {
+                    emitter.EmitProperty("config", importConfig);
+                }
 
                 jsonWriter.WriteEndObject();
             }

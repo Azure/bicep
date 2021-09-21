@@ -17,8 +17,10 @@ using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
-    public class SystemNamespaceSymbol : NamespaceSymbol
+    public static class SystemNamespaceType
     {
+        public const string BuiltInName = "sys";
+
         private static readonly ImmutableArray<FunctionOverload> SystemOverloads = new[]
         {
             new FunctionOverloadBuilder(LanguageConstants.AnyFunction)
@@ -735,8 +737,17 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
         }
 
-        public SystemNamespaceSymbol() : base("sys", SystemOverloads, BannedFunctions, GetSystemDecorators())
+        public static NamespaceType Create(string aliasName)
         {
+            return new NamespaceType(
+                aliasName,
+                BuiltInName,
+                ImmutableArray<TypeProperty>.Empty,
+                SystemOverloads,
+                BannedFunctions,
+                GetSystemDecorators(),
+                new EmptyResourceTypeProvider(),
+                configurationType: null);
         }
     }
 }

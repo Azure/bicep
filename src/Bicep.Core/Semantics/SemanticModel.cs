@@ -46,8 +46,8 @@ namespace Bicep.Core.Semantics
             var symbolContext = new SymbolContext(compilation, this);
             SymbolContext = symbolContext;
 
-            Binder = new Binder(sourceFile, symbolContext);
-            TypeManager = new TypeManager(compilation.ResourceTypeProvider, Binder, fileResolver);
+            Binder = new Binder(compilation.NamespaceProvider, sourceFile, symbolContext);
+            TypeManager = new TypeManager(Binder, fileResolver);
 
             // name binding is done
             // allow type queries now

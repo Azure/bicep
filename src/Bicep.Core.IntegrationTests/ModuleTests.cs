@@ -384,7 +384,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_unknown_scheme_should_be_rejected()
         {
-            var context = new CompilationHelper.CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true));
+            var context = new CompilationHelper.CompilationHelperContext(TestTypeHelper.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true));
             var result = CompilationHelper.Compile(context, @"module test 'fake:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]
@@ -396,7 +396,7 @@ module modulea 'modulea.bicep' = {
         [TestMethod]
         public void External_module_reference_with_oci_scheme_should_be_rejected_if_registry_disabled()
         {
-            var context = new CompilationHelper.CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
+            var context = new CompilationHelper.CompilationHelperContext(TestTypeHelper.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false));
             var result = CompilationHelper.Compile(context, @"module test 'br:totally-fake' = {}");
 
             result.Should().HaveDiagnostics(new[]

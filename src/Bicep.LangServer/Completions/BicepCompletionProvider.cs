@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Azure.Deployments.Core.Comparers;
@@ -195,7 +196,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 // This is more complex because we allow the API version to be omitted, so we want to make a list of unique values
                 // for the FQT, and then create a "no version" completion + a completion for each version.
-                var filtered = model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                var filtered = model.Binder.NamespaceResolver.GetAvailableResourceTypes()
                     .Where(rt => parentTypeReference.IsParentOf(rt))
                     .ToLookup(rt => rt.FullyQualifiedType);
 
@@ -224,7 +225,7 @@ namespace Bicep.LanguageServer.Completions
             {
                 // newest api versions should be shown first
                 // strict filtering on type so that we show api versions for only the selected type
-                return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+                return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
                     .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FullyQualifiedType))
                     .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
                     .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
@@ -235,7 +236,7 @@ namespace Bicep.LanguageServer.Completions
             // if we do not have the namespace and type notation, we only return uniquie resource types without their api-versions
             // we need to ensure that Microsoft.Compute/virtualMachines comes before Microsoft.Compute/virtualMachines/extensions
             // we still order by apiVersion first to have consistent indexes
-            return model.Compilation.ResourceTypeProvider.GetAvailableTypes()
+            return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
                 .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                 .GroupBy(rt => rt.FullyQualifiedType)
                 .Select(rt => rt.First())
@@ -506,6 +507,14 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private static ImmutableDictionary<Symbol, NamespaceType> GetNamespaceTypeBySymbol(SemanticModel model)
+        {
+            return model.Root.Namespaces
+                .Select(ns => (symbol: ns, type: (ns as INamespaceSymbol)?.TryGetNamespaceType()))
+                .Where(x => x.type is not null)
+                .ToImmutableDictionary(x => x.symbol, x => x.type!);
+        }
+
         private static IEnumerable<CompletionItem> GetAccessibleSymbolCompletions(SemanticModel model, BicepCompletionContext context)
         {
             // maps insert text to the completion item
@@ -549,10 +558,12 @@ namespace Bicep.LanguageServer.Completions
                 return result;
             }
 
+            var nsTypeDict = GetNamespaceTypeBySymbol(model);
+
             if (!context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
             {
                 // add namespaces first
-                AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values);
+                AddSymbolCompletions(completions, nsTypeDict.Keys);
 
                 // add accessible symbols from innermost scope and then move to outer scopes
                 // reverse loop iteration
@@ -566,28 +577,28 @@ namespace Bicep.LanguageServer.Completions
             else
             {
                 // Only add the namespaces that contain accessible decorator function symbols.
-                AddSymbolCompletions(completions, model.Root.ImportedNamespaces.Values.Where(
-                    @namespace => GetAccessibleDecoratorFunctionsWithCache(@namespace.Type).Any()));
+                AddSymbolCompletions(completions, nsTypeDict.Keys.Where(
+                    ns => GetAccessibleDecoratorFunctionsWithCache(nsTypeDict[ns]).Any()));
 
                 // Record the names of the non-output declarations which will be used to check name clashes later.
                 declaredNames.UnionWith(model.Root.Declarations.Where(decl => decl.NameSyntax.IsValid && decl is not OutputSymbol).Select(decl => decl.Name));
             }
 
             // get names of functions that always require to be fully qualified due to clashes between namespaces
-            var alwaysFullyQualifiedNames = model.Root.ImportedNamespaces
-                .SelectMany(pair => context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName)
-                    ? GetAccessibleDecoratorFunctionsWithCache(pair.Value.Type)
-                    : pair.Value.Type.MethodResolver.GetKnownFunctions().Values)
+            var alwaysFullyQualifiedNames = nsTypeDict.Values
+                .SelectMany(ns => context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName)
+                    ? GetAccessibleDecoratorFunctionsWithCache(ns)
+                    : ns.MethodResolver.GetKnownFunctions().Values)
                 .GroupBy(func => func.Name, (name, functionSymbols) => (name, count: functionSymbols.Count()), LanguageConstants.IdentifierComparer)
                 .Where(tuple => tuple.count > 1)
                 .Select(tuple => tuple.name)
                 .ToHashSet(LanguageConstants.IdentifierComparer);
 
-            foreach (var @namespace in model.Root.ImportedNamespaces.Values)
+            foreach (var (symbol, namespaceType) in nsTypeDict)
             {
                 var functionSymbols = context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName)
-                    ? GetAccessibleDecoratorFunctionsWithCache(@namespace.Type)
-                    : @namespace.Type.MethodResolver.GetKnownFunctions().Values;
+                    ? GetAccessibleDecoratorFunctionsWithCache(namespaceType)
+                    : namespaceType.MethodResolver.GetKnownFunctions().Values;
 
                 foreach (var function in functionSymbols)
                 {
@@ -602,7 +613,7 @@ namespace Bicep.LanguageServer.Completions
                     {
                         // either there is a declaration with the same name as the function or the function is ambiguous between the imported namespaces
                         // either way the function must be fully qualified in the completion
-                        var fullyQualifiedFunctionName = $"{@namespace.Name}.{function.Name}";
+                        var fullyQualifiedFunctionName = $"{symbol.Name}.{function.Name}";
                         completions.Add(fullyQualifiedFunctionName, CreateSymbolCompletion(function, context.ReplacementRange, insertText: fullyQualifiedFunctionName));
                     }
                     else
@@ -1102,7 +1113,7 @@ namespace Bicep.LanguageServer.Completions
             }
             
             // trigger follow up completions
-            if (symbol is NamespaceSymbol)
+            if (symbol is INamespaceSymbol)
             {
                 return completion
                 .WithDetail(insertText)

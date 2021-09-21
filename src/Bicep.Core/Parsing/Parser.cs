@@ -359,10 +359,27 @@ namespace Bicep.Core.Parsing
                 aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
             }
 
-            var config = this.WithRecovery(
-                () => this.Object(ExpressionFlags.AllowComplexLiterals),
-                GetSuppressionFlag((asKeyword as SyntaxBase) ?? providerName),
-                TokenType.NewLine);
+            SyntaxBase? config = null;
+            if (aliasName is not null)
+            {
+                config = this.WithRecoveryNullable(
+                    () =>
+                    {
+                        var current = reader.Peek();
+                        return current.Type switch
+                        {
+                            // no config is supplied
+                            TokenType.NewLine => null,
+                            TokenType.EndOfFile => null,
+
+                            // we have config!
+                            TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
+                            _ => throw new ExpectedTokenException(current, b => b.ExpectedCharacter("{")),
+                        };
+                    },
+                    GetSuppressionFlag(aliasName),
+                    TokenType.NewLine);
+            }
 
             return new ImportDeclarationSyntax(leadingNodes, keyword, providerName, asKeyword, aliasName, config);
         }

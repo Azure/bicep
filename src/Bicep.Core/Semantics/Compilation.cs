@@ -7,7 +7,7 @@ using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.TypeSystem;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -16,10 +16,10 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping, ConfigHelper? configHelper, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, ConfigHelper? configHelper, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.SourceFileGrouping = sourceFileGrouping;
-            this.ResourceTypeProvider = resourceTypeProvider;
+            this.NamespaceProvider = namespaceProvider;
 
             var fileResolver = SourceFileGrouping.FileResolver;
             ConfigHelper = configHelper ?? new ConfigHelper(null, fileResolver);
@@ -40,7 +40,7 @@ namespace Bicep.Core.Semantics
 
         public SourceFileGrouping SourceFileGrouping { get; }
 
-        public IResourceTypeProvider ResourceTypeProvider { get; }
+        public INamespaceProvider NamespaceProvider { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
             => GetSemanticModel(SourceFileGrouping.EntryPoint);

@@ -11,7 +11,7 @@ namespace Bicep.Core.Syntax
 {
     public class ImportDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax providerName, Token? asKeyword, IdentifierSyntax? aliasName, SyntaxBase config)
+        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax providerName, Token? asKeyword, IdentifierSyntax? aliasName, SyntaxBase? config)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword);
@@ -35,18 +35,12 @@ namespace Bicep.Core.Syntax
 
         public IdentifierSyntax? AliasName { get; }
 
-        public SyntaxBase Config { get; }
+        public SyntaxBase? Config { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitImportDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, this.Config);
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, TextSpan.LastNonNull(ProviderName, AsKeyword, AliasName, Config));
 
         public IdentifierSyntax Name => AliasName ?? ProviderName;
-
-        public TypeSymbol GetDeclaredType()
-        {
-            // TODO: make sure this works nicely with parse errors
-            return new ImportType(Name.IdentifierName);
-        }
     }
 }

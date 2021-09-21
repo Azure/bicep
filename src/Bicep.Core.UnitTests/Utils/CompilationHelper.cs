@@ -9,6 +9,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
@@ -28,7 +29,7 @@ namespace Bicep.Core.UnitTests.Utils
             public BicepFile BicepFile => Compilation.SourceFileGrouping.EntryPoint;
         }
 
-        public record CompilationHelperContext(IResourceTypeProvider ResourceTypeProvider, IFeatureProvider Features);
+        public record CompilationHelperContext(INamespaceProvider NamespaceProvider, IFeatureProvider Features);
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
@@ -42,14 +43,14 @@ namespace Bicep.Core.UnitTests.Utils
 
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, context.Features);
 
-            return Compile(new Compilation(context.ResourceTypeProvider, sourceFileGrouping, null));
+            return Compile(new Compilation(context.NamespaceProvider, sourceFileGrouping, null));
         }
 
-        public static CompilationResult Compile(IResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(resourceTypeProvider, BicepTestConstants.Features), files);
+        public static CompilationResult Compile(INamespaceProvider namespaceProvider, params (string fileName, string fileContents)[] files)
+            => Compile(new CompilationHelperContext(namespaceProvider, BicepTestConstants.Features), files);
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features), files);
+            => Compile(new CompilationHelperContext(new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features), BicepTestConstants.Features), files);
 
         public static CompilationResult Compile(string fileContents)
             => Compile(("main.bicep", fileContents));

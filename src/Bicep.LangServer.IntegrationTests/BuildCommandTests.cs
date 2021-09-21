@@ -35,7 +35,7 @@ namespace Bicep.LangServer.IntegrationTests
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
-                    ResourceTypeProvider: BuiltInTestTypes.Create(),
+                    NamespaceProvider: BuiltInTestTypes.Create(),
                     Features: BicepTestConstants.Features,
                     AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
 
@@ -71,7 +71,7 @@ namespace Bicep.LangServer.IntegrationTests
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
-                    ResourceTypeProvider: BuiltInTestTypes.Create(),
+                    NamespaceProvider: BuiltInTestTypes.Create(),
                     Features: featuresProvider,
                     AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
 

@@ -26,6 +26,7 @@ using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.Langu
 using Bicep.LanguageServer.Utils;
 using Bicep.Core.Features;
 using Bicep.Core.Configuration;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.LanguageServer
 {
@@ -33,7 +34,7 @@ namespace Bicep.LanguageServer
     {
         public record CreationOptions(
             ISnippetsProvider? SnippetsProvider = null,
-            IResourceTypeProvider? ResourceTypeProvider = null,
+            INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
             IFeatureProvider? Features = null,
             string? AssemblyFileVersion = null);
@@ -101,9 +102,12 @@ namespace Bicep.LanguageServer
             var featureProvider = creationOptions.Features ?? new FeatureProvider();
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
+            services.AddSingleton<AzResourceTypeProvider>(services => AzResourceTypeProvider.CreateWithAzTypes());
+            AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(services, creationOptions.NamespaceProvider);
+            services.AddSingleton<INamespaceProvider, DefaultNamespaceProvider>();
             services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
-            services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
-            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver, new ConfigHelper(null, new FileResolver())));
+            services.AddSingleton<ConfigHelper>(services => new ConfigHelper(null, fileResolver));
+            AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(services, creationOptions.SnippetsProvider);
             services.AddSingleton<IFileResolver>(services => fileResolver);
             services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
@@ -117,6 +121,19 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
+        }
+
+        private static void AddSingletonOrInstance<TService, TImplementation>(IServiceCollection services, TService? nullableImplementation)
+            where TService : class where TImplementation : class, TService
+        {
+            if (nullableImplementation is not null)
+            {
+                services.AddSingleton<TService>(nullableImplementation);
+            }
+            else
+            {
+                services.AddSingleton<TService, TImplementation>();
+            }
         }
     }
 }

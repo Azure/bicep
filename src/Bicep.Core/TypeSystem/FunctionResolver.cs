@@ -17,8 +17,9 @@ namespace Bicep.Core.TypeSystem
     {
         private readonly ImmutableArray<FunctionOverload> functionOverloads;
         private readonly ImmutableArray<BannedFunction> bannedFunctions;
+        private readonly ObjectType declaringObject;
 
-        public FunctionResolver(IEnumerable<FunctionOverload>? functionOverloads = null, IEnumerable<BannedFunction>? bannedFunctions = null)
+        public FunctionResolver(ObjectType declaringObject, IEnumerable<FunctionOverload>? functionOverloads = null, IEnumerable<BannedFunction>? bannedFunctions = null)
         {
             this.functionOverloads = functionOverloads?.ToImmutableArray() ?? ImmutableArray<FunctionOverload>.Empty;
             this.bannedFunctions = bannedFunctions?.ToImmutableArray() ?? ImmutableArray<BannedFunction>.Empty;
@@ -27,7 +28,7 @@ namespace Bicep.Core.TypeSystem
             // TODO: make cache building logic lazy
             this.FunctionCache = this.functionOverloads
                 .Where(fo => fo is not FunctionWildcardOverload)
-                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(name, overloads), LanguageConstants.IdentifierComparer)
+                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(declaringObject, name, overloads), LanguageConstants.IdentifierComparer)
                 .ToDictionary<FunctionSymbol, string, FunctionSymbol?>(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
 
             this.BannedFunctions = this.bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
@@ -36,7 +37,11 @@ namespace Bicep.Core.TypeSystem
             this.FunctionWildcardOverloads = this.functionOverloads
                 .OfType<FunctionWildcardOverload>()
                 .ToImmutableArray();
+            this.declaringObject = declaringObject;
         }
+
+        public FunctionResolver CopyToObject(ObjectType declaringObject)
+            => new(declaringObject, functionOverloads, bannedFunctions);
 
         private IDictionary<string, FunctionSymbol?> FunctionCache { get; }
 
@@ -73,7 +78,7 @@ namespace Bicep.Core.TypeSystem
             var wildcardOverloads =  FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
 
             // create a new symbol for each unique name that matches the wildcard
-            return wildcardOverloads.Any() ? new FunctionSymbol(name, wildcardOverloads) : null;
+            return wildcardOverloads.Any() ? new FunctionSymbol(declaringObject, name, wildcardOverloads) : null;
         }
 
         public static IEnumerable<FunctionOverload> GetMatches(

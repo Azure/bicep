@@ -8,6 +8,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.UnitTests.Completions;
@@ -31,7 +32,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
         private static readonly ILanguageServerFacade Server = Repository.Create<ILanguageServerFacade>().Object;
-        private static readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver, new ConfigHelper(null, BicepTestConstants.FileResolver));
+        private static readonly SnippetsProvider snippetsProvider = new(TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, new ConfigHelper(null, BicepTestConstants.FileResolver));
 
         [TestMethod]
         public void DeclarationContextShouldReturnKeywordCompletions()
@@ -426,8 +427,8 @@ output length int =
 
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
-            var availableFunctionNames = new NamespaceSymbol[] {new AzNamespaceSymbol(ResourceScope.ResourceGroup), new SystemNamespaceSymbol()}
-                .SelectMany(ns => ns.Type.MethodResolver.GetKnownFunctions().Values)
+            var availableFunctionNames = new NamespaceType[] { AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzResourceTypeProvider.CreateWithAzTypes()), SystemNamespaceType.Create("sys") }
+                .SelectMany(ns => ns.MethodResolver.GetKnownFunctions().Values)
                 .Where(symbol => expectParamDefaultFunctions || !symbol.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
                 .Select(func => func.Name)
                 .Except(fullyQualifiedFunctionParts.Select(p => p.function), LanguageConstants.IdentifierComparer)

@@ -14,10 +14,10 @@ namespace Bicep.Core.TypeSystem.Az
 
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        public static IResourceTypeProvider CreateWithAzTypes()
+        public static AzResourceTypeProvider CreateWithAzTypes()
             => CreateWithLoader(new AzResourceTypeLoader(), true);
 
-        public static IResourceTypeProvider CreateWithLoader(IResourceTypeLoader resourceTypeLoader, bool warnOnMissingType)
+        public static AzResourceTypeProvider CreateWithLoader(IResourceTypeLoader resourceTypeLoader, bool warnOnMissingType)
             => new AzResourceTypeProvider(resourceTypeLoader, warnOnMissingType);
 
         private class ResourceTypeCache
@@ -115,7 +115,7 @@ namespace Bicep.Core.TypeSystem.Az
                             bodyObjectType.Properties.SetItem(LanguageConstants.ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
-                            bodyObjectType.MethodResolver);
+                            bodyObjectType.MethodResolver.CopyToObject);
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                         break;
@@ -302,7 +302,7 @@ namespace Bicep.Core.TypeSystem.Az
         private static TypePropertyFlags ConvertToReadOnly(TypePropertyFlags typePropertyFlags)
             => (typePropertyFlags | TypePropertyFlags.ReadOnly) & ~TypePropertyFlags.Required;
 
-        public ResourceType GetType(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGetType(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
             // It's important to cache this result because GenerateResourceType is an expensive operation
             return loadedTypeCache.GetOrAdd(flags, typeReference, () =>
