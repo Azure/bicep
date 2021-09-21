@@ -7,13 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
 
 namespace Bicep.Core.Configuration
 {
     public class ConfigHelper
     {
-        private const string bicepConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
         private readonly IFileResolver fileResolver;
         private readonly bool useDefaultConfig;
 
@@ -48,11 +46,8 @@ namespace Bicep.Core.Configuration
         {
             var configBuilder = new ConfigurationBuilder();
 
-            // load the default settings from file embedded as resource
-            var assembly = Assembly.GetExecutingAssembly();
-
             // keep this stream open until after Build() call
-            using (var defaultConfigStream = assembly.GetManifestResourceStream(bicepConfigResourceName))
+            using (var defaultConfigStream = DefaultBicepConfigHelper.GetManifestResourceStream())
             {
                 Debug.Assert(defaultConfigStream != null, "Default configuration file should exist as embedded resource.");
                 configBuilder.AddJsonStream(defaultConfigStream);

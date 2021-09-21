@@ -3,11 +3,10 @@
 
 using System;
 using System.IO;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,18 +18,12 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepDisableLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {
-        private const string bicepConfigResourceName = "Bicep.LanguageServer.bicepconfig.json";
-
         private readonly string DefaultBicepConfig;
 
         public BicepDisableLinterRuleCommandHandler(ISerializer serializer)
             : base(LanguageConstants.DisableLinterRuleCommandName, serializer)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var stream = assembly.GetManifestResourceStream(bicepConfigResourceName);
-            var streamReader = new StreamReader(stream ?? throw new ArgumentNullException("Stream is null"), Encoding.Default);
-
-            DefaultBicepConfig = streamReader.ReadToEnd();
+            DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
         }
 
         public override async Task<Unit> Handle(DocumentUri documentUri, string code, string bicepConfigFilePath, CancellationToken cancellationToken)
