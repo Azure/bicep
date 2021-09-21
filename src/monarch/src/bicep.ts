@@ -20,6 +20,8 @@ const keywords = [
   'in',
   'if',
   'existing',
+  'import',
+  'as',
 ];
 
 const namedLiterals = [

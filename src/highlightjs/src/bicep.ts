@@ -29,6 +29,8 @@ const KEYWORDS = {
     'in',
     'if',
     'existing',
+    'import',
+    'as',
   ],
   literal: [
     "true",
