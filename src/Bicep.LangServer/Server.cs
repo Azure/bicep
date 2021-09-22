@@ -104,7 +104,6 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services.AddSingleton<AzResourceTypeProvider>(services => AzResourceTypeProvider.CreateWithAzTypes());
             AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(services, creationOptions.NamespaceProvider);
-            services.AddSingleton<INamespaceProvider, DefaultNamespaceProvider>();
             services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
             services.AddSingleton<ConfigHelper>(services => new ConfigHelper(null, fileResolver, useDefaultConfig: false));
             AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(services, creationOptions.SnippetsProvider);

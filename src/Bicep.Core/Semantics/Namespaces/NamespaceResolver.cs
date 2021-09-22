@@ -70,6 +70,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public IEnumerable<string> GetKnownFunctionNames(bool includeDecorators)
         {
+            // TODO: Deduplicate this list
             return this.namespaceTypes.Values
                 .SelectMany(type => includeDecorators
                     ? type.MethodResolver.GetKnownFunctions().Keys.Concat(type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
@@ -78,6 +79,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public IEnumerable<string> GetKnownPropertyNames()
         {
+            // TODO: Deduplicate this list
             return this.namespaceTypes.Values.SelectMany(type => type.Properties.Keys);
         }
 
@@ -100,6 +102,7 @@ namespace Bicep.Core.Semantics.Namespaces
         public bool HasResourceType(ResourceTypeReference reference)
             => namespaceTypes.Values.Any(type => type.ResourceTypeProvider.HasType(reference));
 
+        // TODO: Deduplicate this list
         public IEnumerable<ResourceTypeReference> GetAvailableResourceTypes()
             => namespaceTypes.Values.SelectMany(type => type.ResourceTypeProvider.GetAvailableTypes());
     }
