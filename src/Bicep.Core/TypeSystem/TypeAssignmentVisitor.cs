@@ -310,13 +310,13 @@ namespace Bicep.Core.TypeSystem
                     return declaredType;
                 }
 
-                var allowedDecoratorSyntax = GetDecorator(LanguageConstants.ParameterAllowedPropertyName);
+                var allowedDecoratorSyntax = GetNamedDecorator(syntax, LanguageConstants.ParameterAllowedPropertyName);
 
                 var assignedType = allowedDecoratorSyntax?.Arguments.Single().Expression is ArraySyntax allowedValuesSyntax
                     ? syntax.GetAssignedType(this.typeManager, allowedValuesSyntax)
                     : syntax.GetAssignedType(this.typeManager, null);
 
-                if (GetDecorator(LanguageConstants.ParameterSecurePropertyName) is not null)
+                if (GetNamedDecorator(syntax, LanguageConstants.ParameterSecurePropertyName) is not null)
                 {
                     if (ReferenceEquals(assignedType, LanguageConstants.LooseString))
                     {
@@ -336,30 +336,6 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 return assignedType;
-
-                /*
-                 * Calling FirstOrDefault here because when there are duplicate decorators,
-                 * the top most one takes precedence.
-                 */
-                DecoratorSyntax? GetDecorator(string decoratorName) => syntax.Decorators.FirstOrDefault(decoratorSyntax =>
-                {
-                    if (this.binder.GetSymbolInfo(decoratorSyntax.Expression) is FunctionSymbol functionSymbol &&
-                        functionSymbol.DeclaringObject is NamespaceType declaringNamespace)
-                    {
-                        var argumentTypes = this.GetRecoveredArgumentTypes(decoratorSyntax.Arguments).ToArray();
-                        var decorator = declaringNamespace.DecoratorResolver
-                            .GetMatches(functionSymbol, argumentTypes)
-                            .SingleOrDefault();
-
-                        if (decorator is not null && string.Equals(decorator.Overload.Name, decoratorName, LanguageConstants.IdentifierComparison))
-                        {
-                            return true;
-                        }
-                    }
-
-                    return false;
-                });
-
             });
 
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
@@ -1456,5 +1432,46 @@ namespace Bicep.Core.TypeSystem
 
                 _ => baseType
             };
+
+        private DecoratorSyntax? GetNamedDecorator(StatementSyntax syntax, string decoratorName)
+        {
+            /*
+            * Calling FirstOrDefault here because when there are duplicate decorators,
+            * the top most one takes precedence.
+            */
+            return syntax.Decorators.FirstOrDefault(decoratorSyntax =>
+            {
+                if (decoratorSyntax.Expression is not FunctionCallSyntaxBase functionCall ||
+                    !LanguageConstants.IdentifierComparer.Equals(functionCall.Name.IdentifierName, decoratorName))
+                {
+                    return false;
+                }
+
+                Symbol? expressionSymbol = null;
+                if (functionCall is InstanceFunctionCallSyntax ifc)
+                {
+                    // instance functions are not bound, so we need to figure out if this is a namespace method by looking at the base expression
+                    var namespaceType = this.GetTypeInfo(ifc.BaseExpression) as NamespaceType;
+                    expressionSymbol = namespaceType?.DecoratorResolver.TryGetSymbol(ifc.Name) as FunctionSymbol;
+                }
+                else
+                {
+                    expressionSymbol = this.binder.GetSymbolInfo(functionCall);
+                }
+
+                if (expressionSymbol is not FunctionSymbol functionSymbol ||
+                    functionSymbol.DeclaringObject is not NamespaceType declaringNamespace)
+                {
+                    return false;
+                }
+
+                var argumentTypes = this.GetRecoveredArgumentTypes(functionCall.Arguments).ToArray();
+                var decorator = declaringNamespace.DecoratorResolver
+                    .GetMatches(functionSymbol, argumentTypes)
+                    .SingleOrDefault();
+
+                return decorator is not null;
+            });
+        }
     }
 }
