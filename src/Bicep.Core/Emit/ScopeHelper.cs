@@ -158,6 +158,24 @@ namespace Bicep.Core.Emit
                         }
                     }
 
+                    if (StringComparer.OrdinalIgnoreCase.Equals(targetResource.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeManagementGroup))
+                    {
+                        // special-case 'Microsoft.Management/managementGroups' in order to allow it to create a managementGroup-scope resource
+                        // ignore diagnostics - these will be collected separately in the pass over resources
+                        var hasErrors = false;
+                        var mgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.ScopeSyntax);
+                        if (!hasErrors)
+                        {
+                            if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
+                            {
+                                logInvalidScopeFunc(scopeValue, ResourceScope.ManagementGroup, supportedScopes);
+                                return null;
+                            }
+
+                            return new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = targetResource.NameSyntax, IndexExpression = indexExpression };
+                        }
+                    }
+
                     if (!supportedScopes.HasFlag(ResourceScope.Resource))
                     {
                         logInvalidScopeFunc(scopeValue, ResourceScope.Resource, supportedScopes);

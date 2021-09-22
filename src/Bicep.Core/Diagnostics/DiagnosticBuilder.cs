@@ -1183,29 +1183,34 @@ namespace Bicep.Core.Diagnostics
                 "BCP199",
                 $"The specified OCI artifact reference \"{badRef}\" is not valid. Module path \"{badRepository}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic ExpectedImportProviderName() => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceRegistryTooLong(string badRef, string badRegistry, int maxLength) => new(
                 TextSpan,
                 "BCP200",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
+
+            public ErrorDiagnostic ExpectedImportProviderName() => new(
+                TextSpan,
+                "BCP201",
                 "Expected an import provider name at this location.");
 
             public ErrorDiagnostic ExpectedImportAliasName() => new(
                 TextSpan,
-                "BCP201",
+                "BCP202",
                 "Expected an import alias name at this location.");
 
             public ErrorDiagnostic ImportsAreDisabled() => new(
                 TextSpan,
-                "BCP202",
+                "BCP203",
                 "Import statements are currently not supported.");
 
             public ErrorDiagnostic UnrecognizedImportProvider(string provider) => new(
                 TextSpan,
-                "BCP203",
+                "BCP204",
                 $"Imported namespace \"{provider}\" is not recognized.");
 
             public ErrorDiagnostic ImportProviderDoesNotSupportConfiguration(string provider) => new(
                 TextSpan,
-                "BCP204",
+                "BCP205",
                 $"Imported namespace \"{provider}\" does not support configuration.");
         }
 

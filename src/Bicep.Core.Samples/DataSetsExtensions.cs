@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
-using Azure.ResourceManager.Resources;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -23,7 +23,6 @@ using Bicep.Core.Workspaces;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Samples
 {
@@ -63,9 +62,9 @@ namespace Bicep.Core.Samples
         {
             var clientsBuilder = ImmutableDictionary.CreateBuilder<(Uri registryUri, string repository), MockRegistryBlobClient>();
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasRegistryModules)));
 
-            foreach (var (moduleName, publishInfo) in dataSet.ModulesToPublish)
+            foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
                 if(dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) is not OciArtifactModuleReference targetReference)
                 {
@@ -111,27 +110,13 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
 
-                // Using JObject.Parse as a workaround because we cannot deserilize the source to a TemplateSpecVersionData object directly:
-                // - TemplateSpecVersionData.DeserializeGenericResource is internal
-                // - JsonConvert.Deserialize will cause InvalidCastException
-                var templateSpecJObject = JObject.Parse(templateSpecInfo.ModuleSource);
-
-                if (templateSpecJObject is null ||
-                    templateSpecJObject["location"] is not JValue locationJValue ||
-                    templateSpecJObject.SelectToken("properties.mainTemplate") is not JObject mainTemplateJObject)
-                {
-                    throw new InvalidOperationException($"The template spec is malformed.");
-                }
-
-                var templateSpecVersionData = new TemplateSpecVersionData(locationJValue.Value<string>())
-                {
-                    MainTemplate = mainTemplateJObject
-                };
+                var templateSpecElement = JsonDocument.Parse(templateSpecInfo.ModuleSource).RootElement;
+                var templateSpecEntity = TemplateSpecEntity.FromJsonElement(templateSpecElement);
 
                 repositoryMocksBySubscription.TryAdd((reference.EndpointUri, reference.SubscriptionId), StrictMock.Of<ITemplateSpecRepository>());
                 repositoryMocksBySubscription[(reference.EndpointUri, reference.SubscriptionId)]
                     .Setup(x => x.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
-                    .ReturnsAsync(templateSpecVersionData);
+                    .ReturnsAsync(templateSpecEntity);
             }
 
             var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();
@@ -147,9 +132,9 @@ namespace Bicep.Core.Samples
 
         public static async Task PublishModulesToRegistryAsync(this DataSet dataSet, IContainerRegistryClientFactory clientFactory, TestContext testContext)
         {
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasModulesToPublish)));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasRegistryModules)));
 
-            foreach (var (moduleName, publishInfo) in dataSet.ModulesToPublish)
+            foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
                 var targetReference = dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) ?? throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
 

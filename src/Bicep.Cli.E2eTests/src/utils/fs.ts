@@ -14,7 +14,7 @@ export const bicepCli = path.resolve(
     "../../../Bicep.Cli/bin/Debug/net5.0/bicep"
 );
 
-export const moduleCacheRoot = path.resolve(homedir(), ".bicep/artifacts");
+export const moduleCacheRoot = path.resolve(homedir(), ".bicep");
 
 export function pathToExampleFile(...pathNames: string[]): string {
   return path.join(__dirname, "../examples", ...pathNames);

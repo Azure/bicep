@@ -32,6 +32,7 @@ namespace Bicep.Core.Semantics
                     {
                         BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, ConfigHelper),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
+                        TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }

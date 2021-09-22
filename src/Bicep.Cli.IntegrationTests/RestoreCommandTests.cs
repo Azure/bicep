@@ -3,13 +3,16 @@
 
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests;
+using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -47,6 +50,7 @@ namespace Bicep.Cli.IntegrationTests
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
 
             var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            TestContext.WriteLine($"Cache root = {settings.Features.CacheRootDirectory}");
             var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
 
             using (new AssertionScope())
@@ -59,8 +63,7 @@ namespace Bicep.Cli.IntegrationTests
             if(dataSet.HasExternalModules)
             {
                 // ensure something got restored
-                Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
-                Directory.EnumerateFiles(settings.Features.CacheRootDirectory, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+                settings.Features.Should().HaveValidModules();
             }
         }
 

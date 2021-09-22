@@ -5,8 +5,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
-using System.IO;
 using System.Text;
+using System.IO;
 
 namespace Bicep.Core.FileSystem
 {
@@ -19,6 +19,11 @@ namespace Bicep.Core.FileSystem
         {
             this.fileLookup = fileLookup;
             this.missingFileFailureBuilder = missingFileFailureBuilder ?? (fileUri => $"Could not find file \"{fileUri.LocalPath}\"");
+        }
+
+        public IDisposable? TryAcquireFileLock(Uri fileUri)
+        {
+            throw new NotImplementedException();
         }
 
         public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
@@ -116,6 +121,11 @@ namespace Bicep.Core.FileSystem
             }
             fileBase64 = Convert.ToBase64String(bytes);
             return true;
+        }
+
+        public void Write(Uri fileUri, Stream contents)
+        {
+            throw new NotImplementedException();
         }
     }
 }

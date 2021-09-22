@@ -596,27 +596,10 @@ namespace Bicep.Core.Emit
 
                 var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
 
-                if (moduleSemanticModel is ArmTemplateSemanticModel { SourceFile: TemplateSpecMainTemplateFile sourceFile })
+                // If it is a template spec module, emit templateLink instead of template contents.
+                jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
                 {
-                    jsonWriter.WritePropertyName("templateLink");
-                    {
-                        jsonWriter.WriteStartObject();
-                        emitter.EmitProperty("id", sourceFile.ModuleReference.TemplateSpecResourceId);
-                        jsonWriter.WriteEndObject();
-                    }
-                }
-                else
-                {
-                    jsonWriter.WritePropertyName("template");
-                    {
-                        ITemplateWriter moduleWriter = moduleSemanticModel switch
-                        {
-                            ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
-                            SemanticModel bicepModel => new TemplateWriter(bicepModel, this.settings),
-                            _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
-                        };
-                        moduleWriter.Write(jsonWriter);
-                    }
+                    TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings).Write(jsonWriter);
                 }
 
                 jsonWriter.WriteEndObject();
@@ -626,19 +609,12 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
         }
-        private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
-        {
-            switch (dependency.Resource)
-            {
-                case ResourceSymbol resource:
-                    // We only want to add a 'dependsOn' for resources being deployed in this file.
-                    return !resource.DeclaringResource.IsExistingResource();
-                case ModuleSymbol:
-                    return true;
-                default:
-                    throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
-            }
-        }
+        private static bool ShouldGenerateDependsOn(ResourceDependency dependency) => dependency.Resource switch
+        {   // We only want to add a 'dependsOn' for resources being deployed in this file.
+            ResourceSymbol resource => !resource.DeclaringResource.IsExistingResource(),
+            ModuleSymbol => true,
+            _ => throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}"),
+        };
 
         private void EmitSymbolicNameDependsOnEntry(JsonTextWriter jsonWriter, ExpressionEmitter emitter, SyntaxBase newContext, ResourceDependency dependency)
         {

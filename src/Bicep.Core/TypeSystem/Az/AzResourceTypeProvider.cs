@@ -54,6 +54,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
+        public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
 
         private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;

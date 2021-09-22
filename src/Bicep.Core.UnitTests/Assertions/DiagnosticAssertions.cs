@@ -82,5 +82,16 @@ namespace Bicep.Core.UnitTests.Assertions
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }
+
+        public AndConstraint<DiagnosticAssertions> HaveMessageStartWith(string prefix, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given<string>(() => Subject.Message)
+                .ForCondition(x => x.StartsWith(prefix))
+                .FailWith("Expected message to start with {0}{reason} but it was {1}", _ => prefix, x => x);
+
+            return new AndConstraint<DiagnosticAssertions>(this);
+        }
     }
 }
