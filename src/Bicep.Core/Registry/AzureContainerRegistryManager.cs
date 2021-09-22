@@ -22,34 +22,23 @@ namespace Bicep.Core.Registry
         private const StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
-        private readonly string artifactCachePath;
         private readonly TokenCredential tokenCredential;
         private readonly IContainerRegistryClientFactory clientFactory;
 
-        public AzureContainerRegistryManager(string artifactCachePath, TokenCredential tokenCredential, IContainerRegistryClientFactory clientFactory)
+        public AzureContainerRegistryManager(TokenCredential tokenCredential, IContainerRegistryClientFactory clientFactory)
         {
-            this.artifactCachePath = artifactCachePath;
             this.tokenCredential = tokenCredential;
             this.clientFactory = clientFactory;
         }
 
-        public async Task<OciClientResult> PullArtifactsync(OciArtifactModuleReference moduleReference)
+        public async Task<OciArtifactResult> PullArtifactAsync(OciArtifactModuleReference moduleReference)
         {
-            try
-            {
-                await PullArtifactInternalAsync(moduleReference);
+            var client = this.CreateBlobClient(moduleReference);
+            var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
 
-                return new(true, null);
-            }
-            catch(AcrManagerException exception)
-            {
-                // we can trust the message in our own exception
-                return new(false, exception.Message);
-            }
-            catch(Exception exception)
-            {
-                return new(false, $"Unhandled exception: {exception}");
-            }
+            var moduleStream = await ProcessManifest(client, manifest);
+
+            return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
         public async Task PushArtifactAsync(OciArtifactModuleReference moduleReference, StreamDescriptor config, params StreamDescriptor[] layers)
@@ -80,62 +69,18 @@ namespace Bicep.Core.Registry
 
             var manifest = new OciManifest(2, configDescriptor, layerDescriptors);
             using var manifestStream = new MemoryStream();
-            OciManifestSerialization.SerializeManifest(manifestStream, manifest);
+            OciSerialization.Serialize(manifestStream, manifest);
 
             manifestStream.Position = 0;
             // BUG: the client closes the stream :(
             var manifestUploadResult = await blobClient.UploadManifestAsync(manifestStream, new UploadManifestOptions(ContentType.ApplicationVndOciImageManifestV1Json, moduleReference.Tag));
         }
 
-        public string GetLocalPackageDirectory(OciArtifactModuleReference reference)
-        {
-            var baseDirectories = new[]
-            {
-                this.artifactCachePath,
-                reference.Registry
-            };
-
-            // TODO: Directory convention problematic. /foo/bar:baz and /foo:bar will share directories
-            var directories = baseDirectories
-                .Concat(reference.Repository.Split('/', StringSplitOptions.RemoveEmptyEntries))
-                .Append(reference.Tag)
-                .ToArray();
-
-            return Path.Combine(directories);
-        }
-
-        public string GetLocalPackageEntryPointPath(OciArtifactModuleReference reference) => Path.Combine(this.GetLocalPackageDirectory(reference), "main.json");
-
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new Uri($"https://{moduleReference.Registry}");
 
         private BicepRegistryBlobClient CreateBlobClient(OciArtifactModuleReference moduleReference) => this.clientFactory.CreateBlobClient(GetRegistryUri(moduleReference), moduleReference.Repository, this.tokenCredential);
 
-        private static void CreateModuleDirectory(string modulePath)
-        {
-            try
-            {
-                // ensure that the directory exists
-                Directory.CreateDirectory(modulePath);
-            }
-            catch (Exception exception)
-            {
-                throw new AcrManagerException($"Unable to create the local module directory \"{modulePath}\". {exception.Message}", exception);
-            }
-        }
-
-        private async Task PullArtifactInternalAsync(OciArtifactModuleReference moduleReference)
-        {
-            var client = this.CreateBlobClient(moduleReference);
-            var manifest = await DownloadManifestAsync(moduleReference, client);
-
-            // this has to be after downloading the manifest so we don't create directories for non-existent modules
-            string modulePath = GetLocalPackageDirectory(moduleReference);
-            CreateModuleDirectory(modulePath);
-
-            await ProcessManifest(client, manifest, modulePath);
-        }
-
-        private static async Task<OciManifest> DownloadManifestAsync(OciArtifactModuleReference moduleReference, BicepRegistryBlobClient client)
+        private static async Task<(OciManifest,Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, BicepRegistryBlobClient client)
         {
             Response<DownloadManifestResult> manifestResponse;
             try
@@ -145,7 +90,7 @@ namespace Bicep.Core.Registry
             catch(RequestFailedException exception) when (exception.Status == 404)
             {
                 // manifest does not exist
-                throw new AcrManagerException("The module does not exist in the registry.", exception);
+                throw new OciModuleRegistryException("The module does not exist in the registry.", exception);
             }
 
             ValidateManifestResponse(manifestResponse);
@@ -154,7 +99,10 @@ namespace Bicep.Core.Registry
             // so we need to deserialize the manifest ourselves to get everything
             var stream = manifestResponse.Value.Content;
             stream.Position = 0;
-            return DeserializeManifest(stream);
+            var deserialized = DeserializeManifest(stream);
+            stream.Position= 0;
+
+            return (deserialized, stream, manifestResponse.Value.Digest);
         }
 
         private static void ValidateManifestResponse(Response<DownloadManifestResult> manifestResponse)
@@ -169,11 +117,11 @@ namespace Bicep.Core.Registry
 
             if (!string.Equals(digestFromRegistry, digestFromContent, DigestComparison))
             {
-                throw new AcrManagerException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
+                throw new OciModuleRegistryException($"There is a mismatch in the manifest digests. Received content digest = {digestFromContent}, Digest in registry response = {digestFromRegistry}");
             }
         }
 
-        private static async Task ProcessManifest(BicepRegistryBlobClient client, OciManifest manifest, string modulePath)
+        private static async Task<Stream> ProcessManifest(BicepRegistryBlobClient client, OciManifest manifest)
         {
             ProcessConfig(manifest.Config);
             if (manifest.Layers.Length != 1)
@@ -183,7 +131,7 @@ namespace Bicep.Core.Registry
 
             var layer = manifest.Layers.Single();
 
-            await ProcessLayer(client, layer, modulePath);
+            return await ProcessLayer(client, layer);
         }
 
         private static void ValidateBlobResponse(Response<DownloadBlobResult> blobResponse, OciDescriptor descriptor)
@@ -205,7 +153,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private static async Task ProcessLayer(BicepRegistryBlobClient client, OciDescriptor layer, string modulePath)
+        private static async Task<Stream> ProcessLayer(BicepRegistryBlobClient client, OciDescriptor layer)
         {
             if(!string.Equals(layer.MediaType, BicepMediaTypes.BicepModuleLayerV1Json, MediaTypeComparison))
             {
@@ -224,10 +172,7 @@ namespace Bicep.Core.Registry
 
             ValidateBlobResponse(blobResult, layer);
 
-            var layerPath = Path.Combine(modulePath, "main.json");
-
-            using var fileStream = new FileStream(layerPath, FileMode.Create);
-            await blobResult.Value.Content.CopyToAsync(fileStream);
+            return blobResult.Value.Content;
         }
 
         private static void ProcessConfig(OciDescriptor config)
@@ -248,8 +193,7 @@ namespace Bicep.Core.Registry
         {
             try
             {
-
-                return OciManifestSerialization.DeserializeManifest(stream);
+                return OciSerialization.Deserialize<OciManifest>(stream);
             }
             catch(Exception exception)
             {
@@ -257,18 +201,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        private class AcrManagerException : Exception
-        {
-            public AcrManagerException(string message) : base(message)
-            {
-            }
-
-            public AcrManagerException(string message, Exception innerException) : base(message, innerException)
-            {
-            }
-        }
-
-        private class InvalidModuleException : AcrManagerException
+        private class InvalidModuleException : OciModuleRegistryException
         {
             public InvalidModuleException(string innerMessage) : base($"The OCI artifact is not a valid Bicep module. {innerMessage}")
             {

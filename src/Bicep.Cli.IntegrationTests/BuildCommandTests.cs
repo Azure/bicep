@@ -105,9 +105,7 @@ namespace Bicep.Cli.IntegrationTests
 
             if (dataSet.HasExternalModules)
             {
-                // ensure something got restored
-                Directory.Exists(settings.Features.CacheRootDirectory).Should().BeTrue();
-                Directory.EnumerateFiles(settings.Features.CacheRootDirectory, "*.json", SearchOption.AllDirectories).Should().NotBeEmpty();
+                settings.Features.Should().HaveValidModules();
             }
 
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);

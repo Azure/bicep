@@ -9,28 +9,28 @@ using System.Text;
 
 namespace Bicep.Core.Registry.Oci
 {
-    public class OciManifestSerialization
+    public class OciSerialization
     {
         private static readonly Encoding ManifestEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
-        public static OciManifest DeserializeManifest(Stream stream)
+        public static T Deserialize<T>(Stream stream)
         {
             using var streamReader = new StreamReader(stream, ManifestEncoding, detectEncodingFromByteOrderMarks: true, bufferSize: -1, leaveOpen: true);
             using var reader = new JsonTextReader(streamReader);
 
             var serializer = CreateSerializer();
-            var manifest = serializer.Deserialize<OciManifest>(reader);
+            var obj = serializer.Deserialize<T>(reader);
 
-            return manifest ?? throw new InvalidOperationException("Manifest is null");
+            return obj ?? throw new InvalidOperationException("Object is null");
         }
 
-        public static void SerializeManifest(Stream stream, OciManifest manifest)
+        public static void Serialize<T>(Stream stream, T obj)
         {
             using var streamWriter = new StreamWriter(stream, ManifestEncoding, bufferSize: -1, leaveOpen: true);
             using var writer = new JsonTextWriter(streamWriter);
 
             var serializer = CreateSerializer();
-            serializer.Serialize(writer, manifest);
+            serializer.Serialize(writer, obj);
         }
 
         private static JsonSerializer CreateSerializer()
@@ -39,7 +39,8 @@ namespace Bicep.Core.Registry.Oci
             {
                 ContractResolver = new CamelCasePropertyNamesContractResolver(),
                 NullValueHandling = NullValueHandling.Ignore,
-                TypeNameHandling = TypeNameHandling.None
+                TypeNameHandling = TypeNameHandling.None,
+                Formatting = Formatting.Indented
             });
         }
     }

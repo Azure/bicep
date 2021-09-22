@@ -77,3 +77,47 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@[36:37) Local i. Type: int. Declaration start char: 36, length: 1
 //@[7:15) Output siteUrls. Type: array. Declaration start char: 0, length: 82
 
+module passthroughPort 'br:localhost:5000/passthrough/port:v1' = {
+//@[7:22) Module passthroughPort. Type: module. Declaration start char: 0, length: 128
+  scope: rg
+  name: 'port'
+  params: {
+    port: 'test'
+  }
+}
+
+module ipv4 'br:127.0.0.1/passthrough/ipv4:v1' = {
+//@[7:11) Module ipv4. Type: module. Declaration start char: 0, length: 112
+  scope: rg
+  name: 'ipv4'
+  params: {
+    ipv4: 'test'
+  }
+}
+
+module ipv4port 'br:127.0.0.1:5000/passthrough/ipv4port:v1' = {
+//@[7:15) Module ipv4port. Type: module. Declaration start char: 0, length: 133
+  scope: rg
+  name: 'ipv4port'
+  params: {
+    ipv4port: 'test'
+  }
+}
+
+module ipv6 'br:[::1]/passthrough/ipv6:v1' = {
+//@[7:11) Module ipv6. Type: module. Declaration start char: 0, length: 108
+  scope: rg
+  name: 'ipv6'
+  params: {
+    ipv6: 'test'
+  }
+}
+
+module ipv6port 'br:[::1]:5000/passthrough/ipv6port:v1' = {
+//@[7:15) Module ipv6port. Type: module. Declaration start char: 0, length: 129
+  scope: rg
+  name: 'ipv6port'
+  params: {
+    ipv6port: 'test'
+  }
+}

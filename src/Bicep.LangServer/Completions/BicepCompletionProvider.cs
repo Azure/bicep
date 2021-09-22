@@ -1100,7 +1100,7 @@ namespace Bicep.LanguageServer.Completions
                     .WithSnippetEdit(replacementRange, snippet)
                     .Build();
             }
-            
+
             // trigger follow up completions
             if (symbol is NamespaceSymbol)
             {

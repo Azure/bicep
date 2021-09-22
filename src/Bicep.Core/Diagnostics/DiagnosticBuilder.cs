@@ -1182,6 +1182,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP199",
                 $"The specified OCI artifact reference \"{badRef}\" is not valid. Module path \"{badRepository}\" exceeds the maximum length of {maxLength} characters.");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceRegistryTooLong(string badRef, string badRegistry, int maxLength) => new(
+                TextSpan,
+                "BCP200",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
