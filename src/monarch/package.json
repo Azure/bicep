@@ -5,7 +5,7 @@
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^27.0.1",
     "@types/node": "^16.9.6",
-    "@typescript-eslint/eslint-plugin": "^4.31.1",
+    "@typescript-eslint/eslint-plugin": "^4.31.2",
     "@typescript-eslint/parser": "^4.31.2",
     "eslint": "^7.32.0",
     "eslint-plugin-header": "^3.1.1",
