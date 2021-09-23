@@ -460,7 +460,7 @@ namespace Bicep.Core.TypeSystem
 
                 diagnosticWriter.Write(
                     config.OriginSyntax ?? positionable,
-                    x => x.MissingRequiredProperties(ShouldWarn(targetType), TryGetSourceDeclaration(config), missingRequiredProperties, blockName));
+                    x => x.MissingRequiredProperties(ShouldWarn(targetType), TryGetSourceDeclaration(config), expression, missingRequiredProperties, blockName));
             }
 
             var narrowedProperties = new List<TypeProperty>();

@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
     public static class ObjectSyntaxExtensions
     {
+        private const string DefaultIndent = "  ";
+
         /// <summary>
         /// Converts a syntactically valid object syntax node to a dictionary mapping property name strings to property syntax nodes. Returns the first property in the case of duplicate names.
         /// </summary>
@@ -153,5 +156,73 @@ namespace Bicep.Core.Syntax
                     : mergedObject);
         }
 
+        public static ObjectSyntax AddChildrenWithFormatting(this ObjectSyntax objectSyntax, IEnumerable<SyntaxBase> newChildren)
+        {
+            var children = new List<SyntaxBase>(objectSyntax.Children);
+
+            SyntaxBase? lastNode = null;
+            if (children.Count > 0 && children[^1] is Token { Type: TokenType.NewLine } token)
+            {
+                lastNode = token;
+                children.Remove(token);
+            }
+
+            var indent = objectSyntax.GetBodyIndentation();
+
+            foreach (var newChild in newChildren)
+            {
+                children.Add(SyntaxFactory.CreateNewLineWithIndent(indent));
+                children.Add(newChild);
+            }
+
+            if (lastNode != null)
+            {
+                children.Add(lastNode);
+            }
+            else
+            {
+                children.Add(SyntaxFactory.NewlineToken);
+            }
+
+            return new ObjectSyntax(objectSyntax.OpenBrace, children, objectSyntax.CloseBrace);
+        }
+
+        public static string GetBodyIndentation(this ObjectSyntax sourceObject)
+        {
+            string? GetIndent(SyntaxBase syntax)
+            {
+                if (syntax is Token { Type: TokenType.NewLine, TrailingTrivia: { Length: 1 } leadingTrivia } &&
+                    leadingTrivia[0].Type == SyntaxTriviaType.Whitespace)
+                {
+                    return leadingTrivia[0].Text;
+                }
+
+                return null;
+            }
+
+            var children = sourceObject.Children;
+
+            // Try to find an existing indented child
+            if (children.Length > 0)
+            {
+                for (var index = 0; index < children.Length - 1; index++)
+                {
+                    var child = children[index];
+                    if (GetIndent(child) is string indent)
+                    {
+                        return indent;
+                    }
+                }
+            }
+
+            // Try to guess from the last newline
+            if (children.Length > 0 &&
+                GetIndent(children[^1]) is string lastIndent)
+            {
+                return lastIndent + DefaultIndent;
+            }
+
+            return DefaultIndent;
+        }
     }
 }
