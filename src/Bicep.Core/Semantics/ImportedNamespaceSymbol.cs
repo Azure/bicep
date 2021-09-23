@@ -27,8 +27,6 @@ namespace Bicep.Core.Semantics
 
         public override IEnumerable<Symbol> Descendants => this.Type.AsEnumerable();
 
-        public string ProviderName => DeclaringImport.ProviderName.IdentifierName;
-
         public TypeSymbol DeclaredType { get; }
 
         public NamespaceType? TryGetNamespaceType() => DeclaredType as NamespaceType;

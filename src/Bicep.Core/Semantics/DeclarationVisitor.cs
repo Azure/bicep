@@ -104,15 +104,19 @@ namespace Bicep.Core.Semantics
             base.VisitImportDeclarationSyntax(syntax);
 
             var alias = syntax.Name.IdentifierName;
-            var provider = syntax.ProviderName.IdentifierName;
             TypeSymbol declaredType;
             if (!namespaceProvider.AllowImportStatements)
             {
                 declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportsAreDisabled());
             }
-            else if (namespaceProvider.TryGetNamespace(provider, alias, targetScope) is not { } namespaceType)
+            else if (!syntax.ProviderName.IsValid)
             {
-                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(provider));
+                // There should be a parse error if the import statement is incomplete
+                declaredType = ErrorType.Empty();
+            }
+            else if (namespaceProvider.TryGetNamespace(syntax.ProviderName.IdentifierName, alias, targetScope) is not { } namespaceType)
+            {
+                declaredType = ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).UnrecognizedImportProvider(syntax.ProviderName.IdentifierName));
             }
             else
             {

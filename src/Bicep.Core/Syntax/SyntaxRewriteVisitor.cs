@@ -277,9 +277,9 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
             hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
-            hasChanges |= TryRewriteStrict(syntax.ProviderName, out var providerName);
-            hasChanges |= TryRewriteStrict(syntax.AsKeyword, out var asKeyword);
             hasChanges |= TryRewriteStrict(syntax.AliasName, out var aliasName);
+            hasChanges |= TryRewriteStrict(syntax.FromKeyword, out var fromKeyword);
+            hasChanges |= TryRewriteStrict(syntax.ProviderName, out var providerName);
             hasChanges |= TryRewrite(syntax.Config, out var config);
 
             if (!hasChanges)
@@ -287,7 +287,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new ImportDeclarationSyntax(leadingNodes, keyword, providerName, asKeyword, aliasName, config);
+            return new ImportDeclarationSyntax(leadingNodes, keyword, aliasName, fromKeyword, providerName, config);
         }
         void ISyntaxVisitor.VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportDeclarationSyntax);
 

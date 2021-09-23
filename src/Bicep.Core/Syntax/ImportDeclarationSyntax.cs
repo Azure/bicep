@@ -11,36 +11,36 @@ namespace Bicep.Core.Syntax
 {
     public class ImportDeclarationSyntax : StatementSyntax, ITopLevelNamedDeclarationSyntax
     {
-        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax providerName, Token? asKeyword, IdentifierSyntax? aliasName, SyntaxBase? config)
+        public ImportDeclarationSyntax(IEnumerable<SyntaxBase> leadingNodes, Token keyword, IdentifierSyntax aliasName, SyntaxBase fromKeyword, IdentifierSyntax providerName, SyntaxBase? config)
             : base(leadingNodes)
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ImportKeyword);
-            AssertSyntaxType(providerName, nameof(providerName), typeof(IdentifierSyntax));
-            AssertKeyword(asKeyword, nameof(asKeyword), LanguageConstants.AsKeyword);
             AssertSyntaxType(aliasName, nameof(aliasName), typeof(IdentifierSyntax));
-            AssertSyntaxType(config, nameof(config), typeof(SkippedTriviaSyntax), typeof(ObjectSyntax));
+            AssertSyntaxType(fromKeyword, nameof(fromKeyword), typeof(Token), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(providerName, nameof(providerName), typeof(IdentifierSyntax));
+            AssertSyntaxType(config, nameof(config), typeof(ObjectSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;
-            this.ProviderName = providerName;
-            this.AsKeyword = asKeyword;
             this.AliasName = aliasName;
+            this.FromKeyword = fromKeyword;
+            this.ProviderName = providerName;
             this.Config = config;
         }
 
         public Token Keyword { get; }
 
+        public IdentifierSyntax AliasName { get; }
+
+        public SyntaxBase FromKeyword { get; }
+
         public IdentifierSyntax ProviderName { get; }
-
-        public Token? AsKeyword { get; }
-
-        public IdentifierSyntax? AliasName { get; }
 
         public SyntaxBase? Config { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitImportDeclarationSyntax(this);
 
-        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, TextSpan.LastNonNull(ProviderName, AsKeyword, AliasName, Config));
+        public override TextSpan Span => TextSpan.Between(this.LeadingNodes.FirstOrDefault() ?? this.Keyword, TextSpan.LastNonNull(ProviderName, Config));
 
-        public IdentifierSyntax Name => AliasName ?? ProviderName;
+        public IdentifierSyntax Name => AliasName;
     }
 }

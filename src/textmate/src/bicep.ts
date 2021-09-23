@@ -55,7 +55,7 @@ const keywords = [
   'if',
   'existing',
   'import',
-  'as',
+  'from',
 ];
 
 const keywordExpression: MatchRule = {

@@ -293,9 +293,9 @@ namespace Bicep.LanguageServer
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
-            AddTokenType(syntax.AsKeyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
+            AddTokenType(syntax.FromKeyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
             base.VisitImportDeclarationSyntax(syntax);
         }
     }

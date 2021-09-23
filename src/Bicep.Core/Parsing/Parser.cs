@@ -347,41 +347,31 @@ namespace Bicep.Core.Parsing
             return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
         }
 
-        private SyntaxBase ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
-            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
-
-            var asKeyword = GetOptionalKeyword(LanguageConstants.AsKeyword);
-            IdentifierSyntax? aliasName = null;
-            if (asKeyword is not null)
-            {
-                aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.StringComplete, TokenType.StringLeftPiece, TokenType.NewLine);
-            }
-
-            SyntaxBase? config = null;
-            if (aliasName is not null)
-            {
-                config = this.WithRecoveryNullable(
-                    () =>
+            var aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);
+            var fromKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.FromKeyword), GetSuppressionFlag(aliasName), TokenType.NewLine);
+            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), GetSuppressionFlag(fromKeyword), TokenType.NewLine);
+            var config = this.WithRecoveryNullable(
+                () =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
                     {
-                        var current = reader.Peek();
-                        return current.Type switch
-                        {
-                            // no config is supplied
-                            TokenType.NewLine => null,
-                            TokenType.EndOfFile => null,
+                        // no config is supplied
+                        TokenType.NewLine => null,
+                        TokenType.EndOfFile => null,
 
-                            // we have config!
-                            TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
-                            _ => throw new ExpectedTokenException(current, b => b.ExpectedCharacter("{")),
-                        };
-                    },
-                    GetSuppressionFlag(aliasName),
-                    TokenType.NewLine);
-            }
+                        // we have config!
+                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedCharacter("{")),
+                    };
+                },
+                GetSuppressionFlag(providerName),
+                TokenType.NewLine);
 
-            return new ImportDeclarationSyntax(leadingNodes, keyword, providerName, asKeyword, aliasName, config);
+            return new(leadingNodes, keyword, aliasName, fromKeyword, providerName, config);
         }
 
         private Token? NewLineOrEof()

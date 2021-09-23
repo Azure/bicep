@@ -9,9 +9,6 @@ namespace Bicep.Core.Semantics
     public interface INamespaceSymbol
     {
         string Name { get; }
-
-        string ProviderName { get; }
-
         NamespaceType? TryGetNamespaceType();
     }
 
@@ -36,8 +33,6 @@ namespace Bicep.Core.Semantics
         public override void Accept(SymbolVisitor visitor) => visitor.VisitBuiltInNamespaceSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Namespace;
-
-        public string ProviderName => this.Name;
 
         public NamespaceType? TryGetNamespaceType() => Type;
     }
