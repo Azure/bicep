@@ -8,7 +8,7 @@
       "value": "Type: `array`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_arrayParam",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -26,7 +26,7 @@
       "value": "Type: `object`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_objParam",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -62,7 +62,7 @@
       "value": "Type: `string`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_stringParamB",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",

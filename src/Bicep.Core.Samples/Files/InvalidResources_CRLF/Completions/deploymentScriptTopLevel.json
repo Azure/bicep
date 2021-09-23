@@ -44,7 +44,7 @@
       "value": "Type: `string`  \nThe location of the ACI and the storage account for the deployment script.  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_location",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -62,7 +62,7 @@
       "value": "Type: `string`  \nThe resource name  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_name",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",

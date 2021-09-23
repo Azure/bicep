@@ -563,7 +563,7 @@ output string test2 = testRes.properties.|
         }
 
         [TestMethod]
-        public async Task Property_completions_required_first()
+        public async Task Property_completions_required_first_and_selected()
         {
             var fileWithCursors = @"
 resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
@@ -579,7 +579,11 @@ output string test2 = testRes.properties.|
             await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
                 completions.Should().SatisfyRespectively(
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required."),
+                        d =>
+                        {
+                            d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required.");
+                            d.Preselect.Should().BeTrue();
+                        },
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports writing.")),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(

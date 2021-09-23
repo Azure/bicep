@@ -26,7 +26,7 @@
       "value": "Type: `string`  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_name",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -44,7 +44,7 @@
       "value": "Type: `params`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_params",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",

@@ -8,7 +8,7 @@
       "value": "Type: `'AzureCLI' | 'AzurePowerShell'`  \n"
     },
     "deprecated": false,
-    "preselect": false,
+    "preselect": true,
     "sortText": "1_kind",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
