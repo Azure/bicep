@@ -1447,19 +1447,7 @@ namespace Bicep.Core.TypeSystem
                     return false;
                 }
 
-                Symbol? expressionSymbol = null;
-                if (functionCall is InstanceFunctionCallSyntax ifc)
-                {
-                    // instance functions are not bound, so we need to figure out if this is a namespace method by looking at the base expression
-                    var namespaceType = this.GetTypeInfo(ifc.BaseExpression) as NamespaceType;
-                    expressionSymbol = namespaceType?.DecoratorResolver.TryGetSymbol(ifc.Name) as FunctionSymbol;
-                }
-                else
-                {
-                    expressionSymbol = this.binder.GetSymbolInfo(functionCall);
-                }
-
-                if (expressionSymbol is not FunctionSymbol functionSymbol ||
+                if (SymbolHelper.TryGetSymbolInfo(binder, typeManager.GetDeclaredType, functionCall) is not FunctionSymbol functionSymbol ||
                     functionSymbol.DeclaringObject is not NamespaceType declaringNamespace)
                 {
                     return false;

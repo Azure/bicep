@@ -13,6 +13,7 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -356,7 +357,13 @@ namespace Bicep.Core.Emit
 
         private long? GetBatchSize(StatementSyntax statement)
         {
-            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName, "sys")?.Arguments is { } arguments
+            var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(
+                context.SemanticModel,
+                statement,
+                SystemNamespaceType.BuiltInName,
+                LanguageConstants.BatchSizePropertyName);
+
+            if (decorator?.Arguments is { } arguments
                 && arguments.Count() == 1
                 && arguments.ToList()[0].Expression is IntegerLiteralSyntax integerLiteral)
             {

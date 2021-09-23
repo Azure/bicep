@@ -66,32 +66,32 @@ namespace Bicep.LanguageServer.Handlers
             switch (result.Symbol)
             {
                 case ImportedNamespaceSymbol import:
-                    return CodeBlockWithDescriptionDecorator(
-                        $"import {import.Name}", import.DeclaringImport.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
+                    return CodeBlockWithDescription(
+                        $"import {import.Name}", TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), import.DeclaringImport));
 
                 case ParameterSymbol parameter:
-                    return CodeBlockWithDescriptionDecorator(
-                        $"param {parameter.Name}: {parameter.Type}", parameter.DeclaringParameter.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
+                    return CodeBlockWithDescription(
+                        $"param {parameter.Name}: {parameter.Type}", TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), parameter.DeclaringParameter));
 
                 case VariableSymbol variable:
-                    return CodeBlockWithDescriptionDecorator($"var {variable.Name}: {variable.Type}", variable.DeclaringVariable.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
+                    return CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), variable.DeclaringVariable));
 
                 case ResourceSymbol resource:
-                    return CodeBlockWithDescriptionDecorator(
-                        $"resource {resource.Name}\n{resource.Type}", resource.DeclaringResource.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
+                    return CodeBlockWithDescription(
+                        $"resource {resource.Name}\n{resource.Type}", TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), resource.DeclaringResource));
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
                     if (filePath != null)
                     {
-                        return CodeBlockWithDescriptionDecorator($"module {module.Name}\n'{filePath}'", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
+                        return CodeBlockWithDescription($"module {module.Name}\n'{filePath}'", TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), module.DeclaringModule));
                     }
 
-                    return CodeBlockWithDescriptionDecorator($"module {module.Name}", module.DeclaringModule.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
+                    return CodeBlockWithDescription($"module {module.Name}", TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), module.DeclaringModule));
 
                 case OutputSymbol output:
-                    return CodeBlockWithDescriptionDecorator(
-                        $"output {output.Name}: {output.Type}", output.DeclaringOutput.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName));
+                    return CodeBlockWithDescription(
+                        $"output {output.Name}: {output.Type}", TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), output.DeclaringOutput));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return CodeBlock($"{builtInNamespace.Name} namespace");
@@ -129,17 +129,6 @@ namespace Bicep.LanguageServer.Handlers
         
         // Markdown needs two leading whitespaces before newline to insert a line break
         private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
-
-        private static string CodeBlockWithDescriptionDecorator(string content, DecoratorSyntax? descriptionDecorator)
-        {
-            if (descriptionDecorator is not null &&
-                descriptionDecorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
-                && stringSyntax.TryGetLiteralValue() is string description)
-            {
-                return CodeBlockWithDescription(content, description);
-            }
-            return CodeBlock(content);
-        }
 
         private static string GetFunctionMarkdown(FunctionSymbol function, ImmutableArray<FunctionArgumentSyntax> arguments, SyntaxBase functionCall, SemanticModel model)
         {
@@ -223,24 +212,22 @@ namespace Bicep.LanguageServer.Handlers
             {
                 if (string.Equals(symbolType, LanguageConstants.ModuleParamsPropertyName, StringComparison.Ordinal))
                 {
-                    var moduleParamDecorator = model.Root.ParameterDeclarations
-                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
-                        ?.DeclaringParameter
-                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName);
-                    if (moduleParamDecorator is not null)
+                    var paramSymbol = model.Root.GetDeclarationsByName(symbolName).OfType<ParameterSymbol>().FirstOrDefault();
+
+                    if (paramSymbol is not null &&
+                        TryGetDescription(model, paramSymbol.DeclaringParameter) is {} description)
                     {
-                        return CodeBlockWithDescriptionDecorator(content, moduleParamDecorator);
+                        return CodeBlockWithDescription(content, description);
                     }
                 }
                 else if (string.Equals(symbolType, LanguageConstants.ModuleOutputsPropertyName, StringComparison.Ordinal))
                 {
-                    var moduleOutputDecorator = model.Root.OutputDeclarations
-                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
-                        ?.DeclaringOutput
-                        ?.TryGetDecoratorSyntax(LanguageConstants.MetadataDescriptionPropertyName, SystemNamespaceType.BuiltInName);
-                    if (moduleOutputDecorator is not null)
+                    var outputSymbol = model.Root.GetDeclarationsByName(symbolName).OfType<OutputSymbol>().FirstOrDefault();
+
+                    if (outputSymbol is not null &&
+                        TryGetDescription(model, outputSymbol.DeclaringOutput) is {} description)
                     {
-                        return CodeBlockWithDescriptionDecorator(content, moduleOutputDecorator);
+                        return CodeBlockWithDescription(content, description);
                     }
                 }    
             }
@@ -275,6 +262,24 @@ namespace Bicep.LanguageServer.Handlers
         {
             DocumentSelector = DocumentSelectorFactory.Create()
         };
+
+        private static string? TryGetDescription(SemanticModel semanticModel, StatementSyntax statement)
+        {
+            var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(
+                semanticModel,
+                statement,
+                SystemNamespaceType.BuiltInName,
+                LanguageConstants.MetadataDescriptionPropertyName);
+
+            if (decorator is not null &&
+                decorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string description)
+            {
+                return description;
+            }
+
+            return null;
+        }
     }
 }
 
