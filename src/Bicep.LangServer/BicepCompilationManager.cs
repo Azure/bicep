@@ -34,6 +34,7 @@ namespace Bicep.LanguageServer
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
+        private readonly ConcurrentDictionary<DocumentUri, Diagnostic> bicepConfigDiagnostics = new ConcurrentDictionary<DocumentUri, Diagnostic>();
 
         public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace, IFileResolver fileResolver, IModuleRestoreScheduler scheduler)
         {
@@ -187,12 +188,16 @@ namespace Bicep.LanguageServer
 
         private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false)
         {
+            List<Diagnostic> diagnostics = new List<Diagnostic>();
             try
             {
                 var folderContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
+
+                (ConfigHelper configHelper, Diagnostic? diagnostic) = GetConfigHelper(folderContainingSourceFile);
+
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), new ConfigHelper(folderContainingSourceFile, fileResolver)),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configHelper),
                     (documentUri, prevContext) =>
                     {
                         var sourceDependencies = removedFiles
@@ -209,11 +214,18 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        ConfigHelper configHelper;
-
                         if (reloadBicepConfig)
                         {
-                            configHelper = new ConfigHelper(folderContainingSourceFile, fileResolver);
+                            (configHelper, diagnostic) = GetConfigHelper(folderContainingSourceFile);
+
+                            if (diagnostic is null)
+                            {
+                                bicepConfigDiagnostics.TryRemove(documentUri, out _);
+                            }
+                            else
+                            {
+                                bicepConfigDiagnostics.TryAdd(documentUri, diagnostic);
+                            }
                         }
                         else
                         {
@@ -235,7 +247,13 @@ namespace Bicep.LanguageServer
                 var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
 
                 // convert all the diagnostics to LSP diagnostics
-                var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
+                diagnostics.AddRange(GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts));
+
+                if (bicepConfigDiagnostics.TryGetValue(documentUri, out Diagnostic? errorInBicepConfig) &&
+                    errorInBicepConfig is not null)
+                {
+                    diagnostics.Add(errorInBicepConfig);
+                }
 
                 // publish all the diagnostics
                 this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
@@ -264,6 +282,34 @@ namespace Bicep.LanguageServer
 
                 return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
             }
+        }
+
+        private (ConfigHelper, Diagnostic?) GetConfigHelper(string? localFolder)
+        {
+            ConfigHelper configHelper;
+            Diagnostic? diagnostic = null;
+            try
+            {
+                configHelper = new ConfigHelper(localFolder, fileResolver);
+            }
+            catch (Exception ex)
+            {
+                configHelper = new ConfigHelper(null, fileResolver, useDefaultConfig: true).GetDisabledLinterConfig();
+
+                diagnostic = new Diagnostic
+                {
+                    Range = new Range
+                    {
+                        Start = new Position(0, 0),
+                        End = new Position(1, 0),
+                    },
+                    Severity = DiagnosticSeverity.Error,
+                    Message = ex.Message,
+                    Code = new DiagnosticCode("Fatal")
+                };
+            }
+
+            return (configHelper, diagnostic);
         }
 
         private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
