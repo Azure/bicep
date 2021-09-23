@@ -234,7 +234,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 }"
         )]
         [DataTestMethod]
-        public void VariableValue_HasFix(string text, string expectedFix)
+        public void MissingTypePropertiesHasFix(string text, string expectedFix)
         {
             ExpectDiagnosticWithFixedText(text, expectedFix);
         }
