@@ -29,7 +29,10 @@ namespace Bicep.Core.UnitTests.Utils
             public BicepFile BicepFile => Compilation.SourceFileGrouping.EntryPoint;
         }
 
-        public record CompilationHelperContext(INamespaceProvider NamespaceProvider, IFeatureProvider Features);
+        public record CompilationHelperContext(
+            AzResourceTypeProvider AzResourceTypeProvider,
+            IFeatureProvider Features,
+            EmitterSettings? EmitterSettings = null);
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
@@ -42,15 +45,16 @@ namespace Bicep.Core.UnitTests.Utils
             var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles).files);
 
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, context.Features);
+            var namespaceProvider = new DefaultNamespaceProvider(context.AzResourceTypeProvider, context.Features);
 
-            return Compile(new Compilation(context.NamespaceProvider, sourceFileGrouping, null));
+            return Compile(context, new Compilation(namespaceProvider, sourceFileGrouping, null));
         }
 
-        public static CompilationResult Compile(INamespaceProvider namespaceProvider, params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(namespaceProvider, BicepTestConstants.Features), files);
+        public static CompilationResult Compile(AzResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)
+            => Compile(new CompilationHelperContext(resourceTypeProvider, BicepTestConstants.Features, EmitterSettingsHelper.DefaultTestSettings), files);
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features), BicepTestConstants.Features), files);
+            => Compile(new CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features, EmitterSettingsHelper.DefaultTestSettings), files);
 
         public static CompilationResult Compile(string fileContents)
             => Compile(("main.bicep", fileContents));
@@ -67,9 +71,9 @@ namespace Bicep.Core.UnitTests.Utils
             return (uriDictionary, entryUri);
         }
 
-        private static CompilationResult Compile(Compilation compilation)
+        private static CompilationResult Compile(CompilationHelperContext context, Compilation compilation)
         {
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), context.EmitterSettings ?? EmitterSettingsHelper.DefaultTestSettings);
 
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 

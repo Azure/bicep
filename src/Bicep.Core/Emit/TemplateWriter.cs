@@ -140,8 +140,6 @@ namespace Bicep.Core.Emit
             
             this.EmitMetadata(jsonWriter, emitter);
 
-            this.EmitImports(jsonWriter, emitter);
-
             this.EmitParametersIfPresent(jsonWriter, emitter);
 
             jsonWriter.WritePropertyName("functions");
@@ -326,33 +324,6 @@ namespace Bicep.Core.Emit
             {
                 jsonWriter.WriteEndArray();
             }
-        }
-
-        private void EmitImports(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
-        {
-            if (!this.context.SemanticModel.Root.ImportDeclarations.Any())
-            {
-                return;
-            }
-
-            jsonWriter.WritePropertyName("imports");
-            jsonWriter.WriteStartObject();
-
-            foreach (var import in this.context.SemanticModel.Root.ImportDeclarations)
-            {
-                jsonWriter.WritePropertyName(import.Name);
-                jsonWriter.WriteStartObject();
-
-                emitter.EmitProperty("provider", import.DeclaringImport.ProviderName);
-                if (import.DeclaringImport.Config is {} importConfig)
-                {
-                    emitter.EmitProperty("config", importConfig);
-                }
-
-                jsonWriter.WriteEndObject();
-            }
-
-            jsonWriter.WriteEndObject();
         }
 
         private long? GetBatchSize(StatementSyntax statement)

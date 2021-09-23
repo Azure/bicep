@@ -419,7 +419,7 @@ resource res1 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
         public void Top_level_resource_should_have_appropriate_number_of_slashes_in_interpolated_names()
         {
 
-            var result = CompilationHelper.Compile(TestTypeHelper.CreateEmptyProvider(),
+            var result = CompilationHelper.Compile(TestTypeHelper.CreateEmptyAzResourceTypeProvider(),
                 ("main.bicep", @"
 param p1 string
 
@@ -434,7 +434,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
                 ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
             });
 
-            result = CompilationHelper.Compile(TestTypeHelper.CreateEmptyProvider(),
+            result = CompilationHelper.Compile(TestTypeHelper.CreateEmptyAzResourceTypeProvider(),
                 ("main.bicep", @"
 param p1 string
 
