@@ -24,7 +24,7 @@ namespace Bicep.Core.Registry
 
         ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 
-        Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences);
 

@@ -6,6 +6,10 @@ using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Reflection;
 
 namespace Bicep.Core.UnitTests.Modules
 {
@@ -22,6 +26,8 @@ namespace Bicep.Core.UnitTests.Modules
 
         public const string ExamplePathSegment2 = "a.b-0_1";
 
+        public record ValidCase(string Value, string ExpectedRegistry, string ExpectedRepository, string ExpectedTag);
+
         [TestMethod]
         public void ExamplesShouldMatchExpectedConstraints()
         {
@@ -30,44 +36,44 @@ namespace Bicep.Core.UnitTests.Modules
             ExampleRegistryOfMaxLength.Should().HaveLength(255);
         }
 
-        [DataRow("a/b:C", "a", "b", "C")]
-        [DataRow("localhost/hello:V1", "localhost", "hello", "V1")]
-        [DataRow("localhost:123/hello:V1", "localhost:123", "hello", "V1")]
-        [DataRow("test.azurecr.io/foo/bar:latest", "test.azurecr.io", "foo/bar", "latest")]
-        [DataRow("test.azurecr.io/foo/bar:" + ExampleTagOfMaxLength, "test.azurecr.io", "foo/bar", ExampleTagOfMaxLength)]
-        [DataRow("example.com/" + ExamplePathSegment1 + "/" + ExamplePathSegment2 + ":1", "example.com", ExamplePathSegment1 + "/" + ExamplePathSegment2, "1")]
-        [DataRow("example.com/" + ExampleRepositoryOfMaxLength + ":v3", "example.com", ExampleRepositoryOfMaxLength, "v3")]
-        [DataRow(ExampleRegistryOfMaxLength + "/hello/there:1.0", ExampleRegistryOfMaxLength, "hello/there", "1.0")]
+        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [DataTestMethod]
-        public void ValidReferencesShouldParseCorrectly(string value, string expectedRegistry, string expectedRepository, string expectedTag)
+        public void ValidReferencesShouldParseCorrectly(ValidCase @case)
         {
-            var parsed = Parse(value);
+            var parsed = Parse(@case.Value);
 
             using (new AssertionScope())
             {
-                parsed.Registry.Should().Be(expectedRegistry);
-                parsed.Repository.Should().Be(expectedRepository);
-                parsed.Tag.Should().Be(expectedTag);
-                parsed.ArtifactId.Should().Be(value);
+                parsed.Registry.Should().Be(@case.ExpectedRegistry);
+                parsed.Repository.Should().Be(@case.ExpectedRepository);
+                parsed.Tag.Should().Be(@case.ExpectedTag);
+                parsed.ArtifactId.Should().Be(@case.Value);
             }
         }
 
-        [DataRow("a/b:C")]
-        [DataRow("localhost/hello:V1")]
-        [DataRow("localhost:123/hello:V1")]
-        [DataRow("test.azurecr.io/foo/bar:latest")]
-        [DataRow("test.azurecr.io/foo/bar:" + ExampleTagOfMaxLength)]
-        [DataRow("example.com/" + ExamplePathSegment1 + "/" + ExamplePathSegment2 + ":1")]
-        [DataRow("example.com/" + ExampleRepositoryOfMaxLength + ":v3")]
-        [DataRow(ExampleRegistryOfMaxLength + "/hello/there:1.0")]
+        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [DataTestMethod]
-        public void ValidReferenceShouldBeEqualToItself(string value)
+        public void ValidReferenceShouldBeEqualToItself(ValidCase @case)
         {
-            var first = Parse(value);
-            var second = Parse(value);
+            var first = Parse(@case.Value);
+            var second = Parse(@case.Value);
 
             first.Equals(second).Should().Be(true);
             first.GetHashCode().Should().Be(second.GetHashCode());
+        }
+
+        [DynamicData(nameof(GetValidCases), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        [DataTestMethod]
+        public void ValidReferenceShouldBeUriParseable(ValidCase @case)
+        {
+            var parsed = Parse(@case.Value);
+
+            // the go2def flow in the language server passes the reference through URIs
+            // in cases of documents that come from the local module cache
+            FluentActions.Invoking(() => new Uri(parsed.FullyQualifiedReference)).Should().NotThrow();
+
+            // the unqualified reference should be parseable as a URI segment as well
+            FluentActions.Invoking(() => new Uri("test://" + parsed.UnqualifiedReference)).Should().NotThrow();
         }
 
         // bad
@@ -129,5 +135,22 @@ namespace Bicep.Core.UnitTests.Modules
         }
 
         private static (OciArtifactModuleReference, OciArtifactModuleReference) ParsePair(string first, string second) => (Parse(first), Parse(second));
+
+        private static IEnumerable<object[]> GetValidCases()
+        {
+            static object[] CreateRow(string value, string expectedRegistry, string expectedRepository, string expectedTag) =>
+                new object[] { new ValidCase(value, expectedRegistry, expectedRepository, expectedTag) };
+
+            yield return CreateRow("a/b:C", "a", "b", "C");
+            yield return CreateRow("localhost/hello:V1", "localhost", "hello", "V1");
+            yield return CreateRow("localhost:123/hello:V1", "localhost:123", "hello", "V1");
+            yield return CreateRow("test.azurecr.io/foo/bar:latest", "test.azurecr.io", "foo/bar", "latest");
+            yield return CreateRow("test.azurecr.io/foo/bar:" + ExampleTagOfMaxLength, "test.azurecr.io", "foo/bar", ExampleTagOfMaxLength);
+            yield return CreateRow("example.com/" + ExamplePathSegment1 + "/" + ExamplePathSegment2 + ":1", "example.com", ExamplePathSegment1 + "/" + ExamplePathSegment2, "1");
+            yield return CreateRow("example.com/" + ExampleRepositoryOfMaxLength + ":v3", "example.com", ExampleRepositoryOfMaxLength, "v3");
+            yield return CreateRow(ExampleRegistryOfMaxLength + "/hello/there:1.0", ExampleRegistryOfMaxLength, "hello/there", "1.0");
+        }
+
+        public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((ValidCase)data[0]).Value}";
     }
 }

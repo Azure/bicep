@@ -182,7 +182,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                 return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>());
             }
 
-            public Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 throw new NotImplementedException();
             }
@@ -205,6 +205,8 @@ namespace Bicep.LangServer.UnitTests.Registry
             public string Value { get; }
 
             public override string UnqualifiedReference => this.Value;
+
+            public override bool IsExternal => true;
         }
     }
 }

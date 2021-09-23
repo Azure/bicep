@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using Azure.Identity;
 using Bicep.Core.Diagnostics;
@@ -59,7 +58,7 @@ namespace Bicep.Core.Registry
                 !this.fileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
-        public override Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, OciArtifactModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, OciArtifactModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;
             return this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);

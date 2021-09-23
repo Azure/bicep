@@ -45,7 +45,7 @@ namespace Bicep.Core.Registry
         /// <param name="reference">The module reference</param>
         /// <param name="failureBuilder">set to an error builder if parsing fails when null is returned</param>
         /// <returns></returns>
-        Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         /// <summary>
         /// Downloads the specified modules from the registry and caches them locally.
