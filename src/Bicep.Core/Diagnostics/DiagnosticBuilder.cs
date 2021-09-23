@@ -220,7 +220,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
 
-            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, DeclaredSymbol? sourceDeclaration, ObjectSyntax objectSyntax, IEnumerable<string> properties, string blockName)
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, ObjectSyntax objectSyntax, IEnumerable<string> properties, string blockName)
             {
                 var sourceDeclarationClause = sourceDeclaration is not null
                     ? $" from source declaration \"{sourceDeclaration.Name}\""

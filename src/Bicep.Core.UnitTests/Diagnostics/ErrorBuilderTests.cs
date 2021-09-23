@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 
@@ -155,6 +156,11 @@ namespace Bicep.Core.UnitTests.Diagnostics
             if (parameter.ParameterType == typeof(string) || parameter.ParameterType == typeof(IEnumerable<char>))
             {
                 return $"<param_{index}>";
+            }
+
+            if (parameter.ParameterType == typeof(ObjectSyntax))
+            {
+                return TestSyntaxFactory.CreateObject(Array.Empty<ObjectPropertySyntax>());
             }
 
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
