@@ -127,6 +127,16 @@ namespace Bicep.LanguageServer.Completions
         /// This is used in conjunction with ObjectPropertyName and indicates that the colon token
         /// is present in the ObjectPropertySyntax and does not need to be included in the completion.
         /// </summary>
-        ObjectPropertyColonExists = 1 << 22
+        ObjectPropertyColonExists = 1 << 22,
+
+        /// <summary>
+        /// We're at this place in an import statement: 'import foo |'
+        /// </summary>
+        ImportSymbolFollower = 1 << 23,
+
+        /// <summary>
+        /// We're at this place in an import statement: 'import foo from |'
+        /// </summary>
+        ImportFromFollower = 1 << 24,
     }
 }

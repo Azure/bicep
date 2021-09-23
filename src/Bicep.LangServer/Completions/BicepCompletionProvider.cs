@@ -10,6 +10,7 @@ using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -37,12 +38,14 @@ namespace Bicep.LanguageServer.Completions
         private readonly IFileResolver FileResolver;
         private readonly ISnippetsProvider SnippetsProvider;
         private readonly ITelemetryProvider TelemetryProvider;
+        private readonly IFeatureProvider featureProvider;
 
-        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider)
+        public BicepCompletionProvider(IFileResolver fileResolver, ISnippetsProvider snippetsProvider, ITelemetryProvider telemetryProvider, IFeatureProvider featureProvider)
         {
             this.FileResolver = fileResolver;
             this.SnippetsProvider = snippetsProvider;
             this.TelemetryProvider = telemetryProvider;
+            this.featureProvider = featureProvider;
         }
 
         public IEnumerable<CompletionItem> GetFilteredCompletions(Compilation compilation, BicepCompletionContext context)
@@ -66,7 +69,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetParameterDefaultValueCompletions(model, context))
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
-                .Concat(GetTargetScopeCompletions(model, context));
+                .Concat(GetTargetScopeCompletions(model, context))
+                .Concat(GetImportCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
@@ -84,6 +88,11 @@ namespace Bicep.LanguageServer.Completions
                 yield return CreateKeywordCompletion(LanguageConstants.ModuleKeyword, "Module keyword", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.TargetScopeKeyword, "Target Scope keyword", context.ReplacementRange);
+
+                if (featureProvider.ImportsEnabled)
+                {
+                    yield return CreateKeywordCompletion(LanguageConstants.ImportKeyword, "Import keyword", context.ReplacementRange);
+                }
 
                 foreach (Snippet resourceSnippet in SnippetsProvider.GetTopLevelNamedDeclarationSnippets())
                 {
@@ -1076,7 +1085,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(label, priority))
                 .Build();
 
-        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, string? insertText = null)
+        private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, bool disableFollowUp = false, string? insertText = null)
         {
             insertText ??= symbol.Name;
             var kind = GetCompletionItemKind(symbol);
@@ -1113,19 +1122,36 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // trigger follow up completions
-            if (symbol is INamespaceSymbol)
+            if (symbol is INamespaceSymbol && !disableFollowUp)
             {
                 return completion
-                .WithDetail(insertText)
-                .WithPlainTextEdit(replacementRange, insertText + ".")
-                .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
-                .Build();
+                    .WithDetail(insertText)
+                    .WithPlainTextEdit(replacementRange, insertText + ".")
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .Build();
             }
 
             return completion
                 .WithDetail(insertText)
                 .WithPlainTextEdit(replacementRange, insertText)
                 .Build();
+        }
+
+        private IEnumerable<CompletionItem> GetImportCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportSymbolFollower))
+            {
+                yield return CreateKeywordCompletion(LanguageConstants.FromKeyword, "From keyword", context.ReplacementRange);
+            }
+
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportFromFollower))
+            {
+                foreach (var builtInNamespace in model.Root.Namespaces.OfType<BuiltInNamespaceSymbol>().OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
+                {
+                    // We don't want to trigger follow-up completions for a namespace as we just want to insert "ns" rather than "ns."
+                    yield return CreateSymbolCompletion(builtInNamespace, context.ReplacementRange, disableFollowUp: true);
+                }
+            }
         }
 
         // the priority must be a number in the sort text

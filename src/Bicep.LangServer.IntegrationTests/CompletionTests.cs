@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -1007,6 +1008,47 @@ module mod2 './|' = {}
                 });
         }
 
+        [TestMethod]
+        public async Task Import_completions_work_if_feature_enabled()
+        {
+            var fileWithCursors = @"
+|
+import ns1 |
+import ns2 f|
+import ns3 f|r
+import ns4 from|
+import ns5 from |
+import ns6 from a|
+import ns7 from s|y
+import ns8 from sys|
+";
+            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true);
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => completions.Should().SatisfyRespectively(
+                c => c!.Select(x => x.Label).Should().Contain("import"),
+                c => c!.Select(x => x.Label).Should().Equal("from"),
+                c => c!.Select(x => x.Label).Should().Equal("from"),
+                c => c!.Select(x => x.Label).Should().Equal("from"),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys")
+            ), features);
+
+            features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: false);
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => completions.Should().SatisfyRespectively(
+                c => c!.Select(x => x.Label).Should().NotContain("import"),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty()
+            ), features);
+        }
+
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
         {
             foreach (var completionList in completionLists)
@@ -1069,11 +1111,11 @@ module mod2 './|' = {}
 
         private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
 
-        private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
+        private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction, IFeatureProvider? featureProvider = null)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), Features: featureProvider));
             var completions = await RequestCompletions(client, bicepFile, cursors);
 
             assertAction(completions);

@@ -8,6 +8,7 @@ using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
@@ -41,7 +42,7 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
-            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
