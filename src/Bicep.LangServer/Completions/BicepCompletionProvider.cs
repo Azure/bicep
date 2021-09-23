@@ -896,7 +896,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
         {
             var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
             var suffix = includeColon ? ":" : string.Empty;
@@ -905,7 +905,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
-                .WithSortText(GetSortText(property.Name, priority))
+                .WithSortText(GetSortText(property.Name, GetPropertyPriority(property)))
                 .Build();
         }
 
@@ -1140,6 +1140,11 @@ namespace Bicep.LanguageServer.Completions
             property.Flags.HasFlag(TypePropertyFlags.Required)
                 ? $"{property.Name} (Required)"
                 : property.Name;
+
+        private static CompletionPriority GetPropertyPriority(TypeProperty property) =>
+            property.Flags.HasFlag(TypePropertyFlags.Required)
+                ? CompletionPriority.High
+                : CompletionPriority.Medium;
 
         private static string FormatPropertyDocumentation(TypeProperty property)
         {

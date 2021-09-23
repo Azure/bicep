@@ -9,7 +9,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_arrayParam",
+    "sortText": "1_arrayParam",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -27,7 +27,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_objParam",
+    "sortText": "1_objParam",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -63,7 +63,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_stringParamB",
+    "sortText": "1_stringParamB",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

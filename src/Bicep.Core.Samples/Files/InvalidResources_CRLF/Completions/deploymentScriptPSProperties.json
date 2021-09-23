@@ -27,7 +27,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_azPowerShellVersion",
+    "sortText": "1_azPowerShellVersion",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -135,7 +135,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_retentionInterval",
+    "sortText": "1_retentionInterval",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

@@ -63,7 +63,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_kind",
+    "sortText": "1_kind",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -81,7 +81,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_location",
+    "sortText": "1_location",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -117,7 +117,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_sku",
+    "sortText": "1_sku",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

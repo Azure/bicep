@@ -27,7 +27,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_params",
+    "sortText": "1_params",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

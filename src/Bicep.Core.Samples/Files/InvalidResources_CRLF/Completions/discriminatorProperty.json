@@ -9,7 +9,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_kind",
+    "sortText": "1_kind",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
