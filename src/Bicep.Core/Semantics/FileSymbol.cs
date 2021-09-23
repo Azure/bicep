@@ -127,6 +127,7 @@ namespace Bicep.Core.Semantics
                 // declaring a variable in a local scope hides the parent scope variables,
                 // so we don't need to look at other levels
                 var outputDeclarations = scope.Declarations.Where(decl => decl is OutputSymbol);
+                var namespaceDeclarations = scope.Declarations.OfType<ImportedNamespaceSymbol>();
                 var nonOutputDeclarations = scope.Declarations.Where(decl => decl is not OutputSymbol);
 
                 // all symbols apart from outputs are in the same namespace, so check for uniqueness.
@@ -146,6 +147,11 @@ namespace Bicep.Core.Semantics
                 this.Diagnostics.AddRange(nonOutputDeclarations
                     .Where(decl => decl.NameSyntax.IsValid && this.builtInNamespaces.ContainsKey(decl.Name))
                     .Select(reservedSymbol => DiagnosticBuilder.ForPosition(reservedSymbol.NameSyntax).SymbolicNameCannotUseReservedNamespaceName(reservedSymbol.Name, this.builtInNamespaces.Keys)));
+
+                // singleton namespaces cannot be duplicated
+                this.Diagnostics.AddRange(
+                    FindDuplicateNamespaceImports(namespaceDeclarations)
+                    .Select(decl => DiagnosticBuilder.ForPosition(decl.DeclaringImport.ProviderName).NamespaceMultipleDeclarations(decl.DeclaringImport.ProviderName.IdentifierName)));
             }
 
             private static IEnumerable<DeclaredSymbol> FindDuplicateNamedSymbols(IEnumerable<DeclaredSymbol> symbols)
@@ -154,6 +160,24 @@ namespace Bicep.Core.Semantics
                 .GroupBy(decl => decl.Name, LanguageConstants.IdentifierComparer)
                 .Where(group => group.Count() > 1)
                 .SelectMany(group => group);
+
+            private static IEnumerable<ImportedNamespaceSymbol> FindDuplicateNamespaceImports(IEnumerable<ImportedNamespaceSymbol> symbols)
+            {
+                var typeBySymbol = new Dictionary<ImportedNamespaceSymbol, NamespaceType>();
+                foreach (var symbol in symbols)
+                {
+                    if (symbol.TryGetNamespaceType() is {} namespaceType)
+                    {
+                        typeBySymbol[symbol] = namespaceType;
+                    }
+                }
+
+                return typeBySymbol
+                    .Where(kvp => kvp.Value.IsSingleton)
+                    .GroupBy(kvp => kvp.Key.DeclaringImport.ProviderName.IdentifierName, LanguageConstants.IdentifierComparer)
+                    .Where(group => group.Count() > 1)
+                    .SelectMany(group => group.Select(kvp => kvp.Key));
+            }
         }
     }
 }

@@ -1203,15 +1203,25 @@ namespace Bicep.Core.Diagnostics
                 "BCP203",
                 "Import statements are currently not supported.");
 
-            public ErrorDiagnostic UnrecognizedImportProvider(string provider) => new(
+            public ErrorDiagnostic UnrecognizedImportProvider(string identifier) => new(
                 TextSpan,
                 "BCP204",
-                $"Imported namespace \"{provider}\" is not recognized.");
+                $"Imported namespace \"{identifier}\" is not recognized.");
 
-            public ErrorDiagnostic ImportProviderDoesNotSupportConfiguration(string provider) => new(
+            public ErrorDiagnostic ImportProviderDoesNotSupportConfiguration(string identifier) => new(
                 TextSpan,
                 "BCP205",
-                $"Imported namespace \"{provider}\" does not support configuration.");
+                $"Imported namespace \"{identifier}\" does not support configuration.");
+
+            public ErrorDiagnostic ImportProviderRequiresConfiguration(string identifier) => new(
+                TextSpan,
+                "BCP206",
+                $"Imported namespace \"{identifier}\" requires configuration, but none was provided.");
+
+            public ErrorDiagnostic NamespaceMultipleDeclarations(string identifier) => new(
+                TextSpan,
+                "BCP207",
+                $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -57,6 +57,19 @@ import ns from
         }
 
         [TestMethod]
+        public void Import_configuration_is_blocked_by_default()
+        {
+            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+import ns from az {
+  foo: 'bar'
+}
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP205", DiagnosticLevel.Error, "Imported namespace \"az\" does not support configuration."),
+            });
+        }
+
+        [TestMethod]
         public void Using_import_statements_frees_up_the_namespace_symbol()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
@@ -87,6 +100,25 @@ output rgLocation string = myRg.location
 
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs.rgLocation.metadata.description", "why on earth would you do this?");
+        }
+
+        [TestMethod]
+        public void Singleton_imports_cannot_be_used_multiple_times()
+        {
+            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+import az1 from az
+import az2 from az
+
+import sys1 from sys
+import sys2 from sys
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is imported multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"az\" is imported multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
+                ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
+            });
         }
     }
 }

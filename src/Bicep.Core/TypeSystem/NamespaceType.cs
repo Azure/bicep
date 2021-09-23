@@ -16,12 +16,14 @@ namespace Bicep.Core.TypeSystem
             IEnumerable<BannedFunction> bannedFunctions,
             IEnumerable<Decorator> decorators,
             IResourceTypeProvider resourceTypeProvider,
-            ITypeReference? configurationType)
+            ITypeReference? configurationType,
+            bool isSingleton)
             : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
         {
             this.DecoratorResolver = new DecoratorResolver(this, decorators);
             ProviderName = providerName;
             ResourceTypeProvider = resourceTypeProvider;
+            IsSingleton = isSingleton;
         }
 
         public override TypeKind TypeKind => TypeKind.Namespace;
@@ -33,5 +35,7 @@ namespace Bicep.Core.TypeSystem
         public IResourceTypeProvider ResourceTypeProvider { get; }
 
         public ITypeReference? ConfigurationType { get; }
+
+        public bool IsSingleton { get; }
     }
 }

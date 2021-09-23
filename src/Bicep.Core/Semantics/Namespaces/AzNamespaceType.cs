@@ -359,7 +359,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
                 resourceTypeProvider,
-                configurationType: null);
+                configurationType: null,
+                isSingleton: true);
         }
     }
 }

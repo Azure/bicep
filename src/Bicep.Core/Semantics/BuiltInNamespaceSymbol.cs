@@ -6,12 +6,6 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public interface INamespaceSymbol
-    {
-        string Name { get; }
-        NamespaceType? TryGetNamespaceType();
-    }
-
     public class BuiltInNamespaceSymbol : Symbol, INamespaceSymbol
     {
         public BuiltInNamespaceSymbol(string name, NamespaceType type)

@@ -747,7 +747,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 BannedFunctions,
                 GetSystemDecorators(),
                 new EmptyResourceTypeProvider(),
-                configurationType: null);
+                configurationType: null,
+                isSingleton: true);
         }
     }
 }

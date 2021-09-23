@@ -506,7 +506,9 @@ namespace Bicep.Core.TypeSystem
 
                     if (namespaceType.ConfigurationType is null)
                     {
-                        return new DeclaredTypeAssignment(ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).ImportProviderDoesNotSupportConfiguration(namespaceType.ProviderName)), syntax);
+                        // this namespace doesn't support configuration, but it has been provided.
+                        // we'll check for this during type assignment.
+                        return null;
                     }
 
                     // the object is an item in an array

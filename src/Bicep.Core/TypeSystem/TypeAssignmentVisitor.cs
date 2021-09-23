@@ -349,8 +349,24 @@ namespace Bicep.Core.TypeSystem
                 var declaredType = namespaceSymbol.DeclaredType;
 
                 this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
-                // TODO: Look up import from known providers here
-                // TODO: validate config type against import
+
+                if (syntax.Config is not null)
+                {
+                    // Force a type check on the configuration element, if present.
+                    var configType = this.GetTypeInfo(syntax.Config);
+
+                    if (declaredType is NamespaceType namespaceType && namespaceType.ConfigurationType is null)
+                    {
+                        diagnostics.Write(syntax.Config, x => x.ImportProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
+                    }
+                }
+                else
+                {
+                    if (declaredType is NamespaceType namespaceType && namespaceType.ConfigurationType is not null)
+                    {
+                        diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));
+                    }
+                }
 
                 return declaredType;
             });
