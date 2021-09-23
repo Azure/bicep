@@ -1,0 +1,182 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4414402972156061531"
+    }
+  },
+  "parameters": {
+    "siglocation": {
+      "type": "string"
+    },
+    "roleNameAIBCustom": {
+      "type": "string",
+      "defaultValue": "[format('{0}{1}', 'BicepAIB', utcNow())]"
+    },
+    "uamiName": {
+      "type": "string"
+    },
+    "uamiId": {
+      "type": "string",
+      "defaultValue": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
+    },
+    "imageTemplateName": {
+      "type": "string",
+      "defaultValue": "[format('{0}{1}', 'AVDBicep', utcNow())]"
+    },
+    "outputname": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().name)]"
+    },
+    "galleryImageId": {
+      "type": "string"
+    },
+    "imagePublisher": {
+      "type": "string"
+    },
+    "imageOffer": {
+      "type": "string"
+    },
+    "imageSKU": {
+      "type": "string"
+    },
+    "InvokeRunImageBuildThroughDeploymentScript": {
+      "type": "bool"
+    },
+    "rgname": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "managedidentity": {
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2018-11-30",
+      "name": "[parameters('uamiName')]",
+      "existing": true
+    },
+    "imageTemplateName_resource": {
+      "type": "Microsoft.VirtualMachineImages/imageTemplates",
+      "apiVersion": "2020-02-14",
+      "name": "[parameters('imageTemplateName')]",
+      "location": "[parameters('siglocation')]",
+      "tags": {
+        "imagebuilderTemplate": "AzureImageBuilderSIG",
+        "userIdentity": "enabled"
+      },
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[resourceInfo('managedidentity').id]": {}
+        }
+      },
+      "properties": {
+        "buildTimeoutInMinutes": 180,
+        "vmProfile": {
+          "vmSize": "Standard_D2_v2",
+          "osDiskSizeGB": 127
+        },
+        "source": {
+          "type": "PlatformImage",
+          "publisher": "[parameters('imagePublisher')]",
+          "offer": "[parameters('imageOffer')]",
+          "sku": "[parameters('imageSKU')]",
+          "version": "latest"
+        },
+        "distribute": [
+          {
+            "type": "SharedImage",
+            "galleryImageId": "[parameters('galleryImageId')]",
+            "runOutputName": "[parameters('outputname')]",
+            "artifactTags": {
+              "source": "avd10",
+              "baseosimg": "windows10"
+            },
+            "replicationRegions": []
+          }
+        ]
+      }
+    },
+    "aibdef": {
+      "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
+      "type": "Microsoft.Authorization/roleDefinitions",
+      "apiVersion": "2018-01-01-preview",
+      "name": "[guid(parameters('roleNameAIBCustom'))]",
+      "properties": {
+        "roleName": "[parameters('roleNameAIBCustom')]",
+        "description": "Custom role for AIB to invoke build of VM Template from deployment",
+        "permissions": [
+          {
+            "actions": [
+              "Microsoft.VirtualMachineImages/imageTemplates/Run/action",
+              "Microsoft.Storage/storageAccounts/*",
+              "Microsoft.ContainerInstance/containerGroups/*",
+              "Microsoft.Resources/deployments/*",
+              "Microsoft.Resources/deploymentScripts/*"
+            ]
+          }
+        ],
+        "assignableScopes": [
+          "[resourceGroup().id]"
+        ]
+      }
+    },
+    "aibrunnerassignment": {
+      "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id, resourceInfo('aibdef').id, resourceInfo('managedidentity').id)]",
+      "properties": {
+        "roleDefinitionId": "[resourceInfo('aibdef').id]",
+        "principalId": "[reference('managedidentity').principalId]",
+        "principalType": "ServicePrincipal"
+      },
+      "dependsOn": [
+        "aibdef"
+      ]
+    },
+    "miorole": {
+      "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2020-04-01-preview",
+      "name": "[guid(resourceGroup().id, '/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830', resourceInfo('managedidentity').id)]",
+      "properties": {
+        "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/f1a07417-d97a-45cb-824c-7a7467783830",
+        "principalId": "[reference('managedidentity').principalId]",
+        "principalType": "ServicePrincipal"
+      }
+    },
+    "scriptName_BuildVMImage": {
+      "condition": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]",
+      "type": "Microsoft.Resources/deploymentScripts",
+      "apiVersion": "2020-10-01",
+      "name": "BuildVMImage",
+      "location": "[resourceGroup().location]",
+      "kind": "AzurePowerShell",
+      "identity": {
+        "type": "UserAssigned",
+        "userAssignedIdentities": {
+          "[parameters('uamiId')]": {}
+        }
+      },
+      "properties": {
+        "forceUpdateTag": "1",
+        "azPowerShellVersion": "5.9",
+        "arguments": "",
+        "scriptContent": "[format('Invoke-AzResourceAction -ResourceName {0} -ResourceGroupName {1} -ResourceType Microsoft.VirtualMachineImages/imageTemplates -ApiVersion \"2020-02-14\" -Action Run -Force', parameters('imageTemplateName'), parameters('rgname'))]",
+        "timeout": "PT5M",
+        "cleanupPreference": "Always",
+        "retentionInterval": "P1D"
+      },
+      "dependsOn": [
+        "imageTemplateName_resource"
+      ]
+    }
+  }
+}

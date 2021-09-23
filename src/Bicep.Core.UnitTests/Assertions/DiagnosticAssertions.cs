@@ -28,12 +28,12 @@ namespace Bicep.Core.UnitTests.Assertions
                 return value is Diagnostic;
             }
 
-            public string Format(object value, FormattingContext context, FormatChild formatChild)
+            public void Format(object value, FormattedObjectGraph formattedGraph, FormattingContext context, FormatChild formatChild)
             {
                 var prefix = context.UseLineBreaks ? Environment.NewLine : string.Empty;
                 var diagnostic = (Diagnostic)value;
 
-                return $"{prefix}\"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message}\"";
+                formattedGraph.AddFragment($"{prefix}\"[{diagnostic.Code} ({diagnostic.Level})] {diagnostic.Message}\"");
             }
         }
 
@@ -79,6 +79,17 @@ namespace Bicep.Core.UnitTests.Assertions
                 .Given<string>(() => Subject.Message)
                 .ForCondition(x => x == message)
                 .FailWith("Expected message to be {0}{reason} but it was {1}", _ => message, x => x);
+
+            return new AndConstraint<DiagnosticAssertions>(this);
+        }
+
+        public AndConstraint<DiagnosticAssertions> HaveMessageStartWith(string prefix, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given<string>(() => Subject.Message)
+                .ForCondition(x => x.StartsWith(prefix))
+                .FailWith("Expected message to start with {0}{reason} but it was {1}", _ => prefix, x => x);
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }

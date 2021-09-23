@@ -12,7 +12,6 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -22,23 +21,21 @@ namespace Bicep.Core.Analyzers.Linter
         public const string AnalyzerName = "core";
         public static string LinterEnabledSetting => $"{SettingsRoot}:{AnalyzerName}:enabled";
         public static string LinterVerboseSetting => $"{SettingsRoot}:{AnalyzerName}:verbose";
-
-        private readonly ConfigHelper defaultConfigHelper = new ConfigHelper();
-        private ConfigHelper activeConfigHelper;
+        private ConfigHelper configHelper;
         private ImmutableArray<IBicepAnalyzerRule> RuleSet;
         private ImmutableArray<IDiagnostic> RuleCreationErrors;
 
         // TODO: This should be controlled by a core component, not an analyzer
         public const string FailedRuleCode = "linter-internal-error";
 
-        public LinterAnalyzer()
+        public LinterAnalyzer(ConfigHelper configHelper)
         {
-            this.activeConfigHelper = this.defaultConfigHelper;
+            this.configHelper = configHelper;
             (RuleSet, RuleCreationErrors) = CreateLinterRules();
         }
 
-        private bool LinterEnabled => this.activeConfigHelper.GetValue(LinterEnabledSetting, true);
-        private bool LinterVerbose => this.activeConfigHelper.GetValue(LinterVerboseSetting, true);
+        private bool LinterEnabled => this.configHelper.GetValue(LinterEnabledSetting, true);
+        private bool LinterVerbose => this.configHelper.GetValue(LinterVerboseSetting, true);
 
         private (ImmutableArray<IBicepAnalyzerRule> rules, ImmutableArray<IDiagnostic> errors) CreateLinterRules()
         {
@@ -73,28 +70,11 @@ namespace Bicep.Core.Analyzers.Linter
 
         public IEnumerable<IBicepAnalyzerRule> GetRuleSet() => RuleSet;
 
-        public IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel) => Analyze(semanticModel, default);
-
-        internal IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel, ConfigHelper? overrideConfig = default)
+        public IEnumerable<IDiagnostic> Analyze(SemanticModel semanticModel)
         {
-            // check for configuration overrides
-            /// typically only used in unit tests
-            this.activeConfigHelper = overrideConfig ?? this.defaultConfigHelper;
-
             var diagnostics = new List<IDiagnostic>();
 
-            try
-            {
-                this.activeConfigHelper.LoadConfigurationForSourceFile(semanticModel.SourceFile.FileUri);
-            }
-            catch (Exception ex)
-            {
-                diagnostics.Add(CreateInternalErrorDiagnostic(AnalyzerName, ex.InnerException?.Message ?? ex.Message));
-                // Build a default config to continue with.  This should not fail.
-                this.activeConfigHelper.LoadDefaultConfiguration();
-            }
-
-            this.RuleSet.ForEach(r => r.Configure(this.activeConfigHelper.Config));
+            this.RuleSet.ForEach(r => r.Configure(this.configHelper.Config));
 
             if (this.LinterEnabled)
             {
@@ -119,7 +99,7 @@ namespace Bicep.Core.Analyzers.Linter
                                 new TextSpan(0, 0),
                                 DiagnosticLevel.Info,
                                 "Linter Disabled",
-                                string.Format(CoreResources.LinterDisabledFormatMessage, this.activeConfigHelper.CustomSettingsFileName),
+                                string.Format(CoreResources.LinterDisabledFormatMessage, this.configHelper.CustomSettingsFileName),
                                 null, null));
                 }
             }
@@ -128,9 +108,9 @@ namespace Bicep.Core.Analyzers.Linter
 
         private IDiagnostic GetConfigurationDiagnostic()
         {
-            var configMessage = this.activeConfigHelper.CustomSettingsFileName == default ?
+            var configMessage = this.configHelper.CustomSettingsFileName == default ?
                                     CoreResources.BicepConfigNoCustomSettingsMessage
-                                    : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.activeConfigHelper.CustomSettingsFileName);
+                                    : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.configHelper.CustomSettingsFileName);
 
             return new AnalyzerDiagnostic(AnalyzerName,
                                             new TextSpan(0, 0),

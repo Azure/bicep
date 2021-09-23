@@ -1,5 +1,7 @@
+
+@sys.description('this is basicStorage')
 resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
-//@[9:21) Resource basicStorage. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 183
+//@[9:21) Resource basicStorage. Type: Microsoft.Storage/storageAccounts@2019-06-01. Declaration start char: 0, length: 225
   name: 'basicblobs'
   location: 'westus'
   kind: 'BlobStorage'
@@ -8,8 +10,9 @@ resource basicStorage 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
 }
 
+@sys.description('this is dnsZone')
 resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
-//@[9:16) Resource dnsZone. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 103
+//@[9:16) Resource dnsZone. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 140
   name: 'myZone'
   location: 'global'
 }
@@ -252,8 +255,10 @@ resource resourceWithEscaping 'My.Rp/mockResource@2020-01-01' = {
 
 param shouldDeployVm bool = true
 //@[6:20) Parameter shouldDeployVm. Type: bool. Declaration start char: 0, length: 32
+
+@sys.description('this is vmWithCondition')
 resource vmWithCondition 'Microsoft.Compute/virtualMachines@2020-06-01' = if (shouldDeployVm) {
-//@[9:24) Resource vmWithCondition. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 263
+//@[9:24) Resource vmWithCondition. Type: Microsoft.Compute/virtualMachines@2020-06-01. Declaration start char: 0, length: 308
   name: 'vmName'
   location: 'westus'
   properties: {
@@ -290,8 +295,9 @@ resource extensionDependencies 'My.Rp/mockResource@2020-01-01' = {
   }
 }
 
+@sys.description('this is existing1')
 resource existing1 'Mock.Rp/existingExtensionResource@2020-01-01' existing = {
-//@[9:18) Resource existing1. Type: Mock.Rp/existingExtensionResource@2020-01-01. Declaration start char: 0, length: 123
+//@[9:18) Resource existing1. Type: Mock.Rp/existingExtensionResource@2020-01-01. Declaration start char: 0, length: 162
   name: 'existing1'
   scope: extension1
 }
@@ -324,9 +330,10 @@ var storageAccounts = [
 ]
 
 // just a storage account loop
+@sys.description('this is just a storage account loop')
 resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
 //@[80:87) Local account. Type: any. Declaration start char: 80, length: 7
-//@[9:25) Resource storageResources. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 227
+//@[9:25) Resource storageResources. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 284
   name: account.name
   location: account.location
   sku: {
@@ -336,10 +343,11 @@ resource storageResources 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 }]
 
 // storage account loop with index
+@sys.description('this is just a storage account loop with index')
 resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account, i) in storageAccounts: {
 //@[90:97) Local account. Type: any. Declaration start char: 90, length: 7
 //@[99:100) Local i. Type: int. Declaration start char: 99, length: 1
-//@[9:34) Resource storageResourcesWithIndex. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 250
+//@[9:34) Resource storageResourcesWithIndex. Type: Microsoft.Storage/storageAccounts@2019-06-01[]. Declaration start char: 0, length: 318
   name: '${account.name}${i}'
   location: account.location
   sku: {
@@ -349,9 +357,10 @@ resource storageResourcesWithIndex 'Microsoft.Storage/storageAccounts@2019-06-01
 }]
 
 // basic nested loop
+@sys.description('this is just a basic nested loop')
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
 //@[68:69) Local i. Type: int. Declaration start char: 68, length: 1
-//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 345
+//@[9:13) Resource vnet. Type: Microsoft.Network/virtualNetworks@2020-06-01[]. Declaration start char: 0, length: 399
   name: 'vnet-${i}'
   properties: {
     subnets: [for j in range(0, 4): {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8343523369994005156"
+      "templateHash": "2628096472336873538"
     }
   },
   "parameters": {
@@ -141,7 +141,7 @@
     {
       "condition": "[variables('deployGroups')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "apimGroups",
       "properties": {
         "expressionEvaluationOptions": {
@@ -220,7 +220,7 @@
     {
       "condition": "[variables('deployUsers')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "apimUsers",
       "properties": {
         "expressionEvaluationOptions": {
@@ -296,7 +296,7 @@
     {
       "condition": "[variables('deployNameValuePairs')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "apimNameValuePairs",
       "properties": {
         "expressionEvaluationOptions": {

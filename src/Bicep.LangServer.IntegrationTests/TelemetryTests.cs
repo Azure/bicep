@@ -153,8 +153,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryReceived.SetResult(telemetry));
                 },
-                resourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes(),
-                fileResolver: new InMemoryFileResolver(fileSystemDict));
+                new LanguageServer.Server.CreationOptions(ResourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
             fileSystemDict[mainUri.ToUri()] = text;

@@ -54,6 +54,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
+        public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
 
         private readonly IResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
@@ -123,7 +124,9 @@ namespace Bicep.Core.TypeSystem.Az
 
                     bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     break;
+
                 case DiscriminatedObjectType bodyDiscriminatedType:
+
                     if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is not null &&
                         !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
                     {
@@ -133,16 +136,27 @@ namespace Bicep.Core.TypeSystem.Az
                         var bodyObjectType = CreateGenericResourceBody(resourceType.TypeReference, p => bodyDiscriminatedType.UnionMembersByKey.Values.Any(x => x.Properties.ContainsKey(p)));
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
-                        break;
                     }
+                    else if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is null &&
+                             flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource))
+                    {
+                        // This reference to existing resource and discriminator is not a name.
+                        // TODO: Implement merging properties in case of a name/TypeReference clash should make a union type out of TypeReference
+                        // For now, we just make a generic type. It's better than compilation error
 
-                    var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values
-                        .Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, flags));
-                    bodyType = new DiscriminatedObjectType(
-                        bodyDiscriminatedType.Name,
-                        bodyDiscriminatedType.ValidationFlags,
-                        bodyDiscriminatedType.DiscriminatorKey,
-                        bodyTypes);
+                        var bodyObjectType = CreateGenericResourceBody(resourceType.TypeReference, p => bodyDiscriminatedType.UnionMembersByKey.Values.Any(x => x.Properties.ContainsKey(p)));
+                        bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
+                    }
+                    else
+                    {
+                        var bodyTypes = bodyDiscriminatedType.UnionMembersByKey.Values
+                            .Select(x => SetBicepResourceProperties(x, resourceType.ValidParentScopes, resourceType.TypeReference, flags));
+                        bodyType = new DiscriminatedObjectType(
+                            bodyDiscriminatedType.Name,
+                            bodyDiscriminatedType.ValidationFlags,
+                            bodyDiscriminatedType.DiscriminatorKey,
+                            bodyTypes);
+                    }
                     break;
                 default:
                     // we exhaustively test deserialization of every resource type during CI, and this happens in a deterministic fashion,
@@ -206,7 +220,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // add the loop variant flag to the name property (if it exists)
-            if(properties.TryGetValue(LanguageConstants.ResourceNamePropertyName, out var nameProperty))
+            if (properties.TryGetValue(LanguageConstants.ResourceNamePropertyName, out var nameProperty))
             {
                 properties = properties.SetItem(LanguageConstants.ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
             }
@@ -214,7 +228,7 @@ namespace Bicep.Core.TypeSystem.Az
             // add the 'parent' property for child resource types that are not nested inside a parent resource
             if (!typeReference.IsRootType && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
-                var parentType = LanguageConstants.CreateResourceScopeReference(ResourceScope.Resource);
+                var parentType = new ResourceParentType(typeReference);
                 var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
 
                 properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));

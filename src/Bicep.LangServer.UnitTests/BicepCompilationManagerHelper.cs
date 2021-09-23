@@ -7,6 +7,7 @@ using Bicep.Core;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
@@ -22,6 +23,7 @@ namespace Bicep.LangServer.UnitTests
 {
     public class BicepCompilationManagerHelper
     {
+        private static readonly FileResolver FileResolver = new();
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
         public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false)
@@ -30,7 +32,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object);
+            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object);
 
             if (upsertCompilation)
             {
@@ -71,8 +73,7 @@ namespace Bicep.LangServer.UnitTests
 
         public static ICompilationProvider CreateEmptyCompilationProvider()
         {
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>());
-            return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver)));
+            return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider));
         }
 
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()

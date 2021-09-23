@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using Azure.Deployments.Core.Extensions;
+using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
@@ -1122,16 +1122,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP188",
                 $"The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template.");
 
-            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes) => new(
-                TextSpan,
-                "BCP189",
-                (allowedSchemes.Contains(ModuleReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme=>!string.Equals(scheme, ModuleReferenceSchemes.Local, StringComparison.Ordinal))) switch
-                {
-                    (false, false) => "Module references are not supported in this context.",
-                    (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
-                    (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file.",
-                    (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {ToQuotedString(allowedSchemes)}",
-                });
+            public ErrorDiagnostic UnknownModuleReferenceScheme(string badScheme, ImmutableArray<string> allowedSchemes)
+            {
+                string FormatSchemes() => ToQuotedString(allowedSchemes.Where(scheme => !string.Equals(scheme, ModuleReferenceSchemes.Local)));
+
+                return new(
+                    TextSpan,
+                    "BCP189",
+                    (allowedSchemes.Contains(ModuleReferenceSchemes.Local, StringComparer.Ordinal), allowedSchemes.Any(scheme => !string.Equals(scheme, ModuleReferenceSchemes.Local, StringComparison.Ordinal))) switch
+                    {
+                        (false, false) => "Module references are not supported in this context.",
+                        (false, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a module reference using one of the following schemes: {FormatSchemes()}",
+                        (true, false) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file.",
+                        (true, true) => $"The specified module reference scheme \"{badScheme}\" is not recognized. Specify a path to a local module file or a module reference using one of the following schemes: {FormatSchemes()}",
+                    });
+            }
 
             // TODO: This error is context sensitive:
             // - In CLI, it's permanent and only likely to occur with bicep build --no-restore.
@@ -1152,6 +1157,46 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP192",
                 $"Unable to restore the module with reference \"{moduleRef}\": {message}");
+
+            public ErrorDiagnostic InvalidOciArtifactReference(string badRef) => new(
+                TextSpan,
+                "BCP193",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact uri>:<tag>\".");
+
+            public ErrorDiagnostic InvalidTemplateSpecReference(string invalidReference) => new(
+                TextSpan,
+                "BCP194",
+                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<resourceGroupName>/<templateSpecName>:<tag>\" or \"{ModuleReferenceSchemes.TemplateSpecs}:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string badRef, string badSegment) => new(
+                TextSpan,
+                "BCP195",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. The module path segment \"{badSegment}\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceMissingTag(string badRef) => new(
+                TextSpan,
+                "BCP196",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. The module tag is missing.");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceTagTooLong(string badRef, string badTag, int maxLength) => new(
+                TextSpan,
+                "BCP197",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. The tag \"{badTag}\" exceeds the maximum length of {maxLength} characters.");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidTag(string badRef, string badTag) => new(
+                TextSpan,
+                "BCP198",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. The tag \"{badTag}\" is not valid. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceRepositoryTooLong(string badRef, string badRepository, int maxLength) => new(
+                TextSpan,
+                "BCP199",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. Module path \"{badRepository}\" exceeds the maximum length of {maxLength} characters.");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceRegistryTooLong(string badRef, string badRegistry, int maxLength) => new(
+                TextSpan,
+                "BCP200",
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

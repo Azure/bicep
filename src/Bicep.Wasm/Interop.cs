@@ -16,9 +16,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
 using Bicep.Decompiler;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Wasm
 {
@@ -59,7 +57,8 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var (entrypointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(resourceTypeProvider, fileResolver, jsonUri, bicepUri);
+                var decompiler = new TemplateDecompiler(resourceTypeProvider, fileResolver, new EmptyModuleRegistryProvider());
+                var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
             }
@@ -121,7 +120,8 @@ namespace Bicep.Wasm
             {
                 var lineStarts = TextCoordinateConverter.GetLineStarts(content);
                 var compilation = GetCompilation(content);
-                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), ThisAssembly.AssemblyFileVersion);
+                var emitterSettings = new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: false);
+                var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
                 // memory stream is not ideal for frequent large allocations
                 using var stream = new MemoryStream();
@@ -154,7 +154,7 @@ namespace Bicep.Wasm
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(resourceTypeProvider, sourceFileGrouping);
+            return new Compilation(resourceTypeProvider, sourceFileGrouping, null);
         }
 
         private static string ReadStreamToEnd(Stream stream)

@@ -1,0 +1,35 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "16469354957335675288"
+    }
+  },
+  "parameters": {
+    "sqlDatabase": {
+      "type": "object"
+    },
+    "sqlServerName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "azureDefender": {
+      "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
+      "apiVersion": "2021-02-01-preview",
+      "name": "[format('{0}/{1}/Default', parameters('sqlServerName'), parameters('sqlDatabase').name)]",
+      "properties": {
+        "state": "[if(parameters('sqlDatabase').azureDefender.enabled, 'Enabled', 'Disabled')]",
+        "emailAddresses": "[parameters('sqlDatabase').azureDefender.emailAddresses]",
+        "emailAccountAdmins": "[parameters('sqlDatabase').azureDefender.emailAccountAdmins]",
+        "disabledAlerts": "[parameters('sqlDatabase').azureDefender.disabledRules]"
+      }
+    }
+  }
+}

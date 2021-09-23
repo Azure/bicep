@@ -1,0 +1,229 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1604298324060108067"
+    }
+  },
+  "parameters": {
+    "myString": {
+      "type": "string"
+    },
+    "myInt": {
+      "type": "int"
+    },
+    "myBool": {
+      "type": "bool"
+    },
+    "myString2": {
+      "type": "string",
+      "defaultValue": "string value"
+    },
+    "myInt2": {
+      "type": "int",
+      "defaultValue": 42
+    },
+    "myTruth": {
+      "type": "bool",
+      "defaultValue": true
+    },
+    "myFalsehood": {
+      "type": "bool",
+      "defaultValue": false
+    },
+    "myEscapedString": {
+      "type": "string",
+      "defaultValue": "First line\r\nSecond\ttabbed\tline"
+    },
+    "foo": {
+      "type": "object",
+      "defaultValue": {
+        "enabled": true,
+        "name": "this is my object",
+        "priority": 3,
+        "info": {
+          "a": "b"
+        },
+        "empty": {},
+        "array": [
+          "string item",
+          12,
+          true,
+          [
+            "inner",
+            false
+          ],
+          {
+            "a": "b"
+          }
+        ]
+      }
+    },
+    "myArrayParam": {
+      "type": "array",
+      "defaultValue": [
+        "a",
+        "b",
+        "c"
+      ]
+    },
+    "password": {
+      "type": "secureString"
+    },
+    "secretObject": {
+      "type": "secureObject"
+    },
+    "storageSku": {
+      "type": "string",
+      "allowedValues": [
+        "Standard_LRS",
+        "Standard_GRS"
+      ]
+    },
+    "storageName": {
+      "type": "string",
+      "maxLength": 24,
+      "minLength": 3
+    },
+    "someArray": {
+      "type": "array",
+      "maxLength": 24,
+      "minLength": 3
+    },
+    "emptyMetadata": {
+      "type": "string",
+      "metadata": {}
+    },
+    "description": {
+      "type": "string",
+      "metadata": {
+        "description": "my description"
+      }
+    },
+    "description2": {
+      "type": "string",
+      "metadata": {
+        "description": "my description"
+      }
+    },
+    "additionalMetadata": {
+      "type": "string",
+      "metadata": {
+        "description": "my description",
+        "a": 1,
+        "b": true,
+        "c": [],
+        "d": {
+          "test": "abc"
+        }
+      }
+    },
+    "someParameter": {
+      "type": "secureString",
+      "metadata": {
+        "description": "Name of the storage account"
+      },
+      "allowedValues": [
+        "one",
+        "two",
+        "three"
+      ],
+      "maxLength": 24,
+      "minLength": 3
+    },
+    "defaultExpression": {
+      "type": "bool",
+      "defaultValue": "[not(equals(18, or(true(), false())))]"
+    },
+    "stringLiteral": {
+      "type": "string",
+      "allowedValues": [
+        "abc",
+        "def"
+      ]
+    },
+    "stringLiteralWithAllowedValuesSuperset": {
+      "type": "string",
+      "defaultValue": "[parameters('stringLiteral')]",
+      "allowedValues": [
+        "abc",
+        "def",
+        "ghi"
+      ]
+    },
+    "decoratedString": {
+      "type": "secureString",
+      "allowedValues": [
+        "Apple",
+        "Banana"
+      ],
+      "maxLength": 10,
+      "minLength": 2
+    },
+    "decoratedInt": {
+      "type": "int",
+      "defaultValue": 123,
+      "minValue": 200
+    },
+    "negativeValues": {
+      "type": "int",
+      "maxValue": -3,
+      "minValue": -10
+    },
+    "decoratedBool": {
+      "type": "bool",
+      "defaultValue": "[not(equals(and(true(), false()), true()))]",
+      "metadata": {
+        "description": "A boolean.",
+        "foo": "something",
+        "bar": [
+          {},
+          true,
+          123
+        ]
+      }
+    },
+    "decoratedObject": {
+      "type": "secureObject",
+      "defaultValue": {
+        "enabled": true,
+        "name": "this is my object",
+        "priority": 3,
+        "info": {
+          "a": "b"
+        },
+        "empty": {},
+        "array": [
+          "string item",
+          12,
+          true,
+          [
+            "inner",
+            false
+          ],
+          {
+            "a": "b"
+          }
+        ]
+      }
+    },
+    "decoratedArray": {
+      "type": "array",
+      "defaultValue": [
+        "[utcNow()]",
+        "[newGuid()]"
+      ],
+      "metadata": {
+        "description": "An array."
+      },
+      "maxLength": 20
+    }
+  },
+  "functions": [],
+  "resources": {}
+}

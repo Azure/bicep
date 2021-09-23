@@ -17,8 +17,8 @@ namespace Bicep.Core.UnitTests.Assertions
     public class ErrorBuilderAssertions : ReferenceTypeAssertions<DiagnosticBuilder.ErrorBuilderDelegate, ErrorBuilderAssertions>
     {
         public ErrorBuilderAssertions(DiagnosticBuilder.ErrorBuilderDelegate errorBuilder)
+            : base(errorBuilder)
         {
-            this.Subject = errorBuilder;
         }
 
         protected override string Identifier => "ErrorBuilderDelegate";
@@ -42,6 +42,18 @@ namespace Bicep.Core.UnitTests.Assertions
             using (new AssertionScope())
 {
                 error.Should().HaveMessage(message, because, becauseArgs);
+            }
+
+            return new(this);
+        }
+
+        public AndConstraint<ErrorBuilderAssertions> HaveMessageStartWith(string prefix, string because = "", params object[] becauseArgs)
+        {
+            ErrorDiagnostic error = GetErrorFromSubject();
+
+            using (new AssertionScope())
+            {
+                error.Should().HaveMessageStartWith(prefix, because, becauseArgs);
             }
 
             return new(this);

@@ -17,8 +17,8 @@ namespace Bicep.Core.UnitTests.Assertions
     public class DiagnosticBuilderAssertions : ReferenceTypeAssertions<DiagnosticBuilder.DiagnosticBuilderDelegate, DiagnosticBuilderAssertions>
     {
         public DiagnosticBuilderAssertions(DiagnosticBuilder.DiagnosticBuilderDelegate diagnosticBuilder)
+            : base(diagnosticBuilder)
         {
-            this.Subject = diagnosticBuilder;
         }
 
         protected override string Identifier => "DiagnosticBuilderDelegate";

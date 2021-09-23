@@ -68,7 +68,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             // For a compilation, runtime is ~O(number_of_modules * avg_number_of_viable_string_tokens * number_of_hostnames).
             // In the language service, we recompile on every keypress.
 
-            bool hasLeadingOrTrailingAlphaNumericChar(int index)
+            static bool hasLeadingOrTrailingAlphaNumericChar(string srcText, string hostname, int index)
             {
                 if (index > 0 && char.IsLetterOrDigit(srcText[index - 1]))
                 {
@@ -100,7 +100,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
 
                 // check preceding and trailing chars to verify we're not dealing with a substring
-                if (!hasLeadingOrTrailingAlphaNumericChar(matchIndex))
+                if (!hasLeadingOrTrailingAlphaNumericChar(srcText, hostname, matchIndex))
                 {
                     var matchText = srcText.Substring(matchIndex, hostname.Length);
                     yield return (RelativeSpan: new TextSpan(matchIndex, hostname.Length), Value: matchText);

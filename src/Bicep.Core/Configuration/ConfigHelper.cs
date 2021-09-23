@@ -1,19 +1,21 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 
 namespace Bicep.Core.Configuration
 {
     public class ConfigHelper
     {
-        private const string SettingsFileName = "bicepconfig.json";
+        private const string bicepConfigResourceName = "Bicep.Core.Configuration.bicepconfig.json";
+        private readonly IFileResolver fileResolver;
+        private readonly bool useDefaultConfig;
 
         /// <summary>
         /// Property exposes the configuration root
@@ -21,9 +23,19 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public IConfigurationRoot Config { get; private set; }
 
-        public ConfigHelper()
+        public ConfigHelper(string? localFolder, IFileResolver fileResolver, bool useDefaultConfig = false)
         {
-            this.Config = BuildConfig(Directory.GetCurrentDirectory());
+            this.fileResolver = fileResolver;
+            this.useDefaultConfig = useDefaultConfig;
+
+            if (localFolder is not null)
+            {
+                this.Config = BuildConfig(localFolder);
+            }
+            else
+            {
+                this.Config = BuildConfig(Directory.GetCurrentDirectory());
+            }
         }
 
         private IConfigurationRoot BuildConfig(Uri fileUri)
@@ -38,17 +50,15 @@ namespace Bicep.Core.Configuration
 
             // load the default settings from file embedded as resource
             var assembly = Assembly.GetExecutingAssembly();
-            var names = assembly.GetManifestResourceNames();
-            var defaultConfigResourceName = names.FirstOrDefault(n => n.EndsWith(SettingsFileName));
 
             // keep this stream open until after Build() call
-            using (var defaultConfigStream = assembly.GetManifestResourceStream(defaultConfigResourceName))
+            using (var defaultConfigStream = assembly.GetManifestResourceStream(bicepConfigResourceName))
             {
                 Debug.Assert(defaultConfigStream != null, "Default configuration file should exist as embedded resource.");
                 configBuilder.AddJsonStream(defaultConfigStream);
 
                 // last added json settings take precedent - add local settings last
-                if (DiscoverLocalConfigurationFile(localFolder) is string localConfig)
+                if (!useDefaultConfig && DiscoverLocalConfigurationFile(localFolder) is string localConfig)
                 {
                     // we must set reloadOnChange to false here - if it set to true, then ConfigurationBuilder will initialize 
                     // a FileSystem.Watcher instance - which has severe performance impact on non-Windows OSes (https://github.com/dotnet/runtime/issues/42036)
@@ -74,7 +84,7 @@ namespace Bicep.Core.Configuration
                 catch (Exception ex)
                 {
                     throw new Exception(
-                        string.Format("Could not load configuration file. {0}", ex.InnerException?.Message ?? ex.Message));
+                        string.Format("Could not load configuration file. {0} Please fix errors in the following configuration file: {1}", ex.InnerException?.Message ?? ex.Message, this.CustomSettingsFileName));
                 }
             }
         }
@@ -83,18 +93,18 @@ namespace Bicep.Core.Configuration
         {
             try
             {
-              while (!string.IsNullOrEmpty(nextDir))
-              {
-                  while (!string.IsNullOrEmpty(nextDir))
-                  {
-                      var fileName = Path.Combine(nextDir, SettingsFileName);
-                      if (File.Exists(fileName))
-                      {
-                          return fileName;
-                      }
-                      nextDir = Directory.GetParent(nextDir)?.FullName;
-                  }
-              }
+                while (!string.IsNullOrEmpty(nextDir))
+                {
+                    while (!string.IsNullOrEmpty(nextDir))
+                    {
+                        var fileName = Path.Combine(nextDir, LanguageConstants.BicepConfigSettingsFileName);
+                        if (fileResolver.FileExists(new Uri(fileName)))
+                        {
+                            return fileName;
+                        }
+                        nextDir = Directory.GetParent(nextDir)?.FullName;
+                    }
+                }
             }
             catch (Exception)
             {
@@ -158,6 +168,5 @@ namespace Bicep.Core.Configuration
         }
 
         #endregion
-
     }
 }

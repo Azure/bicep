@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "18205414248542328208"
+    }
+  },
+  "parameters": {
+    "app1Name": {
+      "type": "string"
+    },
+    "app2Name": {
+      "type": "string"
+    },
+    "app3Name": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "app1": {
+      "type": "Microsoft.AppPlatform/Spring/apps",
+      "apiVersion": "2020-07-01",
+      "name": "[parameters('app1Name')]",
+      "properties": {
+        "public": true,
+        "activeDeploymentName": "default"
+      }
+    },
+    "app2": {
+      "type": "Microsoft.AppPlatform/Spring/apps",
+      "apiVersion": "2020-07-01",
+      "name": "[parameters('app2Name')]",
+      "properties": {
+        "public": false,
+        "activeDeploymentName": "default"
+      }
+    },
+    "app3": {
+      "type": "Microsoft.AppPlatform/Spring/apps",
+      "apiVersion": "2020-07-01",
+      "name": "[parameters('app3Name')]",
+      "properties": {
+        "public": false,
+        "activeDeploymentName": "default"
+      }
+    }
+  }
+}

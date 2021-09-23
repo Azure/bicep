@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "14998095338942063206"
+    }
+  },
+  "parameters": {
+    "vnetName": {
+      "type": "string"
+    },
+    "vnetaddressPrefix": {
+      "type": "string"
+    },
+    "subnetPrefix": {
+      "type": "string"
+    },
+    "vnetLocation": {
+      "type": "string",
+      "defaultValue": "westeurope"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "AVD"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2019-12-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('vnetLocation')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetaddressPrefix')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('subnetPrefix')]",
+              "privateEndpointNetworkPolicies": "Disabled"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "outputs": {
+    "subnetId": {
+      "type": "string",
+      "value": "[reference('vnet').subnets[0].id]"
+    },
+    "vnetId": {
+      "type": "string",
+      "value": "[resourceInfo('vnet').id]"
+    }
+  }
+}

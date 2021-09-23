@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "7006719489223519842"
+    }
+  },
+  "parameters": {
+    "targetMG": {
+      "type": "string",
+      "metadata": {
+        "description": "Target Management Group"
+      }
+    },
+    "allowedLocations": {
+      "type": "array",
+      "defaultValue": [
+        "australiaeast",
+        "australiasoutheast",
+        "australiacentral"
+      ],
+      "metadata": {
+        "description": "An array of the allowed locations, all other locations will be denied by the created policy."
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "mgScope": "[tenantResourceId('Microsoft.Management/managementGroups', parameters('targetMG'))]",
+    "policyDefinitionName": "LocationRestriction"
+  },
+  "resources": {
+    "policyDefinition": {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "apiVersion": "2020-03-01",
+      "name": "[variables('policyDefinitionName')]",
+      "properties": {
+        "policyType": "Custom",
+        "mode": "All",
+        "parameters": {},
+        "policyRule": {
+          "if": {
+            "not": {
+              "field": "location",
+              "in": "[parameters('allowedLocations')]"
+            }
+          },
+          "then": {
+            "effect": "deny"
+          }
+        }
+      }
+    },
+    "policyAssignment": {
+      "type": "Microsoft.Authorization/policyAssignments",
+      "apiVersion": "2020-03-01",
+      "name": "location-lock",
+      "properties": {
+        "scope": "[variables('mgScope')]",
+        "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', resourceInfo('policyDefinition').name)]"
+      },
+      "dependsOn": [
+        "policyDefinition"
+      ]
+    }
+  }
+}

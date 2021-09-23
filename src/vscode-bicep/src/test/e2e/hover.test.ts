@@ -151,6 +151,6 @@ describe("hover", (): void => {
   }
 
   function marked(rawString: string): string {
-    return "```bicep\n" + rawString + "\n```";
+    return "```bicep\n" + rawString + "\n```\n";
   }
 });

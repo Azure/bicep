@@ -15,7 +15,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Utils;
 using System.Collections.Immutable;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Utils;
 using System.Collections.Generic;
 using Bicep.Core.FileSystem;
@@ -24,6 +23,7 @@ using Bicep.LanguageServer.Snippets;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using System.Linq;
 using Bicep.Core.UnitTests;
+using Bicep.Core.Configuration;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -31,25 +31,22 @@ namespace Bicep.LangServer.IntegrationTests
     {
         private const int DefaultTimeout = 20000;
 
-        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver);
+        public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.FileResolver, new ConfigHelper(null, BicepTestConstants.FileResolver));
 
-        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
+        public static async Task<ILanguageClient> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, Server.CreationOptions? creationOptions = null)
         {
-            resourceTypeProvider ??= TestTypeHelper.CreateEmptyProvider();
-            fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string>());
-
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
 
-            var server = new Server(
-                serverPipe.Reader,
-                clientPipe.Writer,
-                new Server.CreationOptions
-                {
-                    ResourceTypeProvider = resourceTypeProvider,
-                    FileResolver = fileResolver,
-                    SnippetsProvider = SnippetsProvider
-                });
+            creationOptions ??= new Server.CreationOptions();
+            creationOptions = creationOptions with
+            {
+                SnippetsProvider = creationOptions.SnippetsProvider ?? SnippetsProvider,
+                ResourceTypeProvider = creationOptions.ResourceTypeProvider ?? TestTypeHelper.CreateEmptyProvider(),
+                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>())
+            };
+
+            var server = new Server(serverPipe.Reader, clientPipe.Writer, creationOptions);
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
             
             var client = LanguageClient.PreInit(options => 
@@ -102,10 +99,15 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        public static async Task<ILanguageClient> StartServerWithTextAsync(TestContext testContext, string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, IResourceTypeProvider? resourceTypeProvider = null, IFileResolver? fileResolver = null)
+        public static async Task<ILanguageClient> StartServerWithTextAsync(TestContext testContext, string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, Server.CreationOptions? creationOptions = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
-            fileResolver ??= new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, });
+
+            creationOptions ??= new Server.CreationOptions();
+            creationOptions = creationOptions with
+            {
+                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, })
+            };
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 testContext,
                 options =>
@@ -117,8 +119,7 @@ namespace Bicep.LangServer.IntegrationTests
                         diagnosticsPublished.SetResult(p);
                     });
                 },
-                resourceTypeProvider: resourceTypeProvider,
-                fileResolver: fileResolver);
+                creationOptions);
 
             // send open document notification
             client.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, text, 0));

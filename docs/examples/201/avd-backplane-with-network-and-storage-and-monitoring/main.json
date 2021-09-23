@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7948946427398383311"
+      "templateHash": "15916346895618039714"
     }
   },
   "parameters": {
@@ -164,7 +164,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "avdbackplane",
       "resourceGroup": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -226,7 +226,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4010150104196921853"
+              "templateHash": "10433270836189804974"
             }
           },
           "parameters": {
@@ -330,7 +330,7 @@
             },
             {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2019-10-01",
+              "apiVersion": "2020-06-01",
               "name": "LAWorkspace",
               "resourceGroup": "[parameters('logAnalyticsResourceGroup')]",
               "properties": {
@@ -365,7 +365,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "3864819428445360434"
+                      "templateHash": "4464042552642153847"
                     }
                   },
                   "parameters": {
@@ -405,7 +405,7 @@
                     },
                     {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2019-10-01",
+                      "apiVersion": "2020-06-01",
                       "name": "myBicepLADiag",
                       "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
                       "properties": {
@@ -530,7 +530,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "avdnetwork",
       "resourceGroup": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -627,7 +627,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "avdFileServices",
       "resourceGroup": "[format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -719,7 +719,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "privateEndpoint",
       "resourceGroup": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -735,13 +735,13 @@
             "value": "pep-sto"
           },
           "storageAccountId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdFileServices'), '2019-10-01').outputs.storageAccountId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdFileServices'), '2020-06-01').outputs.storageAccountId.value]"
           },
           "vnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2019-10-01').outputs.vnetId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2020-06-01').outputs.vnetId.value]"
           },
           "subnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2019-10-01').outputs.subnetId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}NETWORK', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdnetwork'), '2020-06-01').outputs.subnetId.value]"
           }
         },
         "template": {
@@ -855,7 +855,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "avdsig",
       "resourceGroup": "[format('{0}SIG', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -1030,7 +1030,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('avdimagebuilder{0}', 'avdsig')]",
       "resourceGroup": "[format('{0}SIG', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -1055,7 +1055,7 @@
             "value": "[parameters('imageSKU')]"
           },
           "galleryImageId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdsig'), '2019-10-01').outputs.avdidoutput.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, format('{0}SIG', parameters('resourceGroupPrefrix'))), 'Microsoft.Resources/deployments', 'avdsig'), '2020-06-01').outputs.avdidoutput.value]"
           },
           "InvokeRunImageBuildThroughDeploymentScript": {
             "value": "[parameters('InvokeRunImageBuildThroughDeploymentScript')]"

@@ -23,3 +23,4 @@ resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
   }
 }
 // Insert snippet here
+

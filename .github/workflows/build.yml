@@ -57,7 +57,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.1
+        uses: actions/setup-dotnet@v1.8.2
       
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
@@ -88,7 +88,7 @@ jobs:
         if: ${{ matrix.rid != 'linux-musl-x64' }}
         run: npm ci && npm test
         env:
-          BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
@@ -98,7 +98,7 @@ jobs:
           entrypoint: sh
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
-          BICEP_CLI_EXECUTABLE: ../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
       
       - name: Upload Language Server
         uses: actions/upload-artifact@v2
@@ -124,7 +124,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v2.0.2
+        uses: codecov/codecov-action@v2.1.0
         with:
           flags: dotnet
 
@@ -140,7 +140,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.1
+        uses: actions/setup-dotnet@v1.8.2
       
       - name: Download Bicep CLI
         uses: actions/download-artifact@v2
@@ -186,10 +186,10 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.1
+        uses: actions/setup-dotnet@v1.8.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.3.1
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: 10.x
 
@@ -264,7 +264,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.3.1
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: 12.x
 
@@ -315,7 +315,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v2.0.2
+        uses: codecov/codecov-action@v2.1.0
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
@@ -344,10 +344,10 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.1
+        uses: actions/setup-dotnet@v1.8.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.3.1
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: 14.x
       
@@ -381,10 +381,10 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.8.1
+        uses: actions/setup-dotnet@v1.8.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.3.1
+        uses: actions/setup-node@v2.4.0
         with:
           node-version: 14.x
       

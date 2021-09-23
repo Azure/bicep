@@ -109,7 +109,10 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "sys"
+      "newText": "sys."
+    },
+    "command": {
+      "command": "editor.action.triggerSuggest"
     }
   }
 ]

@@ -90,6 +90,15 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WARNING: Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!
+        /// </summary>
+        internal static string SymbolicNamesDisclaimerMessage {
+            get {
+                return ResourceManager.GetString("SymbolicNamesDisclaimerMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unrecognized arguments &quot;{0}&quot; specified. Use &quot;{1} --help&quot; to view available options..
         /// </summary>
         internal static string UnrecognizedArgumentsFormat {

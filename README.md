@@ -1,4 +1,4 @@
-![Build](https://github.com/Azure/bicep/workflows/Build/badge.svg)
+[![Build](https://github.com/Azure/bicep/actions/workflows/build.yml/badge.svg)](https://github.com/Azure/bicep/actions/workflows/build.yml)
 [![codecov](https://codecov.io/gh/Azure/bicep/branch/main/graph/badge.svg)](https://codecov.io/gh/Azure/bicep)
 [![Good First Issues](https://img.shields.io/github/issues/Azure/Bicep/good%20first%20issue?color=important&label=good%20first%20issue&style=flat)](https://github.com/Azure/Bicep/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 [![Needs Feedback](https://img.shields.io/github/issues/Azure/Bicep/needs%20feedback?color=blue&label=needs%20feedback%20&style=flat)](https://github.com/Azure/bicep/issues?q=is%3Aopen+is%3Aissue+label%3A%22needs+feedback%22)
@@ -35,13 +35,13 @@ Bicep code is transpiled to standard ARM Template JSON files, which effectively 
 To get going with Bicep:
 
 1. **Start by [installing the tooling](./docs/installing.md).**
-1. **Complete the [Bicep tutorial](./docs/tutorial/01-simple-template.md)**
+2. **Complete the [Bicep Learning Path](https://docs.microsoft.com/learn/paths/bicep-deploy/)**
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
 
-If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](./docs/decompiling.md).
+If you have an existing ARM Template or set of resources that you would like to convert to `.bicep` format, see [Decompiling an ARM Template](https://docs.microsoft.com/azure/azure-resource-manager/bicep/decompile).
 
-Full details of how the bicep language works can be found in the [Bicep documentation](https://github.com/Azure/bicep/tree/main/docs) and there is a rich library of [examples](https://github.com/Azure/bicep/tree/main/docs/examples) to help you get a jumpstart.
+Full details of how the bicep language works can be found in the [Bicep documentation](https://docs.microsoft.com/azure/azure-resource-manager/bicep/) and there is a rich library of [examples](https://github.com/Azure/bicep/tree/main/docs/examples) to help you get a jumpstart.
 
 ## How does Bicep work?
 
@@ -116,7 +116,7 @@ We are here to help you be successful with Bicep, please do not hesitate to reac
 
 * [Bicep GitHub Action](https://github.com/marketplace/actions/bicep-build)
 * [Bicep Language Service support in Neovim](https://github.com/Azure/bicep/issues/1141#issuecomment-749372637)
-* [Bicep PowerShell Module](https://github.com/StefanIvemo/BicepPowerShell)
+* [Bicep PowerShell Module](https://github.com/PSBicep/PSBicep)
 * [Bicep Tasks extension for Azure Pipelines](https://marketplace.visualstudio.com/items?itemName=piraces.bicep-tasks)
 
 ## Alternatives

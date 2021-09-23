@@ -18,8 +18,8 @@ namespace Bicep.LangServer.IntegrationTests.Assertions
     public class OmniSharpDiagnosticAssertions : ReferenceTypeAssertions<Diagnostic, OmniSharpDiagnosticAssertions>
     {
         public OmniSharpDiagnosticAssertions(Diagnostic instance)
+            : base(instance)
         {
-            Subject = instance;
         }
 
         protected override string Identifier => "diagnostic";

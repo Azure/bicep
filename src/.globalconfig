@@ -197,3 +197,6 @@ dotnet_diagnostic.CA5401.severity = warning
 dotnet_diagnostic.CA5402.severity = warning
 # Do not hard-code certificate
 dotnet_diagnostic.CA5403.severity = warning
+
+# VSTHRD200: Use "Async" suffix for async methods
+dotnet_diagnostic.VSTHRD200.severity = none

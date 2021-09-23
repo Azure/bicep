@@ -1,0 +1,97 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10996175173856467619"
+    }
+  },
+  "parameters": {
+    "logAnalyticsWorkspaceID": {
+      "type": "string"
+    },
+    "hostpoolName": {
+      "type": "string"
+    },
+    "workspaceName": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "hostPool": {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2020-11-02-preview",
+      "name": "[parameters('hostpoolName')]",
+      "existing": true
+    },
+    "workspace": {
+      "type": "Microsoft.DesktopVirtualization/workspaces",
+      "apiVersion": "2020-11-02-preview",
+      "name": "[parameters('workspaceName')]",
+      "existing": true
+    },
+    "avdhpds": {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "scope": "[format('Microsoft.DesktopVirtualization/hostPools/{0}', parameters('hostpoolName'))]",
+      "name": "hostpool-diag",
+      "properties": {
+        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+        "logs": [
+          {
+            "category": "Checkpoint",
+            "enabled": true
+          },
+          {
+            "category": "Error",
+            "enabled": true
+          },
+          {
+            "category": "Management",
+            "enabled": true
+          },
+          {
+            "category": "Connection",
+            "enabled": true
+          },
+          {
+            "category": "HostRegistration",
+            "enabled": true
+          }
+        ]
+      }
+    },
+    "avdwsds": {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "scope": "[format('Microsoft.DesktopVirtualization/workspaces/{0}', parameters('workspaceName'))]",
+      "name": "workspacepool-diag",
+      "properties": {
+        "workspaceId": "[parameters('logAnalyticsWorkspaceID')]",
+        "logs": [
+          {
+            "category": "Checkpoint",
+            "enabled": true
+          },
+          {
+            "category": "Error",
+            "enabled": true
+          },
+          {
+            "category": "Management",
+            "enabled": true
+          },
+          {
+            "category": "Feed",
+            "enabled": true
+          }
+        ]
+      }
+    }
+  }
+}

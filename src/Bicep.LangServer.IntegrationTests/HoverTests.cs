@@ -4,8 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
@@ -42,9 +44,9 @@ namespace Bicep.LangServer.IntegrationTests
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task HoveringOverSymbolReferencesAndDeclarationsShouldProduceHovers(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, resourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes(), fileResolver: BicepTestConstants.FileResolver);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes(), FileResolver: BicepTestConstants.FileResolver));
 
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -128,8 +130,8 @@ namespace Bicep.LangServer.IntegrationTests
                 node is not ISymbolReference &&
                 node is not ITopLevelNamedDeclarationSyntax &&
                 node is not Token;
-            
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out var fileUri);
+
+            var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
 
@@ -186,7 +188,7 @@ output string test = testRes.prop|erties.rea|donly
 ");
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
@@ -217,7 +219,7 @@ output string test = testRes[3].prop|erties.rea|donly
 ");
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
@@ -248,7 +250,7 @@ output string test = testRes.prop|erties.rea|donly
 ");
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
@@ -262,6 +264,159 @@ output string test = testRes.prop|erties.rea|donly
         }
 
         [DataTestMethod]
+        public async Task Hovers_are_displayed_on_discription_decorator_objects()
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@description('''this is my module''')
+module test|mod './dummy.bicep' = {
+}
+
+@description('this is my param')
+var test|Param string
+
+@sys.description('this is my var')
+var test|Var string = 'hello'
+
+@description('''this is my
+multiline
+resource''')
+resource test|Res 'Test.Rp/discriminatorTests@2020-01-01' = {
+}
+
+@description('''this is my output''')
+resource test|Output string = 'str'
+");
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"), 
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output\n"));
+        }
+
+        [DataTestMethod]
+        public async Task Hovers_are_displayed_on_discription_decorator_objects_across_bicep_modules()
+        {
+            var modFile = @"
+@description('this is param1')
+param param1 string
+
+@sys.description('this is out1')
+output out1 string = '${param1}-out1'
+
+@description('''this
+is
+out2''')
+output out2 string = '${param1}-out2'
+";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@description('''this is mod1''')
+module mod|1 './mod.bicep' = {
+  name: 'myMod'
+  params: {
+    para|m1: 's'
+  }
+}
+
+@description('''this is var1''')
+var var1 = mod1.outputs.ou|t1
+
+output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
+");
+
+            var moduleFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/mod.bicep"), modFile);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+
+            var creationOptions = new LanguageServer.Server.CreationOptions(
+                ResourceTypeProvider: BuiltInTestTypes.Create(),
+                FileResolver: new InMemoryFileResolver(new Dictionary<Uri, string> 
+                { 
+                    [bicepFile.FileUri] = file, 
+                    [moduleFile.FileUri] = modFile
+                }));
+
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is mod1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is out1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is var1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
+        }
+
+         [DataTestMethod]
+        public async Task Hovers_are_displayed_on_discription_decorator_objects_across_arm_modules()
+        {
+            var modFile = @"
+@description('this is param1')
+param param1 string
+
+@metadata({
+    description: 'this is param2'
+})
+param param2 string = '${param1}-2'
+
+@sys.description('this is out1')
+output out1 string = '${param1}-out1'
+
+@description('''this
+is
+out2''')
+output out2 string = '${param2}-out2'
+";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(@"
+@description('''this is mod1''')
+module mo|d1 './mod.json' = {
+  name: 'myMod'
+  params: {
+    para|m1: 's'
+    p|aram2: 's'
+  }
+}
+
+@description('''this is var1''')
+var var1 = mod1.outputs.out|1
+
+output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
+");
+
+            var (template, diags, _) = CompilationHelper.Compile(modFile);
+            template!.Should().NotBeNull();
+            diags.Should().BeEmpty();
+
+            var moduleTemplateFile = SourceFileFactory.CreateArmTemplateFile(new Uri("file:///path/to/mod.json"), template!.ToString());
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+
+            var creationOptions = new LanguageServer.Server.CreationOptions(
+                ResourceTypeProvider: BuiltInTestTypes.Create(),
+                FileResolver: new InMemoryFileResolver(new Dictionary<Uri, string> 
+                { 
+                    [bicepFile.FileUri] = file, 
+                    [moduleTemplateFile.FileUri] = template!.ToString()
+                }));
+
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            
+            var hovers = await RequestHovers(client, bicepFile, cursors);
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is mod1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is param2\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is out1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is var1\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
+        }
+
+        [DataTestMethod]
         public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -271,7 +426,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 ");
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, resourceTypeProvider: BuiltInTestTypes.Create());
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
             var hovers = await RequestHovers(client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
@@ -291,7 +446,7 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
 
             hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
             hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
-            hover.Contents.MarkupContent.Value.Should().EndWith("```");
+            Regex.Matches(hover.Contents.MarkupContent.Value, "```").Count.Should().Be(2);
 
             switch (symbol)
             {

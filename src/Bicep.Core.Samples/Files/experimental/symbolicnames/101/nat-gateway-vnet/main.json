@@ -1,0 +1,156 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4928263490538882609"
+    }
+  },
+  "parameters": {
+    "vnetName": {
+      "type": "string",
+      "defaultValue": "myVnet",
+      "metadata": {
+        "description": "Name of the virtual network"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "mySubnet",
+      "metadata": {
+        "description": "Name of the subnet for virtual network"
+      }
+    },
+    "vnetAddressSpace": {
+      "type": "string",
+      "defaultValue": "192.168.0.0/16",
+      "metadata": {
+        "description": "Address space for virtual network"
+      }
+    },
+    "vnetSubnetPrefix": {
+      "type": "string",
+      "defaultValue": "192.168.0.0/24",
+      "metadata": {
+        "description": "Subnet prefix for virtual network"
+      }
+    },
+    "natGatewayName": {
+      "type": "string",
+      "defaultValue": "myNATgateway",
+      "metadata": {
+        "description": "Name of the NAT gateway resource"
+      }
+    },
+    "publicIpDns": {
+      "type": "string",
+      "defaultValue": "[format('gw-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "dns of the public ip address, leave blank for no dns"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location of resources"
+      }
+    }
+  },
+  "functions": [],
+  "variables": {
+    "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]",
+    "publicIpAddresses": [
+      {
+        "id": "[resourceInfo('publicIp').id]"
+      }
+    ]
+  },
+  "resources": {
+    "publicIp": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('publicIpName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAddressVersion": "IPv4",
+        "publicIPAllocationMethod": "Static",
+        "idleTimeoutInMinutes": 4,
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('publicIpDns')]"
+        }
+      }
+    },
+    "natGateway": {
+      "type": "Microsoft.Network/natGateways",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('natGatewayName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "idleTimeoutInMinutes": 4,
+        "publicIpAddresses": "[if(not(empty(parameters('publicIpDns'))), variables('publicIpAddresses'), null())]"
+      },
+      "dependsOn": [
+        "publicIp"
+      ]
+    },
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('vnetAddressSpace')]"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[parameters('subnetName')]",
+            "properties": {
+              "addressPrefix": "[parameters('vnetSubnetPrefix')]",
+              "natGateway": {
+                "id": "[resourceInfo('natGateway').id]"
+              },
+              "privateEndpointNetworkPolicies": "Enabled",
+              "privateLinkServiceNetworkPolicies": "Enabled"
+            }
+          }
+        ],
+        "enableDdosProtection": false,
+        "enableVmProtection": false
+      },
+      "dependsOn": [
+        "natGateway"
+      ]
+    },
+    "subnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', parameters('vnetName'), 'mySubnet')]",
+      "properties": {
+        "addressPrefix": "[parameters('vnetSubnetPrefix')]",
+        "natGateway": {
+          "id": "[resourceInfo('natGateway').id]"
+        },
+        "privateEndpointNetworkPolicies": "Enabled",
+        "privateLinkServiceNetworkPolicies": "Enabled"
+      },
+      "dependsOn": [
+        "natGateway",
+        "vnet"
+      ]
+    }
+  }
+}

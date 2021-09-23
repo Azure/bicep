@@ -1,8 +1,11 @@
-param deployTimeSuffix string = newGuid()
-//@[6:22) Parameter deployTimeSuffix. Type: string. Declaration start char: 0, length: 41
 
+@sys.description('this is deployTimeSuffix param')
+param deployTimeSuffix string = newGuid()
+//@[6:22) Parameter deployTimeSuffix. Type: string. Declaration start char: 0, length: 93
+
+@sys.description('this module a')
 module modATest './modulea.bicep' = {
-//@[7:15) Module modATest. Type: module. Declaration start char: 0, length: 217
+//@[7:15) Module modATest. Type: module. Declaration start char: 0, length: 252
   name: 'modATest'
   params: {
     stringParamB: 'hello!'
@@ -18,16 +21,19 @@ module modATest './modulea.bicep' = {
   }
 }
 
+
+@sys.description('this module b')
 module modB './child/moduleb.bicep' = {
-//@[7:11) Module modB. Type: module. Declaration start char: 0, length: 101
+//@[7:11) Module modB. Type: module. Declaration start char: 0, length: 136
   name: 'modB'
   params: {
     location: 'West US'
   }
 }
 
+@sys.description('this is just module b with a condition')
 module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
-//@[7:24) Module modBWithCondition. Type: module. Declaration start char: 0, length: 143
+//@[7:24) Module modBWithCondition. Type: module. Declaration start char: 0, length: 203
   name: 'modBWithCondition'
   params: {
     location: 'East US'
@@ -142,8 +148,10 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 /*
   valid loop cases
 */ 
+
+@sys.description('this is myModules')
 var myModules = [
-//@[4:13) Variable myModules. Type: array. Declaration start char: 0, length: 123
+//@[4:13) Variable myModules. Type: array. Declaration start char: 0, length: 162
   {
     name: 'one'
     location: 'eastus2'
@@ -412,3 +420,4 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 
 
 // END: Key Vault Secret Reference
+

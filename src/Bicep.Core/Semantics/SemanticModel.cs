@@ -31,13 +31,14 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, ConfigHelper configHelper)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
             Compilation = compilation;
             SourceFile = sourceFile;
             FileResolver = fileResolver;
+            ConfigHelper = configHelper;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -65,12 +66,12 @@ namespace Bicep.Core.Semantics
 
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
-            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer());
+            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer(configHelper));
 
             this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
 
             // lazy load single use diagnostic set
-            this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics(default));
+            this.allDiagnostics = new Lazy<IEnumerable<IDiagnostic>>(() => AssembleDiagnostics());
 
             this.parameterTypePropertiesLazy = new Lazy<ImmutableArray<TypeProperty>>(() =>
             {
@@ -111,6 +112,8 @@ namespace Bicep.Core.Semantics
         public ISymbolContext SymbolContext { get; }
 
         public Compilation Compilation { get; }
+
+        public ConfigHelper ConfigHelper { get; }
 
         public ITypeManager TypeManager { get; }
 
@@ -163,9 +166,9 @@ namespace Bicep.Core.Semantics
         /// Gets all the analyzer diagnostics unsorted.
         /// </summary>
         /// <returns></returns>
-        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics(ConfigHelper? overrideConfig = default)
+        public IReadOnlyList<IDiagnostic> GetAnalyzerDiagnostics()
         {
-            var diagnostics = LinterAnalyzer.Analyze(this, overrideConfig);
+            var diagnostics = LinterAnalyzer.Analyze(this);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             diagnosticWriter.WriteMultiple(diagnostics);
@@ -176,20 +179,16 @@ namespace Bicep.Core.Semantics
         /// <summary>
         /// Cached diagnostics from compilation
         /// </summary>
-        public IEnumerable<IDiagnostic> GetAllDiagnostics(ConfigHelper? overrideConfig = default)
+        public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
-            if (overrideConfig == default)
-            {
-                return allDiagnostics.Value;
-            }
-            return AssembleDiagnostics(overrideConfig);
+            return AssembleDiagnostics();
         }
 
-        private IEnumerable<IDiagnostic> AssembleDiagnostics(ConfigHelper? overrideConfig)
+        private IEnumerable<IDiagnostic> AssembleDiagnostics()
         {
             return GetParseDiagnostics()
             .Concat(GetSemanticDiagnostics())
-            .Concat(GetAnalyzerDiagnostics(overrideConfig))
+            .Concat(GetAnalyzerDiagnostics())
             .OrderBy(diag => diag.Span.Position);
         }
 

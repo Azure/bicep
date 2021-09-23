@@ -7,6 +7,7 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -18,7 +19,7 @@ namespace Bicep.Cli.IntegrationTests
 
         // https://github.com/azure/bicep/issues/3182
         [TestMethod]        
-        public void Test_Issue3182()
+        public async Task Test_Issue3182()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#"",
@@ -133,7 +134,7 @@ namespace Bicep.Cli.IntegrationTests
             var fileName = FileHelper.GetResultFilePath(TestContext, "main.json");
             File.WriteAllText(fileName, template);
 
-            var (_, _, result) = Bicep("decompile", fileName);
+            var (_, _, result) = await Bicep("decompile", fileName);
 
             // This example has errors, but files should still have been generated
             result.Should().Be(1);

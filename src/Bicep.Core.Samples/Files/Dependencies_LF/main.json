@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15492446832066710900"
+      "templateHash": "14200432294566499835"
     }
   },
   "parameters": {
@@ -34,9 +34,9 @@
       "apiVersion": "2020-01-01",
       "name": "resA",
       "properties": {
-        "deployTime": "[variables('dependentVar')]"
-      },
-      "eTag": "1234"
+        "deployTime": "[variables('dependentVar')]",
+        "eTag": "1234"
+      }
     },
     {
       "type": "My.Rp/myResourceType",
@@ -49,7 +49,7 @@
             "resA",
             "My.Rp/myResourceType",
             "[reference(resourceId('My.Rp/myResourceType', 'resA')).deployTime]",
-            "[reference(resourceId('My.Rp/myResourceType', 'resA'), '2020-01-01', 'full').eTag]"
+            "[reference(resourceId('My.Rp/myResourceType', 'resA')).eTag]"
           ]
         }
       },

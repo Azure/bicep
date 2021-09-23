@@ -3,7 +3,6 @@
 
 using System;
 using System.Linq;
-using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Semantics

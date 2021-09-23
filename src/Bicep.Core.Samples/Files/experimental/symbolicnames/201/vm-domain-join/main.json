@@ -1,0 +1,198 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11761610079538613606"
+    }
+  },
+  "parameters": {
+    "existingVnetName": {
+      "type": "string"
+    },
+    "existingSubnetName": {
+      "type": "string"
+    },
+    "dnsLabelPrefix": {
+      "type": "string",
+      "maxLength": 62,
+      "minLength": 1
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_A2_v2"
+    },
+    "domainToJoin": {
+      "type": "string"
+    },
+    "domainUserName": {
+      "type": "string"
+    },
+    "domainPassword": {
+      "type": "secureString"
+    },
+    "ouPath": {
+      "type": "string"
+    },
+    "domainJoinOptions": {
+      "type": "int",
+      "defaultValue": 3,
+      "metadata": {
+        "description": "Set of bit flags that define the join options. Default value of 3 is a combination of NETSETUP_JOIN_DOMAIN (0x00000001) & NETSETUP_ACCT_CREATE (0x00000002) i.e. will join the domain and create the account on the domain. For more information see https://msdn.microsoft.com/en-us/library/aa392154(v=vs.85).aspx"
+      }
+    },
+    "vmAdminUsername": {
+      "type": "string"
+    },
+    "vmAdminPassword": {
+      "type": "secureString"
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "storageAccountName": "[uniqueString(resourceGroup().id, deployment().name)]",
+    "imagePublisher": "MicrosoftWindowsServer",
+    "imageOffer": "WindowsServer",
+    "windowsOSVersion": "2019-Datacenter",
+    "nicName": "[format('{0}-nic', parameters('dnsLabelPrefix'))]",
+    "publicIpName": "[format('{0}-pip', parameters('dnsLabelPrefix'))]",
+    "subnetId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), parameters('existingSubnetName'))]"
+  },
+  "resources": {
+    "publicIp": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('publicIpName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic",
+        "dnsSettings": {
+          "domainNameLabel": "[parameters('dnsLabelPrefix')]"
+        }
+      }
+    },
+    "storageAccount": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[variables('storageAccountName')]",
+      "location": "[parameters('location')]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "Standard_LRS"
+      }
+    },
+    "nic": {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('nicName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceInfo('publicIp').id]"
+              },
+              "subnet": {
+                "id": "[variables('subnetId')]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "publicIp"
+      ]
+    },
+    "virtualMachine": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('dnsLabelPrefix')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('dnsLabelPrefix')]",
+          "adminUsername": "[parameters('vmAdminUsername')]",
+          "adminPassword": "[parameters('vmAdminPassword')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "[variables('imagePublisher')]",
+            "offer": "[variables('imageOffer')]",
+            "sku": "[variables('windowsOSVersion')]",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "[format('{0}-OsDisk', parameters('dnsLabelPrefix'))]",
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "[format('{0}-DataDisk', parameters('dnsLabelPrefix'))]",
+              "caching": "None",
+              "createOption": "Empty",
+              "diskSizeGB": 1024,
+              "lun": 0
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceInfo('nic').id]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "[reference('storageAccount').primaryEndpoints.blob]"
+          }
+        }
+      },
+      "dependsOn": [
+        "nic",
+        "storageAccount"
+      ]
+    },
+    "virtualMachineExtension": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/joindomain', resourceInfo('virtualMachine').name)]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "JsonADDomainExtension",
+        "typeHandlerVersion": "1.3",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "name": "[parameters('domainToJoin')]",
+          "ouPath": "[parameters('ouPath')]",
+          "user": "[format('{0}\\{1}', parameters('domainToJoin'), parameters('domainUserName'))]",
+          "restart": true,
+          "options": "[parameters('domainJoinOptions')]"
+        },
+        "protectedSettings": {
+          "password": "[parameters('domainPassword')]"
+        }
+      },
+      "dependsOn": [
+        "virtualMachine"
+      ]
+    }
+  }
+}

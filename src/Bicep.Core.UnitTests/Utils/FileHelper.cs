@@ -4,13 +4,14 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Utils
 {
     public static class FileHelper
     {
-        private static string GetUniqueTestOutputPath(TestContext testContext)
+        public static string GetUniqueTestOutputPath(TestContext testContext)
             => Path.Combine(testContext.ResultsDirectory, Guid.NewGuid().ToString());
 
         public static string GetResultFilePath(TestContext testContext, string fileName, string? testOutputPath = null)
@@ -23,10 +24,18 @@ namespace Bicep.Core.UnitTests.Utils
             return filePath;
         }
 
-        public static string SaveResultFile(TestContext testContext, string fileName, string contents, string? testOutputPath = null)
+        public static string SaveResultFile(TestContext testContext, string fileName, string contents, string? testOutputPath = null, Encoding? encoding = null)
         {
             var filePath = GetResultFilePath(testContext, fileName, testOutputPath);
-            File.WriteAllText(filePath, contents);
+
+            if (encoding is not null)
+            {
+                File.WriteAllText(filePath, contents, encoding);
+            }
+            else
+            {
+                File.WriteAllText(filePath, contents);
+            }
 
             return filePath;
         }
@@ -36,7 +45,7 @@ namespace Bicep.Core.UnitTests.Utils
             var outputDirectory = GetUniqueTestOutputPath(testContext);
 
             var filesSaved = false;
-            foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix,  StringComparison.Ordinal)))
+            foreach (var embeddedResourceName in containingAssembly.GetManifestResourceNames().Where(file => file.StartsWith(manifestFilePrefix, StringComparison.Ordinal)))
             {
                 var relativePath = embeddedResourceName.Substring(manifestFilePrefix.Length).TrimStart('/');
                 var manifestStream = containingAssembly.GetManifestResourceStream(embeddedResourceName);
@@ -55,7 +64,7 @@ namespace Bicep.Core.UnitTests.Utils
                 testContext.WriteLine($"Bytes written to {filePath}: {fileStream.Position}");
 
                 fileStream.Close();
-                
+
                 testContext.AddResultFile(filePath);
                 filesSaved = true;
             }
@@ -67,5 +76,7 @@ namespace Bicep.Core.UnitTests.Utils
 
             return outputDirectory;
         }
+
+        public static string GetCacheRootPath(TestContext testContext) => GetUniqueTestOutputPath(testContext);
     }
 }
