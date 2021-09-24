@@ -63,7 +63,7 @@ output myObj object = {
                 new TypeProperty("pascalCaseEnumProp", new StringLiteralType("MyEnum")),
                 new TypeProperty("lowerCaseEnumUnionProp", UnionType.Create(new StringLiteralType("myenum"), new StringLiteralType("blahblah"))),
                 new TypeProperty("pascalCaseEnumUnionProp", UnionType.Create(new StringLiteralType("MyEnum"), new StringLiteralType("BlahBlah"))));
-            var typeProvider = TestTypeHelper.CreateProviderWithTypes(typeDefinition.AsEnumerable());
+            var typeProvider = TestTypeHelper.CreateAzResourceTypeProviderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
@@ -112,7 +112,7 @@ output myObj object = {
                 new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new [] {
                   new TypeProperty("lowercasestr", LanguageConstants.String)
                 }, null)));
-            var typeProvider = TestTypeHelper.CreateProviderWithTypes(typeDefinition.AsEnumerable());
+            var typeProvider = TestTypeHelper.CreateAzResourceTypeProviderWithTypes(typeDefinition.AsEnumerable());
 
             var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());

@@ -353,11 +353,11 @@ namespace Bicep.Core.Semantics
             }
 
             // attempt to find function in all imported namespaces
-            var foundSymbols = namespaceResolver.ResolveGlobalFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag());
+            var foundSymbols = namespaceResolver.ResolveUnqualifiedFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag());
             if (foundSymbols.Count() > 1)
             {
                 // ambiguous symbol
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(identifierSyntax).AmbiguousSymbolReference(identifierSyntax.IdentifierName, namespaceResolver.GetNamespaceNames()));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(identifierSyntax).AmbiguousSymbolReference(identifierSyntax.IdentifierName, namespaceResolver.GetNamespaceNames().ToImmutableSortedSet(StringComparer.Ordinal)));
             }
 
             var foundSymbol = foundSymbols.FirstOrDefault();

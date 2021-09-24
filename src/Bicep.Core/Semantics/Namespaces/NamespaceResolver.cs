@@ -51,7 +51,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
         public ImmutableDictionary<string, BuiltInNamespaceSymbol> BuiltIns { get; }
 
-        public IEnumerable<Symbol> ResolveGlobalFunction(IdentifierSyntax identifierSyntax, bool includeDecorators)
+        public IEnumerable<Symbol> ResolveUnqualifiedFunction(IdentifierSyntax identifierSyntax, bool includeDecorators)
         {
             // attempt to find function in all imported namespaces
             var symbols = this.namespaceTypes.Values

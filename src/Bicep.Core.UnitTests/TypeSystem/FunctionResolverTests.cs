@@ -228,7 +228,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaces = new NamespaceType[] { SystemNamespaceType.Create("sys"), AzNamespaceType.Create("az", ResourceScope.ResourceGroup, AzResourceTypeProvider.CreateWithAzTypes()) };
+            var namespaces = new NamespaceType[] { SystemNamespaceType.Create("sys"), AzNamespaceType.Create("az", ResourceScope.ResourceGroup, BicepTestConstants.AzResourceTypeProvider) };
             var matches = new List<FunctionOverload>();
 
             argumentCountMismatches = new List<ArgumentCountMismatch>();

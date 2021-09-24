@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.Utils
             => CreateProviderWithTypes(Enumerable.Empty<ResourceType>());
 
         public static INamespaceProvider CreateWithAzTypes()
-            => new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features);
+            => new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeProvider, BicepTestConstants.Features);
 
         public static ResourceType CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
         {

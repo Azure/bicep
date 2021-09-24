@@ -4,6 +4,7 @@
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,6 +21,8 @@ namespace Bicep.Core.UnitTests
         public static readonly FileResolver FileResolver = new();
 
         public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false).Object;
+
+        public static readonly AzResourceTypeProvider AzResourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 

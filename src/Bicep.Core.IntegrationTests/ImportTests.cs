@@ -1,13 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -18,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         private CompilationHelper.CompilationHelperContext EnabledImportsContext
-            => new CompilationHelper.CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
+            => new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
 
         [TestMethod]
         public void Imports_are_disabled_unless_feature_is_enabled()
@@ -119,6 +124,78 @@ import sys2 from sys
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
                 ("BCP207", DiagnosticLevel.Error, "Namespace \"sys\" is imported multiple times. Remove the duplicates."),
             });
+        }
+
+        [TestMethod]
+        public void Ambiguous_function_references_must_be_qualified()
+        {
+            var nsProviderMock = new Mock<INamespaceProvider>(MockBehavior.Strict);
+            nsProviderMock.SetupGet(x => x.AllowImportStatements).Returns(true);
+            nsProviderMock.Setup(x => x.TryGetNamespace(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ResourceScope>()))
+                .Returns<string, string, ResourceScope>((providerName, aliasName, resourceScope) => {
+                    switch (providerName)
+                    {
+                        case "ns1":
+                            return new NamespaceType(
+                                aliasName,
+                                providerName,
+                                ImmutableArray<TypeProperty>.Empty,
+                                new [] { 
+                                    new FunctionOverloadBuilder("ns1Func").Build(),
+                                    new FunctionOverloadBuilder("dupeFunc").Build(),
+                                },
+                                ImmutableArray<BannedFunction>.Empty,
+                                ImmutableArray<Decorator>.Empty,
+                                new EmptyResourceTypeProvider(),
+                                configurationType: null,
+                                isSingleton: true);
+                        case "ns2":
+                            return new NamespaceType(
+                                aliasName,
+                                providerName,
+                                ImmutableArray<TypeProperty>.Empty,
+                                new [] { 
+                                    new FunctionOverloadBuilder("ns2Func").Build(),
+                                    new FunctionOverloadBuilder("dupeFunc").Build(),
+                                },
+                                ImmutableArray<BannedFunction>.Empty,
+                                ImmutableArray<Decorator>.Empty,
+                                new EmptyResourceTypeProvider(),
+                                configurationType: null,
+                                isSingleton: true);
+                        default:
+                            return null;
+                    }
+                });
+
+            var context = new CompilationHelper.CompilationHelperContext(
+                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
+                NamespaceProvider: nsProviderMock.Object);
+
+            var result = CompilationHelper.Compile(context, @"
+import ns1 from ns1
+import ns2 from ns2
+
+output ambiguousResult string = dupeFunc()
+output ns1Result string = ns1Func()
+output ns2Result string = ns2Func()
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP056", DiagnosticLevel.Error, "The reference to name \"dupeFunc\" is ambiguous because it exists in namespaces \"ns1\", \"ns2\". The reference must be fully-qualified."),
+            });
+
+            // fix by fully-qualifying
+            result = CompilationHelper.Compile(context, @"
+import ns1 from ns1
+import ns2 from ns2
+
+output ambiguousResult string = ns1.dupeFunc()
+output ns1Result string = ns1Func()
+output ns2Result string = ns2Func()
+");
+
+            result.Should().NotHaveAnyDiagnostics();
         }
     }
 }
