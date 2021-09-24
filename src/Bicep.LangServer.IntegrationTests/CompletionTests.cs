@@ -547,8 +547,8 @@ output string test2 = testRes.properties.|
             await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
                 completions.Should().SatisfyRespectively(
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required."),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports writing.")),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("apiVersion property"),
@@ -556,6 +556,36 @@ output string test2 = testRes.properties.|
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("name property"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("properties property"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("type property")),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports reading."),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required."))));
+        }
+
+        [TestMethod]
+        public async Task Property_completions_required_first_and_selected()
+        {
+            var fileWithCursors = @"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
+  name: 'testRes'
+  properties: {
+    |
+  }
+}
+
+output string test2 = testRes.properties.|
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
+                completions.Should().SatisfyRespectively(
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d =>
+                        {
+                            d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which is required.");
+                            d.Preselect.Should().BeTrue();
+                        },
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports writing.")),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports reading."),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
