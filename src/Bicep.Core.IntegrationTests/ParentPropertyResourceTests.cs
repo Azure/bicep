@@ -444,7 +444,7 @@ resource res1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 "));
 
             // The name requires a single '/' character to be valid, but we cannot be sure that 'p1' doesn't contain it - we should not return an error.
-            result.Should().NotHaveAnyDiagnostics();
+            result.Diagnostics.ExcludingMissingTypes().Should().BeEmpty();
         }
 
         [TestMethod]
