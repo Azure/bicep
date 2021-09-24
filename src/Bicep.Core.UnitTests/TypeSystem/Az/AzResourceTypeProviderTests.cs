@@ -49,8 +49,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
             foreach (var availableType in availableTypes)
             {
-                resourceTypeProvider.HasType(availableType).Should().BeTrue();
-                var resourceType = resourceTypeProvider.TryGetType(availableType, flags)!;
+                resourceTypeProvider.HasDefinedType(availableType).Should().BeTrue();
+                var resourceType = resourceTypeProvider.TryGetDefinedType(availableType, flags)!;
 
                 try
                 {

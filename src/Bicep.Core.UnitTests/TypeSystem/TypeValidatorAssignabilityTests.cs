@@ -607,7 +607,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var typeProvider = TestTypeHelper.CreateEmptyProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!.ResourceTypeProvider.TryGetType(typeReference, ResourceTypeGenerationFlags.None)!;
+            return typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!.ResourceTypeProvider.TryGenerateDefaultType(typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
         private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(SyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)

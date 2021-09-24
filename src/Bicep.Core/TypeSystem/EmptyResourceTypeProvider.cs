@@ -12,10 +12,13 @@ namespace Bicep.Core.TypeSystem
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => Enumerable.Empty<ResourceTypeReference>();
 
-        public ResourceType? TryGetType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGetDefinedType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             => null;
 
-        public bool HasType(ResourceTypeReference typeReference)
+        public ResourceType? TryGenerateDefaultType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+            => null;
+
+        public bool HasDefinedType(ResourceTypeReference typeReference)
             => false;
     }
 }

@@ -61,6 +61,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             foreach (var symbol in symbols)
             {
+                // The caller is responsible for deduplicating this list and returning an error if there is ambiguity, so we simply return everything.
                 if (symbol is not null)
                 {
                     yield return symbol;
@@ -69,41 +70,45 @@ namespace Bicep.Core.Semantics.Namespaces
         }
 
         public IEnumerable<string> GetKnownFunctionNames(bool includeDecorators)
-        {
-            // TODO: Deduplicate this list
-            return this.namespaceTypes.Values
+            => this.namespaceTypes.Values
                 .SelectMany(type => includeDecorators
                     ? type.MethodResolver.GetKnownFunctions().Keys.Concat(type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
                     : type.MethodResolver.GetKnownFunctions().Keys);
-        }
 
         public IEnumerable<string> GetKnownPropertyNames()
-        {
-            // TODO: Deduplicate this list
-            return this.namespaceTypes.Values.SelectMany(type => type.Properties.Keys);
-        }
+            => this.namespaceTypes.Values.SelectMany(type => type.Properties.Keys);
 
         public IEnumerable<string> GetNamespaceNames()
-        {
-            return this.namespaceTypes.Keys;
-        }
+            => this.namespaceTypes.Keys;
 
         public ResourceType GetResourceType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
         {
-            var resourceTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGetType(reference, flags))
+            var definedTypes = namespaceTypes.Values
+                .Select(type => type.ResourceTypeProvider.TryGetDefinedType(reference, flags))
                 .WhereNotNull();
 
-            // The az provider is currently always imported, and will always return a result
-            // So it's safe to use 'First' here.
-            return resourceTypes.First();
+            if (definedTypes.FirstOrDefault() is {} definedType)
+            {
+                return definedType;
+            }
+
+            var generatedTypes = namespaceTypes.Values
+                .Select(type => type.ResourceTypeProvider.TryGenerateDefaultType(reference, flags))
+                .WhereNotNull();
+
+            // Here we are assuming that one of the namespaces will always return at least one result with TryGenerateDefaultType.
+            // This is a fair assumption at present, because the "az" namespace is always imported.
+            return generatedTypes.First();
         }
 
         public bool HasResourceType(ResourceTypeReference reference)
-            => namespaceTypes.Values.Any(type => type.ResourceTypeProvider.HasType(reference));
+            => namespaceTypes.Values.Any(type => type.ResourceTypeProvider.HasDefinedType(reference));
 
-        // TODO: Deduplicate this list
         public IEnumerable<ResourceTypeReference> GetAvailableResourceTypes()
-            => namespaceTypes.Values.SelectMany(type => type.ResourceTypeProvider.GetAvailableTypes());
+        {
+            // Here we are not handling any deduplication between namespaces. This is OK for now, because there
+            // are only two supported namespaces ("az" & "sys"), both singletons. "sys" does not contain any resource types.
+            return namespaceTypes.Values.SelectMany(type => type.ResourceTypeProvider.GetAvailableTypes());
+        }
     }
 }

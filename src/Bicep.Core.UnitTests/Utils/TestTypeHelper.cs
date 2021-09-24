@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static AzResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
-            => AzResourceTypeProvider.CreateWithLoader(new TestResourceTypeLoader(resourceTypes), false);
+            => AzResourceTypeProvider.CreateWithLoader(new TestResourceTypeLoader(resourceTypes));
 
         public static AzResourceTypeProvider CreateEmptyAzResourceTypeProvider()
             => CreateAzResourceTypeProviderWithTypes(Enumerable.Empty<ResourceType>());
