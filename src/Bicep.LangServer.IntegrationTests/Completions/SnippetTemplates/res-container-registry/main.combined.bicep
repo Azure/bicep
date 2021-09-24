@@ -3,14 +3,14 @@
 // $3 = 'Classic'
 // $4 = true
 
-resource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {
+resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
   name: 'name'
   location: resourceGroup().location
   sku: {
-    name: 'Classic'
+    name: 'Basic'
   }
   properties: {
-    adminUserEnabled: true
+    adminUserEnabled: false
   }
 }
 // Insert snippet here
