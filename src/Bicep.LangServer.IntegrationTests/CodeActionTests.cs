@@ -10,6 +10,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -34,7 +35,10 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
  
             // start language server
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext,
+                dataSet.Bicep,
+                uri,
+                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver(), ResourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes()));
 
             // construct a parallel compilation
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
