@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using System.Collections.Immutable;
+using System.Collections.Concurrent;
 using Bicep.Core.Emit;
 using System.Text.RegularExpressions;
 
@@ -36,19 +37,14 @@ namespace Bicep.Core.TypeSystem.Az
                         ResourceTypeReferenceComparer.Instance.GetHashCode(x.type);
             }
 
-            private readonly IDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType> cache
-                = new Dictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType>(KeyComparer.Instance);
+            private readonly ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType> cache
+                = new ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType>(KeyComparer.Instance);
 
             public ResourceType GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceType> buildFunc)
             {
                 var cacheKey = (flags, typeReference);
-                if (!cache.TryGetValue(cacheKey, out var value))
-                {
-                    value = buildFunc();
-                    cache[cacheKey] = value;
-                }
 
-                return value;
+                return cache.GetOrAdd(cacheKey, cacheKey => buildFunc());
             }
         }
 
