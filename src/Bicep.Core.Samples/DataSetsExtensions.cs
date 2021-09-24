@@ -52,7 +52,7 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            return (new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, null), outputDirectory, fileUri);
+            return (new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)

@@ -12,6 +12,7 @@ using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -36,14 +37,16 @@ namespace Bicep.LanguageServer.Handlers
         private readonly EmitterSettings emitterSettings;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IConfigurationManager configurationManager;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
             : base(LanguageConstants.Build, serializer)
         {
             this.compilationManager = compilationManager;
             this.emitterSettings = emitterSettings;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.configurationManager = configurationManager;
         }
 
         public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
@@ -77,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), documentUri.ToUri());
-                compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, null);
+                compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, this.configurationManager.GetBuiltInConfiguration());
             }
             else
             {

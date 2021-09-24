@@ -26,6 +26,7 @@ using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.Langu
 using Bicep.LanguageServer.Utils;
 using Bicep.Core.Features;
 using Bicep.Core.Configuration;
+using System.IO.Abstractions;
 
 namespace Bicep.LanguageServer
 {
@@ -105,13 +106,15 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
             // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
             // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver, new ConfigHelper(null, new FileResolver(), useDefaultConfig: true)));
+            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver, services.GetRequiredService<IConfigurationManager>().GetBuiltInConfiguration()));
             services.AddSingleton<IFileResolver>(services => fileResolver);
             services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
+            services.AddSingleton<IFileSystem, FileSystem>();
+            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();

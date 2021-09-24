@@ -286,29 +286,25 @@ output myOutput string = 'hello!'
         }
 
         [TestMethod]
-        public async Task Build_WithEmptyBicepConfig_ShouldProduceOutputFile()
+        public async Task Build_WithEmptyBicepConfig_ShouldProduceConfigurationError()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
-            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", string.Empty, testOutputPath);
+            var configurationPath = FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", string.Empty, testOutputPath);
 
             var (output, error, result) = await Bicep("build", inputFile);
 
-            result.Should().Be(0);
+            result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().BeEmpty();
-
-            var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
-
-            File.Exists(expectedOutputFile).Should().BeTrue();
+            error.Should().StartWith($"Could not load the bicep configuration file \"{configurationPath}\". The input does not contain any JSON tokens.");
         }
 
         [TestMethod]
-        public async Task Build_WithInvalidBicepConfig_ShouldProduceOutputFile()
+        public async Task Build_WithInvalidBicepConfig_ShouldProduceConfigurationError()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             var inputFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.Empty.Bicep, testOutputPath);
-            FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
+            var configurationPath = FileHelper.SaveResultFile(this.TestContext, "bicepconfig.json", @"{
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -320,13 +316,9 @@ output myOutput string = 'hello!'
 
             var (output, error, result) = await Bicep("build", inputFile);
 
-            result.Should().Be(0);
+            result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().BeEmpty();
-
-            var expectedOutputFile = Path.Combine(testOutputPath, "main.json");
-
-            File.Exists(expectedOutputFile).Should().BeTrue();
+            error.Should().StartWith($"Could not load the bicep configuration file \"{configurationPath}\". Expected depth to be zero at the end of the JSON payload.");
         }
 
         [TestMethod]

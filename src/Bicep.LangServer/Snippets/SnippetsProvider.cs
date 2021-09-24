@@ -66,12 +66,12 @@ namespace Bicep.LanguageServer.Snippets
             "tags",
             "properties"
         };
-        private readonly ConfigHelper configHelper;
+        private readonly RootConfiguration configuration;
         private readonly IFileResolver fileResolver;
 
-        public SnippetsProvider(IFileResolver fileResolver, ConfigHelper configHelper)
+        public SnippetsProvider(IFileResolver fileResolver, RootConfiguration configuration)
         {
-            this.configHelper = configHelper;
+            this.configuration = configuration;
             this.fileResolver = fileResolver;
 
             Initialize();
@@ -220,7 +220,7 @@ namespace Bicep.LanguageServer.Snippets
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
-            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configHelper);
+            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configuration);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 

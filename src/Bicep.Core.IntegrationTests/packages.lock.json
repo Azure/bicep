@@ -1380,6 +1380,22 @@
           "System.Threading.Tasks": "4.3.0"
         }
       },
+      "System.IO.Abstractions": {
+        "type": "Transitive",
+        "resolved": "13.2.47",
+        "contentHash": "t1hPTax+QnZscqwCY2Xuszm+qGm9qPDFvDPOjB31nR1XBtKDbt/RE5s0gBTOvQ9EP//jfrg2HEQUQyN5asFocg==",
+        "dependencies": {
+          "System.IO.FileSystem.AccessControl": "5.0.0"
+        }
+      },
+      "System.IO.Abstractions.TestingHelpers": {
+        "type": "Transitive",
+        "resolved": "13.2.47",
+        "contentHash": "pi6rVI4B0aB/QtpJuYXmcSQEGLOGK58mgsOWnf94syBQgNZ2KjJTduStR7RfKWY5EK9u42SJRi/mVRiyAEjqiw==",
+        "dependencies": {
+          "System.IO.Abstractions": "13.2.47"
+        }
+      },
       "System.IO.Compression": {
         "type": "Transitive",
         "resolved": "4.3.0",
@@ -2251,7 +2267,8 @@
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",
           "Microsoft.Extensions.Configuration.Json": "5.0.0",
           "Newtonsoft.Json": "13.0.1",
-          "System.Collections.Immutable": "5.0.0"
+          "System.Collections.Immutable": "5.0.0",
+          "System.IO.Abstractions": "13.2.47"
         }
       },
       "bicep.core.registryclient": {
@@ -2286,6 +2303,7 @@
           "Microsoft.PowerShell.SDK": "7.1.3",
           "Moq": "4.16.1",
           "Newtonsoft.Json": "13.0.1",
+          "System.IO.Abstractions.TestingHelpers": "13.2.47",
           "System.Management.Automation": "7.1.3"
         }
       },

@@ -19,7 +19,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver, new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig());
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled);
 
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()

@@ -51,7 +51,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
-        public const string BicepConfigSettingsFileName = "bicepconfig.json";
+        public const string BicepConfigurationFileName = "bicepconfig.json";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 

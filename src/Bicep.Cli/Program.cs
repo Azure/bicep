@@ -6,6 +6,7 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -17,6 +18,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Runtime;
 using System.Threading.Tasks;
 
@@ -99,6 +101,11 @@ namespace Bicep.Cli
                 invocationContext.ErrorWriter.WriteLine(exception.Message);
                 return 1;
             }
+            catch (ConfigurationException exception)
+            {
+                invocationContext.ErrorWriter.WriteLine(exception.Message);
+                return 1;
+            }
         }
 
         private ILoggerFactory CreateLoggerFactory()
@@ -120,6 +127,8 @@ namespace Bicep.Cli
                 .AddSingleton<IFileResolver, FileResolver>()
                 .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
                 .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
+                .AddSingleton<IFileSystem, FileSystem>()
+                .AddSingleton<IConfigurationManager, ConfigurationManager>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
