@@ -364,6 +364,33 @@ output length int =
 
         completions.Should().BeEmpty();
         }
+
+        [TestMethod]
+        public void ResourceTypeFollowerCompletionsOffersEqualsAndExisting()
+        {
+            var codeFragment = @"
+resource base64 'Microsoft.Foo/foos@2020-09-01' ";
+            var grouping = SourceFileGroupingFactory.CreateFromText(codeFragment, BicepTestConstants.FileResolver);
+
+            var offset = codeFragment.Length;
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
+            var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server));
+            var context = BicepCompletionContext.Create(compilation, offset);
+            var completions = provider.GetFilteredCompletions(compilation, context).ToList();
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("=");
+                    c.Kind.Should().Be(CompletionItemKind.Operator);
+                    c.Preselect.Should().BeTrue();
+                },
+                c =>
+                {
+                    c.Label.Should().Be("existing");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                });
+        }
+
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
         {
             completions.Should().SatisfyRespectively(

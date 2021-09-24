@@ -249,6 +249,9 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
             {
+                const string equals = "=";
+                yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
+
                 const string existing = "existing";
                 yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
             }
@@ -965,6 +968,13 @@ namespace Bicep.LanguageServer.Completions
                 .WithPlainTextEdit(replacementRange, type.Name)
                 .WithDetail(type.Name)
                 .WithSortText(GetSortText(type.Name, priority))
+                .Build();
+
+        private static CompletionItem CreateOperatorCompletion(string op, Range replacementRange, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
+            CompletionItemBuilder.Create(CompletionItemKind.Operator, op)
+                .WithPlainTextEdit(replacementRange, op)
+                .Preselect(preselect)
+                .WithSortText(GetSortText(op, priority))
                 .Build();
 
         private static CompletionItem CreateResourceTypeCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool showApiVersion)
