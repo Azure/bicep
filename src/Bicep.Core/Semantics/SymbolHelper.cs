@@ -15,6 +15,9 @@ namespace Bicep.Core.Semantics
         /// <param name="syntax">the syntax node</param>
         public static Symbol? TryGetSymbolInfo(IBinder binder, Func<SyntaxBase, TypeSymbol?> getDeclaredTypeFunc, SyntaxBase syntax)
         {
+            // The decision to pass in getDeclaredTypeFunc as a lambda rather than the ITypeManager interface is deliberate.
+            // We should be conscious about not introducing cyclic dependencies, as this code is also used within the type manager, but it only needs declared types.
+
             static PropertySymbol? GetPropertySymbol(TypeSymbol? baseType, string property)
             {
                 if (baseType is null)
