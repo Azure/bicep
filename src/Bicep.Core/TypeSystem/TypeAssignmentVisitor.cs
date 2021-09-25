@@ -617,7 +617,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                if (TypeHelper.TypeCollapseTypes(itemTypes) is not {} collapsedItemType)
+                if (TypeHelper.TryCollapseTypes(itemTypes) is not {} collapsedItemType)
                 {
                     return LanguageConstants.Array;
                 }

@@ -13,7 +13,7 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Try to collapse multiple types into a single (non-union) type. Returns null if this is not possible.
         /// </summary>
-        public static TypeSymbol? TypeCollapseTypes(IEnumerable<ITypeReference> itemTypes)
+        public static TypeSymbol? TryCollapseTypes(IEnumerable<ITypeReference> itemTypes)
         {
             var aggregatedItemType = CreateTypeUnion(itemTypes);
             if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never || aggregatedItemType.TypeKind == TypeKind.Any)

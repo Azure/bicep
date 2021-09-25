@@ -555,7 +555,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             return GetItemsReturnType(
                 keyType: TypeHelper.CreateTypeUnion(keyTypes),
-                valueType: TypeHelper.TypeCollapseTypes(valueTypes) ?? LanguageConstants.Any);
+                valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any);
         }
 
         private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
