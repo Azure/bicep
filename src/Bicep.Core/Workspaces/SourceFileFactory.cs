@@ -7,6 +7,7 @@ using Azure.Deployments.Core.Constants;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Modules;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Newtonsoft.Json.Linq;
@@ -15,23 +16,33 @@ namespace Bicep.Core.Workspaces
 {
     public static class SourceFileFactory
     {
-        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, bool isEntryFile) => isEntryFile
-            ? CreateBicepFile(fileUri, fileContents)
-            : CreateSourceFile(fileUri, fileContents);
+        private static readonly Uri InMemoryMainTemplateUri = new("inmemory:///main.json");
 
-        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents) =>
-            PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
-            PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension) ||
-            PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension)
-                ? CreateArmTemplateFile(fileUri, fileContents)
-                : CreateBicepFile(fileUri, fileContents);
+        private static readonly JsonLoadSettings JsonLoadSettings = new()
+        {
+            LineInfoHandling = LineInfoHandling.Ignore,
+        };
+
+        public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
+        {
+            if (PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
+                PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension) ||
+                PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension))
+            {
+                return moduleReference is TemplateSpecModuleReference
+                    ? CreateTemplateSpecFile(fileUri, fileContents)
+                    : CreateArmTemplateFile(fileUri, fileContents);
+            }
+
+            return CreateBicepFile(fileUri, fileContents);
+        }
 
         public static BicepFile CreateBicepFile(Uri fileUri, string fileContents)
         {
             var parser = new Parser(fileContents);
             var lineStarts = TextCoordinateConverter.GetLineStarts(fileContents);
-            
-            return new BicepFile(fileUri, lineStarts, parser.Program());
+
+            return new(fileUri, lineStarts, parser.Program());
         }
 
         public static ArmTemplateFile CreateArmTemplateFile(Uri fileUri, string fileContents)
@@ -42,16 +53,37 @@ namespace Bicep.Core.Workspaces
 
                 ValidateTemplate(template);
 
-                var templateObject = JObject.Parse(fileContents, new JsonLoadSettings
-                {
-                    LineInfoHandling = LineInfoHandling.Ignore,
-                });
+                var templateObject = ParseObject(fileContents);
 
-                return new ArmTemplateFile(fileUri, template, templateObject);
+                return new(fileUri, template, templateObject);
             }
             catch (Exception)
             {
-                return new ArmTemplateFile(fileUri, null, null);
+                return new(fileUri, null, null);
+            }
+        }
+
+        public static TemplateSpecFile CreateTemplateSpecFile(Uri fileUri, string fileContents)
+        {
+            TemplateSpecFile CreateErrorFile() => new(fileUri, null, new ArmTemplateFile(InMemoryMainTemplateUri, null, null));
+
+            try
+            {
+                var templateSpecObject = ParseObject(fileContents);
+
+                if (templateSpecObject.Value<string>("id") is not string templateSpecId ||
+                    templateSpecObject.SelectToken("properties.mainTemplate") is not JObject mainTemplateObject)
+                {
+                    return CreateErrorFile();
+                }
+
+                var mainTemplateFile = CreateArmTemplateFile(new Uri("inmemory:///main.json"), mainTemplateObject.ToString());
+
+                return new(fileUri, templateSpecId, mainTemplateFile);
+            }
+            catch (Exception)
+            {
+                return CreateErrorFile();
             }
         }
 
@@ -67,5 +99,7 @@ namespace Bicep.Core.Workspaces
 
             template.Resources = templateResources;
         }
+
+        private static JObject ParseObject(string fileContents) => JObject.Parse(fileContents, JsonLoadSettings);
     }
 }

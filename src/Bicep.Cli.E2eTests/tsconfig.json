@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "outDir": "out",
+        "lib": ["es2016"],
+        "sourceMap": true,
+        "skipLibCheck": true,
+        "strict": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true
+    },
+    "include": ["src"]
+}

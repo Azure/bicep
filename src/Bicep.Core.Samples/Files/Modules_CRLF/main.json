@@ -5,13 +5,16 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7530146131911660409"
+      "templateHash": "14280990391921927454"
     }
   },
   "parameters": {
     "deployTimeSuffix": {
       "type": "string",
-      "defaultValue": "[newGuid()]"
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "this is deployTimeSuffix param"
+      }
     }
   },
   "functions": [],
@@ -59,9 +62,9 @@
       "apiVersion": "2020-01-01",
       "name": "harry",
       "properties": {
-        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]",
-        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2019-10-01').outputs.myResourceId.value]",
-        "modCDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modC'), '2019-10-01').outputs.myResourceId.value]"
+        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2020-06-01').outputs.stringOutputA.value]",
+        "modBDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modB'), '2020-06-01').outputs.myResourceId.value]",
+        "modCDep": "[reference(resourceId('Microsoft.Resources/deployments', 'modC'), '2020-06-01').outputs.myResourceId.value]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', 'modATest')]",
@@ -74,7 +77,7 @@
       "apiVersion": "2020-01-01",
       "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
       "properties": {
-        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+        "modADep": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2020-06-01').outputs.outputObj.value]"
       },
       "dependsOn": [
         "[resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix')))]",
@@ -83,8 +86,11 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "modATest",
+      "metadata": {
+        "description": "this module a"
+      },
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -174,8 +180,11 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "modB",
+      "metadata": {
+        "description": "this module b"
+      },
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -222,8 +231,11 @@
     {
       "condition": "[equals(add(1, 1), 2)]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "modBWithCondition",
+      "metadata": {
+        "description": "this is just module b with a condition"
+      },
       "properties": {
         "expressionEvaluationOptions": {
           "scope": "inner"
@@ -269,7 +281,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "modC",
       "properties": {
         "expressionEvaluationOptions": {
@@ -311,7 +323,7 @@
     {
       "condition": "[equals(sub(2, 1), 1)]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "modCWithCondition",
       "properties": {
         "expressionEvaluationOptions": {
@@ -352,7 +364,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "optionalWithNoParams1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -411,7 +423,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "optionalWithNoParams2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -471,7 +483,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "optionalWithNoParams3",
       "properties": {
         "expressionEvaluationOptions": {
@@ -544,7 +556,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "optionalWithAllParamsAndManualDependency",
       "properties": {
         "expressionEvaluationOptions": {
@@ -621,7 +633,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "optionalWithImplicitDependency",
       "properties": {
         "expressionEvaluationOptions": {
@@ -698,7 +710,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -779,7 +791,7 @@
         "count": "[length(variables('myModules'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('myModules')[copyIndex()].name]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -867,7 +879,7 @@
         "count": "[length(variables('myModules'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('myModules')[copyIndex()].name]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -960,7 +972,7 @@
         "count": "[length(variables('myModules'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('myModules')[copyIndex()].name]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1054,7 +1066,7 @@
         "count": "[length(variables('emptyArray'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('hello-{0}', variables('emptyArray')[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1151,7 +1163,7 @@
         "count": "[length(createArray())]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('hello-{0}', createArray()[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1248,7 +1260,7 @@
         "count": "[length(createArray())]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('hello-{0}', createArray()[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1338,7 +1350,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "propertyLoopInsideParameterValue",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1461,7 +1473,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "propertyLoopInsideParameterValueWithIndexes",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1589,7 +1601,7 @@
         "count": "[length(range(0, 1))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "propertyLoopInsideParameterValueInsideModuleLoop",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1712,7 +1724,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "secureModule1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1770,7 +1782,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "secureModule2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1832,7 +1844,7 @@
         "count": "[length(variables('secrets'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('secureModuleLooped-{0}', copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1892,23 +1904,23 @@
   "outputs": {
     "stringOutputA": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputA.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2020-06-01').outputs.stringOutputA.value]"
     },
     "stringOutputB": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.stringOutputB.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2020-06-01').outputs.stringOutputB.value]"
     },
     "objOutput": {
       "type": "object",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.objOutput.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2020-06-01').outputs.objOutput.value]"
     },
     "arrayOutput": {
       "type": "array",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2019-10-01').outputs.arrayOutput.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'modATest'), '2020-06-01').outputs.arrayOutput.value]"
     },
     "modCalculatedNameOutput": {
       "type": "object",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2019-10-01').outputs.outputObj.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}{1}', 'optionalWithAllParamsAndManualDependency', parameters('deployTimeSuffix'))), '2020-06-01').outputs.outputObj.value]"
     }
   }
 }

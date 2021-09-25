@@ -53,7 +53,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().Should().BeEmpty();
@@ -91,7 +91,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
 
             // The property "resource" is not allowed ...
@@ -149,7 +149,7 @@ output fromChild string = parent::child.properties.style
 output fromGrandchild string = parent::child::grandchild.properties.style
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().Should().BeEmpty();
@@ -170,7 +170,7 @@ output fromGrandchild string = parent::child::grandchild.properties.style
             references = model.FindReferences(sibling);
             references.Should().HaveCount(1);
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.DevAssemblyFileVersion);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
             using var outputStream = new MemoryStream();
             emitter.Emit(outputStream);
 
@@ -209,7 +209,7 @@ output fromChildInvalid string = parent::child2.properties.style
 output fromGrandchildInvalid string = parent::child::cousin.properties.temperature
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().Should().HaveDiagnostics(new[]{
@@ -244,7 +244,7 @@ resource other 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"child\" does not exist in the current context."),
@@ -269,7 +269,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
@@ -294,7 +294,7 @@ resource parent 'My.RP/parentType@invalid-version' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\"."),
@@ -326,7 +326,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
@@ -353,7 +353,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"child\" -> \"parent\")."),
             });
@@ -384,7 +384,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"grandchild\" does not exist in the current context."),
             });
@@ -413,7 +413,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().BeEmpty();
 
@@ -462,7 +462,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().BeEmpty();
 
@@ -566,7 +566,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 output hmmmm string = parent::child.properties
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
 
             var output = model.Root.OutputDeclarations.Single();
@@ -584,7 +584,7 @@ resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' =
 output foo string = broken::fake
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), null);
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP118", DiagnosticLevel.Error, "Expected the \"{\" character, the \"[\" character, or the \"if\" keyword at this location."),
@@ -653,7 +653,7 @@ output subnet1id string = vnet::subnet1.id
         [TestMethod]
         public void Nested_resource_works_with_extension_resources()
         {
-            var (template, diags, _) = CompilationHelper.Compile(@"
+            var result = CompilationHelper.Compile(@"
 resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1'
 
@@ -677,31 +677,28 @@ output res2childtype string = res2::child.type
 output res2childid string = res2::child.id
 ");
 
-            using (new AssertionScope())
-            {
-                diags.ExcludingMissingTypes().Should().BeEmpty();
+            result.Diagnostics.ExcludingMissingTypes().Should().BeEmpty();
 
-                // res1
-                template.Should().HaveValueAtPath("$.resources[2].name", "res1");
-                template.Should().NotHaveValueAtPath("$.resources[2].dependsOn");
+            // res1
+            result.Template.Should().HaveValueAtPath("$.resources[2].name", "res1");
+            result.Template.Should().NotHaveValueAtPath("$.resources[2].dependsOn");
 
-                // res1::child1
-                template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'res1', 'child1')]");
-                template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray { "[resourceId('Microsoft.Rp1/resource1', 'res1')]" });
+            // res1::child1
+            result.Template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'res1', 'child1')]");
+            result.Template.Should().HaveValueAtPath("$.resources[0].dependsOn", new JArray { "[resourceId('Microsoft.Rp1/resource1', 'res1')]" });
 
-                // res2
-                template.Should().HaveValueAtPath("$.resources[3].name", "res2");
-                template.Should().HaveValueAtPath("$.resources[3].dependsOn", new JArray { "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]" });
+            // res2
+            result.Template.Should().HaveValueAtPath("$.resources[3].name", "res2");
+            result.Template.Should().HaveValueAtPath("$.resources[3].dependsOn", new JArray { "[resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1')]" });
 
-                // res2::child2
-                template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', 'res2', 'child2')]");
-                template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray { "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]" });
+            // res2::child2
+            result.Template.Should().HaveValueAtPath("$.resources[1].name", "[format('{0}/{1}', 'res2', 'child2')]");
+            result.Template.Should().HaveValueAtPath("$.resources[1].dependsOn", new JArray { "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2', 'res2')]" });
 
-                template.Should().HaveValueAtPath("$.outputs['res2childprop'].value", "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')).someProp]");
-                template.Should().HaveValueAtPath("$.outputs['res2childname'].value", "child2");
-                template.Should().HaveValueAtPath("$.outputs['res2childtype'].value", "Microsoft.Rp2/resource2/child2");
-                template.Should().HaveValueAtPath("$.outputs['res2childid'].value", "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]");
-            }
+            result.Template.Should().HaveValueAtPath("$.outputs['res2childprop'].value", "[reference(extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')).someProp]");
+            result.Template.Should().HaveValueAtPath("$.outputs['res2childname'].value", "child2");
+            result.Template.Should().HaveValueAtPath("$.outputs['res2childtype'].value", "Microsoft.Rp2/resource2/child2");
+            result.Template.Should().HaveValueAtPath("$.outputs['res2childid'].value", "[extensionResourceId(resourceId('Microsoft.Rp1/resource1/child1', 'res1', 'child1'), 'Microsoft.Rp2/resource2/child2', 'res2', 'child2')]");
         }
 
         [TestMethod]
@@ -771,10 +768,32 @@ output res1childid string = res1::child.id
             }
         }
 
-        [TestMethod]
-        public void Nested_resource_blocks_existing_parents_at_different_scopes()
+        [DataTestMethod]
+        [DataRow("resourceGroup('other')")]
+        [DataRow("subscription()")]
+        [DataRow("managementGroup('abcdef')")]
+        public void Nested_resource_blocks_existing_parents_at_different_scopes(string parentScope)
         {
-            var (template, diags, _) = CompilationHelper.Compile(@"
+            var result = CompilationHelper.Compile(@"
+resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
+  scope: " + parentScope + @"
+  name: 'res1'
+
+  resource child 'child1' = {
+    name: 'child1'
+  }
+}
+");
+
+            result.Diagnostics.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
+                ("BCP165", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
+            });
+        }
+
+        [TestMethod]
+        public void Nested_resource_allows_existing_parents_at_tenant_scope()
+        {
+            var result = CompilationHelper.Compile(@"
 resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
   scope: tenant()
   name: 'res1'
@@ -785,13 +804,9 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 }
 ");
 
-            using (new AssertionScope())
-            {
-                template.Should().NotHaveValue();
-                diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP165", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
-                });
-            }
+            result.Diagnostics.ExcludingMissingTypes().Should().BeEmpty();
+            result.Template.Should().HaveValueAtPath("$.resources[0].scope", "/");
+            result.Template.Should().HaveValueAtPath("$.resources[0].name", "[format('{0}/{1}', 'res1', 'child1')]");
         }
 
         [TestMethod]

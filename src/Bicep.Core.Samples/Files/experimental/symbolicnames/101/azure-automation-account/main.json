@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1492837669317878193"
+    }
+  },
+  "parameters": {
+    "sku": {
+      "type": "string",
+      "defaultValue": "pergb2018"
+    },
+    "dataRetention": {
+      "type": "int",
+      "defaultValue": 30
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "appName": {
+      "type": "string",
+      "defaultValue": "[uniqueString(resourceGroup().id)]"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "workspaceName": "[toLower(format('la-{0}', parameters('appName')))]",
+    "automationaccountName": "[toLower(format('aa{0}', parameters('appName')))]",
+    "automationaccountDiagName": "[toLower(format('diag-aa{0}', parameters('appName')))]"
+  },
+  "resources": {
+    "automation_log_analytics": {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-03-01-preview",
+      "name": "[variables('workspaceName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "[parameters('sku')]"
+        },
+        "retentionInDays": "[parameters('dataRetention')]"
+      }
+    },
+    "automation_account": {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2015-10-31",
+      "name": "[variables('automationaccountName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "Basic"
+        }
+      }
+    },
+    "automation_account_diagnostic": {
+      "type": "Microsoft.Insights/diagnosticSettings",
+      "apiVersion": "2017-05-01-preview",
+      "scope": "[format('Microsoft.Automation/automationAccounts/{0}', variables('automationaccountName'))]",
+      "name": "[variables('automationaccountDiagName')]",
+      "properties": {
+        "workspaceId": "[resourceInfo('automation_log_analytics').id]",
+        "logs": [
+          {
+            "category": "JobLogs",
+            "enabled": true
+          }
+        ]
+      },
+      "dependsOn": [
+        "automation_account",
+        "automation_log_analytics"
+      ]
+    }
+  }
+}

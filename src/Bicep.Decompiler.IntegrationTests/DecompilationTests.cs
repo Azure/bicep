@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
@@ -20,10 +19,7 @@ using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
 using Bicep.Core.Configuration;
-using Bicep.Core.UnitTests.Configuration;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
-using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests;
 
 namespace Bicep.Core.IntegrationTests
@@ -94,16 +90,18 @@ namespace Bicep.Core.IntegrationTests
             var typeProvider = AzResourceTypeProvider.CreateWithAzTypes();
 
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFileName);
-            var (bicepUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(typeProvider, new FileResolver(), jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
+            var decompiler = new TemplateDecompiler(typeProvider, new FileResolver(), BicepTestConstants.RegistryProvider);
+            var (bicepUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
             var bicepFiles = filesToSave.Select(kvp => SourceFileFactory.CreateBicepFile(kvp.Key, kvp.Value));
             var workspace = new Workspace();
             workspace.UpsertSourceFiles(bicepFiles);
 
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver));
+            var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri);
-            var compilation = new Compilation(typeProvider, sourceFileGrouping);
-            var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(new ConfigHelper().GetDisabledLinterConfig());
+            var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
+            var compilation = new Compilation(typeProvider, sourceFileGrouping, configHelper);
+            var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(configHelper);
 
             using (new AssertionScope())
             {
@@ -143,11 +141,14 @@ namespace Bicep.Core.IntegrationTests
         [DataTestMethod]
         [DataRow("NonWorking/unknownprops.json", "[15:29]: Unrecognized top-level resource property 'madeUpProperty'")]
         [DataRow("NonWorking/invalid-schema.json", "[2:98]: $schema value \"https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#\" did not match any of the known ARM template deployment schemas.")]
+        [DataRow("NonWorking/keyvault-secret-reference.json", "[25:38]: Failed to convert parameter \"mySecret\": KeyVault secret references are not currently supported by the decompiler.")]
+        [DataRow("NonWorking/symbolic-names.json", "[27:16]: Decompilation of symbolic name templates is not currently supported")]
         public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
             Action onDecompile = () => {
                 var fileResolver = ReadResourceFile(resourcePath);
-                TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(),fileResolver, new Uri($"file:///{resourcePath}"), new Uri("file:///unused.bicep"));
+                var decompiler = new TemplateDecompiler(TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+                decompiler.DecompileFileWithModules(new Uri($"file:///{resourcePath}"), new Uri("file:///unused.bicep"));
             };
 
             onDecompile.Should().Throw<ConversionFailedException>().WithMessage(expectedMessage);
@@ -180,7 +181,8 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });;
 
-            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            var decompiler = new TemplateDecompiler(TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+            var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             // this behavior is actually controlled by newtonsoft's deserializer, but we should assert it anyway to avoid regressions.
             filesToSave[entryPointUri].Should().Contain($"var multilineString = 'multi{escapedNewline}        line{escapedNewline}        string'");
@@ -201,6 +203,9 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("greater(variables('a'), variables('b'))", "boolean", "a > b")]
         [DataRow("greaterOrEquals(variables('a'), variables('b'))", "boolean", "a >= b")]
         [DataRow("equals(variables('a'), variables('b'))", "boolean", "a == b")]
+        [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "a =~ b")]
+        [DataRow("not(equals(variables('a'),variables('b')))","boolean", "a != b")]
+        [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "a !~ b")]
         public void Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {
             var template = @"{
@@ -227,7 +232,8 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });
 
-            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            var decompiler = new TemplateDecompiler(TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+            var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             filesToSave[entryPointUri].Should().Contain($"output calculated {type} = ({expectedValue})");
         }
@@ -250,7 +256,11 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });
 
-            Action sut = () => TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            Action sut = () =>
+            {
+                var decompiler = new TemplateDecompiler(TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+                decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            };
 
             sut.Should().Throw<InvalidOperationException>()
                 .WithMessage("Cannot decompile the file with .bicep extension: file:///path/to/main.bicep.");
@@ -310,7 +320,8 @@ namespace Bicep.Core.IntegrationTests
                 [fileUri] = template,
             });
 
-            var (entryPointUri, filesToSave) = TemplateDecompiler.DecompileFileWithModules(TestTypeHelper.CreateEmptyProvider(), fileResolver, fileUri, PathHelper.ChangeToBicepExtension(fileUri));
+            var decompiler = new TemplateDecompiler(TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
+            var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
 
             filesToSave[entryPointUri].Should().Contain($"? /* TODO: User defined functions are not supported and have not been decompiled */");
         }

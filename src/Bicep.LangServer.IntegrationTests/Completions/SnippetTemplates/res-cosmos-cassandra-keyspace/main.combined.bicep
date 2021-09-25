@@ -15,3 +15,4 @@ resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces
   }
 }
 // Insert snippet here
+

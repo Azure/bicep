@@ -1,0 +1,103 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6711216031592329791"
+    }
+  },
+  "parameters": {
+    "hostpoolName": {
+      "type": "string",
+      "defaultValue": "myFirstHostpool"
+    },
+    "hostpoolFriendlyName": {
+      "type": "string",
+      "defaultValue": "My Bicep created Host pool"
+    },
+    "appgroupName": {
+      "type": "string",
+      "defaultValue": "myFirstAppGroup"
+    },
+    "appgroupNameFriendlyName": {
+      "type": "string",
+      "defaultValue": "My Bicep created AppGroup"
+    },
+    "workspaceName": {
+      "type": "string",
+      "defaultValue": "myFirstWortkspace"
+    },
+    "workspaceNameFriendlyName": {
+      "type": "string",
+      "defaultValue": "My Bicep created Workspace"
+    },
+    "applicationgrouptype": {
+      "type": "string",
+      "defaultValue": "Desktop"
+    },
+    "preferredAppGroupType": {
+      "type": "string",
+      "defaultValue": "Desktop"
+    },
+    "avdbackplanelocation": {
+      "type": "string",
+      "defaultValue": "eastus"
+    },
+    "hostPoolType": {
+      "type": "string",
+      "defaultValue": "pooled"
+    },
+    "loadBalancerType": {
+      "type": "string",
+      "defaultValue": "BreadthFirst"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "hp": {
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2019-12-10-preview",
+      "name": "[parameters('hostpoolName')]",
+      "location": "[parameters('avdbackplanelocation')]",
+      "properties": {
+        "friendlyName": "[parameters('hostpoolFriendlyName')]",
+        "hostPoolType": "[parameters('hostPoolType')]",
+        "loadBalancerType": "[parameters('loadBalancerType')]",
+        "preferredAppGroupType": "[parameters('preferredAppGroupType')]"
+      }
+    },
+    "ag": {
+      "type": "Microsoft.DesktopVirtualization/applicationGroups",
+      "apiVersion": "2019-12-10-preview",
+      "name": "[parameters('appgroupName')]",
+      "location": "[parameters('avdbackplanelocation')]",
+      "properties": {
+        "friendlyName": "[parameters('appgroupNameFriendlyName')]",
+        "applicationGroupType": "[parameters('applicationgrouptype')]",
+        "hostPoolArmPath": "[resourceInfo('hp').id]"
+      },
+      "dependsOn": [
+        "hp"
+      ]
+    },
+    "ws": {
+      "type": "Microsoft.DesktopVirtualization/workspaces",
+      "apiVersion": "2019-12-10-preview",
+      "name": "[parameters('workspaceName')]",
+      "location": "[parameters('avdbackplanelocation')]",
+      "properties": {
+        "friendlyName": "[parameters('workspaceNameFriendlyName')]",
+        "applicationGroupReferences": [
+          "[resourceInfo('ag').id]"
+        ]
+      },
+      "dependsOn": [
+        "ag"
+      ]
+    }
+  }
+}

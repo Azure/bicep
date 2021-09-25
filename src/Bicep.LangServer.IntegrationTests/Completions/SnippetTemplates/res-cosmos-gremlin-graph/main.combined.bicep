@@ -65,3 +65,4 @@ resource cosmosDBGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databa
   }
 }
 // Insert snippet here
+

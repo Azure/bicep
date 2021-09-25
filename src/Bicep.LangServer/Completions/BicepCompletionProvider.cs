@@ -20,7 +20,6 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static Bicep.Core.Semantics.ResourceAncestorGraph;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
@@ -423,27 +422,29 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceBody) && context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax)
             {
-                foreach (CompletionItem completionItem in CreateResourceBodyCompletions(model, context))
+                foreach (CompletionItem completionItem in CreateResourceBodyCompletions(model, context, resourceDeclarationSyntax))
                 {
                     yield return completionItem;
                 }
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
-                // loops are always allowed in a resource/module
-                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
+                // loops are always allowed as long as we're not already in a loop
+                if (resourceDeclarationSyntax.Value is not ForSyntax)
                 {
-                    yield return completion;
+                    foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
+                    {
+                        yield return completion;
+                    }
                 }
             }
         }
 
-        private IEnumerable<CompletionItem> CreateResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> CreateResourceBodyCompletions(SemanticModel model, BicepCompletionContext context, ResourceDeclarationSyntax resourceDeclarationSyntax)
         {
-            if (context.EnclosingDeclaration is ResourceDeclarationSyntax resourceDeclarationSyntax &&
-                model.GetDeclaredType(resourceDeclarationSyntax) is ResourceType resourceType)
+            if (model.GetDeclaredType(resourceDeclarationSyntax)?.UnwrapArrayType() is ResourceType resourceType)
             {
                 var isResourceNested = model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(resourceDeclarationSyntax) is {};
                 var snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
@@ -465,45 +466,45 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
+        private IEnumerable<CompletionItem> CreateModuleBodyCompletions(SemanticModel model, BicepCompletionContext context, ModuleDeclarationSyntax moduleDeclarationSyntax)
         {
-            if (context.EnclosingDeclaration is ModuleDeclarationSyntax moduleDeclarationSyntax)
+            TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
+            IEnumerable<Snippet> snippets = SnippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol.UnwrapArrayType());
+
+            foreach (Snippet snippet in snippets)
             {
-                TypeSymbol typeSymbol = model.GetTypeInfo(moduleDeclarationSyntax);
-                IEnumerable<Snippet> snippets = SnippetsProvider.GetModuleBodyCompletionSnippets(typeSymbol);
+                string prefix = snippet.Prefix;
+                BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
+                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
-                foreach (Snippet snippet in snippets)
-                {
-                    string prefix = snippet.Prefix;
-                    BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
-                    yield return CreateContextualSnippetCompletion(prefix,
-                        snippet.Detail,
-                        snippet.Text,
-                        context.ReplacementRange,
-                        command,
-                        snippet.CompletionPriority,
-                        preselect: true);
-                }
+                yield return CreateContextualSnippetCompletion(prefix,
+                    snippet.Detail,
+                    snippet.Text,
+                    context.ReplacementRange,
+                    command,
+                    snippet.CompletionPriority,
+                    preselect: true);
             }
         }
 
         private IEnumerable<CompletionItem> GetModuleBodyCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ModuleBody) && context.EnclosingDeclaration is ModuleDeclarationSyntax moduleDeclarationSyntax)
             {
-                foreach (CompletionItem completionItem in CreateModuleBodyCompletions(model, context))
+                foreach (CompletionItem completionItem in CreateModuleBodyCompletions(model, context, moduleDeclarationSyntax))
                 {
                     yield return completionItem;
                 }
 
                 yield return CreateResourceOrModuleConditionCompletion(context.ReplacementRange);
 
-                // loops are always allowed in a resource/module
-                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
+                // loops are always allowed in a resource/module if we're not inside another loop
+                if (moduleDeclarationSyntax.Value is not ForSyntax)
                 {
-                    yield return completion;
+                    foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Object, filtersAllowed: true))
+                    {
+                        yield return completion;
+                    }
                 }
             }
         }
@@ -899,8 +900,10 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
         {
+            var required = property.Flags.HasFlag(TypePropertyFlags.Required);
+
             var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
             var suffix = includeColon ? ":" : string.Empty;
             return CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
@@ -908,7 +911,8 @@ namespace Bicep.LanguageServer.Completions
                 .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
-                .WithSortText(GetSortText(property.Name, priority))
+                .WithSortText(GetSortText(property.Name, required ? CompletionPriority.High : CompletionPriority.Medium))
+                .Preselect(required)
                 .Build();
         }
 
@@ -1108,6 +1112,16 @@ namespace Bicep.LanguageServer.Completions
                     .WithDetail($"{insertText}()")
                     .WithSnippetEdit(replacementRange, snippet)
                     .Build();
+            }
+
+            // trigger follow up completions
+            if (symbol is NamespaceSymbol)
+            {
+                return completion
+                .WithDetail(insertText)
+                .WithPlainTextEdit(replacementRange, insertText + ".")
+                .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                .Build();
             }
 
             return completion

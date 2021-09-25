@@ -20,3 +20,4 @@ resource apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {
   }
 }
 // Insert snippet here
+

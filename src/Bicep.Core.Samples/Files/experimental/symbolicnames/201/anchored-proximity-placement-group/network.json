@@ -1,0 +1,108 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "6480195888241511838"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "myIp": {
+      "type": "string",
+      "defaultValue": "1.1.1.1"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "nsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-06-01",
+      "name": "demo-nsg",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "SSH",
+            "properties": {
+              "priority": 1000,
+              "protocol": "Tcp",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "[parameters('myIp')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "22"
+            }
+          },
+          {
+            "name": "HTTP",
+            "properties": {
+              "priority": 1010,
+              "protocol": "Tcp",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "[parameters('myIp')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "80"
+            }
+          },
+          {
+            "name": "HTTPS",
+            "properties": {
+              "priority": 1020,
+              "protocol": "Tcp",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "[parameters('myIp')]",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "443"
+            }
+          }
+        ]
+      }
+    },
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-05-01",
+      "name": "demo-vnet",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/22"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "Default",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('nsg').id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "nsg"
+      ]
+    }
+  },
+  "outputs": {
+    "vnetId": {
+      "type": "string",
+      "value": "[resourceInfo('vnet').id]"
+    }
+  }
+}

@@ -151,7 +151,7 @@ namespace Bicep.LanguageServer.Completions
             this.textEdit = new TextEdit
             {
                 Range = range,
-                NewText = text
+                NewText = text.Replace("\r", string.Empty)
             };
             this.insertTextMode = InsertTextMode.AdjustIndentation;
         }

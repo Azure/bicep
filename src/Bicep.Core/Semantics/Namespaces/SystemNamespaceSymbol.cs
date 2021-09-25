@@ -657,60 +657,60 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithEvaluator(MergeToTargetObject("allowedValues", SingleArgumentSelector))
                 .Build();
 
-            yield return new DecoratorBuilder("minValue")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterMinValuePropertyName)
                 .WithDescription("Defines the minimum value of the parameter.")
                 .WithRequiredParameter("value", LanguageConstants.Int, "The minimum value.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(LanguageConstants.Int)
-                .WithEvaluator(MergeToTargetObject("minValue", SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinValuePropertyName, SingleArgumentSelector))
                 .Build();
 
-            yield return new DecoratorBuilder("maxValue")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterMaxValuePropertyName)
                 .WithDescription("Defines the maximum value of the parameter.")
                 .WithRequiredParameter("value", LanguageConstants.Int, "The maximum value.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(LanguageConstants.Int)
-                .WithEvaluator(MergeToTargetObject("maxValue", SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxValuePropertyName, SingleArgumentSelector))
                 .Build();
 
-            yield return new DecoratorBuilder("minLength")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterMinLengthPropertyName)
                 .WithDescription("Defines the minimum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject("minLength", SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinLengthPropertyName, SingleArgumentSelector))
                 .Build();
 
-            yield return new DecoratorBuilder("maxLength")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterMaxLengthPropertyName)
                 .WithDescription("Defines the maximum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
-                .WithEvaluator(MergeToTargetObject("maxLength", SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxLengthPropertyName, SingleArgumentSelector))
                 .Build();
 
-            yield return new DecoratorBuilder("metadata")
+            yield return new DecoratorBuilder(LanguageConstants.ParameterMetadataPropertyName)
                 .WithDescription("Defines metadata of the parameter.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The metadata object.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
                 .WithValidator((_, decoratorSyntax, _, typeManager, binder, diagnosticWriter) =>
                     TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnosticWriter, SingleArgumentSelector(decoratorSyntax), LanguageConstants.ParameterModifierMetadata))
-                .WithEvaluator(MergeToTargetObject("metadata", SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMetadataPropertyName, SingleArgumentSelector))
                 .Build();
 
-            yield return new DecoratorBuilder("description")
+            yield return new DecoratorBuilder(LanguageConstants.MetadataDescriptionPropertyName)
                 .WithDescription("Describes the parameter.")
                 .WithRequiredParameter("text", LanguageConstants.String, "The description.")
-                .WithFlags(FunctionFlags.ParameterDecorator)
+                .WithFlags(FunctionFlags.AnyDecorator)
                 .WithEvaluator(MergeToTargetObject("metadata", decoratorSyntax => SyntaxFactory.CreateObject(
                     SyntaxFactory.CreateObjectProperty("description", SingleArgumentSelector(decoratorSyntax)).AsEnumerable())))
                 .Build();
 
-            yield return new DecoratorBuilder("batchSize")
+            yield return new DecoratorBuilder(LanguageConstants.BatchSizePropertyName)
                 .WithDescription("Causes the resource or module for-expression to be run in sequential batches of specified size instead of the default behavior where all the resources or modules are deployed in parallel.")
-                .WithRequiredParameter("batchSize", LanguageConstants.Int, "The size of the batch")
+                .WithRequiredParameter(LanguageConstants.BatchSizePropertyName, LanguageConstants.Int, "The size of the batch")
                 .WithFlags(FunctionFlags.ResourceOrModuleDecorator)
                 // the decorator is constrained to resources and modules already - checking for array alone is simple and should be sufficient
                 .WithValidator((decoratorName, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter) =>
@@ -731,7 +731,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, MinimumBatchSize));
                     }
                 })
-                .WithEvaluator(MergeToTargetObject("batchSize", SingleArgumentSelector))
+                .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleArgumentSelector))
                 .Build();
         }
 

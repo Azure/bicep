@@ -36,10 +36,9 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, BicepFile bicepFile, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
         {
-            // TODO: figure out how to set this only on failure, rather than always calculating it
             assertionScope.AddReportable(
                 contextName,
-                PrintHelper.PrintWithAnnotations(bicepFile, annotations, 1, true));
+                () => PrintHelper.PrintWithAnnotations(bicepFile, annotations, 1, true));
 
             return assertionScope;
         }

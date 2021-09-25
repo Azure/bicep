@@ -1,0 +1,90 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "18388597164313022066"
+    }
+  },
+  "parameters": {
+    "actionGroupName": {
+      "type": "string"
+    },
+    "actionGroupShortName": {
+      "type": "string"
+    },
+    "emailReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "smsReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "webhookReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "itsmReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "azureAppPushReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "automationRunbookReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "voiceReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "logicAppReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "azureFunctionReceivers": {
+      "type": "array",
+      "defaultValue": []
+    },
+    "armRoleReceivers": {
+      "type": "array",
+      "defaultValue": []
+    }
+  },
+  "functions": [],
+  "resources": {
+    "actionGroup": {
+      "type": "microsoft.insights/actionGroups",
+      "apiVersion": "2019-06-01",
+      "name": "[parameters('actionGroupName')]",
+      "location": "Global",
+      "properties": {
+        "groupShortName": "[parameters('actionGroupShortName')]",
+        "enabled": true,
+        "emailReceivers": "[parameters('emailReceivers')]",
+        "smsReceivers": "[parameters('smsReceivers')]",
+        "webhookReceivers": "[parameters('webhookReceivers')]",
+        "itsmReceivers": "[parameters('itsmReceivers')]",
+        "azureAppPushReceivers": "[parameters('azureAppPushReceivers')]",
+        "automationRunbookReceivers": "[parameters('automationRunbookReceivers')]",
+        "voiceReceivers": "[parameters('voiceReceivers')]",
+        "logicAppReceivers": "[parameters('logicAppReceivers')]",
+        "azureFunctionReceivers": "[parameters('azureFunctionReceivers')]",
+        "armRoleReceivers": "[parameters('armRoleReceivers')]"
+      }
+    }
+  },
+  "outputs": {
+    "actionGroupId": {
+      "type": "string",
+      "value": "[resourceInfo('actionGroup').id]"
+    }
+  }
+}

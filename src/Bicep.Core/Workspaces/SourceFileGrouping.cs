@@ -3,10 +3,10 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Syntax;
-using System.Linq;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Workspaces
@@ -47,6 +47,9 @@ namespace Bicep.Core.Workspaces
 
         public ISourceFile LookUpModuleSourceFile(ModuleDeclarationSyntax moduleDeclaration) =>
             this.SourceFilesByModuleDeclaration[moduleDeclaration];
+
+        public ISourceFile? TryLookupModuleSourceFile(ModuleDeclarationSyntax moduleDeclaration) =>
+            this.SourceFilesByModuleDeclaration.TryGetValue(moduleDeclaration, out var sourceFile) ? sourceFile : null;
 
         public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)
         {

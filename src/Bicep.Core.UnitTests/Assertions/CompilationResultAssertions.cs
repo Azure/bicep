@@ -71,5 +71,11 @@ namespace Bicep.Core.UnitTests.Assertions
 
             return new AndConstraint<CompilationResultAssertions>(this);
         }
+        public AndConstraint<CompilationResultAssertions> GenerateATemplate(string because = "", params object[] becauseArgs)
+        {
+            Subject.Template.Should().NotBeNull(because, becauseArgs);
+
+            return new AndConstraint<CompilationResultAssertions>(this);
+        }
     }
 }

@@ -191,17 +191,17 @@ var oneArrayIndexCompletions = objectLiteralType.sixth[0][]
 var myFloat = 3.14
 //@[4:11) Variable myFloat. Type: error. Declaration start char: 0, length: 16
 
-// secure cannot be used as a varaible decorator
+// secure cannot be used as a variable decorator
 @sys.secure()
 var something = 1
 //@[4:13) Variable something. Type: int. Declaration start char: 0, length: 31
 
-// #completionTest(1) -> empty
+// #completionTest(1) -> sysAndDescription
 @
-// #completionTest(5) -> empty
+// #completionTest(5) -> description
 @sys.
 var anotherThing = true
-//@[4:16) Variable anotherThing. Type: bool. Declaration start char: 0, length: 62
+//@[4:16) Variable anotherThing. Type: bool. Declaration start char: 0, length: 68
 
 // invalid identifier character classes
 var ☕ = true

@@ -260,16 +260,16 @@ var myFloat = 3.14
 //@[16:16) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 //@[16:18) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |14|
 
-// secure cannot be used as a varaible decorator
+// secure cannot be used as a variable decorator
 @sys.secure()
 //@[5:11) [BCP126 (Error)] Function "secure" cannot be used as a variable decorator. (CodeDescription: none) |secure|
 var something = 1
 //@[4:13) [no-unused-vars (Warning)] Variable "something" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |something|
 
-// #completionTest(1) -> empty
+// #completionTest(1) -> sysAndDescription
 @
 //@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
-// #completionTest(5) -> empty
+// #completionTest(5) -> description
 @sys.
 //@[5:5) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 var anotherThing = true

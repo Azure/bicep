@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Bicep.Core.IntegrationTests.Semantics
 {
@@ -29,9 +30,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
+        public async Task ProgramsShouldProduceExpectedDiagnostics(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory, out _);
+            var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var model = compilation.GetEntrypointSemanticModel();
 
             // use a deterministic order
@@ -54,16 +55,16 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [TestMethod]
         public void EndOfFileFollowingSpaceAfterParameterKeyWordShouldNotThrow()
         {
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText("parameter ", BicepTestConstants.FileResolver));
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText("parameter ", BicepTestConstants.FileResolver), null);
             compilation.GetEntrypointSemanticModel().GetParseDiagnostics();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
+        public async Task ProgramsShouldProduceExpectedUserDeclaredSymbols(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out var outputDirectory, out _);
+            var (compilation, outputDirectory, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var model = compilation.GetEntrypointSemanticModel();
 
             var symbols = SymbolCollector
@@ -91,9 +92,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void NameBindingsShouldBeConsistent(DataSet dataSet)
+        public async Task NameBindingsShouldBeConsistent(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
+            var (compilation, _, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var model = compilation.GetEntrypointSemanticModel();
             var symbolReferences = GetAllBoundSymbolReferences(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 
@@ -149,9 +150,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void FindReferencesResultsShouldIncludeAllSymbolReferenceSyntaxNodes(DataSet dataSet)
+        public async Task FindReferencesResultsShouldIncludeAllSymbolReferenceSyntaxNodes(DataSet dataSet)
         {
-            var compilation = dataSet.CopyFilesAndCreateCompilation(TestContext, out _, out _);
+            var (compilation, _, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var semanticModel = compilation.GetEntrypointSemanticModel();
             var symbolReferences = GetAllBoundSymbolReferences(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
 

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "10004024546362286984"
+    }
+  },
+  "parameters": {
+    "apimInstanceName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "functions": [],
+  "variables": {
+    "groupsSet": [
+      {
+        "groupName": "APIMGroup1",
+        "groupDisplayName": "APIM Group 1",
+        "groupDescription": "Description for this group"
+      },
+      {
+        "groupName": "APIMGroup2",
+        "groupDisplayName": "APIM Group 2",
+        "groupDescription": "Description for this group"
+      }
+    ]
+  },
+  "resources": {
+    "parentAPIM": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2019-01-01",
+      "name": "[parameters('apimInstanceName')]",
+      "existing": true
+    },
+    "apimGroup": {
+      "copy": {
+        "name": "apimGroup",
+        "count": "[length(variables('groupsSet'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/groups",
+      "apiVersion": "2020-06-01-preview",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('groupsSet')[copyIndex()].groupName)]",
+      "properties": {
+        "displayName": "[variables('groupsSet')[copyIndex()].groupDisplayName]",
+        "description": "[variables('groupsSet')[copyIndex()].groupDescription]"
+      }
+    }
+  },
+  "outputs": {
+    "apimGroups": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('groupsSet'))]",
+        "input": {
+          "groupId": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).id]",
+          "groupName": "[resourceInfo(format('apimGroup[{0}]', copyIndex())).name]"
+        }
+      }
+    }
+  }
+}

@@ -12,11 +12,13 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
+using Bicep.Decompiler;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.Runtime;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli
 {
@@ -29,38 +31,50 @@ namespace Bicep.Cli
             this.invocationContext = invocationContext;
         }
 
-        public static int Main(string[] args)
+        public static Task<int> Main(string[] args)
         {
-            string profilePath = MulticoreJIT.GetMulticoreJITPath();
+            string profilePath = DirHelper.GetTempPath();
             ProfileOptimization.SetProfileRoot(profilePath);
             ProfileOptimization.StartProfile("bicep.profile");
             Console.OutputEncoding = TemplateEmitter.UTF8EncodingWithoutBom;
 
             BicepDeploymentsInterop.Initialize();
 
-            var program = new Program(new InvocationContext(AzResourceTypeProvider.CreateWithAzTypes(), Console.Out, Console.Error, ThisAssembly.AssemblyFileVersion));
-
-            return program.Run(args);
-        }
-
-        public int Run(string[] args)
-        {
-            var serviceProvider = ConfigureServices();
-
             if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
             {
-                Trace.Listeners.Add(new TextWriterTraceListener(this.invocationContext.OutputWriter));
+                Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
+
+            var program = new Program(new InvocationContext(
+                AzResourceTypeProvider.CreateWithAzTypes(),
+                Console.Out,
+                Console.Error,
+                ThisAssembly.AssemblyFileVersion,
+                features: null,
+                clientFactory: null));
+
+            return program.RunAsync(args);
+        }
+
+        public async Task<int> RunAsync(string[] args)
+        {
+            var serviceProvider = ConfigureServices();
 
             try
             {
                 switch (ArgumentParser.TryParse(args))
                 {
                     case BuildArguments buildArguments when buildArguments.CommandName == Constants.Command.Build: // bicep build [options]
-                        return serviceProvider.GetRequiredService<BuildCommand>().Run(buildArguments);
+                        return await serviceProvider.GetRequiredService<BuildCommand>().RunAsync(buildArguments);
 
                     case DecompileArguments decompileArguments when decompileArguments.CommandName == Constants.Command.Decompile: // bicep decompile [options]
-                        return serviceProvider.GetRequiredService<DecompileCommand>().Run(decompileArguments);
+                        return await serviceProvider.GetRequiredService<DecompileCommand>().RunAsync(decompileArguments);
+
+                    case PublishArguments publishArguments when publishArguments.CommandName == Constants.Command.Publish: // bicep publish [options]
+                        return await serviceProvider.GetRequiredService<PublishCommand>().RunAsync(publishArguments);
+
+                    case RestoreArguments restoreArguments when restoreArguments.CommandName == Constants.Command.Restore: // bicep restore
+                        return await serviceProvider.GetRequiredService<RestoreCommand>().RunAsync(restoreArguments);
 
                     case RootArguments rootArguments when rootArguments.CommandName == Constants.Command.Root: // bicep [options]
                         return serviceProvider.GetRequiredService<RootCommand>().Run(rootArguments);
@@ -99,19 +113,14 @@ namespace Bicep.Cli
         private ServiceProvider ConfigureServices()
         {
             return new ServiceCollection()
-                // Adds commands to the DI container
                 .AddCommands()
-
-                // Adds the ILogger and IDiagnosticlogger
+                .AddInvocationContext(invocationContext)
                 .AddSingleton(CreateLoggerFactory().CreateLogger("bicep"))
                 .AddSingleton<IDiagnosticLogger, BicepDiagnosticLogger>()
-
-                // Handles the context of this invocation
-                .AddSingleton(invocationContext)
-
-                // Adds the various services required by the commands
                 .AddSingleton<IFileResolver, FileResolver>()
+                .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
                 .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
+                .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()
                 .AddSingleton<CompilationService>()

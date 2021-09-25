@@ -1,0 +1,81 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "4751412643609413507"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "pipname": {
+      "type": "string",
+      "defaultValue": "firewall-pip"
+    },
+    "ipprefixname": {
+      "type": "string",
+      "defaultValue": "firewall-ipprefix"
+    },
+    "ipprefixlength": {
+      "type": "int",
+      "defaultValue": 31,
+      "metadata": {
+        "description": "Specifies the size of the Public IP Prefix"
+      },
+      "allowedValues": [
+        28,
+        29,
+        30,
+        31
+      ]
+    }
+  },
+  "functions": [],
+  "resources": {
+    "fwipprefix": {
+      "type": "Microsoft.Network/publicIPPrefixes",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('ipprefixname')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "prefixLength": "[parameters('ipprefixlength')]",
+        "publicIPAddressVersion": "IPv4",
+        "ipTags": []
+      }
+    },
+    "fwip": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('pipname')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "publicIPPrefix": {
+          "id": "[resourceInfo('fwipprefix').id]"
+        }
+      },
+      "dependsOn": [
+        "fwipprefix"
+      ]
+    }
+  },
+  "outputs": {
+    "id": {
+      "type": "string",
+      "value": "[resourceInfo('fwip').id]"
+    }
+  }
+}

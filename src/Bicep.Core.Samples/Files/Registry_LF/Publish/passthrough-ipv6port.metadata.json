@@ -1,0 +1,3 @@
+{
+  "target": "br:[::1]:5000/passthrough/ipv6port:v1"
+}

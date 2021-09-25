@@ -7,6 +7,7 @@ using Bicep.Core.FileSystem;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
 {
@@ -32,7 +33,7 @@ namespace Bicep.Cli.Commands
             this.writer = writer;
         }
 
-        public int Run(DecompileArguments args)
+        public async Task<int> RunAsync(DecompileArguments args)
         {
             logger.LogWarning(CliResources.DecompilerDisclaimerMessage);
 
@@ -44,7 +45,7 @@ namespace Bicep.Cli.Commands
 
             try
             {
-                var decompilation = compilationService.Decompile(inputPath, outputPath);
+                var decompilation = await compilationService.DecompileAsync(inputPath, outputPath);
 
                 if (args.OutputToStdOut)
                 {

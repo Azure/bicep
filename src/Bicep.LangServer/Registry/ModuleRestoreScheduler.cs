@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
@@ -16,7 +17,7 @@ namespace Bicep.LanguageServer.Registry
 {
     public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
     {
-        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleDeclarationSyntax> References);
+        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleReference> ModuleReferences);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
@@ -27,7 +28,8 @@ namespace Bicep.LanguageServer.Registry
         private readonly CancellationTokenSource cancellationTokenSource = new();
 
         // block on initial wait until signaled
-        private readonly ManualResetEventSlim manualResetEvent = new(false);
+        // wait times are expected to be long, so we are intentionally not using the Slim variant
+        private readonly ManualResetEvent manualResetEvent = new(false);
 
         private bool disposed = false;
         private Task? consumerTask;
@@ -41,11 +43,13 @@ namespace Bicep.LanguageServer.Registry
         /// Requests that the specified modules be restored to the local file system.
         /// Does not wait for the operation to complete and returns immediately.
         /// </summary>
-        /// <param name="references">The module references</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleDeclarationSyntax> references)
+        /// <param name="modules">The module references</param>
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleDeclarationSyntax> modules)
         {
             this.CheckDisposed();
-            var item = new QueueItem(compilationManager, documentUri, references.ToImmutableArray());
+
+            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules).ToImmutableArray();
+            var item = new QueueItem(compilationManager, documentUri, moduleReferences);
             lock (this.queue)
             {
                 this.queue.Enqueue(item);
@@ -58,7 +62,7 @@ namespace Bicep.LanguageServer.Registry
         public void Start()
         {
             this.CheckDisposed();
-            this.consumerTask = Task.Factory.StartNew(this.ProcessQueueItems, this.cancellationTokenSource.Token, TaskCreationOptions.LongRunning, TaskScheduler.Default);
+            this.consumerTask = Task.Run(this.ProcessQueueItemsAsync, this.cancellationTokenSource.Token);
         }
 
         public async ValueTask DisposeAsync()
@@ -69,7 +73,15 @@ namespace Bicep.LanguageServer.Registry
                 this.disposed = true;
                 if (this.consumerTask is not null)
                 {
+                    // signal cancellation first
                     this.cancellationTokenSource.Cancel();
+
+                    lock(this.queue)
+                    {
+                        // unblock the background task
+                        // this MUST happen after cancellation is signaled so the task immediately cancels
+                        this.manualResetEvent.Set();
+                    }
 
                     try
                     {
@@ -86,18 +98,21 @@ namespace Bicep.LanguageServer.Registry
             }
         }
 
-        private void ProcessQueueItems()
+        private async Task ProcessQueueItemsAsync()
         {
             var token = this.cancellationTokenSource.Token;
             while (true)
             {
-                this.manualResetEvent.Wait(token);
+                // the non-slim MRE doesn't support a cancellation token,
+                // so DisposeAsync will signal the task AFTER cancellation to release it
+                this.manualResetEvent.WaitOne();
+                token.ThrowIfCancellationRequested();
 
                 var notifications = new HashSet<CompletionNotification>();
-                var references = new List<ModuleDeclarationSyntax>();
+                var moduleReferences = new List<ModuleReference>();
                 lock (this.queue)
                 {
-                    this.UnsafeCollectModuleReferences(notifications, references);
+                    this.UnsafeCollectModuleReferences(notifications, moduleReferences);
                     Debug.Assert(this.queue.Count == 0, "this.queue.Count == 0");
 
                     // queue has been consumed - next iteration should block until more items have been added
@@ -107,7 +122,7 @@ namespace Bicep.LanguageServer.Registry
                 // this blocks until restore is completed
                 // the dispatcher stores the results internally and manages their lifecycle
                 token.ThrowIfCancellationRequested();
-                if(!this.moduleDispatcher.RestoreModules(references))
+                if(!await this.moduleDispatcher.RestoreModules(moduleReferences))
                 {
                     // nothing needed to be restored
                     // no need to notify about completion
@@ -121,16 +136,18 @@ namespace Bicep.LanguageServer.Registry
                 {
                     notification.CompilationManager.RefreshCompilation(notification.Uri);
                 }
+
+                this.moduleDispatcher.PruneRestoreStatuses();
             }
         }
 
-        private void UnsafeCollectModuleReferences(HashSet<CompletionNotification> notifications, List<ModuleDeclarationSyntax> references)
+        private void UnsafeCollectModuleReferences(HashSet<CompletionNotification> notifications, List<ModuleReference> moduleReferences)
         {
             while (this.queue.TryDequeue(out var item))
             {
                 // the record implementation combined with the hashset will dedupe compilation manager/Uri combinations
                 notifications.Add(new(item.CompilationManager, item.Uri));
-                references.AddRange(item.References);
+                moduleReferences.AddRange(item.ModuleReferences);
             }
         }
 

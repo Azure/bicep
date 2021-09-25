@@ -1,27 +1,32 @@
 
+@sys.description('string output description')
 output myStr string = 'hello'
-//@[7:12) Output myStr. Type: string. Declaration start char: 0, length: 29
+//@[7:12) Output myStr. Type: string. Declaration start char: 0, length: 76
 
+@sys.description('int output description')
 output myInt int = 7
-//@[7:12) Output myInt. Type: int. Declaration start char: 0, length: 20
+//@[7:12) Output myInt. Type: int. Declaration start char: 0, length: 64
 output myOtherInt int = 20 / 13 + 80 % -4
 //@[7:17) Output myOtherInt. Type: int. Declaration start char: 0, length: 41
 
+@sys.description('bool output description')
 output myBool bool = !false
-//@[7:13) Output myBool. Type: bool. Declaration start char: 0, length: 27
+//@[7:13) Output myBool. Type: bool. Declaration start char: 0, length: 72
 output myOtherBool bool = true
 //@[7:18) Output myOtherBool. Type: bool. Declaration start char: 0, length: 30
 
+@sys.description('object array description')
 output suchEmpty array = [
-//@[7:16) Output suchEmpty. Type: array. Declaration start char: 0, length: 29
+//@[7:16) Output suchEmpty. Type: array. Declaration start char: 0, length: 75
 ]
 
 output suchEmpty2 object = {
 //@[7:17) Output suchEmpty2. Type: object. Declaration start char: 0, length: 31
 }
 
+@sys.description('object output description')
 output obj object = {
-//@[7:10) Output obj. Type: object. Declaration start char: 0, length: 178
+//@[7:10) Output obj. Type: object. Declaration start char: 0, length: 225
   a: 'a'
   b: 12
   c: true
@@ -86,3 +91,4 @@ output paramWithOverlappingOutput string = paramWithOverlappingOutput
 output generatedArray array = [for i in range(0,10): i]
 //@[35:36) Local i. Type: int. Declaration start char: 35, length: 1
 //@[7:21) Output generatedArray. Type: array. Declaration start char: 0, length: 55
+

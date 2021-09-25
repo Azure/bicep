@@ -1,0 +1,192 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "9371882081892643852"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "vmName": {
+      "type": "string",
+      "defaultValue": "WindowsVM"
+    },
+    "vmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS2_v2"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "secureString"
+    },
+    "keyVaultName": {
+      "type": "string"
+    },
+    "subId": {
+      "type": "string",
+      "defaultValue": "[subscription().subscriptionId]"
+    },
+    "rgName": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().name]"
+    },
+    "secretUrlWithVersion": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "kvId": "[resourceId(parameters('subId'), parameters('rgName'), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+    "subnet1Name": "subnet-1",
+    "vnetName": "certVnet",
+    "nsgName": "[format('{0}-nsg', variables('subnet1Name'))]"
+  },
+  "resources": {
+    "pip": {
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2020-06-01",
+      "name": "certPublicIp",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicIPAllocationMethod": "Dynamic"
+      }
+    },
+    "nsg": {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2020-08-01",
+      "name": "[variables('nsgName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-3389",
+            "properties": {
+              "priority": 1000,
+              "access": "Allow",
+              "direction": "Inbound",
+              "destinationPortRange": "3389",
+              "protocol": "Tcp",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*"
+            }
+          }
+        ]
+      }
+    },
+    "vnet": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('vnetName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "10.0.0.0/16"
+          ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnet1Name')]",
+            "properties": {
+              "addressPrefix": "10.0.0.0/24",
+              "networkSecurityGroup": {
+                "id": "[resourceInfo('nsg').id]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "nsg"
+      ]
+    },
+    "nic": {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2020-06-01",
+      "name": "certNic",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIPAddress": {
+                "id": "[resourceInfo('pip').id]"
+              },
+              "subnet": {
+                "id": "[format('{0}/subnets/{1}', resourceInfo('vnet').id, variables('subnet1Name'))]"
+              }
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "pip",
+        "vnet"
+      ]
+    },
+    "vm": {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('vmName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSize')]"
+        },
+        "osProfile": {
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "secrets": [
+            {
+              "sourceVault": {
+                "id": "[variables('kvId')]"
+              },
+              "vaultCertificates": [
+                {
+                  "certificateUrl": "[parameters('secretUrlWithVersion')]",
+                  "certificateStore": "My"
+                }
+              ]
+            }
+          ]
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2019-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          }
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceInfo('nic').id]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "nic"
+      ]
+    }
+  }
+}

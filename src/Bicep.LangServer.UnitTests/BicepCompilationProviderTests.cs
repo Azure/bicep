@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -11,7 +10,6 @@ using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
-using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Providers;
@@ -35,18 +33,19 @@ namespace Bicep.LangServer.UnitTests
         {
             var fileUri = DocumentUri.Parse($"/{DataSets.Parameters_LF.Name}.bicep");
             var fileResolver = CreateFileResolver(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver));
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features));
 
             var provider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, dispatcher);
 
             var sourceFile = SourceFileFactory.CreateSourceFile(fileUri.ToUri(), DataSets.Parameters_LF.Bicep);
             var workspace = new Workspace();
             workspace.UpsertSourceFile(sourceFile);
-            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty);
+            var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
+            var context = provider.Create(workspace, fileUri, ImmutableDictionary<ISourceFile, ISemanticModel>.Empty, configHelper);
 
             context.Compilation.Should().NotBeNull();
             // TODO: remove Where when the support of modifiers is dropped.
-            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics(new ConfigHelper().GetDisabledLinterConfig()).Should().BeEmpty();
+            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
             context.LineStarts.Should().NotBeEmpty();
             context.LineStarts[0].Should().Be(0);
         }

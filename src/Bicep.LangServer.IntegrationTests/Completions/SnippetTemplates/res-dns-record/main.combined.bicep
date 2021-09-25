@@ -18,3 +18,4 @@ resource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {
   }
 }
 // Insert snippet here
+

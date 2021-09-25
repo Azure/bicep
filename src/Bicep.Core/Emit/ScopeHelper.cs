@@ -158,6 +158,24 @@ namespace Bicep.Core.Emit
                         }
                     }
 
+                    if (StringComparer.OrdinalIgnoreCase.Equals(targetResource.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeManagementGroup))
+                    {
+                        // special-case 'Microsoft.Management/managementGroups' in order to allow it to create a managementGroup-scope resource
+                        // ignore diagnostics - these will be collected separately in the pass over resources
+                        var hasErrors = false;
+                        var mgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.ScopeSyntax);
+                        if (!hasErrors)
+                        {
+                            if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
+                            {
+                                logInvalidScopeFunc(scopeValue, ResourceScope.ManagementGroup, supportedScopes);
+                                return null;
+                            }
+
+                            return new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = targetResource.NameSyntax, IndexExpression = indexExpression };
+                        }
+                    }
+
                     if (!supportedScopes.HasFlag(ResourceScope.Resource))
                     {
                         logInvalidScopeFunc(scopeValue, ResourceScope.Resource, supportedScopes);
@@ -404,10 +422,18 @@ namespace Bicep.Core.Emit
                 return;
             }
 
-            if(scopeData.RequestedScope == ResourceScope.Tenant)
+            if (!IsDeployableResourceScope(semanticModel, scopeData))
+            {
+                writeScopeDiagnostic(x => x.InvalidCrossResourceScope());
+            }
+        }
+
+        private static bool IsDeployableResourceScope(SemanticModel semanticModel, ScopeData scopeData)
+        {
+            if (scopeData.RequestedScope == ResourceScope.Tenant)
             {
                 // tenant resources can be deployed cross-scope
-                return;
+                return true;
             }
 
             // we only allow resources to be deployed at the target scope
@@ -417,10 +443,7 @@ namespace Bicep.Core.Emit
                 scopeData.ResourceGroupProperty is null &&
                 scopeData.ResourceScope is null);
 
-            if (!matchesTargetScope)
-            {
-                writeScopeDiagnostic(x => x.InvalidCrossResourceScope());
-            }
+            return matchesTargetScope;
         }
 
         public static ImmutableDictionary<ResourceMetadata, ScopeData> GetResourceScopeInfo(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
@@ -434,6 +457,8 @@ namespace Bicep.Core.Emit
                     x => x,
                     x => semanticModel.ResourceAncestors.GetAncestors(x));
 
+            var defaultScopeData = new ScopeData { RequestedScope = semanticModel.TargetScope };
+
             // process symbols in order of ancestor depth.
             // this is because we want to avoid recomputing the scope for child resources which inherit it from their parents.
             foreach (var (resource, ancestors) in ancestorsLookup.OrderBy(kvp => kvp.Value.Length))
@@ -445,22 +470,26 @@ namespace Bicep.Core.Emit
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
                         diagnosticWriter.Write(resource.ScopeSyntax, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol.Name));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
+                        scopeInfo[resource] = defaultScopeData;
                         continue;
                     }
 
                     var firstAncestor = ancestors.First();
                     if (!resource.IsExistingResource && 
-                        firstAncestor.Resource.IsExistingResource && 
-                        firstAncestor.Resource.ScopeSyntax is {} firstAncestorScope)
+                        firstAncestor.Resource.IsExistingResource &&
+                        !IsDeployableResourceScope(semanticModel, scopeInfo[firstAncestor.Resource]))
                     {
-                        // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
+                        // Setting 'scope' is blocked for child resources, so we just need to check whether the root ancestor has 'scope' set.
+                        // If it does, it could be an 'existing' resource - which can be assigned any scope - so we need to ensure the assigned scope can be used to deploy.
                         diagnosticWriter.Write(resource.Symbol.DeclaringResource.Value, x => x.ScopeDisallowedForAncestorResource(firstAncestor.Resource.Symbol.Name));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
+                        scopeInfo[resource] = defaultScopeData;
                         continue;
                     }
 
                     if (semanticModel.Binder.TryGetCycle(resource.Symbol) is not null)
                     {
+                        scopeInfo[resource] = defaultScopeData;
                         continue;
                     }
 
@@ -470,14 +499,9 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var scopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.ScopeSyntax);
+                var validatedScopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.ScopeSyntax);
 
-                if (scopeData is null)
-                {
-                    scopeData = new ScopeData { RequestedScope = semanticModel.TargetScope };
-                }
-
-                scopeInfo[resource] = scopeData;
+                scopeInfo[resource] = validatedScopeData ?? defaultScopeData;
             }
 
             foreach (var resourceToValidate in semanticModel.AllResources)

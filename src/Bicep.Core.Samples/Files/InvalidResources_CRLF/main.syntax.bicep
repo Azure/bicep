@@ -9736,7 +9736,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
 // parent property with 'existing' resource at different scope
 //@[62:64) NewLine |\r\n|
 resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[0:104) ResourceDeclarationSyntax
+//@[0:110) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:16)  IdentifierSyntax
 //@[9:16)   Identifier |p1_res1|
@@ -9744,20 +9744,20 @@ resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 //@[17:53)   StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
 //@[54:62)  Identifier |existing|
 //@[63:64)  Assignment |=|
-//@[65:104)  ObjectSyntax
+//@[65:110)  ObjectSyntax
 //@[65:66)   LeftBrace |{|
 //@[66:68)   NewLine |\r\n|
-  scope: tenant()
-//@[2:17)   ObjectPropertySyntax
+  scope: subscription()
+//@[2:23)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
 //@[2:7)     Identifier |scope|
 //@[7:8)    Colon |:|
-//@[9:17)    FunctionCallSyntax
-//@[9:15)     IdentifierSyntax
-//@[9:15)      Identifier |tenant|
-//@[15:16)     LeftParen |(|
-//@[16:17)     RightParen |)|
-//@[17:19)   NewLine |\r\n|
+//@[9:23)    FunctionCallSyntax
+//@[9:21)     IdentifierSyntax
+//@[9:21)      Identifier |subscription|
+//@[21:22)     LeftParen |(|
+//@[22:23)     RightParen |)|
+//@[23:25)   NewLine |\r\n|
   name: 'res1'
 //@[2:14)   ObjectPropertySyntax
 //@[2:6)    IdentifierSyntax

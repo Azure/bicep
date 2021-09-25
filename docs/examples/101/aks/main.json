@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3927513209688740701"
+      "templateHash": "10495848497300076865"
     }
   },
   "parameters": {
@@ -64,7 +64,8 @@
             "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
             "count": "[parameters('agentCount')]",
             "vmSize": "[parameters('agentVMSize')]",
-            "osType": "Linux"
+            "osType": "Linux",
+            "mode": "System"
           }
         ],
         "linuxProfile": {

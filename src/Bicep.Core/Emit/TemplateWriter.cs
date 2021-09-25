@@ -19,6 +19,8 @@ using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Semantics.Metadata;
+using System.Diagnostics;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -29,7 +31,7 @@ namespace Bicep.Core.Emit
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2019-10-01";
+        public const string NestedDeploymentResourceApiVersion = "2020-06-01";
 
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
@@ -52,6 +54,17 @@ namespace Bicep.Core.Emit
             LanguageConstants.ModuleParamsPropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
+        }.ToImmutableHashSet();
+
+        private static readonly ImmutableHashSet<string> DecoratorsToEmitAsResourceProperties = new[] {
+            LanguageConstants.ParameterSecurePropertyName,
+            LanguageConstants.ParameterAllowedPropertyName,
+            LanguageConstants.ParameterMinValuePropertyName,
+            LanguageConstants.ParameterMaxValuePropertyName,
+            LanguageConstants.ParameterMinLengthPropertyName,
+            LanguageConstants.ParameterMaxLengthPropertyName,
+            LanguageConstants.ParameterMetadataPropertyName,
+            LanguageConstants.MetadataDescriptionPropertyName,
         }.ToImmutableHashSet();
 
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
@@ -84,12 +97,12 @@ namespace Bicep.Core.Emit
             return "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
         }
         private readonly EmitterContext context;
-        private readonly string assemblyFileVersion;
+        private readonly EmitterSettings settings;
 
-        public TemplateWriter(SemanticModel semanticModel, string assemblyFileVersion)
+        public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
-            this.context = new EmitterContext(semanticModel);
-            this.assemblyFileVersion = assemblyFileVersion;
+            this.context = new EmitterContext(semanticModel, settings);
+            this.settings = settings;
         }
 
         public void Write(JsonTextWriter writer)
@@ -116,6 +129,11 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteStartObject();
 
             emitter.EmitProperty("$schema", GetSchema(context.SemanticModel.TargetScope));
+
+            if (context.Settings.EnableSymbolicNames)
+            {
+                emitter.EmitProperty("languageVersion", "1.9-experimental");
+            }
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
             
@@ -158,14 +176,14 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private ObjectSyntax EvaluateDecorators(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
+        private ObjectSyntax AddDecoratorsToBody(StatementSyntax statement, ObjectSyntax input, TypeSymbol targetType)
         {
             var result = input;
             foreach (var decoratorSyntax in statement.Decorators.Reverse())
             {
                 var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
-                if (symbol is FunctionSymbol decoratorSymbol)
+                if (symbol is FunctionSymbol decoratorSymbol && DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
                 {
                     var argumentTypes = decoratorSyntax.Arguments
                         .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
@@ -202,7 +220,7 @@ namespace Bicep.Core.Emit
                 parameterObject = parameterObject.MergeProperty("defaultValue", defaultValueSyntax.DefaultValue);
             }
 
-            parameterObject = EvaluateDecorators(declaringParameter, parameterObject, primitiveType);
+            parameterObject = AddDecoratorsToBody(declaringParameter, parameterObject, primitiveType);
 
             foreach (var property in parameterObject.Properties)
             {
@@ -263,13 +281,25 @@ namespace Bicep.Core.Emit
         private void EmitResources(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             jsonWriter.WritePropertyName("resources");
-            jsonWriter.WriteStartArray();
+            if (context.Settings.EnableSymbolicNames)
+            {
+                jsonWriter.WriteStartObject();
+            }
+            else
+            {
+                jsonWriter.WriteStartArray();
+            }
 
             foreach (var resource in this.context.SemanticModel.AllResources)
             {
-                if (resource.IsExistingResource)
+                if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
                 {
                     continue;
+                }
+
+                if (context.Settings.EnableSymbolicNames)
+                {
+                    jsonWriter.WritePropertyName(resource.Symbol.Name);
                 }
 
                 this.EmitResource(jsonWriter, resource, emitter);
@@ -277,22 +307,33 @@ namespace Bicep.Core.Emit
 
             foreach (var moduleSymbol in this.context.SemanticModel.Root.ModuleDeclarations)
             {
+                if (context.Settings.EnableSymbolicNames)
+                {
+                    jsonWriter.WritePropertyName(moduleSymbol.Name);
+                }
+
                 this.EmitModule(jsonWriter, moduleSymbol, emitter);
             }
 
-            jsonWriter.WriteEndArray();
+            if (context.Settings.EnableSymbolicNames)
+            {
+                jsonWriter.WriteEndObject();
+            }
+            else
+            {
+                jsonWriter.WriteEndArray();
+            }
         }
 
-        private long? GetBatchSize(StatementSyntax decoratedSyntax)
+        private long? GetBatchSize(StatementSyntax statement)
         {
-            var evaluated = this.EvaluateDecorators(decoratedSyntax, SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), LanguageConstants.Array);
-            var batchSizeProperty = evaluated.SafeGetPropertyByName("batchSize");
-
-            return batchSizeProperty switch
+            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName, "sys")?.Arguments is { } arguments
+                && arguments.Count() == 1
+                && arguments.ToList()[0].Expression is IntegerLiteralSyntax integerLiteral)
             {
-                ObjectPropertySyntax { Value: IntegerLiteralSyntax integerLiteral } => integerLiteral.Value,
-                _ => null
-            };
+                return integerLiteral.Value;
+            }
+            return null;
         }
 
         private void EmitResource(JsonTextWriter jsonWriter, ResourceMetadata resource, ExpressionEmitter emitter)
@@ -387,6 +428,13 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resource));
 
+            if (context.Settings.EnableSymbolicNames && resource.IsExistingResource)
+            {
+                jsonWriter.WritePropertyName("existing");
+                jsonWriter.WriteValue(true);
+            }
+            
+            body = AddDecoratorsToBody(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
             emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
@@ -473,6 +521,7 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("type", NestedDeploymentResourceType);
             emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
+            body = AddDecoratorsToBody(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type);
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
@@ -516,16 +565,12 @@ namespace Bicep.Core.Emit
 
                 EmitModuleParameters(jsonWriter, moduleSymbol, emitter);
 
-                jsonWriter.WritePropertyName("template");
+                var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
+
+                // If it is a template spec module, emit templateLink instead of template contents.
+                jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
                 {
-                    var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    ITemplateWriter moduleWriter = moduleSemanticModel switch
-                    {
-                        ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
-                        SemanticModel bicepModel => new TemplateWriter(bicepModel, this.assemblyFileVersion),
-                        _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
-                    };
-                    moduleWriter.Write(jsonWriter);
+                    TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings).Write(jsonWriter);
                 }
 
                 jsonWriter.WriteEndObject();
@@ -535,15 +580,91 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
         }
-        private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
+        private static bool ShouldGenerateDependsOn(ResourceDependency dependency) => dependency.Resource switch
+        {   // We only want to add a 'dependsOn' for resources being deployed in this file.
+            ResourceSymbol resource => !resource.DeclaringResource.IsExistingResource(),
+            ModuleSymbol => true,
+            _ => throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}"),
+        };
+
+        private void EmitSymbolicNameDependsOnEntry(JsonTextWriter jsonWriter, ExpressionEmitter emitter, SyntaxBase newContext, ResourceDependency dependency)
         {
             switch (dependency.Resource)
             {
-                case ResourceSymbol resource:
-                    // We only want to add a 'dependsOn' for resources being deployed in this file.
-                    return !resource.DeclaringResource.IsExistingResource();
-                case ModuleSymbol:
-                    return true;
+                case ResourceSymbol resourceDependency:
+                    var resource = context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) ??
+                        throw new ArgumentException($"Unable to find resource metadata for dependency '{dependency.Resource.Name}'");
+
+                    switch ((resourceDependency.IsCollection, dependency.IndexExpression))
+                    {
+                        case (false, _):
+                            jsonWriter.WriteValue(resourceDependency.Name);
+                            Debug.Assert(dependency.IndexExpression is null);
+                            break;
+                        // dependency is on the entire resource collection
+                        // write the name of the resource collection as the dependency
+                        case (true, null):
+                            jsonWriter.WriteValue(resourceDependency.Name);
+                            break;
+                        case (true, {} indexExpression):
+                            emitter.EmitIndexedSymbolReference(resource, indexExpression, newContext);
+                            break;
+                    }
+                    break;
+                case ModuleSymbol moduleDependency:
+                    switch ((moduleDependency.IsCollection, dependency.IndexExpression))
+                    {
+                        case (false, _):
+                            jsonWriter.WriteValue(moduleDependency.Name);
+                            Debug.Assert(dependency.IndexExpression is null);
+                            break;
+                        // dependency is on the entire resource collection
+                        // write the name of the resource collection as the dependency
+                        case (true, null):
+                            jsonWriter.WriteValue(moduleDependency.Name);
+                            break;
+                        case (true, {} indexExpression):
+                            emitter.EmitIndexedSymbolReference(moduleDependency, indexExpression, newContext);
+                            break;
+                    }
+                    break;
+                default:
+                    throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
+            }            
+        }
+
+        private void EmitClassicDependsOnEntry(JsonTextWriter jsonWriter, ExpressionEmitter emitter, SyntaxBase newContext, ResourceDependency dependency)
+        {
+            switch (dependency.Resource)
+            {
+                case ResourceSymbol resourceDependency:
+                    if (resourceDependency.IsCollection && dependency.IndexExpression == null)
+                    {
+                        // dependency is on the entire resource collection
+                        // write the name of the resource collection as the dependency
+                        jsonWriter.WriteValue(resourceDependency.DeclaringResource.Name.IdentifierName);
+
+                        break;
+                    }
+
+                    var resource = context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) ??
+                        throw new ArgumentException($"Unable to find resource metadata for dependency '{dependency.Resource.Name}'");
+
+                    emitter.EmitResourceIdReference(resource, dependency.IndexExpression, newContext);
+                    break;
+                case ModuleSymbol moduleDependency:
+                    if (moduleDependency.IsCollection && dependency.IndexExpression == null)
+                    {
+                        // dependency is on the entire module collection
+                        // write the name of the module collection as the dependency
+                        jsonWriter.WriteValue(moduleDependency.DeclaringModule.Name.IdentifierName);
+
+                        break;
+                    }
+
+                    emitter.EmitResourceIdReference(moduleDependency, dependency.IndexExpression, newContext);
+
+                    break;
                 default:
                     throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
             }
@@ -564,38 +685,13 @@ namespace Bicep.Core.Emit
             // need to put dependencies in a deterministic order to generate a deterministic template
             foreach (var dependency in dependencies.OrderBy(x => x.Resource.Name))
             {
-                switch (dependency.Resource)
+                if (context.Settings.EnableSymbolicNames)
                 {
-                    case ResourceSymbol resourceDependency:
-                        if (resourceDependency.IsCollection && dependency.IndexExpression == null)
-                        {
-                            // dependency is on the entire resource collection
-                            // write the name of the resource collection as the dependency
-                            jsonWriter.WriteValue(resourceDependency.DeclaringResource.Name.IdentifierName);
-
-                            break;
-                        }
-
-                        var resource = context.SemanticModel.ResourceMetadata.TryLookup(resourceDependency.DeclaringSyntax) ??
-                            throw new ArgumentException($"Unable to find resource metadata for dependency '{dependency.Resource.Name}'");
-
-                        emitter.EmitResourceIdReference(resource, dependency.IndexExpression, newContext);
-                        break;
-                    case ModuleSymbol moduleDependency:
-                        if (moduleDependency.IsCollection && dependency.IndexExpression == null)
-                        {
-                            // dependency is on the entire module collection
-                            // write the name of the module collection as the dependency
-                            jsonWriter.WriteValue(moduleDependency.DeclaringModule.Name.IdentifierName);
-
-                            break;
-                        }
-
-                        emitter.EmitResourceIdReference(moduleDependency, dependency.IndexExpression, newContext);
-
-                        break;
-                    default:
-                        throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
+                    EmitSymbolicNameDependsOnEntry(jsonWriter, emitter, newContext, dependency);
+                }
+                else
+                {
+                    EmitClassicDependsOnEntry(jsonWriter, emitter, newContext, dependency);
                 }
             }
             jsonWriter.WriteEndArray();
@@ -620,7 +716,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private static void EmitOutput(JsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
+        private void EmitOutput(JsonTextWriter jsonWriter, OutputSymbol outputSymbol, ExpressionEmitter emitter)
         {
             jsonWriter.WriteStartObject();
 
@@ -632,8 +728,16 @@ namespace Bicep.Core.Emit
             else
             {
                 emitter.EmitProperty("value", outputSymbol.Value);
+                // emit any decorators on this output
+                var body = AddDecoratorsToBody(
+                outputSymbol.DeclaringOutput, 
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                outputSymbol.Type);
+                foreach (var (property, val) in body.ToNamedPropertyValueDictionary())
+                {
+                    emitter.EmitProperty(property, val);
+                }
             }
-
             jsonWriter.WriteEndObject();
         }
 
@@ -641,12 +745,20 @@ namespace Bicep.Core.Emit
         {
             jsonWriter.WritePropertyName("metadata");
             jsonWriter.WriteStartObject();
-            jsonWriter.WritePropertyName("_generator");
-            jsonWriter.WriteStartObject();
+            {
+                if (context.Settings.EnableSymbolicNames)
+                {
+                    emitter.EmitProperty("EXPERIMENTAL_WARNING", "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!");
+                }
 
-            emitter.EmitProperty("name", LanguageConstants.LanguageId);
-            emitter.EmitProperty("version", this.assemblyFileVersion);
-            jsonWriter.WriteEndObject();
+                jsonWriter.WritePropertyName("_generator");
+                jsonWriter.WriteStartObject();
+                {
+                    emitter.EmitProperty("name", LanguageConstants.LanguageId);
+                    emitter.EmitProperty("version", this.context.Settings.AssemblyFileVersion);
+                }
+                jsonWriter.WriteEndObject();
+            }
             jsonWriter.WriteEndObject();
         }
 

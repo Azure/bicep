@@ -25,3 +25,4 @@ resource cassandraKeyspaceTable 'Microsoft.DocumentDb/databaseAccounts/apis/keys
   }
 }
 // Insert snippet here
+

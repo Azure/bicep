@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Assertions
         }
     }
 
-    public class IDiagnosticCollectionAssertions : SelfReferencingCollectionAssertions<IDiagnostic, IDiagnosticCollectionAssertions>
+    public class IDiagnosticCollectionAssertions : GenericCollectionAssertions<IDiagnostic>
     {
         public IDiagnosticCollectionAssertions(IEnumerable<IDiagnostic> diagnostics)
             : base(diagnostics)

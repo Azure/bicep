@@ -1,0 +1,222 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "13005546734320715485"
+    }
+  },
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "vnet-01"
+    },
+    "virtualNetworkCIDR": {
+      "type": "string",
+      "defaultValue": "10.200.0.0/16"
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "subnet-01"
+    },
+    "subnetCIDR": {
+      "type": "string",
+      "defaultValue": "10.200.1.0/24"
+    },
+    "serverFarmName": {
+      "type": "string",
+      "defaultValue": "ServerFarm1"
+    },
+    "websiteName": {
+      "type": "string",
+      "defaultValue": "[format('website{0}', uniqueString(resourceGroup().name))]"
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "P1v2"
+    },
+    "skuTier": {
+      "type": "string",
+      "defaultValue": "PremiumV2"
+    },
+    "skuSize": {
+      "type": "string",
+      "defaultValue": "P1v2"
+    },
+    "skuFamily": {
+      "type": "string",
+      "defaultValue": "P1v2"
+    },
+    "privateEndpointName": {
+      "type": "string",
+      "defaultValue": "[format('privateEndpoint{0}', uniqueString(resourceGroup().name))]"
+    },
+    "privateLinkConnectionName": {
+      "type": "string",
+      "defaultValue": "[format('privateLink{0}', uniqueString(resourceGroup().name))]"
+    },
+    "privateDNSZoneName": {
+      "type": "string",
+      "defaultValue": "privatelink.azurewebsites.net"
+    },
+    "websiteDNSName": {
+      "type": "string",
+      "defaultValue": ".azurewebsites.net"
+    }
+  },
+  "functions": [],
+  "resources": {
+    "virtualNetwork": {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('virtualNetworkName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [
+            "[parameters('virtualNetworkCIDR')]"
+          ]
+        }
+      }
+    },
+    "subnet": {
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}', resourceInfo('virtualNetwork').name, parameters('subnetName'))]",
+      "properties": {
+        "addressPrefix": "[parameters('subnetCIDR')]",
+        "privateEndpointNetworkPolicies": "Disabled"
+      },
+      "dependsOn": [
+        "virtualNetwork"
+      ]
+    },
+    "serverFarm": {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('serverFarmName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "tier": "[parameters('skuTier')]",
+        "size": "[parameters('skuSize')]",
+        "family": "[parameters('skuFamily')]",
+        "capacity": 1
+      },
+      "kind": "app"
+    },
+    "website": {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('websiteName')]",
+      "location": "[parameters('location')]",
+      "kind": "app",
+      "properties": {
+        "enabled": true,
+        "hostNameSslStates": [
+          {
+            "name": "[format('{0}{1}', parameters('websiteName'), parameters('websiteDNSName'))]",
+            "sslState": "Disabled",
+            "hostType": "Standard"
+          },
+          {
+            "name": "[format('{0}.scm{1}', parameters('websiteName'), parameters('websiteDNSName'))]",
+            "sslState": "Disabled",
+            "hostType": "Repository"
+          }
+        ],
+        "serverFarmId": "[resourceInfo('serverFarm').id]"
+      },
+      "dependsOn": [
+        "serverFarm"
+      ]
+    },
+    "hostnameBinding": {
+      "type": "Microsoft.Web/sites/hostNameBindings",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}{2}', resourceInfo('website').name, resourceInfo('website').name, parameters('websiteDNSName'))]",
+      "properties": {
+        "siteName": "[resourceInfo('website').name]",
+        "hostNameType": "Verified"
+      },
+      "dependsOn": [
+        "website"
+      ]
+    },
+    "privateEndpoint": {
+      "type": "Microsoft.Network/privateEndpoints",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('privateEndpointName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "subnet": {
+          "id": "[resourceInfo('subnet').id]"
+        },
+        "privateLinkServiceConnections": [
+          {
+            "name": "[parameters('privateLinkConnectionName')]",
+            "properties": {
+              "privateLinkServiceId": "[resourceInfo('website').id]",
+              "groupIds": [
+                "sites"
+              ]
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "subnet",
+        "website"
+      ]
+    },
+    "privateDNSZone": {
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "[parameters('privateDNSZoneName')]",
+      "location": "global"
+    },
+    "virtualNetworkLink": {
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/{1}-link', resourceInfo('privateDNSZone').name, resourceInfo('privateDNSZone').name)]",
+      "location": "global",
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": {
+          "id": "[resourceInfo('virtualNetwork').id]"
+        }
+      },
+      "dependsOn": [
+        "privateDNSZone",
+        "virtualNetwork"
+      ]
+    },
+    "privateDNSZoneGroup": {
+      "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/dnsgroupname', resourceInfo('privateEndpoint').name)]",
+      "properties": {
+        "privateDnsZoneConfigs": [
+          {
+            "name": "config1",
+            "properties": {
+              "privateDnsZoneId": "[resourceInfo('privateDNSZone').id]"
+            }
+          }
+        ]
+      },
+      "dependsOn": [
+        "privateDNSZone",
+        "privateEndpoint"
+      ]
+    }
+  }
+}

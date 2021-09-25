@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
@@ -65,12 +66,15 @@ namespace Bicep.LanguageServer.Snippets
             "tags",
             "properties"
         };
+        private readonly ConfigHelper configHelper;
         private readonly IFileResolver fileResolver;
 
-        public SnippetsProvider(IFileResolver fileResolver)
+        public SnippetsProvider(IFileResolver fileResolver, ConfigHelper configHelper)
         {
-            Initialize();
+            this.configHelper = configHelper;
             this.fileResolver = fileResolver;
+
+            Initialize();
         }
 
         private void Initialize()
@@ -206,7 +210,7 @@ namespace Bicep.LanguageServer.Snippets
 
             // We need to provide uri for syntax tree creation, but it's not used anywhere. In order to avoid 
             // cross platform issues, we'll provide a placeholder uri.
-            BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri("inmemory://snippet.bicep"), template);
+            BicepFile bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"inmemory://{manifestResourceName}.bicep"), template);
             SourceFileGrouping sourceFileGrouping = new SourceFileGrouping(
                 fileResolver,
                 bicepFile,
@@ -216,7 +220,8 @@ namespace Bicep.LanguageServer.Snippets
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
-            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping);
+            Compilation compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configHelper);
+
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 
             return ResourceDependencyVisitor.GetResourceDependencies(semanticModel);

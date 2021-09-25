@@ -1,0 +1,76 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "8513514407798096027"
+    }
+  },
+  "parameters": {
+    "apimInstanceName": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "functions": [],
+  "variables": {
+    "apimNameValueSet": [
+      {
+        "displayName": "NameValue1",
+        "value": "SomeValue1",
+        "tags": [
+          "Example"
+        ],
+        "isSecret": false
+      },
+      {
+        "displayName": "NameSecretValue",
+        "value": "SomeSecretValue",
+        "tags": [
+          "Example",
+          "AnotherExampleTag"
+        ],
+        "isSecret": true
+      }
+    ]
+  },
+  "resources": {
+    "parentAPIM": {
+      "type": "Microsoft.ApiManagement/service",
+      "apiVersion": "2019-01-01",
+      "name": "[parameters('apimInstanceName')]",
+      "existing": true
+    },
+    "apiManagementNVPair": {
+      "copy": {
+        "name": "apiManagementNVPair",
+        "count": "[length(variables('apimNameValueSet'))]"
+      },
+      "type": "Microsoft.ApiManagement/service/namedValues",
+      "apiVersion": "2020-06-01-preview",
+      "name": "[format('{0}/{1}', parameters('apimInstanceName'), variables('apimNameValueSet')[copyIndex()].displayName)]",
+      "properties": {
+        "displayName": "[variables('apimNameValueSet')[copyIndex()].displayName]",
+        "secret": "[variables('apimNameValueSet')[copyIndex()].isSecret]",
+        "value": "[variables('apimNameValueSet')[copyIndex()].value]",
+        "tags": "[variables('apimNameValueSet')[copyIndex()].tags]"
+      }
+    }
+  },
+  "outputs": {
+    "apimNameValues": {
+      "type": "array",
+      "copy": {
+        "count": "[length(variables('apimNameValueSet'))]",
+        "input": {
+          "nameValueId": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).id]",
+          "nameValueName": "[resourceInfo(format('apiManagementNVPair[{0}]', copyIndex())).name]"
+        }
+      }
+    }
+  }
+}

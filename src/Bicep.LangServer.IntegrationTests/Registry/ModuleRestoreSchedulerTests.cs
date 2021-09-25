@@ -19,6 +19,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -99,9 +100,9 @@ namespace Bicep.LangServer.UnitTests.Registry
             var thirdSource = new TaskCompletionSource<bool>();
 
             var compilationManager = Repository.Create<ICompilationManager>();
-            compilationManager.Setup(m => m.RefreshCompilation(firstUri)).Callback<DocumentUri>(uri => firstSource.SetResult(true));
-            compilationManager.Setup(m => m.RefreshCompilation(secondUri)).Callback<DocumentUri>(uri => secondSource.SetResult(true));
-            compilationManager.Setup(m => m.RefreshCompilation(thirdUri)).Callback<DocumentUri>(uri => thirdSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(firstUri, It.IsAny<bool>())).Callback<DocumentUri, bool>((uri, reloadBicepConfig) => firstSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(secondUri, It.IsAny<bool>())).Callback<DocumentUri, bool>((uri, reloadBicepConfig) => secondSource.SetResult(true));
+            compilationManager.Setup(m => m.RefreshCompilation(thirdUri, It.IsAny<bool>())).Callback<DocumentUri, bool>((uri, reloadBicepConfig) => thirdSource.SetResult(true));
 
             var firstFileSet = CreateModules("mock:one", "mock:two");
             var secondFileSet = CreateModules("mock:three", "mock:four");
@@ -166,15 +167,22 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public string Scheme => "mock";
 
+            public RegistryCapabilities Capabilities => throw new NotImplementedException();
+
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 
-            public IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate> RestoreModules(IEnumerable<ModuleReference> references)
+            public Task PublishModule(ModuleReference moduleReference, Stream compiled)
             {
-                this.ModuleRestores.Push(references);
-                return new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+                throw new NotImplementedException();
             }
 
-            public Uri? TryGetLocalModuleEntryPointPath(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references)
+            {
+                this.ModuleRestores.Push(references);
+                return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>());
+            }
+
+            public Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 throw new NotImplementedException();
             }

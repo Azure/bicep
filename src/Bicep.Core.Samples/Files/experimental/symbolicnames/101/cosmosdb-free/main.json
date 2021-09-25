@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "1232113087017290403"
+    }
+  },
+  "parameters": {
+    "accountName": {
+      "type": "string",
+      "defaultValue": "[format('cosmos-{0}', uniqueString(resourceGroup().id))]",
+      "metadata": {
+        "description": "Cosmos DB account name"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the Cosmos DB account."
+      }
+    },
+    "databaseName": {
+      "type": "string",
+      "metadata": {
+        "description": "The name for the Core (SQL) database"
+      }
+    }
+  },
+  "functions": [],
+  "resources": {
+    "cosmosAccount": {
+      "type": "Microsoft.DocumentDB/databaseAccounts",
+      "apiVersion": "2021-04-15",
+      "name": "[toLower(parameters('accountName'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "enableFreeTier": true,
+        "databaseAccountOfferType": "Standard",
+        "consistencyPolicy": {
+          "defaultConsistencyLevel": "Session"
+        },
+        "locations": [
+          {
+            "locationName": "[parameters('location')]"
+          }
+        ]
+      }
+    },
+    "cosmosDB": {
+      "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+      "apiVersion": "2021-04-15",
+      "name": "[format('{0}/{1}', resourceInfo('cosmosAccount').name, toLower(parameters('databaseName')))]",
+      "properties": {
+        "resource": {
+          "id": "[parameters('databaseName')]"
+        },
+        "options": {
+          "throughput": 400
+        }
+      },
+      "dependsOn": [
+        "cosmosAccount"
+      ]
+    }
+  }
+}

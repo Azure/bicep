@@ -1,0 +1,62 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "18155317466407965240"
+    }
+  },
+  "parameters": {
+    "storageaccountlocation": {
+      "type": "string"
+    },
+    "storageaccountName": {
+      "type": "string"
+    },
+    "storageaccountkind": {
+      "type": "string"
+    },
+    "storgeaccountglobalRedundancy": {
+      "type": "string",
+      "defaultValue": "Premium_LRS"
+    },
+    "fileshareFolderName": {
+      "type": "string",
+      "defaultValue": "profilecontainers"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "filesharelocation": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('fileshareFolderName'))]"
+  },
+  "resources": {
+    "sa": {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[parameters('storageaccountName')]",
+      "location": "[parameters('storageaccountlocation')]",
+      "kind": "[parameters('storageaccountkind')]",
+      "sku": {
+        "name": "[parameters('storgeaccountglobalRedundancy')]"
+      }
+    },
+    "fs": {
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2020-08-01-preview",
+      "name": "[variables('filesharelocation')]",
+      "dependsOn": [
+        "sa"
+      ]
+    }
+  },
+  "outputs": {
+    "storageAccountId": {
+      "type": "string",
+      "value": "[resourceInfo('sa').id]"
+    }
+  }
+}
