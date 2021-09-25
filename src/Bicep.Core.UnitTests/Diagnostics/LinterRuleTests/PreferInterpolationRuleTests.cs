@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Interfaces;
@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void ExpectPass(string text)
         {
-            AssertRuleCodeDiagnostics(PreferInterpolationRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, diags => {
                 diags.Should().HaveCount(0, $"expecting linter rule to pass");
             });
         }
@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void ExpectDiagnosticWithFix(string text, string[] expectedFixes)
         {
-            AssertRuleCodeDiagnostics(PreferInterpolationRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, diags => {
                 diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
 
                 diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);

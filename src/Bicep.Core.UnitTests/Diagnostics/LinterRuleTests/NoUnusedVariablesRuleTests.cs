@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
@@ -23,7 +23,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedVars)
         {
-            AssertRuleCodeDiagnostics(NoUnusedVariablesRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(NoUnusedVariablesRule.Code, text, diags => {
                 if (unusedVars.Any())
                 {
                     var rule = new NoUnusedVariablesRule();

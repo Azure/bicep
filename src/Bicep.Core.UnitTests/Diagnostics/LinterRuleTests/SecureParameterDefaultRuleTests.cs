@@ -28,7 +28,7 @@ output sub int = sum
         [DataTestMethod]
         public void NotSecureParam_TestPasses(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
         [DataRow(0, @"
@@ -44,7 +44,7 @@ param poNoDefault object
         [DataTestMethod]
         public void NoDefault_TestPasses(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
         [DataRow(0, @"
@@ -54,7 +54,7 @@ param password string = ''
         [DataTestMethod]
         public void EmptyString_TestPasses(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
         [DataRow(0, @"
@@ -64,7 +64,7 @@ param poEmpty object = {}
         [DataTestMethod]
         public void EmptyObject_TestPasses(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
         [DataRow(0, @"
@@ -78,7 +78,7 @@ param psContainsNewGuid string = concat('${psEmpty}${newGuid()}', '')
         [DataTestMethod]
         public void ExpressionContainingNewGuid_TestPasses(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
         [DataRow(1, @"
@@ -127,7 +127,7 @@ param psExpression string = resourceGroup().location
         [DataTestMethod]
         public void InvalidNonEmptyDefault_TestFails(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
         [DataRow(1, @"
@@ -139,7 +139,7 @@ param poNotEmpty object = {
         [DataTestMethod]
         public void NonEmptySecureObject_TestFails(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
         [DataRow(2, @"
@@ -177,7 +177,7 @@ param o object = {
         [DataTestMethod]
         public void HandlesSyntaxErrors(int diagnosticCount, string text)
         {
-            CompileAndTest(SecureParameterDefaultRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(SecureParameterDefaultRule.Code, text, diagnosticCount);
         }
 
     }

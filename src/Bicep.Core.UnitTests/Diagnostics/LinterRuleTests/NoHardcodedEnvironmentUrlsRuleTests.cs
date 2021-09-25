@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Linq;
@@ -86,7 +86,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void Simple(int diagnosticCount, string text)
         {
-            CompileAndTest(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
         }
 
         [DataRow(1, @"
@@ -107,7 +107,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void InsideStringInterpolation(int diagnosticCount, string text)
         {
-            CompileAndTest(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
         }
 
         [DataRow(1, @"var a = 'azuredatalakestore.net' + 1")]
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void InsideExpressions(int diagnosticCount, string text)
         {
-            CompileAndTest(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
+            AssertLinterRuleDiagnostics(NoHardcodedEnvironmentUrlsRule.Code, text, diagnosticCount);
         }
 
         [DataTestMethod]

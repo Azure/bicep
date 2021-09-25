@@ -21,14 +21,16 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void ExpectPass(string text)
         {
-            AssertRuleCodeDiagnostics(SimplifyInterpolationRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, diags =>
+            {
                 diags.Should().HaveCount(0, $"expecting linter rule to pass");
             });
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
         {
-            AssertRuleCodeDiagnostics(SimplifyInterpolationRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, diags =>
+            {
                 diags.Should().HaveCount(1, $"expected one fix per testcase");
 
                 diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
