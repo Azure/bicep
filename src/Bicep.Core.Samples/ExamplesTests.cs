@@ -24,7 +24,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Configuration;
-using Bicep.Core.UnitTests.Configuration;
 using Bicep.Core.Registry;
 
 namespace Bicep.Core.Samples

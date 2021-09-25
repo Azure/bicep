@@ -26,8 +26,8 @@
       "value": "Type: `string`  \nAzure PowerShell module version to be used.  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_azPowerShellVersion",
+    "preselect": true,
+    "sortText": "1_azPowerShellVersion",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -134,8 +134,8 @@
       "value": "Type: `string`  \nInterval for which the service retains the script resource after it reaches a terminal state. Resource will be deleted when this duration expires. Duration is based on ISO 8601 pattern (for example P1D means one day).  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_retentionInterval",
+    "preselect": true,
+    "sortText": "1_retentionInterval",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

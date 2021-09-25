@@ -16,7 +16,6 @@ using Bicep.Core.Extensions;
 using Moq;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Configuration;
-using Bicep.Core.UnitTests.Configuration;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {

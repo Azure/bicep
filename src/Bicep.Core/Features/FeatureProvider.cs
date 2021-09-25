@@ -30,7 +30,7 @@ namespace Bicep.Core.Features
         {
             string basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
-            return Path.Combine(basePath, ".bicep", "artifacts");
+            return Path.Combine(basePath, ".bicep");
         }
     }
 }

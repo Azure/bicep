@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
-using Azure.Core;
 using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
 
 namespace Bicep.Core.Registry
 {
@@ -19,13 +18,13 @@ namespace Bicep.Core.Registry
             this.client =client;
         }
 
-        public async Task<TemplateSpec> FindTemplateSpecByIdAsync(string templateSpecId, CancellationToken cancellationToken = default)
+        public async Task<TemplateSpecEntity> FindTemplateSpecByIdAsync(string templateSpecId, CancellationToken cancellationToken = default)
         {
             try
             {
-                var response = await this.client.GetGenericResource(templateSpecId).GetAsync(cancellationToken);
+                var response = await this.client.GetTemplateSpecVersion(templateSpecId).GetAsync(cancellationToken);
 
-                return TemplateSpec.FromGenericResourceData(response.Value.Data);
+                return TemplateSpecEntity.FromSdkModel(response.Value.Data);
             }
             catch (RequestFailedException exception)
             {

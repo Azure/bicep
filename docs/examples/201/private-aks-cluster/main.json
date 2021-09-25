@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10839339689322770047"
+      "templateHash": "12920701974493309200"
     }
   },
   "parameters": {
@@ -496,7 +496,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vnet",
       "properties": {
         "expressionEvaluationOptions": {
@@ -812,7 +812,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "bastion",
       "properties": {
         "expressionEvaluationOptions": {
@@ -824,7 +824,7 @@
             "value": "[parameters('bastionName')]"
           },
           "bastionSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.bastionSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-06-01').outputs.bastionSubnetId.value]"
           },
           "location": {
             "value": "[parameters('location')]"
@@ -911,7 +911,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "log-analytics.bicep",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1003,7 +1003,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "jumpbox",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1060,13 +1060,13 @@
             "value": "[parameters('blobStorageAccountPrivateEndpointName')]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2019-10-01').outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2020-06-01').outputs.logAnalyticsWorkspaceId.value]"
           },
           "virtualNetworkId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-06-01').outputs.virtualNetworkResourceId.value]"
           },
           "vmSubnetId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.vmSubnetId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-06-01').outputs.vmSubnetId.value]"
           }
         },
         "template": {
@@ -1458,7 +1458,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "aks",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1578,10 +1578,10 @@
             "value": "[parameters('nodePoolVmSize')]"
           },
           "virtualNetworkId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2019-10-01').outputs.virtualNetworkResourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'vnet'), '2020-06-01').outputs.virtualNetworkResourceId.value]"
           },
           "logAnalyticsWorkspaceId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2019-10-01').outputs.logAnalyticsWorkspaceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'log-analytics.bicep'), '2020-06-01').outputs.logAnalyticsWorkspaceId.value]"
           }
         },
         "template": {

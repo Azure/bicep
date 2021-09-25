@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16295496111371619308"
+      "templateHash": "9421149111910721032"
     }
   },
   "parameters": {
@@ -436,7 +436,7 @@
     },
     "singleModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "test",
       "properties": {
         "expressionEvaluationOptions": {
@@ -484,7 +484,7 @@
         "batchSize": 3
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -534,7 +534,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -580,7 +580,7 @@
     },
     "singleModuleWithIndexedDependencies": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "hello",
       "properties": {
         "expressionEvaluationOptions": {
@@ -631,7 +631,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -682,7 +682,7 @@
         "count": "[length(variables('regions'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -729,7 +729,7 @@
         "count": "[length(range(0, 6))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -776,7 +776,7 @@
         "count": "[length(parameters('accounts'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('stuff-{0}', copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {

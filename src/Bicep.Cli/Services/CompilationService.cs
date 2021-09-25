@@ -2,14 +2,17 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Logging;
+using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
 using System.Collections.Immutable;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Services
@@ -23,7 +26,7 @@ namespace Bicep.Cli.Services
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
 
-        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleDispatcher moduleDispatcher, TemplateDecompiler decompiler) 
+        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleDispatcher moduleDispatcher, TemplateDecompiler decompiler)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
@@ -61,11 +64,37 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping, null);
+            ConfigHelper configHelper = GetConfigHelper(inputUri);
+            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping, configHelper);
 
             LogDiagnostics(compilation);
 
             return compilation;
+        }
+
+        private ConfigHelper GetConfigHelper(Uri uri)
+        {
+            ConfigHelper configHelper;
+
+            try
+            {
+                configHelper = new ConfigHelper(Path.GetDirectoryName(uri.LocalPath), fileResolver);
+            }
+            catch (Exception ex)
+            {
+                var invocationContext = new InvocationContext(
+                    AzResourceTypeProvider.CreateWithAzTypes(),
+                    Console.Out,
+                    Console.Error,
+                    ThisAssembly.AssemblyFileVersion,
+                    features: null,
+                    clientFactory: null);
+                invocationContext.OutputWriter.WriteLine(ex.Message);
+
+                configHelper = new ConfigHelper(null, fileResolver, useDefaultConfig: true).GetDisabledLinterConfig();
+            }
+
+            return configHelper;
         }
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)
@@ -83,7 +112,7 @@ namespace Bicep.Cli.Services
             }
 
             // to verify success we recompile and check for syntax errors.
-            await CompileAsync(decompilation.entrypointUri.AbsolutePath, skipRestore: true); 
+            await CompileAsync(decompilation.entrypointUri.AbsolutePath, skipRestore: true);
 
             return decompilation;
         }

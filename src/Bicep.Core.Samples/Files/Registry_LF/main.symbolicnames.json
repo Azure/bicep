@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13281876479922823735"
+      "templateHash": "18429199712662107343"
     }
   },
   "functions": [],
@@ -42,7 +42,7 @@
     },
     "appPlanDeploy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "planDeploy",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -108,7 +108,7 @@
         "count": "[length(variables('websites'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}siteDeploy', variables('websites')[copyIndex()].name)]",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -206,7 +206,7 @@
     },
     "storageDeploy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "storageDeploy",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -219,53 +219,8 @@
             "value": "eastus"
           }
         },
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "parameters": {
-            "storageAccountType": {
-              "type": "string",
-              "defaultValue": "Standard_LRS",
-              "allowedValues": [
-                "Standard_LRS",
-                "Standard_GRS",
-                "Standard_ZRS",
-                "Premium_LRS"
-              ],
-              "metadata": {
-                "description": "Storage Account type"
-              }
-            },
-            "location": {
-              "type": "string",
-              "defaultValue": "[resourceGroup().location]",
-              "metadata": {
-                "description": "Location for all resources."
-              }
-            }
-          },
-          "variables": {
-            "storageAccountName": "[concat('store', uniquestring(resourceGroup().id))]"
-          },
-          "resources": [
-            {
-              "type": "Microsoft.Storage/storageAccounts",
-              "apiVersion": "2019-06-01",
-              "name": "[variables('storageAccountName')]",
-              "location": "[parameters('location')]",
-              "sku": {
-                "name": "[parameters('storageAccountType')]"
-              },
-              "kind": "StorageV2",
-              "properties": {}
-            }
-          ],
-          "outputs": {
-            "storageAccountName": {
-              "type": "string",
-              "value": "[variables('storageAccountName')]"
-            }
-          }
+        "templateLink": {
+          "id": "/subscriptions/00000000-0000-0000-0000-000000000000/resourceGroups/test-rg/providers/Microsoft.Resources/templateSpecs/storage-spec/versions/1.0"
         }
       },
       "dependsOn": [
@@ -278,7 +233,7 @@
         "count": "[length(variables('vnets'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}Deploy', variables('vnets')[copyIndex()].name)]",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -294,50 +249,228 @@
             "value": "[variables('vnets')[copyIndex()].subnetName]"
           }
         },
+        "templateLink": {
+          "id": "/subscriptions/11111111-1111-1111-1111-111111111111/resourceGroups/prod-rg/providers/Microsoft.Resources/templateSpecs/vnet-spec/versions/v2"
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "passthroughPort": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "port",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "port": {
+            "value": "test"
+          }
+        },
         "template": {
           "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
           "contentVersion": "1.0.0.0",
-          "parameters": {
-            "vnetName": {
-              "type": "string"
-            },
-            "vnetPrefix": {
-              "type": "string",
-              "defaultValue": "10.0.0.0/16"
-            },
-            "subnetName": {
-              "type": "string"
-            },
-            "subnetPrefix": {
-              "type": "string",
-              "defaultValue": "10.0.0.0/24"
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "11372722735750462419"
             }
           },
-          "variables": {},
-          "resources": [
-            {
-              "name": "[parameters('vnetName')]",
-              "type": "Microsoft.Network/virtualNetworks",
-              "apiVersion": "2019-11-01",
-              "location": "[resourceGroup().location]",
-              "properties": {
-                "addressSpace": {
-                  "addressPrefixes": [
-                    "[parameters('vnetPrefix')]"
-                  ]
-                },
-                "subnets": [
-                  {
-                    "name": "[parameters('subnetName')]",
-                    "properties": {
-                      "addressPrefix": "[parameters('subnetPrefix')]"
-                    }
-                  }
-                ]
-              }
+          "parameters": {
+            "port": {
+              "type": "string"
             }
-          ],
-          "outputs": {}
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "port": {
+              "type": "string",
+              "value": "[parameters('port')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "ipv4": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "ipv4",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ipv4": {
+            "value": "test"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "13832203834710666930"
+            }
+          },
+          "parameters": {
+            "ipv4": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "ipv4": {
+              "type": "string",
+              "value": "[parameters('ipv4')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "ipv4port": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "ipv4port",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ipv4port": {
+            "value": "test"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6585722063237736357"
+            }
+          },
+          "parameters": {
+            "ipv4port": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "ipv4port": {
+              "type": "string",
+              "value": "[parameters('ipv4port')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "ipv6": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "ipv6",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ipv6": {
+            "value": "test"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "15909077893907372746"
+            }
+          },
+          "parameters": {
+            "ipv6": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "ipv6": {
+              "type": "string",
+              "value": "[parameters('ipv6')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "ipv6port": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "ipv6port",
+      "resourceGroup": "adotfrank-rg",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "ipv6port": {
+            "value": "test"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "1421603444460114359"
+            }
+          },
+          "parameters": {
+            "ipv6port": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "resources": [],
+          "outputs": {
+            "ipv6port": {
+              "type": "string",
+              "value": "[parameters('ipv6port')]"
+            }
+          }
         }
       },
       "dependsOn": [

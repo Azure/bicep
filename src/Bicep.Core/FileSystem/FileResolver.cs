@@ -12,6 +12,12 @@ namespace Bicep.Core.FileSystem
 {
     public class FileResolver : IFileResolver
     {
+        public IDisposable? TryAcquireFileLock(Uri fileUri)
+        {
+            RequireFileUri(fileUri);
+            return FileLock.TryAcquire(fileUri.LocalPath);
+        }
+
         public bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if (!fileUri.IsFile)
@@ -183,6 +189,14 @@ namespace Bicep.Core.FileSystem
             }
         }
 
+        public void Write(Uri fileUri, Stream contents)
+        {
+            RequireFileUri(fileUri);
+
+            using var fileStream = new FileStream(fileUri.LocalPath, FileMode.Create);
+            contents.CopyTo(fileStream);
+        }
+
         public Uri? TryResolveFilePath(Uri parentFileUri, string childFilePath)
         {
             if (!Uri.TryCreate(parentFileUri, childFilePath, out var relativeUri))
@@ -214,5 +228,13 @@ namespace Bicep.Core.FileSystem
         public bool DirExists(Uri fileUri) => fileUri.IsFile && Directory.Exists(fileUri.LocalPath);
 
         public bool FileExists(Uri uri) => uri.IsFile && File.Exists(uri.LocalPath);
+
+        private static void RequireFileUri(Uri uri)
+        {
+            if (!uri.IsFile)
+            {
+                throw new ArgumentException($"Non-file URI is not supported by this file resolver.");
+            }
+        }
     }
 }

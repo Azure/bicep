@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1386858963616796432"
+      "templateHash": "8193330612892248610"
     }
   },
   "parameters": {
@@ -43,7 +43,7 @@
         "count": "[length(variables('scripts'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
       "resourceGroup": "[format('{0}-{1}', parameters('prefix'), variables('groups')[copyIndex()])]",
       "properties": {
@@ -106,7 +106,7 @@
         "count": "[length(variables('scripts'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[format('{0}-dep-{1}', parameters('prefix'), copyIndex())]",
       "resourceGroup": "[concat(variables('scripts')[copyIndex()], '-extra')]",
       "properties": {

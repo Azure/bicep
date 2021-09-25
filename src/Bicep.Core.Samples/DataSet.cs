@@ -103,15 +103,15 @@ namespace Bicep.Core.Samples
 
         public ImmutableDictionary<string, string> Completions => this.lazyCompletions.Value;
 
-        public ImmutableDictionary<string, ExternalModuleInfo> ModulesToPublish => this.lazyModulesToPublish.Value;
+        public ImmutableDictionary<string, ExternalModuleInfo> RegistryModules => this.lazyModulesToPublish.Value;
 
         public ImmutableDictionary<string, ExternalModuleInfo> TemplateSpecs => this.lazyTemplateSpecs.Value;
 
-        public bool HasModulesToPublish => this.ModulesToPublish.Any();
+        public bool HasRegistryModules => this.RegistryModules.Any();
 
         public bool HasTemplateSpecs => this.TemplateSpecs.Any();
 
-        public bool HasExternalModules => this.HasModulesToPublish || this.HasTemplateSpecs;
+        public bool HasExternalModules => this.HasRegistryModules || this.HasTemplateSpecs;
 
         // validity is set by naming convention
 

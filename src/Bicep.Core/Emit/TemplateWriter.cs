@@ -20,6 +20,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Semantics.Metadata;
 using System.Diagnostics;
+using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -30,7 +31,7 @@ namespace Bicep.Core.Emit
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
         
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2019-10-01";
+        public const string NestedDeploymentResourceApiVersion = "2020-06-01";
 
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
@@ -564,16 +565,12 @@ namespace Bicep.Core.Emit
 
                 EmitModuleParameters(jsonWriter, moduleSymbol, emitter);
 
-                jsonWriter.WritePropertyName("template");
+                var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
+
+                // If it is a template spec module, emit templateLink instead of template contents.
+                jsonWriter.WritePropertyName(moduleSemanticModel is TemplateSpecSemanticModel ? "templateLink" : "template");
                 {
-                    var moduleSemanticModel = GetModuleSemanticModel(moduleSymbol);
-                    ITemplateWriter moduleWriter = moduleSemanticModel switch
-                    {
-                        ArmTemplateSemanticModel armTemplateModel => new ArmTemplateWriter(armTemplateModel),
-                        SemanticModel bicepModel => new TemplateWriter(bicepModel, this.settings),
-                        _ => throw new ArgumentException($"Unknown semantic model type: \"{moduleSemanticModel.GetType()}\"."),
-                    };
-                    moduleWriter.Write(jsonWriter);
+                    TemplateWriterFactory.CreateTemplateWriter(moduleSemanticModel, this.settings).Write(jsonWriter);
                 }
 
                 jsonWriter.WriteEndObject();
@@ -583,19 +580,12 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
         }
-        private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
-        {
-            switch (dependency.Resource)
-            {
-                case ResourceSymbol resource:
-                    // We only want to add a 'dependsOn' for resources being deployed in this file.
-                    return !resource.DeclaringResource.IsExistingResource();
-                case ModuleSymbol:
-                    return true;
-                default:
-                    throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
-            }
-        }
+        private static bool ShouldGenerateDependsOn(ResourceDependency dependency) => dependency.Resource switch
+        {   // We only want to add a 'dependsOn' for resources being deployed in this file.
+            ResourceSymbol resource => !resource.DeclaringResource.IsExistingResource(),
+            ModuleSymbol => true,
+            _ => throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}"),
+        };
 
         private void EmitSymbolicNameDependsOnEntry(JsonTextWriter jsonWriter, ExpressionEmitter emitter, SyntaxBase newContext, ResourceDependency dependency)
         {
