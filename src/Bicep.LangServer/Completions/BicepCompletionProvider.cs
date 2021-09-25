@@ -248,11 +248,18 @@ namespace Bicep.LanguageServer.Completions
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
             {
-                const string equals = "=";
-                yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
+                // Only when there is no existing assignment sign
+                if (context.EnclosingDeclaration is ResourceDeclarationSyntax { Assignment: SkippedTriviaSyntax { Elements: { IsDefaultOrEmpty: true }} })
+                {
+                    const string equals = "=";
+                    yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
+                }
 
-                const string existing = "existing";
-                yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+                if (context.EnclosingDeclaration is ResourceDeclarationSyntax { ExistingKeyword: null })
+                {
+                    const string existing = "existing";
+                    yield return CreateKeywordCompletion(existing, existing, context.ReplacementRange);
+                }
             }
         }
 

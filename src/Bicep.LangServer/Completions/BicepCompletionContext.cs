@@ -221,13 +221,13 @@ namespace Bicep.LanguageServer.Completions
             // resource foo '...' |
             // OR
             // resource foo '...' | = {
-            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => !resource.IsExistingResource() && offset > resource.Type.GetEndPosition() && offset <= resource.Assignment.Span.Position) ||
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => offset > resource.Type.GetEndPosition() && offset <= resource.Assignment.Span.Position) ||
             // resource foo '...' e|
             // OR
             // resource foo '...' e| = {
-            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => !resource.IsExistingResource() && resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (resource, skipped, token) => resource.Assignment == skipped && token.Type == TokenType.Identifier) ||
             // resource foo '...' |=
-            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => !resource.IsExistingResource() && resource.Assignment == token && token.Type == TokenType.Assignment && offset == token.Span.Position);
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, Token>(matchingNodes, (resource, token) => resource.Assignment == token && token.Type == TokenType.Assignment && offset == token.Span.Position);
 
         private static bool IsTargetScopeContext(List<SyntaxBase> matchingNodes, int offset) =>
             SyntaxMatcher.IsTailMatch<TargetScopeSyntax>(matchingNodes, targetScope =>
