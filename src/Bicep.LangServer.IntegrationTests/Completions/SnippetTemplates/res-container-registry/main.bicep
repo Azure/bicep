@@ -1,6 +1,6 @@
 ﻿// $1 = containerRegistry
 // $2 = 'name'
-// $3 = 'Classic'
-// $4 = true
+// $3 = 'Basic'
+// $4 = false
 
 // Insert snippet here

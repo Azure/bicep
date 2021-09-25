@@ -54,9 +54,9 @@ namespace Bicep.Core.Registry
                 try
                 {
                     var repository = this.repositoryFactory.CreateRepository(reference.EndpointUri, reference.SubscriptionId);
-                    var templateSpec = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
+                    var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
-                    await this.SaveModuleToDisk(reference, templateSpec);
+                    await this.SaveModuleToDisk(reference, templateSpecEntity);
                 }
                 catch (TemplateSpecException templateSpecException)
                 {
@@ -84,16 +84,16 @@ namespace Bicep.Core.Registry
         private string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
             this.featureProvider.CacheRootDirectory,
             this.Scheme,
-            reference.SubscriptionId,
-            reference.ResourceGroupName,
-            reference.TemplateSpecName,
-            reference.Version);
+            reference.SubscriptionId.ToLowerInvariant(),
+            reference.ResourceGroupName.ToLowerInvariant(),
+            reference.TemplateSpecName.ToLowerInvariant(),
+            reference.Version.ToLowerInvariant());
 
         private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => Path.Combine(this.GetModuleDirectoryPath(reference), "main.json");
 
         private Uri GetModuleEntryPointUri(TemplateSpecModuleReference reference) => new(this.GetModuleEntryPointPath(reference), UriKind.Absolute);
 
-        private async Task SaveModuleToDisk(TemplateSpecModuleReference reference, TemplateSpec templateSpec)
+        private async Task SaveModuleToDisk(TemplateSpecModuleReference reference, TemplateSpecEntity templateSpecEntity)
         {
             var moduleDirectoryPath = this.GetModuleDirectoryPath(reference);
 
@@ -106,7 +106,7 @@ namespace Bicep.Core.Registry
                 throw new TemplateSpecException($"Unable to create the local module directory \"{moduleDirectoryPath}\".", exception);
             }
 
-            await File.WriteAllTextAsync(this.GetModuleEntryPointPath(reference), templateSpec.MainTemplateContents);
+            await File.WriteAllTextAsync(this.GetModuleEntryPointPath(reference), templateSpecEntity.ToUtf8Json());
         }
     }
 }

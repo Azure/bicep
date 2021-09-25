@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Azure.Deployments.Core.Json;
+using Bicep.Core.Features;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
@@ -39,7 +40,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
                 var manifestBytes = this.Subject.Manifests[manifestDigest];
                 using var manifestStream = MockRegistryBlobClient.WriteStream(manifestBytes);
-                var manifest = OciManifestSerialization.DeserializeManifest(manifestStream);
+                var manifest = OciSerialization.Deserialize<OciManifest>(manifestStream);
 
                 var config = manifest.Config;
                 config.MediaType.Should().Be("application/vnd.ms.bicep.module.config.v1+json", "config media type should be correct");

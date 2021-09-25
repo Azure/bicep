@@ -1,52 +1,46 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import * as path from "path";
-import * as fs from "fs";
-import { runBicepCommand } from "./command";
 
-const exampleDirectory = path.resolve(__dirname, "../examples/101/aks/");
+/**
+ * Tests for "bicep build".
+ *
+ * @group CI
+ */
 
-function getExampleFilePath(
-  exampleFileName: string,
-  exampleFileExtension: string
-) {
-  return path.join(
-    exampleDirectory,
-    `${exampleFileName}.${exampleFileExtension}`
-  );
-}
+import { invokingBicepCommand } from "./utils/command";
+import {
+  expectFileExists,
+  expectFileNotExists,
+  pathToExampleFile,
+  readFileSync,
+} from "./utils/fs";
 
 describe("bicep build", () => {
   it("should build a bicep file", () => {
-    const exampleBicepFile = getExampleFilePath("main", "bicep");
-    const result = runBicepCommand(["build", exampleBicepFile]);
-    expect(result.status).toBe(0);
+    const bicepFilePath = pathToExampleFile("101", "aks", "main.bicep");
+    invokingBicepCommand("build", bicepFilePath)
+      .shouldSucceed()
+      .withEmptyStdout();
 
-    const exampleJsonFile = getExampleFilePath("main", "json");
-    expect(fs.existsSync(exampleJsonFile)).toBeTruthy();
+    const jsonFilePath = pathToExampleFile("101", "aks", "main.json");
+    expectFileExists(jsonFilePath);
 
-    const jsonContents = fs.readFileSync(exampleJsonFile, {
-      encoding: "utf-8",
-    });
+    const jsonContents = readFileSync(jsonFilePath);
     expect(jsonContents.length).toBeGreaterThan(0);
 
     // Building with --stdout should emit consistent result.
-    const stdoutResult = runBicepCommand([
-      "build",
-      "--stdout",
-      exampleBicepFile,
-    ]);
-    expect(stdoutResult.status).toBe(0);
-    expect(stdoutResult.stdout).toBe(jsonContents);
+    invokingBicepCommand("build", "--stdout", bicepFilePath)
+      .shouldSucceed()
+      .withStdout(jsonContents);
   });
 
   it("should log to stderr if a bicep file has errors", () => {
-    const exampleBicepFile = getExampleFilePath("flawed", "bicep");
-    const result = runBicepCommand(["build", exampleBicepFile], true);
-    expect(result.status).toBe(1);
-    expect(result.stderr.length).toBeGreaterThan(0);
+    const bicepFilePath = pathToExampleFile("101", "aks", "flawed.bicep");
+    invokingBicepCommand("build", bicepFilePath)
+      .shouldFail()
+      .withNonEmptyStderr();
 
-    const exampleJsonFile = getExampleFilePath("flawed", "json");
-    expect(fs.existsSync(exampleJsonFile)).toBeFalsy();
+    const jsonFilePath = pathToExampleFile("101", "aks", "flawed.json");
+    expectFileNotExists(jsonFilePath);
   });
 });

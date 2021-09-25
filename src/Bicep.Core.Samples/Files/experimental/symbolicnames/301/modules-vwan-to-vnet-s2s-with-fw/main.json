@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4049278402121260829"
+      "templateHash": "17685429378324542781"
     }
   },
   "parameters": {
@@ -72,7 +72,7 @@
     },
     "vnet": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "[variables('vnetname')]",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -337,7 +337,7 @@
     },
     "vpngw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vpngw-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -477,7 +477,7 @@
     },
     "fwpolicy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "fwpolicy-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -648,7 +648,7 @@
     },
     "fwpip": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "pip-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -758,7 +758,7 @@
     },
     "fw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "fw-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {
@@ -917,7 +917,7 @@
     },
     "vwan": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vwan-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -997,7 +997,7 @@
     },
     "vhub": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vhub-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1091,7 +1091,7 @@
     },
     "vhubfwpolicy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vhubfwpolicy-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1262,7 +1262,7 @@
     },
     "vhubfw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vhubfw-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1420,7 +1420,7 @@
     },
     "vhubvpngw": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vhubvpngw",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1523,7 +1523,7 @@
     },
     "vwanvpnsite": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vwanvpnsite-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1650,7 +1650,7 @@
     },
     "vhubs2s": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vhubs2s-deploy",
       "resourceGroup": "[format('{0}-vwan-rg', parameters('nameprefix'))]",
       "properties": {
@@ -1724,7 +1724,7 @@
     },
     "vnets2s": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "vnets2s-deploy",
       "resourceGroup": "[format('{0}-hubvnet-rg', parameters('nameprefix'))]",
       "properties": {

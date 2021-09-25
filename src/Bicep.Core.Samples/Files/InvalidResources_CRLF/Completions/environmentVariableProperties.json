@@ -8,8 +8,8 @@
       "value": "Type: `string`  \nThe name of the environment variable.  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_name",
+    "preselect": true,
+    "sortText": "1_name",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

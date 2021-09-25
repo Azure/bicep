@@ -12,6 +12,15 @@
         "object": { "first": "default" },
         "array": [ 1 ]
       }
+    },
+    "insensitiveToTest": {
+      "type": "object",
+      "defaultValue": {
+        "left": "value",
+        "right": "value",
+        "leftInsensitive": "valuE",
+        "rightInsensitive": "Value"
+      }
     }
   },
   "resources": [
@@ -52,6 +61,18 @@
     "emptyFunctionsOutput": {
       "type": "bool",
       "value": "[if(equals(null(), json('null')), true(), false())]"
+    },
+    "equalsInsensitiveWithLower": {
+      "type": "bool",
+      "value": "[equals(toLower(parameters('insensitiveToTest').leftInsensitive),toLower(parameters('insensitiveToTest').rightInsensitive))]"
+    },
+    "notEqualsInsensitiveWithLower": {
+      "type": "bool",
+      "value": "[not(equals(toLower(parameters('insensitiveToTest').leftInsensitive),toLower(parameters('insensitiveToTest').rightInsensitive)))]"
+    },
+    "notEquals": {
+      "type": "bool",
+      "value": "[not(equals(parameters('insensitiveToTest').left,parameters('insensitiveToTest').right))]"
     }
   }
 }

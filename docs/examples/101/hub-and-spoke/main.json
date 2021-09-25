@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4257812848289644805"
+      "templateHash": "14244910561863265451"
     }
   },
   "parameters": {
@@ -30,7 +30,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "hub-vnet",
       "resourceGroup": "hub-rg",
       "properties": {
@@ -112,7 +112,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "spoke-vnet",
       "resourceGroup": "spoke-rg",
       "properties": {
@@ -137,7 +137,7 @@
                 "properties": {
                   "addressPrefix": "10.0.0.0/24",
                   "routeTable": {
-                    "id": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-rot'), '2019-10-01').outputs.id.value]"
+                    "id": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-rot'), '2020-06-01').outputs.id.value]"
                   }
                 }
               }
@@ -199,7 +199,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "hub-fwl",
       "resourceGroup": "hub-rg",
       "properties": {
@@ -212,7 +212,7 @@
             "value": "hub"
           },
           "hubId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2019-10-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2020-06-01').outputs.id.value]"
           }
         },
         "template": {
@@ -288,7 +288,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "hub-to-spoke-peering",
       "resourceGroup": "hub-rg",
       "properties": {
@@ -298,13 +298,13 @@
         "mode": "Incremental",
         "parameters": {
           "localVnetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2019-10-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2020-06-01').outputs.name.value]"
           },
           "remoteVnetName": {
             "value": "spoke"
           },
           "remoteVnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2019-10-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2020-06-01').outputs.id.value]"
           }
         },
         "template": {
@@ -355,7 +355,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "spoke-to-hub-peering",
       "resourceGroup": "spoke-rg",
       "properties": {
@@ -365,13 +365,13 @@
         "mode": "Incremental",
         "parameters": {
           "localVnetName": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2019-10-01').outputs.name.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'spoke-rg'), 'Microsoft.Resources/deployments', 'spoke-vnet'), '2020-06-01').outputs.name.value]"
           },
           "remoteVnetName": {
             "value": "hub"
           },
           "remoteVnetId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2019-10-01').outputs.id.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-vnet'), '2020-06-01').outputs.id.value]"
           }
         },
         "template": {
@@ -422,7 +422,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2019-10-01",
+      "apiVersion": "2020-06-01",
       "name": "spoke-rot",
       "resourceGroup": "spoke-rg",
       "properties": {
@@ -435,7 +435,7 @@
             "value": "spoke"
           },
           "azFwlIp": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-fwl'), '2019-10-01').outputs.privateIp.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'hub-rg'), 'Microsoft.Resources/deployments', 'hub-fwl'), '2020-06-01').outputs.privateIp.value]"
           }
         },
         "template": {

@@ -15,20 +15,26 @@ namespace Bicep.Core.Modules
     /// </summary>
     public class OciArtifactModuleReference : ModuleReference
     {
+        public const int MaxRegistryLength = 255;
+
+        // must be kept in sync with the tag name regex
+        public const int MaxTagLength = 128;
+
+        public const int MaxRepositoryLength = 255;
+
         // obtained from https://github.com/opencontainers/distribution-spec/blob/main/spec.md#pull
         private static readonly Regex ModulePathSegmentRegex = new(@"^[a-z0-9]+([._-][a-z0-9]+)*$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
         // must be kept in sync with the tag max length
         private static readonly Regex TagRegex = new(@"^[a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
-        // must be kept in sync with the tag name regex
-        private static readonly int MaxTagLength = 128;
-
-        private static readonly int MaxRepositoryLength = 255;
-
-        // these exist to keep equals and hashcode implementations in sync
+        // the registry component is equivalent to a host in a URI, which are case-insensitive
         public static readonly IEqualityComparer<string> RegistryComparer = StringComparer.OrdinalIgnoreCase;
+
+        // repository component is case-sensitive (although regex blocks upper case)
         public static readonly IEqualityComparer<string> RepositoryComparer = StringComparer.Ordinal;
+
+        // tags are case-sensitive and may contain upper and lowercase characters
         public static readonly IEqualityComparer<string> TagComparer = StringComparer.Ordinal;
 
         public OciArtifactModuleReference(string registry, string repository, string tag)
@@ -98,6 +104,13 @@ namespace Bicep.Core.Modules
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
                 failureBuilder = x => x.InvalidOciArtifactReference(GetBadReference(rawValue));
+                return null;
+            }
+
+            string registry = artifactUri.Authority;
+            if(registry.Length > MaxRegistryLength)
+            {
+                failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(GetBadReference(rawValue), registry, MaxRegistryLength);
                 return null;
             }
 
@@ -172,7 +185,7 @@ namespace Bicep.Core.Modules
             }
 
             failureBuilder = null;
-            return new OciArtifactModuleReference(artifactUri.Authority, repository, tag);
+            return new OciArtifactModuleReference(registry, repository, tag);
         }
     }
 }

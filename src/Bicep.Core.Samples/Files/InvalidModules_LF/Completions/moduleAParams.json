@@ -8,8 +8,8 @@
       "value": "Type: `array`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_arrayParam",
+    "preselect": true,
+    "sortText": "1_arrayParam",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -26,8 +26,8 @@
       "value": "Type: `object`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_objParam",
+    "preselect": true,
+    "sortText": "1_objParam",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -62,8 +62,8 @@
       "value": "Type: `string`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_stringParamB",
+    "preselect": true,
+    "sortText": "1_stringParamB",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

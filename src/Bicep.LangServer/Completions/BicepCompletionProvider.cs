@@ -897,8 +897,10 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
         {
+            var required = property.Flags.HasFlag(TypePropertyFlags.Required);
+
             var escapedPropertyName = IsPropertyNameEscapingRequired(property) ? StringUtils.EscapeBicepString(property.Name) : property.Name;
             var suffix = includeColon ? ":" : string.Empty;
             return CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
@@ -906,7 +908,8 @@ namespace Bicep.LanguageServer.Completions
                 .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
                 .WithDetail(FormatPropertyDetail(property))
                 .WithDocumentation(FormatPropertyDocumentation(property))
-                .WithSortText(GetSortText(property.Name, priority))
+                .WithSortText(GetSortText(property.Name, required ? CompletionPriority.High : CompletionPriority.Medium))
+                .Preselect(required)
                 .Build();
         }
 
@@ -1100,7 +1103,7 @@ namespace Bicep.LanguageServer.Completions
                     .WithSnippetEdit(replacementRange, snippet)
                     .Build();
             }
-            
+
             // trigger follow up completions
             if (symbol is NamespaceSymbol)
             {

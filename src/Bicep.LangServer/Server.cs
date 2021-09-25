@@ -103,7 +103,9 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
             services.AddSingleton<IResourceTypeProvider>(services => creationOptions.ResourceTypeProvider ?? AzResourceTypeProvider.CreateWithAzTypes());
-            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver, new ConfigHelper(null, new FileResolver())));
+            // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
+            // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
+            services.AddSingleton<ISnippetsProvider>(services => creationOptions.SnippetsProvider ?? new SnippetsProvider(fileResolver, new ConfigHelper(null, new FileResolver(), useDefaultConfig: true)));
             services.AddSingleton<IFileResolver>(services => fileResolver);
             services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();

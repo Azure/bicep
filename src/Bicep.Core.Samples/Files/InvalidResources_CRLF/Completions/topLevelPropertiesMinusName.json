@@ -62,8 +62,8 @@
       "value": "Type: `'BlobStorage' | 'BlockBlobStorage' | 'FileStorage' | 'Storage' | 'StorageV2'`  \nIndicates the type of storage account.  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_kind",
+    "preselect": true,
+    "sortText": "1_kind",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -80,8 +80,8 @@
       "value": "Type: `string`  \nThe geo-location where the resource lives  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_location",
+    "preselect": true,
+    "sortText": "1_location",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -188,8 +188,8 @@
       "value": "Type: `Sku`  \nThe SKU of the storage account.  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_sku",
+    "preselect": true,
+    "sortText": "1_sku",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
