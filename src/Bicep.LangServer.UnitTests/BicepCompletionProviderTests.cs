@@ -373,7 +373,7 @@ resource base64 'Microsoft.Foo/foos@2020-09-01' ";
             var grouping = SourceFileGroupingFactory.CreateFromText(codeFragment, BicepTestConstants.FileResolver);
 
             var offset = codeFragment.Length;
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping, null);
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server));
             var context = BicepCompletionContext.Create(compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
