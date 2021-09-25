@@ -18,7 +18,7 @@ namespace Bicep.Core.Syntax
 
         public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = Enumerable.Empty<SyntaxTrivia>();
 
-        public static readonly SkippedTriviaSyntax SkippedTrivia = new SkippedTriviaSyntax(EmptySpan, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
+        public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new SkippedTriviaSyntax(EmptySpan, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
 
         public static Token CreateToken(TokenType tokenType, string text = "")
             => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);

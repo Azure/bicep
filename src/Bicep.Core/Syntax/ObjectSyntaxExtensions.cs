@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -158,12 +159,39 @@ namespace Bicep.Core.Syntax
 
         public static ObjectSyntax AddChildrenWithFormatting(this ObjectSyntax objectSyntax, IEnumerable<SyntaxBase> newChildren)
         {
+            bool IsEmptyLine(Token token)
+            {
+                if (token.Type != TokenType.NewLine)
+                {
+                    return false;
+                }
+
+                foreach (var trivia in token.LeadingTrivia)
+                {
+                    if (trivia.Type != SyntaxTriviaType.Whitespace)
+                    {
+                        return false;
+                    }
+                }
+
+                foreach (var trivia in token.TrailingTrivia)
+                {
+                    if (trivia.Type != SyntaxTriviaType.Whitespace)
+                    {
+                        return false;
+                    }
+                }
+
+                return true;
+            }
+
             var children = new List<SyntaxBase>(objectSyntax.Children);
 
-            SyntaxBase? lastNode = null;
-            if (children.Count > 0 && children[^1] is Token { Type: TokenType.NewLine } token)
+            // Remove trailing empty lines
+            Token? lastNode = null;
+            while (children.Count > 0 && children[^1] is Token token && IsEmptyLine(token))
             {
-                lastNode = token;
+                lastNode ??= token;
                 children.Remove(token);
             }
 
@@ -175,14 +203,12 @@ namespace Bicep.Core.Syntax
                 children.Add(newChild);
             }
 
-            if (lastNode != null)
-            {
-                children.Add(lastNode);
-            }
-            else
-            {
-                children.Add(SyntaxFactory.NewlineToken);
-            }
+            children.Add(new Token(
+                TokenType.NewLine,
+                SyntaxFactory.EmptySpan,
+                Environment.NewLine,
+                lastNode?.LeadingTrivia ?? ImmutableArray<SyntaxTrivia>.Empty,
+                lastNode?.TrailingTrivia ?? ImmutableArray<SyntaxTrivia>.Empty));
 
             return new ObjectSyntax(objectSyntax.OpenBrace, children, objectSyntax.CloseBrace);
         }

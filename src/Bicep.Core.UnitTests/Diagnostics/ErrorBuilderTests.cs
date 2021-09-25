@@ -190,55 +190,85 @@ namespace Bicep.Core.UnitTests.Diagnostics
             actualText.Should().Be(expectedText);
         }
 
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   name:
+                 }"
+         )]
+         // There is leading whitespace in this one
         [DataRow(@"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                  
                 }",
             @"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
                   name:
                 }"
         )]
-        [DataRow(@"
-                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                  location: 'westus2'
-                }",
-            @"
-                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                  location: 'westus2'
-                  name:
-                }"
-        )]
-        [DataRow(@"
-                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                              location: 'westus2'
-                }",
-            @"
-                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                              location: 'westus2'
-                              name:
-                }"
-        )]
-        [DataRow(@"
-                resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
-                      sku: {
-                     
-                        name: 'D1'
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   location: 'westus2'
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   location: 'westus2'
+                   name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                               location: 'westus2'
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                               location: 'westus2'
+                               name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {
 
-                      }
-                      // comment
-                }",
-                @"
-                resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
-                      sku: {
-                     
-                        name: 'D1'
+                         name: 'D1'
 
-                      }
-                      // comment
-                      location:
-                      name:
-                }"
-        )]
+                       }
+                       // comment
+                 }",
+             @"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {
+
+                         name: 'D1'
+
+                       }
+                       // comment
+                       location:
+                       name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {}
+                 }",
+             @"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {}
+                       location:
+                       name:
+                 }"
+         )]
         [DataTestMethod]
         public void MissingTypePropertiesHasFix(string text, string expectedFix)
         {

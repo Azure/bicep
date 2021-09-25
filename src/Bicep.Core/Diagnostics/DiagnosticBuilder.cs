@@ -227,7 +227,7 @@ namespace Bicep.Core.Diagnostics
                     : string.Empty;
 
                 var newSyntax = objectSyntax.AddChildrenWithFormatting(
-                    properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.SkippedTrivia))
+                    properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia))
                 );
 
                 var codeFix = new CodeFix("Add required properties", true, new CodeReplacement(objectSyntax.Span, newSyntax.ToTextPreserveFormatting()));

@@ -82,7 +82,7 @@ namespace Bicep.Core.Navigation
         }
 
         /// <summary>
-        /// Generate a string that represents this Syntax element optionally preserving formatting.
+        /// Generate a string that represents this Syntax element.
         /// </summary>
         public static string ToTextPreserveFormatting(this SyntaxBase syntax)
         {
