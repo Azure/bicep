@@ -273,6 +273,24 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitOutputDeclarationSyntax(OutputDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceOutputDeclarationSyntax);
 
+        protected virtual SyntaxBase ReplaceImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        {
+            var hasChanges = TryRewrite(syntax.LeadingNodes, out var leadingNodes);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.AliasName, out var aliasName);
+            hasChanges |= TryRewriteStrict(syntax.FromKeyword, out var fromKeyword);
+            hasChanges |= TryRewriteStrict(syntax.ProviderName, out var providerName);
+            hasChanges |= TryRewrite(syntax.Config, out var config);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ImportDeclarationSyntax(leadingNodes, keyword, aliasName, fromKeyword, providerName, config);
+        }
+        void ISyntaxVisitor.VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceImportDeclarationSyntax);
+
         protected virtual SyntaxBase ReplaceIdentifierSyntax(IdentifierSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.Child, out var child);

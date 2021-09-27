@@ -13,6 +13,7 @@ using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Registry;
 using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
@@ -21,13 +22,13 @@ namespace Bicep.Decompiler
 {
     public class TemplateDecompiler
     {
-        private readonly IResourceTypeProvider resourceTypeProvider;
+        private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
 
-        public TemplateDecompiler(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
+        public TemplateDecompiler(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
         {
-            this.resourceTypeProvider = resourceTypeProvider;
+            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
         }
@@ -118,7 +119,7 @@ namespace Bicep.Decompiler
             var hasChanges = false;
             var dispatcher = new ModuleDispatcher(this.registryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-            var compilation = new Compilation(resourceTypeProvider, sourceFileGrouping, null);
+            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, null);
 
             foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
             {
@@ -136,7 +137,7 @@ namespace Bicep.Decompiler
                     workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-                    compilation = new Compilation(resourceTypeProvider, sourceFileGrouping, null);
+                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, null);
                 }
             }
 

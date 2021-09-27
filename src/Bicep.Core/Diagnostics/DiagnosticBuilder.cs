@@ -1197,6 +1197,41 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP200",
                 $"The specified OCI artifact reference \"{badRef}\" is not valid. The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
+
+            public ErrorDiagnostic ExpectedImportProviderName() => new(
+                TextSpan,
+                "BCP201",
+                "Expected an import provider name at this location.");
+
+            public ErrorDiagnostic ExpectedImportAliasName() => new(
+                TextSpan,
+                "BCP202",
+                "Expected an import alias name at this location.");
+
+            public ErrorDiagnostic ImportsAreDisabled() => new(
+                TextSpan,
+                "BCP203",
+                "Import statements are currently not supported.");
+
+            public ErrorDiagnostic UnrecognizedImportProvider(string identifier) => new(
+                TextSpan,
+                "BCP204",
+                $"Imported namespace \"{identifier}\" is not recognized.");
+
+            public ErrorDiagnostic ImportProviderDoesNotSupportConfiguration(string identifier) => new(
+                TextSpan,
+                "BCP205",
+                $"Imported namespace \"{identifier}\" does not support configuration.");
+
+            public ErrorDiagnostic ImportProviderRequiresConfiguration(string identifier) => new(
+                TextSpan,
+                "BCP206",
+                $"Imported namespace \"{identifier}\" requires configuration, but none was provided.");
+
+            public ErrorDiagnostic NamespaceMultipleDeclarations(string identifier) => new(
+                TextSpan,
+                "BCP207",
+                $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

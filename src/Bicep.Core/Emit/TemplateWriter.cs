@@ -13,6 +13,7 @@ using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -183,16 +184,16 @@ namespace Bicep.Core.Emit
             {
                 var symbol = this.context.SemanticModel.GetSymbolInfo(decoratorSyntax.Expression);
 
-                if (symbol is FunctionSymbol decoratorSymbol && DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
+                if (symbol is FunctionSymbol decoratorSymbol &&
+                    decoratorSymbol.DeclaringObject is NamespaceType namespaceType &&
+                    DecoratorsToEmitAsResourceProperties.Contains(decoratorSymbol.Name))
                 {
                     var argumentTypes = decoratorSyntax.Arguments
                         .Select(argument => this.context.SemanticModel.TypeManager.GetTypeInfo(argument))
                         .ToArray();
 
                     // There should be exact one matching decorator since there's no errors.
-                    Decorator decorator = this.context.SemanticModel.Root.ImportedNamespaces
-                        .SelectMany(ns => ns.Value.Type.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes))
-                        .Single();
+                    var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
 
                     result = decorator.Evaluate(decoratorSyntax, targetType, result);
                 }
@@ -327,7 +328,13 @@ namespace Bicep.Core.Emit
 
         private long? GetBatchSize(StatementSyntax statement)
         {
-            if (statement.TryGetDecoratorSyntax(LanguageConstants.BatchSizePropertyName, "sys")?.Arguments is { } arguments
+            var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(
+                context.SemanticModel,
+                statement,
+                SystemNamespaceType.BuiltInName,
+                LanguageConstants.BatchSizePropertyName);
+
+            if (decorator?.Arguments is { } arguments
                 && arguments.Count() == 1
                 && arguments.ToList()[0].Expression is IntegerLiteralSyntax integerLiteral)
             {

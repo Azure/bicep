@@ -17,12 +17,14 @@ using Bicep.Core.Workspaces;
 using Bicep.Core.Extensions;
 using Bicep.Decompiler;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Features;
 
 namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly IResourceTypeProvider resourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), new FeatureProvider());
 
         private readonly IJSRuntime jsRuntime;
 
@@ -57,7 +59,7 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var decompiler = new TemplateDecompiler(resourceTypeProvider, fileResolver, new EmptyModuleRegistryProvider());
+                var decompiler = new TemplateDecompiler(namespaceProvider, fileResolver, new EmptyModuleRegistryProvider());
                 var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
@@ -154,7 +156,7 @@ namespace Bicep.Wasm
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(resourceTypeProvider, sourceFileGrouping, null);
+            return new Compilation(namespaceProvider, sourceFileGrouping, null);
         }
 
         private static string ReadStreamToEnd(Stream stream)

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -13,10 +13,10 @@ namespace Bicep.Core.TypeSystem
 
         private readonly FunctionResolver functionResolver;
 
-        public DecoratorResolver(IEnumerable<Decorator> decorators)
+        public DecoratorResolver(ObjectType declaringObject, IEnumerable<Decorator> decorators)
         {
             this.decoratorsByOverloads = decorators.ToImmutableDictionary(decorator => decorator.Overload, decorator => decorator);
-            this.functionResolver = new FunctionResolver(decoratorsByOverloads.Keys);
+            this.functionResolver = new FunctionResolver(declaringObject, decoratorsByOverloads.Keys);
         }
 
         public Symbol? TryGetSymbol(IdentifierSyntax identifierSyntax) => this.functionResolver.TryGetSymbol(identifierSyntax);

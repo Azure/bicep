@@ -17,34 +17,31 @@ namespace Bicep.Core.Semantics
         private readonly ImmutableDictionary<SyntaxBase, Symbol> bindings;
         private readonly ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> cyclesBySymbol;
 
-        public Binder(BicepFile bicepFile, ISymbolContext symbolContext)
+        public Binder(INamespaceProvider namespaceProvider, BicepFile bicepFile, ISymbolContext symbolContext)
         {
             // TODO use lazy or some other pattern for init
             this.bicepFile = bicepFile;
             this.TargetScope = SyntaxHelper.GetTargetScope(bicepFile);
-            var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(bicepFile, symbolContext);
+            var (declarations, outermostScopes) = DeclarationVisitor.GetDeclarations(namespaceProvider, TargetScope, bicepFile, symbolContext);
             var uniqueDeclarations = GetUniqueDeclarations(declarations);
-            var builtInNamespaces = GetBuiltInNamespaces(this.TargetScope);
-            this.bindings = GetBindings(bicepFile, uniqueDeclarations, builtInNamespaces, outermostScopes);
+            this.NamespaceResolver = GetNamespaceResolver(namespaceProvider, this.TargetScope, uniqueDeclarations);
+            this.bindings = NameBindingVisitor.GetBindings(bicepFile.ProgramSyntax, uniqueDeclarations, NamespaceResolver, outermostScopes);
             this.cyclesBySymbol = GetCyclesBySymbol(bicepFile, this.bindings);
 
-            // TODO: Avoid looping 5 times?
             this.FileSymbol = new FileSymbol(
                 bicepFile.FileUri.LocalPath,
                 bicepFile.ProgramSyntax,
-                builtInNamespaces,
+                NamespaceResolver,
                 outermostScopes,
-                declarations.OfType<ParameterSymbol>(),
-                declarations.OfType<VariableSymbol>(),
-                declarations.OfType<ResourceSymbol>(),
-                declarations.OfType<ModuleSymbol>(),
-                declarations.OfType<OutputSymbol>(),
+                declarations,
                 bicepFile.FileUri);
         }
 
         public ResourceScope TargetScope { get; }
 
         public FileSymbol FileSymbol { get; }
+
+        public NamespaceResolver NamespaceResolver { get; }
 
         public SyntaxBase? GetParent(SyntaxBase syntax)
             => bicepFile.Hierarchy.GetParent(syntax);
@@ -69,25 +66,11 @@ namespace Bicep.Core.Semantics
                 .ToImmutableDictionary(x => x.Key, x => x.First(), LanguageConstants.IdentifierComparer);
         }
 
-        private static ImmutableDictionary<string, NamespaceSymbol> GetBuiltInNamespaces(ResourceScope targetScope)
+        private static NamespaceResolver GetNamespaceResolver(INamespaceProvider namespaceProvider, ResourceScope targetScope, ImmutableDictionary<string, DeclaredSymbol> uniqueDeclarations)
         {
-            var namespaces = new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(targetScope) };
+            var importedNamespaces = uniqueDeclarations.Values.OfType<ImportedNamespaceSymbol>();
 
-            return namespaces.ToImmutableDictionary(property => property.Name, property => property, LanguageConstants.IdentifierComparer);
-        }
-
-        private static ImmutableDictionary<SyntaxBase, Symbol> GetBindings(
-            BicepFile bicepFile,
-            IReadOnlyDictionary<string, DeclaredSymbol> outermostDeclarations,
-            ImmutableDictionary<string, NamespaceSymbol> builtInNamespaces,
-            ImmutableArray<LocalScope> childScopes)
-        {
-            // bind identifiers to declarations
-            var bindings = new Dictionary<SyntaxBase, Symbol>();
-            var binder = new NameBindingVisitor(outermostDeclarations, bindings, builtInNamespaces, childScopes);
-            binder.Visit(bicepFile.ProgramSyntax);
-
-            return bindings.ToImmutableDictionary();
+            return NamespaceResolver.Create(namespaceProvider, targetScope, importedNamespaces);
         }
 
         private static ImmutableDictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>> GetCyclesBySymbol(BicepFile bicepFile, IReadOnlyDictionary<SyntaxBase, Symbol> bindings)

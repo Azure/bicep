@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
@@ -29,9 +29,9 @@ namespace Bicep.Core.IntegrationTests.Semantics
         [DataTestMethod]
         [DynamicData(nameof(GetNamespaces), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
         [TestCategory(BaselineHelper.BaselineTestCategory)]
-        public void FunctionsShouldHaveExpectedSignatures(NamespaceSymbol @namespace)
+        public void FunctionsShouldHaveExpectedSignatures(INamespaceSymbol @namespace)
         {
-            var knownOverloads = @namespace.Type.MethodResolver.GetKnownFunctions().Values
+            var knownOverloads = @namespace.TryGetNamespaceType()!.MethodResolver.GetKnownFunctions().Values
                 .SelectMany(function => function.Overloads)
                 .OrderBy(overload => overload.Name)
                 .Select(Convert);
@@ -55,20 +55,20 @@ namespace Bicep.Core.IntegrationTests.Semantics
         private static IEnumerable<object[]> GetNamespaces()
         {
             // local function
-            static object[] CreateRow(NamespaceSymbol @namespace) => new object[] {@namespace};
+            static object[] CreateRow(INamespaceSymbol @namespace) => new object[] {@namespace};
 
-            var (_, _, compilation) = CompilationHelper.Compile(TestTypeHelper.CreateEmptyProvider(), ("main.bicep", string.Empty));
+            var (_, _, compilation) = CompilationHelper.Compile(TestTypeHelper.CreateEmptyAzResourceTypeLoader(), ("main.bicep", string.Empty));
 
-            return compilation.GetEntrypointSemanticModel().Root.ImportedNamespaces.Values.Select(CreateRow);
+            return compilation.GetEntrypointSemanticModel().Root.Namespaces.OfType<INamespaceSymbol>().Select(CreateRow);
         }
 
         public static string GetDisplayName(MethodInfo info, object[] data)
         {
             data.Should().HaveCount(1);
             var candiddate = data.Single();
-            candiddate.Should().BeAssignableTo<NamespaceSymbol>();
+            candiddate.Should().BeAssignableTo<INamespaceSymbol>();
 
-            return $"{info.Name}_{((NamespaceSymbol) candiddate).Name}";
+            return $"{info.Name}_{((INamespaceSymbol) candiddate).Name}";
         }
 
         private OverloadRecord Convert(FunctionOverload overload) =>

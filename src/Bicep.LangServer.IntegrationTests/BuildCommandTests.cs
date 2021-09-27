@@ -17,6 +17,7 @@ using Bicep.LangServer.IntegrationTests.Helpers;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using FluentAssertions;
 using Bicep.Core.Samples;
+using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -35,7 +36,7 @@ namespace Bicep.LangServer.IntegrationTests
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
-                    ResourceTypeProvider: BuiltInTestTypes.Create(),
+                    NamespaceProvider: BuiltInTestTypes.Create(),
                     Features: BicepTestConstants.Features,
                     AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
 
@@ -58,7 +59,7 @@ namespace Bicep.LangServer.IntegrationTests
             });
 
             var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".json"));
-            buildCommandOutput.Should().Match(expectedJson);
+            buildCommandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
 
         [TestMethod]
@@ -71,7 +72,7 @@ namespace Bicep.LangServer.IntegrationTests
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
-                    ResourceTypeProvider: BuiltInTestTypes.Create(),
+                    NamespaceProvider: BuiltInTestTypes.Create(),
                     Features: featuresProvider,
                     AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
 
@@ -94,7 +95,7 @@ namespace Bicep.LangServer.IntegrationTests
             });
 
             var buildCommandOutput = File.ReadAllText(Path.ChangeExtension(bicepFilePath, ".json"));
-            buildCommandOutput.Should().Match(expectedJson);
+            buildCommandOutput.Should().BeEquivalentToIgnoringNewlines(expectedJson);
         }
     }
 }

@@ -63,9 +63,15 @@ namespace Bicep.Core.Semantics
             this.CollectDiagnostics(symbol);
         }
 
-        public override void VisitNamespaceSymbol(NamespaceSymbol symbol)
+        public override void VisitBuiltInNamespaceSymbol(BuiltInNamespaceSymbol symbol)
         {
-            base.VisitNamespaceSymbol(symbol);
+            base.VisitBuiltInNamespaceSymbol(symbol);
+            this.CollectDiagnostics(symbol);
+        }
+
+        public override void VisitImportedNamespaceSymbol(ImportedNamespaceSymbol symbol)
+        {
+            base.VisitImportedNamespaceSymbol(symbol);
             this.CollectDiagnostics(symbol);
         }
 

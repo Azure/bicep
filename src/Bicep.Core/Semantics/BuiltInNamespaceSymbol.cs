@@ -6,12 +6,12 @@ using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
-    public class NamespaceSymbol : Symbol
+    public class BuiltInNamespaceSymbol : Symbol, INamespaceSymbol
     {
-        public NamespaceSymbol(string name, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions, IEnumerable<Decorator> decorators)
+        public BuiltInNamespaceSymbol(string name, NamespaceType type)
             : base(name)
         {
-            Type = new NamespaceType(name, Enumerable.Empty<TypeProperty>(), functionOverloads, bannedFunctions, decorators);
+            Type = type;
         }
 
         public NamespaceType Type { get; }
@@ -24,8 +24,10 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        public override void Accept(SymbolVisitor visitor) => visitor.VisitNamespaceSymbol(this);
+        public override void Accept(SymbolVisitor visitor) => visitor.VisitBuiltInNamespaceSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Namespace;
+
+        public NamespaceType? TryGetNamespaceType() => Type;
     }
 }
