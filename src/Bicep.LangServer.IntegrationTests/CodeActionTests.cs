@@ -47,10 +47,7 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
 
             // start language server
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext,
-                dataSet.Bicep,
-                uri,
-                creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver(), ResourceTypeProvider: AzResourceTypeProvider.CreateWithAzTypes()));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
 
             // construct a parallel compilation
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
