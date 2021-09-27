@@ -199,7 +199,6 @@ namespace Bicep.LanguageServer
 
             try
             {
-                //var folderContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
                     (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration),

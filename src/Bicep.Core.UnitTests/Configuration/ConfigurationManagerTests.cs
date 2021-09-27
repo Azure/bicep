@@ -2,12 +2,15 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
+using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
@@ -80,13 +83,13 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void GetConfiguration_InvalidCustomConfiguration_ThrowsInvalidConfigurationException()
+        public void GetConfiguration_InvalidCustomConfiguration_ThrowsFailedToParseConfigurationException()
         {
             // Arrange.
-            var configurationFilePath = CreatePath("path/to/bicepconfig.json");
+            var configurataionPath = CreatePath("path/to/bicepconfig.json");
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {
-                [configurationFilePath] = "",
+                [configurataionPath] = "",
             });
 
             var sut = new ConfigurationManager(fileSystem);
@@ -95,7 +98,52 @@ namespace Bicep.Core.UnitTests.Configuration
             // Act & Assert.
             FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
                 .Throw<ConfigurationException>()
-                .WithMessage($"Could not load the bicep configuration file \"{configurationFilePath}\". The input does not contain any JSON tokens*");
+                .WithMessage($"Failed to parse the Bicep configuration file \"{configurataionPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
+        }
+
+        [TestMethod]
+        public void GetConfiguration_ConfigurationFileNotReadable_ThrowsCouldNotLoadConfigurationException()
+        {
+            // Arrange.
+            var configurataionPath = CreatePath("path/to/bicepconfig.json");
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                [configurataionPath] = "",
+            });
+
+            var fileSystemMock = StrictMock.Of<IFileSystem>();
+            fileSystemMock.SetupGet(x => x.Path).Returns(fileSystem.Path);
+            fileSystemMock.SetupGet(x => x.Directory).Returns(fileSystem.Directory);
+            fileSystemMock.SetupGet(x => x.File).Returns(fileSystem.File);
+            fileSystemMock.Setup(x => x.FileStream.Create(It.IsAny<string>(), It.IsAny<FileMode>(), It.IsAny<FileAccess>()))
+                .Throws(new UnauthorizedAccessException("Not allowed."));
+
+            var sut = new ConfigurationManager(fileSystemMock.Object);
+            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+
+            // Act & Assert.
+            FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
+                .Throw<ConfigurationException>()
+                .WithMessage($"Could not load the Bicep configuration file \"{configurataionPath}\": \"Not allowed.\".");
+        }
+
+        [TestMethod]
+        public void GetConfiguration_ErrorDiscovringConfiguration_ThrowsErrorDiscoveringConfigurationException()
+        {
+            // Arrange.
+            var fileSystemMock = StrictMock.Of<IFileSystem>();
+            fileSystemMock.Setup(x => x.Path.GetDirectoryName(It.IsAny<string>())).Returns("foo");
+            fileSystemMock.Setup(x => x.Path.Combine(It.IsAny<string>(), It.IsAny<string>())).Returns("");
+            fileSystemMock.Setup(x => x.File.Exists(It.IsAny<string>())).Returns(false);
+            fileSystemMock.Setup(x => x.Directory.GetParent(It.IsAny<string>())).Throws(new IOException("Oops."));
+
+            var sut = new ConfigurationManager(fileSystemMock.Object);
+            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+
+            // Act & Assert.
+            FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
+                .Throw<ConfigurationException>()
+                .WithMessage($"Error while discovering Bicep configuration file: \"Oops.\".");
         }
 
         [TestMethod]

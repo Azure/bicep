@@ -7,8 +7,8 @@ using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem.Az;
@@ -86,22 +86,7 @@ namespace Bicep.Cli
                         return 1;
                 }
             }
-            catch (CommandLineException exception)
-            {
-                invocationContext.ErrorWriter.WriteLine(exception.Message);
-                return 1;
-            }
             catch (BicepException exception)
-            {
-                invocationContext.ErrorWriter.WriteLine(exception.Message);
-                return 1;
-            }
-            catch (ErrorDiagnosticException exception)
-            {
-                invocationContext.ErrorWriter.WriteLine(exception.Message);
-                return 1;
-            }
-            catch (ConfigurationException exception)
             {
                 invocationContext.ErrorWriter.WriteLine(exception.Message);
                 return 1;

@@ -1187,12 +1187,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP200",
                 $"The specified OCI artifact reference \"{badRef}\" is not valid. The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
-
-            public Diagnostic InvalidBicepConfigurationFile(string configurationPath, string errorMessage) => new(
-                TextSpan,
-                DiagnosticLevel.Warning,
-                "BCP201",
-                $"The bicep configuration file \"{configurationPath}\" is not valid: {errorMessage}");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

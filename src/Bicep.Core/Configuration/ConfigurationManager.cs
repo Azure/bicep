@@ -6,7 +6,10 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
+using System.Linq;
 using System.Reflection;
+using System.Security;
+using System.Text.Json;
 
 namespace Bicep.Core.Configuration
 {
@@ -50,9 +53,13 @@ namespace Bicep.Core.Configuration
 
                     customConfiguration = builder.Build();
                 }
-                catch (Exception exception)
+                catch (JsonException exception)
                 {
-                    throw new ConfigurationException(customConfigurationPath, exception.Message);
+                    throw new ConfigurationException($"Failed to parse the Bicep configuration file \"{customConfigurationPath}\" as valid JSON: \"{exception.Message}\".");
+                }
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
+                {
+                    throw new ConfigurationException($"Could not load the Bicep configuration file\"{customConfigurationPath}\": \"{exception.Message}\".");
                 }
 
                 return RootConfiguration.Bind(customConfiguration, customConfigurationPath);
@@ -88,9 +95,9 @@ namespace Bicep.Core.Configuration
                     currentDirectory = this.fileSystem.Directory.GetParent(currentDirectory)?.FullName;
                 }
             }
-            catch (Exception)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
             {
-                return null;
+                throw new ConfigurationException($"Error while discovering Bicep configuration file: \"{exception.Message}\".");
             }
 
             return null;

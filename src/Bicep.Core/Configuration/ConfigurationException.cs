@@ -1,14 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
+using Bicep.Core.Exceptions;
 
 namespace Bicep.Core.Configuration
 {
-    public class ConfigurationException : Exception
+    public class ConfigurationException : BicepException
     {
-        public ConfigurationException(string configurationPath, string error)
-            : base($"Could not load the bicep configuration file \"{configurationPath}\". {error}")
+        public ConfigurationException(string message)
+            : base(message)
         {
         }
     }

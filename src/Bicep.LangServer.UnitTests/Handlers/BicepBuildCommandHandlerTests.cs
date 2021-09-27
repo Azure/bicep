@@ -191,7 +191,7 @@ param accountName string = 'testAccount'
             ICompilationManager bicepCompilationManager = Repository.Create<ICompilationManager>().Object;
             BicepBuildCommandHandler bicepBuildCommandHandler = new BicepBuildCommandHandler(bicepCompilationManager, Serializer, EmitterSettingsHelper.DefaultTestSettings, FileResolver, ModuleDispatcher, configurationManager);
 
-            bool actual = bicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
+            bool actual = BicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
 
             Assert.IsFalse(actual);
         }
@@ -215,7 +215,7 @@ param accountName string = 'testAccount'
   ""resources"": []
 }";
 
-            bool actual = bicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
+            bool actual = BicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
 
             Assert.IsTrue(actual);
         }
@@ -239,7 +239,7 @@ param accountName string = 'testAccount'
   ""resources"": []
 }";
 
-            bool actual = bicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
+            bool actual = BicepBuildCommandHandler.TemplateContainsBicepGeneratorMetadata(template);
 
             Assert.IsFalse(actual);
         }
