@@ -7,6 +7,7 @@ using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
@@ -59,31 +60,24 @@ namespace Bicep.Core.Semantics
                 });
         }
 
-        public static Symbol ResolveUnqualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces)
+        public static Symbol ResolveUnqualifiedFunction(FunctionFlags allowedFlags, Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceResolver namespaceResolver)
             => ResolveSymbolInternal(
                 allowedFlags,
                 foundSymbol,
                 identifierSyntax,
-                getNameSuggestions: () => namespaces.SelectMany(x =>
-                {
-                    var knowFunctionNames = x.Type.MethodResolver.GetKnownFunctions().Keys;
-
-                    return allowedFlags.HasAnyDecoratorFlag()
-                        ? knowFunctionNames.Concat(x.Type.DecoratorResolver.GetKnownDecoratorFunctions().Keys)
-                        : knowFunctionNames;
-                }),
+                getNameSuggestions: () => namespaceResolver.GetKnownFunctionNames(includeDecorators: allowedFlags.HasAnyDecoratorFlag()),
                 getMissingNameError: (builder, suggestedName) => suggestedName switch
                 {
                     null => builder.SymbolicNameDoesNotExist(identifierSyntax.IdentifierName),
                     _ => builder.SymbolicNameDoesNotExistWithSuggestion(identifierSyntax.IdentifierName, suggestedName),
                 });
 
-        public static Symbol ResolveUnqualifiedSymbol(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, IEnumerable<NamespaceSymbol> namespaces, IEnumerable<string> declarations)
+        public static Symbol ResolveUnqualifiedSymbol(Symbol? foundSymbol, IdentifierSyntax identifierSyntax, NamespaceResolver namespaceResolver, IEnumerable<string> declarations)
             => ResolveSymbolInternal(
                 FunctionFlags.Default,
                 foundSymbol,
                 identifierSyntax,
-                getNameSuggestions: () => namespaces.SelectMany(x => x.Type.Properties.Keys).Concat(declarations),
+                getNameSuggestions: () => namespaceResolver.GetKnownPropertyNames(),
                 getMissingNameError: (builder, suggestedName) => suggestedName switch
                 {
                     null => builder.SymbolicNameDoesNotExist(identifierSyntax.IdentifierName),

@@ -5,6 +5,7 @@ using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -18,13 +19,13 @@ namespace Bicep.LanguageServer.Providers
     /// <remarks>This class exists only so we can mock fatal exceptions in tests.</remarks>
     public class BicepCompilationProvider: ICompilationProvider
     {
-        private readonly IResourceTypeProvider resourceTypeProvider;
+        private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
 
-        public BicepCompilationProvider(IResourceTypeProvider resourceTypeProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
+        public BicepCompilationProvider(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
         {
-            this.resourceTypeProvider = resourceTypeProvider;
+            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
         }
@@ -43,7 +44,7 @@ namespace Bicep.LanguageServer.Providers
 
         private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, ConfigHelper? configHelper)
         {
-            var compilation = new Compilation(resourceTypeProvider, syntaxTreeGrouping, configHelper, modelLookup);
+            var compilation = new Compilation(namespaceProvider, syntaxTreeGrouping, configHelper, modelLookup);
             return new CompilationContext(compilation);
         }
     }
