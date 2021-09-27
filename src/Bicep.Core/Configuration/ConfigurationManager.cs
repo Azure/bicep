@@ -59,7 +59,7 @@ namespace Bicep.Core.Configuration
                 }
                 catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
                 {
-                    throw new ConfigurationException($"Could not load the Bicep configuration file\"{customConfigurationPath}\": \"{exception.Message}\".");
+                    throw new ConfigurationException($"Could not load the Bicep configuration file \"{customConfigurationPath}\": \"{exception.Message}\".");
                 }
 
                 return RootConfiguration.Bind(customConfiguration, customConfigurationPath);
