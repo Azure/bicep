@@ -598,8 +598,6 @@ output string test2 = testRes.properties.|
         public async Task Completions_after_resource_type_should_only_include_existing_keyword()
         {
             var fileWithCursors = @"
-resource testRes 'Test.Rp/readWriteTests@2020-01-01' |
-
 resource testRes2 'Test.Rp/readWriteTests@2020-01-01' | = {
 }
 
@@ -633,8 +631,62 @@ resource testRes5 'Test.Rp/readWriteTests@2020-01-01' |= {
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
-                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d))));
+        }
+
+        [TestMethod]
+        public async Task ResourceTypeFollowerWithoCompletionsOffersEqualsAndExisting()
+        {
+
+            var fileWithCursors = @"
+resource base64 'Microsoft.Foo/foos@2020-09-01' |
+
+resource base64 'Microsoft.Foo/foos@2020-09-01' | {}
+
+resource base64 'Microsoft.Foo/foos@2020-09-01' existing | {}
+
+";
+
+            static void AssertEqualsOperatorCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("=");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Operator);
+                item.Preselect.Should().BeTrue();
+                item.TextEdit!.TextEdit!.NewText.Should().Be("=");
+
+                // do not add = to the list of commit chars
+                // it makes it difficult to type = without the "existing" keyword :)
+                item.CommitCharacters.Should().BeNull();
+            }
+
+            static void AssertExistingKeywordCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("existing");
+                item.Detail.Should().Be("existing");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Keyword);
+                item.Preselect.Should().BeFalse();
+                item.TextEdit!.TextEdit!.NewText.Should().Be("existing");
+
+                // do not add = to the list of commit chars
+                // it makes it difficult to type = without the "existing" keyword :)
+                item.CommitCharacters.Should().BeNull();
+            }
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
+                completions.Should().SatisfyRespectively(
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => AssertEqualsOperatorCompletion(d),
+                        d => AssertExistingKeywordCompletion(d)
+                    ),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => AssertEqualsOperatorCompletion(d),
+                        d => AssertExistingKeywordCompletion(d)
+                    ),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => AssertEqualsOperatorCompletion(d)
+                    )));
         }
 
         [TestMethod]

@@ -365,6 +365,7 @@ output length int =
 
         completions.Should().BeEmpty();
         }
+
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
         {
             completions.Should().SatisfyRespectively(
