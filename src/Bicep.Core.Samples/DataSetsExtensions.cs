@@ -48,7 +48,7 @@ namespace Bicep.Core.Samples
             var fileUri = PathHelper.FilePathToFileUrl(Path.Combine(outputDirectory, DataSet.TestFileMain));
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features));
             var workspace = new Workspace();
-            var namespaceProvider = new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeProvider, features);
+            var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), features);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
             if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
             {

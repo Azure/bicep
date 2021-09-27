@@ -48,7 +48,7 @@ namespace Bicep.Cli
             }
 
             var program = new Program(new InvocationContext(
-                AzResourceTypeProvider.CreateWithAzTypes(),
+                new AzResourceTypeLoader(),
                 Console.Out,
                 Console.Error,
                 ThisAssembly.AssemblyFileVersion,

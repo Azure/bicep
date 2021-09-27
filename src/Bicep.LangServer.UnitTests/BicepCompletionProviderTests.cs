@@ -427,7 +427,13 @@ output length int =
 
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
-            var availableFunctionNames = new NamespaceType[] { AzNamespaceType.Create("az", ResourceScope.ResourceGroup, BicepTestConstants.AzResourceTypeProvider), SystemNamespaceType.Create("sys") }
+            var namespaceProvider = BicepTestConstants.NamespaceProvider;
+            var namespaces = new [] {
+                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!,
+                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup)!,
+            };
+
+            var availableFunctionNames = namespaces
                 .SelectMany(ns => ns.MethodResolver.GetKnownFunctions().Values)
                 .Where(symbol => expectParamDefaultFunctions || !symbol.FunctionFlags.HasFlag(FunctionFlags.ParamDefaultsOnly))
                 .Select(func => func.Name)

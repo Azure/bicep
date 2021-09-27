@@ -20,7 +20,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(TestTypeHelper.CreateWithAzTypes(), BicepTestConstants.FileResolver);
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver);
 
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()

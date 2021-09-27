@@ -15,12 +15,6 @@ namespace Bicep.Core.TypeSystem.Az
 
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        public static AzResourceTypeProvider CreateWithAzTypes()
-            => CreateWithLoader(new AzResourceTypeLoader());
-
-        public static AzResourceTypeProvider CreateWithLoader(IResourceTypeLoader resourceTypeLoader)
-            => new AzResourceTypeProvider(resourceTypeLoader);
-
         private class ResourceTypeCache
         {
             private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
@@ -52,7 +46,7 @@ namespace Bicep.Core.TypeSystem.Az
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
 
-        private readonly IResourceTypeLoader resourceTypeLoader;
+        private readonly IAzResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
@@ -64,7 +58,7 @@ namespace Bicep.Core.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName,
         }.ToImmutableHashSet();
 
-        private AzResourceTypeProvider(IResourceTypeLoader resourceTypeLoader)
+        public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader)
         {
             this.resourceTypeLoader = resourceTypeLoader;
             this.availableResourceTypes = resourceTypeLoader.GetAvailableTypes().ToImmutableHashSet(ResourceTypeReferenceComparer.Instance);

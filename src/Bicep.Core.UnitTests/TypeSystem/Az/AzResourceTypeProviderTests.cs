@@ -40,7 +40,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
-            var resourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+            var resourceTypeProvider = new AzResourceTypeProvider(new AzResourceTypeLoader());
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
@@ -99,7 +99,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_can_list_all_types_without_throwing()
 
         {
-            var resourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+            var resourceTypeProvider = new AzResourceTypeProvider(new AzResourceTypeLoader());
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
@@ -111,7 +111,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
             Compilation createCompilation(string program)
-                    => new Compilation(new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configHelper);
+                    => new Compilation(new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configHelper);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

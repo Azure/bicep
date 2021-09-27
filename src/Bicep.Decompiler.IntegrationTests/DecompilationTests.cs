@@ -87,10 +87,10 @@ namespace Bicep.Core.IntegrationTests
             var parentStream = Path.GetDirectoryName(example.BicepStreamName)!.Replace('\\', '/');
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(TestContext, typeof(DecompilationTests).Assembly, parentStream);
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
-            var typeProvider = TestTypeHelper.CreateWithAzTypes();
+            var nsProvider = BicepTestConstants.NamespaceProvider;
 
             var jsonUri = PathHelper.FilePathToFileUrl(jsonFileName);
-            var decompiler = new TemplateDecompiler(typeProvider, new FileResolver(), BicepTestConstants.RegistryProvider);
+            var decompiler = new TemplateDecompiler(nsProvider, new FileResolver(), BicepTestConstants.RegistryProvider);
             var (bicepUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, PathHelper.ChangeToBicepExtension(jsonUri));
 
             var bicepFiles = filesToSave.Select(kvp => SourceFileFactory.CreateBicepFile(kvp.Key, kvp.Value));
@@ -100,7 +100,7 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri);
             var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-            var compilation = new Compilation(typeProvider, sourceFileGrouping, configHelper);
+            var compilation = new Compilation(nsProvider, sourceFileGrouping, configHelper);
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile(configHelper);
 
             using (new AssertionScope())

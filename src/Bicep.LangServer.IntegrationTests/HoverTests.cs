@@ -46,7 +46,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: TestTypeHelper.CreateWithAzTypes(), FileResolver: BicepTestConstants.FileResolver));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver));
 
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;

@@ -82,14 +82,7 @@ namespace Bicep.Cli.Services
             }
             catch (Exception ex)
             {
-                var invocationContext = new InvocationContext(
-                    AzResourceTypeProvider.CreateWithAzTypes(),
-                    Console.Out,
-                    Console.Error,
-                    ThisAssembly.AssemblyFileVersion,
-                    features: null,
-                    clientFactory: null);
-                invocationContext.OutputWriter.WriteLine(ex.Message);
+                Console.Out.WriteLine(ex.Message);
 
                 configHelper = new ConfigHelper(null, fileResolver, useDefaultConfig: true).GetDisabledLinterConfig();
             }

@@ -4,6 +4,7 @@
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -22,7 +23,9 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false).Object;
 
-        public static readonly AzResourceTypeProvider AzResourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+        public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
+
+        public static readonly INamespaceProvider NamespaceProvider = TestTypeHelper.CreateWithAzTypes();
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 

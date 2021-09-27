@@ -102,7 +102,7 @@ namespace Bicep.LanguageServer
             var featureProvider = creationOptions.Features ?? new FeatureProvider();
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
-            services.AddSingleton<AzResourceTypeProvider>(services => AzResourceTypeProvider.CreateWithAzTypes());
+            services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
             AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(services, creationOptions.NamespaceProvider);
             services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
             services.AddSingleton<ConfigHelper>(services => new ConfigHelper(null, fileResolver, useDefaultConfig: false));

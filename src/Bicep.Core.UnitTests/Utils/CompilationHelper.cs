@@ -30,18 +30,18 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public record CompilationHelperContext(
-            AzResourceTypeProvider? AzResourceTypeProvider = null,
+            IAzResourceTypeLoader? AzResourceTypeLoader = null,
             IFeatureProvider? Features = null,
             EmitterSettings? EmitterSettings = null,
             INamespaceProvider? NamespaceProvider = null)
         {
             // TODO: can we use IoC here instead of DIY-ing it?
 
-            public AzResourceTypeProvider GetAzResourceTypeProvider()
-                => AzResourceTypeProvider ?? BicepTestConstants.AzResourceTypeProvider;
+            public IAzResourceTypeLoader GetAzResourceTypeLoader()
+                => AzResourceTypeLoader ?? BicepTestConstants.AzResourceTypeLoader;
 
             public INamespaceProvider GetNamespaceProvider()
-                => NamespaceProvider ?? new DefaultNamespaceProvider(GetAzResourceTypeProvider(), GetFeatures());
+                => NamespaceProvider ?? new DefaultNamespaceProvider(GetAzResourceTypeLoader(), GetFeatures());
 
             public IFeatureProvider GetFeatures()
                 => Features ?? BicepTestConstants.Features;
@@ -65,8 +65,8 @@ namespace Bicep.Core.UnitTests.Utils
             return Compile(context, new Compilation(context.GetNamespaceProvider(), sourceFileGrouping, null));
         }
 
-        public static CompilationResult Compile(AzResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(AzResourceTypeProvider: resourceTypeProvider), files);
+        public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
+            => Compile(new CompilationHelperContext(AzResourceTypeLoader: resourceTypeLoader), files);
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
             => Compile(new CompilationHelperContext(), files);

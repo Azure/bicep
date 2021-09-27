@@ -1105,7 +1105,7 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
             };
 
             var result = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeProviderWithTypes(customTypes),
+                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1143,7 +1143,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.Should().NotHaveAnyDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeProviderWithTypes(customTypes),
+                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1194,7 +1194,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             };
 
             var result = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeProviderWithTypes(customTypes),
+                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'
@@ -1232,7 +1232,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
             result.Should().NotHaveAnyDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeProviderWithTypes(customTypes),
+                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
                 ("main.bicep", @"
 resource test 'Rp.A/parent@2020-10-01' = {
   name: 'test'

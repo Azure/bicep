@@ -24,7 +24,7 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(AzResourceTypeProvider.CreateWithAzTypes(), new FeatureProvider());
+        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), new FeatureProvider());
 
         private readonly IJSRuntime jsRuntime;
 

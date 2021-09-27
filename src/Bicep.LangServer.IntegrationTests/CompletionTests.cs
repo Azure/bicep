@@ -42,7 +42,7 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CompletionTests
     {
-        public static readonly INamespaceProvider NamespaceProvider = TestTypeHelper.CreateWithAzTypes();
+        public static readonly INamespaceProvider NamespaceProvider = BicepTestConstants.NamespaceProvider;
 
         [NotNull]
         public TestContext? TestContext { get; set; }

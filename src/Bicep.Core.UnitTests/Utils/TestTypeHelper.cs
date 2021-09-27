@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Utils
 {
     public static class TestTypeHelper
     {
-        private class TestResourceTypeLoader : IResourceTypeLoader
+        private class TestResourceTypeLoader : IAzResourceTypeLoader
         {
             private readonly ImmutableDictionary<ResourceTypeReference, ResourceType> resourceTypes;
 
@@ -38,20 +38,20 @@ namespace Bicep.Core.UnitTests.Utils
                 => resourceTypes.Keys;
         }
 
-        public static AzResourceTypeProvider CreateAzResourceTypeProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
-            => AzResourceTypeProvider.CreateWithLoader(new TestResourceTypeLoader(resourceTypes));
+        public static IAzResourceTypeLoader CreateEmptyAzResourceTypeLoader()
+            => new TestResourceTypeLoader(Enumerable.Empty<ResourceType>());
 
-        public static AzResourceTypeProvider CreateEmptyAzResourceTypeProvider()
-            => CreateAzResourceTypeProviderWithTypes(Enumerable.Empty<ResourceType>());
+        public static IAzResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceType> resourceTypes)
+            => new TestResourceTypeLoader(resourceTypes);
 
         public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
-            => new DefaultNamespaceProvider(CreateAzResourceTypeProviderWithTypes(resourceTypes), BicepTestConstants.Features);
+            => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(resourceTypes), BicepTestConstants.Features);
 
         public static INamespaceProvider CreateEmptyProvider()
             => CreateProviderWithTypes(Enumerable.Empty<ResourceType>());
 
         public static INamespaceProvider CreateWithAzTypes()
-            => new DefaultNamespaceProvider(BicepTestConstants.AzResourceTypeProvider, BicepTestConstants.Features);
+            => new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features);
 
         public static ResourceType CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
         {

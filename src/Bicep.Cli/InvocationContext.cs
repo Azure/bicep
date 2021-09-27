@@ -14,7 +14,7 @@ namespace Bicep.Cli
     public class InvocationContext
     {
         public InvocationContext(
-            AzResourceTypeProvider azResourceTypeProvider,
+            IAzResourceTypeLoader azResourceTypeLoader,
             TextWriter outputWriter,
             TextWriter errorWriter,
             string assemblyFileVersion,
@@ -29,7 +29,7 @@ namespace Bicep.Cli
             Features = features ?? new FeatureProvider();
             ClientFactory = clientFactory ?? new ContainerRegistryClientFactory();
             TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory();
-            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeProvider, Features);
+            NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader, Features);
         }
 
         public INamespaceProvider NamespaceProvider { get; }
