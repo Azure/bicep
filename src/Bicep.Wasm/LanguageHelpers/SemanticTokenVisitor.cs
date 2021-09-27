@@ -276,7 +276,7 @@ namespace Bicep.Wasm.LanguageHelpers
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
-            AddTokenType(syntax.FromKeyword, SemanticTokenType.Keyword);
+            AddContextualKeyword(syntax.FromKeyword, LanguageConstants.FromKeyword);
             AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
             base.VisitImportDeclarationSyntax(syntax);
         }

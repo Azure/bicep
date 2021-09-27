@@ -343,6 +343,7 @@ namespace Bicep.Core.TypeSystem
             {
                 if (binder.GetSymbolInfo(syntax) is not ImportedNamespaceSymbol namespaceSymbol)
                 {
+                    // We have syntax or binding errors, which should have already been handled.
                     return ErrorType.Empty();
                 }
 
