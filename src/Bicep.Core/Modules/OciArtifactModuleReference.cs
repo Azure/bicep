@@ -67,6 +67,8 @@ namespace Bicep.Core.Modules
 
         public override string UnqualifiedReference => this.ArtifactId;
 
+        public override bool IsExternal => true;
+
         public override bool Equals(object obj)
         {
             if(obj is not OciArtifactModuleReference other)

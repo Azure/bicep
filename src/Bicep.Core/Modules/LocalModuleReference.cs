@@ -44,6 +44,8 @@ namespace Bicep.Core.Modules
 
         public override string FullyQualifiedReference => this.Path;
 
+        public override bool IsExternal => false;
+
         public static LocalModuleReference? TryParse(string unqualifiedReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             if(!Validate(unqualifiedReference, out failureBuilder))

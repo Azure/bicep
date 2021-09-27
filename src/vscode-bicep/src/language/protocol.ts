@@ -38,3 +38,19 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/deploymentGraph");
+
+export interface BicepCacheParams {
+  target: string;
+}
+
+export interface BicepCacheResponse {
+  content: string;
+}
+
+export const bicepCacheRequestType = new ProtocolRequestType<
+  BicepCacheParams,
+  BicepCacheResponse,
+  never,
+  void,
+  void
+>("textDocument/bicepCache");

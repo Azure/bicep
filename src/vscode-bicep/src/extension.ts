@@ -6,7 +6,10 @@ import {
   registerUIExtensionVariables,
 } from "vscode-azureextensionui";
 
-import { launchLanguageServiceWithProgressReport } from "./language";
+import {
+  launchLanguageServiceWithProgressReport,
+  BicepCacheContentProvider,
+} from "./language";
 import { BicepVisualizerViewManager } from "./visualizer";
 import {
   BuildCommand,
@@ -49,6 +52,16 @@ export async function activate(
     const languageClient = await launchLanguageServiceWithProgressReport(
       context,
       outputChannel
+    );
+
+    // go2def links that point to the bicep cache will have the bicep-cache scheme in their document URIs
+    // this content provider will allow VS code to understand that scheme
+    // and surface the content as a read-only file
+    extension.register(
+      vscode.workspace.registerTextDocumentContentProvider(
+        "bicep-cache",
+        new BicepCacheContentProvider(languageClient)
+      )
     );
 
     const viewManager = extension.register(

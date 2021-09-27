@@ -44,6 +44,8 @@ namespace Bicep.Core.Modules
 
         public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
 
+        public override bool IsExternal => true;
+
         public override bool Equals(object? obj) =>
             obj is TemplateSpecModuleReference other &&
             StringComparer.OrdinalIgnoreCase.Equals(this.Endpoint, other.Endpoint) &&
