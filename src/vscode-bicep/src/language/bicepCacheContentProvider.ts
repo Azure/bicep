@@ -39,8 +39,6 @@ export class BicepCacheContentProvider
       token
     );
 
-    // this.validateResponse(response);
-
     return response.content;
   }
 

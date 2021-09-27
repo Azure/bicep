@@ -6,8 +6,10 @@ import {
   registerUIExtensionVariables,
 } from "vscode-azureextensionui";
 
-import { launchLanguageServiceWithProgressReport } from "./language";
-import { BicepCacheContentProvider } from "./language/bicepCacheContentProvider";
+import {
+  launchLanguageServiceWithProgressReport,
+  BicepCacheContentProvider,
+} from "./language";
 import { BicepVisualizerViewManager } from "./visualizer";
 import {
   BuildCommand,
