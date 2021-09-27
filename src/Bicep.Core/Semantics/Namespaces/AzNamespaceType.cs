@@ -14,8 +14,10 @@ using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.Semantics.Namespaces
 {
-    public class AzNamespaceSymbol : NamespaceSymbol
+    public static class AzNamespaceType
     {
+        public const string BuiltInName = "az";
+
         private static SyntaxBase RestrictedObjectReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
         {
             return SyntaxFactory.CreateObject(ImmutableArray<ObjectPropertySyntax>.Empty);
@@ -395,9 +397,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
         }
 
-        public AzNamespaceSymbol(ResourceScope resourceScope)
-            : base("az", GetAzOverloads(resourceScope), ImmutableArray<BannedFunction>.Empty, ImmutableArray<Decorator>.Empty)
+        public static NamespaceType Create(string aliasName, ResourceScope resourceScope, AzResourceTypeProvider resourceTypeProvider)
         {
+            return new NamespaceType(
+                aliasName,
+                BuiltInName,
+                ImmutableArray<TypeProperty>.Empty,
+                GetAzOverloads(resourceScope),
+                ImmutableArray<BannedFunction>.Empty,
+                ImmutableArray<Decorator>.Empty,
+                resourceTypeProvider,
+                configurationType: null,
+                isSingleton: true);
         }
     }
 }

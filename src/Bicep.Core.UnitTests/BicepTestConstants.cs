@@ -4,6 +4,8 @@
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -19,7 +21,11 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new();
 
-        public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false).Object;
+        public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false).Object;
+
+        public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
+
+        public static readonly INamespaceProvider NamespaceProvider = TestTypeHelper.CreateWithAzTypes();
 
         public static readonly IContainerRegistryClientFactory ClientFactory = StrictMock.Of<IContainerRegistryClientFactory>().Object;
 
@@ -27,11 +33,12 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features);
 
-        public static IFeatureProvider CreateFeaturesProvider(TestContext testContext, bool registryEnabled = false, bool symbolicNameCodegenEnabled = false)
+        public static IFeatureProvider CreateFeaturesProvider(TestContext testContext, bool registryEnabled = false, bool symbolicNameCodegenEnabled = false, bool importsEnabled = false)
         {
             var mock = CreateMockFeaturesProvider(
                 registryEnabled: registryEnabled,
-                symbolicNameCodegenEnabled: symbolicNameCodegenEnabled);
+                symbolicNameCodegenEnabled: symbolicNameCodegenEnabled,
+                importsEnabled: importsEnabled);
 
             var testPath = FileHelper.GetCacheRootPath(testContext);
             mock.SetupGet(m => m.CacheRootDirectory).Returns(testPath);
@@ -39,11 +46,12 @@ namespace Bicep.Core.UnitTests
             return mock.Object;
         }
 
-        private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled)
+        private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled)
         {
             var mock = StrictMock.Of<IFeatureProvider>();
             mock.SetupGet(m => m.RegistryEnabled).Returns(registryEnabled);
             mock.SetupGet(m => m.SymbolicNameCodegenEnabled).Returns(symbolicNameCodegenEnabled);
+            mock.SetupGet(m => m.ImportsEnabled).Returns(importsEnabled);
 
             return mock;
         }

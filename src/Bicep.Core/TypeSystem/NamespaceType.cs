@@ -8,14 +8,34 @@ namespace Bicep.Core.TypeSystem
 {
     public sealed class NamespaceType : ObjectType
     {
-        public NamespaceType(string name, IEnumerable<TypeProperty> properties, IEnumerable<FunctionOverload> functionOverloads, IEnumerable<BannedFunction> bannedFunctions, IEnumerable<Decorator> decorators)
-            : base(name, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, new FunctionResolver(functionOverloads, bannedFunctions))
+        public NamespaceType(
+            string aliasName,
+            string providerName,
+            IEnumerable<TypeProperty> properties,
+            IEnumerable<FunctionOverload> functionOverloads,
+            IEnumerable<BannedFunction> bannedFunctions,
+            IEnumerable<Decorator> decorators,
+            IResourceTypeProvider resourceTypeProvider,
+            ITypeReference? configurationType,
+            bool isSingleton)
+            : base(aliasName, TypeSymbolValidationFlags.PreventAssignment, properties, null, TypePropertyFlags.None, obj => new FunctionResolver(obj, functionOverloads, bannedFunctions))
         {
-            this.DecoratorResolver = new DecoratorResolver(decorators);
+            this.DecoratorResolver = new DecoratorResolver(this, decorators);
+            ProviderName = providerName;
+            ResourceTypeProvider = resourceTypeProvider;
+            IsSingleton = isSingleton;
         }
 
         public override TypeKind TypeKind => TypeKind.Namespace;
 
         public DecoratorResolver DecoratorResolver { get; }
+
+        public string ProviderName { get; }
+
+        public IResourceTypeProvider ResourceTypeProvider { get; }
+
+        public ITypeReference? ConfigurationType { get; }
+
+        public bool IsSingleton { get; }
     }
 }

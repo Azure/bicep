@@ -94,6 +94,7 @@ namespace Bicep.Core.Parsing
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
                             LanguageConstants.OutputKeyword => this.OutputDeclaration(leadingNodes),
                             LanguageConstants.ModuleKeyword => this.ModuleDeclaration(leadingNodes),
+                            LanguageConstants.ImportKeyword => this.ImportDeclaration(leadingNodes),
                             _ => leadingNodes.Count > 0
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
@@ -297,13 +298,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(name),
                 TokenType.Assignment, TokenType.NewLine);
 
-            Token? existingKeyword = null;
-            var current = reader.Peek();
-            if (current.Type == TokenType.Identifier && current.Text == LanguageConstants.ExistingKeyword)
-            {
-                existingKeyword = reader.Read();
-            }
-
+            var existingKeyword = GetOptionalKeyword(LanguageConstants.ExistingKeyword);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.LeftBrace, TokenType.NewLine);
 
             var value = this.WithRecovery(() =>
@@ -350,6 +345,33 @@ namespace Bicep.Core.Parsing
                 TokenType.NewLine);
 
             return new ModuleDeclarationSyntax(leadingNodes, keyword, name, path, assignment, value);
+        }
+
+        private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
+            var aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);
+            var fromKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.FromKeyword), GetSuppressionFlag(aliasName), TokenType.NewLine);
+            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), GetSuppressionFlag(fromKeyword), TokenType.NewLine);
+            var config = this.WithRecoveryNullable(
+                () =>
+                {
+                    var current = reader.Peek();
+                    return current.Type switch
+                    {
+                        // no config is supplied
+                        TokenType.NewLine => null,
+                        TokenType.EndOfFile => null,
+
+                        // we have config!
+                        TokenType.LeftBrace => this.Object(ExpressionFlags.AllowComplexLiterals),
+                        _ => throw new ExpectedTokenException(current, b => b.ExpectedCharacter("{")),
+                    };
+                },
+                GetSuppressionFlag(providerName),
+                TokenType.NewLine);
+
+            return new(leadingNodes, keyword, aliasName, fromKeyword, providerName, config);
         }
 
         private Token? NewLineOrEof()
@@ -1286,6 +1308,12 @@ namespace Bicep.Core.Parsing
 
         private Token ExpectKeyword(string expectedKeyword)
         {
+            return GetOptionalKeyword(expectedKeyword) ?? 
+                throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
+        }
+
+        private Token? GetOptionalKeyword(string expectedKeyword)
+        {
             if (this.CheckKeyword(expectedKeyword))
             {
                 // only read the token if it matches the expectations
@@ -1293,7 +1321,7 @@ namespace Bicep.Core.Parsing
                 return reader.Read();
             }
 
-            throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
+            return null;
         }
 
         private bool Match(params TokenType[] types)

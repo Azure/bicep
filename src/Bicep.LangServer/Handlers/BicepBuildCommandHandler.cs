@@ -17,6 +17,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
@@ -36,12 +37,14 @@ namespace Bicep.LanguageServer.Handlers
         private readonly EmitterSettings emitterSettings;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly INamespaceProvider namespaceProvider;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher)
             : base(LanguageConstants.Build, serializer)
         {
             this.compilationManager = compilationManager;
             this.emitterSettings = emitterSettings;
+            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
         }
@@ -77,7 +80,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), documentUri.ToUri());
-                compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, null);
+                compilation = new Compilation(namespaceProvider, sourceFileGrouping, null);
             }
             else
             {

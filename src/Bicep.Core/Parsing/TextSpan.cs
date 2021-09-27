@@ -223,7 +223,7 @@ namespace Bicep.Core.Parsing
         /// <param name="first">The first non-null positionable</param>
         /// <param name="after">The sequence of nullable positionables</param>
         public static IPositionable LastNonNull(IPositionable first, params IPositionable?[] after)
-            => after.LastOrDefault() ?? first;
+            => after.LastOrDefault(x => x is not null) ?? first;
 
         public bool Equals(TextSpan? other)
         {

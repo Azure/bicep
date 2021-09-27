@@ -5,7 +5,7 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public interface IResourceTypeLoader
+    public interface IAzResourceTypeLoader
     {
         ResourceType LoadType(ResourceTypeReference reference);
 

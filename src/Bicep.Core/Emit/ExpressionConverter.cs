@@ -131,7 +131,7 @@ namespace Bicep.Core.Emit
 
                     switch (baseSymbol)
                     {
-                        case NamespaceSymbol namespaceSymbol:
+                        case INamespaceSymbol namespaceSymbol:
                             Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
                             return CreateFunction(
                                 instanceFunctionCall.Name.IdentifierName,

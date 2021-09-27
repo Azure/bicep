@@ -63,9 +63,9 @@ output myObj object = {
                 new TypeProperty("pascalCaseEnumProp", new StringLiteralType("MyEnum")),
                 new TypeProperty("lowerCaseEnumUnionProp", UnionType.Create(new StringLiteralType("myenum"), new StringLiteralType("blahblah"))),
                 new TypeProperty("pascalCaseEnumUnionProp", UnionType.Create(new StringLiteralType("MyEnum"), new StringLiteralType("BlahBlah"))));
-            var typeProvider = TestTypeHelper.CreateProviderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
-            var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
@@ -112,9 +112,9 @@ output myObj object = {
                 new TypeProperty("lowercaseobj", new ObjectType("lowercaseobj", TypeSymbolValidationFlags.Default, new [] {
                   new TypeProperty("lowercasestr", LanguageConstants.String)
                 }, null)));
-            var typeProvider = TestTypeHelper.CreateProviderWithTypes(typeDefinition.AsEnumerable());
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
 
-            var (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", bicepFile));
+            var (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", bicepFile));
             var rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             var newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
@@ -133,7 +133,7 @@ output myObj object = {
   lowerCaseProp: resA.properties.lowercaseobj.lowerCaseStr
 }");
 
-            (_, _, compilation) = CompilationHelper.Compile(typeProvider, ("main.bicep", firstPassBicepFile));
+            (_, _, compilation) = CompilationHelper.Compile(typeLoader, ("main.bicep", firstPassBicepFile));
             rewriter = new TypeCasingFixerRewriter(compilation.GetEntrypointSemanticModel());
 
             newProgramSyntax = rewriter.Rewrite(compilation.SourceFileGrouping.EntryPoint.ProgramSyntax);
