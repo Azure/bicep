@@ -15,14 +15,14 @@ namespace Bicep.Core.TypeSystem
         private readonly TypeAssignmentVisitor typeAssignmentVisitor;
         private readonly DeclaredTypeManager declaredTypeManager;
 
-        public TypeManager(IResourceTypeProvider resourceTypeProvider, IBinder binder, IFileResolver fileResolver)
+        public TypeManager(IBinder binder, IFileResolver fileResolver)
         {
             // bindings will be modified by name binding after this object is created
             // so we can't make an immutable copy here
             // (using the IReadOnlyDictionary to prevent accidental mutation)
-            this.typeAssignmentVisitor = new TypeAssignmentVisitor(resourceTypeProvider, this, binder, fileResolver);
+            this.typeAssignmentVisitor = new TypeAssignmentVisitor(this, binder, fileResolver);
 
-            this.declaredTypeManager = new DeclaredTypeManager(resourceTypeProvider, this, binder);
+            this.declaredTypeManager = new DeclaredTypeManager(this, binder);
         }
 
         public TypeSymbol GetTypeInfo(SyntaxBase syntax)

@@ -20,14 +20,11 @@ namespace Bicep.Core.TypeSystem
         // maps syntax nodes to their declared types
         // processed nodes found not to have a declared type will have a null value
         private readonly ConcurrentDictionary<SyntaxBase, DeclaredTypeAssignment?> declaredTypes = new();
-
-        private readonly IResourceTypeProvider resourceTypeProvider;
         private readonly ITypeManager typeManager;
         private readonly IBinder binder;
 
-        public DeclaredTypeManager(IResourceTypeProvider resourceTypeProvider, TypeManager typeManager, IBinder binder)
+        public DeclaredTypeManager(TypeManager typeManager, IBinder binder)
         {
-            this.resourceTypeProvider = resourceTypeProvider;
             this.typeManager = typeManager;
             this.binder = binder;
         }
@@ -43,6 +40,9 @@ namespace Bicep.Core.TypeSystem
 
             switch (syntax)
             {
+                case ImportDeclarationSyntax import:
+                    return GetImportType(import);
+
                 case ParameterDeclarationSyntax parameter:
                     return GetParameterType(parameter);
 
@@ -109,9 +109,19 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
 
+        private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
+        {
+            if (this.binder.GetSymbolInfo(syntax) is ImportedNamespaceSymbol importedNamespace)
+            {
+                return new(importedNamespace.DeclaredType, syntax);
+            }
+
+            return null;
+        }
+
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {
-            var declaredResourceType = syntax.GetDeclaredType(this.binder, this.resourceTypeProvider);
+            var declaredResourceType = syntax.GetDeclaredType(this.binder);
 
             // if the value is a loop (not a condition or object), the type is an array of the declared resource type
             return new DeclaredTypeAssignment(
@@ -152,8 +162,8 @@ namespace Bicep.Core.TypeSystem
                     // use its declared type
                     return this.GetDeclaredTypeAssignment(declaredSymbol.DeclaringSyntax);
 
-                case NamespaceSymbol namespaceSymbol:
-                    // the syntax node is referencing a namespace - use its type
+                case BuiltInNamespaceSymbol namespaceSymbol:
+                    // the syntax node is referencing a built in namespace - use its type
                     return new DeclaredTypeAssignment(namespaceSymbol.Type, declaringSyntax: null);
             }
 
@@ -486,6 +496,24 @@ namespace Bicep.Core.TypeSystem
                     // the object is an item in an array
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(arrayParent, syntax), syntax, arrayItemAssignment.Flags);
+
+                case ImportDeclarationSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not {} importAssignment ||
+                        importAssignment.Reference.Type  is not NamespaceType namespaceType)
+                    {
+                        return null;
+                    }
+
+                    if (namespaceType.ConfigurationType is null)
+                    {
+                        // this namespace doesn't support configuration, but it has been provided.
+                        // we'll check for this during type assignment.
+                        return null;
+                    }
+
+                    // the object is an item in an array
+                    // use the item's type and propagate flags
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, importAssignment.Flags);
             }
 
             return null;

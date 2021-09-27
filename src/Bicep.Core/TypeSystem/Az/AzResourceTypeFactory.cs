@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Linq;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Bicep.Core.Resources;
 
@@ -9,11 +10,11 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeFactory
     {
-        private readonly Dictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
+        private readonly ConcurrentDictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol> typeCache;
 
         public AzResourceTypeFactory()
         {
-            typeCache = new Dictionary<Azure.Bicep.Types.Concrete.TypeBase, TypeSymbol>();
+            typeCache = new();
         }
 
         public ResourceType GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType)
@@ -24,15 +25,7 @@ namespace Bicep.Core.TypeSystem.Az
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)
-        {
-            if (!typeCache.TryGetValue(serializedType, out var typeSymbol))
-            {
-                typeSymbol = ToTypeSymbol(serializedType, isResourceBodyType);
-                typeCache[serializedType] = typeSymbol;
-            }
-
-            return typeSymbol;
-        }
+            => typeCache.GetOrAdd(serializedType, serializedType => ToTypeSymbol(serializedType, isResourceBodyType));
 
         private ITypeReference GetTypeReference(Azure.Bicep.Types.Concrete.ITypeReference input)
             => new DeferredTypeReference(() => GetTypeSymbol(input.Type, false));

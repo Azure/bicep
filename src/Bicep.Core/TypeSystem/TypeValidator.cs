@@ -606,7 +606,7 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver);
+            return new ObjectType(targetType.Name, targetType.ValidationFlags, narrowedProperties, targetType.AdditionalPropertiesType, targetType.AdditionalPropertiesFlags, targetType.MethodResolver.CopyToObject);
         }
 
         private (IPositionable positionable, string blockName) GetMissingPropertyContext(SyntaxBase expression)

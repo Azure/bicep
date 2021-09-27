@@ -5,6 +5,7 @@ using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -17,10 +18,10 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static SemanticModel GetSemanticModelForTest(string programText, IResourceTypeProvider typeProvider)
+        private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
             var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configHelper);
+            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configHelper);
 
             return compilation.GetEntrypointSemanticModel();
         }

@@ -13,6 +13,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -227,7 +228,13 @@ namespace Bicep.Core.UnitTests.TypeSystem
             out List<ArgumentCountMismatch> argumentCountMismatches,
             out List<ArgumentTypeMismatch> argumentTypeMismatches)
         {
-            var namespaces = new NamespaceSymbol[] { new SystemNamespaceSymbol(), new AzNamespaceSymbol(ResourceScope.ResourceGroup) };
+            var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features);
+
+            var namespaces = new [] {
+                namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!,
+                namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup)!,
+            };
+
             var matches = new List<FunctionOverload>();
 
             argumentCountMismatches = new List<ArgumentCountMismatch>();
@@ -236,7 +243,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             foreach (var ns in namespaces)
             {
                 var nameSyntax = TestSyntaxFactory.CreateIdentifier(functionName);
-                if (ns.Type.MethodResolver.TryGetSymbol(nameSyntax) is FunctionSymbol functionSymbol)
+                if (ns.MethodResolver.TryGetSymbol(nameSyntax) is FunctionSymbol functionSymbol)
                 {
                     matches.AddRange(FunctionResolver.GetMatches(functionSymbol, argumentTypes, out var countMismatches, out var typeMismatches));
                     argumentCountMismatches.AddRange(countMismatches);

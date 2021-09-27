@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Semantics;
@@ -13,16 +14,16 @@ namespace Bicep.Core.TypeSystem
     public class ObjectType : TypeSymbol
     {
         public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags = TypePropertyFlags.None, IEnumerable<FunctionOverload>? functions = null)
-            : this(name, validationFlags, properties, additionalPropertiesType, additionalPropertiesFlags, new FunctionResolver(functions ?? ImmutableArray<FunctionOverload>.Empty))
+            : this(name, validationFlags, properties, additionalPropertiesType, additionalPropertiesFlags, owner => new FunctionResolver(owner, functions ?? ImmutableArray<FunctionOverload>.Empty))
         {
         }
 
-        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, FunctionResolver methodResolver)
+        public ObjectType(string name, TypeSymbolValidationFlags validationFlags, IEnumerable<TypeProperty> properties, ITypeReference? additionalPropertiesType, TypePropertyFlags additionalPropertiesFlags, Func<ObjectType, FunctionResolver> methodResolverBuilder)
             : base(name)
         {
             this.ValidationFlags = validationFlags;
             this.Properties = properties.ToImmutableDictionary(property => property.Name, LanguageConstants.IdentifierComparer);
-            this.MethodResolver = methodResolver;
+            this.MethodResolver = methodResolverBuilder(this);
             this.AdditionalPropertiesType = additionalPropertiesType;
             this.AdditionalPropertiesFlags = additionalPropertiesFlags;
         }

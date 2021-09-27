@@ -10,10 +10,12 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -40,7 +42,7 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CompletionTests
     {
-        public static readonly IResourceTypeProvider TypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+        public static readonly INamespaceProvider NamespaceProvider = BicepTestConstants.NamespaceProvider;
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -115,7 +117,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri, BicepTestConstants.FileResolver);
-                var compilation = new Compilation(TypeProvider, sourceFileGrouping, null);
+                var compilation = new Compilation(NamespaceProvider, sourceFileGrouping, null);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
@@ -150,7 +152,7 @@ namespace Bicep.LangServer.IntegrationTests
                 placeholderFile,
                 documentUri,
                 null,
-                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -182,7 +184,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var uri = DocumentUri.FromFileSystemPath(entryPoint);
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider, FileResolver: BicepTestConstants.FileResolver));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider, FileResolver: BicepTestConstants.FileResolver));
 
             var intermediate = new List<(Position position, JToken actual)>();
 
@@ -264,7 +266,7 @@ var test2 = /|* block c|omment *|/
             string text = "resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' existing = ";
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -310,7 +312,7 @@ var test2 = /|* block c|omment *|/
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
             var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
@@ -359,7 +361,7 @@ var test2 = /|* block c|omment *|/
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
             var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
@@ -394,7 +396,7 @@ var test2 = /|* block c|omment *|/
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
             var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
@@ -424,7 +426,7 @@ var test2 = /|* block c|omment *|/
             string text = @"resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = ";
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -468,7 +470,7 @@ var test2 = /|* block c|omment *|/
         {
             string text = @"resource deploymentScripts 'Microsoft.Resources/deploymentScripts@2020-10-01'=";
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            using var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -596,8 +598,6 @@ output string test2 = testRes.properties.|
         public async Task Completions_after_resource_type_should_only_include_existing_keyword()
         {
             var fileWithCursors = @"
-resource testRes 'Test.Rp/readWriteTests@2020-01-01' |
-
 resource testRes2 'Test.Rp/readWriteTests@2020-01-01' | = {
 }
 
@@ -631,8 +631,62 @@ resource testRes5 'Test.Rp/readWriteTests@2020-01-01' |= {
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
-                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d)),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(d => AssertExistingKeywordCompletion(d))));
+        }
+
+        [TestMethod]
+        public async Task ResourceTypeFollowerWithoCompletionsOffersEqualsAndExisting()
+        {
+
+            var fileWithCursors = @"
+resource base64 'Microsoft.Foo/foos@2020-09-01' |
+
+resource base64 'Microsoft.Foo/foos@2020-09-01' | {}
+
+resource base64 'Microsoft.Foo/foos@2020-09-01' existing | {}
+
+";
+
+            static void AssertEqualsOperatorCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("=");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Operator);
+                item.Preselect.Should().BeTrue();
+                item.TextEdit!.TextEdit!.NewText.Should().Be("=");
+
+                // do not add = to the list of commit chars
+                // it makes it difficult to type = without the "existing" keyword :)
+                item.CommitCharacters.Should().BeNull();
+            }
+
+            static void AssertExistingKeywordCompletion(CompletionItem item)
+            {
+                item.Label.Should().Be("existing");
+                item.Detail.Should().Be("existing");
+                item.Documentation.Should().BeNull();
+                item.Kind.Should().Be(CompletionItemKind.Keyword);
+                item.Preselect.Should().BeFalse();
+                item.TextEdit!.TextEdit!.NewText.Should().Be("existing");
+
+                // do not add = to the list of commit chars
+                // it makes it difficult to type = without the "existing" keyword :)
+                item.CommitCharacters.Should().BeNull();
+            }
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
+                completions.Should().SatisfyRespectively(
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => AssertEqualsOperatorCompletion(d),
+                        d => AssertExistingKeywordCompletion(d)
+                    ),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => AssertEqualsOperatorCompletion(d),
+                        d => AssertExistingKeywordCompletion(d)
+                    ),
+                    x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
+                        d => AssertEqualsOperatorCompletion(d)
+                    )));
         }
 
         [TestMethod]
@@ -845,7 +899,7 @@ module bar2 'test.bicep' = [for item in list: |  ]
             });
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
-            var creationOptions = new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
+            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
             var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
             var completions = await RequestCompletions(client, bicepFile, cursors);
 
@@ -909,7 +963,7 @@ module mod2 './|' = {}
                 TestContext,
                 mainFileText,
                 mainUri,
-                creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
+                creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver));
 
             var completionLists = await RequestCompletions(client, mainFile, cursors);
             completionLists.Should().HaveCount(1);
@@ -933,7 +987,7 @@ module mod2 './|' = {}
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
             var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
@@ -961,7 +1015,7 @@ module mod2 './|' = {}
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
             var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
@@ -1018,7 +1072,7 @@ module mod2 './|' = {}
 }";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: TypeProvider));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
             var completionLists = await RequestCompletions(client, bicepFile, cursors);
 
             completionLists.Count().Should().Be(1);
@@ -1034,6 +1088,47 @@ module mod2 './|' = {}
                 {
                     c.Label.Should().Be("required-properties");
                 });
+        }
+
+        [TestMethod]
+        public async Task Import_completions_work_if_feature_enabled()
+        {
+            var fileWithCursors = @"
+|
+import ns1 |
+import ns2 f|
+import ns3 f|r
+import ns4 from|
+import ns5 from |
+import ns6 from a|
+import ns7 from s|y
+import ns8 from sys|
+";
+            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true);
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => completions.Should().SatisfyRespectively(
+                c => c!.Select(x => x.Label).Should().Contain("import"),
+                c => c!.Select(x => x.Label).Should().Equal("from"),
+                c => c!.Select(x => x.Label).Should().Equal("from"),
+                c => c!.Select(x => x.Label).Should().Equal("from"),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
+                c => c!.Select(x => x.Label).Should().Equal("az", "sys")
+            ), features);
+
+            features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: false);
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => completions.Should().SatisfyRespectively(
+                c => c!.Select(x => x.Label).Should().NotContain("import"),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty(),
+                c => c!.Select(x => x.Label).Should().BeEmpty()
+            ), features);
         }
 
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
@@ -1098,11 +1193,11 @@ module mod2 './|' = {}
 
         private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
 
-        private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction)
+        private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction, IFeatureProvider? featureProvider = null)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create()));
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), Features: featureProvider));
             var completions = await RequestCompletions(client, bicepFile, cursors);
 
             assertAction(completions);

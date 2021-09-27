@@ -13,9 +13,10 @@ namespace Bicep.Core.Semantics
         Module,
         Output,
         Namespace,
+        ImportedNamespace,
         Function,
         Local,
         Scope,
-        Property
+        Property,
     }
 }

@@ -60,7 +60,7 @@ namespace Bicep.Core.Syntax
         /// Returns the same value for single resource or resource loops declarations.
         /// </summary>
         /// <param name="resourceTypeProvider">resource type provider</param>
-        public TypeSymbol GetDeclaredType(IBinder binder, IResourceTypeProvider resourceTypeProvider)
+        public TypeSymbol GetDeclaredType(IBinder binder)
         {
             var stringSyntax = this.TypeString;
 
@@ -98,7 +98,7 @@ namespace Bicep.Core.Syntax
                 {
                     hasParentDeclaration = true;
 
-                    var parentType = parentResourceSymbol.DeclaringResource.GetDeclaredType(binder, resourceTypeProvider);
+                    var parentType = parentResourceSymbol.DeclaringResource.GetDeclaredType(binder);
                     if (parentType is not ResourceType parentResourceType)
                     {
                         // TODO should we raise an error, or just rely on the error on the parent?
@@ -192,7 +192,7 @@ namespace Bicep.Core.Syntax
                 flags |= ResourceTypeGenerationFlags.PermitLiteralNameProperty;
             }
 
-            return resourceTypeProvider.GetType(typeReference, flags);
+            return binder.NamespaceResolver.GetResourceType(typeReference, flags);
         }
 
         public ObjectSyntax? TryGetBody() =>

@@ -3,34 +3,44 @@
 
 using System;
 using System.IO;
+using System.Threading;
 
 namespace Bicep.Core.Features
 {
     public class FeatureProvider : IFeatureProvider
     {
-        public string CacheRootDirectory
-        {
-            get
-            {
-                var customPath = Environment.GetEnvironmentVariable("BICEP_CACHE_DIRECTORY");
-                if(string.IsNullOrWhiteSpace(customPath))
-                {
-                    return GetDefaultCachePath();
-                }
+        private Lazy<string> cacheRootDirectoryLazy = new(() => GetCacheRootDirectory(Environment.GetEnvironmentVariable("BICEP_CACHE_DIRECTORY")), LazyThreadSafetyMode.PublicationOnly);
+        public string CacheRootDirectory => cacheRootDirectoryLazy.Value;
 
-                return customPath;
-            }
-        }
+        private Lazy<bool> registryEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_REGISTRY_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
+        public bool RegistryEnabled => registryEnabledLazy.Value;
 
-        public bool RegistryEnabled => bool.TryParse(Environment.GetEnvironmentVariable("BICEP_REGISTRY_ENABLED_EXPERIMENTAL"), out var enabled) ? enabled : false;
+        private Lazy<bool> symbolicNameCodegenEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
+        public bool SymbolicNameCodegenEnabled => symbolicNameCodegenEnabledLazy.Value;
 
-        public bool SymbolicNameCodegenEnabled => bool.TryParse(Environment.GetEnvironmentVariable("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL"), out var enabled) ? enabled : false;
+        private Lazy<bool> importsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_IMPORTS_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
+        public bool ImportsEnabled => importsEnabledLazy.Value;
+
+        public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
+
+        private static bool ReadBooleanEnvVar(string envVar, bool defaultValue)
+            => bool.TryParse(Environment.GetEnvironmentVariable(envVar), out var value) ? value : defaultValue;
 
         private static string GetDefaultCachePath()
         {
             string basePath = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             return Path.Combine(basePath, ".bicep");
+        }
+
+        private static string GetCacheRootDirectory(string? customPath)
+        {
+            if (string.IsNullOrWhiteSpace(customPath))
+            {
+                return GetDefaultCachePath();
+            }
+
+            return customPath;
         }
     }
 }
