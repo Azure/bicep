@@ -95,8 +95,8 @@ namespace Bicep.Core.Emit
         {
             var converterForContext = converter.CreateConverterForIndexReplacement(resourceNameSyntax, indexExpression, newContext);
 
-            var unqualifiedResourceId = converterForContext.ConvertExpression(resourceNameSyntax);
-            var serialized = ExpressionSerializer.SerializeExpression(unqualifiedResourceId);
+            var resourceName = converterForContext.ConvertExpression(resourceNameSyntax);
+            var serialized = ExpressionSerializer.SerializeExpression(resourceName);
 
             writer.WriteValue(serialized);
         }
