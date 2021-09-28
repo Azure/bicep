@@ -70,6 +70,7 @@ namespace Bicep.Core.Emit
             {
                 // scope indexing can only happen with references to module or resource collections
                 ArrayAccessSyntax { BaseExpression: VariableAccessSyntax baseVariableAccess } arrayAccess => (semanticModel.GetSymbolInfo(baseVariableAccess), arrayAccess.IndexExpression),
+                ArrayAccessSyntax { BaseExpression: ResourceAccessSyntax baseVariableAccess } arrayAccess => (semanticModel.GetSymbolInfo(baseVariableAccess), arrayAccess.IndexExpression),
 
                 // all other scope expressions
                 _ => (semanticModel.GetSymbolInfo(scopeValue), null)
