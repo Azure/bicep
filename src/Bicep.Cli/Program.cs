@@ -9,8 +9,10 @@ using Bicep.Cli.Services;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Exceptions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
@@ -42,13 +44,13 @@ namespace Bicep.Cli
 
             BicepDeploymentsInterop.Initialize();
 
-            if (bool.TryParse(Environment.GetEnvironmentVariable("BICEP_TRACING_ENABLED"), out var enableTracing) && enableTracing)
+            if (FeatureProvider.TracingEnabled)
             {
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
 
             var program = new Program(new InvocationContext(
-                AzResourceTypeProvider.CreateWithAzTypes(),
+                new AzResourceTypeLoader(),
                 Console.Out,
                 Console.Error,
                 ThisAssembly.AssemblyFileVersion,

@@ -71,7 +71,7 @@ namespace Bicep.Cli.Services
             }
 
             var configuration = this.configurationManager.GetConfiguration(inputUri);
-            var compilation = new Compilation(this.invocationContext.ResourceTypeProvider, sourceFileGrouping, configuration);
+            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration);
 
             LogDiagnostics(compilation);
 

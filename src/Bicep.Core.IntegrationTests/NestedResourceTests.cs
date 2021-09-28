@@ -56,7 +56,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var model = compilation.GetEntrypointSemanticModel();
 
-            model.GetAllDiagnostics().Should().BeEmpty();
+            model.GetAllDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
             var expected = new[]
             {
@@ -95,8 +95,8 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             var model = compilation.GetEntrypointSemanticModel();
 
             // The property "resource" is not allowed ...
-            model.GetAllDiagnostics().Should().HaveCount(1);
-            model.GetAllDiagnostics().Single().Should().HaveCodeAndSeverity("BCP037", DiagnosticLevel.Error);
+            model.GetAllDiagnostics().ExcludingMissingTypes().Should().HaveCount(1);
+            model.GetAllDiagnostics().ExcludingMissingTypes().Single().Should().HaveCodeAndSeverity("BCP037", DiagnosticLevel.Error);
 
             var expected = new[]
             {
@@ -152,7 +152,7 @@ output fromGrandchild string = parent::child::grandchild.properties.style
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var model = compilation.GetEntrypointSemanticModel();
 
-            model.GetAllDiagnostics().Should().BeEmpty();
+            model.GetAllDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
             var parent = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent");
             var references = model.FindReferences(parent);
@@ -212,7 +212,7 @@ output fromGrandchildInvalid string = parent::child::cousin.properties.temperatu
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var model = compilation.GetEntrypointSemanticModel();
 
-            model.GetAllDiagnostics().Should().HaveDiagnostics(new[]{
+            model.GetAllDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[]{
                 ("BCP158", DiagnosticLevel.Error, "Cannot access nested resources of type \"'hi'\". A resource type is required."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"parent\" does not contain a nested resource named \"child2\". Known nested resources are: \"child\"."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"child\" does not contain a nested resource named \"cousin\". Known nested resources are: \"grandchild\"."),
@@ -246,7 +246,7 @@ resource other 'My.RP/parentType@2020-01-01' = {
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
-            diagnostics.Should().HaveDiagnostics(new[] {
+            diagnostics.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"child\" does not exist in the current context."),
             });
         }
@@ -271,7 +271,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
-            diagnostics.Should().HaveDiagnostics(new[] {
+            diagnostics.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
             });
         }
@@ -328,7 +328,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
-            diagnostics.Should().HaveDiagnostics(new[] {
+            diagnostics.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
                 ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in containing resource \"child\"."),
             });
@@ -354,7 +354,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 ";
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(new[] {
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"child\" -> \"parent\")."),
             });
         }
@@ -385,7 +385,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 ";
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().HaveDiagnostics(new[] {
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"grandchild\" does not exist in the current context."),
             });
         }
@@ -415,7 +415,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var model = compilation.GetEntrypointSemanticModel();
-            model.GetAllDiagnostics().Should().BeEmpty();
+            model.GetAllDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
             var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
@@ -464,7 +464,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var model = compilation.GetEntrypointSemanticModel();
-            model.GetAllDiagnostics().Should().BeEmpty();
+            model.GetAllDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
             var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
@@ -578,15 +578,13 @@ output hmmmm string = parent::child.properties
         [TestMethod]
         public void NestedResources_provides_correct_error_for_resource_access_with_broken_body()
         {
-            var program = @"
+            var result = CompilationHelper.Compile(@"
 resource broken 'Microsoft.Network/virtualNetworks@2020-06-01' =
 
 output foo string = broken::fake
-";
+");
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
-            var model = compilation.GetEntrypointSemanticModel();
-            model.GetAllDiagnostics().Should().HaveDiagnostics(new[] {
+            result.Should().HaveDiagnostics(new[] {
                 ("BCP118", DiagnosticLevel.Error, "Expected the \"{\" character, the \"[\" character, or the \"if\" keyword at this location."),
                 ("BCP159", DiagnosticLevel.Error, "The resource \"broken\" does not contain a nested resource named \"fake\". Known nested resources are: \"(none)\"."),
             });

@@ -27,8 +27,9 @@ namespace Bicep.Core.Registry
 
         public override ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => LocalModuleReference.TryParse(reference, out failureBuilder);
 
-        public override Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, LocalModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, LocalModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
+            parentModuleUri = parentModuleUri ?? throw new ArgumentException($"{nameof(parentModuleUri)} must not be null for local module references.");
             var localUri = fileResolver.TryResolveFilePath(parentModuleUri, reference.Path);
             if (localUri is not null)
             {

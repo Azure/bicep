@@ -181,7 +181,7 @@
         <key>name</key>
         <string>keyword.control.declaration.bicep</string>
         <key>match</key>
-        <string>\b(targetScope|resource|module|param|var|output|for|in|if|existing)\b</string>
+        <string>\b(targetScope|resource|module|param|var|output|for|in|if|existing|import|from)\b</string>
       </dict>
       <key>line-comment</key>
       <dict>

@@ -46,8 +46,8 @@ namespace Bicep.Core.Semantics
             var symbolContext = new SymbolContext(compilation, this);
             SymbolContext = symbolContext;
 
-            Binder = new Binder(sourceFile, symbolContext);
-            TypeManager = new TypeManager(compilation.ResourceTypeProvider, Binder, fileResolver);
+            Binder = new Binder(compilation.NamespaceProvider, sourceFile, symbolContext);
+            TypeManager = new TypeManager(Binder, fileResolver);
 
             // name binding is done
             // allow type queries now
@@ -209,76 +209,7 @@ namespace Bicep.Core.Semantics
         /// </summary>
         /// <param name="syntax">the syntax node</param>
         public Symbol? GetSymbolInfo(SyntaxBase syntax)
-        {
-            static PropertySymbol? GetPropertySymbol(TypeSymbol? baseType, string property)
-            {
-                if (baseType is null)
-                {
-                    return null;
-                }
-
-                var typeProperty = TypeAssignmentVisitor.UnwrapType(baseType) switch
-                {
-                    ObjectType x => x.Properties.TryGetValue(property, out var tp) ? tp : null,
-                    DiscriminatedObjectType x => x.TryGetDiscriminatorProperty(property),
-                    _ => null
-                };
-
-                if (typeProperty is null)
-                {
-                    return null;
-                }
-
-                return new PropertySymbol(property, typeProperty.Description, typeProperty.TypeReference.Type);
-            }
-
-            switch (syntax)
-            {
-                case InstanceFunctionCallSyntax ifc:
-                    {
-                        var baseType = GetDeclaredType(ifc.BaseExpression);
-
-                        if (baseType is null)
-                        {
-                            return null;
-                        }
-
-                        switch (TypeAssignmentVisitor.UnwrapType(baseType))
-                        {
-                            case NamespaceType namespaceType when SourceFile.Hierarchy.GetParent(ifc) is DecoratorSyntax:
-                                return namespaceType.DecoratorResolver.TryGetSymbol(ifc.Name);
-                            case ObjectType objectType:
-                                return objectType.MethodResolver.TryGetSymbol(ifc.Name);
-                        }
-
-                        return null;
-                    }
-                case PropertyAccessSyntax propertyAccess:
-                    {
-                        var baseType = GetDeclaredType(propertyAccess.BaseExpression);
-                        var property = propertyAccess.PropertyName.IdentifierName;
-
-                        return GetPropertySymbol(baseType, property);
-                    }
-                case ObjectPropertySyntax objectProperty:
-                    {
-                        if (Binder.GetParent(objectProperty) is not { } parentSyntax)
-                        {
-                            return null;
-                        }
-
-                        var baseType = GetDeclaredType(parentSyntax);
-                        if (objectProperty.TryGetKeyText() is not { } property)
-                        {
-                            return null;
-                        }
-
-                        return GetPropertySymbol(baseType, property);
-                    }
-            }
-
-            return this.Binder.GetSymbolInfo(syntax);
-        }
+            => SymbolHelper.TryGetSymbolInfo(Binder, TypeManager.GetDeclaredType, syntax);
 
         /// <summary>
         /// Returns all syntax nodes that represent a reference to the specified symbol. This includes the definitions of the symbol as well.

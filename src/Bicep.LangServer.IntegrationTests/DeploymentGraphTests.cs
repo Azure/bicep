@@ -20,7 +20,6 @@ using TextRange = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class DeploymentGraphTests
     {
         [NotNull]
@@ -35,7 +34,7 @@ namespace Bicep.LangServer.IntegrationTests
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
-                new LanguageServer.Server.CreationOptions(ResourceTypeProvider: BuiltInTestTypes.Create(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
+                new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"

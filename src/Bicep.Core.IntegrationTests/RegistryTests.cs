@@ -68,7 +68,7 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 

@@ -18,9 +18,9 @@ namespace Bicep.LangServer.UnitTests.Completions
         public void ZeroMatchingNodes_Create_ShouldThrow()
         {
             const string text = "var foo = 42";
-            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), SourceFileGroupingFactory.CreateFromText(text, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateFromText(text, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
 
-            Action fail = () => BicepCompletionContext.Create(compilation, text.Length + 2);
+            Action fail = () => BicepCompletionContext.Create(BicepTestConstants.Features, compilation, text.Length + 2);
             fail.Should().Throw<ArgumentException>().WithMessage("The specified offset 14 is outside the span of the specified ProgramSyntax node.");
         }
     }

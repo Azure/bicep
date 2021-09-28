@@ -174,6 +174,8 @@ namespace Bicep.Core.UnitTests.Registry
             public string Reference { get; }
 
             public override string UnqualifiedReference => this.Reference;
+
+            public override bool IsExternal => true;
         }
     }
 }

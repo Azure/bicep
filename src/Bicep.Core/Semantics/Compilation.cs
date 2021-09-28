@@ -7,7 +7,7 @@ using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.TypeSystem;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -16,10 +16,10 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(IResourceTypeProvider resourceTypeProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.SourceFileGrouping = sourceFileGrouping;
-            this.ResourceTypeProvider = resourceTypeProvider;
+            this.NamespaceProvider = namespaceProvider;
             this.Configuration = configuration;
 
             var fileResolver = SourceFileGrouping.FileResolver;
@@ -30,7 +30,7 @@ namespace Bicep.Core.Semantics
                     new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch
                     {
-                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, this.Configuration),
+                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, configuration),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics
 
         public SourceFileGrouping SourceFileGrouping { get; }
 
-        public IResourceTypeProvider ResourceTypeProvider { get; }
+        public INamespaceProvider NamespaceProvider { get; }
 
         public SemanticModel GetEntrypointSemanticModel()
             => GetSemanticModel(SourceFileGrouping.EntryPoint);

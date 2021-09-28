@@ -26,8 +26,8 @@
       "value": "Type: `params`  \nWrite-only property  \n"
     },
     "deprecated": false,
-    "preselect": false,
-    "sortText": "2_params",
+    "preselect": true,
+    "sortText": "1_params",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {

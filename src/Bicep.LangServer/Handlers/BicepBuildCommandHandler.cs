@@ -18,6 +18,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
@@ -37,13 +38,15 @@ namespace Bicep.LanguageServer.Handlers
         private readonly EmitterSettings emitterSettings;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
 
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
+        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
             : base(LanguageConstants.Build, serializer)
         {
             this.compilationManager = compilationManager;
             this.emitterSettings = emitterSettings;
+            this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
@@ -93,7 +96,7 @@ namespace Bicep.LanguageServer.Handlers
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
-                compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configuration);
+                compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration);
             }
             else
             {
@@ -137,7 +140,7 @@ namespace Bicep.LanguageServer.Handlers
 
 
         // Returns true if the template contains bicep _generator metadata, false otherwise
-        public static bool TemplateContainsBicepGeneratorMetadata(string template)
+        public bool TemplateContainsBicepGeneratorMetadata(string template)
         {
             try
             {

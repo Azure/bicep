@@ -38,7 +38,7 @@ namespace Bicep.Core.Registry
 
         public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
-        public override Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, TemplateSpecModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, TemplateSpecModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;
             return this.GetModuleEntryPointUri(reference);

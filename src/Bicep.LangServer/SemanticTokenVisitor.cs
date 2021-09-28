@@ -289,5 +289,14 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             base.VisitTargetScopeSyntax(syntax);
         }
+
+        public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
+            AddContextualKeyword(syntax.FromKeyword, LanguageConstants.FromKeyword);
+            AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
+            base.VisitImportDeclarationSyntax(syntax);
+        }
     }
 }

@@ -24,5 +24,10 @@ namespace Bicep.Core.Modules
         /// Gets the unqualified module reference, which does not include the scheme.
         /// </summary>
         public abstract string UnqualifiedReference { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this reference points to an external module.
+        /// </summary>
+        public abstract bool IsExternal { get; }
     }
 }

@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.UnitTests.Utils
@@ -102,7 +103,7 @@ namespace Bicep.Core.UnitTests.Utils
                 ), null));
         }
 
-        public static Core.TypeSystem.IResourceTypeProvider Create()
+        public static INamespaceProvider Create()
             => TestTypeHelper.CreateProviderWithTypes(new[] {
                 BasicTestsType(),
                 ReadWriteTestsType(),

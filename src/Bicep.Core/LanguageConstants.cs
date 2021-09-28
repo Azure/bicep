@@ -41,6 +41,8 @@ namespace Bicep.Core
         public const string ResourceKeyword = "resource";
         public const string ModuleKeyword = "module";
         public const string ExistingKeyword = "existing";
+        public const string ImportKeyword = "import";
+        public const string FromKeyword = "from";
 
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";
@@ -52,6 +54,8 @@ namespace Bicep.Core
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
         public const string BicepConfigurationFileName = "bicepconfig.json";
+
+        public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 

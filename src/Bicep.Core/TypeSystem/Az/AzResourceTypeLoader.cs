@@ -8,7 +8,7 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-    public class AzResourceTypeLoader : IResourceTypeLoader
+    public class AzResourceTypeLoader : IAzResourceTypeLoader
     {
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;

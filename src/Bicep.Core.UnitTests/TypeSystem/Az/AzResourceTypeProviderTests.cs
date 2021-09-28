@@ -16,6 +16,7 @@ using Bicep.Core.Extensions;
 using Moq;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Configuration;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.UnitTests.TypeSystem.Az
 {
@@ -37,7 +38,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
-            var resourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+            var resourceTypeProvider = new AzResourceTypeProvider(new AzResourceTypeLoader());
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
@@ -46,8 +47,8 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
 
             foreach (var availableType in availableTypes)
             {
-                resourceTypeProvider.HasType(availableType).Should().BeTrue();
-                var resourceType = resourceTypeProvider.GetType(availableType, flags);
+                resourceTypeProvider.HasDefinedType(availableType).Should().BeTrue();
+                var resourceType = resourceTypeProvider.TryGetDefinedType(availableType, flags)!;
 
                 try
                 {
@@ -96,7 +97,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         public void AzResourceTypeProvider_can_list_all_types_without_throwing()
 
         {
-            var resourceTypeProvider = AzResourceTypeProvider.CreateWithAzTypes();
+            var resourceTypeProvider = new AzResourceTypeProvider(new AzResourceTypeLoader());
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
@@ -109,7 +110,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             Compilation createCompilation(string program)
-                    => new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configuration);
+                    => new Compilation(new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configuration);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

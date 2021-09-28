@@ -4,6 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
+using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.LanguageServer.CompilationManager;
@@ -27,7 +29,8 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {
-            var compilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
+            var documentUri = request.TextDocument.Uri;
+            var compilationContext = this.compilationManager.GetCompilation(documentUri);
 
             if (compilationContext == null)
             {
@@ -39,7 +42,10 @@ namespace Bicep.LanguageServer.Handlers
                 ? PositionHelper.GetOffset(compilationContext.LineStarts, request.Range.End)
                 : requestStartOffset;
 
-            var quickFixes = compilationContext.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics()
+            var compilation = compilationContext.Compilation;
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            var quickFixes = diagnostics
                 .Where(fixable =>
                     fixable.Span.ContainsInclusive(requestStartOffset) ||
                     fixable.Span.ContainsInclusive(requestEndOffset) ||
@@ -47,7 +53,32 @@ namespace Bicep.LanguageServer.Handlers
                 .OfType<IFixable>()
                 .SelectMany(fixable => fixable.Fixes.Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix)));
 
-            return Task.FromResult(new CommandOrCodeActionContainer(quickFixes));
+            List<CommandOrCodeAction> commandOrCodeActions = new();
+
+            commandOrCodeActions.AddRange(quickFixes);
+
+            var analyzerDiagnostics = diagnostics
+                .Where(analyzerDiagnostic =>
+                    analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                    analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                    (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
+                .OfType<AnalyzerDiagnostic>()
+                .Select(analyzerDiagnostic => DisableLinterRule(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ResourceName));
+
+            commandOrCodeActions.AddRange(analyzerDiagnostics);
+
+            return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
+        }
+
+        private static CommandOrCodeAction DisableLinterRule(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
+        {
+            var command  = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty);
+
+            return new CodeAction
+            {
+                Title = LangServerResources.DisableLinterRule,
+                Command = command
+            };
         }
 
         public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)

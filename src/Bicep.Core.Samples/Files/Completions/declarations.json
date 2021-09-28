@@ -772,7 +772,7 @@
     "detail": "Container Registry",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'Classic'\n  }\n  properties: {\n    adminUserEnabled: true\n  }\n}\n\n```"
+      "value": "```bicep\nresource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'Basic'\n  }\n  properties: {\n    adminUserEnabled: true\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -781,7 +781,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:containerRegistry} 'Microsoft.ContainerRegistry/registries@2019-05-01' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3|'Classic','Basic','Standard','Premium'|}\n  }\n  properties: {\n    adminUserEnabled: ${4|true,false|}\n  }\n}\n"
+      "newText": "resource ${1:containerRegistry} 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3|'Basic','Standard','Premium'|}\n  }\n  properties: {\n    adminUserEnabled: ${4|true,false|}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",

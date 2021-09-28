@@ -23,7 +23,7 @@ namespace Bicep.Core.Registry
 
         public abstract Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<T> references);
 
-        public abstract Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, T reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        public abstract Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, T reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         public abstract ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
@@ -34,7 +34,7 @@ namespace Bicep.Core.Registry
         public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references) =>
             this.RestoreModules(references.Select(ConvertReference));
 
-        public Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+        public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             this.TryGetLocalModuleEntryPointUri(parentModuleUri, ConvertReference(reference), out failureBuilder);
 
         private static T ConvertReference(ModuleReference reference) => reference switch

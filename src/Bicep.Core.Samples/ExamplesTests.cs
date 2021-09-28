@@ -122,7 +122,7 @@ namespace Bicep.Core.Samples
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configuration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
 
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
@@ -186,7 +186,7 @@ namespace Bicep.Core.Samples
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var compilation = new Compilation(AzResourceTypeProvider.CreateWithAzTypes(), sourceFileGrouping, configuration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.WithSymbolicNamesEnabled);
 
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())

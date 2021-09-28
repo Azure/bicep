@@ -607,7 +607,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var typeProvider = TestTypeHelper.CreateEmptyProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
 
-            return typeProvider.GetType(typeReference, ResourceTypeGenerationFlags.None);
+            return typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!.ResourceTypeProvider.TryGenerateDefaultType(typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
         private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(SyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)
@@ -622,7 +622,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<Symbol?>(null);
 
-            var typeManager = new TypeManager(TestTypeHelper.CreateEmptyProvider(), binderMock.Object, fileResolverMock.Object);
+            var typeManager = new TypeManager(binderMock.Object, fileResolverMock.Object);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);

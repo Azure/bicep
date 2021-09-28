@@ -9,6 +9,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
@@ -28,7 +29,26 @@ namespace Bicep.Core.UnitTests.Utils
             public BicepFile BicepFile => Compilation.SourceFileGrouping.EntryPoint;
         }
 
-        public record CompilationHelperContext(IResourceTypeProvider ResourceTypeProvider, IFeatureProvider Features);
+        public record CompilationHelperContext(
+            IAzResourceTypeLoader? AzResourceTypeLoader = null,
+            IFeatureProvider? Features = null,
+            EmitterSettings? EmitterSettings = null,
+            INamespaceProvider? NamespaceProvider = null)
+        {
+            // TODO: can we use IoC here instead of DIY-ing it?
+
+            public IAzResourceTypeLoader GetAzResourceTypeLoader()
+                => AzResourceTypeLoader ?? BicepTestConstants.AzResourceTypeLoader;
+
+            public INamespaceProvider GetNamespaceProvider()
+                => NamespaceProvider ?? new DefaultNamespaceProvider(GetAzResourceTypeLoader(), GetFeatures());
+
+            public IFeatureProvider GetFeatures()
+                => Features ?? BicepTestConstants.Features;
+
+            public EmitterSettings GetEmitterSettings()
+                => EmitterSettings ?? EmitterSettingsHelper.DefaultTestSettings;
+        }
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
         {
@@ -40,16 +60,16 @@ namespace Bicep.Core.UnitTests.Utils
             var (uriDictionary, entryUri) = CreateFileDictionary(bicepFiles);
             var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles).files);
 
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, context.Features);
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, context.GetFeatures());
 
-            return Compile(new Compilation(context.ResourceTypeProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration));
+            return Compile(context, new Compilation(context.GetNamespaceProvider(), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration));
         }
 
-        public static CompilationResult Compile(IResourceTypeProvider resourceTypeProvider, params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(resourceTypeProvider, BicepTestConstants.Features), files);
+        public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)
+            => Compile(new CompilationHelperContext(AzResourceTypeLoader: resourceTypeLoader), files);
 
         public static CompilationResult Compile(params (string fileName, string fileContents)[] files)
-            => Compile(new CompilationHelperContext(AzResourceTypeProvider.CreateWithAzTypes(), BicepTestConstants.Features), files);
+            => Compile(new CompilationHelperContext(), files);
 
         public static CompilationResult Compile(string fileContents)
             => Compile(("main.bicep", fileContents));
@@ -66,9 +86,9 @@ namespace Bicep.Core.UnitTests.Utils
             return (uriDictionary, entryUri);
         }
 
-        private static CompilationResult Compile(Compilation compilation)
+        private static CompilationResult Compile(CompilationHelperContext context, Compilation compilation)
         {
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), context.GetEmitterSettings());
 
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 

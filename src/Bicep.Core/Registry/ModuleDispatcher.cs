@@ -89,7 +89,6 @@ namespace Bicep.Core.Registry
             var registry = this.GetRegistry(moduleReference);
             
             // have we already failed to restore this module?
-            // TODO: This needs to reset after some time
             if (this.HasRestoreFailed(moduleReference, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
@@ -99,7 +98,6 @@ namespace Bicep.Core.Registry
             if (registry.IsModuleRestoreRequired(moduleReference))
             {
                 // module is not present on the local file system
-                // TODO: This error needs to have different text in CLI vs the language server
                 failureBuilder = x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference);
                 return ModuleRestoreStatus.Unknown;
             }
@@ -108,7 +106,7 @@ namespace Bicep.Core.Registry
             return ModuleRestoreStatus.Succeeded;
         }
 
-        public Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             // has restore already failed for this module?
             if(this.HasRestoreFailed(moduleReference, out var restoreFailureBuilder))

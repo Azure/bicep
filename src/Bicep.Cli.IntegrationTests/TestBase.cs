@@ -7,6 +7,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -38,7 +39,7 @@ namespace Bicep.Cli.IntegrationTests
         protected static Task<(string output, string error, int result)> Bicep(InvocationSettings settings, params string[] args) =>
             TextWriterHelper.InvokeWriterAction((@out, err) =>
                 new Program(new InvocationContext(
-                    TestTypeHelper.CreateEmptyProvider(),
+                    TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
                     @out,
                     err,
                     BicepTestConstants.DevAssemblyFileVersion,
