@@ -355,11 +355,11 @@ namespace Bicep.Core.Emit
                 case ResourceScope.ResourceGroup:
                     if (scopeData.SubscriptionIdProperty is not null)
                     {
-                        expressionEmitter.EmitProperty("subscriptionId", () => expressionEmitter.EmitResourceName(scopeData.SubscriptionIdProperty, scopeData.IndexExpression, newContext));
+                        expressionEmitter.EmitProperty("subscriptionId", () => expressionEmitter.EmitExpression(scopeData.SubscriptionIdProperty, scopeData.IndexExpression, newContext));
                     }
                     if (scopeData.ResourceGroupProperty is not null)
                     {
-                        expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitResourceName(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext));
+                        expressionEmitter.EmitProperty("resourceGroup", () => expressionEmitter.EmitExpression(scopeData.ResourceGroupProperty, scopeData.IndexExpression, newContext));
                     }
                     return;
                 default:

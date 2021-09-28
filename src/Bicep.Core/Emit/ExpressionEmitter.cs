@@ -91,12 +91,12 @@ namespace Bicep.Core.Emit
             }
         }
 
-        public void EmitResourceName(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var converterForContext = converter.CreateConverterForIndexReplacement(resourceNameSyntax, indexExpression, newContext);
 
-            var resourceName = converterForContext.ConvertExpression(resourceNameSyntax);
-            var serialized = ExpressionSerializer.SerializeExpression(resourceName);
+            var expression = converterForContext.ConvertExpression(resourceNameSyntax);
+            var serialized = ExpressionSerializer.SerializeExpression(expression);
 
             writer.WriteValue(serialized);
         }
