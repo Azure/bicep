@@ -296,7 +296,7 @@ output myOutput string = 'hello!'
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().StartWith($"Failed to parse the Bicep configuration file \"{configurationPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
+            error.Should().StartWith($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
         }
 
         [TestMethod]
@@ -318,7 +318,7 @@ output myOutput string = 'hello!'
 
             result.Should().Be(1);
             output.Should().BeEmpty();
-            error.Should().StartWith($"Failed to parse the Bicep configuration file \"{configurationPath}\" as valid JSON: \"Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.\".");
+            error.Should().StartWith($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 0.\".");
         }
 
         [TestMethod]

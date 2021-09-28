@@ -430,7 +430,7 @@ namespace Bicep.LangServer.IntegrationTests
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
 
                 await VerifyDiagnosticsAsync(diagsListener,
-                    $"Failed to parse the Bicep configuration file \"{bicepConfigUri.GetFileSystemPath()}\" as valid JSON",
+                    $"Failed to parse the contents of the Bicep configuration file \"{bicepConfigUri.GetFileSystemPath()}\" as valid JSON",
                     mainUri,
                     DiagnosticSeverity.Error,
                     new Position(0, 0),

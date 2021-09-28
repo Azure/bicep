@@ -98,7 +98,7 @@ namespace Bicep.Core.UnitTests.Configuration
             // Act & Assert.
             FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
                 .Throw<ConfigurationException>()
-                .WithMessage($"Failed to parse the Bicep configuration file \"{configurataionPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
+                .WithMessage($"Failed to parse the contents of the Bicep configuration file \"{configurataionPath}\" as valid JSON: \"The input does not contain any JSON tokens. Expected the input to start with a valid JSON token, when isFinalBlock is true. LineNumber: 0 | BytePositionInLine: 0.\".");
         }
 
         [TestMethod]

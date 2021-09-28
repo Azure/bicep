@@ -99,7 +99,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             diagnostics.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Message.Should().MatchRegex(@"Could not load the bicep configuration file "".+bicepconfig.json"". Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed.");
+                    x.Message.Should().MatchRegex(@"Failed to parse the contents of the Bicep configuration file "".+bicepconfig.json"" as valid JSON: ""Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 8 | BytePositionInLine: 13."".");
                     x.Severity.Should().Be(DiagnosticSeverity.Error);
                     x.Code?.String.Should().Be("Invalid Bicep Configuration");
                     x.Range.Should().Be(new Range

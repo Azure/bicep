@@ -101,6 +101,30 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var expectedBicepConfigContents = @"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      },
+      ""AzureGermanCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.microsoftazure.de""
+      },
+      ""Dogfood"": {
+        ""resourceManagerEndpoint"": ""https://api-dogfood.resources.windows-int.net""
+      }
+    }
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -299,6 +323,30 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{}";
             var expectedBicepConfigContents = @"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      },
+      ""AzureGermanCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.microsoftazure.de""
+      },
+      ""Dogfood"": {
+        ""resourceManagerEndpoint"": ""https://api-dogfood.resources.windows-int.net""
+      }
+    }
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,

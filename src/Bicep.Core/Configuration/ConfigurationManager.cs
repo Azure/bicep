@@ -55,7 +55,7 @@ namespace Bicep.Core.Configuration
                 }
                 catch (JsonException exception)
                 {
-                    throw new ConfigurationException($"Failed to parse the Bicep configuration file \"{customConfigurationPath}\" as valid JSON: \"{exception.Message}\".");
+                    throw new ConfigurationException($"Failed to parse the contents of the Bicep configuration file \"{customConfigurationPath}\" as valid JSON: \"{exception.Message}\".");
                 }
                 catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
                 {
