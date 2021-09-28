@@ -113,9 +113,6 @@ namespace Bicep.LangServer.IntegrationTests
       ""AzureUSGovernment"": {
         ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
       },
-      ""AzureGermanCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.microsoftazure.de""
-      },
       ""Dogfood"": {
         ""resourceManagerEndpoint"": ""https://api-dogfood.resources.windows-int.net""
       }
@@ -334,9 +331,6 @@ namespace Bicep.LangServer.IntegrationTests
       },
       ""AzureUSGovernment"": {
         ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
-      },
-      ""AzureGermanCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.microsoftazure.de""
       },
       ""Dogfood"": {
         ""resourceManagerEndpoint"": ""https://api-dogfood.resources.windows-int.net""
