@@ -81,23 +81,29 @@ namespace Bicep.Core.Configuration
 
         private string? DiscoverConfigurationFile(string? currentDirectory)
         {
-            try
+            while (!string.IsNullOrEmpty(currentDirectory))
             {
-                while (!string.IsNullOrEmpty(currentDirectory))
+                var configurationPath = this.fileSystem.Path.Combine(currentDirectory, LanguageConstants.BicepConfigurationFileName);
+
+                if (this.fileSystem.File.Exists(configurationPath))
                 {
-                    var configurationPath = this.fileSystem.Path.Combine(currentDirectory, LanguageConstants.BicepConfigurationFileName);
+                    return configurationPath;
+                }
 
-                    if (this.fileSystem.File.Exists(configurationPath))
-                    {
-                        return configurationPath;
-                    }
-
+                try
+                {
+                    // Catching Directory.GetParent alone because it is the only one that throws IO related exceptions.
+                    // Path.Combine only throws ArgumentNullException which indicates a bug in our code.
+                    // File.Exists will not throw exceptions regardless the existence of path or if the user has permissions to read the file.
                     currentDirectory = this.fileSystem.Directory.GetParent(currentDirectory)?.FullName;
                 }
-            }
-            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
-            {
-                throw new ConfigurationException($"Error while discovering Bicep configuration file: \"{exception.Message}\".");
+                catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
+                {
+                    // TODO: add telemetry here so that users can understand if there's an issue finding Bicep config.
+                    // The exception could happen in senarios where users may not have read permission on the parent folder.
+                    // We should not throw ConfigurationException in such cases since it will block compilation.
+                    return null;
+                }
             }
 
             return null;

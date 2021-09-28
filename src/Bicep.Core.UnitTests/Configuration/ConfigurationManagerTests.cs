@@ -128,7 +128,7 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void GetConfiguration_ErrorDiscovringConfiguration_ThrowsErrorDiscoveringConfigurationException()
+        public void GetConfiguration_IOExceptionWhenDiscovringConfiguration_ReturnsDefaultConfiguration()
         {
             // Arrange.
             var fileSystemMock = StrictMock.Of<IFileSystem>();
@@ -139,11 +139,10 @@ namespace Bicep.Core.UnitTests.Configuration
 
             var sut = new ConfigurationManager(fileSystemMock.Object);
             var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+            var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Act & Assert.
-            FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
-                .Throw<ConfigurationException>()
-                .WithMessage($"Error while discovering Bicep configuration file: \"Oops.\".");
+            configuration.Should().Be(sut.GetBuiltInConfiguration());
         }
 
         [TestMethod]

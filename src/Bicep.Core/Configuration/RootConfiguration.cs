@@ -30,6 +30,10 @@ namespace Bicep.Core.Configuration
 
         public AnalyzersConfiguration Analyzers { get; }
 
+        /// <summary>
+        /// Gets the built-in configuraiton manifest resource name if the configuration is a built-in configuraiton,
+        /// or a path to a bicepconfig.json file if the configuration is a custom one.
+        /// </summary>
         public string ResourceName { get; }
 
         public bool IsBuiltIn => ResourceName == ConfigurationManager.BuiltInConfigurationResourceName;
