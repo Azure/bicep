@@ -23,6 +23,7 @@ namespace Bicep.Core.TypeSystem
             this.DecoratorResolver = new DecoratorResolver(this, decorators);
             ProviderName = providerName;
             ResourceTypeProvider = resourceTypeProvider;
+            ConfigurationType = configurationType;
             IsSingleton = isSingleton;
         }
 
