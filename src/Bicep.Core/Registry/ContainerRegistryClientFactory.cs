@@ -3,6 +3,7 @@
 
 using Azure.Core;
 using Bicep.Core.RegistryClient;
+using Bicep.Core.Tracing;
 using System;
 
 namespace Bicep.Core.Registry
@@ -12,9 +13,7 @@ namespace Bicep.Core.Registry
         public BicepRegistryBlobClient CreateBlobClient(Uri registryUri, string repository, TokenCredential credential)
         {
             var options = new ContainerRegistryClientOptions();
-
-            // ensure User-Agent mentions us
-            options.Diagnostics.ApplicationId = $"{LanguageConstants.LanguageId}/{ThisAssembly.AssemblyFileVersion}";
+            options.Diagnostics.ApplySharedContainerRegistrySettings();
 
             return new(registryUri, credential, repository, options);
         }

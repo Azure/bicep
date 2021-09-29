@@ -7,6 +7,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -94,10 +95,13 @@ namespace Bicep.LanguageServer
                 Trace.Listeners.Add(new ServerLogTraceListener(server));
             }
 
-            var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
-            scheduler.Start();
+            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+            {
+                var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
+                scheduler.Start();
 
-            await server.WaitForExit;
+                await server.WaitForExit;
+            }
         }
 
         private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
