@@ -12,7 +12,7 @@ using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
@@ -35,7 +35,7 @@ namespace Bicep.Cli
             this.invocationContext = invocationContext;
         }
 
-        public static Task<int> Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             string profilePath = DirHelper.GetTempPath();
             ProfileOptimization.SetProfileRoot(profilePath);
@@ -49,14 +49,20 @@ namespace Bicep.Cli
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
 
-            var program = new Program(new InvocationContext(
-                new AzResourceTypeLoader(),
-                Console.Out,
-                Console.Error,
-                features: null,
-                clientFactory: null));
+            // this event listener picks up SDK events and writes them to Trace.WriteLine()
+            using(FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+            {
+                var program = new Program(new InvocationContext(
+                    new AzResourceTypeLoader(),
+                    Console.Out,
+                    Console.Error,
+                    features: null,
+                    clientFactory: null));
 
-            return program.RunAsync(args);
+                // this must be awaited so dispose of the listener occurs in the continuation
+                // rather than the sync part at the beginning of RunAsync()
+                return await program.RunAsync(args);
+            }
         }
 
         public async Task<int> RunAsync(string[] args)
