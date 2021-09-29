@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -17,13 +17,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "no-hardcoded-env-urls";
 
-        private ImmutableArray<string>? disallowedHosts;
-        public ImmutableArray<string> DisallowedHosts => disallowedHosts.HasValue ? disallowedHosts.Value : ImmutableArray<string>.Empty;
+        private ImmutableArray<string> disallowedHosts;
+        public ImmutableArray<string> DisallowedHosts => disallowedHosts;
 
-        private ImmutableArray<string>? excludedHosts;
-        public ImmutableArray<string> ExcludedHosts => excludedHosts.HasValue ? excludedHosts.Value : ImmutableArray<string>.Empty;
+        private ImmutableArray<string> excludedHosts;
+        public ImmutableArray<string> ExcludedHosts => excludedHosts;
 
-        private int MinimumHostLength;
+        private int minimumHostLength;
         private bool HasHosts;
 
         public NoHardcodedEnvironmentUrlsRule() : base(
@@ -33,17 +33,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
         }
 
-        public override void Configure(IConfigurationRoot config)
+        public override void Configure(AnalyzersConfiguration config)
         {
             base.Configure(config);
 
-            this.disallowedHosts = GetArray(nameof(DisallowedHosts), Array.Empty<string>())
-                                    .ToImmutableArray();
-            this.MinimumHostLength = this.disallowedHosts.Value.Min(h => h.Length);
-            this.excludedHosts = GetArray(nameof(ExcludedHosts), Array.Empty<string>())
-                                    .ToImmutableArray();
+            this.disallowedHosts = this.GetConfigurationValue(nameof(DisallowedHosts), Array.Empty<string>()).ToImmutableArray();
+            this.excludedHosts = this.GetConfigurationValue(nameof(ExcludedHosts), Array.Empty<string>()).ToImmutableArray();
 
-            this.HasHosts = this.disallowedHosts?.Any() ?? false;
+            this.minimumHostLength = this.disallowedHosts.Any() ? this.disallowedHosts.Min(h => h.Length) : 0;
+            this.HasHosts = this.disallowedHosts.Any();
         }
 
         public override string FormatMessage(params object[] values)
@@ -53,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             if (HasHosts)
             {
-                var visitor = new Visitor(this.DisallowedHosts, this.MinimumHostLength, this.ExcludedHosts);
+                var visitor = new Visitor(this.DisallowedHosts, this.minimumHostLength, this.ExcludedHosts);
                 visitor.Visit(model.SourceFile.ProgramSyntax);
 
                 return visitor.DisallowedHostSpans.Select(entry => CreateDiagnosticForSpan(entry.Key, entry.Value));

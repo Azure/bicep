@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
                 var directoryContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath()) ??
                     throw new ArgumentException("Unable to find directory information");
 
-                bicepConfigFilePath = Path.Combine(directoryContainingSourceFile, LanguageConstants.BicepConfigSettingsFileName);
+                bicepConfigFilePath = Path.Combine(directoryContainingSourceFile, LanguageConstants.BicepConfigurationFileName);
                 return (bicepConfigFilePath, DisableLinterRule(string.Empty, code));
             }
         }

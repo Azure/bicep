@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Handlers
                     analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
                     (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
                 .OfType<AnalyzerDiagnostic>()
-                .Select(analyzerDiagnostic => DisableLinterRule(documentUri, analyzerDiagnostic.Code, compilation.ConfigHelper.CustomSettingsFileName));
+                .Select(analyzerDiagnostic => DisableLinterRule(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ResourceName));
 
             commandOrCodeActions.AddRange(analyzerDiagnostics);
 

@@ -13,7 +13,6 @@ using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -24,18 +23,15 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class BicepConfigTests
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private MockRepository Repository = new(MockBehavior.Strict);
-
         [TestMethod]
         public async Task BicepConfigFileModification_ShouldNotRefreshCompilation()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -52,8 +48,8 @@ namespace Bicep.LangServer.IntegrationTests
 }";
             var bicepFileContents = @"param storageAccountName string = 'test'";
 
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, testOutputPath, fileSystemDict);
-            var bicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, testOutputPath, fileSystemDict);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
+            var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
 
             // open the main document and verify diagnostics
             {
@@ -91,7 +87,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepConfigFileDeletion_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -109,8 +105,8 @@ namespace Bicep.LangServer.IntegrationTests
 
             var bicepFileContents = @"param storageAccountName string = 'test'";
 
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, testOutputPath, fileSystemDict);
-            var bicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, testOutputPath, fileSystemDict);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
+            var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
 
             // open the main document and verify diagnostics
             {
@@ -151,10 +147,10 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepConfigFileCreation_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
 
             var bicepFileContents = @"param storageAccountName string = 'test'";
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, testOutputPath, fileSystemDict);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
 
             // open the main document and verify diagnostics
             {
@@ -184,7 +180,7 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-                var bicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, testOutputPath, fileSystemDict);
+                var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
 
                 client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
                 {
@@ -208,10 +204,10 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task SavingBicepConfigFile_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
 
             var bicepFileContents = @"param storageAccountName string = 'test'";
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, testOutputPath, fileSystemDict);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
 
             // open the main document and verify diagnostics
             {
@@ -242,7 +238,7 @@ namespace Bicep.LangServer.IntegrationTests
   }
 }";
 
-                var bicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, testOutputPath, fileSystemDict);
+                var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
 
                 client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
                 {
@@ -266,7 +262,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task WithBicepConfigInParentDirectory_WhenNewBicepConfigFileIsAddedToCurrentDirectory_ShouldUseNewlyAddedConfigSettings()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -282,11 +278,11 @@ namespace Bicep.LangServer.IntegrationTests
   }
 }";
 
-            SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
+            SaveFile("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath);
 
             var childDirectoryPath = Path.Combine(parentDirectoryPath, "child");
             var bicepFileContents = @"param storageAccountName string = 'test'";
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, childDirectoryPath, fileSystemDict);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, childDirectoryPath);
 
             // open the main document and verify diagnostics
             {
@@ -317,7 +313,7 @@ namespace Bicep.LangServer.IntegrationTests
   }
 }";
 
-                var newBicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, childDirectoryPath, fileSystemDict);
+                var newBicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, childDirectoryPath);
 
                 client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
                 {
@@ -341,11 +337,11 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task WithBicepConfigInCurrentDirectory_WhenNewBicepConfigFileIsAddedToParentDirectory_ShouldUseOldConfigSettings()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client,  MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
 
             var childDirectoryPath = Path.Combine(parentDirectoryPath, "child");
             var bicepFileContents = @"param storageAccountName string = 'test'";
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, childDirectoryPath, fileSystemDict);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, childDirectoryPath);
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -360,7 +356,7 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, childDirectoryPath, fileSystemDict);
+            SaveFile("bicepconfig.json", bicepConfigFileContents, childDirectoryPath);
 
             // open the main document and verify diagnostics
             {
@@ -390,7 +386,7 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-                var newBicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
+                var newBicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath);
 
                 client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
                 {
@@ -414,7 +410,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task FixingErrorsInInvalidBicepConfigFileAndSaving_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -426,20 +422,20 @@ namespace Bicep.LangServer.IntegrationTests
 ";
             var bicepFileContents = @"param storageAccountName string = 'test'";
 
-            var bicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, testOutputPath, fileSystemDict);
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, testOutputPath, fileSystemDict);
+            var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
 
             // open the main document and verify diagnostics
             {
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
 
                 await VerifyDiagnosticsAsync(diagsListener,
-                    @"Could not load configuration file. Expected depth to be zero at the end of the JSON payload. There is an open JSON object or array that should be closed. LineNumber: 7 | BytePositionInLine: 0.",
+                    $"Failed to parse the contents of the Bicep configuration file \"{bicepConfigUri.GetFileSystemPath()}\" as valid JSON",
                     mainUri,
                     DiagnosticSeverity.Error,
                     new Position(0, 0),
                     new Position(1, 0),
-                    "Fatal");
+                    "Invalid Bicep Configuration");
             }
 
             // update bicepconfig.json and verify diagnostics
@@ -479,7 +475,7 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task WithMultipleConfigFiles_ShouldUseConfigSettingsFromRelevantDirectory()
         {
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
+            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
 
             var childDirectoryPath = Path.Combine(parentDirectoryPath, "child");
 
@@ -496,10 +492,10 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, childDirectoryPath, fileSystemDict);
+            SaveFile("bicepconfig.json", bicepConfigFileContents, childDirectoryPath);
 
             string bicepFileContents = @"param storageAccountName string = 'test'";
-            var documentUriOfFileInChildDirectory = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, childDirectoryPath, fileSystemDict);
+            var documentUriOfFileInChildDirectory = SaveFile("main.bicep", bicepFileContents, childDirectoryPath);
             var uriOfFileInChildDirectory = documentUriOfFileInChildDirectory.ToUri();
 
             // open the main document and verify diagnostics
@@ -517,7 +513,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             // add bicepconfig.json to parent directory and verify diagnostics
             {
-                var documentUriOfFileInParentDirectory = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, parentDirectoryPath, fileSystemDict);
+                var documentUriOfFileInParentDirectory = SaveFile("main.bicep", bicepFileContents, parentDirectoryPath);
                 var uriOfFileInParentDirectory = documentUriOfFileInParentDirectory.ToUri();
 
                 bicepConfigFileContents = @"{
@@ -533,7 +529,7 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-                var newBicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath, fileSystemDict);
+                var newBicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, parentDirectoryPath);
 
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(uriOfFileInParentDirectory, bicepFileContents, 1));
 
@@ -556,102 +552,7 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
-        [TestMethod]
-        public async Task ModifyBicepConfigFileAndVerifyCallsToFileResolver()
-        {
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync(mockFileResolver.Object);
-
-            var bicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var bicepFileContents = @"param storageAccountName string = 'test'";
-
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, testOutputPath, fileSystemDict);
-            var bicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, testOutputPath, fileSystemDict);
-
-            // open main.bicep and update bicepconfig.json. Verify FileResolver.FileExists(..) was called twice
-            {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
-
-                await diagsListener.WaitNext();
-
-                mockFileResolver.Verify(x => x.FileExists(bicepConfigUri.ToUri()), Times.Once);
-
-                File.WriteAllText(bicepConfigUri.GetFileSystemPath(), @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}");
-                client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
-                {
-                    Changes = new Container<FileEvent>(new FileEvent
-                    {
-                        Type = FileChangeType.Changed,
-                        Uri = bicepConfigUri,
-                    })
-                });
-
-                mockFileResolver.Verify(x => x.FileExists(bicepConfigUri.ToUri()), Times.Once);
-            }
-        }
-
-        [TestMethod]
-        public async Task ModifyBicepFileAndVerifyCallsToFileResolver()
-        {
-            var mockFileResolver = Repository.Create<IFileResolver>();
-            (ILanguageClient client, Dictionary<Uri, string> fileSystemDict, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync(mockFileResolver.Object);
-
-            var bicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var bicepFileContents = @"param storageAccountName string = 'test'";
-
-            var mainUri = SaveFileAndUpdateFileSystemDictionary("main.bicep", bicepFileContents, testOutputPath, fileSystemDict);
-            var bicepConfigUri = SaveFileAndUpdateFileSystemDictionary("bicepconfig.json", bicepConfigFileContents, testOutputPath, fileSystemDict);
-
-            // open and update main.bicep. Verify FileResolver.FileExists(..) was called only once
-            {
-                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
-                await diagsListener.WaitNext();
-
-                mockFileResolver.Verify(x => x.FileExists(bicepConfigUri.ToUri()), Times.Once);
-
-                client.TextDocument.DidChangeTextDocument(TextDocumentParamHelper.CreateDidChangeTextDocumentParams(mainUri, @"param storageAccountId int = 123", 2));
-
-                mockFileResolver.VerifyNoOtherCalls();
-            }
-        }
-
-        private async Task VerifyDiagnosticsAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener,
+        private static async Task VerifyDiagnosticsAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener,
             string message,
             DocumentUri documentUri,
             DiagnosticSeverity diagnosticSeverity,
@@ -675,13 +576,10 @@ namespace Bicep.LangServer.IntegrationTests
                 });
         }
 
-        private async Task<(ILanguageClient, Dictionary<Uri, string>, MultipleMessageListener<PublishDiagnosticsParams>, string testOutputPath)> StartServerWithClientConnectionAsync(IFileResolver? fileResolver = null)
+        private async Task<(ILanguageClient, MultipleMessageListener<PublishDiagnosticsParams>, string testOutputPath)> StartServerWithClientConnectionAsync()
         {
             var fileSystemDict = new Dictionary<Uri, string>();
-            if (fileResolver is null)
-            {
-                fileResolver = new InMemoryFileResolver(fileSystemDict);
-            }
+            var fileResolver = new InMemoryFileResolver(fileSystemDict);
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var serverOptions = new Server.CreationOptions(FileResolver: fileResolver);
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
@@ -694,14 +592,13 @@ namespace Bicep.LangServer.IntegrationTests
 
             var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
-            return (client, fileSystemDict, diagsListener, testOutputPath);
+            return (client, diagsListener, testOutputPath);
         }
 
-        private DocumentUri SaveFileAndUpdateFileSystemDictionary(string fileName, string fileContents, string testOutputPath, Dictionary<Uri, string> fileSystemDict)
+        private DocumentUri SaveFile(string fileName, string fileContents, string testOutputPath)
         {
             string path = FileHelper.SaveResultFile(TestContext, fileName, fileContents, testOutputPath);
             var documentUri = DocumentUri.FromFileSystemPath(path);
-            fileSystemDict[documentUri.ToUri()] = fileContents;
 
             return documentUri;
         }

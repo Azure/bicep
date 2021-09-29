@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Semantics;
 using Newtonsoft.Json;
 using System;

@@ -207,6 +207,24 @@ namespace Bicep.LangServer.UnitTests.Handlers
             string actual = BicepDisableLinterRuleHandler.DisableLinterRule("{}", "no-unused-params");
 
             actual.Should().BeEquivalentToIgnoringNewlines(@"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      }
+    }
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -254,10 +272,28 @@ namespace Bicep.LangServer.UnitTests.Handlers
             (string actualBicepConfigFilePath, string actualBicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigFilePathAndContents(documentUri, "no-unused-params", string.Empty);
 
             var directoryContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
-            string expectedBicepConfigFilePath = Path.Combine(directoryContainingSourceFile!, LanguageConstants.BicepConfigSettingsFileName);
+            string expectedBicepConfigFilePath = Path.Combine(directoryContainingSourceFile!, LanguageConstants.BicepConfigurationFileName);
 
             actualBicepConfigFilePath.Should().Be(expectedBicepConfigFilePath);
             actualBicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      }
+    }
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -304,9 +340,27 @@ namespace Bicep.LangServer.UnitTests.Handlers
             (string actualBicepConfigFilePath, string actualBicepConfigContents) = BicepDisableLinterRuleHandler.GetBicepConfigFilePathAndContents(documentUri, "no-unused-params", @"\nonExistent\bicepconfig.json");
 
             var directoryContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
-            string expectedBicepConfigFilePath = Path.Combine(directoryContainingSourceFile!, LanguageConstants.BicepConfigSettingsFileName);
+            string expectedBicepConfigFilePath = Path.Combine(directoryContainingSourceFile!, LanguageConstants.BicepConfigurationFileName);
             actualBicepConfigFilePath.Should().Be(expectedBicepConfigFilePath);
             actualBicepConfigContents.Should().BeEquivalentToIgnoringNewlines(@"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      }
+    }
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,

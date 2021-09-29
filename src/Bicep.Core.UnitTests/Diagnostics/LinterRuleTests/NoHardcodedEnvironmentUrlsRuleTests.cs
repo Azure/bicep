@@ -156,8 +156,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void DisallowedHostsMatchingTest(string testString, bool isMatch)
         {
             var rule = new NoHardcodedEnvironmentUrlsRule();
-            var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver); // this ensures configuration is loaded from resources
-            rule.Configure(configHelper.Config);
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            rule.Configure(configuration.Analyzers);
 
             Assert.AreEqual(isMatch, actual: rule.DisallowedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
         }
@@ -185,8 +185,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ExcludedHostsMatchingTest(string testString, bool isMatch)
         {
             var rule = new NoHardcodedEnvironmentUrlsRule();
-            var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver); // this ensures configuration is loaded from resources
-            rule.Configure(configHelper.Config);
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            rule.Configure(configuration.Analyzers);
 
             Assert.AreEqual(isMatch, rule.ExcludedHosts.Any(host => NoHardcodedEnvironmentUrlsRule.FindHostnameMatches(host, testString).Any()));
         }

@@ -1,32 +1,34 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
-using System.IO;
-using System.IO.Pipelines;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Diagnostics;
+
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.TypeSystem;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.IO.Abstractions;
+using System.IO.Pipelines;
+using System.Threading;
+using System.Threading.Tasks;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
-using Bicep.LanguageServer.Utils;
-using Bicep.Core.Features;
-using Bicep.Core.Configuration;
-using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.LanguageServer
 {
@@ -99,21 +101,20 @@ namespace Bicep.LanguageServer
 
         private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
         {
-            var fileResolver = creationOptions.FileResolver ?? new FileResolver();
-            var featureProvider = creationOptions.Features ?? new FeatureProvider();
             // using type based registration so dependencies can be injected automatically
             // without manually constructing up the graph
             services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
-            AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(services, creationOptions.NamespaceProvider);
+            services.AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(creationOptions.NamespaceProvider);
+            services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
+            services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
+            services.AddSingletonOrInstance<IFeatureProvider, FeatureProvider>(creationOptions.Features);
             services.AddSingleton<EmitterSettings>();
-            services.AddSingleton<ConfigHelper>(services => new ConfigHelper(null, fileResolver, useDefaultConfig: false));
-            AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(services, creationOptions.SnippetsProvider);
-            services.AddSingleton<IFileResolver>(services => fileResolver);
-            services.AddSingleton<IFeatureProvider>(services => creationOptions.Features ?? new FeatureProvider());
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
+            services.AddSingleton<IFileSystem, FileSystem>();
+            services.AddSingleton<IConfigurationManager, ConfigurationManager>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
@@ -121,19 +122,6 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
-        }
-
-        private static void AddSingletonOrInstance<TService, TImplementation>(IServiceCollection services, TService? nullableImplementation)
-            where TService : class where TImplementation : class, TService
-        {
-            if (nullableImplementation is not null)
-            {
-                services.AddSingleton<TService>(nullableImplementation);
-            }
-            else
-            {
-                services.AddSingleton<TService, TImplementation>();
-            }
         }
     }
 }

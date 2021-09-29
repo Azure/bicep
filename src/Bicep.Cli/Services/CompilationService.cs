@@ -7,12 +7,10 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Services
@@ -22,15 +20,23 @@ namespace Bicep.Cli.Services
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IConfigurationManager configurationManager;
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
 
-        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleDispatcher moduleDispatcher, TemplateDecompiler decompiler)
+        public CompilationService(
+            IDiagnosticLogger diagnosticLogger,
+            IFileResolver fileResolver,
+            InvocationContext invocationContext,
+            IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
+            TemplateDecompiler decompiler)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.configurationManager = configurationManager;
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
             this.decompiler = decompiler;
@@ -64,30 +70,12 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var configHelper = GetConfigHelper(inputUri);
-            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configHelper);
+            var configuration = this.configurationManager.GetConfiguration(inputUri);
+            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration);
 
             LogDiagnostics(compilation);
 
             return compilation;
-        }
-
-        private ConfigHelper GetConfigHelper(Uri uri)
-        {
-            ConfigHelper configHelper;
-
-            try
-            {
-                configHelper = new ConfigHelper(Path.GetDirectoryName(uri.LocalPath), fileResolver);
-            }
-            catch (Exception ex)
-            {
-                Console.Out.WriteLine(ex.Message);
-
-                configHelper = new ConfigHelper(null, fileResolver, useDefaultConfig: true).GetDisabledLinterConfig();
-            }
-
-            return configHelper;
         }
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)

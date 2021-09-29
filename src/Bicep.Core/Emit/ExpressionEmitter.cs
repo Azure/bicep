@@ -91,6 +91,16 @@ namespace Bicep.Core.Emit
             }
         }
 
+        public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
+        {
+            var converterForContext = converter.CreateConverterForIndexReplacement(resourceNameSyntax, indexExpression, newContext);
+
+            var expression = converterForContext.ConvertExpression(resourceNameSyntax);
+            var serialized = ExpressionSerializer.SerializeExpression(expression);
+
+            writer.WriteValue(serialized);
+        }
+
         public void EmitUnqualifiedResourceId(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var converterForContext = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
@@ -142,8 +152,11 @@ namespace Bicep.Core.Emit
             return converter.GetFullyQualifiedResourceName(resource);
         }
 
-        public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, bool fullyQualified)
-            => converter.GenerateManagementGroupResourceId(managementGroupNameProperty, fullyQualified);
+        public LanguageExpression GetManagementGroupResourceId(SyntaxBase managementGroupNameProperty, SyntaxBase? indexExpression, SyntaxBase newContext, bool fullyQualified)
+        {
+            var converterForContext = converter.CreateConverterForIndexReplacement(managementGroupNameProperty, indexExpression, newContext);
+            return converterForContext.GenerateManagementGroupResourceId(managementGroupNameProperty, fullyQualified);
+        }
 
         public void EmitLanguageExpression(SyntaxBase syntax)
         {

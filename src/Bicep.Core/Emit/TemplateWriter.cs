@@ -197,7 +197,11 @@ namespace Bicep.Core.Emit
                     // There should be exact one matching decorator since there's no errors.
                     var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
 
-                    result = decorator.Evaluate(decoratorSyntax, targetType, result);
+                    var evaluated = decorator.Evaluate(decoratorSyntax, targetType, result);
+                    if (evaluated is not null)
+                    {
+                        result = evaluated;
+                    }
                 }
             }
 
@@ -567,7 +571,7 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
-            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter);
+            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter, body);
 
             if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
             {
