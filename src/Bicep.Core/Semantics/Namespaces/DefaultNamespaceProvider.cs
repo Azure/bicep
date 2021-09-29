@@ -26,8 +26,6 @@ namespace Bicep.Core.Semantics.Namespaces
                     return SystemNamespaceType.Create(aliasName);
                 case AzNamespaceType.BuiltInName:
                     return AzNamespaceType.Create(aliasName, resourceScope, new AzResourceTypeProvider(azResourceTypeLoader));
-                case StorageNamespaceType.BuiltInName:
-                    return StorageNamespaceType.Create(aliasName);
             }
 
             return null;

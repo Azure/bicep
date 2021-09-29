@@ -163,7 +163,12 @@ import sys2 from sys
                         case "ns1":
                             return new NamespaceType(
                                 aliasName,
-                                providerName,
+                                new NamespaceSettings(
+                                    IsSingleton: true,
+                                    BicepProviderName: "ns1",
+                                    ConfigurationType: null,
+                                    ArmTemplateProviderName: "Ns1-Unused",
+                                    ArmTemplateProviderVersion: "1.0"),
                                 ImmutableArray<TypeProperty>.Empty,
                                 new [] { 
                                     new FunctionOverloadBuilder("ns1Func").Build(),
@@ -171,13 +176,16 @@ import sys2 from sys
                                 },
                                 ImmutableArray<BannedFunction>.Empty,
                                 ImmutableArray<Decorator>.Empty,
-                                new EmptyResourceTypeProvider(),
-                                configurationType: null,
-                                isSingleton: true);
+                                new EmptyResourceTypeProvider());
                         case "ns2":
                             return new NamespaceType(
                                 aliasName,
-                                providerName,
+                                new NamespaceSettings(
+                                    IsSingleton: true,
+                                    BicepProviderName: "ns2",
+                                    ConfigurationType: null,
+                                    ArmTemplateProviderName: "Ns2-Unused",
+                                    ArmTemplateProviderVersion: "1.0"),
                                 ImmutableArray<TypeProperty>.Empty,
                                 new [] { 
                                     new FunctionOverloadBuilder("ns2Func").Build(),
@@ -185,9 +193,7 @@ import sys2 from sys
                                 },
                                 ImmutableArray<BannedFunction>.Empty,
                                 ImmutableArray<Decorator>.Empty,
-                                new EmptyResourceTypeProvider(),
-                                configurationType: null,
-                                isSingleton: true);
+                                new EmptyResourceTypeProvider());
                         default:
                             return null;
                     }

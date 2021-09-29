@@ -2,11 +2,13 @@
 // Licensed under the MIT License.
 using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -16,13 +18,22 @@ namespace Bicep.Core.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private CompilationHelper.CompilationHelperContext EnabledImportsContext
-            => new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true));
+        private CompilationHelper.CompilationHelperContext GetCompilationContext()
+        {
+            var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true);
+            var resourceTypeLoader = BicepTestConstants.AzResourceTypeLoader;
+            var namespaceProvider = new ExtensibilityNamespaceProvider(resourceTypeLoader, features);
+
+            return new(
+                AzResourceTypeLoader: resourceTypeLoader,
+                Features: features,
+                NamespaceProvider: namespaceProvider);
+        }
 
         [TestMethod]
         public void Storage_import_bad_config_is_blocked()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
 import stg from storage {
   madeUpProperty: 'asdf'
 }
@@ -34,9 +45,24 @@ import stg from storage {
         }
 
         [TestMethod]
+        public void Storage_import_can_be_duplicated()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import stg1 from storage {
+  connectionString: 'connectionString1'
+}
+
+import stg2 from storage {
+  connectionString: 'connectionString2'
+}
+");
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         public void Storage_import_basic_test()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
 import stg from storage {
   connectionString: 'asdf'
 }
@@ -57,7 +83,7 @@ resource blob 'AzureStorage/blobs@2020-01-01' = {
         [TestMethod]
         public void Storage_import_end_to_end_test()
         {
-            var result = CompilationHelper.Compile(EnabledImportsContext, 
+            var result = CompilationHelper.Compile(GetCompilationContext(), 
                 ("main.bicep", @"
 param accountName string
 
@@ -101,6 +127,97 @@ resource blob 'AzureStorage/blobs@2020-01-01' = {
 Hello from Bicep!"));
 
             result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().DeepEqual(JToken.Parse(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""dev"",
+      ""templateHash"": ""193380326906580042""
+    }
+  },
+  ""parameters"": {
+    ""accountName"": {
+      ""type"": ""string""
+    }
+  },
+  ""functions"": [],
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Storage/storageAccounts"",
+      ""apiVersion"": ""2019-06-01"",
+      ""name"": ""[toLower(parameters('accountName'))]"",
+      ""location"": ""[resourceGroup().location]"",
+      ""kind"": ""Storage"",
+      ""sku"": {
+        ""name"": ""Standard_LRS""
+      }
+    },
+    {
+      ""type"": ""Microsoft.Resources/deployments"",
+      ""apiVersion"": ""2020-06-01"",
+      ""name"": ""website"",
+      ""properties"": {
+        ""expressionEvaluationOptions"": {
+          ""scope"": ""inner""
+        },
+        ""mode"": ""Incremental"",
+        ""parameters"": {
+          ""connectionString"": {
+            ""value"": ""[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', toLower(parameters('accountName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName'))), '2019-06-01').keys[0].value)]""
+          }
+        },
+        ""template"": {
+          ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""contentVersion"": ""1.0.0.0"",
+          ""metadata"": {
+            ""_generator"": {
+              ""name"": ""bicep"",
+              ""version"": ""dev"",
+              ""templateHash"": ""7856162055999366866""
+            }
+          },
+          ""parameters"": {
+            ""connectionString"": {
+              ""type"": ""secureString""
+            }
+          },
+          ""functions"": [],
+          ""imports"": {
+            ""stg"": {
+              ""provider"": ""AzureStorage"",
+              ""version"": ""1.0"",
+              ""config"": {
+                ""connectionString"": ""[parameters('connectionString')]""
+              }
+            }
+          },
+          ""resources"": [
+            {
+              ""type"": ""AzureStorage/containers"",
+              ""apiVersion"": ""2020-01-01"",
+              ""name"": ""bicep""
+            },
+            {
+              ""type"": ""AzureStorage/blobs"",
+              ""apiVersion"": ""2020-01-01"",
+              ""name"": ""blob.txt"",
+              ""containerName"": ""bicep"",
+              ""base64Content"": ""[base64('\nHello from Bicep!')]"",
+              ""dependsOn"": [
+                ""[resourceId('AzureStorage/containers', 'bicep')]""
+              ]
+            }
+          ]
+        }
+      },
+      ""dependsOn"": [
+        ""[resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName')))]""
+      ]
+    }
+  ]
+}"));
         }
     }
 }

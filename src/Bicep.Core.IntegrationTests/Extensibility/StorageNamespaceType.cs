@@ -1,23 +1,24 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
-using Bicep.Core.FileSystem;
 using Bicep.Core.Resources;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
+using Bicep.Core.Semantics;
 
-namespace Bicep.Core.Semantics.Namespaces
+namespace Bicep.Core.IntegrationTests.Extensibility
 {
     public static class StorageNamespaceType
     {
         public const string BuiltInName = "storage";
+
+        public static NamespaceSettings Settings { get; } = new(
+            IsSingleton: false,
+            BicepProviderName: BuiltInName,
+            ConfigurationType: GetConfigurationType(),
+            ArmTemplateProviderName: "AzureStorage",
+            ArmTemplateProviderVersion: "1.0");
 
         private static ObjectType GetConfigurationType()
         {
@@ -76,14 +77,12 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamespaceType(
                 aliasName,
-                BuiltInName,
+                Settings,
                 ImmutableArray<TypeProperty>.Empty,
                 ImmutableArray<FunctionOverload>.Empty,
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
-                new StorageTypeProvider(),
-                configurationType: GetConfigurationType(),
-                isSingleton: false);
+                new StorageTypeProvider());
         }
     }
 }

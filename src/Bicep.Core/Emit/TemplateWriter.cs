@@ -299,8 +299,8 @@ namespace Bicep.Core.Emit
                 jsonWriter.WritePropertyName(import.DeclaringImport.AliasName.IdentifierName);
                 jsonWriter.WriteStartObject();
 
-                emitter.EmitProperty("provider", namespaceType.ProviderName);
-                emitter.EmitProperty("version", "1");
+                emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
+                emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
                 if (import.DeclaringImport.Config is {} config)
                 {
                     emitter.EmitProperty("config", config);
