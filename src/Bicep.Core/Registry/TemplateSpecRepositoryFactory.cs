@@ -5,6 +5,7 @@ using System;
 using Azure.Core;
 using Azure.Identity;
 using Azure.ResourceManager;
+using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
 {
@@ -15,7 +16,7 @@ namespace Bicep.Core.Registry
             tokenCredential ??= new DefaultAzureCredential();
 
             var options = new ArmClientOptions();
-            options.Diagnostics.ApplicationId = $"{LanguageConstants.LanguageId}/{ThisAssembly.AssemblyFileVersion}";
+            options.Diagnostics.ApplySharedResourceManagerSettings();
             options.ApiVersions.SetApiVersion("templateSpecs", "2021-05-01");
 
             var armClient = new ArmClient(subscriptionId, endpointUri, tokenCredential, options);
