@@ -42,7 +42,6 @@ namespace Bicep.Cli.IntegrationTests
                     TestTypeHelper.CreateEmptyAzResourceTypeLoader(),
                     @out,
                     err,
-                    BicepTestConstants.DevAssemblyFileVersion,
                     features: settings.Features,
                     clientFactory: settings.ClientFactory,
                     templateSpecRepositoryFactory: settings.TemplateSpecRepositoryFactory)).RunAsync(args));

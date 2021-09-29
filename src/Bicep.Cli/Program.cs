@@ -51,7 +51,6 @@ namespace Bicep.Cli
                 new AzResourceTypeLoader(),
                 Console.Out,
                 Console.Error,
-                ThisAssembly.AssemblyFileVersion,
                 features: null,
                 clientFactory: null));
 

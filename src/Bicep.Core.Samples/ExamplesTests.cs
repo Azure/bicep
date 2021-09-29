@@ -123,7 +123,7 @@ namespace Bicep.Core.Samples
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
             var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configHelper);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettings);
 
             // quiet the linter diagnostics
             var overrideConfig = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
@@ -190,7 +190,7 @@ namespace Bicep.Core.Samples
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
             var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configHelper);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.WithSymbolicNamesEnabled);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettingsWithSymbolicNames);
 
             // quiet the linter diagnostics
             var overrideConfig = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();

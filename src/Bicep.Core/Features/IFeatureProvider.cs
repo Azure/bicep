@@ -5,6 +5,8 @@ namespace Bicep.Core.Features
 {
     public interface IFeatureProvider
     {
+        string AssemblyVersion { get; }
+
         string CacheRootDirectory { get; }
 
         bool RegistryEnabled { get; }

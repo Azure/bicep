@@ -36,8 +36,7 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null,
-            string? AssemblyFileVersion = null);
+            IFeatureProvider? Features = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -106,7 +105,7 @@ namespace Bicep.LanguageServer
             // without manually constructing up the graph
             services.AddSingleton<IAzResourceTypeLoader, AzResourceTypeLoader>();
             AddSingletonOrInstance<INamespaceProvider, DefaultNamespaceProvider>(services, creationOptions.NamespaceProvider);
-            services.AddSingleton<EmitterSettings>(services => new EmitterSettings(creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion, enableSymbolicNames: featureProvider.SymbolicNameCodegenEnabled));
+            services.AddSingleton<EmitterSettings>();
             services.AddSingleton<ConfigHelper>(services => new ConfigHelper(null, fileResolver, useDefaultConfig: false));
             AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(services, creationOptions.SnippetsProvider);
             services.AddSingleton<IFileResolver>(services => fileResolver);

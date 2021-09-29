@@ -24,7 +24,9 @@ namespace Bicep.Wasm
 {
     public class Interop
     {
-        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), new FeatureProvider());
+        private static readonly IFeatureProvider features = new FeatureProvider();
+
+        private static readonly INamespaceProvider namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), features);
 
         private readonly IJSRuntime jsRuntime;
 
@@ -122,7 +124,7 @@ namespace Bicep.Wasm
             {
                 var lineStarts = TextCoordinateConverter.GetLineStarts(content);
                 var compilation = GetCompilation(content);
-                var emitterSettings = new EmitterSettings(ThisAssembly.AssemblyFileVersion, enableSymbolicNames: false);
+                var emitterSettings = new EmitterSettings(features);
                 var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
 
                 // memory stream is not ideal for frequent large allocations
