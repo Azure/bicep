@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -18,11 +17,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class BicepConfigSchemaTests
     {
-        private readonly ConfigHelper configHelper = new(null, BicepTestConstants.FileResolver);
-
         private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
         {
-            var linter = new LinterAnalyzer(configHelper);
+            var linter = new LinterAnalyzer(BicepTestConstants.BuiltInConfiguration);
             var ruleSet = linter.GetRuleSet();
             ruleSet.Should().NotBeEmpty();
 

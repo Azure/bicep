@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using Bicep.Core.Configuration;
 using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -25,12 +26,14 @@ namespace Bicep.Decompiler
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
+        private readonly IConfigurationManager configurationManager;
 
-        public TemplateDecompiler(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider)
+        public TemplateDecompiler(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
         {
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
+            this.configurationManager = configurationManager;
         }
 
         public (Uri entrypointUri, ImmutableDictionary<Uri, string> filesToSave) DecompileFileWithModules(Uri entryJsonUri, Uri entryBicepUri)
@@ -119,7 +122,7 @@ namespace Bicep.Decompiler
             var hasChanges = false;
             var dispatcher = new ModuleDispatcher(this.registryProvider);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, null);
+            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration());
 
             foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
             {
@@ -137,7 +140,7 @@ namespace Bicep.Decompiler
                     workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, null);
+                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration());
                 }
             }
 

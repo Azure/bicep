@@ -16,13 +16,13 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, ConfigHelper? configHelper, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
+            this.Configuration = configuration;
 
             var fileResolver = SourceFileGrouping.FileResolver;
-            ConfigHelper = configHelper ?? new ConfigHelper(null, fileResolver);
 
             this.lazySemanticModelLookup = sourceFileGrouping.SourceFiles.ToImmutableDictionary(
                 sourceFile => sourceFile,
@@ -30,14 +30,14 @@ namespace Bicep.Core.Semantics
                     new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch
                     {
-                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, ConfigHelper),
+                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, configuration),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),
                     }));
         }
 
-        public ConfigHelper ConfigHelper { get; }
+        public RootConfiguration Configuration { get; }
 
         public SourceFileGrouping SourceFileGrouping { get; }
 
@@ -55,7 +55,7 @@ namespace Bicep.Core.Semantics
         public ISemanticModel GetSemanticModel(ISourceFile sourceFile)
             => this.lazySemanticModelLookup[sourceFile].Value;
 
-        public IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> GetAllDiagnosticsByBicepFile(ConfigHelper? overrideConfig = default)
+        public IReadOnlyDictionary<BicepFile, IEnumerable<IDiagnostic>> GetAllDiagnosticsByBicepFile()
             => SourceFileGrouping.SourceFiles.OfType<BicepFile>().ToDictionary(
                 bicepFile => bicepFile,
                 bicepFile => this.GetSemanticModel(bicepFile).GetAllDiagnostics());

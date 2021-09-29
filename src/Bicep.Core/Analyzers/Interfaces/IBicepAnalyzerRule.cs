@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 
@@ -18,12 +18,19 @@ namespace Bicep.Core.Analyzers.Interfaces
     public interface IBicepAnalyzerRule
     {
         string AnalyzerName { get; }
+
         string Code { get; }
+
         string Description { get; }
+
         DiagnosticLevel DiagnosticLevel { get; }
+
         DiagnosticLabel? DiagnosticLabel { get; }
+
         Uri? Uri { get; }
-        void Configure(IConfigurationRoot config);
+
+        void Configure(AnalyzersConfiguration configuration);
+
         IEnumerable<IDiagnostic> Analyze(SemanticModel model);
     }
 }

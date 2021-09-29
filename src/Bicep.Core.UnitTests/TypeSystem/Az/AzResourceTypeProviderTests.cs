@@ -30,8 +30,6 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
 
-        private static ConfigHelper configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-
         [DataTestMethod]
         [DataRow(ResourceTypeGenerationFlags.None)]
         [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
@@ -110,8 +108,9 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [TestMethod]
         public void AzResourceTypeProvider_should_warn_for_missing_resource_types()
         {
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             Compilation createCompilation(string program)
-                    => new Compilation(new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configHelper);
+                    => new Compilation(new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configuration);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
@@ -128,7 +127,7 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         public void AzResourceTypeProvider_should_error_for_top_level_and_warn_for_nested_properties()
         {
             Compilation createCompilation(string program)
-                => new Compilation(BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), null);
+                => new Compilation(BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInConfiguration);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"

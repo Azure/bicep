@@ -19,6 +19,8 @@ using Bicep.Decompiler;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Features;
+using Bicep.Core.Configuration;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Wasm
 {
@@ -59,7 +61,7 @@ namespace Bicep.Wasm
             try
             {
                 var bicepUri = PathHelper.ChangeToBicepExtension(jsonUri);
-                var decompiler = new TemplateDecompiler(namespaceProvider, fileResolver, new EmptyModuleRegistryProvider());
+                var decompiler = new TemplateDecompiler(namespaceProvider, fileResolver, new EmptyModuleRegistryProvider(), new ConfigurationManager(new IOFileSystem()));
                 var (entrypointUri, filesToSave) = decompiler.DecompileFileWithModules(jsonUri, bicepUri);
 
                 return new DecompileResult(filesToSave[entrypointUri], null);
@@ -154,9 +156,10 @@ namespace Bicep.Wasm
 
             var fileResolver = new FileResolver();
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
+            var configurationManager = new ConfigurationManager(new IOFileSystem());
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
 
-            return new Compilation(namespaceProvider, sourceFileGrouping, null);
+            return new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration());
         }
 
         private static string ReadStreamToEnd(Stream stream)

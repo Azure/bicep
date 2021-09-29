@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Semantics
         {
             const string expectedMessage = "Properties of the symbol context should not be accessed until name binding is completed.";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText("", BicepTestConstants.FileResolver), null);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText("", BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var bindings = new Dictionary<SyntaxBase, Symbol>();
             var cyclesBySymbol = new Dictionary<DeclaredSymbol, ImmutableArray<DeclaredSymbol>>();
             var context = new SymbolContext(compilation, compilation.GetEntrypointSemanticModel());

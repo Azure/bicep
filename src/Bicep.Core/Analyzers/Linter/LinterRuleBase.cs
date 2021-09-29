@@ -5,6 +5,7 @@ using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Microsoft.Extensions.Configuration;
@@ -17,9 +18,14 @@ namespace Bicep.Core.Analyzers.Linter
 {
     public abstract class LinterRuleBase : IBicepAnalyzerRule
     {
-        public LinterRuleBase(string code, string description, Uri? docUri = null,
-                          DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
-                          DiagnosticLabel? diagnosticLabel = null)
+        private AnalyzersConfiguration configuration = new(rawConfiguration: null);
+
+        public LinterRuleBase(
+            string code,
+            string description,
+            Uri? docUri = null,
+            DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
+            DiagnosticLabel? diagnosticLabel = null)
         {
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
@@ -29,14 +35,18 @@ namespace Bicep.Core.Analyzers.Linter
             this.DiagnosticLabel = diagnosticLabel;
         }
 
-        private IConfigurationRoot? Config;
         public string AnalyzerName { get; }
 
         public string Code { get; }
-        public readonly string RuleConfigSection = $"{LinterAnalyzer.SettingsRoot}:{LinterAnalyzer.AnalyzerName}:rules";
+
+        public readonly string RuleConfigSection = $"{LinterAnalyzer.AnalyzerName}:rules";
+
         public DiagnosticLevel DiagnosticLevel { get; private set; }
+
         public string Description { get; }
+
         public Uri? Uri { get; }
+
         public DiagnosticLabel? DiagnosticLabel { get; }
 
 
@@ -47,13 +57,15 @@ namespace Bicep.Core.Analyzers.Linter
         /// <returns></returns>
         public virtual string FormatMessage(params object[] values) => this.Description;
 
-        public virtual void Configure(IConfigurationRoot config)
+        public virtual void Configure(AnalyzersConfiguration configuration)
         {
-            this.Config = config;
-            var configDiagLevel = GetConfiguration("level", this.DiagnosticLevel.ToString());
-            if (DiagnosticLevel.TryParse<DiagnosticLevel>(configDiagLevel, true, out var lvl))
+            this.configuration = configuration;
+
+            var levelValue = this.GetConfigurationValue("level", this.DiagnosticLevel.ToString());
+
+            if (Enum.TryParse<DiagnosticLevel>(levelValue, true, out var level))
             {
-                this.DiagnosticLevel = lvl;
+                this.DiagnosticLevel = level;
             }
         }
 
@@ -76,13 +88,12 @@ namespace Bicep.Core.Analyzers.Linter
             }
             catch (Exception ex)
             {
-                return new[]{ new AnalyzerDiagnostic(this.AnalyzerName,
-                                                    new TextSpan(0, 0),
-                                                    DiagnosticLevel.Warning,
-                                                    LinterAnalyzer.FailedRuleCode,
-                                                    string.Format(CoreResources.LinterRuleExceptionMessageFormat,this.AnalyzerName, ex.Message),
-                                                    null, null)
-                };
+                return new AnalyzerDiagnostic(
+                    this.AnalyzerName,
+                    new TextSpan(0, 0),
+                    DiagnosticLevel.Warning,
+                    LinterAnalyzer.FailedRuleCode,
+                    string.Format(CoreResources.LinterRuleExceptionMessageFormat,this.AnalyzerName, ex.Message)).AsEnumerable();
             }
         }
 
@@ -98,23 +109,12 @@ namespace Bicep.Core.Analyzers.Linter
         /// Get a setting from defaults or local override
         /// Expectation: key names for settings are lower case
         /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <param name="defaultValue"></param>
+        /// <typeparam name="T">The type of the value to convert to.</typeparam>
+        /// <param name="key">The linter configuration key.</param>
+        /// <param name="defaultValue">The default value to use if no value is found.</param>
         /// <returns></returns>
-        protected T GetConfiguration<T>(string name, T defaultValue)
-            => ConfigurationBinder.GetValue(this.Config, $"{RuleConfigSection}:{Code}:{name}", defaultValue);
-
-        /// <summary>
-        /// Get a section of the config file as an array of strings.
-        /// Expectation: all key names shoult be lower case
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="name"></param>
-        /// <param name="defaultValue"></param>
-        /// <returns></returns>
-        protected T[] GetArray<T>(string name, T[] defaultValue)
-            => this.Config?.GetSection($"{RuleConfigSection}:{Code}:{name.ToLower()}").Get<T[]>() ?? defaultValue;
+        protected T GetConfigurationValue<T>(string key, T defaultValue) =>
+            this.configuration.GetValue($"{RuleConfigSection}:{Code}:{key}", defaultValue);
 
         /// <summary>
         ///  Create a simple diagnostic that displays the defined Description

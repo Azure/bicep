@@ -6,8 +6,9 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Diagnostics;
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -19,6 +20,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Runtime;
 using System.Threading.Tasks;
 
@@ -86,17 +88,7 @@ namespace Bicep.Cli
                         return 1;
                 }
             }
-            catch (CommandLineException exception)
-            {
-                invocationContext.ErrorWriter.WriteLine(exception.Message);
-                return 1;
-            }
             catch (BicepException exception)
-            {
-                invocationContext.ErrorWriter.WriteLine(exception.Message);
-                return 1;
-            }
-            catch (ErrorDiagnosticException exception)
             {
                 invocationContext.ErrorWriter.WriteLine(exception.Message);
                 return 1;
@@ -122,6 +114,8 @@ namespace Bicep.Cli
                 .AddSingleton<IFileResolver, FileResolver>()
                 .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
                 .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
+                .AddSingleton<IFileSystem, FileSystem>()
+                .AddSingleton<IConfigurationManager, ConfigurationManager>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()

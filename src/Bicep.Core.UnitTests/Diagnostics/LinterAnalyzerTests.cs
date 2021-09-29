@@ -19,12 +19,12 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class LinterAnalyzerTests
     {
-        private readonly ConfigHelper configHelper = new(null, BicepTestConstants.FileResolver);
+        private readonly RootConfiguration configuration = BicepTestConstants.BuiltInConfiguration;
 
         [TestMethod]
         public void HasBuiltInRules()
         {
-            var linter = new LinterAnalyzer(configHelper);
+            var linter = new LinterAnalyzer(configuration);
             linter.GetRuleSet().Should().NotBeEmpty();
         }
 
@@ -37,14 +37,14 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(NoUnusedVariablesRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
-            var linter = new LinterAnalyzer(configHelper);
+            var linter = new LinterAnalyzer(configuration);
             linter.GetRuleSet().Should().Contain(r => r.Code == ruleCode);
         }
 
         [TestMethod]
         public void AllRulesHaveUniqueDetails()
         {
-            var analyzer = new LinterAnalyzer(configHelper);
+            var analyzer = new LinterAnalyzer(configuration);
             var ruleSet = analyzer.GetRuleSet();
 
             var codeSet = ruleSet.Select(r => r.Code).ToHashSet();
@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesEnabledByDefault()
         {
-            var analyzer = new LinterAnalyzer(configHelper);
+            var analyzer = new LinterAnalyzer(configuration);
             var ruleSet = analyzer.GetRuleSet();
             ruleSet.Should().OnlyContain(r => r.IsEnabled());
         }
@@ -65,7 +65,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [TestMethod]
         public void AllRulesHaveDescription()
         {
-            var analyzer = new LinterAnalyzer(configHelper);
+            var analyzer = new LinterAnalyzer(configuration);
             var ruleSet = analyzer.GetRuleSet();
             ruleSet.Should().OnlyContain(r => r.Description.Length > 0);
         }

@@ -1,4 +1,22 @@
 {
+  "cloud": {
+    "currentProfile": "AzureCloud",
+    "profiles": {
+      "AzureCloud": {
+        "resourceManagerEndpoint": "https://management.azure.com"
+      },
+      "AzureChinaCloud": {
+        "resourceManagerEndpoint": "https://management.chinacloudapi.cn"
+      },
+      "AzureUSGovernment": {
+        "resourceManagerEndpoint": "https://management.usgovcloudapi.net"
+      }
+    }
+  },
+  "moduleAliases": {
+    "ts": {},
+    "br": {}
+  },
   "analyzers": {
     "core": {
       "verbose": false,
