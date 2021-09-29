@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     public class LinterRuleTestsBase
     {
-        protected enum OnCompileErrors
+        public enum OnCompileErrors
         {
             Fail, // Assertion fails if there are compiler errors
             Ignore,
@@ -35,7 +35,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             AssertLinterRuleDiagnostics(ruleCode, bicepText, OnCompileErrors.Fail, assertAction);
         }
 
-        private void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, OnCompileErrors onCompileErrors, Action<IEnumerable<IDiagnostic>> assertAction)
+        protected void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, OnCompileErrors onCompileErrors, Action<IEnumerable<IDiagnostic>> assertAction)
         {
             RunWithDiagnosticAnnotations(
                   bicepText,
