@@ -16,7 +16,7 @@
     "@types/copy-webpack-plugin": "^8.0.1",
     "@types/node": "^16.9.6",
     "@types/pako": "^1.0.2",
-    "@types/react": "^17.0.21",
+    "@types/react": "^17.0.25",
     "@types/react-dom": "^17.0.9",
     "@types/webpack": "^5.28.0",
     "@types/webpack-dev-server": "^4.1.0",
@@ -44,7 +44,7 @@
     "monaco-editor": "^0.26.1",
     "pako": "^2.0.4",
     "react": "^17.0.2",
-    "react-bootstrap": "^1.6.3",
+    "react-bootstrap": "^1.6.4",
     "react-dom": "^17.0.2",
     "react-monaco-editor": "^0.44.0"
   }
