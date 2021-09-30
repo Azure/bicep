@@ -18,6 +18,13 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "az";
 
+        public static NamespaceSettings Settings { get; } = new(
+            IsSingleton: true,
+            BicepProviderName: BuiltInName,
+            ConfigurationType: null,
+            ArmTemplateProviderName: "AzureResourceManager",
+            ArmTemplateProviderVersion: "1.0");
+
         private static ObjectType GetRestrictedResourceGroupReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
             => new ResourceGroupScopeType(arguments, Enumerable.Empty<TypeProperty>());
 
@@ -353,14 +360,12 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamespaceType(
                 aliasName,
-                BuiltInName,
+                Settings,
                 ImmutableArray<TypeProperty>.Empty,
                 GetAzOverloads(resourceScope),
                 ImmutableArray<BannedFunction>.Empty,
                 ImmutableArray<Decorator>.Empty,
-                resourceTypeProvider,
-                configurationType: null,
-                isSingleton: true);
+                resourceTypeProvider);
         }
     }
 }

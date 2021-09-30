@@ -50,7 +50,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, compiledFilePath);
+            var result = this.EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettings, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -88,7 +88,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.WithSymbolicNamesEnabled, compiledFilePath);
+            var result = this.EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettingsWithSymbolicNames, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -112,7 +112,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, "main.json");
 
             // emitting the template should be successful
-            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, compiledFilePath);
+            var result = this.EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettings, compiledFilePath);
             result.Diagnostics.Should().BeEmpty();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -144,7 +144,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
             }
 
-            var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, memoryStream);
+            var result = this.EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettings, memoryStream);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -170,7 +170,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should fail
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), EmitterSettingsHelper.DefaultTestSettings, filePath);
+            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), BicepTestConstants.EmitterSettings, filePath);
             result.Diagnostics.Should().NotBeEmpty();
             result.Status.Should().Be(EmitStatus.Failed);
         }
@@ -204,7 +204,7 @@ this
             var stringBuilder = new StringBuilder();
             var stringWriter = new StringWriter(stringBuilder);
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettings);
             emitter.Emit(stringWriter);
 
             // second write should succeed if stringWriter wasn't closed

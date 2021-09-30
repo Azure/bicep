@@ -21,6 +21,8 @@ namespace Bicep.Core.Features
         private Lazy<bool> importsEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_IMPORTS_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool ImportsEnabled => importsEnabledLazy.Value;
 
+        public string AssemblyVersion => ThisAssembly.AssemblyFileVersion;
+
         public static bool TracingEnabled => ReadBooleanEnvVar("BICEP_TRACING_ENABLED", defaultValue: false);
 
         public static TraceVerbosity TracingVerbosity => ReadEnumEnvvar<TraceVerbosity>("BICEP_TRACING_VERBOSITY", TraceVerbosity.Basic);

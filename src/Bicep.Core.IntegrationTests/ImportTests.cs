@@ -62,6 +62,17 @@ import ns from
         }
 
         [TestMethod]
+        public void Imports_return_error_with_unrecognized_namespace()
+        {
+            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+import foo from madeUpNamespace
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP204", DiagnosticLevel.Error, "Imported namespace \"madeUpNamespace\" is not recognized."),
+            });
+        }
+
+        [TestMethod]
         public void Import_configuration_is_blocked_by_default()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
@@ -108,6 +119,20 @@ output rgLocation string = myRg.location
         }
 
         [TestMethod]
+        public void Overwriting_single_built_in_namespace_with_import_is_permitted()
+        {
+            var result = CompilationHelper.Compile(EnabledImportsContext, @"
+import sys from az
+
+var myRg = sys.resourceGroup()
+
+output rgLocation string = myRg.location
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
@@ -138,7 +163,12 @@ import sys2 from sys
                         case "ns1":
                             return new NamespaceType(
                                 aliasName,
-                                providerName,
+                                new NamespaceSettings(
+                                    IsSingleton: true,
+                                    BicepProviderName: "ns1",
+                                    ConfigurationType: null,
+                                    ArmTemplateProviderName: "Ns1-Unused",
+                                    ArmTemplateProviderVersion: "1.0"),
                                 ImmutableArray<TypeProperty>.Empty,
                                 new [] { 
                                     new FunctionOverloadBuilder("ns1Func").Build(),
@@ -146,13 +176,16 @@ import sys2 from sys
                                 },
                                 ImmutableArray<BannedFunction>.Empty,
                                 ImmutableArray<Decorator>.Empty,
-                                new EmptyResourceTypeProvider(),
-                                configurationType: null,
-                                isSingleton: true);
+                                new EmptyResourceTypeProvider());
                         case "ns2":
                             return new NamespaceType(
                                 aliasName,
-                                providerName,
+                                new NamespaceSettings(
+                                    IsSingleton: true,
+                                    BicepProviderName: "ns2",
+                                    ConfigurationType: null,
+                                    ArmTemplateProviderName: "Ns2-Unused",
+                                    ArmTemplateProviderVersion: "1.0"),
                                 ImmutableArray<TypeProperty>.Empty,
                                 new [] { 
                                     new FunctionOverloadBuilder("ns2Func").Build(),
@@ -160,9 +193,7 @@ import sys2 from sys
                                 },
                                 ImmutableArray<BannedFunction>.Empty,
                                 ImmutableArray<Decorator>.Empty,
-                                new EmptyResourceTypeProvider(),
-                                configurationType: null,
-                                isSingleton: true);
+                                new EmptyResourceTypeProvider());
                         default:
                             return null;
                     }

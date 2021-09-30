@@ -39,8 +39,7 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null,
-            string? AssemblyFileVersion = null);
+            IFeatureProvider? Features = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -113,6 +112,7 @@ namespace Bicep.LanguageServer
             services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
             services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
             services.AddSingletonOrInstance<IFeatureProvider, FeatureProvider>(creationOptions.Features);
+            services.AddSingleton<EmitterSettings>();
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
@@ -126,9 +126,6 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
-            services.AddSingleton<EmitterSettings>(services => new EmitterSettings(
-                creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion,
-                enableSymbolicNames: services.GetRequiredService<IFeatureProvider>().SymbolicNameCodegenEnabled));
         }
     }
 }
