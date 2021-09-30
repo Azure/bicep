@@ -69,7 +69,11 @@ describe("hover", (): void => {
       startCharacter: 9,
       endLine: 108,
       endCharacter: 13,
-      contents: [codeblock("resource vnet\nMicrosoft.Network/virtualNetworks@2020-06-01")],
+      contents: [
+        codeblock(
+          "resource vnet\nMicrosoft.Network/virtualNetworks@2020-06-01"
+        ),
+      ],
     });
   });
 
@@ -102,7 +106,8 @@ describe("hover", (): void => {
       contents: [
         codeblockWithDescription(
           "function uniqueString(string): string",
-          "Creates a deterministic hash string based on the values provided as parameters.")
+          "Creates a deterministic hash string based on the values provided as parameters."
+        ),
       ],
     });
   });
@@ -143,9 +148,7 @@ describe("hover", (): void => {
       );
       expect(hover.contents).toHaveLength(contents.length);
       hover.contents.forEach((content, contentIndex) => {
-        expect(normalizeMarkedString(content)).toBe(
-          contents[contentIndex]
-        );
+        expect(normalizeMarkedString(content)).toBe(contents[contentIndex]);
       });
     });
   }
@@ -158,7 +161,10 @@ describe("hover", (): void => {
     return "```bicep\n" + rawString + "\n```\n";
   }
 
-  function codeblockWithDescription(rawString: string, description: string): string {
-    return `${codeblock(rawString)}${description}`;
+  function codeblockWithDescription(
+    rawString: string,
+    description: string
+  ): string {
+    return `${codeblock(rawString)}${description}\n`;
   }
 });
