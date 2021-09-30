@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11577929366169342351"
+      "templateHash": "655941307434348616"
     }
   },
   "parameters": {
@@ -258,7 +258,7 @@
       "apiVersion": "2020-01-01",
       "name": "interpTest",
       "properties": {
-        "[variables('myInterpKey')]": 1,
+        "[format('{0}', variables('myInterpKey'))]": 1,
         "[format('abc{0}def', variables('myInterpKey'))]": 2,
         "[format('{0}abc{1}', variables('myInterpKey'), variables('myInterpKey'))]": 3
       }
