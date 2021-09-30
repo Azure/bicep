@@ -104,6 +104,9 @@ namespace Bicep.Core.UnitTests.Utils
                     var jsonOutput = new StreamReader(stream).ReadToEnd();
 
                     template = JToken.Parse(jsonOutput);
+
+                    // validate that the template is parseable by the deployment engine
+                    TemplateHelper.TemplateShouldBeValid(jsonOutput);
                 }
             }
 

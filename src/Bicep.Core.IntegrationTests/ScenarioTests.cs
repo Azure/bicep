@@ -47,11 +47,13 @@ namespace Bicep.Core.IntegrationTests
             }
 
             var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
+            file += "output values object = {\n";
             for (var i = 0; i < lineCount; i++)
             {
-                file += $"output testa{i} string = '{randomString()} ${{adminuser}} {randomString()}'\n";
-                file += $"output testb{i} string = '{randomString()} ${{adminstring}} {randomString()}'\n";
+                file += $"  testa{i}: '{randomString()} ${{adminuser}} {randomString()}'\n";
+                file += $"  testb{i}: '{randomString()} ${{adminstring}} {randomString()}'\n";
             }
+            file += "}\n";
 
             // not a true test for existing diagnostics
             // this is a trigger to allow timing within the
@@ -403,7 +405,7 @@ var issue = true ? {
             result.Should().HaveDiagnostics(new[] {
                     (NoUnusedVariablesRule.Code, DiagnosticLevel.Warning, new NoUnusedVariablesRule().GetMessage("issue"))
                 });
-            result.Template.Should().HaveValueAtPath("$.variables.issue", "[if(true(), createObject('prop1', createObject(variables('propname'), createObject())), createObject())]");
+            result.Template.Should().HaveValueAtPath("$.variables.issue", "[if(true(), createObject('prop1', createObject(format('{0}', variables('propname')), createObject())), createObject())]");
         }
 
         [TestMethod]
