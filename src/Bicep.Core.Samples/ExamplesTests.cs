@@ -120,8 +120,8 @@ namespace Bicep.Core.Samples
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName), configuration);
             var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
 
@@ -184,8 +184,8 @@ namespace Bicep.Core.Samples
             var jsonFileName = Path.Combine(jsonOutputDirectory, Path.GetFileName(relativeJsonStreamName));
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName), configuration);
             var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.WithSymbolicNamesEnabled);
 

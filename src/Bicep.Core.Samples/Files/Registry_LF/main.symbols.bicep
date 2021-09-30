@@ -61,9 +61,9 @@ var vnets = [
   }
 ]
 
-module vnetDeploy 'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
-//@[109:113) Local vnet. Type: any. Declaration start char: 109, length: 4
-//@[7:17) Module vnetDeploy. Type: module[]. Declaration start char: 0, length: 241
+module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
+//@[88:92) Local vnet. Type: any. Declaration start char: 88, length: 4
+//@[7:17) Module vnetDeploy. Type: module[]. Declaration start char: 0, length: 220
   name: '${vnet.name}Deploy'
   scope: rg
   params: {

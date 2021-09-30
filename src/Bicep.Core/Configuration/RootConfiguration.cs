@@ -17,8 +17,8 @@ namespace Bicep.Core.Configuration
 
         public static RootConfiguration Bind(IConfiguration rawConfiguration, string resourceName, bool disableAnalyzers = false)
         {
-            var cloud = CloudConfiguration.Bind(rawConfiguration.GetSection("cloud"));
-            var moduleAliases = ModuleAliasesConfiguration.Bind(rawConfiguration.GetSection("moduleAliases"));
+            var cloud = CloudConfiguration.Bind(rawConfiguration.GetSection("cloud"), resourceName);
+            var moduleAliases = ModuleAliasesConfiguration.Bind(rawConfiguration.GetSection("moduleAliases"), resourceName);
             var analyzers = new AnalyzersConfiguration(disableAnalyzers ? null : rawConfiguration.GetSection("analyzers"));
 
             return new(cloud, moduleAliases, analyzers, resourceName);

@@ -40,14 +40,15 @@ namespace Bicep.Core.IntegrationTests.Emit
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
 
             // emitting the template should be successful
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules)));
             Workspace workspace = new();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), configuration);
+            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
             var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, compiledFilePath);
@@ -78,14 +79,15 @@ namespace Bicep.Core.IntegrationTests.Emit
             await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiledWithSymbolicNames));
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
 
             // emitting the template should be successful
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasRegistryModules)));
             Workspace workspace = new();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), configuration);
+            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
             var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.WithSymbolicNamesEnabled, compiledFilePath);
@@ -138,10 +140,11 @@ namespace Bicep.Core.IntegrationTests.Emit
             // emitting the template should be successful
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules)));
             var workspace = new Workspace();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), configuration);
+            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
             var result = this.EmitTemplate(sourceFileGrouping, EmitterSettingsHelper.DefaultTestSettings, memoryStream);
@@ -170,7 +173,8 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // emitting the template should fail
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath)), EmitterSettingsHelper.DefaultTestSettings, filePath);
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var result = this.EmitTemplate(SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath), configuration), EmitterSettingsHelper.DefaultTestSettings, filePath);
             result.Diagnostics.Should().NotBeEmpty();
             result.Status.Should().Be(EmitStatus.Failed);
         }

@@ -1156,7 +1156,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTemplateSpecReference(string invalidReference) => new(
                 TextSpan,
                 "BCP194",
-                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<resourceGroupName>/<templateSpecName>:<tag>\" or \"{ModuleReferenceSchemes.TemplateSpecs}:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
+                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
 
             public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string badRef, string badSegment) => new(
                 TextSpan,
@@ -1222,6 +1222,88 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP207",
                 $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
+
+// WIP: the following diagnostics may get changed / removed.
+            public ErrorDiagnostic CloudProfileDoesNotExistInConfiguration(string cloudProfileName, string configurationResourceName, IEnumerable<string> availableProfileNames) => new(
+                TextSpan,
+                "BCP208",
+                $"The cloud profile \"{cloudProfileName}\" does not exist in the Bicep configuration \"{configurationResourceName}\". Available profiles include {ToQuotedString(availableProfileNames.OrderBy(x => x))}.");
+
+            public ErrorDiagnostic InvalidCloudProfileResourceManagerEndpointNullOrUndefined(string cloudProfileName, string configurationResourceName) => new(
+                TextSpan,
+                "BCP209",
+                $"The cloud profile \"{cloudProfileName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The \"resourceManagerEndpoint\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic InvalidCloudProfileInvalidResourceManagerEndpoint(string cloudProfileName, string endpoint, string configurationResourceName) => new(
+                TextSpan,
+                "BCP210",
+                $"The cloud profile \"{cloudProfileName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The value of the \"resourceManagerEndpoint\" property is not a valid URL.");
+
+            public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
+                TextSpan,
+                "BCP211",
+                $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+
+            public ErrorDiagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, string configurationResourceName) => new(
+                TextSpan,
+                "BCP212",
+                $"The Template Spec module alias name \"{aliasName}\" does not exist in the Bicep configuration \"{configurationResourceName}\".");
+
+            public ErrorDiagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, string configurationResourceName) => new(
+                TextSpan,
+                "BCP213",
+                $"The OCI artifact module alias name \"{aliasName}\" does not exist in the Bicep configuration \"{configurationResourceName}\".");
+
+            public ErrorDiagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, string configurationResourceName) => new(
+                TextSpan,
+                "BCP214",
+                $"The Template Spec module alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is in valid. The \"subscription\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, string configurationResourceName) => new(
+                TextSpan,
+                "BCP215",
+                $"The OCI artifact alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The \"registry\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic InvalidModuleReferenceTooManyModuleAliasNames(int numberOfAliasNames) => new(
+                TextSpan,
+                "BCP216",
+                $"The specified module reference is invalid. There are {numberOfAliasNames} module alias names used in the module reference, but only one is allowed."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string subscriptionId, string referenceValue) => new(
+                TextSpan,
+                "BCP217",
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid. The subscription ID \"{subscriptionId}\" in is not a GUID."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceResourceGroupNameTooLong(string resourceGroupName, string referenceValue, int maximumLength) => new(
+                TextSpan,
+                "BCP218",
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid. The resource group name \"{resourceGroupName}\" exceeds the maximum length of {maximumLength} characters."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidResourceGroupName(string resourceGroupName, string referenceValue) => new(
+                TextSpan,
+                "BCP219",
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid .The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\"."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecNameTooLong(string templateSpecName, string referenceValue, int maximumLength) => new(
+                TextSpan,
+                "BCP220",
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid. The Template Spec name \"{templateSpecName}\" exceeds the maximum length of {maximumLength} characters."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecName(string templateSpecName, string referenceValue) => new(
+                TextSpan,
+                "BCP221",
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid .The Template Spec name \"{templateSpecName}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(string templateSpecVersion, string referenceValue, int maximumLength) => new(
+                TextSpan,
+                "BCP222",
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid. The Template Spec version \"{templateSpecVersion}\" exceeds the maximum length of {maximumLength} characters."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(string templateSpecVersion, string referenceValue) => new(
+                TextSpan,
+                "BCP223",
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid .The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
+// WIP: the diagnostics above may get changed / removed.
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

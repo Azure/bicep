@@ -4,6 +4,7 @@
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
 using Bicep.Core.FileSystem;
@@ -22,17 +23,20 @@ namespace Bicep.Cli.Commands
         private readonly CompilationService compilationService;
         private readonly CompilationWriter compilationWriter;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IConfigurationManager configurationManager;
 
         public PublishCommand(
             IDiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter compilationWriter,
-            IModuleDispatcher moduleDispatcher)
+            IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compilationService = compilationService;
             this.compilationWriter = compilationWriter;
             this.moduleDispatcher = moduleDispatcher;
+            this.configurationManager = configurationManager;
         }
 
         public async Task<int> RunAsync(PublishArguments args)
@@ -60,7 +64,7 @@ namespace Bicep.Cli.Commands
 
         private ModuleReference ValidateReference(string targetModuleReference)
         {
-            var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, out var failureBuilder);
+            var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, this.configurationManager.GetBuiltInConfiguration(), out var failureBuilder);
             if(moduleReference is null)
             {
                 failureBuilder = failureBuilder ?? throw new InvalidOperationException($"{nameof(moduleDispatcher.TryGetModuleReference)} did not provide an error.");

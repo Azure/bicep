@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataRow("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123")]
         [DataRow("5AA8419E-AFEB-45F2-9078-ED2167AAF51C/test-rg/deploy:1.0.0")]
-        [DataRow("api-dogfood.resources.windows-int.net/D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v1")]
+        [DataRow("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v1")]
         [DataTestMethod]
         public void TryParse_ValidReference_ReturnsParsedReference(string value)
         {
@@ -56,7 +56,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void TryParse_InvalidReference_ReturnsNullAndSetsFailureBuilder(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(rawValue, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().BeNull();
             failureBuilder.Should().NotBeNull();
@@ -72,14 +72,14 @@ namespace Bicep.Core.UnitTests.Modules
 
             yield return new object[]
             {
-                Parse("management.azure.com/010fb899-145c-44c0-97b8-83b2cb9202c5/rg1/ts1:v1"),
-                Parse("management.AZURE.com/010FB899-145C-44C0-97B8-83B2CB9202C5/RG1/TS1:V1"),
+                Parse("010fb899-145c-44c0-97b8-83b2cb9202c5/rg1/ts1:v1"),
+                Parse("010FB899-145C-44C0-97B8-83B2CB9202C5/RG1/TS1:V1"),
             };
 
             yield return new object[]
             {
-                Parse("api-dogfood.resources.windows-int.net/0243AB58-4881-4E71-A418-30C050B6F1C0/test-rg/spec1:v2"),
-                Parse("api-dogfood.resources.windows-int.net/0243AB58-4881-4E71-A418-30C050B6F1C0/test-rg/SPEC1:V2"),
+                Parse("0243AB58-4881-4E71-A418-30C050B6F1C0/test-rg/spec1:v2"),
+                Parse("0243AB58-4881-4E71-A418-30C050B6F1C0/test-rg/SPEC1:V2"),
             };
         }
 
@@ -99,14 +99,14 @@ namespace Bicep.Core.UnitTests.Modules
 
             yield return new object[]
             {
-                Parse("api-dogfood.resources.windows-int.net/0243AB58-4881-4E71-A418-30C050B6F1C0/test-rg/spec1:v2"),
-                Parse("management.azure.com/0243AB58-4881-4E71-A418-30C050B6F1C0/prod-rg/spec1:v2"),
+                Parse("0243AB58-4881-4E71-A418-30C050B6F1C0/test-rg/spec1:v2"),
+                Parse("0243AB58-4881-4E71-A418-30C050B6F1C0/prod-rg/spec1:v2"),
             };
         }
 
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(rawValue, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().NotBeNull();
             failureBuilder.Should().BeNull();

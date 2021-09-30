@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
@@ -20,6 +21,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +33,9 @@ namespace Bicep.LangServer.UnitTests.Registry
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
+        private static readonly RootConfiguration Configuration = new ConfigurationManager(new FileSystem()).GetBuiltInConfiguration();
+
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         public async Task DisposeAfterCreateShouldNotThrow()
         {
             var moduleDispatcher = Repository.Create<IModuleDispatcher>();
@@ -44,7 +47,6 @@ namespace Bicep.LangServer.UnitTests.Registry
         }
 
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         public async Task DisposeAfterStartShouldNotThrow()
         {
             var moduleDispatcher = Repository.Create<IModuleDispatcher>();
@@ -66,7 +68,6 @@ namespace Bicep.LangServer.UnitTests.Registry
         }
 
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         public async Task PublicMethodsShouldThrowAfterDispose()
         {
             var moduleDispatcher = Repository.Create<IModuleDispatcher>();
@@ -76,11 +77,10 @@ namespace Bicep.LangServer.UnitTests.Registry
             Action startFail = () => scheduler.Start();
             startFail.Should().Throw<ObjectDisposedException>();
 
-            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ModuleDeclarationSyntax>());
+            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ModuleDeclarationSyntax>(), Configuration);
             requestFail.Should().Throw<ObjectDisposedException>();
         }
 
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         [TestMethod]
         public async Task RestoreShouldBeScheduledAsRequested()
         {
@@ -110,8 +110,8 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             await using (var scheduler = new ModuleRestoreScheduler(dispatcher))
             {
-                scheduler.RequestModuleRestore(compilationManager.Object, firstUri, firstFileSet);
-                scheduler.RequestModuleRestore(compilationManager.Object, secondUri, secondFileSet);
+                scheduler.RequestModuleRestore(compilationManager.Object, firstUri, firstFileSet, Configuration);
+                scheduler.RequestModuleRestore(compilationManager.Object, secondUri, secondFileSet, Configuration);
 
                 // start processing, which will immediately pick up all the items in the queue
                 scheduler.Start();
@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests.Registry
 
                 // request more restores
                 mockRegistry.ModuleRestores.Should().BeEmpty();
-                scheduler.RequestModuleRestore(compilationManager.Object, thirdUri, thirdFileSet);
+                scheduler.RequestModuleRestore(compilationManager.Object, thirdUri, thirdFileSet, Configuration);
 
                 // wait for completion
                 await IntegrationTestHelper.WithTimeoutAsync(thirdSource.Task);
@@ -187,7 +187,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                 throw new NotImplementedException();
             }
 
-            public ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public ModuleReference? TryParseModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 failureBuilder = null;
                 return new MockModuleRef(reference);

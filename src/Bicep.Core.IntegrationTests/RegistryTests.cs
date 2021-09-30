@@ -62,13 +62,14 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
             var workspace = new Workspace();
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+            var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, configuration);
+            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 
@@ -95,7 +96,7 @@ namespace Bicep.Core.IntegrationTests
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP192");
-                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2\": Unable to create the local module directory \"");
+                    x.Message.Should().StartWith("Unable to restore the module with reference \"ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2\": Unable to create the local module directory \"");
                 },
                 x =>
                 {
@@ -156,7 +157,7 @@ namespace Bicep.Core.IntegrationTests
 
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(7);
@@ -206,7 +207,7 @@ namespace Bicep.Core.IntegrationTests
 
             var moduleReferences = dataSet.RegistryModules.Values
                 .OrderBy(m => m.Metadata.Target)
-                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
             moduleReferences.Should().HaveCount(7);

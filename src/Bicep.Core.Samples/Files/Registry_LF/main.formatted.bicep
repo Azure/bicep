@@ -54,7 +54,7 @@ var vnets = [
   }
 ]
 
-module vnetDeploy 'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
+module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
   name: '${vnet.name}Deploy'
   scope: rg
   params: {

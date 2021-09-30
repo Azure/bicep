@@ -94,7 +94,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
-            OciArtifactModuleReference.TryParse(value, out var failureBuilder).Should().BeNull();
+            OciArtifactModuleReference.TryParse(value, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder).Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
             using (new AssertionScope())
@@ -128,7 +128,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static OciArtifactModuleReference Parse(string package)
         {
-            var parsed = OciArtifactModuleReference.TryParse(package, out var failureBuilder);
+            var parsed = OciArtifactModuleReference.TryParse(package, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return parsed!;

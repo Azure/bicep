@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.RegularExpressions;
+
 namespace Bicep.Core.Modules
 {
     /// <summary>
@@ -12,6 +14,8 @@ namespace Bicep.Core.Modules
         {
             this.Scheme = scheme;
         }
+
+        protected static Regex ModuleAliasNameRegex { get; } = new(@"[\w-]");
 
         public string Scheme { get; }
 

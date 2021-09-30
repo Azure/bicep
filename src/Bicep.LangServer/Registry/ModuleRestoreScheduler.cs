@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
@@ -44,11 +45,11 @@ namespace Bicep.LanguageServer.Registry
         /// Does not wait for the operation to complete and returns immediately.
         /// </summary>
         /// <param name="modules">The module references</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleDeclarationSyntax> modules)
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleDeclarationSyntax> modules, RootConfiguration configuration)
         {
             this.CheckDisposed();
 
-            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules).ToImmutableArray();
+            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules, configuration).ToImmutableArray();
             var item = new QueueItem(compilationManager, documentUri, moduleReferences);
             lock (this.queue)
             {

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -14,7 +15,6 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,6 +24,8 @@ namespace Bicep.Core.UnitTests.Registry
     public class ModuleDispatcherTests
     {
         private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
+
+        private static readonly RootConfiguration configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
 
         [TestMethod]
         public void NoRegistries_AvailableSchemes_ShouldReturnEmpty()
@@ -37,7 +39,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var module = CreateModule("fakeScheme:fakeModule");
             var dispatcher = CreateDispatcher();
-            dispatcher.TryGetModuleReference(module, out var failureBuilder).Should().BeNull();
+            dispatcher.TryGetModuleReference(module, configuration, out var failureBuilder).Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
             using (new AssertionScope())
@@ -47,7 +49,7 @@ namespace Bicep.Core.UnitTests.Registry
             }
 
             var localModule = CreateModule("test.bicep");
-            dispatcher.TryGetModuleReference(localModule, out var localModuleFailureBuilder).Should().BeNull();
+            dispatcher.TryGetModuleReference(localModule, configuration, out var localModuleFailureBuilder).Should().BeNull();
             using (new AssertionScope())
             {
                 localModuleFailureBuilder!.Should().HaveCode("BCP189");
@@ -69,7 +71,6 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         public async Task MockRegistries_ModuleLifecycle()
         {
             var fail = Repository.Create<IModuleRegistry>();
@@ -80,19 +81,19 @@ namespace Bicep.Core.UnitTests.Registry
 
             DiagnosticBuilder.ErrorBuilderDelegate? @null = null;
             var validRef = new MockModuleReference("validRef");
-            mock.Setup(m => m.TryParseModuleReference("validRef", out @null))
+            mock.Setup(m => m.TryParseModuleReference("validRef", configuration, out @null))
                 .Returns(validRef);
 
             var validRef2 = new MockModuleReference("validRef2");
-            mock.Setup(m => m.TryParseModuleReference("validRef2", out @null))
+            mock.Setup(m => m.TryParseModuleReference("validRef2", configuration, out @null))
                 .Returns(validRef2);
 
             var validRef3 = new MockModuleReference("validRef3");
-            mock.Setup(m => m.TryParseModuleReference("validRef3", out @null))
+            mock.Setup(m => m.TryParseModuleReference("validRef3", configuration, out @null))
                 .Returns(validRef3);
 
             DiagnosticBuilder.ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
-            mock.Setup(m => m.TryParseModuleReference("badRef", out badRefError))
+            mock.Setup(m => m.TryParseModuleReference("badRef", configuration, out badRefError))
                 .Returns((ModuleReference?)null);
 
             mock.Setup(m => m.IsModuleRestoreRequired(validRef)).Returns(true);
@@ -117,10 +118,10 @@ namespace Bicep.Core.UnitTests.Registry
             var goodModule3 = CreateModule("mock:validRef3");
             var badModule = CreateModule("mock:badRef");
 
-            dispatcher.TryGetModuleReference(goodModule, out var goodValidationBuilder).Should().Be(validRef);
+            dispatcher.TryGetModuleReference(goodModule, configuration, out var goodValidationBuilder).Should().Be(validRef);
             goodValidationBuilder!.Should().BeNull();
             
-            dispatcher.TryGetModuleReference(badModule, out var badValidationBuilder).Should().BeNull();
+            dispatcher.TryGetModuleReference(badModule, configuration, out var badValidationBuilder).Should().BeNull();
             badValidationBuilder!.Should().NotBeNull();
             badValidationBuilder!.Should().HaveCode("BCPMock");
             badValidationBuilder!.Should().HaveMessage("Bad ref error");

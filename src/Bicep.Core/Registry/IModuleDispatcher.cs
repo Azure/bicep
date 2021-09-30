@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
@@ -16,9 +17,9 @@ namespace Bicep.Core.Registry
     {
         ImmutableArray<string> AvailableSchemes { get; }
 
-        ModuleReference? TryGetModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ModuleReference? TryGetModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference);
 

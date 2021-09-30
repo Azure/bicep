@@ -249,19 +249,19 @@ var vnets = [
 //@[0:1) RightSquare |]|
 //@[1:3) NewLine |\n\n|
 
-module vnetDeploy 'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
+module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
 //@[0:6) Identifier |module|
 //@[7:17) Identifier |vnetDeploy|
-//@[18:101) StringComplete |'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'|
-//@[102:103) Assignment |=|
-//@[104:105) LeftSquare |[|
-//@[105:108) Identifier |for|
-//@[109:113) Identifier |vnet|
-//@[114:116) Identifier |in|
-//@[117:122) Identifier |vnets|
-//@[122:123) Colon |:|
-//@[124:125) LeftBrace |{|
-//@[125:126) NewLine |\n|
+//@[18:80) StringComplete |'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'|
+//@[81:82) Assignment |=|
+//@[83:84) LeftSquare |[|
+//@[84:87) Identifier |for|
+//@[88:92) Identifier |vnet|
+//@[93:95) Identifier |in|
+//@[96:101) Identifier |vnets|
+//@[101:102) Colon |:|
+//@[103:104) LeftBrace |{|
+//@[104:105) NewLine |\n|
   name: '${vnet.name}Deploy'
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|

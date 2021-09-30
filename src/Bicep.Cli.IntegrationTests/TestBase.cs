@@ -58,8 +58,9 @@ namespace Bicep.Cli.IntegrationTests
         protected static IEnumerable<string> GetAllDiagnostics(string bicepFilePath, IContainerRegistryClientFactory clientFactory, ITemplateSpecRepositoryFactory templateSpecRepositoryFactory)
         {
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.Features));
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath));
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, BicepTestConstants.BuiltInConfiguration);
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath), configuration);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration);
 
             var output = new List<string>();
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
