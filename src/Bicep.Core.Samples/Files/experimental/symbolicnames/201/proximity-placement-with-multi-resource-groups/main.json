@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8415391924919413325"
+      "templateHash": "2127989398470611115"
     }
   },
   "parameters": {
@@ -209,7 +209,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3008266173965698212"
+              "templateHash": "4645049081461158424"
             }
           },
           "parameters": {
@@ -258,7 +258,7 @@
                 "name": "Standard"
               },
               "zones": [
-                "[parameters('zone')]"
+                "[format('{0}', parameters('zone'))]"
               ]
             },
             "nic": {
@@ -337,7 +337,7 @@
                 }
               },
               "zones": [
-                "[parameters('zone')]"
+                "[format('{0}', parameters('zone'))]"
               ],
               "dependsOn": [
                 "nic",

@@ -2705,5 +2705,21 @@ output expTime string = test.properties.status.expirationTime
 
             result.Should().NotHaveAnyDiagnostics();
         }
+
+        // https://github.com/Azure/bicep/issues/4565
+        [TestMethod]
+        public void Test_Issue4565()
+        {
+            var result = CompilationHelper.Compile(@"
+var port = 1234
+
+output test string = '${port}'
+");
+
+            result.Template.Should().HaveValueAtPath("$.outputs['test'].value", "[format('{0}', variables('port'))]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.outputs['test'].value", "1234", "the evaluated output should be of type string");
+        }
     }
 }

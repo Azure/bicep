@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8156466852542605529"
+      "templateHash": "12368116353023022869"
     }
   },
   "parameters": {
@@ -48,7 +48,7 @@
         "name": "Standard"
       },
       "zones": [
-        "[parameters('zone')]"
+        "[format('{0}', parameters('zone'))]"
       ]
     },
     {
@@ -127,7 +127,7 @@
         }
       },
       "zones": [
-        "[parameters('zone')]"
+        "[format('{0}', parameters('zone'))]"
       ],
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkInterfaces', format('{0}-nic', parameters('vmName')))]"

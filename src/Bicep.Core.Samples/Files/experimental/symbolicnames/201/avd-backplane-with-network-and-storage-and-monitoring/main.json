@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7311290720663065859"
+      "templateHash": "2021474326145495883"
     }
   },
   "parameters": {
@@ -912,7 +912,7 @@
             "value": "[parameters('uamiName')]"
           },
           "roleNameGalleryImage": {
-            "value": "BicepSIGRole"
+            "value": "[format('{0}', 'BicepSIGRole')]"
           }
         },
         "template": {
@@ -1098,7 +1098,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4414402972156061531"
+              "templateHash": "17023233329059124249"
             }
           },
           "parameters": {
@@ -1164,7 +1164,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[resourceInfo('managedidentity').id]": {}
+                  "[format('{0}', resourceInfo('managedidentity').id)]": {}
                 }
               },
               "properties": {
@@ -1253,7 +1253,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[parameters('uamiId')]": {}
+                  "[format('{0}', parameters('uamiId'))]": {}
                 }
               },
               "properties": {
