@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Utils
                 => Features ?? BicepTestConstants.Features;
 
             public EmitterSettings GetEmitterSettings()
-                => EmitterSettings ?? BicepTestConstants.EmitterSettings;
+                => EmitterSettings ?? new EmitterSettings(GetFeatures());
         }
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
@@ -104,9 +104,6 @@ namespace Bicep.Core.UnitTests.Utils
                     var jsonOutput = new StreamReader(stream).ReadToEnd();
 
                     template = JToken.Parse(jsonOutput);
-
-                    // validate that the template is parseable by the deployment engine
-                    TemplateHelper.TemplateShouldBeValid(jsonOutput);
                 }
             }
 

@@ -129,12 +129,14 @@ Hello from Bicep!"));
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().DeepEqual(JToken.Parse(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""languageVersion"": ""1.9-experimental"",
   ""contentVersion"": ""1.0.0.0"",
   ""metadata"": {
+    ""EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""193380326906580042""
+      ""templateHash"": ""16492559867717304205""
     }
   },
   ""parameters"": {
@@ -143,8 +145,8 @@ Hello from Bicep!"));
     }
   },
   ""functions"": [],
-  ""resources"": [
-    {
+  ""resources"": {
+    ""stgAccount"": {
       ""type"": ""Microsoft.Storage/storageAccounts"",
       ""apiVersion"": ""2019-06-01"",
       ""name"": ""[toLower(parameters('accountName'))]"",
@@ -154,7 +156,7 @@ Hello from Bicep!"));
         ""name"": ""Standard_LRS""
       }
     },
-    {
+    ""website"": {
       ""type"": ""Microsoft.Resources/deployments"",
       ""apiVersion"": ""2020-06-01"",
       ""name"": ""website"",
@@ -165,17 +167,19 @@ Hello from Bicep!"));
         ""mode"": ""Incremental"",
         ""parameters"": {
           ""connectionString"": {
-            ""value"": ""[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', toLower(parameters('accountName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName'))), '2019-06-01').keys[0].value)]""
+            ""value"": ""[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', resourceInfo('stgAccount').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName'))), '2019-06-01').keys[0].value)]""
           }
         },
         ""template"": {
           ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+          ""languageVersion"": ""1.9-experimental"",
           ""contentVersion"": ""1.0.0.0"",
           ""metadata"": {
+            ""EXPERIMENTAL_WARNING"": ""Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!"",
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""7856162055999366866""
+              ""templateHash"": ""9407188780587710254""
             }
           },
           ""parameters"": {
@@ -193,30 +197,30 @@ Hello from Bicep!"));
               }
             }
           },
-          ""resources"": [
-            {
+          ""resources"": {
+            ""container"": {
               ""type"": ""AzureStorage/containers"",
               ""apiVersion"": ""2020-01-01"",
               ""name"": ""bicep""
             },
-            {
+            ""blob"": {
               ""type"": ""AzureStorage/blobs"",
               ""apiVersion"": ""2020-01-01"",
               ""name"": ""blob.txt"",
-              ""containerName"": ""bicep"",
+              ""containerName"": ""[resourceInfo('container').name]"",
               ""base64Content"": ""[base64('\nHello from Bicep!')]"",
               ""dependsOn"": [
-                ""[resourceId('AzureStorage/containers', 'bicep')]""
+                ""container""
               ]
             }
-          ]
+          }
         }
       },
       ""dependsOn"": [
-        ""[resourceId('Microsoft.Storage/storageAccounts', toLower(parameters('accountName')))]""
+        ""stgAccount""
       ]
     }
-  ]
+  }
 }"));
         }
     }
