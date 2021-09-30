@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10529741792251866425"
+      "templateHash": "5515000954184944254"
     }
   },
   "parameters": {
@@ -107,7 +107,7 @@
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
-              "value": "[variables('componentBase')]"
+              "value": "[format('{0}', variables('componentBase'))]"
             }
           ]
         }
@@ -127,7 +127,7 @@
         "TXTRecords": [
           {
             "value": [
-              "[reference(resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase')))).customDomainVerificationId]"
+              "[format('{0}', reference(resourceId('Microsoft.Web/sites', format('{0}-functionapp', variables('componentBase')))).customDomainVerificationId)]"
             ]
           }
         ]
@@ -194,7 +194,7 @@
             "value": "[format('{0}-functionapp', variables('componentBase'))]"
           },
           "functionAppHostname": {
-            "value": "[format('{0}.{1}', parameters('applicationName'), parameters('dnsZone'))]"
+            "value": "[format('{0}', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))]"
           },
           "certificateThumbprint": {
             "value": "[reference(resourceId('Microsoft.Web/certificates', format('{0}.{1}', parameters('applicationName'), parameters('dnsZone')))).thumbprint]"

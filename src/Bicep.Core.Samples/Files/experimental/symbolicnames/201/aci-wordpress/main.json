@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12220362005994794569"
+      "templateHash": "2539878779386005088"
     }
   },
   "parameters": {
@@ -91,7 +91,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[variables('uamiId')]": {}
+          "[format('{0}', variables('uamiId'))]": {}
         }
       },
       "properties": {
@@ -119,7 +119,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[variables('uamiId')]": {}
+          "[format('{0}', variables('uamiId'))]": {}
         }
       },
       "properties": {

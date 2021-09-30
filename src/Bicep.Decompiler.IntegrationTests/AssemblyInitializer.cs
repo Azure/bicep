@@ -10,7 +10,7 @@ namespace Bicep.Decompiler.IntegrationTests
     public static class AssemblyInitializer
     {
         [AssemblyInitialize()]
-        public static void MyTestInitialize(TestContext testContext)
+        public static void AssemblyInitialize(TestContext testContext)
         {
             BicepDeploymentsInterop.Initialize();
         }

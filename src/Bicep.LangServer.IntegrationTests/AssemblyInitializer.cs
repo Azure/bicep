@@ -4,7 +4,7 @@
 using Bicep.Core.Emit;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Decompiler.UnitTests
+namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
     public static class AssemblyInitializer

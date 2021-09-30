@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6925820992708733564"
+      "templateHash": "17921285011367370930"
     }
   },
   "parameters": {
@@ -84,7 +84,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[resourceInfo('managedIdentity').id]": {}
+          "[format('{0}', resourceInfo('managedIdentity').id)]": {}
         }
       },
       "properties": {
