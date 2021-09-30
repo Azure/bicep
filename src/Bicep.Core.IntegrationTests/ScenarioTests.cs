@@ -2588,6 +2588,106 @@ output test string = res.id
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
             });
         }
+        
+        // https://github.com/Azure/bicep/issues/4542
+        [TestMethod]
+        public void Test_Issue4542()
+        {
+            var result = CompilationHelper.Compile(@"
+param sasTokenBaseTime string = utcNow('u')
+param permissions string = 'adlrwu'
+
+var sasTokenParams = {
+  signedPermission: permissions
+  signedExpiry: dateTimeAdd(sasTokenBaseTime, 'PT96H')
+  signedProtocol: 'https'
+  signedResourceTypes: 'sco'
+  signedServices: 'b'
+}
+
+resource storageAccount 'Microsoft.Storage/storageAccounts@2019-04-01' = {
+  name: 'foo'
+  sku: {
+    name: 'Standard_RAGRS'
+  }
+  kind: 'StorageV2'
+  location: 'westus'
+
+  resource blob 'blobServices' = {
+    name: 'default'
+    resource container 'containers' = {
+      name: 'foo'
+      properties: {
+        publicAccess: 'None'
+      }
+    }
+  }
+}
+
+resource registry 'Microsoft.ContainerRegistry/registries@2019-12-01-preview' = {
+  name: 'foo'
+  location: 'westus'
+  sku: {
+    name: 'Premium'
+  }
+
+  resource importPipeline 'importPipelines' = {
+    name: 'foo'
+    location: 'westus'
+    identity: {
+      type: 'SystemAssigned'
+    }
+    properties: {
+      source: {
+        type: 'AzureStorageBlobContainer'
+        uri: uri(storageAccount.properties.primaryEndpoints.blob, storageAccount::blob::container.name)
+        keyVaultUri: kv::secret.properties.secretUri
+      }
+    }
+  }
+}
+
+resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: 'foo'
+
+  resource ap 'accessPolicies' = {
+    name: 'add'
+    properties: {
+      accessPolicies: [
+        {
+          tenantId: registry::importPipeline.identity.tenantId
+          objectId: registry::importPipeline.identity.principalId
+          permissions: {
+            secrets: [
+              'get'
+            ]
+          }
+        }
+      ]
+    }
+  }
+
+  resource secret 'secrets' = {
+    name: 'secretname'
+    properties: {
+      value: storageAccount.listAccountSas(storageAccount.apiVersion, sasTokenParams).accountSasToken
+    }
+    dependsOn: [
+      // the below dependency gets a stack overflow
+      ap
+    ]
+  }
+}
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"secret\" -> \"ap\" -> \"importPipeline\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"importPipeline\" -> \"secret\" -> \"ap\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"importPipeline\" -> \"secret\" -> \"ap\")."),
+                ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"ap\" -> \"importPipeline\" -> \"secret\")."),
+            });
+        }
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/2703
