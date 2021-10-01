@@ -182,7 +182,7 @@ namespace Bicep.Core.UnitTests.Registry
         [DataTestMethod]
         [DataRow("ts/prodRG:mySpec:v1", "BCP212", "The Template Spec module alias name \"prodRG\" does not exist in the Bicep configuration \"EmptyConfiguration\".")]
         [DataRow("br/myModulePath:myModule:v2", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"EmptyConfiguration\".")]
-        public void TryGetModuleReference_AliasNameNotInConfiguration_ReturnsNullAndSetsErrorDiagnostic(string referenceValue, string expectedCode, string expectedMessage)
+        public void TryGetModuleReference_AliasNotInConfiguration_ReturnsNullAndSetsError(string referenceValue, string expectedCode, string expectedMessage)
         {
             var templateSpecRegistryMock = StrictMock.Of<IModuleRegistry>();
             templateSpecRegistryMock.Setup(x => x.Scheme).Returns("ts");
@@ -202,8 +202,25 @@ namespace Bicep.Core.UnitTests.Registry
         }
 
         [DataTestMethod]
-        [DynamicData(nameof(GetReferenceAndConfigurationData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_AliasNameInConfiguration_ReplacesReferenceValue(string referenceValue, string replacedValue, RootConfiguration configuration)
+        [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
+        public void TryGetModuleReference_InvalidAlias_ReturnsNullAndSetsError(string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        {
+            var registryMock = StrictMock.Of<IModuleRegistry>();
+            registryMock.Setup(x => x.Scheme).Returns(referenceValue.Split('/')[0]);
+
+            var dispatcher = CreateDispatcher(registryMock.Object);
+
+            var reference = dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().HaveCode(expectedCode);
+            errorBuilder!.Should().HaveMessage(expectedMessage);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string referenceValue, string replacedValue, RootConfiguration configuration)
         {
             var registryMock = StrictMock.Of<IModuleRegistry>();
             registryMock.Setup(x => x.Scheme).Returns(referenceValue.Split('/')[0]);
@@ -219,7 +236,43 @@ namespace Bicep.Core.UnitTests.Registry
             registryMock.Verify(x => x.TryParseModuleReference(replacedValue, configuration, out errorBuilder), Times.Once);
         }
 
-        public static IEnumerable<object[]> GetReferenceAndConfigurationData()
+        public static IEnumerable<object[]> GetInvalidData()
+        {
+            yield return new object[]
+            {
+                "ts/testRG:mySpec:v1",
+                CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["moduleAliases:ts:testRG:resourceGroup"] = "production-resource-group",
+                }),
+                "BCP214",
+                "The Template Spec module alias \"testRG\" in the Bicep configuration \"bicepconfig.json\" is in valid. The \"subscription\" property cannot be null or undefined.",
+            };
+
+            yield return new object[]
+            {
+                "ts/prodRG:mySpec:v1",
+                CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                }),
+                "BCP215",
+                "The Template Spec module alias \"prodRG\" in the Bicep configuration \"bicepconfig.json\" is in valid. The \"resourceGroup\" property cannot be null or undefined.",
+            };
+
+            yield return new object[]
+            {
+                "br/myAlias:myModulePath/myModule:1.0.0",
+                CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["moduleAliases:br:myAlias:modulePath"] = "path",
+                }),
+                "BCP216",
+                "The OCI artifact alias \"myAlias\" in the Bicep configuration \"bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
+            };
+        }
+
+        public static IEnumerable<object[]> GetValidData()
         {
             yield return new object[]
             {

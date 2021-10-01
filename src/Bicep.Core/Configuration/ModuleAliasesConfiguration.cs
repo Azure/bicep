@@ -47,7 +47,7 @@ namespace Bicep.Core.Configuration
 
     public class ModuleAliasesConfiguration
     {
-        private static readonly Regex ModuleAliasNameRegex = new(@"[\w-]");
+        private static readonly Regex ModuleAliasNameRegex = new(@"^[\w-]+$");
 
         private ModuleAliasesConfiguration(
             ImmutableDictionary<string, TemplateSpecModuleAlias> templateSpecModuleAliases,

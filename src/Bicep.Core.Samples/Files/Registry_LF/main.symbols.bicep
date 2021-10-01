@@ -15,6 +15,15 @@ module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
   }
 }
 
+module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
+//@[7:21) Module appPlanDeploy2. Type: module. Declaration start char: 0, length: 137
+  name: 'planDeploy2'
+  scope: rg
+  params: {
+    namePrefix: 'hello'
+  }
+}
+
 var websites = [
 //@[4:12) Variable websites. Type: array. Declaration start char: 0, length: 110
   {
@@ -40,9 +49,31 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
   }
 }]
 
+module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
+//@[48:52) Local site. Type: any. Declaration start char: 48, length: 4
+//@[7:18) Module siteDeploy2. Type: module[]. Declaration start char: 0, length: 267
+  name: '${site.name}siteDeploy2'
+  scope: rg
+  params: {
+    appPlanId: appPlanDeploy.outputs.planId
+    namePrefix: site.name
+    dockerImage: 'nginxdemos/hello'
+    dockerImageTag: site.tag
+  }
+}]
+
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
 //@[7:20) Module storageDeploy. Type: module. Declaration start char: 0, length: 168
   name: 'storageDeploy'
+  scope: rg
+  params: {
+    location: 'eastus'
+  }
+}
+
+module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
+//@[7:21) Module storageDeploy2. Type: module. Declaration start char: 0, length: 134
+  name: 'storageDeploy2'
   scope: rg
   params: {
     location: 'eastus'
