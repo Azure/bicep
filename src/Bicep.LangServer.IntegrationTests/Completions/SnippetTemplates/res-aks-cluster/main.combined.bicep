@@ -28,6 +28,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
     ]
     linuxProfile: {
       adminUsername: 'adminUsername'
+//@[21:36) [adminusername-should-not-be-literal (Warning)] When setting an adminUserName property, don't use a literal value. Found literal string value "adminUsername" (CodeDescription: bicep core(https://aka.ms/bicep/linter/adminusername-should-not-be-literal)) |'adminUsername'|
       ssh: {
         publicKeys: [
           {

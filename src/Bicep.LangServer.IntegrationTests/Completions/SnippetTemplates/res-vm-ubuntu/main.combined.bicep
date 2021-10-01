@@ -17,6 +17,7 @@ resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
     osProfile: {
       computerName: 'computerName'
       adminUsername: 'adminUsername'
+//@[21:36) [adminusername-should-not-be-literal (Warning)] When setting an adminUserName property, don't use a literal value. Found literal string value "adminUsername" (CodeDescription: bicep core(https://aka.ms/bicep/linter/adminusername-should-not-be-literal)) |'adminUsername'|
       adminPassword: 'adminPassword'
     }
     storageProfile: {
