@@ -3,6 +3,7 @@
 
 using Bicep.Core.Modules;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -21,11 +22,10 @@ namespace Bicep.Core.Configuration
 
         public override string ToString()
         {
-            Debug.Assert(Subscription is not null, "TemplateSpecModuleAlias.Subscription should already be validated and cannot be null.");
+            Debug.Assert(this.Subscription is not null, "TemplateSpecModuleAlias.Subscription should already be validated and cannot be null.");
+            Debug.Assert(this.ResourceGroup is not null, "TemplateSpecModuleAlias.ResourceGroup should already be validated and cannot be null.");
 
-            return this.ResourceGroup is null
-                ? $"{Subscription}/{ResourceGroup}"
-                : $"{Subscription}";
+            return $"{Subscription}/{ResourceGroup}";
         }
     }
 
@@ -39,16 +39,15 @@ namespace Bicep.Core.Configuration
         {
             Debug.Assert(Registry is not null, "BicepRegistryModuleAlias.Registry should already be validated and cannot be null.");
 
-            return this.ModulePath is null
+            return this.ModulePath is not null
                 ? $"{Registry}/{ModulePath}"
                 : $"{Registry}";
         }
     }
 
-
     public class ModuleAliasesConfiguration
     {
-        private static readonly Regex ModuleAliasNameRegex = new(@"\w-");
+        private static readonly Regex ModuleAliasNameRegex = new(@"[\w-]");
 
         private ModuleAliasesConfiguration(
             ImmutableDictionary<string, TemplateSpecModuleAlias> templateSpecModuleAliases,
@@ -82,7 +81,7 @@ namespace Bicep.Core.Configuration
         /// </summary>
         public string ResourceName { get; }
 
-        public TemplateSpecModuleAlias? TryGetTemplateSpecModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
+        public ModuleAlias? TryGetModuleAlias(string scheme, string aliasName, out ErrorBuilderDelegate? errorBuilder)
         {
             if (!ModuleAliasNameRegex.IsMatch(aliasName))
             {
@@ -90,6 +89,16 @@ namespace Bicep.Core.Configuration
                 return null;
             }
 
+            return scheme switch
+            {
+                ModuleReferenceSchemes.TemplateSpecs => TryGetTemplateSpecModuleAlias(aliasName, out errorBuilder),
+                ModuleReferenceSchemes.Oci => TryGetOciArtifactModuleAlias(aliasName, out errorBuilder),
+                _ => throw new ArgumentException("Unknown module reference scheme {}."),
+            };
+        }
+
+        private TemplateSpecModuleAlias? TryGetTemplateSpecModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
+        {
             if (!this.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
             {
                 errorBuilder = x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ResourceName);
@@ -102,18 +111,18 @@ namespace Bicep.Core.Configuration
                 return null;
             }
 
+            if (alias.ResourceGroup is null)
+            {
+                errorBuilder = x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.ResourceName);
+                return null;
+            }
+
             errorBuilder = null;
             return alias;
         }
 
-        public OciArtifactModuleAlias? TryGetOciArtifactModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
+        private OciArtifactModuleAlias? TryGetOciArtifactModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
         {
-            if (!ModuleAliasNameRegex.IsMatch(aliasName))
-            {
-                errorBuilder = x => x.InvalidModuleAliasName(aliasName);
-                return null;
-            }
-
             if (!this.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
             {
                 errorBuilder = x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ResourceName);

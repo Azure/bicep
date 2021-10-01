@@ -7,9 +7,11 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -17,16 +19,13 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
+using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.UnitTests.Registry
 {
     [TestClass]
     public class ModuleDispatcherTests
     {
-        private static readonly MockRepository Repository = new MockRepository(MockBehavior.Strict);
-
-        private static readonly RootConfiguration configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-
         [TestMethod]
         public void NoRegistries_AvailableSchemes_ShouldReturnEmpty()
         {
@@ -39,6 +38,8 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var module = CreateModule("fakeScheme:fakeModule");
             var dispatcher = CreateDispatcher();
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+
             dispatcher.TryGetModuleReference(module, configuration, out var failureBuilder).Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
@@ -60,10 +61,10 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public void MockRegistries_AvailableSchemes_ShouldReturnedConfiguredSchemes()
         {
-            var first = Repository.Create<IModuleRegistry>();
+            var first = StrictMock.Of<IModuleRegistry>();
             first.Setup(m => m.Scheme).Returns("first");
 
-            var second = Repository.Create<IModuleRegistry>();
+            var second = StrictMock.Of<IModuleRegistry>();
             second.Setup(m => m.Scheme).Returns("second");
 
             var dispatcher = CreateDispatcher(first.Object, second.Object);
@@ -73,13 +74,15 @@ namespace Bicep.Core.UnitTests.Registry
         [TestMethod]
         public async Task MockRegistries_ModuleLifecycle()
         {
-            var fail = Repository.Create<IModuleRegistry>();
+            var fail = StrictMock.Of<IModuleRegistry>();
             fail.Setup(m => m.Scheme).Returns("fail");
 
-            var mock = Repository.Create<IModuleRegistry>();
+            var mock = StrictMock.Of<IModuleRegistry>();
             mock.Setup(m => m.Scheme).Returns("mock");
 
-            DiagnosticBuilder.ErrorBuilderDelegate? @null = null;
+            ErrorBuilderDelegate? @null = null;
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+
             var validRef = new MockModuleReference("validRef");
             mock.Setup(m => m.TryParseModuleReference("validRef", configuration, out @null))
                 .Returns(validRef);
@@ -92,7 +95,7 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(m => m.TryParseModuleReference("validRef3", configuration, out @null))
                 .Returns(validRef3);
 
-            DiagnosticBuilder.ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
+            ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
             mock.Setup(m => m.TryParseModuleReference("badRef", configuration, out badRefError))
                 .Returns((ModuleReference?)null);
 
@@ -150,9 +153,110 @@ namespace Bicep.Core.UnitTests.Registry
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
         }
 
+        [DataTestMethod]
+        [DataRow("ts/:mySpec:v1", "")]
+        [DataRow("ts/foo/:mySpec:v1", "foo/")]
+        [DataRow("ts/****:mySpec:v1", "****")]
+        [DataRow("br/:myModule:v2", "")]
+        [DataRow("br/bar   :mySpec:v1", "bar   ")]
+        [DataRow("br//:mySpec:v1", "/")]
+        public void TryGetModuleReference_InvalidAliasName_ReturnsNullAndSetsErrorDiagnostic(string referenceValue, string aliasName)
+        {
+            var templateSpecRegistryMock = StrictMock.Of<IModuleRegistry>();
+            templateSpecRegistryMock.Setup(x => x.Scheme).Returns("ts");
+
+            var ociArtifactRegistryMock = StrictMock.Of<IModuleRegistry>();
+            ociArtifactRegistryMock.Setup(x => x.Scheme).Returns("br");
+
+            var dispatcher = CreateDispatcher(templateSpecRegistryMock.Object, ociArtifactRegistryMock.Object);
+            var configuration = CreateMockConfiguration(new Dictionary<string, string>(), "EmptyConfiguration");
+
+            var reference = dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().HaveCode("BCP211");
+            errorBuilder!.Should().HaveMessage($"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+        }
+
+        [DataTestMethod]
+        [DataRow("ts/prodRG:mySpec:v1", "BCP212", "The Template Spec module alias name \"prodRG\" does not exist in the Bicep configuration \"EmptyConfiguration\".")]
+        [DataRow("br/myModulePath:myModule:v2", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"EmptyConfiguration\".")]
+        public void TryGetModuleReference_AliasNameNotInConfiguration_ReturnsNullAndSetsErrorDiagnostic(string referenceValue, string expectedCode, string expectedMessage)
+        {
+            var templateSpecRegistryMock = StrictMock.Of<IModuleRegistry>();
+            templateSpecRegistryMock.Setup(x => x.Scheme).Returns("ts");
+
+            var ociArtifactRegistryMock = StrictMock.Of<IModuleRegistry>();
+            ociArtifactRegistryMock.Setup(x => x.Scheme).Returns("br");
+
+            var dispatcher = CreateDispatcher(templateSpecRegistryMock.Object, ociArtifactRegistryMock.Object);
+            var configuration = CreateMockConfiguration(new Dictionary<string, string>(), "EmptyConfiguration");
+
+            var reference = dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().HaveCode(expectedCode);
+            errorBuilder!.Should().HaveMessage(expectedMessage);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetReferenceAndConfigurationData), DynamicDataSourceType.Method)]
+        public void TryGetModuleReference_AliasNameInConfiguration_ReplacesReferenceValue(string referenceValue, string replacedValue, RootConfiguration configuration)
+        {
+            var registryMock = StrictMock.Of<IModuleRegistry>();
+            registryMock.Setup(x => x.Scheme).Returns(referenceValue.Split('/')[0]);
+
+            registryMock.Setup(x => x.TryParseModuleReference(It.IsAny<string>(), It.IsAny<RootConfiguration>(), out It.Ref<ErrorBuilderDelegate?>.IsAny))
+                .Returns((ModuleReference?)null)
+                .Verifiable();
+
+            var dispatcher = CreateDispatcher(registryMock.Object);
+
+            dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
+
+            registryMock.Verify(x => x.TryParseModuleReference(replacedValue, configuration, out errorBuilder), Times.Once);
+        }
+
+        public static IEnumerable<object[]> GetReferenceAndConfigurationData()
+        {
+            yield return new object[]
+            {
+                "ts/prodRG:mySpec:v1",
+                "1E7593D0-FCD1-4570-B132-51E4FD254967/production-resource-group/mySpec:v1",
+                CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                    ["moduleAliases:ts:prodRG:resourceGroup"] = "production-resource-group",
+                }),
+            };
+
+            yield return new object[]
+            {
+                "br/myRegistry:myModulePath/myModule:1.0.0",
+                "127.0.0.1:5000/myModulePath/myModule:1.0.0",
+                CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["moduleAliases:br:myRegistry:registry"] = "127.0.0.1:5000",
+                }),
+            };
+
+            yield return new object[]
+            {
+                "br/infra:storageAccount:v2",
+                "example.com/root/storage/storageAccount:v2",
+                CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["moduleAliases:br:infra:registry"] = "example.com",
+                    ["moduleAliases:br:infra:modulePath"] = "root/storage",
+                }),
+            };
+        }
+
         private static IModuleDispatcher CreateDispatcher(params IModuleRegistry[] registries)
         {
-            var provider = Repository.Create<IModuleRegistryProvider>();
+            var provider = StrictMock.Of<IModuleRegistryProvider>();
             provider.Setup(m => m.Registries).Returns(registries.ToImmutableArray());
 
             return new ModuleDispatcher(provider.Object);
@@ -162,6 +266,13 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var file = SourceFileFactory.CreateBicepFile(new System.Uri("untitled://hello"), $"module foo '{reference}' = {{}}");
             return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
+        }
+
+        private static RootConfiguration CreateMockConfiguration(IReadOnlyDictionary<string, string> configurationData, string configurationResourceName = "bicepconfig.json")
+        {
+            var rawConfiguration = new ConfigurationBuilder().AddInMemoryCollection(configurationData).Build();
+
+            return RootConfiguration.Bind(rawConfiguration, configurationResourceName);
         }
 
         private class MockModuleReference : ModuleReference

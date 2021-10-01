@@ -47,12 +47,33 @@ namespace Bicep.Core.Registry
                     return null;
 
                 case 2:
-                    var scheme = parts[0];
+                    string scheme = parts[0];
+                    string? aliasName = null;
+
+                    if (parts[0].Contains("/"))
+                    {
+                        // The sheme contains an alias.
+                        var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
+                        scheme = schemeParts[0];
+                        aliasName = schemeParts[1];
+                    }
 
                     if (!string.IsNullOrEmpty(scheme) && registries.TryGetValue(scheme, out var registry))
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
+
+                        if (aliasName is not null)
+                        {
+                            if (configuration.ModuleAliases.TryGetModuleAlias(scheme, aliasName, out failureBuilder) is not { } alias)
+                            {
+                                return null;
+                            }
+
+                            rawValue = $"{alias}/{rawValue}";
+                        }
+
+
                         return registry.TryParseModuleReference(rawValue, configuration, out failureBuilder);
                     }
 

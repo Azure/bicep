@@ -9,7 +9,7 @@ using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Modules
 {
-    public class TemplateSpecModuleReference : ExternalModuleReference
+    public class TemplateSpecModuleReference : ModuleReference
     {
         private const int ResourceNameMaximumLength = 90;
 
@@ -64,16 +64,9 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static TemplateSpecModuleReference? TryParse(string rawReferenceValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
+        public static TemplateSpecModuleReference? TryParse(string referenceValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
         {
-            static string FullyQualify(string referenceValue) => $"{ModuleReferenceSchemes.TemplateSpecs}:{referenceValue}";
-
             if (configuration.Cloud.TryGetCurrentResourceManagerEndpoint(out errorBuilder) is not { } endpoint)
-            {
-                return null;
-            }
-
-            if (TryReplaceModuleAliases(rawReferenceValue, configuration.ModuleAliases.TryGetTemplateSpecModuleAlias, out errorBuilder) is not { } referenceValue)
             {
                 return null;
             }
@@ -138,5 +131,6 @@ namespace Bicep.Core.Modules
             errorBuilder = null;
             return new(endpoint, subscriptionId, resourceGroupName, templateSpecName, templateSpecVersion);
         }
+        private static string FullyQualify(string referenceValue) => $"{ModuleReferenceSchemes.TemplateSpecs}:{referenceValue}";
     }
 }

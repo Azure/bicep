@@ -1223,7 +1223,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP207",
                 $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
 
-// WIP: the following diagnostics may get changed / removed.
             public ErrorDiagnostic CloudProfileDoesNotExistInConfiguration(string cloudProfileName, string configurationResourceName, IEnumerable<string> availableProfileNames) => new(
                 TextSpan,
                 "BCP208",
@@ -1259,15 +1258,15 @@ namespace Bicep.Core.Diagnostics
                 "BCP214",
                 $"The Template Spec module alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is in valid. The \"subscription\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, string configurationResourceName) => new(
+            public ErrorDiagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, string configurationResourceName) => new(
                 TextSpan,
                 "BCP215",
-                $"The OCI artifact alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The \"registry\" property cannot be null or undefined.");
+                $"The Template Spec module alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is in valid. The \"resourceGroup\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidModuleReferenceTooManyModuleAliasNames(int numberOfAliasNames) => new(
+            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, string configurationResourceName) => new(
                 TextSpan,
                 "BCP216",
-                $"The specified module reference is invalid. There are {numberOfAliasNames} module alias names used in the module reference, but only one is allowed."); 
+                $"The OCI artifact alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The \"registry\" property cannot be null or undefined.");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string subscriptionId, string referenceValue) => new(
                 TextSpan,
@@ -1303,7 +1302,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP223",
                 $"The specified Template Spec reference \"{referenceValue}\" is invalid .The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
-// WIP: the diagnostics above may get changed / removed.
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
