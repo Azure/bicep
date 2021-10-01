@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.Core.UnitTests.Modules
 {
@@ -59,7 +62,42 @@ namespace Bicep.Core.UnitTests.Modules
             var parsed = TemplateSpecModuleReference.TryParse(rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().BeNull();
-            failureBuilder.Should().NotBeNull();
+            ((object?)failureBuilder).Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public void TryParse_CloudProfileNotInConfiguration_ReturnsNullAndSetsFailureBuilder()
+        {
+            var configuration = CreateMockConfiguration(new Dictionary<string, string>
+            {
+                ["cloud:currentProfile"] = "MyProfile",
+                ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                ["cloud:profiles:MyCloud:resourceManagerEndpoint"] = "https://example.invalid",
+            });
+
+            var parsed = TemplateSpecModuleReference.TryParse("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
+
+            parsed.Should().BeNull();
+            ((object?)failureBuilder).Should().NotBeNull();
+            failureBuilder!.Should().HaveCode("BCP208");
+            failureBuilder!.Should().HaveMessageStartWith($"The cloud profile \"MyProfile\" does not exist in the Bicep configuration \"bicepconfig.json\". Available profiles include \"AzureCloud\", \"MyCloud\".");
+        }
+
+        [TestMethod]
+        public void TryParse_InvalidResourceManagerEndpointInConfiguration_ReturnsNullAndSetsFailureBuilder()
+        {
+            var configuration = CreateMockConfiguration(new Dictionary<string, string>
+            {
+                ["cloud:currentProfile"] = "AzureCloud",
+                ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "something",
+            });
+
+            var parsed = TemplateSpecModuleReference.TryParse("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
+
+            parsed.Should().BeNull();
+            ((object?)failureBuilder).Should().NotBeNull();
+            failureBuilder!.Should().HaveCode("BCP210");
+            failureBuilder!.Should().HaveMessageStartWith($"The cloud profile \"AzureCloud\" in the Bicep configuration \"bicepconfig.json\" is invalid. The value of the \"resourceManagerEndpoint\" property is not a valid URL.");
         }
 
         public static IEnumerable<object[]> GetEqualData()
@@ -109,9 +147,17 @@ namespace Bicep.Core.UnitTests.Modules
             var parsed = TemplateSpecModuleReference.TryParse(rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().NotBeNull();
-            failureBuilder.Should().BeNull();
+            ((object?)failureBuilder).Should().BeNull();
 
             return parsed!;
+        }
+
+        private static RootConfiguration CreateMockConfiguration(Dictionary<string, string> configuraitonData)
+        {
+            var builder = new ConfigurationBuilder();
+            builder.AddInMemoryCollection(configuraitonData);
+
+            return RootConfiguration.Bind(builder.Build(), "bicepconfig.json");
         }
     }
 }
