@@ -15,7 +15,7 @@ namespace Bicep.Core.Modules
 
         private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
 
-        private static readonly Regex ResourceNameRegex = new(@"^[-\w\._\(\)]{0,89}[-\w_\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private TemplateSpecModuleReference(string endpoint, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
             : base(ModuleReferenceSchemes.TemplateSpecs)
