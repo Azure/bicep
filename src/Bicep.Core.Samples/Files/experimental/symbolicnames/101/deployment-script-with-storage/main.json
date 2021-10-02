@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "808776994688706621"
+      "templateHash": "561553518241831218"
     }
   },
   "parameters": {
@@ -60,7 +60,7 @@
       "identity": {
         "type": "UserAssigned",
         "userAssignedIdentities": {
-          "[variables('uamiId')]": {}
+          "[format('{0}', variables('uamiId'))]": {}
         }
       },
       "properties": {

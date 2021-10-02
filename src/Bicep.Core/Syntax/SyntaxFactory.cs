@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 
@@ -16,6 +17,8 @@ namespace Bicep.Core.Syntax
         public static readonly TextSpan EmptySpan = new TextSpan(0, 0);
 
         public static readonly IEnumerable<SyntaxTrivia> EmptyTrivia = Enumerable.Empty<SyntaxTrivia>();
+
+        public static readonly SkippedTriviaSyntax EmptySkippedTrivia = new SkippedTriviaSyntax(EmptySpan, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<IDiagnostic>());
 
         public static Token CreateToken(TokenType tokenType, string text = "")
             => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
@@ -353,6 +356,16 @@ namespace Bicep.Core.Syntax
             {
                 yield return new FunctionArgumentSyntax(CreateStringLiteral(string.Join("", stringList)), null);
             }
+        }
+
+        public static Token CreateNewLineWithIndent(string indent)
+        {
+            return new Token(
+                TokenType.NewLine,
+                SyntaxFactory.EmptySpan,
+                Environment.NewLine,
+                SyntaxFactory.EmptyTrivia,
+                new SyntaxTrivia[] { new SyntaxTrivia(SyntaxTriviaType.Whitespace, SyntaxFactory.EmptySpan, indent) });
         }
     }
 }

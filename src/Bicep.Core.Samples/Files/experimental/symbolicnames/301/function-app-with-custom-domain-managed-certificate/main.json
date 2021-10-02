@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7168750975667159797"
+      "templateHash": "12701705877588966173"
     }
   },
   "parameters": {
@@ -109,7 +109,7 @@
             },
             {
               "name": "WEBSITE_CONTENTSHARE",
-              "value": "[variables('componentBase')]"
+              "value": "[format('{0}', variables('componentBase'))]"
             }
           ]
         }
@@ -129,7 +129,7 @@
         "TXTRecords": [
           {
             "value": [
-              "[reference('functionApp').customDomainVerificationId]"
+              "[format('{0}', reference('functionApp').customDomainVerificationId)]"
             ]
           }
         ]
@@ -196,7 +196,7 @@
             "value": "[resourceInfo('functionApp').name]"
           },
           "functionAppHostname": {
-            "value": "[resourceInfo('functionAppCustomHostCertificate').name]"
+            "value": "[format('{0}', resourceInfo('functionAppCustomHostCertificate').name)]"
           },
           "certificateThumbprint": {
             "value": "[reference('functionAppCustomHostCertificate').thumbprint]"

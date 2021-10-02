@@ -173,7 +173,7 @@ namespace Bicep.Core.Semantics
                 }
 
                 return typeBySymbol
-                    .Where(kvp => kvp.Value.IsSingleton)
+                    .Where(kvp => kvp.Value.Settings.IsSingleton)
                     .GroupBy(kvp => kvp.Key.DeclaringImport.ProviderName.IdentifierName, LanguageConstants.IdentifierComparer)
                     .Where(group => group.Count() > 1)
                     .SelectMany(group => group.Select(kvp => kvp.Key));

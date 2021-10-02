@@ -19,6 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.LanguageServer.CompilationManager;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -96,10 +97,10 @@ namespace Bicep.LanguageServer.Handlers
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return CodeBlock($"{builtInNamespace.Name} namespace");
 
-                case FunctionSymbol function when result.Origin is FunctionCallSyntax functionCall:
+                case FunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
                     // but this simplifies the checks
-                    return CodeBlock(GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
+                    return GetFunctionMarkdown(function, functionCall, result.Context.Compilation.GetEntrypointSemanticModel());
 
                 case PropertySymbol property:
                     if (GetModuleParameterOrOutputDescription(request, result, $"{property.Name}: {property.Type}", out var codeBlock))
@@ -107,10 +108,6 @@ namespace Bicep.LanguageServer.Handlers
                         return codeBlock;
                     }
                     return CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description);
-
-                case FunctionSymbol function when result.Origin is InstanceFunctionCallSyntax functionCall:
-                    return CodeBlock(
-                        GetFunctionMarkdown(function, functionCall.Arguments, result.Origin, result.Context.Compilation.GetEntrypointSemanticModel()));
 
                 case LocalVariableSymbol local:
                     return CodeBlock($"{local.Name}: {local.Type}");
@@ -130,7 +127,7 @@ namespace Bicep.LanguageServer.Handlers
         // Markdown needs two leading whitespaces before newline to insert a line break
         private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
 
-        private static string GetFunctionMarkdown(FunctionSymbol function, ImmutableArray<FunctionArgumentSyntax> arguments, SyntaxBase functionCall, SemanticModel model)
+        private static string GetFunctionMarkdown(FunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
         {
             var buffer = new StringBuilder();
             buffer.Append($"function ");
@@ -138,7 +135,7 @@ namespace Bicep.LanguageServer.Handlers
             buffer.Append('(');
 
             const string argumentSeparator = ", ";
-            foreach (FunctionArgumentSyntax argumentSyntax in arguments)
+            foreach (FunctionArgumentSyntax argumentSyntax in functionCall.Arguments)
             {
                 var argumentType = model.GetTypeInfo(argumentSyntax);
                 buffer.Append(argumentType);
@@ -147,7 +144,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // remove trailing argument separator (if any)
-            if (arguments.Length > 0)
+            if (functionCall.Arguments.Length > 0)
             {
                 buffer.Remove(buffer.Length - argumentSeparator.Length, argumentSeparator.Length);
             }
@@ -155,7 +152,13 @@ namespace Bicep.LanguageServer.Handlers
             buffer.Append("): ");
             buffer.Append(model.GetTypeInfo(functionCall));
 
-            return buffer.ToString();
+            if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is {} matchedOverload)
+            {
+                return CodeBlockWithDescription(buffer.ToString(), matchedOverload.Description);
+            }
+
+            // TODO fall back to displaying a more generic description if unable to resolve a particular overload, once https://github.com/Azure/bicep/issues/4588 has been implemented.
+            return CodeBlock(buffer.ToString());
         }
 
         private static bool GetModuleParameterOrOutputDescription(HoverParams request, SymbolResolutionResult result, string content, [NotNullWhen(true)] out string? codeBlock)

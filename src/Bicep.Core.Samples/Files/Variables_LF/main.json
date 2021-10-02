@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17000541398621586720"
+      "templateHash": "12978024409502963570"
     }
   },
   "parameters": {
@@ -117,7 +117,7 @@
       }
     },
     "objWithInterp": {
-      "[variables('myStr')]": 1,
+      "[format('{0}', variables('myStr'))]": 1,
       "[format('abc{0}def', variables('myStr'))]": 2,
       "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]": "[format('{0}abc{1}', variables('interp1'), variables('interp2'))]"
     },
@@ -152,7 +152,7 @@
     "myPropertyName": "[format('{0}foo{1}', variables('singleQuote'), variables('singleQuote'))]",
     "previousEmitLimit": [
       "[concat('s')]",
-      4,
+      "[format('{0}', 4)]",
       {
         "a": {
           "b": "[base64('s')]",
@@ -165,7 +165,7 @@
     ],
     "previousEmitLimit2": [
       "[concat('s')]",
-      4,
+      "[format('{0}', 4)]",
       {
         "a": {
           "b": "[base64('s')]",
@@ -223,7 +223,7 @@
       "resourceGroup": "[createObject()]"
     },
     "issue1332_propname": "ptest",
-    "issue1332": "[if(true(), createObject('prop1', createObject(variables('issue1332_propname'), createObject())), createObject())]",
+    "issue1332": "[if(true(), createObject('prop1', createObject(format('{0}', variables('issue1332_propname')), createObject())), createObject())]",
     "myBigInt": 2199023255552,
     "myIntExpression": "[mul(5, 5)]",
     "myBigIntExpression": "[mul(json('2199023255552'), 2)]",

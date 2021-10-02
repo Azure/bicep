@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Utils
                 => Features ?? BicepTestConstants.Features;
 
             public EmitterSettings GetEmitterSettings()
-                => EmitterSettings ?? EmitterSettingsHelper.DefaultTestSettings;
+                => EmitterSettings ?? new EmitterSettings(GetFeatures());
         }
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)

@@ -667,19 +667,6 @@ namespace Bicep.Core.Emit
                 return new JTokenExpression(literalStringValue);
             }
 
-            if (syntax.Expressions.Length == 1)
-            {
-                const string emptyStringOpen = LanguageConstants.StringDelimiter + LanguageConstants.StringHoleOpen; // '${
-                const string emptyStringClose = LanguageConstants.StringHoleClose + LanguageConstants.StringDelimiter; // }'
-
-                // Special-case interpolation of format '${myValue}' because it's a common pattern for userAssignedIdentities.
-                // There's no need for a 'format' function because we just have a single expression with no outer formatting.
-                if (syntax.StringTokens[0].Text == emptyStringOpen && syntax.StringTokens[1].Text == emptyStringClose)
-                {
-                    return ConvertExpression(syntax.Expressions[0]);
-                }
-            }
-
             var formatArgs = new LanguageExpression[syntax.Expressions.Length + 1];
 
             var formatString = StringFormatConverter.BuildFormatString(syntax);

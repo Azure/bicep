@@ -7,6 +7,7 @@ using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
@@ -38,8 +39,7 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null,
-            string? AssemblyFileVersion = null);
+            IFeatureProvider? Features = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -94,10 +94,13 @@ namespace Bicep.LanguageServer
                 Trace.Listeners.Add(new ServerLogTraceListener(server));
             }
 
-            var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
-            scheduler.Start();
+            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+            {
+                var scheduler = server.GetRequiredService<IModuleRestoreScheduler>();
+                scheduler.Start();
 
-            await server.WaitForExit;
+                await server.WaitForExit;
+            }
         }
 
         private static void RegisterServices(CreationOptions creationOptions, IServiceCollection services)
@@ -109,6 +112,7 @@ namespace Bicep.LanguageServer
             services.AddSingletonOrInstance<ISnippetsProvider, SnippetsProvider>(creationOptions.SnippetsProvider);
             services.AddSingletonOrInstance<IFileResolver, FileResolver>(creationOptions.FileResolver);
             services.AddSingletonOrInstance<IFeatureProvider, FeatureProvider>(creationOptions.Features);
+            services.AddSingleton<EmitterSettings>();
             services.AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>();
             services.AddSingleton<IContainerRegistryClientFactory, ContainerRegistryClientFactory>();
             services.AddSingleton<ITemplateSpecRepositoryFactory, TemplateSpecRepositoryFactory>();
@@ -122,9 +126,6 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
-            services.AddSingleton<EmitterSettings>(services => new EmitterSettings(
-                creationOptions.AssemblyFileVersion ?? ThisAssembly.AssemblyFileVersion,
-                enableSymbolicNames: services.GetRequiredService<IFeatureProvider>().SymbolicNameCodegenEnabled));
         }
     }
 }

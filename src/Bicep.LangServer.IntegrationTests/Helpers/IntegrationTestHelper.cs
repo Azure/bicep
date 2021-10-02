@@ -41,7 +41,6 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions = creationOptions with
             {
                 SnippetsProvider = creationOptions.SnippetsProvider ?? SnippetsProvider,
-                NamespaceProvider = creationOptions.NamespaceProvider ?? TestTypeHelper.CreateEmptyProvider(),
                 FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>())
             };
 
