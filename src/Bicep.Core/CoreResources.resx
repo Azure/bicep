@@ -127,6 +127,13 @@
 	<data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
     <value>When setting an adminUserName property, don't use a literal value.</value>
   </data>
+  <data name="OutputsShouldNotContainSecretsRuleDescription" xml:space="preserve">
+    <value>Don't include secrets in an output.</value>
+  </data>
+  <data name="OutputsShouldNotContainSecretsMessageFormat" xml:space="preserve">
+    <value>{0} Found: '{1}'</value>
+    <comment>{0} is the rule description as a sentence ending with a period, {1} is the name of what was found, e.g. 'myParameter'</comment>
+  </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
   </data>

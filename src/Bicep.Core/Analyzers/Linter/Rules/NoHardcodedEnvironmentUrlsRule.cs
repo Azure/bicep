@@ -29,7 +29,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
-            docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/${Code}"))
         {
         }
 

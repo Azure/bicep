@@ -57,6 +57,9 @@
                         "no-unused-vars": {
                             "level": "warning"
                         },
+                        "outputs-should-not-contain-secrets": {
+                            "level": "warning"
+                        },
                         "prefer-interpolation": {
                             "level": "warning"
                         },
@@ -155,6 +158,16 @@
                                     "allOf": [
                                         {
                                             "description": "No unused variables. See https://aka.ms/bicep/linter/no-unused-vars"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                },
+                                "outputs-should-not-contain-secrets": {
+                                    "allOf": [
+                                        {
+                                            "description": "Don't include secrets in an output. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
                                         },
                                         {
                                             "$ref": "#/definitions/rule"
