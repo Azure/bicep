@@ -17,8 +17,6 @@ using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -1129,6 +1127,46 @@ import ns8 from sys|
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
                 c => c!.Select(x => x.Label).Should().BeEmpty()
             ), features);
+        }
+
+        [TestMethod]
+        public async Task ModuleCompletionsShouldNotBeUrlEscaped()
+        {
+            var fileWithCursors = @"
+module a 'folder with space/mod|' = {
+    name: 'folderWithSpace'
+}
+
+module d 'percentage%|' = {
+    name: 'plus'
+}
+";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [new Uri("file:///folder with space/mod with space.bicep")] = @"param foo string",
+                [new Uri("file:///percentage%file.bicep")] = @"param foo string",
+                [new Uri("file:///already%20escaped.bicep")] = @"param foo string",
+                [mainUri] = file
+            });
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
+            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            var completions = await RequestCompletions(client, bicepFile, cursors);
+
+            completions.Should().SatisfyRespectively(
+                y => y.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("mod with space.bicep"),
+                    x => x.Label.Should().Be("percentage%file.bicep"),
+                    x => x.Label.Should().Be("already escaped.bicep")),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Label.Should().Be("mod with space.bicep"),
+                    x => x.Label.Should().Be("percentage%file.bicep"),
+                    x => x.Label.Should().Be("already escaped.bicep"))
+            );
         }
 
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)

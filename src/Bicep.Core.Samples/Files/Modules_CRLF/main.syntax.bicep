@@ -3143,6 +3143,52 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 
 
 // END: Key Vault Secret Reference
-//@[34:36) NewLine |\r\n|
+//@[34:38) NewLine |\r\n\r\n|
+
+module withSpace 'module with space.bicep' = {
+//@[0:70) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:16)  IdentifierSyntax
+//@[7:16)   Identifier |withSpace|
+//@[17:42)  StringSyntax
+//@[17:42)   StringComplete |'module with space.bicep'|
+//@[43:44)  Assignment |=|
+//@[45:70)  ObjectSyntax
+//@[45:46)   LeftBrace |{|
+//@[46:48)   NewLine |\r\n|
+  name: 'withSpace'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'withSpace'|
+//@[19:21)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+module folderWithSpace 'child/folder with space/child with space.bicep' = {
+//@[0:104) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:22)  IdentifierSyntax
+//@[7:22)   Identifier |folderWithSpace|
+//@[23:71)  StringSyntax
+//@[23:71)   StringComplete |'child/folder with space/child with space.bicep'|
+//@[72:73)  Assignment |=|
+//@[74:104)  ObjectSyntax
+//@[74:75)   LeftBrace |{|
+//@[75:77)   NewLine |\r\n|
+  name: 'childWithSpace'
+//@[2:24)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:24)    StringSyntax
+//@[8:24)     StringComplete |'childWithSpace'|
+//@[24:26)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

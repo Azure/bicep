@@ -39,7 +39,7 @@ namespace Bicep.Core.Registry
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseModuleReference(parts[0], out failureBuilder);
+                        return localRegistry.TryParseModuleReference(Uri.EscapeDataString(parts[0]), out failureBuilder);
                     }
 
                     failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes);
