@@ -21,10 +21,10 @@ Notice all the other properties have been removed because the resource already e
 
 >**Note:** Resources declared with the `existing` keyword support an optional `scope` property if the resource does not exist in the same scope as the target scope of the Bicep file being deployed.
 
-Now we can update our file accordingly:
+Now we can create a new file:
 
 ```bicep
-param storageAccountName string // need to be provided since it is existing
+param storageAccountName string // needs to be provided during deployment
 
 resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
   name: storageAccountName
