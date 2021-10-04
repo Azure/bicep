@@ -139,7 +139,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
             {
-                // source of the link
+                // source of the link. Underline only the symbolic name
                 OriginSelectionRange = (result.Origin is ITopLevelNamedDeclarationSyntax named ? named.Name : result.Origin).ToRange(result.Context.LineStarts),
                 TargetUri = request.TextDocument.Uri,
 
@@ -158,13 +158,14 @@ namespace Bicep.LanguageServer.Handlers
             {
                 // capture the property accesses leading to this specific property access
                 var propertyAccesses = matchingNodes.OfType<ObjectPropertySyntax>().ToList();
-                // only two level of traversals: mod.outputs.<outputName> or mod.params.<parameterName>
+                // only two level of traversals: mod { params: { <outputName1>: ...}}
                 if (propertyAccesses.Count == 2)
                 {
+                    // underline only the key of the object property access
                     return GetModuleSymbolLocationAsync(
-                        propertyAccesses.Last(), 
+                        propertyAccesses.Last().Key, 
                         context, 
-                        moduleDeclarationSyntax, 
+                        moduleDeclarationSyntax,
                         propertyAccesses[0].TryGetKeyText()!, 
                         propertyAccesses[1].TryGetKeyText()!);
                 }
@@ -195,6 +196,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (propertyAccesses.Count == 2
                 && ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax)
                 {
+                    // underline only the last property access
                     return GetModuleSymbolLocationAsync(
                         propertyAccesses.Last(), 
                         context,
@@ -207,6 +209,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (GetObjectSyntaxFromDeclaration(ancestorSymbol.DeclaringSyntax) is ObjectSyntax objectSyntax
                     && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses) is ObjectPropertySyntax resultingSyntax)
                 {
+                    // underline only the last property access
                     return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
                     {
                         OriginSelectionRange = propertyAccesses.Last().ToRange(result.Context.LineStarts),
@@ -221,7 +224,7 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private Task<LocationOrLocationLinks> GetModuleSymbolLocationAsync(
-            SyntaxBase highlightedSyntax,
+            SyntaxBase underlinedSyntax,
             CompilationContext context,
             ModuleDeclarationSyntax moduleDeclarationSyntax,
             string propertyType,
@@ -238,7 +241,7 @@ namespace Bicep.LanguageServer.Handlers
                         {
                             return Task.FromResult(GetModuleDefinitionLocation(
                                 bicepFile.FileUri,
-                                highlightedSyntax,
+                                underlinedSyntax,
                                 context,
                                 outputSymbol.DeclaringOutput.Name.ToRange(bicepFile.LineStarts)));
                         }
@@ -249,7 +252,7 @@ namespace Bicep.LanguageServer.Handlers
                         {
                             return Task.FromResult(GetModuleDefinitionLocation(
                                 bicepFile.FileUri,
-                                highlightedSyntax,
+                                underlinedSyntax,
                                 context,
                                 parameterSymbol.DeclaringParameter.Name.ToRange(bicepFile.LineStarts)));
                         }

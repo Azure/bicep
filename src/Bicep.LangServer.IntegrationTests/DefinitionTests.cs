@@ -72,17 +72,19 @@ namespace Bicep.LangServer.IntegrationTests
                 // selection range should be the span of the identifier of the symbol
                 link.TargetSelectionRange.Should().Be(symbol.NameSyntax.Span.ToRange(lineStarts));
 
-                // origin selection range should be the span of the syntax node that references the symbol
                 if (syntax is ParameterDeclarationSyntax parameterSyntax) 
                 {
+                    // we only underline the key of the param declaration syntax
                     link.OriginSelectionRange.Should().Be(parameterSyntax.Name.ToRange(lineStarts));
                 }
                 else if (syntax is ITopLevelNamedDeclarationSyntax namedSyntax)
                 {
+                    // Instead of underlining everything, we only underline the resource name
                     link.OriginSelectionRange.Should().Be(namedSyntax.Name.ToRange(lineStarts));
                 } 
                 else 
                 {
+                    // origin selection range should be the span of the syntax node that references the symbol
                     link.OriginSelectionRange.Should().Be(syntax.ToRange(lineStarts));
                 }
             }
