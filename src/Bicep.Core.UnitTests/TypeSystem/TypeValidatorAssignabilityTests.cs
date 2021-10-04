@@ -606,8 +606,9 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var typeProvider = TestTypeHelper.CreateEmptyProvider();
             var typeReference = ResourceTypeReference.Parse("Mock.Rp/mockType@2020-01-01");
+            var azNamespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
 
-            return typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!.ResourceTypeProvider.TryGenerateDefaultType(typeReference, ResourceTypeGenerationFlags.None)!;
+            return azNamespaceType.ResourceTypeProvider.TryGenerateDefaultType(azNamespaceType, typeReference, ResourceTypeGenerationFlags.None)!;
         }
 
         private static (TypeSymbol result, IReadOnlyList<IDiagnostic> diagnostics) NarrowTypeAndCollectDiagnostics(SyntaxHierarchy hierarchy, SyntaxBase expression, TypeSymbol targetType)

@@ -214,7 +214,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
 
-                        return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
+                        return new ResourceType(targetResourceType.DeclaringNamespace, targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
                     }
                 case ModuleType targetModuleType:
                     {

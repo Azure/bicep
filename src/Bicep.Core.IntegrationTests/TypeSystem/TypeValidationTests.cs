@@ -17,7 +17,7 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
+        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
         {
             var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
@@ -368,7 +368,7 @@ var commentsPropAccess = jsonWithComments.key
 var invalidPropAccess = objectJson.invalidProp
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
 
             GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
             GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
@@ -393,7 +393,7 @@ var invalidPropAccess = objectJson.invalidProp
 var invalidJson = json('{""prop"": ""value')
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
 
             GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("error");
 

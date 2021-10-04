@@ -38,7 +38,10 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
-            var resourceTypeProvider = new AzResourceTypeProvider(new AzResourceTypeLoader());
+            var typeProvider = TestTypeHelper.CreateWithAzTypes();
+            var namespaceType = typeProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
+
+            var resourceTypeProvider = namespaceType.ResourceTypeProvider;
             var availableTypes = resourceTypeProvider.GetAvailableTypes();
 
             // sanity check - we know there should be a lot of types available
@@ -48,7 +51,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
             foreach (var availableType in availableTypes)
             {
                 resourceTypeProvider.HasDefinedType(availableType).Should().BeTrue();
-                var resourceType = resourceTypeProvider.TryGetDefinedType(availableType, flags)!;
+                var resourceType = resourceTypeProvider.TryGetDefinedType(namespaceType, availableType, flags)!;
 
                 try
                 {
