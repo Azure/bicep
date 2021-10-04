@@ -4,13 +4,16 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
@@ -30,6 +33,8 @@ namespace Bicep.Core.Semantics
 
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
+        private static readonly Regex DisableDiagnosticComment = new Regex(@"\/\* Disable (?<code>(.*?)) \*\/", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex EnableDiagnosticComment = new Regex(@"\/\* Enable (?<code>(.*?)) \*\/", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, RootConfiguration configuration)
         {
@@ -183,7 +188,107 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
-            return AssembleDiagnostics();
+            var spansToIgnore = GetSpansToIgnore();
+            List<IDiagnostic> updatedDiagnostics = new List<IDiagnostic>();
+
+            foreach (IDiagnostic diagnostic in AssembleDiagnostics())
+            {
+                if (spansToIgnore.TryGetValue(diagnostic.Code, out List<TextSpan> spans) &&
+                    spans.Any(x => x.ContainsInclusive(diagnostic.Span.Position) &&
+                    x.ContainsInclusive(diagnostic.Span.Position + diagnostic.Span.Length)))
+                {
+                    continue;
+                }
+                else
+                {
+                    updatedDiagnostics.Add(diagnostic);
+                }
+            }
+
+            return updatedDiagnostics;
+        }
+
+        protected Dictionary<string, List<TextSpan>> GetSpansToIgnore()
+        {
+            Dictionary<string, List<int>> disableCommentsMap = new();
+            Dictionary<string, List<TextSpan>> spansToIgnore = new();
+
+            foreach (var child in this.SourceFile.ProgramSyntax.Children)
+            {
+                if (child is Token childToken)
+                {
+                    if (TokenContainsCommentPattern(DisableDiagnosticComment, childToken, out string? code) && code is not null)
+                    {
+                        if (disableCommentsMap.TryGetValue(code, out List<int> value))
+                        {
+                            value.Add(childToken.Span.Position);
+                            disableCommentsMap[code] = value;
+                        }
+                        else
+                        {
+                            disableCommentsMap.Add(code, new List<int>() { childToken.Span.Position });
+                        }
+                    }
+
+                    if (TokenContainsCommentPattern(EnableDiagnosticComment, childToken, out code) && code is not null)
+                    {
+                        if (disableCommentsMap.TryGetValue(code, out List<int> value) && value.Any())
+                        {
+                            int spanStart = value.First();
+                            TextSpan span = new TextSpan(spanStart, childToken.Span.Position - spanStart);
+                            value.RemoveAt(0);
+                            disableCommentsMap[code] = value;
+
+                            if (spansToIgnore.TryGetValue(code, out List<TextSpan> textSpans))
+                            {
+                                textSpans.Add(span);
+                                spansToIgnore[code] = textSpans;
+                            }
+                            else
+                            {
+                                spansToIgnore.Add(code, new List<TextSpan> { span });
+                            }
+                        }
+                    }
+                }
+            }
+
+            return spansToIgnore;
+        }
+
+        private bool TokenContainsCommentPattern(Regex commentPattern, Token token, out string? code)
+        {
+            code = null;
+            foreach (var syntaxTrivia in token.LeadingTrivia)
+            {
+                if (TryGetCode(commentPattern, syntaxTrivia.Text, out code))
+                {
+                    return true;
+                }
+            }
+
+            foreach (var syntaxTrivia in token.TrailingTrivia)
+            {
+                if (TryGetCode(commentPattern, syntaxTrivia.Text, out code))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public bool TryGetCode(Regex regex, string text, [NotNullWhen(true)] out string? code)
+        {
+            code = null;
+            if (regex.Matches(text).FirstOrDefault() is Match match &&
+                match.Groups["code"].Value is string diagnosticCode)
+            {
+                code = diagnosticCode;
+                return true;
+            }
+
+            return false;
         }
 
         private IEnumerable<IDiagnostic> AssembleDiagnostics()

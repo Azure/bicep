@@ -55,6 +55,8 @@ namespace Bicep.Core
 
         public const string BicepConfigurationFileName = "bicepconfig.json";
 
+        public const string DisableDiagnostic = "bicep.DisableDiagnostic";
+
         public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");

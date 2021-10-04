@@ -1,13 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
+using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -43,7 +48,8 @@ namespace Bicep.LanguageServer.Handlers
                 : requestStartOffset;
 
             var compilation = compilationContext.Compilation;
-            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+            var semanticModel = compilation.GetEntrypointSemanticModel();
+            var diagnostics = semanticModel.GetAllDiagnostics();
 
             var quickFixes = diagnostics
                 .Where(fixable =>
@@ -67,12 +73,67 @@ namespace Bicep.LanguageServer.Handlers
 
             commandOrCodeActions.AddRange(analyzerDiagnostics);
 
+            var diagnosticsToDisable = diagnostics
+                .Where(diagnostic =>
+                    diagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                    diagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                    (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset))
+                .OfType<IDiagnostic>()
+                .Select(diagnostic => DisableDiagnostic(documentUri, diagnostic.Code, semanticModel.SourceFile, diagnostic.Span, compilationContext.LineStarts));
+
+            commandOrCodeActions.AddRange(diagnosticsToDisable);
+
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
+        }
+
+        private static CommandOrCodeAction DisableDiagnostic(DocumentUri documentUri,
+            DiagnosticCode diagnosticCode,
+            BicepFile bicepFile,
+            TextSpan span,
+            ImmutableArray<int> lineStarts)
+        {
+            var declaration = bicepFile.ProgramSyntax.Declarations
+                .Where(x => x.Span.ContainsInclusive(span.Position) && x.Span.ContainsInclusive(span.Position + span.Length))
+                .FirstOrDefault();
+
+            if (declaration is not null)
+            {
+                var declarationRange = declaration.Span.ToRange(lineStarts);
+                TextEdit disableDiagnosticStart = new TextEdit
+                {
+                    Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
+                    NewText = string.Format("/* Disable {0} */\n", diagnosticCode.String)
+                };
+
+                TextEdit disableDiagnosticEnd = new TextEdit
+                {
+                    Range = new Range(declarationRange.End.Line, declarationRange.End.Character, declarationRange.End.Line, declarationRange.End.Character),
+                    NewText = string.Format("\n/* Enable {0} */\n", diagnosticCode.String)
+                };
+
+                var command = Command.Create(LanguageConstants.DisableDiagnostic, documentUri, diagnosticCode);
+
+                return new CodeAction
+                {
+                    Kind = CodeActionKind.QuickFix,
+                    Title = string.Format("Disable {0}", diagnosticCode.String),
+                    Edit = new WorkspaceEdit
+                    {
+                        Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
+                        {
+                            [documentUri] = new List<TextEdit> { disableDiagnosticStart, disableDiagnosticEnd }
+                        }
+                    },
+                    Command = command
+                };
+            }
+
+            return new CodeAction();
         }
 
         private static CommandOrCodeAction DisableLinterRule(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
         {
-            var command  = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty);
+            var command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty);
 
             return new CodeAction
             {
