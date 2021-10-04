@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public OutputsShouldNotContainSecretsRule() : base(
             code: Code,
             description: CoreResources.OutputsShouldNotContainSecretsRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/${Code}")
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
         )
         {
         }
@@ -99,7 +99,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     if (param.IsSecure())
                     {
                         string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.Name.IdentifierName);
-                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
+                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Name.Span, foundMessage));
                     }
                 }
 
