@@ -1133,12 +1133,8 @@ import ns8 from sys|
         public async Task ModuleCompletionsShouldNotBeUrlEscaped()
         {
             var fileWithCursors = @"
-module a 'folder with space/mod|' = {
-    name: 'folderWithSpace'
-}
-
-module d 'percentage%|' = {
-    name: 'plus'
+module a '|' = {
+    name: 'modA'
 }
 ";
 
@@ -1158,10 +1154,6 @@ module d 'percentage%|' = {
             var completions = await RequestCompletions(client, bicepFile, cursors);
 
             completions.Should().SatisfyRespectively(
-                y => y.Should().SatisfyRespectively(
-                    x => x.Label.Should().Be("mod with space.bicep"),
-                    x => x.Label.Should().Be("percentage%file.bicep"),
-                    x => x.Label.Should().Be("already escaped.bicep")),
                 y => y.Should().SatisfyRespectively(
                     x => x.Label.Should().Be("mod with space.bicep"),
                     x => x.Label.Should().Be("percentage%file.bicep"),
