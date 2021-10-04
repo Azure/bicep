@@ -25,6 +25,7 @@ using System;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests;
+using Bicep.Core.Navigation;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -72,7 +73,18 @@ namespace Bicep.LangServer.IntegrationTests
                 link.TargetSelectionRange.Should().Be(symbol.NameSyntax.Span.ToRange(lineStarts));
 
                 // origin selection range should be the span of the syntax node that references the symbol
-                link.OriginSelectionRange.Should().Be(syntax.ToRange(lineStarts));
+                if (syntax is ParameterDeclarationSyntax parameterSyntax) 
+                {
+                    link.OriginSelectionRange.Should().Be(parameterSyntax.Name.ToRange(lineStarts));
+                }
+                else if (syntax is ITopLevelNamedDeclarationSyntax namedSyntax)
+                {
+                    link.OriginSelectionRange.Should().Be(namedSyntax.Name.ToRange(lineStarts));
+                } 
+                else 
+                {
+                    link.OriginSelectionRange.Should().Be(syntax.ToRange(lineStarts));
+                }
             }
         }
 

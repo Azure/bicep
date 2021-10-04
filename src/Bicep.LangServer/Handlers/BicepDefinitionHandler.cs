@@ -140,7 +140,7 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
             {
                 // source of the link
-                OriginSelectionRange = (result.Origin is INamedDeclarationSyntax named ? named.Name : result.Origin).ToRange(result.Context.LineStarts),
+                OriginSelectionRange = (result.Origin is ITopLevelNamedDeclarationSyntax named ? named.Name : result.Origin).ToRange(result.Context.LineStarts),
                 TargetUri = request.TextDocument.Uri,
 
                 // entire span of the declaredSymbol
