@@ -24,7 +24,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             output badResult string = 'this is the value ${secureParam}'
         ",
-            "Don't include secrets in an output. Found: 'secureParam'"
+            "Don't include secrets in an output. Found: secure parameter 'secureParam'"
         )]
         [DataRow(@"
             @secure()
@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             }
         ",
-            "Don't include secrets in an output. Found: 'secureParam'"
+            "Don't include secrets in an output. Found: secure parameter 'secureParam'"
         )]
         [DataRow(@"
             @secure()
@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets
             // Output contains secureObject parameter: badResult
-            "Don't include secrets in an output. Found: 'secureParam'"
+            "Don't include secrets in an output. Found: secure parameter 'secureParam'"
         )]
         [DataTestMethod]
         public void If_OutputReferencesSecureParam_ShouldFail(string text, params string[] expectedMessages)
@@ -92,7 +92,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               value: stg.listKeys().keys[0].value
             }
         ",
-            "Don't include secrets in an output. Found: 'listKeys'"
+            "Don't include secrets in an output. Found: function 'listKeys'"
         )]
         [DataRow(@"
             param storageName string
@@ -105,7 +105,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               value: stg.listAnything().keys[0].value
             }
         ",
-            "Don't include secrets in an output. Found: 'listAnything'"
+            "Don't include secrets in an output. Found: function 'listAnything'"
         )]
         [DataTestMethod]
         public void If_ListFunctionInOutput_AsResourceMethod_ShouldFail(string text, params string[] expectedMessages)
@@ -125,7 +125,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets(6 ms)
             // Output contains secret: badResult
-            "Don't include secrets in an output. Found: 'listKeys'"
+            "Don't include secrets in an output. Found: function 'listKeys'"
         )]
         [DataRow(@"
             param storageName string
@@ -139,7 +139,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets(6 ms)
             // Output contains secret: badResult
-            "Don't include secrets in an output. Found: 'listAnything'"
+            "Don't include secrets in an output. Found: function 'listAnything'"
         )]
         [DataTestMethod]
         public void If_ListFunctionInOutput_AsStandaloneFunction_ShouldFail(string text, params string[] expectedMessages)
@@ -153,22 +153,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets(6 ms)
             //  Output name suggests secret: badResultPassword
-            "Don't include secrets in an output. Found: 'badResultPassword'"
+            "Don't include secrets in an output. Found: output name 'badResultPassword' suggests a secret"
         )]
         [DataRow(@"
             output possiblepassword string = 'hello'
         ",
-            "Don't include secrets in an output. Found: 'possiblepassword'"
+            "Don't include secrets in an output. Found: output name 'possiblepassword' suggests a secret"
         )]
         [DataRow(@"
             output password string = 'hello'
         ",
-            "Don't include secrets in an output. Found: 'password'"
+            "Don't include secrets in an output. Found: output name 'password' suggests a secret"
         )]
         [DataRow(@"
             output passwordNumber1 string = 'hello'
         ",
-            "Don't include secrets in an output. Found: 'passwordNumber1'"
+            "Don't include secrets in an output. Found: output name 'passwordNumber1' suggests a secret"
         )]
         [DataTestMethod]
         public void If_OutputNameLooksLikePassword_ShouldFail(string text, params string[] expectedMessages)

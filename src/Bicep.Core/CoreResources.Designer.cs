@@ -77,6 +77,24 @@ namespace Bicep.Core {
             }
         }
         
+        internal static string OutputsShouldNotContainSecretsOutputName {
+            get {
+                return ResourceManager.GetString("OutputsShouldNotContainSecretsOutputName", resourceCulture);
+            }
+        }
+        
+        internal static string OutputsShouldNotContainSecretsSecureParam {
+            get {
+                return ResourceManager.GetString("OutputsShouldNotContainSecretsSecureParam", resourceCulture);
+            }
+        }
+        
+        internal static string OutputsShouldNotContainSecretsFunction {
+            get {
+                return ResourceManager.GetString("OutputsShouldNotContainSecretsFunction", resourceCulture);
+            }
+        }
+        
         internal static string EnvironmentUrlHardcodedRuleDescription {
             get {
                 return ResourceManager.GetString("EnvironmentUrlHardcodedRuleDescription", resourceCulture);

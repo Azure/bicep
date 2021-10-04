@@ -131,8 +131,20 @@
     <value>Don't include secrets in an output.</value>
   </data>
   <data name="OutputsShouldNotContainSecretsMessageFormat" xml:space="preserve">
-    <value>{0} Found: '{1}'</value>
+    <value>{0} Found: {1}</value>
     <comment>{0} is the rule description as a sentence ending with a period, {1} is the name of what was found, e.g. 'myParameter'</comment>
+  </data>
+  <data name="OutputsShouldNotContainSecretsOutputName" xml:space="preserve">
+    <value>output name '{0}' suggests a secret</value>
+    <comment>{0} name of a programmatic output</comment>
+  </data>
+  <data name="OutputsShouldNotContainSecretsSecureParam" xml:space="preserve">
+    <value>secure parameter '{0}'</value>
+    <comment>{0} name of a programmatic parameter</comment>
+  </data>
+  <data name="OutputsShouldNotContainSecretsFunction" xml:space="preserve">
+    <value>function '{0}'</value>
+    <comment>{0} name of a programmatic function</comment>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>

@@ -59,7 +59,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // Does the output name contain 'password' (suggesting it contains an actual password)?
                 if (syntax.Name.IdentifierName.ToLowerInvariant().Contains("password"))
                 {
-                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, syntax.Name.IdentifierName));
+                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsOutputName, syntax.Name.IdentifierName);
+                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
                 }
 
                 var visitor = new OutputValueVisitor(this.parent, diagnostics, model);
@@ -97,7 +98,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (param.IsSecure())
                     {
-                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, param.Name));
+                        string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsSecureParam, syntax.Name.IdentifierName);
+                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
                     }
                 }
 
@@ -113,7 +115,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
                 {
-                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, syntax.Name.IdentifierName));
+                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
+                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
                 }
 
                 base.VisitFunctionCallSyntax(syntax);
@@ -128,7 +131,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
                 {
-                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, syntax.Name.IdentifierName));
+                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
+                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
                 }
 
                 base.VisitInstanceFunctionCallSyntax(syntax);
