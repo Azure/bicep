@@ -11,7 +11,6 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Semantics;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -75,6 +74,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var diagnosticsToDisable = diagnostics
                 .Where(diagnostic =>
+                    (diagnostic.Level != DiagnosticLevel.Error || diagnostic.Level != DiagnosticLevel.Off) &&
                     diagnostic.Span.ContainsInclusive(requestStartOffset) ||
                     diagnostic.Span.ContainsInclusive(requestEndOffset) ||
                     (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset))
