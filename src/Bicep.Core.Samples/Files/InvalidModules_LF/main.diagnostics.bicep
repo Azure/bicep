@@ -217,15 +217,15 @@ module moduleWithEmptyPath '' = {
 }
 
 module moduleWithAbsolutePath '/abc/def.bicep' = {
-//@[30:46) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}/abc/def.bicep'. (CodeDescription: none) |'/abc/def.bicep'|
+//@[30:46) [BCP051 (Error)] The specified path begins with "/". Files must be referenced using relative paths. (CodeDescription: none) |'/abc/def.bicep'|
 }
 
 module moduleWithBackslash 'child\\file.bicep' = {
-//@[27:46) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/child\file.bicep'. (CodeDescription: none) |'child\\file.bicep'|
+//@[27:46) [BCP098 (Error)] The specified file path contains a "\" character. Use "/" instead as the directory separator character. (CodeDescription: none) |'child\\file.bicep'|
 }
 
 module moduleWithInvalidChar 'child/fi|le.bicep' = {
-//@[29:48) [BCP091 (Error)] An error occurred reading file. Could not find a part of the path '${TEST_OUTPUT_DIR}/child/fi|le.bicep'. (CodeDescription: none) |'child/fi|le.bicep'|
+//@[29:48) [BCP085 (Error)] The specified file path contains one ore more invalid path characters. The following are not permitted: """, "*", ":", "<", ">", "?", "\", "|". (CodeDescription: none) |'child/fi|le.bicep'|
 }
 
 module moduleWithInvalidTerminatorChar 'child/test.' = {
