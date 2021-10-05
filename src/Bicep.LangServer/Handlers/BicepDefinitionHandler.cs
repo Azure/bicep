@@ -159,15 +159,17 @@ namespace Bicep.LanguageServer.Handlers
                 // capture the property accesses leading to this specific property access
                 var propertyAccesses = matchingNodes.OfType<ObjectPropertySyntax>().ToList();
                 // only two level of traversals: mod { params: { <outputName1>: ...}}
-                if (propertyAccesses.Count == 2)
+                if (propertyAccesses.Count == 2 &&
+                    propertyAccesses[0].TryGetKeyText() is {} propertyType &&
+                    propertyAccesses[1].TryGetKeyText() is {} propertyName)
                 {
                     // underline only the key of the object property access
                     return GetModuleSymbolLocationAsync(
                         propertyAccesses.Last().Key, 
                         context, 
                         moduleDeclarationSyntax,
-                        propertyAccesses[0].TryGetKeyText()!, 
-                        propertyAccesses[1].TryGetKeyText()!);
+                        propertyType, 
+                        propertyName);
                 }
             }
 
