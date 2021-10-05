@@ -92,13 +92,9 @@ namespace Bicep.Core
         // module properties
         public const string ModuleParamsPropertyName = "params";
         public const string ModuleOutputsPropertyName = "outputs";
+        public const string ModuleNamePropertyName = "name";
 
         // resource properties
-        public const string ResourceIdPropertyName = "id";
-        public const string ResourceLocationPropertyName = "location";
-        public const string ResourceNamePropertyName = "name";
-        public const string ResourceTypePropertyName = "type";
-        public const string ResourceApiVersionPropertyName = "apiVersion";
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
@@ -106,18 +102,6 @@ namespace Bicep.Core
         // types
         public const string TypeNameString = "string";
         public const string TypeNameModule = "module";
-
-        /*
-         * The following top-level properties must be set deploy-time constant values,
-         * and it is safe to read them at deploy-time because their values cannot be changed.
-         */
-        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
-        {
-            ResourceIdPropertyName,
-            ResourceNamePropertyName,
-            ResourceTypePropertyName,
-            ResourceApiVersionPropertyName,
-        };
 
         /*
          * The following top-level properties must be set deploy-time constant values
@@ -210,14 +194,6 @@ namespace Bicep.Core
             yield return new TypeProperty("description", String, TypePropertyFlags.Constant);
         }
 
-        public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
-        {
-            yield return new TypeProperty(ResourceIdPropertyName, String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty(ResourceNamePropertyName, String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant);
-            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-        }
-
         public static IEnumerable<string> GetResourceScopeDescriptions(ResourceScope resourceScope)
         {
             if (resourceScope == ResourceScope.None)
@@ -278,7 +254,7 @@ namespace Bicep.Core
                 TypeSymbolValidationFlags.Default,
                 new[]
                 {
-                    new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
+                    new TypeProperty(ModuleNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.ReadableAtDeployTime | TypePropertyFlags.LoopVariant),
                     new TypeProperty(ResourceScopePropertyName, CreateResourceScopeReference(moduleScope), scopePropertyFlags),
                     new TypeProperty(ModuleParamsPropertyName, paramsType, paramsRequiredFlag | TypePropertyFlags.WriteOnly),
                     new TypeProperty(ModuleOutputsPropertyName, outputsType, TypePropertyFlags.ReadOnly),
@@ -287,61 +263,6 @@ namespace Bicep.Core
                 null);
 
             return new ModuleType(typeName, moduleScope, moduleBody);
-        }
-
-        public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
-        {
-            /*
-             * The following properties are intentionally excluded from this model:
-             * - SystemData - this is a read-only property that doesn't belong on PUTs
-             * - id - that is not allowed in templates
-             * - type - included in resource type on resource declarations
-             * - apiVersion - included in resource type on resource declarations
-             */
-
-            foreach (var prop in GetCommonResourceProperties(resourceTypeReference))
-            {
-                yield return prop;
-            }
-
-            foreach (var prop in KnownTopLevelResourceProperties())
-            {
-                yield return prop;
-            }
-        }
-
-        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
-        {
-            yield return new TypeProperty("location", String);
-
-            yield return new TypeProperty("tags", Tags);
-
-            yield return new TypeProperty("properties", Object);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("sku", Object);
-
-            yield return new TypeProperty("kind", String);
-            yield return new TypeProperty("managedBy", String);
-
-            var stringArray = new TypedArrayType(String, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty("managedByExtended", stringArray);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("extendedLocation", Object);
-
-            yield return new TypeProperty("zones", stringArray);
-
-            yield return new TypeProperty("plan", Object);
-
-            yield return new TypeProperty("eTag", String);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("scale", Object);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("identity", Object);
-
         }
     }
 }

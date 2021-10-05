@@ -10,6 +10,7 @@ using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.IntegrationTests
 {

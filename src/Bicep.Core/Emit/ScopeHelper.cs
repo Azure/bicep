@@ -141,7 +141,7 @@ namespace Bicep.Core.Emit
                         return null;
                     }
 
-                    if (StringComparer.OrdinalIgnoreCase.Equals(targetResource.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeResourceGroup))
+                    if (StringComparer.OrdinalIgnoreCase.Equals(targetResource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeResourceGroup))
                     {
                         // special-case 'Microsoft.Resources/resourceGroups' in order to allow it to create a resourceGroup-scope resource
                         // ignore diagnostics - these will be collected separately in the pass over resources
@@ -159,7 +159,7 @@ namespace Bicep.Core.Emit
                         }
                     }
 
-                    if (StringComparer.OrdinalIgnoreCase.Equals(targetResource.TypeReference.FullyQualifiedType, AzResourceTypeProvider.ResourceTypeManagementGroup))
+                    if (StringComparer.OrdinalIgnoreCase.Equals(targetResource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeManagementGroup))
                     {
                         // special-case 'Microsoft.Management/managementGroups' in order to allow it to create a managementGroup-scope resource
                         // ignore diagnostics - these will be collected separately in the pass over resources
@@ -270,7 +270,7 @@ namespace Bicep.Core.Emit
                         context,
                         converter,
                         context.ResourceScopeData[resource],
-                        resource.TypeReference.FullyQualifiedType,
+                        resource.TypeReference.FormatType(),
                         converter.GetResourceNameSegments(resource));
 
                     return ExpressionConverter.GenerateExtensionResourceId(
@@ -301,7 +301,7 @@ namespace Bicep.Core.Emit
                         context,
                         converter,
                         context.ResourceScopeData[resource],
-                        resource.TypeReference.FullyQualifiedType,
+                        resource.TypeReference.FormatType(),
                         converter.GetResourceNameSegments(resource));
 
                     return ExpressionConverter.GenerateExtensionResourceId(

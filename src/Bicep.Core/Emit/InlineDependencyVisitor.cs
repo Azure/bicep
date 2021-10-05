@@ -7,6 +7,7 @@ using System.Linq;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.Emit
 {
@@ -225,8 +226,9 @@ namespace Bicep.Core.Emit
 
                 if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
+                    // TODO: Do we need to special case resource properties here?
                     if (resourceSymbol is not null &&
-                        !LanguageConstants.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
+                        !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
                     {
                         // The property is not declared in the resource - we should inline event it is a deploy-time constant.
                         // We skip standardized properties (id, name, type, and apiVersion) since their values are always known

@@ -5,6 +5,7 @@ using System.Linq;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -15,10 +16,10 @@ namespace Bicep.Core.UnitTests.Utils
     {
         private static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {
-            yield return new TypeProperty(LanguageConstants.ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "id property");
-            yield return new TypeProperty(LanguageConstants.ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "name property");
-            yield return new TypeProperty(LanguageConstants.ResourceTypePropertyName, new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "type property");
-            yield return new TypeProperty(LanguageConstants.ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "apiVersion property");
+            yield return new TypeProperty(AzResourceTypeProvider.ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "id property");
+            yield return new TypeProperty(AzResourceTypeProvider.ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "name property");
+            yield return new TypeProperty(AzResourceTypeProvider.ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "type property");
+            yield return new TypeProperty(AzResourceTypeProvider.ResourceApiVersionPropertyName, new StringLiteralType(reference.Version!), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "apiVersion property");
         }
 
         private static ResourceTypeComponents BasicTestsType()
@@ -98,7 +99,7 @@ namespace Bicep.Core.UnitTests.Utils
                 GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }).Concat(
-                    LanguageConstants.KnownTopLevelResourceProperties().Where(p => !string.Equals(p.Name, "properties", LanguageConstants.IdentifierComparison))
+                    AzResourceTypeProvider.KnownTopLevelResourceProperties().Where(p => !string.Equals(p.Name, "properties", LanguageConstants.IdentifierComparison))
                                      .Select(p => new TypeProperty(p.Name, p.TypeReference, TypePropertyFlags.None, "Property that does something important"))
                 ), null));
         }

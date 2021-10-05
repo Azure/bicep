@@ -146,7 +146,9 @@ namespace Bicep.Core.Emit
                                 // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                                 var convertedArgs = instanceFunctionCall.Arguments.SelectArray(a => ConvertExpression(a.Expression));
                                 var resourceIdExpression = converter.GetFullyQualifiedResourceId(resource);
-                                var apiVersionExpression = new JTokenExpression(resource.TypeReference.ApiVersion);
+
+                                var apiVersion = resource.TypeReference.Version ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                                var apiVersionExpression = new JTokenExpression(apiVersion);
 
                                 var listArgs = convertedArgs.Length switch
                                 {
@@ -251,9 +253,10 @@ namespace Bicep.Core.Emit
                     // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                     return ConvertExpression(resource.NameSyntax);
                 case ("type", false):
-                    return new JTokenExpression(resource.TypeReference.FullyQualifiedType);
+                    return new JTokenExpression(resource.TypeReference.FormatType());
                 case ("apiVersion", false):
-                    return new JTokenExpression(resource.TypeReference.ApiVersion);
+                    var apiVersion = resource.TypeReference.Version ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                    return new JTokenExpression(apiVersion);
                 case ("properties", _):
                     // use the reference() overload without "full" to generate a shorter expression
                     // this is dependent on the name expression which could involve locals in case of a resource collection
@@ -374,14 +377,17 @@ namespace Bicep.Core.Emit
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceMetadata resource)
         {
+            // TODO move this into az extension
             var typeReference = resource.TypeReference;
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
             var nameSyntax = resource.NameSyntax;
             var nameExpression = ConvertExpression(nameSyntax);
 
+            var typesAfterProvider = typeReference.TypeSegments.Skip(1).ToImmutableArray();
+
             if (ancestors.Length > 0)
             {
-                var firstAncestorNameLength = typeReference.Types.Length - ancestors.Length;
+                var firstAncestorNameLength = typesAfterProvider.Length - ancestors.Length;
 
                 var resourceName = ConvertExpression(resource.NameSyntax);
 
@@ -405,12 +411,12 @@ namespace Bicep.Core.Emit
                 return parentNames.Concat(resourceName.AsEnumerable());
             }
 
-            if (typeReference.Types.Length == 1)
+            if (typesAfterProvider.Length == 1)
             {
                 return nameExpression.AsEnumerable();
             }
 
-            return typeReference.Types.Select(
+            return typesAfterProvider.Select(
                 (type, i) => AppendProperties(
                     CreateFunction("split", nameExpression, new JTokenExpression("/")),
                     new JTokenExpression(i)));
@@ -450,7 +456,7 @@ namespace Bicep.Core.Emit
         public static SyntaxBase GetModuleNameSyntax(ModuleSymbol moduleSymbol)
         {
             // this condition should have already been validated by the type checker
-            return moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+            return moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
         }
 
         public LanguageExpression GetUnqualifiedResourceId(ResourceMetadata resource)
@@ -459,7 +465,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.TypeReference.FullyQualifiedType,
+                resource.TypeReference.FormatType(),
                 GetResourceNameSegments(resource));
         }
 
@@ -469,7 +475,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.TypeReference.FullyQualifiedType,
+                resource.TypeReference.FormatType(),
                 GetResourceNameSegments(resource));
         }
 
@@ -508,13 +514,15 @@ namespace Bicep.Core.Emit
                 GenerateSymbolicReference(resource.Symbol.Name, indexExpression) :
                 GetFullyQualifiedResourceId(resource);
 
+            var apiVersion = resource.TypeReference.Version ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");    
+
             // full gives access to top-level resource properties, but generates a longer statement
             if (full)
             {
                 return CreateFunction(
                     "reference",
                     referenceExpression,
-                    new JTokenExpression(resource.TypeReference.ApiVersion),
+                    new JTokenExpression(apiVersion),
                     new JTokenExpression("full"));
             }
 
@@ -524,7 +532,7 @@ namespace Bicep.Core.Emit
                 return CreateFunction(
                     "reference",
                     referenceExpression,
-                    new JTokenExpression(resource.TypeReference.ApiVersion));
+                    new JTokenExpression(apiVersion));
             }
 
             return CreateFunction(

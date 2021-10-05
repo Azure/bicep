@@ -48,7 +48,7 @@ namespace Bicep.Core.Emit
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
-            LanguageConstants.ResourceNamePropertyName,
+            AzResourceTypeProvider.ResourceNamePropertyName,
         }.ToImmutableHashSet();
 
         private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new[] {
@@ -463,8 +463,12 @@ namespace Bicep.Core.Emit
                 throw new InvalidOperationException("nested loops are not supported");
             }
 
-            emitter.EmitProperty("type", resource.TypeReference.FullyQualifiedType);
-            emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+            emitter.EmitProperty("type", resource.TypeReference.FormatType());
+            if (resource.TypeReference.Version is not null)
+            {
+                emitter.EmitProperty("apiVersion", resource.TypeReference.Version);
+            }
+
             if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
             {
                 ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);

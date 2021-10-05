@@ -122,7 +122,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetResourceType(ResourceDeclarationSyntax syntax)
         {
-            var declaredResourceType = GetDeclaredResourceType(this.binder, syntax);
+            var declaredResourceType = GetDeclaredResourceType(syntax);
 
             // if the value is a loop (not a condition or object), the type is an array of the declared resource type
             return new DeclaredTypeAssignment(
@@ -645,7 +645,7 @@ namespace Bicep.Core.TypeSystem
         /// Returns the same value for single resource or resource loops declarations.
         /// </summary>
         /// <param name="resourceTypeProvider">resource type provider</param>
-        private static TypeSymbol GetDeclaredResourceType(IBinder binder, ResourceDeclarationSyntax resource)
+        private TypeSymbol GetDeclaredResourceType(ResourceDeclarationSyntax resource)
         {
             var stringSyntax = resource.TypeString;
 
@@ -662,103 +662,86 @@ namespace Bicep.Core.TypeSystem
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType());
             }
 
-            // Before we parse the type name we need to determine if it's a top level resource or not.
-            ResourceTypeReference? typeReference;
-            var hasParentDeclaration = false;
-            var nestedParents = binder.GetAllAncestors<ResourceDeclarationSyntax>(resource);
-            bool isTopLevelResourceDeclaration = nestedParents.Length == 0;
-            if (isTopLevelResourceDeclaration)
+            var (typeGenerationFlags, parentResourceType) = GetResourceTypeGenerationFlags(resource);
+
+            var colonIndex = stringContent.IndexOf(':');
+            if (colonIndex > 0)
             {
-                // This is a top level resource - the type is a fully-qualified type.
-                typeReference = ResourceTypeReference.TryParse(stringContent);
-                if (typeReference == null)
+                var scheme = stringContent.Substring(0, colonIndex);
+                var typeString = stringContent.Substring(colonIndex + 1);
+
+                if (binder.NamespaceResolver.TryGetNamespace(scheme) is not {} namespaceType)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType());
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).UnknownResourceReferenceScheme(scheme, binder.NamespaceResolver.GetNamespaceNames().OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
                 }
 
-                if (binder.GetSymbolInfo(resource) is ResourceSymbol resourceSymbol &&
-                    binder.TryGetCycle(resourceSymbol) is null &&
-                    resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax &&
-                    binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
+                var (errorType, typeReference) = GetCombinedTypeReference(typeGenerationFlags, resource, parentResourceType, typeString);
+                if (errorType is not null)
                 {
-                    hasParentDeclaration = true;
-
-                    var parentType = GetDeclaredResourceType(binder, parentResourceSymbol.DeclaringResource);
-                    if (parentType is not ResourceType parentResourceType)
-                    {
-                        // TODO should we raise an error, or just rely on the error on the parent?
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(referenceParentSyntax).ParentResourceTypeHasErrors(parentResourceSymbol.DeclaringResource.Name.IdentifierName));
-                    }
-
-                    if (!parentResourceType.TypeReference.IsParentOf(typeReference))
-                    {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(referenceParentSyntax).ResourceTypeIsNotValidParent(
-                            typeReference.FullyQualifiedType,
-                            parentResourceType.TypeReference.FullyQualifiedType));
-                    }
+                    return errorType;
                 }
+
+                if (typeReference is null)
+                {
+                    throw new InvalidOperationException($"typeReference is null");
+                }
+
+                if (parentResourceType is not null &&
+                    parentResourceType.DeclaringNamespace != namespaceType)
+                {
+                    // TODO error here
+                }
+
+                if (namespaceType.ResourceTypeProvider.TryGetDefinedType(namespaceType, typeReference, typeGenerationFlags) is {} definedResource)
+                {
+                    return definedResource;
+                }
+
+                if (namespaceType.ResourceTypeProvider.TryGenerateDefaultType(namespaceType, typeReference, typeGenerationFlags) is {} defaultResource)
+                {
+                    return defaultResource;
+                }
+
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).FailedToFindResourceTypeInNamespace(namespaceType.ProviderName, typeReference.FormatName()));
             }
             else
             {
-                // This is a nested resource, the type name is a compound of all of the ancestor
-                // type names.
-                //
-                // Ex: 'My.Rp/someType@2020-01-01' -> 'someChild' -> 'someGrandchild'
-
-                // The top-most resource must have a qualified type name.
-                hasParentDeclaration = true;
-                var baseTypeStringContent = nestedParents[0].TypeString?.TryGetLiteralValue();
-                if (baseTypeStringContent == null)
+                var (errorType, typeReference) = GetCombinedTypeReference(typeGenerationFlags, resource, parentResourceType, stringContent);
+                if (errorType is not null)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType(nestedParents[0].Name.IdentifierName));
+                    return errorType;
                 }
 
-                var baseTypeReference = ResourceTypeReference.TryParse(baseTypeStringContent);
-                if (baseTypeReference == null)
+                if (typeReference is null)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType(nestedParents[0].Name.IdentifierName));
+                    throw new InvalidOperationException($"qualifiedTypeReference is null");
                 }
 
-                // Collect each other ancestor resource's type.
-                var typeSegments = new List<string>();
-                for (var i = 1; i < nestedParents.Length; i++)
+                if (binder.NamespaceResolver.TryGetResourceType(typeReference, typeGenerationFlags) is {} resourceType)
                 {
-                    var typeSegmentStringContent = nestedParents[i].TypeString?.TryGetLiteralValue();
-                    if (typeSegmentStringContent == null)
-                    {
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType(nestedParents[i].Name.IdentifierName));
-                    }
-
-                    typeSegments.Add(typeSegmentStringContent);
+                    return resourceType;
                 }
 
-                // Add *this* resource's type
-                typeSegments.Add(stringContent);
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).FailedToFindResourceType(stringContent));
+            }
+        }
 
-                // If this fails, let's walk through and find the root cause. This could be confusing
-                // for people seeing it the first time.
-                typeReference = ResourceTypeReference.TryCombine(baseTypeReference, typeSegments);
-                if (typeReference == null)
-                {
-                    // We'll special case the last one since it refers to *this* resource. We don't
-                    // want to cascade a bunch of noisy errors for parents, they get their own errors.
-                    for (var j = 0; j < typeSegments.Count - 1; j++)
-                    {
-                        if (!ResourceTypeReference.TryParseSingleTypeSegment(typeSegments[j], out _, out _))
-                        {
-                            return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType(nestedParents[j+1].Name.IdentifierName));
-                        }
-                    }
+        private (ResourceTypeGenerationFlags flags, ResourceType? parentResource) GetResourceTypeGenerationFlags(ResourceDeclarationSyntax resource)
+        {
+            var isSyntacticallyNested = false;
+            TypeSymbol? parentResourceType = null;            
 
-                    if (!ResourceTypeReference.TryParseSingleTypeSegment(stringContent, out _, out _))
-                    {
-                        // OK this resource is the one that's wrong.
-                        return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceTypeSegment(stringContent));
-                    }
-
-                    // Something went wrong, this should be unreachable.
-                    throw new InvalidOperationException("Failed to find the root cause of an invalid compound resource type.");
-                }
+            var parentResource = binder.GetAllAncestors<ResourceDeclarationSyntax>(resource).LastOrDefault();
+            if (parentResource is not null)
+            {
+                isSyntacticallyNested = true;
+                parentResourceType = GetDeclaredType(parentResource);
+            }
+            else if (binder.GetSymbolInfo(resource) is ResourceSymbol resourceSymbol &&
+                binder.TryGetCycle(resourceSymbol) is null &&
+                resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax)
+            {
+                parentResourceType = GetDeclaredType(referenceParentSyntax);
             }
 
             var flags = ResourceTypeGenerationFlags.None;
@@ -767,17 +750,51 @@ namespace Bicep.Core.TypeSystem
                 flags |= ResourceTypeGenerationFlags.ExistingResource;
             }
 
-            if(!isTopLevelResourceDeclaration)
+            if (isSyntacticallyNested)
             {
                 flags |= ResourceTypeGenerationFlags.NestedResource;
             }
 
-            if (typeReference.IsRootType || hasParentDeclaration)
+            if (parentResource is not null)
             {
-                flags |= ResourceTypeGenerationFlags.PermitLiteralNameProperty;
+                flags |= ResourceTypeGenerationFlags.HasParentDefined;
             }
 
-            return binder.NamespaceResolver.GetResourceType(typeReference, flags);
+            return (flags, parentResourceType as ResourceType);
+        }
+
+        private static (ErrorType? error, ResourceTypeReference? typeReference) GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceDeclarationSyntax resource, ResourceType? parentResourceType, string typeString)
+        {
+            if (ResourceTypeReference.TryParse(typeString) is not {} typeReference)
+            {
+                // TODO ensure error message gives accurate formatting advice
+                return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType()), null);
+            }
+
+            if (!flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
+            {
+                return (null, typeReference);
+            }
+
+            // This is a nested resource, the type name is a compound of all of the ancestor
+            // type names.
+            //
+            // Ex: 'My.Rp/someType@2020-01-01' -> 'someChild' -> 'someGrandchild'
+            if (parentResourceType is null)
+            {
+                // TODO add back some of the custom error detection here
+                return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType()), null);
+            }
+
+            if (typeReference.TypeSegments.Length > 1)
+            {
+                // OK this resource is the one that's wrong.
+                return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceTypeSegment(typeString)), null);
+            }
+
+            return (null, ResourceTypeReference.Combine(
+                parentResourceType.TypeReference,
+                typeReference));
         }
     }
 }
