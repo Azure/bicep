@@ -45,6 +45,9 @@
                 "core": {
                     "enabled": true,
                     "rules": {
+                        "adminusername-should-not-be-literal": {
+                            "level": "warning"
+                        },
                         "no-hardcoded-env-urls": {
                             "level": "warning"
                         },
@@ -86,6 +89,16 @@
                         "rules": {
                             "additionalProperties": false,
                             "properties": {
+                                "adminusername-should-not-be-literal": {
+                                    "allOf": [
+                                        {
+                                            "description": "When setting an adminUserName property, don't use a literal value. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
+                                        },
+                                        {
+                                            "$ref": "#/definitions/rule"
+                                        }
+                                    ]
+                                },
                                 "no-hardcoded-env-urls": {
                                     "allOf": [
                                         {
