@@ -26,6 +26,7 @@ using Newtonsoft.Json.Linq;
 using Bicep.Core.Registry;
 using Bicep.Core.Modules;
 using System.Net;
+using Bicep.Core.Navigation;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -138,8 +139,8 @@ namespace Bicep.LanguageServer.Handlers
         {
             return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
             {
-                // source of the link
-                OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
+                // source of the link. Underline only the symbolic name
+                OriginSelectionRange = (result.Origin is ITopLevelNamedDeclarationSyntax named ? named.Name : result.Origin).ToRange(result.Context.LineStarts),
                 TargetUri = request.TextDocument.Uri,
 
                 // entire span of the declaredSymbol
@@ -156,13 +157,19 @@ namespace Bicep.LanguageServer.Handlers
             if (matchingNodes[1] is ModuleDeclarationSyntax moduleDeclarationSyntax)
             {
                 // capture the property accesses leading to this specific property access
-                var propertyAccesses = matchingNodes.OfType<ObjectPropertySyntax>()
-                    .Select(node => node.TryGetKeyText())
-                    .OfType<string>().ToList();
-                // only two level of traversals: mod.outputs.<outputName> or mod.params.<parameterName>
-                if (propertyAccesses.Count == 2)
+                var propertyAccesses = matchingNodes.OfType<ObjectPropertySyntax>().ToList();
+                // only two level of traversals: mod { params: { <outputName1>: ...}}
+                if (propertyAccesses.Count == 2 &&
+                    propertyAccesses[0].TryGetKeyText() is {} propertyType &&
+                    propertyAccesses[1].TryGetKeyText() is {} propertyName)
                 {
-                    return GetModuleSymbolLocationAsync(result, context, moduleDeclarationSyntax, propertyAccesses[0], propertyAccesses[1]);
+                    // underline only the key of the object property access
+                    return GetModuleSymbolLocationAsync(
+                        propertyAccesses.Last().Key, 
+                        context, 
+                        moduleDeclarationSyntax,
+                        propertyType, 
+                        propertyName);
                 }
             }
 
@@ -175,11 +182,11 @@ namespace Bicep.LanguageServer.Handlers
 
             // Find the underlying VariableSyntax being accessed
             var syntax = result.Origin;
-            var propertyAccesses = new List<string>();
+            var propertyAccesses = new List<IdentifierSyntax>();
             while (syntax is PropertyAccessSyntax propertyAccessSyntax)
             {
                 // since we are traversing bottom up, add this access to the beginning of the list
-                propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName.IdentifierName);
+                propertyAccesses.Insert(0, propertyAccessSyntax.PropertyName);
                 syntax = propertyAccessSyntax.BaseExpression;
             }
 
@@ -191,16 +198,23 @@ namespace Bicep.LanguageServer.Handlers
                 if (propertyAccesses.Count == 2
                 && ancestorSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclarationSyntax)
                 {
-                    return GetModuleSymbolLocationAsync(result, context, moduleDeclarationSyntax, propertyAccesses[0], propertyAccesses[1]);
+                    // underline only the last property access
+                    return GetModuleSymbolLocationAsync(
+                        propertyAccesses.Last(), 
+                        context,
+                        moduleDeclarationSyntax, 
+                        propertyAccesses[0].IdentifierName, 
+                        propertyAccesses[1].IdentifierName);
                 }
 
                 // Otherwise, we redirect user to the specified module, variable, or resource declaration
                 if (GetObjectSyntaxFromDeclaration(ancestorSymbol.DeclaringSyntax) is ObjectSyntax objectSyntax
                     && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses) is ObjectPropertySyntax resultingSyntax)
                 {
+                    // underline only the last property access
                     return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
                     {
-                        OriginSelectionRange = result.Origin.ToRange(result.Context.LineStarts),
+                        OriginSelectionRange = propertyAccesses.Last().ToRange(result.Context.LineStarts),
                         TargetUri = request.TextDocument.Uri,
                         TargetRange = resultingSyntax.ToRange(result.Context.LineStarts),
                         TargetSelectionRange = resultingSyntax.ToRange(result.Context.LineStarts)
@@ -212,7 +226,7 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         private Task<LocationOrLocationLinks> GetModuleSymbolLocationAsync(
-            SymbolResolutionResult result,
+            SyntaxBase underlinedSyntax,
             CompilationContext context,
             ModuleDeclarationSyntax moduleDeclarationSyntax,
             string propertyType,
@@ -229,9 +243,9 @@ namespace Bicep.LanguageServer.Handlers
                         {
                             return Task.FromResult(GetModuleDefinitionLocation(
                                 bicepFile.FileUri,
-                                result.Origin,
+                                underlinedSyntax,
                                 context,
-                                outputSymbol.DeclaringSyntax.ToRange(bicepFile.LineStarts)));
+                                outputSymbol.DeclaringOutput.Name.ToRange(bicepFile.LineStarts)));
                         }
                         break;
                     case LanguageConstants.ModuleParamsPropertyName:
@@ -240,9 +254,9 @@ namespace Bicep.LanguageServer.Handlers
                         {
                             return Task.FromResult(GetModuleDefinitionLocation(
                                 bicepFile.FileUri,
-                                result.Origin,
+                                underlinedSyntax,
                                 context,
-                                parameterSymbol.DeclaringSyntax.ToRange(bicepFile.LineStarts)));
+                                parameterSymbol.DeclaringParameter.Name.ToRange(bicepFile.LineStarts)));
                         }
                         break;
                 }
