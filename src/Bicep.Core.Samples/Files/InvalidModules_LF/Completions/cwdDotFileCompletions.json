@@ -5,12 +5,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_ChildModules/",
-    "filterText": "'ChildModules/'",
+    "filterText": "'./ChildModules/'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'ChildModules/$0'"
+      "newText": "'./ChildModules/$0'"
     },
     "command": {
       "command": "editor.action.triggerSuggest"
@@ -22,12 +22,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "3_Completions/",
-    "filterText": "'Completions/'",
+    "filterText": "'./Completions/'",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'Completions/$0'"
+      "newText": "'./Completions/$0'"
     },
     "command": {
       "command": "editor.action.triggerSuggest"
@@ -39,12 +39,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_cycle.bicep",
-    "filterText": "'cycle.bicep'",
+    "filterText": "'./cycle.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'cycle.bicep'"
+      "newText": "'./cycle.bicep'"
     }
   },
   {
@@ -53,12 +53,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_empty.bicep",
-    "filterText": "'empty.bicep'",
+    "filterText": "'./empty.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'empty.bicep'"
+      "newText": "'./empty.bicep'"
     }
   },
   {
@@ -67,12 +67,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_main.diagnostics.bicep",
-    "filterText": "'main.diagnostics.bicep'",
+    "filterText": "'./main.diagnostics.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'main.diagnostics.bicep'"
+      "newText": "'./main.diagnostics.bicep'"
     }
   },
   {
@@ -81,12 +81,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_main.formatted.bicep",
-    "filterText": "'main.formatted.bicep'",
+    "filterText": "'./main.formatted.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'main.formatted.bicep'"
+      "newText": "'./main.formatted.bicep'"
     }
   },
   {
@@ -95,12 +95,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_main.symbols.bicep",
-    "filterText": "'main.symbols.bicep'",
+    "filterText": "'./main.symbols.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'main.symbols.bicep'"
+      "newText": "'./main.symbols.bicep'"
     }
   },
   {
@@ -109,12 +109,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_main.syntax.bicep",
-    "filterText": "'main.syntax.bicep'",
+    "filterText": "'./main.syntax.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'main.syntax.bicep'"
+      "newText": "'./main.syntax.bicep'"
     }
   },
   {
@@ -123,12 +123,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_main.tokens.bicep",
-    "filterText": "'main.tokens.bicep'",
+    "filterText": "'./main.tokens.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'main.tokens.bicep'"
+      "newText": "'./main.tokens.bicep'"
     }
   },
   {
@@ -137,12 +137,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_mg_empty.bicep",
-    "filterText": "'mg_empty.bicep'",
+    "filterText": "'./mg_empty.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'mg_empty.bicep'"
+      "newText": "'./mg_empty.bicep'"
     }
   },
   {
@@ -151,12 +151,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_module%20with%20space.bicep",
-    "filterText": "'module with space.bicep'",
+    "filterText": "'./module with space.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'module with space.bicep'"
+      "newText": "'./module with space.bicep'"
     }
   },
   {
@@ -165,12 +165,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_modulea.bicep",
-    "filterText": "'modulea.bicep'",
+    "filterText": "'./modulea.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'modulea.bicep'"
+      "newText": "'./modulea.bicep'"
     }
   },
   {
@@ -179,12 +179,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_moduleb.bicep",
-    "filterText": "'moduleb.bicep'",
+    "filterText": "'./moduleb.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'moduleb.bicep'"
+      "newText": "'./moduleb.bicep'"
     }
   },
   {
@@ -193,12 +193,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_modulec.json",
-    "filterText": "'modulec.json'",
+    "filterText": "'./modulec.json'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'modulec.json'"
+      "newText": "'./modulec.json'"
     }
   },
   {
@@ -207,12 +207,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "2_moduled.json",
-    "filterText": "'moduled.json'",
+    "filterText": "'./moduled.json'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'moduled.json'"
+      "newText": "'./moduled.json'"
     }
   },
   {
@@ -221,12 +221,12 @@
     "deprecated": false,
     "preselect": false,
     "sortText": "1_subscription_empty.bicep",
-    "filterText": "'subscription_empty.bicep'",
+    "filterText": "'./subscription_empty.bicep'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "'subscription_empty.bicep'"
+      "newText": "'./subscription_empty.bicep'"
     }
   }
 ]
