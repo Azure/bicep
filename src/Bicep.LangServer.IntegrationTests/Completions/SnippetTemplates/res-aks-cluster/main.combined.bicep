@@ -4,8 +4,10 @@
 // $4 = 'dnsPrefix'
 // $5 = 3
 // $6 = 'Standard_DS2_v2'
-// $7 = 'adminUsername'
+// $7 = adminUsername
 // $8 = 'REQUIRED'
+
+param adminUsername string
 
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
   name: 'name'
@@ -27,8 +29,7 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
       }
     ]
     linuxProfile: {
-      adminUsername: 'adminUsername'
-//@[21:36) [adminusername-should-not-be-literal (Warning)] When setting an adminUserName property, don't use a literal value. Found literal string value "adminUsername" (CodeDescription: bicep core(https://aka.ms/bicep/linter/adminusername-should-not-be-literal)) |'adminUsername'|
+      adminUsername: adminUsername
       ssh: {
         publicKeys: [
           {
