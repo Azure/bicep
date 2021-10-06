@@ -40,7 +40,7 @@ namespace Bicep.Core.Registry
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseModuleReference(parts[0], configuration, out failureBuilder);
+                        return localRegistry.TryParseModuleReference(null, parts[0], configuration, out failureBuilder);
                     }
 
                     failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes);
@@ -63,18 +63,7 @@ namespace Bicep.Core.Registry
                         // the scheme is recognized
                         var rawValue = parts[1];
 
-                        if (aliasName is not null)
-                        {
-                            if (configuration.ModuleAliases.TryGetModuleAlias(scheme, aliasName, out failureBuilder) is not { } alias)
-                            {
-                                return null;
-                            }
-
-                            rawValue = $"{alias}/{rawValue}";
-                        }
-
-
-                        return registry.TryParseModuleReference(rawValue, configuration, out failureBuilder);
+                        return registry.TryParseModuleReference(aliasName, rawValue, configuration, out failureBuilder);
                     }
 
                     // unknown scheme

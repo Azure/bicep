@@ -3,7 +3,6 @@
 
 using Bicep.Core.Modules;
 using Microsoft.Extensions.Configuration;
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
@@ -65,24 +64,13 @@ namespace Bicep.Core.Configuration
 
         public string? ConfigurationPath { get; }
 
-        public ModuleAlias? TryGetModuleAlias(string scheme, string aliasName, out ErrorBuilderDelegate? errorBuilder)
+        public TemplateSpecModuleAlias? TryGetTemplateSpecModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
         {
-            if (!ModuleAliasNameRegex.IsMatch(aliasName))
+            if (!ValidateAliasName(aliasName, out errorBuilder))
             {
-                errorBuilder = x => x.InvalidModuleAliasName(aliasName);
                 return null;
             }
 
-            return scheme switch
-            {
-                ModuleReferenceSchemes.TemplateSpecs => TryGetTemplateSpecModuleAlias(aliasName, out errorBuilder),
-                ModuleReferenceSchemes.Oci => TryGetOciArtifactModuleAlias(aliasName, out errorBuilder),
-                _ => throw new ArgumentException("Unknown module reference scheme {}."),
-            };
-        }
-
-        private TemplateSpecModuleAlias? TryGetTemplateSpecModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
-        {
             if (!this.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
             {
                 errorBuilder = x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ConfigurationPath);
@@ -105,8 +93,13 @@ namespace Bicep.Core.Configuration
             return alias;
         }
 
-        private OciArtifactModuleAlias? TryGetOciArtifactModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
+        public OciArtifactModuleAlias? TryGetOciArtifactModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
         {
+            if (!ValidateAliasName(aliasName, out errorBuilder))
+            {
+                return null;
+            }
+
             if (!this.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
             {
                 errorBuilder = x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ConfigurationPath);
@@ -121,6 +114,18 @@ namespace Bicep.Core.Configuration
 
             errorBuilder = null;
             return alias;
+        }
+
+        private static bool ValidateAliasName(string aliasName, out ErrorBuilderDelegate? errorBuilder)
+        {
+            if (!ModuleAliasNameRegex.IsMatch(aliasName))
+            {
+                errorBuilder = x => x.InvalidModuleAliasName(aliasName);
+                return false;
+            }
+
+            errorBuilder = null;
+            return true;
         }
     }
 }

@@ -68,16 +68,26 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static TemplateSpecModuleReference? TryParse(string referenceValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
+        public static TemplateSpecModuleReference? TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
         {
             if (configuration.Cloud.TryGetCurrentResourceManagerEndpoint(out errorBuilder) is not { } endpoint)
             {
                 return null;
             }
 
+            if (aliasName is not null)
+            {
+                if (configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName, out errorBuilder) is not { } alias)
+                {
+                    return null;
+                }
+
+                referenceValue = $"{alias}/{referenceValue}";
+            }
+
             if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
             {
-                errorBuilder = x => x.InvalidTemplateSpecReference(FullyQualify(referenceValue));
+                errorBuilder = x => x.InvalidTemplateSpecReference(aliasName, FullyQualify(referenceValue));
                 return null;
             }
 
@@ -89,14 +99,14 @@ namespace Bicep.Core.Modules
             // Validate subscription ID.
             if (!Guid.TryParse(subscriptionId, out _))
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidSubscirptionId(subscriptionId, FullyQualify(referenceValue));
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidSubscirptionId(aliasName, subscriptionId, FullyQualify(referenceValue));
                 return null;
             }
 
             // Validate resource group name.
             if (resourceGroupName.Length > ResourceNameMaximumLength)
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceResourceGroupNameTooLong(resourceGroupName, FullyQualify(referenceValue), ResourceNameMaximumLength);
+                errorBuilder = x => x.InvalidTemplateSpecReferenceResourceGroupNameTooLong(aliasName, resourceGroupName, FullyQualify(referenceValue), ResourceNameMaximumLength);
                 return null;
             }
 
@@ -104,33 +114,33 @@ namespace Bicep.Core.Modules
                 resourceGroupName[^1] == '.' ||
                 resourceGroupName.Where(c => !char.IsLetterOrDigit(c) && !ResourceGroupNameAllowedCharacterSet.Contains(c)).Any())
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidResourceGroupName(resourceGroupName, FullyQualify(referenceValue));
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidResourceGroupName(aliasName, resourceGroupName, FullyQualify(referenceValue));
                 return null;
             }
 
             // Validate template spec name.
             if (templateSpecName.Length > ResourceNameMaximumLength)
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecNameTooLong(templateSpecName, FullyQualify(referenceValue), ResourceNameMaximumLength);
+                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecNameTooLong(aliasName, templateSpecName, FullyQualify(referenceValue), ResourceNameMaximumLength);
                 return null;
             }
 
             if (!ResourceNameRegex.IsMatch(templateSpecName))
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecName(templateSpecName, FullyQualify(referenceValue));
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecName(aliasName, templateSpecName, FullyQualify(referenceValue));
                 return null;
             }
 
             // Validate template spec version.
             if (templateSpecVersion.Length > ResourceNameMaximumLength)
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(templateSpecVersion, FullyQualify(referenceValue), ResourceNameMaximumLength);
+                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(aliasName, templateSpecVersion, FullyQualify(referenceValue), ResourceNameMaximumLength);
                 return null;
             }
 
             if (!ResourceNameRegex.IsMatch(templateSpecVersion))
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(templateSpecVersion, FullyQualify(referenceValue));
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, templateSpecVersion, FullyQualify(referenceValue));
                 return null;
             }
 

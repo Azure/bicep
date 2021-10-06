@@ -26,7 +26,7 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities Capabilities => RegistryCapabilities.Default;
 
-        public override ModuleReference? TryParseModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+        public override ModuleReference? TryParseModuleReference(string? alias, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             LocalModuleReference.TryParse(reference, out failureBuilder);
 
         public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, LocalModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

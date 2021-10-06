@@ -59,7 +59,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void TryParse_InvalidReference_ReturnsNullAndSetsFailureBuilder(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().BeNull();
             ((object?)failureBuilder).Should().NotBeNull();
@@ -68,14 +68,14 @@ namespace Bicep.Core.UnitTests.Modules
         [TestMethod]
         public void TryParse_CloudProfileNotInConfiguration_ReturnsNullAndSetsFailureBuilder()
         {
-            var configuration = CreateMockConfiguration(new Dictionary<string, string>
+            var configuration = BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
             {
                 ["cloud:currentProfile"] = "MyProfile",
                 ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
                 ["cloud:profiles:MyCloud:resourceManagerEndpoint"] = "https://example.invalid",
-            });
+            }, "bicepconfig.json");
 
-            var parsed = TemplateSpecModuleReference.TryParse("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, "D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
 
             parsed.Should().BeNull();
             ((object?)failureBuilder).Should().NotBeNull();
@@ -86,13 +86,13 @@ namespace Bicep.Core.UnitTests.Modules
         [TestMethod]
         public void TryParse_InvalidResourceManagerEndpointInConfiguration_ReturnsNullAndSetsFailureBuilder()
         {
-            var configuration = CreateMockConfiguration(new Dictionary<string, string>
+            var configuration = BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
             {
                 ["cloud:currentProfile"] = "AzureCloud",
                 ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "something",
-            });
+            }, "bicepconfig.json");
 
-            var parsed = TemplateSpecModuleReference.TryParse("D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, "D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
 
             parsed.Should().BeNull();
             ((object?)failureBuilder).Should().NotBeNull();
@@ -100,7 +100,66 @@ namespace Bicep.Core.UnitTests.Modules
             failureBuilder!.Should().HaveMessageStartWith($"The cloud profile \"AzureCloud\" in the Bicep configuration \"bicepconfig.json\" is invalid. The value of the \"resourceManagerEndpoint\" property \"something\" is not a valid URL.");
         }
 
-        public static IEnumerable<object[]> GetEqualData()
+        [DataTestMethod]
+        [DataRow("prodRG", "mySpec:v1", null, "BCP212", "The Template Spec module alias name \"prodRG\" does not exist in the built-in Bicep configuration.")]
+        [DataRow("testRG", "myModule:v2", "bicepconfig.json", "BCP212", "The Template Spec module alias name \"testRG\" does not exist in the Bicep configuration \"bicepconfig.json\".")]
+        public void TryParse_AliasNotInConfiguration_ReturnsNullAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
+        {
+            var configuration = BicepTestConstants.CreateMockConfiguration(
+                new Dictionary<string, string>
+                {
+                    ["cloud:currentProfile"] = "AzureCloud",
+                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                },
+                configurationPath);
+
+            var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().HaveCode(expectedCode);
+            errorBuilder!.Should().HaveMessage(expectedMessage);
+        }
+
+        [DataTestMethod]
+        [DataRow("")]
+        [DataRow(" ")]
+        [DataRow("****")]
+        [DataRow("/")]
+        [DataRow(":")]
+        [DataRow("foo bar ÄÄÄ")]
+        public void TryParse_InvalidAliasName_ReturnsNullAndSetsErrorDiagnostic(string aliasName)
+        {
+            var reference = TemplateSpecModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            errorBuilder!.Should().HaveCode("BCP211");
+            errorBuilder!.Should().HaveMessage($"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
+        public void TryParse_InvalidAlias_ReturnsNullAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        {
+            var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().HaveCode(expectedCode);
+            errorBuilder!.Should().HaveMessage(expectedMessage);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName,  string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        {
+            var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().NotBeNull();
+            reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
+        }
+
+        private static IEnumerable<object[]> GetEqualData()
         {
             yield return new object[]
             {
@@ -121,7 +180,7 @@ namespace Bicep.Core.UnitTests.Modules
             };
         }
 
-        public static IEnumerable<object[]> GetNotEqualData()
+        private static IEnumerable<object[]> GetNotEqualData()
         {
             yield return new object[]
             {
@@ -142,22 +201,76 @@ namespace Bicep.Core.UnitTests.Modules
             };
         }
 
+        private static IEnumerable<object[]> GetInvalidData()
+        {
+            yield return new object[]
+            {
+                "testRG",
+                "mySpec:v1",
+                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["cloud:currentProfile"] = "AzureCloud",
+                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases:ts:testRG:resourceGroup"] = "production-resource-group",
+                }),
+                "BCP214",
+                "The Template Spec module alias \"testRG\" in the built-in Bicep configuration is in valid. The \"subscription\" property cannot be null or undefined.",
+            };
+
+            yield return new object[]
+            {
+                "prodRG",
+                "mySpec:v1",
+                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["cloud:currentProfile"] = "AzureCloud",
+                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                }, "bicepconfig.json"),
+                "BCP215",
+                "The Template Spec module alias \"prodRG\" in the Bicep configuration \"bicepconfig.json\" is in valid. The \"resourceGroup\" property cannot be null or undefined.",
+            };
+        }
+
+        private static IEnumerable<object[]> GetValidData()
+        {
+            yield return new object[]
+            {
+                "prodRG",
+                "mySpec:v1",
+                "ts:1E7593D0-FCD1-4570-B132-51E4FD254967/production-resource-group/mySpec:v1",
+                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["cloud:currentProfile"] = "AzureCloud",
+                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                    ["moduleAliases:ts:prodRG:resourceGroup"] = "production-resource-group",
+                }),
+            };
+
+            yield return new object[]
+            {
+                "testRG",
+                "mySpec:v2",
+                "ts:1E7593D0-FCD1-4570-B132-51E4FD254967/test-resource-group/mySpec:v2",
+                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                {
+                    ["cloud:currentProfile"] = "AzureCloud",
+                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases:ts:testRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                    ["moduleAliases:ts:testRG:resourceGroup"] = "test-resource-group",
+                }),
+            };
+        }
+
         private static TemplateSpecModuleReference Parse(string rawValue)
         {
-            var parsed = TemplateSpecModuleReference.TryParse(rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
+            var parsed = TemplateSpecModuleReference.TryParse(null, rawValue, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
 
             parsed.Should().NotBeNull();
             ((object?)failureBuilder).Should().BeNull();
 
             return parsed!;
-        }
-
-        private static RootConfiguration CreateMockConfiguration(Dictionary<string, string> configuraitonData)
-        {
-            var builder = new ConfigurationBuilder();
-            builder.AddInMemoryCollection(configuraitonData);
-
-            return RootConfiguration.Bind(builder.Build(), "bicepconfig.json");
         }
     }
 }

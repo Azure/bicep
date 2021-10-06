@@ -68,6 +68,14 @@ namespace Bicep.Core.UnitTests
             return mock.Object;
         }
 
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, string> configuraitonData, string? configurationPath = null)
+        {
+            var builder = new ConfigurationBuilder();
+            builder.AddInMemoryCollection(configuraitonData);
+
+            return RootConfiguration.Bind(builder.Build(), configurationPath);
+        }
+
         private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled, string assemblyFileVersion)
         {
             var mock = StrictMock.Of<IFeatureProvider>();

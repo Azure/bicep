@@ -84,19 +84,19 @@ namespace Bicep.Core.UnitTests.Registry
             var configuration = BicepTestConstants.BuiltInConfiguration;
 
             var validRef = new MockModuleReference("validRef");
-            mock.Setup(m => m.TryParseModuleReference("validRef", configuration, out @null))
+            mock.Setup(m => m.TryParseModuleReference(null, "validRef", configuration, out @null))
                 .Returns(validRef);
 
             var validRef2 = new MockModuleReference("validRef2");
-            mock.Setup(m => m.TryParseModuleReference("validRef2", configuration, out @null))
+            mock.Setup(m => m.TryParseModuleReference(null, "validRef2", configuration, out @null))
                 .Returns(validRef2);
 
             var validRef3 = new MockModuleReference("validRef3");
-            mock.Setup(m => m.TryParseModuleReference("validRef3", configuration, out @null))
+            mock.Setup(m => m.TryParseModuleReference(null, "validRef3", configuration, out @null))
                 .Returns(validRef3);
 
             ErrorBuilderDelegate? badRefError = x => new ErrorDiagnostic(x.TextSpan, "BCPMock", "Bad ref error");
-            mock.Setup(m => m.TryParseModuleReference("badRef", configuration, out badRefError))
+            mock.Setup(m => m.TryParseModuleReference(null, "badRef", configuration, out badRefError))
                 .Returns((ModuleReference?)null);
 
             mock.Setup(m => m.IsModuleRestoreRequired(validRef)).Returns(true);
@@ -151,160 +151,6 @@ namespace Bicep.Core.UnitTests.Registry
             dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ModuleRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
-        }
-
-        [DataTestMethod]
-        [DataRow("ts/:mySpec:v1", "")]
-        [DataRow("ts/foo/:mySpec:v1", "foo/")]
-        [DataRow("ts/****:mySpec:v1", "****")]
-        [DataRow("br/:myModule:v2", "")]
-        [DataRow("br/bar   :mySpec:v1", "bar   ")]
-        [DataRow("br//:mySpec:v1", "/")]
-        public void TryGetModuleReference_InvalidAliasName_ReturnsNullAndSetsErrorDiagnostic(string referenceValue, string aliasName)
-        {
-            var templateSpecRegistryMock = StrictMock.Of<IModuleRegistry>();
-            templateSpecRegistryMock.Setup(x => x.Scheme).Returns("ts");
-
-            var ociArtifactRegistryMock = StrictMock.Of<IModuleRegistry>();
-            ociArtifactRegistryMock.Setup(x => x.Scheme).Returns("br");
-
-            var dispatcher = CreateDispatcher(templateSpecRegistryMock.Object, ociArtifactRegistryMock.Object);
-            var configuration = CreateMockConfiguration(new Dictionary<string, string>(), "EmptyConfiguration");
-
-            var reference = dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
-
-            reference.Should().BeNull();
-            ((object?)errorBuilder).Should().NotBeNull();
-            errorBuilder!.Should().HaveCode("BCP211");
-            errorBuilder!.Should().HaveMessage($"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
-        }
-
-        [DataTestMethod]
-        [DataRow("ts/prodRG:mySpec:v1", "BCP212", "The Template Spec module alias name \"prodRG\" does not exist in the Bicep configuration \"EmptyConfiguration\".")]
-        [DataRow("br/myModulePath:myModule:v2", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"EmptyConfiguration\".")]
-        public void TryGetModuleReference_AliasNotInConfiguration_ReturnsNullAndSetsError(string referenceValue, string expectedCode, string expectedMessage)
-        {
-            var templateSpecRegistryMock = StrictMock.Of<IModuleRegistry>();
-            templateSpecRegistryMock.Setup(x => x.Scheme).Returns("ts");
-
-            var ociArtifactRegistryMock = StrictMock.Of<IModuleRegistry>();
-            ociArtifactRegistryMock.Setup(x => x.Scheme).Returns("br");
-
-            var dispatcher = CreateDispatcher(templateSpecRegistryMock.Object, ociArtifactRegistryMock.Object);
-            var configuration = CreateMockConfiguration(new Dictionary<string, string>(), "EmptyConfiguration");
-
-            var reference = dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
-
-            reference.Should().BeNull();
-            ((object?)errorBuilder).Should().NotBeNull();
-            errorBuilder!.Should().HaveCode(expectedCode);
-            errorBuilder!.Should().HaveMessage(expectedMessage);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_InvalidAlias_ReturnsNullAndSetsError(string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
-        {
-            var registryMock = StrictMock.Of<IModuleRegistry>();
-            registryMock.Setup(x => x.Scheme).Returns(referenceValue.Split('/')[0]);
-
-            var dispatcher = CreateDispatcher(registryMock.Object);
-
-            var reference = dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
-
-            reference.Should().BeNull();
-            ((object?)errorBuilder).Should().NotBeNull();
-            errorBuilder!.Should().HaveCode(expectedCode);
-            errorBuilder!.Should().HaveMessage(expectedMessage);
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string referenceValue, string replacedValue, RootConfiguration configuration)
-        {
-            var registryMock = StrictMock.Of<IModuleRegistry>();
-            registryMock.Setup(x => x.Scheme).Returns(referenceValue.Split('/')[0]);
-
-            registryMock.Setup(x => x.TryParseModuleReference(It.IsAny<string>(), It.IsAny<RootConfiguration>(), out It.Ref<ErrorBuilderDelegate?>.IsAny))
-                .Returns((ModuleReference?)null)
-                .Verifiable();
-
-            var dispatcher = CreateDispatcher(registryMock.Object);
-
-            dispatcher.TryGetModuleReference(referenceValue, configuration, out var errorBuilder);
-
-            registryMock.Verify(x => x.TryParseModuleReference(replacedValue, configuration, out errorBuilder), Times.Once);
-        }
-
-        public static IEnumerable<object[]> GetInvalidData()
-        {
-            yield return new object[]
-            {
-                "ts/testRG:mySpec:v1",
-                CreateMockConfiguration(new Dictionary<string, string>
-                {
-                    ["moduleAliases:ts:testRG:resourceGroup"] = "production-resource-group",
-                }),
-                "BCP214",
-                "The Template Spec module alias \"testRG\" in the Bicep configuration \"bicepconfig.json\" is in valid. The \"subscription\" property cannot be null or undefined.",
-            };
-
-            yield return new object[]
-            {
-                "ts/prodRG:mySpec:v1",
-                CreateMockConfiguration(new Dictionary<string, string>
-                {
-                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
-                }),
-                "BCP215",
-                "The Template Spec module alias \"prodRG\" in the Bicep configuration \"bicepconfig.json\" is in valid. The \"resourceGroup\" property cannot be null or undefined.",
-            };
-
-            yield return new object[]
-            {
-                "br/myAlias:myModulePath/myModule:1.0.0",
-                CreateMockConfiguration(new Dictionary<string, string>
-                {
-                    ["moduleAliases:br:myAlias:modulePath"] = "path",
-                }),
-                "BCP216",
-                "The OCI artifact alias \"myAlias\" in the Bicep configuration \"bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
-            };
-        }
-
-        public static IEnumerable<object[]> GetValidData()
-        {
-            yield return new object[]
-            {
-                "ts/prodRG:mySpec:v1",
-                "1E7593D0-FCD1-4570-B132-51E4FD254967/production-resource-group/mySpec:v1",
-                CreateMockConfiguration(new Dictionary<string, string>
-                {
-                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
-                    ["moduleAliases:ts:prodRG:resourceGroup"] = "production-resource-group",
-                }),
-            };
-
-            yield return new object[]
-            {
-                "br/myRegistry:myModulePath/myModule:1.0.0",
-                "127.0.0.1:5000/myModulePath/myModule:1.0.0",
-                CreateMockConfiguration(new Dictionary<string, string>
-                {
-                    ["moduleAliases:br:myRegistry:registry"] = "127.0.0.1:5000",
-                }),
-            };
-
-            yield return new object[]
-            {
-                "br/infra:storageAccount:v2",
-                "example.com/root/storage/storageAccount:v2",
-                CreateMockConfiguration(new Dictionary<string, string>
-                {
-                    ["moduleAliases:br:infra:registry"] = "example.com",
-                    ["moduleAliases:br:infra:modulePath"] = "root/storage",
-                }),
-            };
         }
 
         private static IModuleDispatcher CreateDispatcher(params IModuleRegistry[] registries)

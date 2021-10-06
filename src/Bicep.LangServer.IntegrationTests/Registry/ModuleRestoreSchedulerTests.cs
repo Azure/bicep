@@ -187,7 +187,7 @@ namespace Bicep.LangServer.UnitTests.Registry
                 throw new NotImplementedException();
             }
 
-            public ModuleReference? TryParseModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 failureBuilder = null;
                 return new MockModuleRef(reference);

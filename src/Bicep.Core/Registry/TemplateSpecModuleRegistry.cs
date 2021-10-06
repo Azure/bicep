@@ -31,8 +31,8 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities Capabilities => RegistryCapabilities.Default;
 
-        public override ModuleReference? TryParseModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
-            TemplateSpecModuleReference.TryParse(reference, configuration, out failureBuilder);
+        public override ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+            TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, out failureBuilder);
 
         public override bool IsModuleRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.fileResolver.FileExists(this.GetModuleEntryPointUri(reference));

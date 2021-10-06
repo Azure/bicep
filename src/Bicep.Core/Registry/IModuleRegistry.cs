@@ -31,7 +31,7 @@ namespace Bicep.Core.Registry
         /// </summary>
         /// <param name="reference">The unqualified module reference</param>
         /// <param name="failureBuilder">set to an error builder if parsing fails when null is returned</param>
-        ModuleReference? TryParseModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         /// <summary>
         /// Returns true if the specified module is already cached in the local cache. 

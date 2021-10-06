@@ -74,7 +74,7 @@ namespace Bicep.LangServer.UnitTests
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
             
-            var moduleReference = OciArtifactModuleReference.TryParse(UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
             moduleReference.Should().NotBeNull();
 
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<RootConfiguration>(), out failureBuilder)).Returns(moduleReference);
@@ -100,7 +100,7 @@ namespace Bicep.LangServer.UnitTests
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var moduleReference = OciArtifactModuleReference.TryParse(UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
             moduleReference.Should().NotBeNull();
 
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<RootConfiguration>(), out failureBuilder)).Returns(moduleReference);
@@ -132,7 +132,7 @@ namespace Bicep.LangServer.UnitTests
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var moduleReference = OciArtifactModuleReference.TryParse(UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
             moduleReference.Should().NotBeNull();
 
             var fileUri = new Uri("file:///main.bicep");
@@ -167,7 +167,7 @@ namespace Bicep.LangServer.UnitTests
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var moduleReference = OciArtifactModuleReference.TryParse(UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
             moduleReference.Should().NotBeNull();
 
             var fileUri = new Uri("file:///main.bicep");
