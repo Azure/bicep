@@ -19,7 +19,7 @@ namespace Bicep.Core.Modules
 
         private static readonly HashSet<char> ResourceGroupNameAllowedCharacterSet = new(new[] { '-', '_', '.', '(', ')' });
 
-        private static readonly Regex ResourceNameRegex = new(@"^[a-zA-Z0-9-_\.\(\)]{0,89}[a-zA-Z0-9-_\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private TemplateSpecModuleReference(string endpoint, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
             : base(ModuleReferenceSchemes.TemplateSpecs)
