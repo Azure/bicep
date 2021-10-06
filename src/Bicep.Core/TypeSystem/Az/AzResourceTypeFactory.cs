@@ -17,11 +17,12 @@ namespace Bicep.Core.TypeSystem.Az
             typeCache = new();
         }
 
-        public ResourceType GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType)
+        public ResourceTypeComponents GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType)
         {
-            var output = GetTypeSymbol(resourceType, false) as ResourceType;
+            var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
+            var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
 
-            return output ?? throw new ArgumentException("Unable to deserialize resource type", nameof(resourceType));
+            return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)
@@ -90,12 +91,6 @@ namespace Bicep.Core.TypeSystem.Az
                 case Azure.Bicep.Types.Concrete.ArrayType arrayType:
                 {
                     return new TypedArrayType(GetTypeReference(arrayType.ItemType), GetValidationFlags(isResourceBodyType));
-                }
-                case Azure.Bicep.Types.Concrete.ResourceType resourceType:
-                {
-                    var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
-                    var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
-                    return new ResourceType(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
                 }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                 {

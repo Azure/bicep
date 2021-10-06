@@ -1080,13 +1080,13 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
         public void Test_Issue657_discriminators()
         {
             var customTypes = new[] {
-                new ResourceType(
+                new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String))),
-                new ResourceType(
+                new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
                     TestTypeHelper.CreateDiscriminatedObjectType(
@@ -1178,13 +1178,13 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
         public void Test_Issue657_enum()
         {
             var customTypes = new[] {
-                new ResourceType(
+                new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
                     ResourceScope.ResourceGroup,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
                         ("name", LanguageConstants.String))),
-                new ResourceType(
+                new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
                     TestTypeHelper.CreateObjectType(

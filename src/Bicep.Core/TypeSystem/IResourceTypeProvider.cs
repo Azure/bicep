@@ -10,12 +10,12 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Tries to get a resource type from the set of well known resource types. Returns null if none is available.
         /// </summary>
-        ResourceType? TryGetDefinedType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags);
+        ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags);
 
         /// <summary>
         /// Tries to generate a default resource type definition, if possible. Returns null if this is not possible.
         /// </summary>
-        ResourceType? TryGenerateDefaultType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags);
+        ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags);
 
         /// <summary>
         /// Checks whether the type exists in the set of well known resource types.
