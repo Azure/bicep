@@ -20,10 +20,10 @@ namespace Bicep.Core.Configuration
         private static readonly IConfiguration builtInRawConfiguration = BuildBuiltInRawConfiguration();
 
         private static readonly Lazy<RootConfiguration> builtInConfigurationLazy =
-            new(() => RootConfiguration.Bind(builtInRawConfiguration, BuiltInConfigurationResourceName));
+            new(() => RootConfiguration.Bind(builtInRawConfiguration));
 
         private static readonly Lazy<RootConfiguration> builtInConfigurationWithAnalyzersDisabledLazy =
-            new(() => RootConfiguration.Bind(builtInRawConfiguration, BuiltInConfigurationResourceName, disableAnalyzers: true));
+            new(() => RootConfiguration.Bind(builtInRawConfiguration, disableAnalyzers: true));
 
         private readonly IFileSystem fileSystem;
 

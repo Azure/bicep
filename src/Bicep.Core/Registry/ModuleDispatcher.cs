@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
@@ -30,29 +31,39 @@ namespace Bicep.Core.Registry
 
         public ImmutableArray<string> AvailableSchemes { get; }
 
-        public ModuleReference? TryGetModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ModuleReference? TryGetModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var parts = reference.Split(':', 2, System.StringSplitOptions.None);
+            var parts = reference.Split(':', 2, StringSplitOptions.None);
             switch (parts.Length)
             {
                 case 1:
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseModuleReference(parts[0], out failureBuilder);
+                        return localRegistry.TryParseModuleReference(null, parts[0], configuration, out failureBuilder);
                     }
 
                     failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes);
                     return null;
 
                 case 2:
-                    var scheme = parts[0];
+                    string scheme = parts[0];
+                    string? aliasName = null;
+
+                    if (parts[0].Contains("/"))
+                    {
+                        // The sheme contains an alias.
+                        var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
+                        scheme = schemeParts[0];
+                        aliasName = schemeParts[1];
+                    }
 
                     if (!string.IsNullOrEmpty(scheme) && registries.TryGetValue(scheme, out var registry))
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
-                        return registry.TryParseModuleReference(rawValue, out failureBuilder);
+
+                        return registry.TryParseModuleReference(aliasName, rawValue, configuration, out failureBuilder);
                     }
 
                     // unknown scheme
@@ -66,7 +77,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var moduleReferenceString = SyntaxHelper.TryGetModulePath(module, out var getModulePathFailureBuilder);
             if (moduleReferenceString is null)
@@ -75,7 +86,7 @@ namespace Bicep.Core.Registry
                 return null;
             }
 
-            return this.TryGetModuleReference(moduleReferenceString, out failureBuilder);
+            return this.TryGetModuleReference(moduleReferenceString, configuration, out failureBuilder);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference)

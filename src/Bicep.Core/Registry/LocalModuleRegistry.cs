@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -25,7 +26,8 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities Capabilities => RegistryCapabilities.Default;
 
-        public override ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => LocalModuleReference.TryParse(reference, out failureBuilder);
+        public override ModuleReference? TryParseModuleReference(string? alias, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+            LocalModuleReference.TryParse(reference, out failureBuilder);
 
         public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, LocalModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {

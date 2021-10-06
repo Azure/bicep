@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 
@@ -25,7 +26,7 @@ namespace Bicep.Core.Registry
 
         public abstract Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, T reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        public abstract ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        public abstract ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         public bool IsModuleRestoreRequired(ModuleReference reference) => this.IsModuleRestoreRequired(ConvertReference(reference));
 

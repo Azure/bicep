@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Azure.Identity;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -39,7 +40,8 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities Capabilities => RegistryCapabilities.Publish;
 
-        public override ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => OciArtifactModuleReference.TryParse(reference, out failureBuilder);
+        public override ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+            OciArtifactModuleReference.TryParse(aliasName, reference, configuration, out failureBuilder);
 
         public override bool IsModuleRestoreRequired(OciArtifactModuleReference reference)
         {

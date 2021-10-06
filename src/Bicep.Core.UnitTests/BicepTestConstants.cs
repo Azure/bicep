@@ -10,8 +10,10 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Collections.Generic;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests
@@ -64,6 +66,14 @@ namespace Bicep.Core.UnitTests
             mock.SetupGet(m => m.CacheRootDirectory).Returns(testPath);
 
             return mock.Object;
+        }
+
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, string> configuraitonData, string? configurationPath = null)
+        {
+            var builder = new ConfigurationBuilder();
+            builder.AddInMemoryCollection(configuraitonData);
+
+            return RootConfiguration.Bind(builder.Build(), configurationPath);
         }
 
         private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled, string assemblyFileVersion)

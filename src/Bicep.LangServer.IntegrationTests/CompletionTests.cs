@@ -114,7 +114,7 @@ namespace Bicep.LangServer.IntegrationTests
                 var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(new Dictionary<Uri, string>
                 {
                     [combinedFileUri] = bicepContentsReplaced,
-                }, combinedFileUri, BicepTestConstants.FileResolver);
+                }, combinedFileUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration);
                 var compilation = new Compilation(NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
@@ -47,6 +46,18 @@ namespace Bicep.Core.Diagnostics
             private static string BuildAccessiblePropertiesClause(string? accessedSymbolName, IEnumerable<string>? accessiblePropertyNames) => accessedSymbolName is not null && accessiblePropertyNames is not null
                 ? $" Properties of {accessedSymbolName} which can be calculated at the start include {ToQuotedString(accessiblePropertyNames.OrderBy(s => s))}."
                 : string.Empty;
+
+            private static string BuildInvalidOciArtifactReferenceClause(string? aliasName, string referenceValue) => aliasName is not null
+                ? $"The OCI artifact reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
+                : $"The specified OCI artifact reference \"{referenceValue}\" is not valid.";
+
+            private static string BuildInvalidTemplateSpecReferenceClause(string? aliasName, string referenceValue) => aliasName is not null
+                ? $"The Template Spec reference \"{referenceValue}\" after resolving alias \"{aliasName}\" is not valid."
+                : $"The specified Template Spec reference \"{referenceValue}\" is not valid.";
+
+            private static string BuildBicepConfigurationClause(string? configurationPath) => configurationPath is not null
+                ? $"Bicep configuration \"{configurationPath}\""
+                : $"built-in Bicep configuration";
 
             public ErrorDiagnostic UnrecognizedToken(string token) => new(
                 TextSpan,
@@ -1158,45 +1169,45 @@ namespace Bicep.Core.Diagnostics
                 "BCP192",
                 $"Unable to restore the module with reference \"{moduleRef}\": {message}");
 
-            public ErrorDiagnostic InvalidOciArtifactReference(string badRef) => new(
+            public ErrorDiagnostic InvalidOciArtifactReference(string? aliasName, string badRef) => new(
                 TextSpan,
                 "BCP193",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact uri>:<tag>\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ModuleReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
 
-            public ErrorDiagnostic InvalidTemplateSpecReference(string invalidReference) => new(
+            public ErrorDiagnostic InvalidTemplateSpecReference(string? aliasName, string badRef) => new(
                 TextSpan,
                 "BCP194",
-                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<resourceGroupName>/<templateSpecName>:<tag>\" or \"{ModuleReferenceSchemes.TemplateSpecs}:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, badRef)} Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ModuleReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string badRef, string badSegment) => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string? aliasName, string badRef, string badSegment) => new(
                 TextSpan,
                 "BCP195",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. The module path segment \"{badSegment}\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The module path segment \"{badSegment}\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceMissingTag(string badRef) => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceMissingTag(string? aliasName, string badRef) => new(
                 TextSpan,
                 "BCP196",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. The module tag is missing.");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The module tag is missing.");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceTagTooLong(string badRef, string badTag, int maxLength) => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceTagTooLong(string? aliasName, string badRef, string badTag, int maxLength) => new(
                 TextSpan,
                 "BCP197",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. The tag \"{badTag}\" exceeds the maximum length of {maxLength} characters.");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The tag \"{badTag}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidTag(string badRef, string badTag) => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidTag(string? aliasName, string badRef, string badTag) => new(
                 TextSpan,
                 "BCP198",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. The tag \"{badTag}\" is not valid. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The tag \"{badTag}\" is not valid. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceRepositoryTooLong(string badRef, string badRepository, int maxLength) => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceRepositoryTooLong(string? aliasName, string badRef, string badRepository, int maxLength) => new(
                 TextSpan,
                 "BCP199",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. Module path \"{badRepository}\" exceeds the maximum length of {maxLength} characters.");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} Module path \"{badRepository}\" exceeds the maximum length of {maxLength} characters.");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceRegistryTooLong(string badRef, string badRegistry, int maxLength) => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceRegistryTooLong(string? aliasName, string badRef, string badRegistry, int maxLength) => new(
                 TextSpan,
                 "BCP200",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The registry \"{badRegistry}\" exceeds the maximum length of {maxLength} characters.");
 
             public ErrorDiagnostic ExpectedImportProviderName() => new(
                 TextSpan,
@@ -1232,6 +1243,86 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP207",
                 $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
+
+            public ErrorDiagnostic CloudProfileDoesNotExistInConfiguration(string cloudProfileName, string? configurationPath, IEnumerable<string> availableProfileNames) => new(
+                TextSpan,
+                "BCP208",
+                $"The cloud profile \"{cloudProfileName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}. Available profiles include {ToQuotedString(availableProfileNames.OrderBy(x => x))}.");
+
+            public ErrorDiagnostic InvalidCloudProfileResourceManagerEndpointNullOrUndefined(string cloudProfileName, string? configurationPath) => new(
+                TextSpan,
+                "BCP209",
+                $"The cloud profile \"{cloudProfileName}\" in the {BuildBicepConfigurationClause(configurationPath)}. The \"resourceManagerEndpoint\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic InvalidCloudProfileInvalidResourceManagerEndpoint(string cloudProfileName, string endpoint, string? configurationPath) => new(
+                TextSpan,
+                "BCP210",
+                $"The cloud profile \"{cloudProfileName}\" in the {BuildBicepConfigurationClause(configurationPath)} is invalid. The value of the \"resourceManagerEndpoint\" property \"{endpoint}\" is not a valid URL.");
+
+            public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
+                TextSpan,
+                "BCP211",
+                $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+
+            public ErrorDiagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP212",
+                $"The Template Spec module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
+
+            public ErrorDiagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP213",
+                $"The OCI artifact module alias name \"{aliasName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}.");
+
+            public ErrorDiagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP214",
+                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is in valid. The \"subscription\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP215",
+                $"The Template Spec module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is in valid. The \"resourceGroup\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, string? configurationPath) => new(
+                TextSpan,
+                "BCP216",
+                $"The OCI artifact module alias \"{aliasName}\" in the {BuildBicepConfigurationClause(configurationPath)} is invalid. The \"registry\" property cannot be null or undefined.");
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string? aliasName, string subscriptionId, string referenceValue) => new(
+                TextSpan,
+                "BCP217",
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The subscription ID \"{subscriptionId}\" in is not a GUID."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceResourceGroupNameTooLong(string? aliasName, string resourceGroupName, string referenceValue, int maximumLength) => new(
+                TextSpan,
+                "BCP218",
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" exceeds the maximum length of {maximumLength} characters."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidResourceGroupName(string? aliasName, string resourceGroupName, string referenceValue) => new(
+                TextSpan,
+                "BCP219",
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode charaters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\"."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecNameTooLong(string? aliasName, string templateSpecName, string referenceValue, int maximumLength) => new(
+                TextSpan,
+                "BCP220",
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" exceeds the maximum length of {maximumLength} characters."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecName(string? aliasName, string templateSpecName, string referenceValue) => new(
+                TextSpan,
+                "BCP221",
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(string? aliasName, string templateSpecVersion, string referenceValue, int maximumLength) => new(
+                TextSpan,
+                "BCP222",
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" exceeds the maximum length of {maximumLength} characters."); 
+
+            public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(string? aliasName, string templateSpecVersion, string referenceValue) => new(
+                TextSpan,
+                "BCP223",
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

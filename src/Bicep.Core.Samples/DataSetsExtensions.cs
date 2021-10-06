@@ -49,13 +49,14 @@ namespace Bicep.Core.Samples
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features));
             var workspace = new Workspace();
             var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), features);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+            var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, configuration);
+            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            return (new Compilation(namespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration), outputDirectory, fileUri);
+            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
@@ -66,7 +67,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
-                if(dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) is not OciArtifactModuleReference targetReference)
+                if(dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not OciArtifactModuleReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
                 }
@@ -105,7 +106,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
             {
-                if(dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, out _) is not TemplateSpecModuleReference reference)
+                if(dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
@@ -136,7 +137,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
-                var targetReference = dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) ?? throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
+                var targetReference = dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) ?? throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
 
                 var result = CompilationHelper.Compile(publishInfo.ModuleSource);
                 if (result.Template is null)

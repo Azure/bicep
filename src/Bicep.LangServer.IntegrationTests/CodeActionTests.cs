@@ -450,7 +450,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var moduleRegistryProvider = new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features);
             var dispatcher = new ModuleDispatcher(moduleRegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.BuiltInConfiguration);
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(new Uri(bicepFilePath));
 
             return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration);

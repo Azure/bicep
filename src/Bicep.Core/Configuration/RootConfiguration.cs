@@ -7,21 +7,21 @@ namespace Bicep.Core.Configuration
 {
     public class RootConfiguration
     {
-        private RootConfiguration(CloudConfiguration cloud, ModuleAliasesConfiguration moduleAliases, AnalyzersConfiguration analyzers, string resourceName)
+        private RootConfiguration(CloudConfiguration cloud, ModuleAliasesConfiguration moduleAliases, AnalyzersConfiguration analyzers, string? configurationPath)
         {
             this.Cloud = cloud;
             this.ModuleAliases = moduleAliases;
             this.Analyzers = analyzers;
-            this.ResourceName = resourceName;
+            this.ConfigurationPath = configurationPath;
         }
 
-        public static RootConfiguration Bind(IConfiguration rawConfiguration, string resourceName, bool disableAnalyzers = false)
+        public static RootConfiguration Bind(IConfiguration rawConfiguration, string? configurationPath = null, bool disableAnalyzers = false)
         {
-            var cloud = CloudConfiguration.Bind(rawConfiguration.GetSection("cloud"));
-            var moduleAliases = ModuleAliasesConfiguration.Bind(rawConfiguration.GetSection("moduleAliases"));
+            var cloud = CloudConfiguration.Bind(rawConfiguration.GetSection("cloud"), configurationPath);
+            var moduleAliases = ModuleAliasesConfiguration.Bind(rawConfiguration.GetSection("moduleAliases"), configurationPath);
             var analyzers = new AnalyzersConfiguration(disableAnalyzers ? null : rawConfiguration.GetSection("analyzers"));
 
-            return new(cloud, moduleAliases, analyzers, resourceName);
+            return new(cloud, moduleAliases, analyzers, configurationPath);
         }
 
         public CloudConfiguration Cloud { get; }
@@ -34,8 +34,8 @@ namespace Bicep.Core.Configuration
         /// Gets the built-in configuraiton manifest resource name if the configuration is a built-in configuraiton,
         /// or a path to a bicepconfig.json file if the configuration is a custom one.
         /// </summary>
-        public string ResourceName { get; }
+        public string? ConfigurationPath { get; }
 
-        public bool IsBuiltIn => ResourceName == ConfigurationManager.BuiltInConfigurationResourceName;
+        public bool IsBuiltIn => ConfigurationPath is null;
     }
 }

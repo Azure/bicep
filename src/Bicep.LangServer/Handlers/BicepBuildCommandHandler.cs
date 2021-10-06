@@ -95,7 +95,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (context is null)
             {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri);
+                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
                 compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration);
             }
             else

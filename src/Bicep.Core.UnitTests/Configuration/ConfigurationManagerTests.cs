@@ -36,7 +36,7 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.Cloud.CurrentProfile!.ResourceManagerEndpoint.Should().Be("https://management.azure.com");
 
             configuration.ModuleAliases.TemplateSpecModuleAliases.Should().BeEmpty();
-            configuration.ModuleAliases.BicepRegistryModuleAliases.Should().BeEmpty();
+            configuration.ModuleAliases.OciArtifactModuleAliases.Should().BeEmpty();
 
             configuration.Analyzers.GetValue("core:verbose", true).Should().BeFalse();
             configuration.Analyzers.GetValue("core:enabled", false).Should().BeTrue();
@@ -59,7 +59,7 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.Cloud.CurrentProfile!.ResourceManagerEndpoint.Should().Be("https://management.azure.com");
 
             configuration.ModuleAliases.TemplateSpecModuleAliases.Should().BeEmpty();
-            configuration.ModuleAliases.BicepRegistryModuleAliases.Should().BeEmpty();
+            configuration.ModuleAliases.OciArtifactModuleAliases.Should().BeEmpty();
 
             configuration.Analyzers.GetValue("core:verbose", true).Should().BeTrue();
             configuration.Analyzers.GetValue("core:enabled", false).Should().BeFalse();
@@ -187,7 +187,7 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.Cloud.CurrentProfile!.ResourceManagerEndpoint.Should().Be("https://bicep.example.com");
 
             configuration.ModuleAliases.TemplateSpecModuleAliases.Should().NotBeEmpty();
-            configuration.ModuleAliases.BicepRegistryModuleAliases.Should().BeEmpty();
+            configuration.ModuleAliases.OciArtifactModuleAliases.Should().BeEmpty();
 
             var alias = configuration.ModuleAliases.TemplateSpecModuleAliases.GetValueOrDefault("mySpecPath");
             alias.Should().NotBeNull();

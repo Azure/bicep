@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
@@ -30,10 +31,13 @@ namespace Bicep.LanguageServer.Handlers
 
         private readonly IFileResolver fileResolver;
 
-        public BicepRegistryCacheRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver)
+        private readonly IConfigurationManager configurationManager;
+
+        public BicepRegistryCacheRequestHandler(IModuleDispatcher moduleDispatcher, IFileResolver fileResolver, IConfigurationManager configurationManager)
         {
             this.moduleDispatcher = moduleDispatcher;
             this.fileResolver = fileResolver;
+            this.configurationManager = configurationManager;
         }
 
         public Task<BicepRegistryCacheResponse> Handle(BicepRegistryCacheParams request, CancellationToken cancellationToken)
@@ -41,7 +45,11 @@ namespace Bicep.LanguageServer.Handlers
             // If any of the following paths result in an exception being thrown (and surfaced client-side to the user),
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.            
-            var moduleReference = this.moduleDispatcher.TryGetModuleReference(request.Target, out _) ?? throw new InvalidOperationException($"The client specified an invalid module reference '{request.Target}'.");
+
+            // TODO: Add documentUri to BicepRegistryCacheParams and get the config for the documentUri.
+            var configuration = this.configurationManager.GetBuiltInConfiguration();
+            var moduleReference = this.moduleDispatcher.TryGetModuleReference(request.Target, configuration, out _) ?? throw new InvalidOperationException($"The client specified an invalid module reference '{request.Target}'.");
+
             if(!moduleReference.IsExternal)
             {
                 throw new InvalidOperationException($"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepCacheLspMethod} requests.");
