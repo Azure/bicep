@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
@@ -22,7 +22,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedParams)
         {
-            AssertRuleCodeDiagnostics(NoUnusedParametersRule.Code, text, diags => {
+            CompileAndTest(text, OnCompileErrors.Fail, unusedParams);
+        }
+
+        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedParams)
+        {
+            AssertLinterRuleDiagnostics(NoUnusedParametersRule.Code, text, onCompileErrors, diags =>
+            {
                 if (unusedParams.Any())
                 {
                     var rule = new NoUnusedParametersRule();
@@ -67,7 +73,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             var sum = 1 + 3
             output sub int = sum
             ")]
-                    [DataRow(@"
+        [DataRow(@"
             // Syntax errors
             resource abc 'Microsoft.AAD/domainServices@2021-03-01'
             param
@@ -78,7 +84,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void TestRule(string text, params string[] unusedParams)
         {
-            CompileAndTest(text, unusedParams);
+            CompileAndTest(text, OnCompileErrors.Ignore, unusedParams);
         }
 
         [DataRow(@"
@@ -118,7 +124,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void Modules(string text, params string[] unusedParams)
         {
-            CompileAndTest(text, unusedParams);
+            CompileAndTest(text, OnCompileErrors.Ignore, unusedParams);
         }
 
         [DataRow(@"

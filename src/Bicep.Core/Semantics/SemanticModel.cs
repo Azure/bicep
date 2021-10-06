@@ -192,6 +192,10 @@ namespace Bicep.Core.Semantics
             .OrderBy(diag => diag.Span.Position);
         }
 
+        /// <summary>
+        /// Immediately runs diagnostics and returns true if any errors are detected
+        /// </summary>
+        /// <returns>True if analysis finds errors</returns>
         public bool HasErrors()
             => allDiagnostics.Value.Any(x => x.Level == DiagnosticLevel.Error);
 
@@ -233,7 +237,7 @@ namespace Bicep.Core.Semantics
             var resources = ImmutableArray.CreateBuilder<ResourceMetadata>();
             foreach (var resourceSymbol in ResourceSymbolVisitor.GetAllResources(Root))
             {
-                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource)
+                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is { } resource)
                 {
                     resources.Add(resource);
                 }

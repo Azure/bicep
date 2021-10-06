@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Interfaces;
@@ -17,21 +17,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class PreferInterpolationRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text)
+        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
-            AssertRuleCodeDiagnostics(PreferInterpolationRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
+            {
                 diags.Should().HaveCount(0, $"expecting linter rule to pass");
             });
         }
 
-        private void ExpectDiagnosticWithFix(string text, string expectedFix)
+        private void ExpectDiagnosticWithFix(string text, string expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
-            ExpectDiagnosticWithFix(text, new string[] { expectedFix });
+            ExpectDiagnosticWithFix(text, new string[] { expectedFix }, onCompileErrors);
         }
 
-        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes)
+        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
-            AssertRuleCodeDiagnostics(PreferInterpolationRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
+            {
                 diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
 
                 diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
@@ -186,7 +188,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
                 var v1 = 'v1'
                 var v2 = 'v2'
-                var v2 = concat(concat('abc', v1), concat('ghi', v2, 'jkl'))
+                var v3 = concat(concat('abc', v1), concat('ghi', v2, 'jkl'))
             ",
             "'abc${v1}ghi${v2}jkl'"
         )]
@@ -213,7 +215,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataRow(@"
                 var v1 = 'abc'
                 var v2 = 'def'
-                var v3 = CONCAT(v1, concat(v1, v2))
+                var v3 = concat(v1, concat(v1, v2))
             ",
             "'${v1}${v1}${v2}'"
         )]
@@ -305,7 +307,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ]
                 output testa object = concat(myObj, myArray) // This results in a compiler error (type mismatch), should not suggest fixes
                 output test string = '${myObj}..${myArray}'  // Valid but already a string interpolation
-            "
+            ",
+            OnCompileErrors.Ignore
         )]
         [DataRow(
             @"
@@ -313,7 +316,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 val: true
                 }
                 output testa object = concat(myObj, myObj) // Another type mismatch error
-            "
+            ",
+            OnCompileErrors.Ignore
         )]
         [DataRow(
             @"
@@ -321,7 +325,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 val: true
                 }
                 output testa object = concat(myObj, 'a') // Another type mismatch error
-            "
+            ",
+            OnCompileErrors.Ignore
         )]
         [DataRow(
             @"
@@ -343,7 +348,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ]
                 var b = {}
                 var c = concat(a, b, uniqueString('${a}')) // type mismaatch
-            "
+            ",
+            OnCompileErrors.Ignore
         )]
         [DataRow(
             @"
@@ -353,13 +359,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 ]
                 var b
                 var c = concat('a', b, uniqueString('${a}')) // b is in error
-            "
+            ",
+            OnCompileErrors.Ignore
         )]
         [DataRow(
             @"
                 var a = 'a'
                 output c string = concat(, a) // syntax error
-            "
+            ",
+            OnCompileErrors.Ignore
         )]
         [DataRow(
             @"
@@ -372,14 +380,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 var a1 = []
                 var a2 = []
                 var a3 = []
-                var a3 = []
+                var a4 = []
                 var b = concat(a1, a2, a3, a4) // arrays - no interpolate recommended
             "
         )]
         [DataTestMethod]
-        public void ArgsNotStrings_DoNotSuggestFix(string text)
+        public void ArgsNotStrings_DoNotSuggestFix(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
-            ExpectPass(text);
+            ExpectPass(text, onCompileErrors);
         }
 
         [DataRow(@"
@@ -426,11 +434,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             if (expectedFix == null)
             {
-                ExpectPass(text);
+                ExpectPass(text, OnCompileErrors.Ignore);
             }
             else
             {
-                ExpectDiagnosticWithFix(text, expectedFix);
+                ExpectDiagnosticWithFix(text, expectedFix, OnCompileErrors.Ignore);
             }
         }
 

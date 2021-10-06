@@ -91,6 +91,8 @@
       "required": ["currentProfile"],
       "properties": {
         "currentProfile": {
+          "title": "Current Profile",
+          "description": "The current cloud profile",
           "anyOf": [
             {
               "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
@@ -102,6 +104,8 @@
           "default": "AzureCloud"
         },
         "profiles": {
+          "title": "Profiles",
+          "description": "The clould profile definitions",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/cloudProfile"
@@ -120,6 +124,7 @@
       "properties": {
         "ts": {
           "title": "Template Spec Module Aliases",
+          "description": "Template Spec module alias definitions",
           "type": "object",
           "additionalProperties": {
             "$ref": "#/definitions/templateSpecModuleAlias"
@@ -127,6 +132,7 @@
         },
         "br": {
           "title": "Bicep Registry Module Aliases",
+          "description": "Bicep Registry module alias definitions",
           "additionalProperties": {
             "$ref": "#/definitions/bicepRegistryModuleAlias"
           }
@@ -140,6 +146,9 @@
         "core": {
           "enabled": true,
           "rules": {
+            "adminusername-should-not-be-literal": {
+              "level": "warning"
+            },
             "no-hardcoded-env-urls": {
               "level": "warning"
             },
@@ -179,6 +188,16 @@
             "rules": {
               "additionalProperties": false,
               "properties": {
+                "adminusername-should-not-be-literal": {
+                  "allOf": [
+                    {
+                      "description": "When setting an adminUserName property, don't use a literal value. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {
