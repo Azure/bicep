@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
 using Bicep.Core.Configuration;
@@ -15,7 +17,9 @@ namespace Bicep.Core.Modules
 
         private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
 
-        private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly HashSet<char> ResourceGroupNameAllowedCharacterSet = new(new[] { '-', '_', '.', '(', ')' });
+
+        private static readonly Regex ResourceNameRegex = new(@"^[a-zA-Z0-9-_\.\(\)]{0,89}[a-zA-Z0-9-_\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private TemplateSpecModuleReference(string endpoint, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
             : base(ModuleReferenceSchemes.TemplateSpecs)
@@ -96,7 +100,9 @@ namespace Bicep.Core.Modules
                 return null;
             }
 
-            if (!ResourceNameRegex.IsMatch(resourceGroupName))
+            if (resourceGroupName.Length == 0 ||
+                resourceGroupName[^1] == '.' ||
+                resourceGroupName.Where(c => !char.IsLetterOrDigit(c) && !ResourceGroupNameAllowedCharacterSet.Contains(c)).Any())
             {
                 errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidResourceGroupName(resourceGroupName, FullyQualify(referenceValue));
                 return null;

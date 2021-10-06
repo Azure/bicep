@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
@@ -20,13 +19,7 @@ namespace Bicep.Core.Configuration
 
         public string? ResourceGroup { get; init; }
 
-        public override string ToString()
-        {
-            Debug.Assert(this.Subscription is not null, "TemplateSpecModuleAlias.Subscription should already be validated and cannot be null.");
-            Debug.Assert(this.ResourceGroup is not null, "TemplateSpecModuleAlias.ResourceGroup should already be validated and cannot be null.");
-
-            return $"{Subscription}/{ResourceGroup}";
-        }
+        public override string ToString() => $"{Subscription}/{ResourceGroup}";
     }
 
     public record OciArtifactModuleAlias : ModuleAlias
@@ -35,31 +28,26 @@ namespace Bicep.Core.Configuration
 
         public string? ModulePath { get; init; }
 
-        public override string ToString()
-        {
-            Debug.Assert(Registry is not null, "BicepRegistryModuleAlias.Registry should already be validated and cannot be null.");
-
-            return this.ModulePath is not null
-                ? $"{Registry}/{ModulePath}"
-                : $"{Registry}";
-        }
+        public override string ToString() => this.ModulePath is not null
+            ? $"{Registry}/{ModulePath}"
+            : $"{Registry}";
     }
 
     public class ModuleAliasesConfiguration
     {
-        private static readonly Regex ModuleAliasNameRegex = new(@"^[\w-]+$");
+        private static readonly Regex ModuleAliasNameRegex = new(@"^[a-zA-Z0-9-_]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private ModuleAliasesConfiguration(
             ImmutableDictionary<string, TemplateSpecModuleAlias> templateSpecModuleAliases,
             ImmutableDictionary<string, OciArtifactModuleAlias> ociArtifactModuleAliases,
-            string resourceName)
+            string? configurationPath)
         {
             this.TemplateSpecModuleAliases = templateSpecModuleAliases;
             this.OciArtifactModuleAliases = ociArtifactModuleAliases;
-            this.ResourceName = resourceName;
+            this.ConfigurationPath = configurationPath;
         }
 
-        public static ModuleAliasesConfiguration Bind(IConfiguration rawConfiguration, string resourceName)
+        public static ModuleAliasesConfiguration Bind(IConfiguration rawConfiguration, string? configurationPath)
         {
             var templateSpecModuleAliases = new Dictionary<string, TemplateSpecModuleAlias>();
             rawConfiguration.GetSection(ModuleReferenceSchemes.TemplateSpecs).Bind(templateSpecModuleAliases);
@@ -67,7 +55,7 @@ namespace Bicep.Core.Configuration
             var bicepRegistryModuleAliases = new Dictionary<string, OciArtifactModuleAlias>();
             rawConfiguration.GetSection(ModuleReferenceSchemes.Oci).Bind(bicepRegistryModuleAliases);
 
-            return new(templateSpecModuleAliases.ToImmutableDictionary(), bicepRegistryModuleAliases.ToImmutableDictionary(), resourceName);
+            return new(templateSpecModuleAliases.ToImmutableDictionary(), bicepRegistryModuleAliases.ToImmutableDictionary(), configurationPath);
         }
 
         // TODO: do not expose the two dictionaries as properties.
@@ -75,11 +63,7 @@ namespace Bicep.Core.Configuration
 
         public ImmutableDictionary<string, OciArtifactModuleAlias> OciArtifactModuleAliases { get; }
 
-        /// <summary>
-        /// Gets the built-in configuraiton manifest resource name if the configuration is a built-in configuraiton,
-        /// or a path to a bicepconfig.json file if the configuration is a custom one.
-        /// </summary>
-        public string ResourceName { get; }
+        public string? ConfigurationPath { get; }
 
         public ModuleAlias? TryGetModuleAlias(string scheme, string aliasName, out ErrorBuilderDelegate? errorBuilder)
         {
@@ -101,19 +85,19 @@ namespace Bicep.Core.Configuration
         {
             if (!this.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                errorBuilder = x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ResourceName);
+                errorBuilder = x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ConfigurationPath);
                 return null;
             }
 
             if (alias.Subscription is null)
             {
-                errorBuilder = x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, this.ResourceName);
+                errorBuilder = x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, this.ConfigurationPath);
                 return null;
             }
 
             if (alias.ResourceGroup is null)
             {
-                errorBuilder = x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.ResourceName);
+                errorBuilder = x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.ConfigurationPath);
                 return null;
             }
 
@@ -125,13 +109,13 @@ namespace Bicep.Core.Configuration
         {
             if (!this.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                errorBuilder = x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ResourceName);
+                errorBuilder = x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ConfigurationPath);
                 return null;
             }
 
             if (alias.Registry is null)
             {
-                errorBuilder = x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, this.ResourceName);
+                errorBuilder = x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, this.ConfigurationPath);
                 return null;
             }
 

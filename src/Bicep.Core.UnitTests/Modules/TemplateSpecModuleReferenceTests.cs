@@ -97,7 +97,7 @@ namespace Bicep.Core.UnitTests.Modules
             parsed.Should().BeNull();
             ((object?)failureBuilder).Should().NotBeNull();
             failureBuilder!.Should().HaveCode("BCP210");
-            failureBuilder!.Should().HaveMessageStartWith($"The cloud profile \"AzureCloud\" in the Bicep configuration \"bicepconfig.json\" is invalid. The value of the \"resourceManagerEndpoint\" property is not a valid URL.");
+            failureBuilder!.Should().HaveMessageStartWith($"The cloud profile \"AzureCloud\" in the Bicep configuration \"bicepconfig.json\" is invalid. The value of the \"resourceManagerEndpoint\" property \"something\" is not a valid URL.");
         }
 
         public static IEnumerable<object[]> GetEqualData()

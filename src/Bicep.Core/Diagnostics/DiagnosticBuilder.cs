@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using Azure.ResourceManager.Resources.Models;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
@@ -1161,12 +1160,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidOciArtifactReference(string badRef) => new(
                 TextSpan,
                 "BCP193",
-                $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact uri>:<tag>\".");
+                $"The specified OCI artifact reference \"{badRef}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.Oci}:<artifact-uri>:<tag>\", or \"{ModuleReferenceSchemes.Oci}/<module-alias>:<module-name-or-path>:<tag>\".");
 
             public ErrorDiagnostic InvalidTemplateSpecReference(string invalidReference) => new(
                 TextSpan,
                 "BCP194",
-                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<subscriptionId>/<resourceGroupName>/<templateSpecName>:<tag>\".");
+                $"The specified template spec reference \"{invalidReference}\" is not valid. Specify a reference in the format of \"{ModuleReferenceSchemes.TemplateSpecs}:<subscription-ID>/<resource-group-name>/<template-spec-name>:<version>\", or \"{ModuleReferenceSchemes.TemplateSpecs}/<module-alias>:<template-spec-name>:<version>\".");
 
             public ErrorDiagnostic InvalidOciArtifactReferenceInvalidPathSegment(string badRef, string badSegment) => new(
                 TextSpan,
@@ -1233,50 +1232,66 @@ namespace Bicep.Core.Diagnostics
                 "BCP207",
                 $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
 
-            public ErrorDiagnostic CloudProfileDoesNotExistInConfiguration(string cloudProfileName, string configurationResourceName, IEnumerable<string> availableProfileNames) => new(
+            public ErrorDiagnostic CloudProfileDoesNotExistInConfiguration(string cloudProfileName, string? configurationPath, IEnumerable<string> availableProfileNames) => new(
                 TextSpan,
                 "BCP208",
-                $"The cloud profile \"{cloudProfileName}\" does not exist in the Bicep configuration \"{configurationResourceName}\". Available profiles include {ToQuotedString(availableProfileNames.OrderBy(x => x))}.");
+                configurationPath is not null
+                    ? $"The cloud profile \"{cloudProfileName}\" does not exist in the Bicep configuration \"{configurationPath}\". Available profiles include {ToQuotedString(availableProfileNames.OrderBy(x => x))}."
+                    : $"The cloud profile \"{cloudProfileName}\" does not exist in built-in Bicep configuration. Available profiles include {ToQuotedString(availableProfileNames.OrderBy(x => x))}.");
 
-            public ErrorDiagnostic InvalidCloudProfileResourceManagerEndpointNullOrUndefined(string cloudProfileName, string configurationResourceName) => new(
+            public ErrorDiagnostic InvalidCloudProfileResourceManagerEndpointNullOrUndefined(string cloudProfileName, string? configurationPath) => new(
                 TextSpan,
                 "BCP209",
-                $"The cloud profile \"{cloudProfileName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The \"resourceManagerEndpoint\" property cannot be null or undefined.");
+                configurationPath is not null
+                    ? $"The cloud profile \"{cloudProfileName}\" in the Bicep configuration \"{configurationPath}\" is invalid. The \"resourceManagerEndpoint\" property cannot be null or undefined."
+                    : $"The cloud profile \"{cloudProfileName}\" in the built-in Bicep configuration. The \"resourceManagerEndpoint\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidCloudProfileInvalidResourceManagerEndpoint(string cloudProfileName, string endpoint, string configurationResourceName) => new(
+            public ErrorDiagnostic InvalidCloudProfileInvalidResourceManagerEndpoint(string cloudProfileName, string endpoint, string? configurationPath) => new(
                 TextSpan,
                 "BCP210",
-                $"The cloud profile \"{cloudProfileName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The value of the \"resourceManagerEndpoint\" property is not a valid URL.");
+                configurationPath is not null
+                    ? $"The cloud profile \"{cloudProfileName}\" in the Bicep configuration \"{configurationPath}\" is invalid. The value of the \"resourceManagerEndpoint\" property \"{endpoint}\" is not a valid URL."
+                    : $"The cloud profile \"{cloudProfileName}\" in the built-in Bicep configuration is invalid. The value of the \"resourceManagerEndpoint\" property \"{endpoint}\" is not a valid URL.");
 
             public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
                 TextSpan,
                 "BCP211",
                 $"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
 
-            public ErrorDiagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, string configurationResourceName) => new(
+            public ErrorDiagnostic TemplateSpecModuleAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
                 TextSpan,
                 "BCP212",
-                $"The Template Spec module alias name \"{aliasName}\" does not exist in the Bicep configuration \"{configurationResourceName}\".");
+                configurationPath is not null
+                    ?  $"The Template Spec module alias name \"{aliasName}\" does not exist in the Bicep configuration \"{configurationPath}\"."
+                    :  $"The Template Spec module alias name \"{aliasName}\" does not exist in the built-in Bicep configuration.");
 
-            public ErrorDiagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, string configurationResourceName) => new(
+            public ErrorDiagnostic OciArtifactModuleAliasNameDoesNotExistInConfiguration(string aliasName, string? configurationPath) => new(
                 TextSpan,
                 "BCP213",
-                $"The OCI artifact module alias name \"{aliasName}\" does not exist in the Bicep configuration \"{configurationResourceName}\".");
+                configurationPath is not null
+                    ? $"The OCI artifact module alias name \"{aliasName}\" does not exist in the Bicep configuration \"{configurationPath}\"."
+                    : $"The OCI artifact module alias name \"{aliasName}\" does not exist in the built-in Bicep configuration.");
 
-            public ErrorDiagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, string configurationResourceName) => new(
+            public ErrorDiagnostic InvalidTemplateSpecAliasSubscriptionNullOrUndefined(string aliasName, string? configurationPath) => new(
                 TextSpan,
                 "BCP214",
-                $"The Template Spec module alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is in valid. The \"subscription\" property cannot be null or undefined.");
+                configurationPath is not null
+                    ? $"The Template Spec module alias \"{aliasName}\" in the Bicep configuration \"{configurationPath}\" is in valid. The \"subscription\" property cannot be null or undefined."
+                    : $"The Template Spec module alias \"{aliasName}\" in the built-in Bicep configuration is in valid. The \"subscription\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, string configurationResourceName) => new(
+            public ErrorDiagnostic InvalidTemplateSpecAliasResourceGroupNullOrUndefined(string aliasName, string? configurationPath) => new(
                 TextSpan,
                 "BCP215",
-                $"The Template Spec module alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is in valid. The \"resourceGroup\" property cannot be null or undefined.");
+                configurationPath is not null
+                    ? $"The Template Spec module alias \"{aliasName}\" in the Bicep configuration \"{configurationPath}\" is in valid. The \"resourceGroup\" property cannot be null or undefined."
+                    : $"The Template Spec module alias \"{aliasName}\" in the built-in Bicep configuration is in valid. The \"resourceGroup\" property cannot be null or undefined.");
 
-            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, string configurationResourceName) => new(
+            public ErrorDiagnostic InvalidOciArtifactModuleAliasRegistryNullOrUndefined(string aliasName, string? configurationPath) => new(
                 TextSpan,
                 "BCP216",
-                $"The OCI artifact alias \"{aliasName}\" in the Bicep configuration \"{configurationResourceName}\" is invalid. The \"registry\" property cannot be null or undefined.");
+                configurationPath is not null
+                    ? $"The OCI artifact alias \"{aliasName}\" in the Bicep configuration \"{configurationPath}\" is invalid. The \"registry\" property cannot be null or undefined."
+                    : $"The OCI artifact alias \"{aliasName}\" in the built-in Bicep configuration is invalid. The \"registry\" property cannot be null or undefined.");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string subscriptionId, string referenceValue) => new(
                 TextSpan,
@@ -1291,7 +1306,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidResourceGroupName(string resourceGroupName, string referenceValue) => new(
                 TextSpan,
                 "BCP219",
-                $"The specified Template Spec reference \"{referenceValue}\" is invalid .The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\"."); 
+                $"The specified Template Spec reference \"{referenceValue}\" is invalid .The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode charaters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\"."); 
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecNameTooLong(string templateSpecName, string referenceValue, int maximumLength) => new(
                 TextSpan,

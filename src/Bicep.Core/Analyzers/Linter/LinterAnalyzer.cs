@@ -105,7 +105,7 @@ namespace Bicep.Core.Analyzers.Linter
                         new TextSpan(0, 0),
                         DiagnosticLevel.Info,
                         "Linter Disabled",
-                        string.Format(CoreResources.LinterDisabledFormatMessage, this.configuration.ResourceName)));
+                        string.Format(CoreResources.LinterDisabledFormatMessage, this.configuration.ConfigurationPath ?? ConfigurationManager.BuiltInConfigurationResourceName)));
                 }
             }
 
@@ -116,7 +116,7 @@ namespace Bicep.Core.Analyzers.Linter
         {
             var configMessage = this.configuration.IsBuiltIn
                 ? CoreResources.BicepConfigNoCustomSettingsMessage
-                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.configuration.ResourceName);
+                : string.Format(CoreResources.BicepConfigCustomSettingsFoundFormatMessage, this.configuration.ConfigurationPath);
 
             return new AnalyzerDiagnostic(
                 AnalyzerName,
