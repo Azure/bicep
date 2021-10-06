@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -32,7 +33,8 @@ output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
 })
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            // Ignore outputs-should-not-contain-secrets warnings which are expected
+            result.Diagnostics.Where(d => d.Code != "outputs-should-not-contain-secrets").Should().BeEmpty();
             result.Template.Should().HaveValueAtPath("$.outputs['pkStandard'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'testacc'), '2021-01-01').keys[0].value]");
@@ -56,7 +58,8 @@ output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
 })
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            // Ignore outputs-should-not-contain-secrets warnings which are expected
+            result.Diagnostics.Where(d => d.Code != "outputs-should-not-contain-secrets").Should().BeEmpty();
             result.Template.Should().HaveValueAtPath("$.outputs['pkStandard'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethod'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2019-06-01').keys[0].value]");
             result.Template.Should().HaveValueAtPath("$.outputs['pkMethodVersionOverride'].value", "[listKeys(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'other'), 'Microsoft.Storage/storageAccounts', 'testacc'), '2021-01-01').keys[0].value]");

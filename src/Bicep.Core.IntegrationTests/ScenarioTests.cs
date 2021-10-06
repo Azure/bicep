@@ -43,7 +43,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 return new string(Enumerable.Repeat(chars, generateRandomInt())
-                  .Select(s => s[generateRandomInt(0, s.Length-1)]).ToArray());
+                  .Select(s => s[generateRandomInt(0, s.Length - 1)]).ToArray());
             }
 
             var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
@@ -164,7 +164,8 @@ resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
 }
 ");
 
-            result.Should().NotHaveAnyDiagnostics();
+            // Ignore outputs-should-not-contain-secrets warnings which are expected
+            result.Diagnostics.Where(d => d.Code != "outputs-should-not-contain-secrets").Should().BeEmpty();
             result.Template.Should().HaveValueAtPath("$.outputs['config'].value", "[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
         }
 
@@ -2590,7 +2591,7 @@ output test string = res.id
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
             });
         }
-        
+
         // https://github.com/Azure/bicep/issues/4542
         [TestMethod]
         public void Test_Issue4542()
