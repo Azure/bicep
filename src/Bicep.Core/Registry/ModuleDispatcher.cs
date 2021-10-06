@@ -130,7 +130,7 @@ namespace Bicep.Core.Registry
             return registry.TryGetLocalModuleEntryPointUri(parentModuleUri, moduleReference, out failureBuilder);
         }
 
-        public async Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences)
+        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
@@ -149,7 +149,7 @@ namespace Bicep.Core.Registry
             // send each set of refs to its own registry
             foreach (var scheme in this.registries.Keys.Where(refType => referencesByScheme.Contains(refType)))
             {
-                var restoreStatuses = await this.registries[scheme].RestoreModules(referencesByScheme[scheme]);
+                var restoreStatuses = await this.registries[scheme].RestoreModules(configuration, referencesByScheme[scheme]);
 
                 // update restore status for each failed module restore
                 foreach(var (failedReference, failureBuilder) in restoreStatuses)
@@ -161,10 +161,10 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ModuleReference moduleReference, Stream compiled)
+        public async Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled)
         {
             var registry = this.GetRegistry(moduleReference);
-            await registry.PublishModule(moduleReference, compiled);
+            await registry.PublishModule(configuration, moduleReference, compiled);
         }
 
         public void PruneRestoreStatuses()

@@ -108,7 +108,7 @@ namespace Bicep.Core.UnitTests.Registry
             mock.Setup(m => m.TryGetLocalModuleEntryPointUri(It.IsAny<Uri>(), validRef3, out @null))
                 .Returns(new Uri("untitled://validRef3"));
 
-            mock.Setup(m => m.RestoreModules(It.IsAny<IEnumerable<ModuleReference>>()))
+            mock.Setup(m => m.RestoreModules(BicepTestConstants.BuiltInConfiguration, It.IsAny<IEnumerable<ModuleReference>>()))
                 .ReturnsAsync(new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>
                 {
                     [validRef3] = x => new ErrorDiagnostic(x.TextSpan, "RegFail", "Failed to restore module")
@@ -146,7 +146,7 @@ namespace Bicep.Core.UnitTests.Registry
             dispatcher.TryGetLocalModuleEntryPointUri(new Uri("mock://mock"), validRef3, out var entryPointBuilder3).Should().Be(new Uri("untitled://validRef3"));
             entryPointBuilder3!.Should().BeNull();
 
-            (await dispatcher.RestoreModules(new[] { validRef, validRef3 })).Should().BeTrue();
+            (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, new[] { validRef, validRef3 })).Should().BeTrue();
 
             dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ModuleRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");

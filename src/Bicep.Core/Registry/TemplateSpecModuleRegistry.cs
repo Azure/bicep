@@ -37,7 +37,7 @@ namespace Bicep.Core.Registry
         public override bool IsModuleRestoreRequired(TemplateSpecModuleReference reference) =>
             !this.fileResolver.FileExists(this.GetModuleEntryPointUri(reference));
 
-        public override Task PublishModule(TemplateSpecModuleReference reference, Stream compiled) => throw new NotSupportedException("Template Spec modules cannot be published.");
+        public override Task PublishModule(RootConfiguration configuration, TemplateSpecModuleReference reference, Stream compiled) => throw new NotSupportedException("Template Spec modules cannot be published.");
 
         public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, TemplateSpecModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
@@ -45,7 +45,7 @@ namespace Bicep.Core.Registry
             return this.GetModuleEntryPointUri(reference);
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<TemplateSpecModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<TemplateSpecModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
@@ -54,7 +54,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
                 try
                 {
-                    var repository = this.repositoryFactory.CreateRepository(reference.EndpointUri, reference.SubscriptionId);
+                    var repository = this.repositoryFactory.CreateRepository(configuration, reference.EndpointUri, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
                     await this.SaveModuleToDisk(reference, templateSpecEntity);
