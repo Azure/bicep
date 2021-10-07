@@ -57,7 +57,7 @@ namespace Bicep.Cli.Commands
             compilationWriter.ToStream(compilation, stream);
 
             stream.Position = 0;
-            await this.moduleDispatcher.PublishModule(moduleReference, stream);
+            await this.moduleDispatcher.PublishModule(compilation.Configuration, moduleReference, stream);
 
             return 0;
         }

@@ -43,7 +43,7 @@ namespace Bicep.Core.Registry
             return null;
         }
 
-        public override Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<LocalModuleReference> references)
+        public override Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<LocalModuleReference> references)
         {
             // local modules are already present on the file system
             // and do not require init
@@ -52,6 +52,6 @@ namespace Bicep.Core.Registry
 
         public override bool IsModuleRestoreRequired(LocalModuleReference reference) => false;
 
-        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiled) => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task PublishModule(RootConfiguration configuration, LocalModuleReference moduleReference, Stream compiled) => throw new NotSupportedException("Local modules cannot be published.");
     }
 }

@@ -64,7 +64,7 @@ namespace Bicep.Core.IntegrationTests
             var workspace = new Workspace();
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, configuration);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
+            if (await dispatcher.RestoreModules(configuration, dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
@@ -190,7 +190,7 @@ namespace Bicep.Core.IntegrationTests
             var tasks = new List<Task<bool>>();
             for (int i = 0; i < ConcurrentTasks; i++)
             {
-                tasks.Add(Task.Run(() => dispatcher.RestoreModules(moduleReferences)));
+                tasks.Add(Task.Run(() => dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences)));
             }
 
             var result = await Task.WhenAll(tasks);
@@ -252,7 +252,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(moduleReferences)).Should().BeTrue();
+                (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences)).Should().BeTrue();
             }
 
             // the first module should have failed due to a timeout

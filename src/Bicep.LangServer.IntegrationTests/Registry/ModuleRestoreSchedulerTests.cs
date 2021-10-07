@@ -119,11 +119,20 @@ namespace Bicep.LangServer.UnitTests.Registry
                 // wait until both compilation managers are notified
                 await IntegrationTestHelper.WithTimeoutAsync(Task.WhenAll(firstSource.Task, secondSource.Task));
 
-                // two separate requests should have been unified into single restore
                 if (mockRegistry.ModuleRestores.TryPop(out var initialRefs))
                 {
+                    mockRegistry.ModuleRestores.Should().NotBeEmpty();
+                    initialRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:three", "mock:four");
+                }
+                else
+                {
+                    throw new AssertFailedException("Scheduler did not perform the expected restores.");
+                }
+
+                if(mockRegistry.ModuleRestores.TryPop(out var secondRefs))
+                {
                     mockRegistry.ModuleRestores.Should().BeEmpty();
-                    initialRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:one", "mock:two", "mock:three", "mock:four");
+                    secondRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:one", "mock:two");
                 }
                 else
                 {
@@ -171,12 +180,12 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 
-            public Task PublishModule(ModuleReference moduleReference, Stream compiled)
+            public Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references)
+            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> references)
             {
                 this.ModuleRestores.Push(references);
                 return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>());

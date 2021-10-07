@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -51,7 +52,7 @@ namespace Bicep.Core.Samples
             var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), features);
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, configuration);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
+            if (await dispatcher.RestoreModules(configuration, dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
@@ -85,8 +86,8 @@ namespace Bicep.Core.Samples
 
             var clientFactory = new Mock<IContainerRegistryClientFactory>(MockBehavior.Strict);
             clientFactory
-                .Setup(m => m.CreateBlobClient(It.IsAny<Uri>(), It.IsAny<string>(), It.IsAny<TokenCredential>()))
-                .Returns<Uri, string, TokenCredential>((registryUri, repository, _) =>
+                .Setup(m => m.CreateBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<RootConfiguration ,Uri, string>((_, registryUri, repository) =>
                 {
                     if (repoToClient.TryGetValue((registryUri, repository), out var client))
                     {
@@ -122,8 +123,8 @@ namespace Bicep.Core.Samples
 
             var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();
             repositoryFactoryMock
-                .Setup(x => x.CreateRepository(It.IsAny<Uri?>(), It.IsAny<string>(), It.IsAny<TokenCredential>()))
-                .Returns<Uri?, string, TokenCredential>((endpointUri, subscriptionId, _) =>
+                .Setup(x => x.CreateRepository(It.IsAny<RootConfiguration>(), It.IsAny<Uri?>(), It.IsAny<string>()))
+                .Returns<RootConfiguration, Uri?, string>((_, endpointUri, subscriptionId) =>
                     repositoryMocksBySubscription.TryGetValue((endpointUri, subscriptionId), out var repository)
                         ? repository.Object
                         : throw new InvalidOperationException($"No mock client was registered for endpoint '{endpointUri}' and subscription '{subscriptionId}'."));
@@ -153,7 +154,7 @@ namespace Bicep.Core.Samples
                 }
 
                 stream.Position = 0;
-                await dispatcher.PublishModule(targetReference, stream);
+                await dispatcher.PublishModule(BicepTestConstants.BuiltInConfiguration, targetReference, stream);
             }
         }
     }

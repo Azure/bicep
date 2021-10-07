@@ -6,6 +6,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem.Az;
@@ -119,6 +120,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
             services.AddSingleton<IFileSystem, FileSystem>();
             services.AddSingleton<IConfigurationManager, ConfigurationManager>();
+            services.AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();

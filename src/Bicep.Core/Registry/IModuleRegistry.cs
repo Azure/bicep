@@ -53,13 +53,14 @@ namespace Bicep.Core.Registry
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>
         /// <param name="references">module references</param>
-        Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references);
+        Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> references);
 
         /// <summary>
         /// Publishes the module at the specified path to the registry.
         /// </summary>
+        /// <param name="configuration">The configuration</param>
         /// <param name="moduleReference">The module reference</param>
         /// <param name="compiled">The compiled module</param>
-        Task PublishModule(ModuleReference moduleReference, Stream compiled);
+        Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled);
     }
 }

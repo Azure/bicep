@@ -33,6 +33,19 @@
         }
       }
     },
+    "credentialType": {
+      "title": "Credential Type",
+      "description": "Type of credential to use for authentication when restoring external modules",
+      "type": "string",
+      "enum": [
+        "Environment",
+        "ManagedIdentity",
+        "VisualStudio",
+        "VisualStudioCode",
+        "AzureCLI",
+        "AzurePowerShell"
+      ]
+    },
     "templateSpecModuleAlias": {
       "type": "object",
       "additionalProperties": false,
@@ -110,6 +123,16 @@
           "additionalProperties": {
             "$ref": "#/definitions/cloudProfile"
           }
+        },
+        "credentialPrecedence": {
+          "title": "Credential Precedence",
+          "description": "Determines which types of credentials are used to authenticate and which order when restoring external modules.",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/credentialType"
+          },
+          "minItems": 1,
+          "uniqueItems": true
         }
       }
     },
