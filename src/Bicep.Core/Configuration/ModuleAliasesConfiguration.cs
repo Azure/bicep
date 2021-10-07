@@ -1,18 +1,25 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Modules;
-using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
+using Bicep.Core.Extensions;
 using System.Collections.Immutable;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Configuration
 {
-    public record ModuleAlias { }
+    public record ModuleAliases
+    {
+        [JsonPropertyName("ts")]
+        public ImmutableDictionary<string, TemplateSpecModuleAlias> TemplateSpecModuleAliases { get; init; } = ImmutableDictionary<string, TemplateSpecModuleAlias>.Empty;
 
-    public record TemplateSpecModuleAlias : ModuleAlias
+        [JsonPropertyName("br")]
+        public ImmutableDictionary<string, OciArtifactModuleAlias> OciArtifactModuleAliases { get; init; } = ImmutableDictionary<string, OciArtifactModuleAlias>.Empty;
+    }
+
+    public record TemplateSpecModuleAlias
     {
         public string? Subscription { get; init; }
 
@@ -21,7 +28,7 @@ namespace Bicep.Core.Configuration
         public override string ToString() => $"{Subscription}/{ResourceGroup}";
     }
 
-    public record OciArtifactModuleAlias : ModuleAlias
+    public record OciArtifactModuleAlias
     {
         public string? Registry { get; init; }
 
@@ -32,37 +39,19 @@ namespace Bicep.Core.Configuration
             : $"{Registry}";
     }
 
-    public class ModuleAliasesConfiguration
+    public class ModuleAliasesConfiguration : ConfigurationSection<ModuleAliases>
     {
         private static readonly Regex ModuleAliasNameRegex = new(@"^[a-zA-Z0-9-_]+$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private ModuleAliasesConfiguration(
-            ImmutableDictionary<string, TemplateSpecModuleAlias> templateSpecModuleAliases,
-            ImmutableDictionary<string, OciArtifactModuleAlias> ociArtifactModuleAliases,
-            string? configurationPath)
+        private readonly string? configurationPath;
+
+        private ModuleAliasesConfiguration(ModuleAliases data, string? configurationPath)
+            : base(data)
         {
-            this.TemplateSpecModuleAliases = templateSpecModuleAliases;
-            this.OciArtifactModuleAliases = ociArtifactModuleAliases;
-            this.ConfigurationPath = configurationPath;
+            this.configurationPath = configurationPath;
         }
 
-        public static ModuleAliasesConfiguration Bind(IConfiguration rawConfiguration, string? configurationPath)
-        {
-            var templateSpecModuleAliases = new Dictionary<string, TemplateSpecModuleAlias>();
-            rawConfiguration.GetSection(ModuleReferenceSchemes.TemplateSpecs).Bind(templateSpecModuleAliases);
-
-            var bicepRegistryModuleAliases = new Dictionary<string, OciArtifactModuleAlias>();
-            rawConfiguration.GetSection(ModuleReferenceSchemes.Oci).Bind(bicepRegistryModuleAliases);
-
-            return new(templateSpecModuleAliases.ToImmutableDictionary(), bicepRegistryModuleAliases.ToImmutableDictionary(), configurationPath);
-        }
-
-        // TODO: do not expose the two dictionaries as properties.
-        public ImmutableDictionary<string, TemplateSpecModuleAlias> TemplateSpecModuleAliases { get; }
-
-        public ImmutableDictionary<string, OciArtifactModuleAlias> OciArtifactModuleAliases { get; }
-
-        public string? ConfigurationPath { get; }
+        public static ModuleAliasesConfiguration Bind(JsonElement element, string? configurationPath) => new(element.ToNonNullObject<ModuleAliases>(), configurationPath);
 
         public TemplateSpecModuleAlias? TryGetTemplateSpecModuleAlias(string aliasName, out ErrorBuilderDelegate? errorBuilder)
         {
@@ -71,21 +60,21 @@ namespace Bicep.Core.Configuration
                 return null;
             }
 
-            if (!this.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
+            if (!this.Data.TemplateSpecModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                errorBuilder = x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ConfigurationPath);
+                errorBuilder = x => x.TemplateSpecModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath);
                 return null;
             }
 
             if (alias.Subscription is null)
             {
-                errorBuilder = x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, this.ConfigurationPath);
+                errorBuilder = x => x.InvalidTemplateSpecAliasSubscriptionNullOrUndefined(aliasName, this.configurationPath);
                 return null;
             }
 
             if (alias.ResourceGroup is null)
             {
-                errorBuilder = x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.ConfigurationPath);
+                errorBuilder = x => x.InvalidTemplateSpecAliasResourceGroupNullOrUndefined(aliasName, this.configurationPath);
                 return null;
             }
 
@@ -100,15 +89,15 @@ namespace Bicep.Core.Configuration
                 return null;
             }
 
-            if (!this.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
+            if (!this.Data.OciArtifactModuleAliases.TryGetValue(aliasName, out var alias))
             {
-                errorBuilder = x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.ConfigurationPath);
+                errorBuilder = x => x.OciArtifactModuleAliasNameDoesNotExistInConfiguration(aliasName, this.configurationPath);
                 return null;
             }
 
             if (alias.Registry is null)
             {
-                errorBuilder = x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, this.ConfigurationPath);
+                errorBuilder = x => x.InvalidOciArtifactModuleAliasRegistryNullOrUndefined(aliasName, this.configurationPath);
                 return null;
             }
 

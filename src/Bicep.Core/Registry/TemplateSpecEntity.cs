@@ -7,6 +7,7 @@ using System.Text.Json;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 
 namespace Bicep.Core.Registry
 {
@@ -53,14 +54,14 @@ namespace Bicep.Core.Registry
             model.Id,
             model.Name,
             model.Type,
-            model.SystemData.ToJsonElement(),
+            JsonElementFactory.CreateElement(model.SystemData),
             model.Location,
-            model.Tags?.ToJsonElement(),
+            JsonElementFactory.CreateNullableElement(model.Tags),
             model.Description,
-            model.LinkedTemplates?.ToJsonElement(),
-            model.Metadata?.ToJsonElement(),
-            model.MainTemplate.ToJsonElement(),
-            model.UiFormDefinition?.ToJsonElement());
+            JsonElementFactory.CreateNullableElement(model.LinkedTemplates),
+            JsonElementFactory.CreateNullableElement(model.Metadata),
+            JsonElementFactory.CreateElement(model.MainTemplate),
+            JsonElementFactory.CreateNullableElement(model.UiFormDefinition));
 
         public static TemplateSpecEntity FromJsonElement(JsonElement element)
         {
@@ -83,19 +84,19 @@ namespace Bicep.Core.Registry
                 switch (topLevelProperty.Name)
                 {
                     case "id":
-                        id = topLevelProperty.Value.GetNonNullString();
+                        id = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "name":
-                        name = topLevelProperty.Value.GetNonNullString();
+                        name = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "type":
-                        type = topLevelProperty.Value.GetNonNullString();
+                        type = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "location":
-                        location = topLevelProperty.Value.GetNonNullString();
+                        location = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "tags" when topLevelProperty.Value.IsNotNullValue():

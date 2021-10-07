@@ -149,10 +149,10 @@ namespace Bicep.Core.UnitTests.Modules
         public void TryParse_AliasNotInConfiguration_ReturnsNullAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(
-                new Dictionary<string, string>
+                new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
                 },
                 configurationPath);
 
@@ -218,11 +218,11 @@ namespace Bicep.Core.UnitTests.Modules
             {
                 "myModulePath",
                 "myModule:v1",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:br:myModulePath:modulePath"] = "path",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.br.myModulePath.modulePath"] = "path",
                 }),
                 "BCP216",
                 "The OCI artifact module alias \"myModulePath\" in the built-in Bicep configuration is invalid. The \"registry\" property cannot be null or undefined.",
@@ -232,11 +232,11 @@ namespace Bicep.Core.UnitTests.Modules
             {
                 "myModulePath2",
                 "myModule:v2",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:br:myModulePath2:modulePath"] = "path2",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.br.myModulePath2.modulePath"] = "path2",
                 }, "bicepconfig.json"),
                 "BCP216",
                 "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
@@ -250,12 +250,12 @@ namespace Bicep.Core.UnitTests.Modules
                 "myModulePath",
                 "mymodule:v1",
                 "br:example.com/path/mymodule:v1",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:br:myModulePath:registry"] = "example.com",
-                    ["moduleAliases:br:myModulePath:modulePath"] = "path",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.br.myModulePath.registry"] = "example.com",
+                    ["moduleAliases.br.myModulePath.modulePath"] = "path",
                 }),
             };
 
@@ -264,12 +264,12 @@ namespace Bicep.Core.UnitTests.Modules
                 "myModulePath2",
                 "mymodule:v2",
                 "br:localhost:8000/root/parent/mymodule:v2",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:br:myModulePath2:registry"] = "localhost:8000",
-                    ["moduleAliases:br:myModulePath2:modulePath"] = "root/parent",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.br.myModulePath2.registry"] = "localhost:8000",
+                    ["moduleAliases.br.myModulePath2.modulePath"] = "root/parent",
                 }, "bicepconfig.json"),
             };
         }

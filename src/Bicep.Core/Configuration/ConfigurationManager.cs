@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.Extensions.Configuration;
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.IO.Abstractions;
-using System.Linq;
 using System.Reflection;
 using System.Security;
 using System.Text.Json;
@@ -17,13 +16,13 @@ namespace Bicep.Core.Configuration
     {
         public const string BuiltInConfigurationResourceName = "Bicep.Core.Configuration.bicepconfig.json";
 
-        private static readonly IConfiguration builtInRawConfiguration = BuildBuiltInRawConfiguration();
+        private static readonly JsonElement BuiltInConfigurationElement = GetBuildInConfigurationElement();
 
-        private static readonly Lazy<RootConfiguration> builtInConfigurationLazy =
-            new(() => RootConfiguration.Bind(builtInRawConfiguration));
+        private static readonly Lazy<RootConfiguration> BuiltInConfigurationLazy =
+            new(() => RootConfiguration.Bind(BuiltInConfigurationElement));
 
-        private static readonly Lazy<RootConfiguration> builtInConfigurationWithAnalyzersDisabledLazy =
-            new(() => RootConfiguration.Bind(builtInRawConfiguration, disableAnalyzers: true));
+        private static readonly Lazy<RootConfiguration> BuiltInConfigurationWithAnalyzersDisabledLazy =
+            new(() => RootConfiguration.Bind(BuiltInConfigurationElement, disableAnalyzers: true));
 
         private readonly IFileSystem fileSystem;
 
@@ -33,50 +32,41 @@ namespace Bicep.Core.Configuration
         }
 
         public RootConfiguration GetBuiltInConfiguration(bool disableAnalyzers = false) => disableAnalyzers
-            ? builtInConfigurationWithAnalyzersDisabledLazy.Value
-            : builtInConfigurationLazy.Value;
+            ? BuiltInConfigurationWithAnalyzersDisabledLazy.Value
+            : BuiltInConfigurationLazy.Value;
 
         public RootConfiguration GetConfiguration(Uri sourceFileUri)
         {
-            var customConfigurationPath = DiscoverConfigurationFile(fileSystem.Path.GetDirectoryName(sourceFileUri.LocalPath));
+            var configurationPath = DiscoverConfigurationFile(fileSystem.Path.GetDirectoryName(sourceFileUri.LocalPath));
 
-            if (customConfigurationPath is not null)
+            if (configurationPath is not null)
             {
-                IConfiguration? customConfiguration;
-
                 try
                 {
-                    using var stream = fileSystem.FileStream.Create(customConfigurationPath, FileMode.Open, FileAccess.Read);
-                    var builder = new ConfigurationBuilder()
-                        .AddInMemoryCollection(builtInRawConfiguration.AsEnumerable())
-                        .AddJsonStream(stream);
+                    using var stream = fileSystem.FileStream.Create(configurationPath, FileMode.Open, FileAccess.Read);
+                    using var document = JsonDocument.Parse(stream);
+                    var element = BuiltInConfigurationElement.Merge(document.RootElement.Clone());
 
-                    customConfiguration = builder.Build();
+                    return RootConfiguration.Bind(element, configurationPath);
                 }
                 catch (JsonException exception)
                 {
-                    throw new ConfigurationException($"Failed to parse the contents of the Bicep configuration file \"{customConfigurationPath}\" as valid JSON: \"{exception.Message}\".");
+                    throw new ConfigurationException($"Failed to parse the contents of the Bicep configuration file \"{configurationPath}\" as valid JSON: \"{exception.Message}\".");
                 }
                 catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or SecurityException)
                 {
-                    throw new ConfigurationException($"Could not load the Bicep configuration file \"{customConfigurationPath}\": \"{exception.Message}\".");
+                    throw new ConfigurationException($"Could not load the Bicep configuration file \"{configurationPath}\": \"{exception.Message}\".");
                 }
-
-                return RootConfiguration.Bind(customConfiguration, customConfigurationPath);
             }
 
             return GetBuiltInConfiguration();
         }
 
-        private static IConfiguration BuildBuiltInRawConfiguration()
+        private static JsonElement GetBuildInConfigurationElement()
         {
             using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(BuiltInConfigurationResourceName);
-            Debug.Assert(stream is not null, "Default configuration file should exist as embedded resource.");
 
-            var builder = new ConfigurationBuilder();
-            builder.AddJsonStream(stream);
-
-            return builder.Build();
+            return JsonElementFactory.CreateElement(stream);
         }
 
         private string? DiscoverConfigurationFile(string? currentDirectory)

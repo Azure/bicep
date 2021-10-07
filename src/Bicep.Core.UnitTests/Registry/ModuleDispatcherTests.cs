@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -11,7 +10,6 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
@@ -165,13 +163,6 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var file = SourceFileFactory.CreateBicepFile(new System.Uri("untitled://hello"), $"module foo '{reference}' = {{}}");
             return file.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>().Single();
-        }
-
-        private static RootConfiguration CreateMockConfiguration(IReadOnlyDictionary<string, string> configurationData, string configurationResourceName = "bicepconfig.json")
-        {
-            var rawConfiguration = new ConfigurationBuilder().AddInMemoryCollection(configurationData).Build();
-
-            return RootConfiguration.Bind(rawConfiguration, configurationResourceName);
         }
 
         private class MockModuleReference : ModuleReference

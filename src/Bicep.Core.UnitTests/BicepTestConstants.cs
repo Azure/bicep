@@ -3,6 +3,7 @@
 
 using Bicep.Core.Emit;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -10,11 +11,11 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Collections.Generic;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Bicep.Core.Json;
 
 namespace Bicep.Core.UnitTests
 {
@@ -68,12 +69,29 @@ namespace Bicep.Core.UnitTests
             return mock.Object;
         }
 
-        public static RootConfiguration CreateMockConfiguration(Dictionary<string, string> configuraitonData, string? configurationPath = null)
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object> customConfigurationData, string? configurationPath = null)
         {
-            var builder = new ConfigurationBuilder();
-            builder.AddInMemoryCollection(configuraitonData);
+            var configurationData = new Dictionary<string, object>
+            {
+                ["cloud.currentProfile"] = "MyProfile",
+                ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                ["moduleAliases"] = new Dictionary<string, object>(),
+                ["analyzers"] = new Dictionary<string, object>(),
+            };
 
-            return RootConfiguration.Bind(builder.Build(), configurationPath);
+            foreach (var (path, value) in customConfigurationData)
+            {
+                configurationData[path] = value;
+            }
+
+            var element = JsonElementFactory.CreateElement("{}");
+
+            foreach (var (path, value) in configurationData)
+            {
+                element = element.SetPropertyByPath(path, value);
+            }
+
+            return RootConfiguration.Bind(element, configurationPath);
         }
 
         private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled, string assemblyFileVersion)
