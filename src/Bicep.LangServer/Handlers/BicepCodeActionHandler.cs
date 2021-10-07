@@ -72,21 +72,28 @@ namespace Bicep.LanguageServer.Handlers
 
             commandOrCodeActions.AddRange(analyzerDiagnostics);
 
-            var diagnosticsToDisable = diagnostics
+            var diagnosticsOfTypeWarningAndInfo = diagnostics
                 .Where(diagnostic =>
-                    (diagnostic.Level != DiagnosticLevel.Error || diagnostic.Level != DiagnosticLevel.Off) &&
-                    diagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                    (diagnostic.Level == DiagnosticLevel.Warning || diagnostic.Level == DiagnosticLevel.Info) &&
+                    (diagnostic.Span.ContainsInclusive(requestStartOffset) ||
                     diagnostic.Span.ContainsInclusive(requestEndOffset) ||
-                    (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset))
-                .OfType<IDiagnostic>()
-                .Select(diagnostic => DisableDiagnostic(documentUri, diagnostic.Code, semanticModel.SourceFile, diagnostic.Span, compilationContext.LineStarts));
+                    (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset)))
+                .OfType<IDiagnostic>();
 
-            commandOrCodeActions.AddRange(diagnosticsToDisable);
+            foreach (IDiagnostic diagnostic in diagnosticsOfTypeWarningAndInfo)
+            {
+                var commandOrCodeAction = DisableDiagnostic(documentUri, diagnostic.Code, semanticModel.SourceFile, diagnostic.Span, compilationContext.LineStarts);
+
+                if (commandOrCodeAction is not null)
+                {
+                    commandOrCodeActions.Add(commandOrCodeAction);
+                }
+            }
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
         }
 
-        private static CommandOrCodeAction DisableDiagnostic(DocumentUri documentUri,
+        private static CommandOrCodeAction? DisableDiagnostic(DocumentUri documentUri,
             DiagnosticCode diagnosticCode,
             BicepFile bicepFile,
             TextSpan span,
@@ -96,39 +103,39 @@ namespace Bicep.LanguageServer.Handlers
                 .Where(x => x.Span.ContainsInclusive(span.Position) && x.Span.ContainsInclusive(span.Position + span.Length))
                 .FirstOrDefault();
 
-            if (declaration is not null)
+            if (declaration is null)
             {
-                var declarationRange = declaration.Span.ToRange(lineStarts);
-                TextEdit disableDiagnosticStart = new TextEdit
-                {
-                    Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
-                    NewText = string.Format("/* Disable {0} */\n", diagnosticCode.String)
-                };
-
-                TextEdit disableDiagnosticEnd = new TextEdit
-                {
-                    Range = new Range(declarationRange.End.Line, declarationRange.End.Character, declarationRange.End.Line, declarationRange.End.Character),
-                    NewText = string.Format("\n/* Enable {0} */\n", diagnosticCode.String)
-                };
-
-                var command = Command.Create(LanguageConstants.DisableDiagnostic, documentUri, diagnosticCode);
-
-                return new CodeAction
-                {
-                    Kind = CodeActionKind.QuickFix,
-                    Title = string.Format("Disable {0}", diagnosticCode.String),
-                    Edit = new WorkspaceEdit
-                    {
-                        Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
-                        {
-                            [documentUri] = new List<TextEdit> { disableDiagnosticStart, disableDiagnosticEnd }
-                        }
-                    },
-                    Command = command
-                };
+                return null;
             }
 
-            return new CodeAction();
+            var declarationRange = declaration.Span.ToRange(lineStarts);
+            TextEdit disableDiagnosticStart = new TextEdit
+            {
+                Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
+                NewText = string.Format("/* Disable {0} */\n", diagnosticCode.String)
+            };
+
+            TextEdit disableDiagnosticEnd = new TextEdit
+            {
+                Range = new Range(declarationRange.End.Line, declarationRange.End.Character, declarationRange.End.Line, declarationRange.End.Character),
+                NewText = string.Format("\n/* Enable {0} */\n", diagnosticCode.String)
+            };
+
+            var command = Command.Create(LanguageConstants.DisableDiagnostic, documentUri, diagnosticCode);
+
+            return new CodeAction
+            {
+                Kind = CodeActionKind.QuickFix,
+                Title = string.Format("Disable {0}", diagnosticCode.String),
+                Edit = new WorkspaceEdit
+                {
+                    Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
+                    {
+                        [documentUri] = new List<TextEdit> { disableDiagnosticStart, disableDiagnosticEnd }
+                    }
+                },
+                Command = command
+            };
         }
 
         private static CommandOrCodeAction DisableLinterRule(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
