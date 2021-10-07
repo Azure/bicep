@@ -119,11 +119,20 @@ namespace Bicep.LangServer.UnitTests.Registry
                 // wait until both compilation managers are notified
                 await IntegrationTestHelper.WithTimeoutAsync(Task.WhenAll(firstSource.Task, secondSource.Task));
 
-                // two separate requests should have been unified into single restore
                 if (mockRegistry.ModuleRestores.TryPop(out var initialRefs))
                 {
+                    mockRegistry.ModuleRestores.Should().NotBeEmpty();
+                    initialRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:three", "mock:four");
+                }
+                else
+                {
+                    throw new AssertFailedException("Scheduler did not perform the expected restores.");
+                }
+
+                if(mockRegistry.ModuleRestores.TryPop(out var secondRefs))
+                {
                     mockRegistry.ModuleRestores.Should().BeEmpty();
-                    initialRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:one", "mock:two", "mock:three", "mock:four");
+                    secondRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:one", "mock:two");
                 }
                 else
                 {
