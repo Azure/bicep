@@ -197,7 +197,7 @@
   },
   {
     "name": "resourceGroup",
-    "description": "Returns the current resource group scope. **This function can only be used in resourceGroup deployments.**",
+    "description": "Returns the current resource group scope.",
     "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
@@ -207,7 +207,7 @@
   },
   {
     "name": "resourceGroup",
-    "description": "Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**",
+    "description": "Returns a named resource group scope",
     "fixedParameters": [
       {
         "name": "resourceGroupName",
@@ -226,7 +226,7 @@
   },
   {
     "name": "resourceGroup",
-    "description": "Returns a named resource group scope. **This function can only be used in subscription and resourceGroup deployments.**",
+    "description": "Returns a named resource group scope.",
     "fixedParameters": [
       {
         "name": "subscriptionId",
@@ -380,7 +380,7 @@
   },
   {
     "name": "subscription",
-    "description": "Returns the subscription scope for the current deployment. **This function can only be used in subscription and resourceGroup deployments.**",
+    "description": "Returns the subscription scope for the current deployment.",
     "fixedParameters": [],
     "minimumArgumentCount": 0,
     "maximumArgumentCount": 0,
@@ -390,7 +390,7 @@
   },
   {
     "name": "subscription",
-    "description": "Returns a named subscription scope. **This function can only be used in subscription and resourceGroup deployments.**",
+    "description": "Returns a named subscription scope.",
     "fixedParameters": [
       {
         "name": "subscriptionId",

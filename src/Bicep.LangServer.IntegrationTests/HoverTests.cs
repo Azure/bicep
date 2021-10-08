@@ -364,8 +364,8 @@ var nsConcatFunc = sys.c|oncat('abc', 'def')
 ");
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope. **This function can only be used in resourceGroup deployments.**\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope. **This function can only be used in resourceGroup deployments.**\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
         }
