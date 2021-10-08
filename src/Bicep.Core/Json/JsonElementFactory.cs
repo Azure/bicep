@@ -35,6 +35,13 @@ namespace Bicep.Core.Json
             return document.RootElement.Clone();
         }
 
+        public static JsonElement CreateElement(string utf8Json, JsonDocumentOptions? options = null)
+        {
+            using var document = JsonDocument.Parse(utf8Json, options ?? DefaultJsonDocumentOptions);
+
+            return document.RootElement.Clone();
+        }
+
         public static JsonElement CreateElement<T>(T value, JsonSerializerOptions? options = null)
         {
             if (value is JsonElement element)

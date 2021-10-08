@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using System.Text.Json;
 
 namespace Bicep.Core.Configuration
@@ -26,11 +27,6 @@ namespace Bicep.Core.Configuration
 
         public AnalyzersConfiguration SetValue(string path, object value) => new(this.Data.SetPropertyByPath(path, value));
 
-        private static AnalyzersConfiguration CreateEmptyAnalyzersConfiguration()
-        {
-            using var document = JsonDocument.Parse("{}");
-
-            return new(document.RootElement.Clone());
-        }
+        private static AnalyzersConfiguration CreateEmptyAnalyzersConfiguration() => new(JsonElementFactory.CreateElement("{}"));
     }
 }

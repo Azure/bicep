@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Azure.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -112,7 +113,7 @@ namespace Bicep.Core.Samples
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
 
-                var templateSpecElement = JsonDocument.Parse(templateSpecInfo.ModuleSource).RootElement;
+                var templateSpecElement = JsonElementFactory.CreateElement(templateSpecInfo.ModuleSource);
                 var templateSpecEntity = TemplateSpecEntity.FromJsonElement(templateSpecElement);
 
                 repositoryMocksBySubscription.TryAdd((reference.EndpointUri, reference.SubscriptionId), StrictMock.Of<ITemplateSpecRepository>());
