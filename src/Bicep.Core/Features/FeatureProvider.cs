@@ -12,8 +12,7 @@ namespace Bicep.Core.Features
         private Lazy<string> cacheRootDirectoryLazy = new(() => GetCacheRootDirectory(Environment.GetEnvironmentVariable("BICEP_CACHE_DIRECTORY")), LazyThreadSafetyMode.PublicationOnly);
         public string CacheRootDirectory => cacheRootDirectoryLazy.Value;
 
-        private Lazy<bool> registryEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_REGISTRY_ENABLED_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
-        public bool RegistryEnabled => registryEnabledLazy.Value;
+        public bool RegistryEnabled => true;
 
         private Lazy<bool> symbolicNameCodegenEnabledLazy = new(() => ReadBooleanEnvVar("BICEP_SYMBOLIC_NAME_CODEGEN_EXPERIMENTAL", defaultValue: false), LazyThreadSafetyMode.PublicationOnly);
         public bool SymbolicNameCodegenEnabled => symbolicNameCodegenEnabledLazy.Value;
