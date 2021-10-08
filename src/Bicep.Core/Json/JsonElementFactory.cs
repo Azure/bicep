@@ -35,11 +35,16 @@ namespace Bicep.Core.Json
             return document.RootElement.Clone();
         }
 
-        public static JsonElement CreateElement(object @object, JsonSerializerOptions? options = null)
+        public static JsonElement CreateElement<T>(T value, JsonSerializerOptions? options = null)
         {
-            var objectBytes = JsonSerializer.SerializeToUtf8Bytes(@object, options ?? DefaultSerializeOptions);
+            if (value is JsonElement element)
+            {
+                return element;
+            }
 
-            return CreateElement(objectBytes);
+            var bytes = JsonSerializer.SerializeToUtf8Bytes(value, options ?? DefaultSerializeOptions);
+
+            return CreateElement((ReadOnlyMemory<byte>)bytes);
         }
 
         public static JsonElement? CreateNullableElement(object? @object, JsonSerializerOptions? options = null) =>

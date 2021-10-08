@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Buffers;
+using System.Text;
 using System.Text.Json;
 
 namespace Bicep.Core.Configuration
@@ -33,5 +35,27 @@ namespace Bicep.Core.Configuration
         public string? ConfigurationPath { get; }
 
         public bool IsBuiltIn => ConfigurationPath is null;
+
+        public string ToUtf8Json()
+        {
+            var bufferWriter = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(bufferWriter, new() { Indented = true }))
+            {
+                writer.WriteStartObject();
+
+                writer.WritePropertyName("cloud");
+                this.Cloud.WriteTo(writer);
+
+                writer.WritePropertyName("moduleAliases");
+                this.ModuleAliases.WriteTo(writer);
+
+                writer.WritePropertyName("analyzers");
+                this.Analyzers.WriteTo(writer);
+
+                writer.WriteEndObject();
+            }
+
+            return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
+        }
     }
 }

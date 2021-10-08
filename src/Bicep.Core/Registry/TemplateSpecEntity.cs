@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -148,71 +149,71 @@ namespace Bicep.Core.Registry
 
         public string ToUtf8Json()
         {
-            using var stream = new MemoryStream();
-            using var writer = new Utf8JsonWriter(stream, new() { Indented = true });
-
-            // Top level properties.
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("id");
-            writer.WriteStringValue(this.Id);
-
-            writer.WritePropertyName("name");
-            writer.WriteStringValue(this.Name);
-
-            writer.WritePropertyName("type");
-            writer.WriteStringValue(this.Type);
-
-            writer.WritePropertyName("location");
-            writer.WriteStringValue(this.Location);
-
-            if (this.Tags is { } tags)
+            var bufferWriter = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(bufferWriter, new() { Indented = true }))
             {
-                writer.WritePropertyName("tags");
-                tags.WriteTo(writer);
-            }
-
-            writer.WritePropertyName("systemData");
-            this.SystemData.WriteTo(writer);
-
-            // properites.*
-            writer.WritePropertyName("properties");
-            {
+                // Top level properties.
                 writer.WriteStartObject();
 
-                if (this.Description is { } description)
+                writer.WritePropertyName("id");
+                writer.WriteStringValue(this.Id);
+
+                writer.WritePropertyName("name");
+                writer.WriteStringValue(this.Name);
+
+                writer.WritePropertyName("type");
+                writer.WriteStringValue(this.Type);
+
+                writer.WritePropertyName("location");
+                writer.WriteStringValue(this.Location);
+
+                if (this.Tags is { } tags)
                 {
-                    writer.WritePropertyName("description");
-                    writer.WriteStringValue(Description);
+                    writer.WritePropertyName("tags");
+                    tags.WriteTo(writer);
                 }
 
-                if (this.LinkedTemplates is { } linkedTemplates)
+                writer.WritePropertyName("systemData");
+                this.SystemData.WriteTo(writer);
+
+                // properites.*
+                writer.WritePropertyName("properties");
                 {
-                    writer.WritePropertyName("linkedTemplates");
-                    linkedTemplates.WriteTo(writer);
+                    writer.WriteStartObject();
+
+                    if (this.Description is { } description)
+                    {
+                        writer.WritePropertyName("description");
+                        writer.WriteStringValue(Description);
+                    }
+
+                    if (this.LinkedTemplates is { } linkedTemplates)
+                    {
+                        writer.WritePropertyName("linkedTemplates");
+                        linkedTemplates.WriteTo(writer);
+                    }
+
+                    if (this.Metadata is { } metadata)
+                    {
+                        writer.WritePropertyName("metadata");
+                        metadata.WriteTo(writer);
+                    }
+
+                    writer.WritePropertyName("mainTemplate");
+                    this.MainTemplate.WriteTo(writer);
+
+                    if (this.UiFormDefinition is { } uiFormDefinition)
+                    {
+                        writer.WritePropertyName("uiFormDefinition");
+                        uiFormDefinition.WriteTo(writer);
+                    }
+                    writer.WriteEndObject();
                 }
 
-                if (this.Metadata is { } metadata)
-                {
-                    writer.WritePropertyName("metadata");
-                    metadata.WriteTo(writer);
-                }
-
-                writer.WritePropertyName("mainTemplate");
-                this.MainTemplate.WriteTo(writer);
-
-                if (this.UiFormDefinition is { } uiFormDefinition)
-                {
-                    writer.WritePropertyName("uiFormDefinition");
-                    uiFormDefinition.WriteTo(writer);
-                }
                 writer.WriteEndObject();
             }
 
-            writer.WriteEndObject();
-            writer.Flush();
-
-            return Encoding.UTF8.GetString(stream.ToArray());
+            return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
         }
     }
 }

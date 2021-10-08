@@ -219,7 +219,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
       ""AzureUSGovernment"": {
         ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},
@@ -288,7 +292,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
       ""AzureUSGovernment"": {
         ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},
@@ -355,7 +363,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
       ""AzureUSGovernment"": {
         ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},

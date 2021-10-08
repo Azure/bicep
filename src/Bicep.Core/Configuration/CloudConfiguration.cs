@@ -15,7 +15,7 @@ namespace Bicep.Core.Configuration
         [JsonPropertyName("currentProfile")]
         public string CurrentProfileName { get; init; } = "";
 
-        public ImmutableDictionary<string, CloudProfile> Profiles { get; init; } = ImmutableDictionary<string, CloudProfile>.Empty;
+        public ImmutableSortedDictionary<string, CloudProfile> Profiles { get; init; } = ImmutableSortedDictionary<string, CloudProfile>.Empty;
 
         public ImmutableArray<CredentialType> CredentialPrecedence { get; init; } = ImmutableArray<CredentialType>.Empty;
     }

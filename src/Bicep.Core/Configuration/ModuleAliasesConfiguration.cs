@@ -13,10 +13,10 @@ namespace Bicep.Core.Configuration
     public record ModuleAliases
     {
         [JsonPropertyName("ts")]
-        public ImmutableDictionary<string, TemplateSpecModuleAlias> TemplateSpecModuleAliases { get; init; } = ImmutableDictionary<string, TemplateSpecModuleAlias>.Empty;
+        public ImmutableSortedDictionary<string, TemplateSpecModuleAlias> TemplateSpecModuleAliases { get; init; } = ImmutableSortedDictionary<string, TemplateSpecModuleAlias>.Empty;
 
         [JsonPropertyName("br")]
-        public ImmutableDictionary<string, OciArtifactModuleAlias> OciArtifactModuleAliases { get; init; } = ImmutableDictionary<string, OciArtifactModuleAlias>.Empty;
+        public ImmutableSortedDictionary<string, OciArtifactModuleAlias> OciArtifactModuleAliases { get; init; } = ImmutableSortedDictionary<string, OciArtifactModuleAlias>.Empty;
     }
 
     public record TemplateSpecModuleAlias
