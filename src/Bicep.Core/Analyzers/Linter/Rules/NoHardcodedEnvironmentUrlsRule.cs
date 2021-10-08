@@ -37,8 +37,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             base.Configure(config);
 
-            this.disallowedHosts = this.GetConfigurationValue(nameof(DisallowedHosts), Array.Empty<string>()).ToImmutableArray();
-            this.excludedHosts = this.GetConfigurationValue(nameof(ExcludedHosts), Array.Empty<string>()).ToImmutableArray();
+            this.disallowedHosts = this.GetConfigurationValue(nameof(DisallowedHosts).ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
+            this.excludedHosts = this.GetConfigurationValue(nameof(ExcludedHosts).ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
 
             this.minimumHostLength = this.disallowedHosts.Any() ? this.disallowedHosts.Min(h => h.Length) : 0;
             this.HasHosts = this.disallowedHosts.Any();

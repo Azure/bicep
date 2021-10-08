@@ -19,9 +19,9 @@ namespace Bicep.Core.Analyzers.Linter
     {
         public const string AnalyzerName = "core";
 
-        public static string LinterEnabledSetting => $"{AnalyzerName}:enabled";
+        public static string LinterEnabledSetting => $"{AnalyzerName}.enabled";
 
-        public static string LinterVerboseSetting => $"{AnalyzerName}:verbose";
+        public static string LinterVerboseSetting => $"{AnalyzerName}.verbose";
 
         private readonly RootConfiguration configuration;
 

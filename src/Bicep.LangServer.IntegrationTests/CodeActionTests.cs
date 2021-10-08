@@ -113,7 +113,11 @@ namespace Bicep.LangServer.IntegrationTests
       ""AzureUSGovernment"": {
         ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},
@@ -329,7 +333,11 @@ namespace Bicep.LangServer.IntegrationTests
       ""AzureUSGovernment"": {
         ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},

@@ -68,11 +68,11 @@ namespace Bicep.Core.UnitTests.Modules
         [TestMethod]
         public void TryParse_CloudProfileNotInConfiguration_ReturnsNullAndSetsFailureBuilder()
         {
-            var configuration = BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+            var configuration = BicepTestConstants.CreateMockConfiguration(new()
             {
-                ["cloud:currentProfile"] = "MyProfile",
-                ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                ["cloud:profiles:MyCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                ["cloud.currentProfile"] = "MyProfile",
+                ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "https://example.invalid",
             }, "bicepconfig.json");
 
             var parsed = TemplateSpecModuleReference.TryParse(null, "D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
@@ -86,10 +86,10 @@ namespace Bicep.Core.UnitTests.Modules
         [TestMethod]
         public void TryParse_InvalidResourceManagerEndpointInConfiguration_ReturnsNullAndSetsFailureBuilder()
         {
-            var configuration = BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+            var configuration = BicepTestConstants.CreateMockConfiguration(new()
             {
-                ["cloud:currentProfile"] = "AzureCloud",
-                ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "something",
+                ["cloud.currentProfile"] = "AzureCloud",
+                ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "something",
             }, "bicepconfig.json");
 
             var parsed = TemplateSpecModuleReference.TryParse(null, "D9EEC7DB-8454-4EC1-8CD3-BB79D4CFEBEE/myRG/myTemplateSpec1:v123", configuration, out var failureBuilder);
@@ -106,10 +106,10 @@ namespace Bicep.Core.UnitTests.Modules
         public void TryParse_AliasNotInConfiguration_ReturnsNullAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
         {
             var configuration = BicepTestConstants.CreateMockConfiguration(
-                new Dictionary<string, string>
+                new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
                 },
                 configurationPath);
 
@@ -207,11 +207,11 @@ namespace Bicep.Core.UnitTests.Modules
             {
                 "testRG",
                 "mySpec:v1",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:ts:testRG:resourceGroup"] = "production-resource-group",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.ts.testRG.resourceGroup"] = "production-resource-group",
                 }),
                 "BCP214",
                 "The Template Spec module alias \"testRG\" in the built-in Bicep configuration is in valid. The \"subscription\" property cannot be null or undefined.",
@@ -221,11 +221,11 @@ namespace Bicep.Core.UnitTests.Modules
             {
                 "prodRG",
                 "mySpec:v1",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.ts.prodRG.subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
                 }, "bicepconfig.json"),
                 "BCP215",
                 "The Template Spec module alias \"prodRG\" in the Bicep configuration \"bicepconfig.json\" is in valid. The \"resourceGroup\" property cannot be null or undefined.",
@@ -239,12 +239,12 @@ namespace Bicep.Core.UnitTests.Modules
                 "prodRG",
                 "mySpec:v1",
                 "ts:1E7593D0-FCD1-4570-B132-51E4FD254967/production-resource-group/mySpec:v1",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:ts:prodRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
-                    ["moduleAliases:ts:prodRG:resourceGroup"] = "production-resource-group",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.ts.prodRG.subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                    ["moduleAliases.ts.prodRG.resourceGroup"] = "production-resource-group",
                 }),
             };
 
@@ -253,12 +253,12 @@ namespace Bicep.Core.UnitTests.Modules
                 "testRG",
                 "mySpec:v2",
                 "ts:1E7593D0-FCD1-4570-B132-51E4FD254967/test-resource-group/mySpec:v2",
-                BicepTestConstants.CreateMockConfiguration(new Dictionary<string, string>
+                BicepTestConstants.CreateMockConfiguration(new()
                 {
-                    ["cloud:currentProfile"] = "AzureCloud",
-                    ["cloud:profiles:AzureCloud:resourceManagerEndpoint"] = "https://example.invalid",
-                    ["moduleAliases:ts:testRG:subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
-                    ["moduleAliases:ts:testRG:resourceGroup"] = "test-resource-group",
+                    ["cloud.currentProfile"] = "AzureCloud",
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["moduleAliases.ts.testRG.subscription"] = "1E7593D0-FCD1-4570-B132-51E4FD254967",
+                    ["moduleAliases.ts.testRG.resourceGroup"] = "test-resource-group",
                 }),
             };
         }

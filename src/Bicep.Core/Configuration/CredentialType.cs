@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Text.Json.Serialization;
+
 namespace Bicep.Core.Configuration
 {
     /// <summary>
     /// Represents type of credential used for authentication when restoring external modules.
     /// </summary>
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum CredentialType
     {
         /// <summary>

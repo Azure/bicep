@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Configuration;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,17 +33,62 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetBuiltInConfiguration();
 
             // Assert.
-            configuration.Cloud.CurrentProfile.Should().NotBeNull();
-            configuration.Cloud.CurrentProfile!.ResourceManagerEndpoint.Should().Be("https://management.azure.com");
-
-            configuration.ModuleAliases.TemplateSpecModuleAliases.Should().BeEmpty();
-            configuration.ModuleAliases.OciArtifactModuleAliases.Should().BeEmpty();
-
-            configuration.Analyzers.GetValue("core:verbose", true).Should().BeFalse();
-            configuration.Analyzers.GetValue("core:enabled", false).Should().BeTrue();
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:level", "").Should().Be("warning");
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:disallowedhosts", Array.Empty<string>()).Should().NotBeEmpty();
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:excludedhosts", Array.Empty<string>()).Should().NotBeEmpty();
+            configuration.Should().HaveContents(@"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""gallery.azure.com"",
+            ""management.core.windows.net"",
+            ""management.azure.com"",
+            ""database.windows.net"",
+            ""core.windows.net"",
+            ""login.microsoftonline.com"",
+            ""graph.windows.net"",
+            ""trafficmanager.net"",
+            ""datalake.azure.net"",
+            ""azuredatalakestore.net"",
+            ""azuredatalakeanalytics.net"",
+            ""vault.azure.net"",
+            ""api.loganalytics.io"",
+            ""asazure.windows.net"",
+            ""region.asazure.windows.net"",
+            ""batch.core.windows.net""
+          ],
+          ""excludedhosts"": [
+            ""schema.management.azure.com""
+          ]
+        }
+      }
+    }
+  }
+}");
         }
 
         [TestMethod]
@@ -55,17 +101,31 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetBuiltInConfiguration(disableAnalyzers: true);
 
             // Assert.
-            configuration.Cloud.CurrentProfile.Should().NotBeNull();
-            configuration.Cloud.CurrentProfile!.ResourceManagerEndpoint.Should().Be("https://management.azure.com");
-
-            configuration.ModuleAliases.TemplateSpecModuleAliases.Should().BeEmpty();
-            configuration.ModuleAliases.OciArtifactModuleAliases.Should().BeEmpty();
-
-            configuration.Analyzers.GetValue("core:verbose", true).Should().BeTrue();
-            configuration.Analyzers.GetValue("core:enabled", false).Should().BeFalse();
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:level", "").Should().BeEmpty();
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:disallowedhosts", Array.Empty<string>()).Should().BeEmpty();
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:excludedhosts", Array.Empty<string>()).Should().BeEmpty();
+            configuration.Should().HaveContents(@"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
+  ""analyzers"": {}
+}");
         }
 
         [TestMethod]
@@ -79,7 +139,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Assert.
-            configuration.Should().Be(sut.GetBuiltInConfiguration());
+            configuration.Should().BeSameAs(sut.GetBuiltInConfiguration());
         }
 
         [TestMethod]
@@ -142,7 +202,7 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Act & Assert.
-            configuration.Should().Be(sut.GetBuiltInConfiguration());
+            configuration.Should().BeSameAs(sut.GetBuiltInConfiguration());
         }
 
         [TestMethod]
@@ -160,18 +220,46 @@ namespace Bicep.Core.UnitTests.Configuration
       ""MyCloud"": {
         ""resourceManagerEndpoint"": ""https://bicep.example.com""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+        ""AzurePowerShell"",
+        ""VisualStudioCode""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {
       ""mySpecPath"": {
         ""subscription"": ""B34C8680-F688-48C2-A44F-E1EFF5E01173""
       }
+    },
+    ""br"": {
+      ""myRegistry"": {
+        ""registry"": ""localhost:8000""
+      },
+      ""myModulePath"": {
+        ""registry"": ""test.invalid"",
+        ""modulePath"": ""root/modules""
+      }
     }
   },
   ""analyzers"": {
     ""core"": {
-      ""enabled"": false
+      ""enabled"": false,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""datalake.azure.net"",
+            ""azuredatalakestore.net"",
+            ""azuredatalakeanalytics.net"",
+            ""vault.azure.net"",
+            ""api.loganalytics.io"",
+            ""asazure.windows.net"",
+            ""region.asazure.windows.net"",
+            ""batch.core.windows.net""
+          ]
+        }
+      }
     }
   }
 }"
@@ -183,21 +271,71 @@ namespace Bicep.Core.UnitTests.Configuration
             var configuration = sut.GetConfiguration(sourceFileUri);
 
             // Assert.
-            configuration.Cloud.CurrentProfile.Should().NotBeNull();
-            configuration.Cloud.CurrentProfile!.ResourceManagerEndpoint.Should().Be("https://bicep.example.com");
-
-            configuration.ModuleAliases.TemplateSpecModuleAliases.Should().NotBeEmpty();
-            configuration.ModuleAliases.OciArtifactModuleAliases.Should().BeEmpty();
-
-            var alias = configuration.ModuleAliases.TemplateSpecModuleAliases.GetValueOrDefault("mySpecPath");
-            alias.Should().NotBeNull();
-            alias!.Subscription.Should().Be("B34C8680-F688-48C2-A44F-E1EFF5E01173");
-
-            configuration.Analyzers.GetValue("core:verbose", true).Should().BeFalse();
-            configuration.Analyzers.GetValue("core:enabled", true).Should().BeFalse();
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:level", "").Should().Be("warning");
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:disallowedhosts", Array.Empty<string>()).Should().NotBeEmpty();
-            configuration.Analyzers.GetValue("core:rules:no-hardcoded-env-urls:excludedhosts", Array.Empty<string>()).Should().NotBeEmpty();
+            configuration.Should().HaveContents(@"{
+  ""cloud"": {
+    ""currentProfile"": ""MyCloud"",
+    ""profiles"": {
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      },
+      ""MyCloud"": {
+        ""resourceManagerEndpoint"": ""https://bicep.example.com""
+      }
+    },
+    ""credentialPrecedence"": [
+      ""AzurePowerShell"",
+      ""VisualStudioCode""
+    ]
+  },
+  ""moduleAliases"": {
+    ""ts"": {
+      ""mySpecPath"": {
+        ""subscription"": ""B34C8680-F688-48C2-A44F-E1EFF5E01173"",
+        ""resourceGroup"": null
+      }
+    },
+    ""br"": {
+      ""myModulePath"": {
+        ""registry"": ""test.invalid"",
+        ""modulePath"": ""root/modules""
+      },
+      ""myRegistry"": {
+        ""registry"": ""localhost:8000"",
+        ""modulePath"": null
+      }
+    }
+  },
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": false,
+      ""rules"": {
+        ""no-hardcoded-env-urls"": {
+          ""level"": ""warning"",
+          ""disallowedhosts"": [
+            ""datalake.azure.net"",
+            ""azuredatalakestore.net"",
+            ""azuredatalakeanalytics.net"",
+            ""vault.azure.net"",
+            ""api.loganalytics.io"",
+            ""asazure.windows.net"",
+            ""region.asazure.windows.net"",
+            ""batch.core.windows.net""
+          ],
+          ""excludedhosts"": [
+            ""schema.management.azure.com""
+          ]
+        }
+      }
+    }
+  }
+}");
         }
 
         private string CreatePath(string path) => Path.Combine(this.TestContext.ResultsDirectory, path.Replace('/', Path.DirectorySeparatorChar));
