@@ -4,9 +4,9 @@
 using Bicep.Core.Extensions;
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static Bicep.Core.Diagnostics.DiagnosticBuilder;
 
 namespace Bicep.Core.Configuration
 {
@@ -23,45 +23,68 @@ namespace Bicep.Core.Configuration
     public record CloudProfile
     {
         public string? ResourceManagerEndpoint { get; init; }
+
+        public string? ActiveDirectoryAuthority { get; init; }
     }
 
     public class CloudConfiguration : ConfigurationSection<Cloud>
     {
-        private readonly string? configurationPath;
-
-        public CloudConfiguration(Cloud data, string? configurationPath)
+        public CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri)
             : base(data)
         {
-            this.configurationPath = configurationPath;
+            this.ResourceManagerEndpointUri = resourceManagerEndpointUri;
+            this.ActiveDirectoryAuthorityUri = activeDirectoryAuthorityUri;
         }
 
         public ImmutableArray<CredentialType> CredentialPrecedence => this.Data.CredentialPrecedence;
 
-        public static CloudConfiguration Bind(JsonElement element, string? configurationPath) => new(element.ToNonNullObject<Cloud>(), configurationPath);
+        public Uri ResourceManagerEndpointUri { get; }
 
-        public string? TryGetCurrentResourceManagerEndpoint(out ErrorBuilderDelegate? errorBuilder)
+        public Uri ActiveDirectoryAuthorityUri { get; }
+
+        public string AuthenticationScope => ResourceManagerEndpointUri.AbsoluteUri + ".default";
+
+        public static CloudConfiguration Bind(JsonElement element, string? configurationPath)
         {
-            if (!this.Data.Profiles.TryGetValue(this.Data.CurrentProfileName, out var currentProfile))
+            var cloud = element.ToNonNullObject<Cloud>();
+            var (endpointUri, authorityUri) = ValidateCurrentProfile(cloud, configurationPath);
+
+            return new(cloud, endpointUri, authorityUri);
+        }
+
+        private static (Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri) ValidateCurrentProfile(Cloud cloud, string? configurationPath)
+        {
+            static string ToCamelCase(string name) => char.ToLowerInvariant(name[0]) + name[1..];
+
+            string BuildAvailableProfileNamesClause() => cloud.Profiles.Keys.Any() ? $"\"{cloud.Profiles.Keys.OrderBy(name => name).ConcatString("\", \"")}\"" : "";
+
+            string BuildConfigurationClause() => configurationPath is not null ? $"Bicep configuration \"{configurationPath}\"" : "built-in Bicep configuration";
+
+            Uri ValidateUri(string? value, string propertyName)
             {
-                errorBuilder = x => x.CloudProfileDoesNotExistInConfiguration(this.Data.CurrentProfileName, this.configurationPath, this.Data.Profiles.Keys);
-                return null;
+                if (value is null)
+                {
+                    throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" in the {BuildConfigurationClause()}. The \"{propertyName}\" property cannot be null or undefined.");
+                }
+
+                if (!Uri.TryCreate(value, UriKind.Absolute, out var uri) ||
+                    (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+                {
+                    throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" in the {BuildConfigurationClause()} is invalid. The value of the \"{propertyName}\" property \"{value}\" is not a valid URL.");
+                }
+
+                return uri;
             }
 
-            if (currentProfile.ResourceManagerEndpoint is null)
+            if (!cloud.Profiles.TryGetValue(cloud.CurrentProfileName, out var currentProfile))
             {
-                errorBuilder = x => x.InvalidCloudProfileResourceManagerEndpointNullOrUndefined(this.Data.CurrentProfileName, this.configurationPath);
-                return null;
+                throw new ConfigurationException($"The cloud profile \"{cloud.CurrentProfileName}\" does not exist in the {BuildConfigurationClause()}. Available profiles include {BuildAvailableProfileNamesClause()}.");
             }
 
-            if (!Uri.TryCreate(currentProfile.ResourceManagerEndpoint, UriKind.Absolute, out var uri) ||
-                (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
-            {
-                errorBuilder = x => x.InvalidCloudProfileInvalidResourceManagerEndpoint(this.Data.CurrentProfileName, currentProfile.ResourceManagerEndpoint, this.configurationPath);
-                return null;
-            }
+            var endpointUri = ValidateUri(currentProfile.ResourceManagerEndpoint, ToCamelCase(nameof(currentProfile.ResourceManagerEndpoint)));
+            var authorityUri = ValidateUri(currentProfile.ActiveDirectoryAuthority, ToCamelCase(nameof(currentProfile.ActiveDirectoryAuthority)));
 
-            errorBuilder = null;
-            return currentProfile.ResourceManagerEndpoint;
+            return (endpointUri, authorityUri);
         }
     }
 }

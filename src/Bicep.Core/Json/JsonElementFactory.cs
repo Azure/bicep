@@ -54,7 +54,7 @@ namespace Bicep.Core.Json
             return CreateElement((ReadOnlyMemory<byte>)bytes);
         }
 
-        public static JsonElement? CreateNullableElement(object? @object, JsonSerializerOptions? options = null) =>
-            @object is not null ?  CreateElement(@object, options) : null;
+        public static JsonElement? CreateNullableElement<T>(T? value, JsonSerializerOptions? options = null) =>
+            value is not null ?  CreateElement(value, options) : null;
     }
 }

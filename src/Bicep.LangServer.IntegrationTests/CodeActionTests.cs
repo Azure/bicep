@@ -105,13 +105,16 @@ namespace Bicep.LangServer.IntegrationTests
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
     },
     ""credentialPrecedence"": [
@@ -325,13 +328,16 @@ namespace Bicep.LangServer.IntegrationTests
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
     },
     ""credentialPrecedence"": [

@@ -24,11 +24,16 @@
     "cloudProfile": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["resourceManagerEndpoint"],
+      "required": ["resourceManagerEndpoint", "activeDirectoryAuthority"],
       "properties": {
         "resourceManagerEndpoint": {
           "title": "Resource Manager Endpoint",
           "description": "The resource manager endpoint URL",
+          "type": "string"
+        },
+        "activeDirectoryAuthority": {
+          "title": "Active Directory Authority",
+          "description": "The active directory authority URL",
           "type": "string"
         }
       }

@@ -44,8 +44,7 @@ namespace Bicep.Core.Configuration
                 try
                 {
                     using var stream = fileSystem.FileStream.Create(configurationPath, FileMode.Open, FileAccess.Read);
-                    using var document = JsonDocument.Parse(stream);
-                    var element = BuiltInConfigurationElement.Merge(document.RootElement.Clone());
+                    var element = BuiltInConfigurationElement.Merge(JsonElementFactory.CreateElement(stream));
 
                     return RootConfiguration.Bind(element, configurationPath);
                 }

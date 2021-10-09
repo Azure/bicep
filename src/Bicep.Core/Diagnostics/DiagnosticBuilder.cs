@@ -1244,21 +1244,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP207",
                 $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
 
-            public ErrorDiagnostic CloudProfileDoesNotExistInConfiguration(string cloudProfileName, string? configurationPath, IEnumerable<string> availableProfileNames) => new(
-                TextSpan,
-                "BCP208",
-                $"The cloud profile \"{cloudProfileName}\" does not exist in the {BuildBicepConfigurationClause(configurationPath)}. Available profiles include {ToQuotedString(availableProfileNames.OrderBy(x => x))}.");
-
-            public ErrorDiagnostic InvalidCloudProfileResourceManagerEndpointNullOrUndefined(string cloudProfileName, string? configurationPath) => new(
-                TextSpan,
-                "BCP209",
-                $"The cloud profile \"{cloudProfileName}\" in the {BuildBicepConfigurationClause(configurationPath)}. The \"resourceManagerEndpoint\" property cannot be null or undefined.");
-
-            public ErrorDiagnostic InvalidCloudProfileInvalidResourceManagerEndpoint(string cloudProfileName, string endpoint, string? configurationPath) => new(
-                TextSpan,
-                "BCP210",
-                $"The cloud profile \"{cloudProfileName}\" in the {BuildBicepConfigurationClause(configurationPath)} is invalid. The value of the \"resourceManagerEndpoint\" property \"{endpoint}\" is not a valid URL.");
-
             public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
                 TextSpan,
                 "BCP211",

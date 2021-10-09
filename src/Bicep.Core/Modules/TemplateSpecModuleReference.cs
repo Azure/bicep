@@ -21,10 +21,9 @@ namespace Bicep.Core.Modules
 
         private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-        private TemplateSpecModuleReference(string endpoint, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+        private TemplateSpecModuleReference(string subscriptionId, string resourceGroupName, string templateSpecName, string version)
             : base(ModuleReferenceSchemes.TemplateSpecs)
         {
-            this.EndpointUri = new Uri(endpoint);
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
@@ -32,8 +31,6 @@ namespace Bicep.Core.Modules
         }
 
         public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
-
-        public Uri EndpointUri { get; }
 
         public string SubscriptionId { get; }
 
@@ -49,7 +46,6 @@ namespace Bicep.Core.Modules
 
         public override bool Equals(object? obj) =>
             obj is TemplateSpecModuleReference other &&
-            StringComparer.OrdinalIgnoreCase.Equals(this.EndpointUri.AbsoluteUri, other.EndpointUri.AbsoluteUri) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.SubscriptionId, other.SubscriptionId) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.ResourceGroupName, other.ResourceGroupName) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.TemplateSpecName, other.TemplateSpecName) &&
@@ -59,7 +55,6 @@ namespace Bicep.Core.Modules
         {
             var hash = new HashCode();
 
-            hash.Add(this.EndpointUri.AbsoluteUri, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.SubscriptionId, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.ResourceGroupName, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.TemplateSpecName, StringComparer.OrdinalIgnoreCase);
@@ -70,11 +65,6 @@ namespace Bicep.Core.Modules
 
         public static TemplateSpecModuleReference? TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
         {
-            if (configuration.Cloud.TryGetCurrentResourceManagerEndpoint(out errorBuilder) is not { } endpoint)
-            {
-                return null;
-            }
-
             if (aliasName is not null)
             {
                 if (configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName, out errorBuilder) is not { } alias)
@@ -145,7 +135,7 @@ namespace Bicep.Core.Modules
             }
 
             errorBuilder = null;
-            return new(endpoint, subscriptionId, resourceGroupName, templateSpecName, templateSpecVersion);
+            return new(subscriptionId, resourceGroupName, templateSpecName, templateSpecVersion);
         }
         private static string FullyQualify(string referenceValue) => $"{ModuleReferenceSchemes.TemplateSpecs}:{referenceValue}";
     }
