@@ -86,6 +86,40 @@ namespace Bicep.Core.UnitTests.Utils
             return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, bodyType);
         }
 
+        private static ResourceTypeComponents DiscriminatedPropertiesTestsType()
+        {
+            var resourceType = ResourceTypeReference.Parse("Test.Rp/discriminatedPropertiesTests@2020-01-01");
+
+            var propsA = new ObjectType(
+                "PropertiesA",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propType", new StringLiteralType("PropertiesA"), TypePropertyFlags.None, "..."),
+                    new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
+                },
+                null);
+
+            var propsB = new ObjectType(
+                "PropertiesB",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propType", new StringLiteralType("PropertiesB"), TypePropertyFlags.None, "..."),
+                    new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
+                },
+                null);
+
+            var propertiesType = new DiscriminatedObjectType(
+                "properties",
+                TypeSymbolValidationFlags.Default,
+                "propType",
+                new[] { propsA, propsB });
+
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                GetCommonResourceProperties(resourceType).Concat(new[] {
+                    new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
+                }), null));
+        }
+
         private static ResourceTypeComponents FallbackPropertyTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/fallbackProperties@2020-01-01");
@@ -108,6 +142,7 @@ namespace Bicep.Core.UnitTests.Utils
                 BasicTestsType(),
                 ReadWriteTestsType(),
                 DiscriminatorTestsType(),
+                DiscriminatedPropertiesTestsType(),
                 FallbackPropertyTestsType(),
             });
     }

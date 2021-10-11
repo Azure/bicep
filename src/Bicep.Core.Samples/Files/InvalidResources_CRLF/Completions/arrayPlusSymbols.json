@@ -2685,6 +2685,23 @@
     ]
   },
   {
+    "label": "items",
+    "kind": "function",
+    "detail": "items()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_items",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "items($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "json",
     "kind": "function",
     "detail": "json()",
