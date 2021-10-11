@@ -53,11 +53,11 @@
       },
       "Azure.Identity": {
         "type": "Direct",
-        "requested": "[1.4.0, )",
-        "resolved": "1.4.0",
-        "contentHash": "vvjdoDQb9WQyLkD1Uo5KFbwlW7xIsDMihz3yofskym2SimXswbSXuK7QSR1oHnBLBRMdamnVHLpSKQZhJUDejg==",
+        "requested": "[1.4.1, )",
+        "resolved": "1.4.1",
+        "contentHash": "yuxWej20CUtK2HUU4jm9Vft1wPw2NWKpwS9Zr0hJyph0dp7vgihlzlujR26UdhmvgdMdswsFRZL+k0HcaS07tw==",
         "dependencies": {
-          "Azure.Core": "1.14.0",
+          "Azure.Core": "1.17.0",
           "Microsoft.Identity.Client": "4.30.1",
           "Microsoft.Identity.Client.Extensions.Msal": "2.18.4",
           "System.Memory": "4.5.4",
