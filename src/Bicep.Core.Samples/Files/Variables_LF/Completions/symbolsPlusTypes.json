@@ -2046,6 +2046,20 @@
     }
   },
   {
+    "label": "scopesWithArmRepresentation",
+    "kind": "variable",
+    "detail": "scopesWithArmRepresentation",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_scopesWithArmRepresentation",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "scopesWithArmRepresentation"
+    }
+  },
+  {
     "label": "scopesWithoutArmRepresentation",
     "kind": "variable",
     "detail": "scopesWithoutArmRepresentation",

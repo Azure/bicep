@@ -1652,6 +1652,32 @@ resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/2535
+        public void Test_Issue2535()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+resource mg 'Microsoft.Management/managementGroups@2020-05-01' = {
+  name: 'MyChildMG'
+  scope: tenant()
+  properties: {
+    displayName: 'This should be a child of MyParentMG'
+    details: {
+      parent: managementGroup()
+    }
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[0].properties.details.parent", "[managementGroup()]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.resources[0].properties.details.parent.id", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f");
+        }
+
+        [TestMethod]
         // https://github.com/azure/bicep/issues/1988
         public void Test_Issue1988()
         {
