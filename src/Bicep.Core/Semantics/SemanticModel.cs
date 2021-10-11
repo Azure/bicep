@@ -31,14 +31,14 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, ConfigHelper configHelper)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, RootConfiguration configuration)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
             Compilation = compilation;
             SourceFile = sourceFile;
             FileResolver = fileResolver;
-            ConfigHelper = configHelper;
+            Configuration = configuration;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -66,7 +66,7 @@ namespace Bicep.Core.Semantics
 
             // lazy loading the linter will delay linter rule loading
             // and configuration loading until the linter is actually needed
-            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer(configHelper));
+            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer(configuration));
 
             this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
 
@@ -113,7 +113,7 @@ namespace Bicep.Core.Semantics
 
         public Compilation Compilation { get; }
 
-        public ConfigHelper ConfigHelper { get; }
+        public RootConfiguration Configuration { get; }
 
         public ITypeManager TypeManager { get; }
 
@@ -192,6 +192,10 @@ namespace Bicep.Core.Semantics
             .OrderBy(diag => diag.Span.Position);
         }
 
+        /// <summary>
+        /// Immediately runs diagnostics and returns true if any errors are detected
+        /// </summary>
+        /// <returns>True if analysis finds errors</returns>
         public bool HasErrors()
             => allDiagnostics.Value.Any(x => x.Level == DiagnosticLevel.Error);
 
@@ -233,7 +237,7 @@ namespace Bicep.Core.Semantics
             var resources = ImmutableArray.CreateBuilder<ResourceMetadata>();
             foreach (var resourceSymbol in ResourceSymbolVisitor.GetAllResources(Root))
             {
-                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is {} resource)
+                if (this.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is { } resource)
                 {
                     resources.Add(resource);
                 }

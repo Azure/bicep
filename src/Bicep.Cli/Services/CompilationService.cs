@@ -7,12 +7,10 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.Decompiler;
 using System;
 using System.Collections.Immutable;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Services
@@ -22,15 +20,23 @@ namespace Bicep.Cli.Services
         private readonly IDiagnosticLogger diagnosticLogger;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
+        private readonly IConfigurationManager configurationManager;
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
 
-        public CompilationService(IDiagnosticLogger diagnosticLogger, IFileResolver fileResolver, InvocationContext invocationContext, IModuleDispatcher moduleDispatcher, TemplateDecompiler decompiler)
+        public CompilationService(
+            IDiagnosticLogger diagnosticLogger,
+            IFileResolver fileResolver,
+            InvocationContext invocationContext,
+            IModuleDispatcher moduleDispatcher,
+            IConfigurationManager configurationManager,
+            TemplateDecompiler decompiler)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
+            this.configurationManager = configurationManager;
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
             this.decompiler = decompiler;
@@ -39,55 +45,38 @@ namespace Bicep.Cli.Services
         public async Task RestoreAsync(string inputPath)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri);
+            var configuration = this.configurationManager.GetConfiguration(inputUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
 
             // restore is supposed to only restore the module references that are valid
             // and not log any other errors
-            await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore));
+            await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration));
         }
 
         public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            var configuration = this.configurationManager.GetConfiguration(inputUri);
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
             if (!skipRestore)
             {
                 // module references in the file may be malformed
                 // however we still want to surface as many errors as we can for the module refs that are valid
                 // so we will try to restore modules with valid refs and skip everything else
                 // (the diagnostics will be collected during compilation)
-                if (await moduleDispatcher.RestoreModules(moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+                if (await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
                 {
                     // modules had to be restored - recompile
-                    sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping);
+                    sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
                 }
             }
 
-            var configHelper = GetConfigHelper(inputUri);
-            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configHelper);
+            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration);
 
             LogDiagnostics(compilation);
 
             return compilation;
-        }
-
-        private ConfigHelper GetConfigHelper(Uri uri)
-        {
-            ConfigHelper configHelper;
-
-            try
-            {
-                configHelper = new ConfigHelper(Path.GetDirectoryName(uri.LocalPath), fileResolver);
-            }
-            catch (Exception ex)
-            {
-                Console.Out.WriteLine(ex.Message);
-
-                configHelper = new ConfigHelper(null, fileResolver, useDefaultConfig: true).GetDisabledLinterConfig();
-            }
-
-            return configHelper;
         }
 
         public async Task<(Uri, ImmutableDictionary<Uri, string>)> DecompileAsync(string inputPath, string outputPath)

@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             Container<FileEvent> fileEvents = request.Changes;
             IEnumerable<FileEvent> bicepConfigFileChangeEvents = fileEvents.Where(x => string.Equals(Path.GetFileName(x.Uri.Path),
-                                                                                       LanguageConstants.BicepConfigSettingsFileName,
+                                                                                       LanguageConstants.BicepConfigurationFileName,
                                                                                        StringComparison.OrdinalIgnoreCase));
 
             // Refresh compilation of source files in workspace when local bicepconfig.json file is created, deleted or changed 

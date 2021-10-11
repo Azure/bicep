@@ -4,8 +4,8 @@
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using System.IO;
 
@@ -17,7 +17,6 @@ namespace Bicep.Cli
             IAzResourceTypeLoader azResourceTypeLoader,
             TextWriter outputWriter,
             TextWriter errorWriter,
-            string assemblyFileVersion,
             IFeatureProvider? features = null,
             IContainerRegistryClientFactory? clientFactory = null,
             ITemplateSpecRepositoryFactory? templateSpecRepositoryFactory = null)
@@ -25,10 +24,9 @@ namespace Bicep.Cli
             // keep the list of services in this class in sync with the logic in the AddInvocationContext() extension method
             OutputWriter = outputWriter;
             ErrorWriter = errorWriter;
-            AssemblyFileVersion = assemblyFileVersion;
             Features = features ?? new FeatureProvider();
-            ClientFactory = clientFactory ?? new ContainerRegistryClientFactory();
-            TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory();
+            ClientFactory = clientFactory ?? new ContainerRegistryClientFactory(new TokenCredentialFactory());
+            TemplateSpecRepositoryFactory = templateSpecRepositoryFactory ?? new TemplateSpecRepositoryFactory(new TokenCredentialFactory());
             NamespaceProvider = new DefaultNamespaceProvider(azResourceTypeLoader, Features);
         }
 
@@ -38,10 +36,7 @@ namespace Bicep.Cli
 
         public TextWriter ErrorWriter { get; }
 
-        public string AssemblyFileVersion { get; }
-
-        public EmitterSettings EmitterSettings
-            => new EmitterSettings(AssemblyFileVersion, enableSymbolicNames: Features.SymbolicNameCodegenEnabled);
+        public EmitterSettings EmitterSettings => new EmitterSettings(Features);
 
         public IFeatureProvider Features { get; }
 

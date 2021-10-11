@@ -214,7 +214,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
 
-                        return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
+                        return new ResourceType(targetResourceType.DeclaringNamespace, targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
                     }
                 case ModuleType targetModuleType:
                     {
@@ -464,7 +464,7 @@ namespace Bicep.Core.TypeSystem
 
                 diagnosticWriter.Write(
                     config.OriginSyntax ?? positionable,
-                    x => x.MissingRequiredProperties(ShouldWarn(targetType), TryGetSourceDeclaration(config), missingRequiredProperties, blockName));
+                    x => x.MissingRequiredProperties(ShouldWarn(targetType), TryGetSourceDeclaration(config), expression, missingRequiredProperties, blockName));
             }
 
             var narrowedProperties = new List<TypeProperty>();
@@ -618,6 +618,9 @@ namespace Bicep.Core.TypeSystem
             {
                 // for properties, put it on the property name in the parent object
                 ObjectPropertySyntax objectPropertyParent => (objectPropertyParent.Key, "object"),
+
+                // for import declarations, mark the entire configuration object
+                ImportDeclarationSyntax importParent => (expression, "object"),
 
                 // for declaration bodies, put it on the declaration identifier
                 ITopLevelNamedDeclarationSyntax declarationParent => (declarationParent.Name, declarationParent.Keyword.Text),

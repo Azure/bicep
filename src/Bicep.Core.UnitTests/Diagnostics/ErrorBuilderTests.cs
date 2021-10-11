@@ -12,6 +12,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.Core.UnitTests.Diagnostics
 {
@@ -155,7 +158,121 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 return $"<param_{index}>";
             }
 
+            if (parameter.ParameterType == typeof(ObjectSyntax))
+            {
+                return TestSyntaxFactory.CreateObject(Array.Empty<ObjectPropertySyntax>());
+            }
+
             throw new AssertFailedException($"Unable to generate mock parameter value of type '{parameter.ParameterType}' for the diagnostic builder method.");
+        }
+
+        private void ExpectDiagnosticWithFixedText(string text, string expectedText)
+        {
+            var result = CompilationHelper.Compile(text);
+            result.Diagnostics.Should().HaveCount(1);
+
+            FixableDiagnostic diagnostic = (FixableDiagnostic)result.Diagnostics.Single();
+            diagnostic.Code.Should().Be("BCP035");
+            diagnostic.Fixes.Should().HaveCount(1);
+
+            var fix = diagnostic.Fixes.Single();
+            fix.Replacements.Should().HaveCount(1);
+
+            var replacement = fix.Replacements.Single();
+
+            var actualText = text.Remove(replacement.Span.Position, replacement.Span.Length);
+            actualText = actualText.Insert(replacement.Span.Position, replacement.Text);
+
+            // Normalize line endings
+            expectedText = expectedText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+            actualText = actualText.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
+
+            actualText.Should().Be(expectedText);
+        }
+
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   name:
+                 }"
+         )]
+         // There is leading whitespace in this one
+        [DataRow(@"
+                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                  
+                }",
+            @"
+                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                  name:
+                }"
+        )]
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   location: 'westus2'
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                   location: 'westus2'
+                   name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                               location: 'westus2'
+                 }",
+             @"
+                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                               location: 'westus2'
+                               name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {
+
+                         name: 'D1'
+
+                       }
+                       // comment
+                 }",
+             @"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {
+
+                         name: 'D1'
+
+                       }
+                       // comment
+                       location:
+                       name:
+                 }"
+         )]
+         [DataRow(@"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {}
+                 }",
+             @"
+                 resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
+                       sku: {}
+                       location:
+                       name:
+                 }"
+         )]
+        [DataTestMethod]
+        public void MissingTypePropertiesHasFix(string text, string expectedFix)
+        {
+            ExpectDiagnosticWithFixedText(text, expectedFix);
         }
     }
 }

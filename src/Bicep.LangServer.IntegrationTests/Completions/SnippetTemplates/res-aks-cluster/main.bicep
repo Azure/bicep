@@ -4,7 +4,9 @@
 // $4 = 'dnsPrefix'
 // $5 = 3
 // $6 = 'Standard_DS2_v2'
-// $7 = 'adminUsername'
+// $7 = adminUsername
 // $8 = 'REQUIRED'
+
+param adminUsername string
 
 // Insert snippet here

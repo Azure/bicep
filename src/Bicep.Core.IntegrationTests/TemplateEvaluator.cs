@@ -150,8 +150,6 @@ namespace Bicep.Core.IntegrationTests
 
         private static JToken EvaluateTemplate(JToken? templateJtoken, EvaluationConfiguration config)
         {
-            DeploymentsInterop.Initialize();
-
             templateJtoken = templateJtoken ?? throw new ArgumentNullException(nameof(templateJtoken));
 
             var deploymentScope = TemplateHelper.GetDeploymentScope(templateJtoken["$schema"]!.ToString());

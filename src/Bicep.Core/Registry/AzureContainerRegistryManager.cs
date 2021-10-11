@@ -31,9 +31,9 @@ namespace Bicep.Core.Registry
             this.clientFactory = clientFactory;
         }
 
-        public async Task<OciArtifactResult> PullArtifactAsync(OciArtifactModuleReference moduleReference)
+        public async Task<OciArtifactResult> PullArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference)
         {
-            var client = this.CreateBlobClient(moduleReference);
+            var client = this.CreateBlobClient(configuration, moduleReference);
             var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
 
             var moduleStream = await ProcessManifest(client, manifest);
@@ -41,14 +41,14 @@ namespace Bicep.Core.Registry
             return new OciArtifactResult(manifestDigest, manifest, manifestStream, moduleStream);
         }
 
-        public async Task PushArtifactAsync(OciArtifactModuleReference moduleReference, StreamDescriptor config, params StreamDescriptor[] layers)
+        public async Task PushArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference, StreamDescriptor config, params StreamDescriptor[] layers)
         {
             // TODO: Add similar exception handling as in the pull* method
 
             // TODO: How do we choose this? Does it ever change?
             var algorithmIdentifier = DescriptorFactory.AlgorithmIdentifierSha256;
 
-            var blobClient = this.CreateBlobClient(moduleReference);
+            var blobClient = this.CreateBlobClient(configuration, moduleReference);
 
             config.ResetStream();
             var configDescriptor = DescriptorFactory.CreateDescriptor(algorithmIdentifier, config);
@@ -78,7 +78,7 @@ namespace Bicep.Core.Registry
 
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new Uri($"https://{moduleReference.Registry}");
 
-        private BicepRegistryBlobClient CreateBlobClient(OciArtifactModuleReference moduleReference) => this.clientFactory.CreateBlobClient(GetRegistryUri(moduleReference), moduleReference.Repository, this.tokenCredential);
+        private BicepRegistryBlobClient CreateBlobClient(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference) => this.clientFactory.CreateBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
 
         private static async Task<(OciManifest,Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, BicepRegistryBlobClient client)
         {

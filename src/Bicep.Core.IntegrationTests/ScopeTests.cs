@@ -180,7 +180,7 @@ output resourceARef string = resourceA.properties.myProp
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
-                new ResourceType(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                     new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
                 }, null))
@@ -223,7 +223,7 @@ output resourceARef string = resourceA.kind
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
-                new ResourceType(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });
@@ -259,7 +259,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
-                new ResourceType(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });
@@ -287,7 +287,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
-                new ResourceType(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });
@@ -321,7 +321,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
-                new ResourceType(typeReference, ResourceScope.Tenant, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                new ResourceTypeComponents(typeReference, ResourceScope.Tenant, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
             });

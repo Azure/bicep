@@ -5,9 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Net;
 using System.Threading.Tasks;
 using Azure.Identity;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -40,7 +40,8 @@ namespace Bicep.Core.Registry
 
         public override RegistryCapabilities Capabilities => RegistryCapabilities.Publish;
 
-        public override ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => OciArtifactModuleReference.TryParse(reference, out failureBuilder);
+        public override ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+            OciArtifactModuleReference.TryParse(aliasName, reference, configuration, out failureBuilder);
 
         public override bool IsModuleRestoreRequired(OciArtifactModuleReference reference)
         {
@@ -59,20 +60,20 @@ namespace Bicep.Core.Registry
                 !this.fileResolver.FileExists(this.GetModuleFileUri(reference, ModuleFileType.Metadata));
         }
 
-        public override Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, OciArtifactModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, OciArtifactModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             failureBuilder = null;
             return this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
             foreach(var reference in references)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
-                var (result, errorMessage) = await this.TryPullArtifactAsync(reference);
+                var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference);
 
                 if(result is null)
                 {
@@ -92,19 +93,19 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled)
+        public override async Task PublishModule(RootConfiguration configuration, OciArtifactModuleReference moduleReference, Stream compiled)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
-            await this.client.PushArtifactAsync(moduleReference, config, layer);
+            await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
         }
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(OciArtifactModuleReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference reference)
         {
             try
             {
-                var result = await this.client.PullArtifactAsync(reference);
+                var result = await this.client.PullArtifactAsync(configuration, reference);
 
                 await this.TryWriteModuleContentAsync(reference, result);
 

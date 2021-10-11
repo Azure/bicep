@@ -1163,16 +1163,16 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionB ''
 //@[0:6) Identifier |module|
 //@[7:18) Identifier |completionB|
 //@[19:21) StringComplete |''|
 //@[21:23) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionC '' =
 //@[0:6) Identifier |module|
 //@[7:18) Identifier |completionC|
@@ -1180,8 +1180,8 @@ module completionC '' =
 //@[22:23) Assignment |=|
 //@[23:25) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionD '' = {}
 //@[0:6) Identifier |module|
 //@[7:18) Identifier |completionD|
@@ -1191,8 +1191,8 @@ module completionD '' = {}
 //@[25:26) RightBrace |}|
 //@[26:28) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionE '' = {
 //@[0:6) Identifier |module|
 //@[7:18) Identifier |completionE|
@@ -1209,56 +1209,56 @@ module completionE '' = {
 //@[0:1) RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
-//@[56:57) NewLine |\n|
-module cwdFileCompletionA '.'
+// #completionTest(29) -> cwdDotFileCompletions
+//@[47:48) NewLine |\n|
+module cwdFileCompletionA './m'
 //@[0:6) Identifier |module|
 //@[7:25) Identifier |cwdFileCompletionA|
-//@[26:29) StringComplete |'.'|
-//@[29:31) NewLine |\n\n|
+//@[26:31) StringComplete |'./m'|
+//@[31:33) NewLine |\n\n|
 
-// #completionTest(26, 27) -> cwdMCompletions
-//@[45:46) NewLine |\n|
+// #completionTest(26, 27) -> cwdFileCompletions
+//@[48:49) NewLine |\n|
 module cwdFileCompletionB m
 //@[0:6) Identifier |module|
 //@[7:25) Identifier |cwdFileCompletionB|
 //@[26:27) Identifier |m|
 //@[27:29) NewLine |\n\n|
 
-// #completionTest(26, 27, 28, 29) -> cwdMCompletions
-//@[53:54) NewLine |\n|
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+//@[56:57) NewLine |\n|
 module cwdFileCompletionC 'm'
 //@[0:6) Identifier |module|
 //@[7:25) Identifier |cwdFileCompletionC|
 //@[26:29) StringComplete |'m'|
 //@[29:31) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
-//@[102:103) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childFileCompletions
+//@[106:107) NewLine |\n|
 module childCompletionA 'ChildModules/'
 //@[0:6) Identifier |module|
 //@[7:23) Identifier |childCompletionA|
 //@[24:39) StringComplete |'ChildModules/'|
 //@[39:41) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
-//@[105:106) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotFileCompletions
+//@[109:110) NewLine |\n|
 module childCompletionB './ChildModules/'
 //@[0:6) Identifier |module|
 //@[7:23) Identifier |childCompletionB|
 //@[24:41) StringComplete |'./ChildModules/'|
 //@[41:43) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
-//@[107:108) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childDotFileCompletions
+//@[113:114) NewLine |\n|
 module childCompletionC './ChildModules/m'
 //@[0:6) Identifier |module|
 //@[7:23) Identifier |childCompletionC|
 //@[24:42) StringComplete |'./ChildModules/m'|
 //@[42:44) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
-//@[107:108) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childFileCompletions
+//@[110:111) NewLine |\n|
 module childCompletionD 'ChildModules/e'
 //@[0:6) Identifier |module|
 //@[7:23) Identifier |childCompletionD|

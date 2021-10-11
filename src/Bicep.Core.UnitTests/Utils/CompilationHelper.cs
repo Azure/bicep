@@ -47,7 +47,7 @@ namespace Bicep.Core.UnitTests.Utils
                 => Features ?? BicepTestConstants.Features;
 
             public EmitterSettings GetEmitterSettings()
-                => EmitterSettings ?? EmitterSettingsHelper.DefaultTestSettings;
+                => EmitterSettings ?? new EmitterSettings(GetFeatures());
         }
 
         public static CompilationResult Compile(CompilationHelperContext context, params (string fileName, string fileContents)[] files)
@@ -60,9 +60,10 @@ namespace Bicep.Core.UnitTests.Utils
             var (uriDictionary, entryUri) = CreateFileDictionary(bicepFiles);
             var fileResolver = new InMemoryFileResolver(CreateFileDictionary(systemFiles).files);
 
-            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, context.GetFeatures());
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            return Compile(context, new Compilation(context.GetNamespaceProvider(), sourceFileGrouping, null));
+            return Compile(context, new Compilation(context.GetNamespaceProvider(), sourceFileGrouping, configuration));
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)

@@ -30,21 +30,33 @@ namespace Bicep.Core.Semantics.Namespaces
                 .OfType<NamespaceType>()
                 .ToImmutableDictionary(x => x.Name, LanguageConstants.IdentifierComparer);
 
-            if (!namespaceTypes.Values.Any(x => LanguageConstants.IdentifierComparer.Equals(x.ProviderName, SystemNamespaceType.BuiltInName)) &&
-                namespaceProvider.TryGetNamespace(SystemNamespaceType.BuiltInName, SystemNamespaceType.BuiltInName, targetScope) is { } sysNamespaceType)
+            void TryAddBuiltInNamespace(string @namespace)
             {
-                var symbol = new BuiltInNamespaceSymbol(SystemNamespaceType.BuiltInName, sysNamespaceType);
-                builtInNamespaceSymbols[symbol.Name] = symbol;
-                namespaceTypes = namespaceTypes.Add(symbol.Name, sysNamespaceType);
+                if (namespaceTypes.ContainsKey(@namespace))
+                {
+                    // we already have an imported namespace with this symbolic name
+                    return;
+                }
+
+                if (namespaceProvider.TryGetNamespace(@namespace, @namespace, targetScope) is not { } namespaceType)
+                {
+                    // this namespace doesn't match a known built-in namespace
+                    return;
+                }
+
+                if (namespaceTypes.Values.Any(x => LanguageConstants.IdentifierComparer.Equals(x.ProviderName, @namespace)))
+                {
+                    // the namespace has already been explicitly imported. don't register it as a built-in.
+                    return;
+                }
+
+                var symbol = new BuiltInNamespaceSymbol(@namespace, namespaceType);
+                builtInNamespaceSymbols[@namespace] = symbol;
+                namespaceTypes = namespaceTypes.Add(@namespace, namespaceType);
             }
 
-            if (!namespaceTypes.Values.Any(x => LanguageConstants.IdentifierComparer.Equals(x.ProviderName, AzNamespaceType.BuiltInName)) &&
-                namespaceProvider.TryGetNamespace(AzNamespaceType.BuiltInName, AzNamespaceType.BuiltInName, targetScope) is { } azNamespaceType)
-            {
-                var symbol = new BuiltInNamespaceSymbol(AzNamespaceType.BuiltInName, azNamespaceType);
-                builtInNamespaceSymbols[symbol.Name] = symbol;
-                namespaceTypes = namespaceTypes.Add(symbol.Name, azNamespaceType);
-            }
+            TryAddBuiltInNamespace(SystemNamespaceType.BuiltInName);
+            TryAddBuiltInNamespace(AzNamespaceType.BuiltInName);
 
             return new(namespaceTypes, builtInNamespaceSymbols.ToImmutableDictionary(LanguageConstants.IdentifierComparer));
         }
@@ -84,7 +96,7 @@ namespace Bicep.Core.Semantics.Namespaces
         public ResourceType GetResourceType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
         {
             var definedTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGetDefinedType(reference, flags))
+                .Select(type => type.ResourceTypeProvider.TryGetDefinedType(type, reference, flags))
                 .WhereNotNull();
 
             if (definedTypes.FirstOrDefault() is {} definedType)
@@ -93,7 +105,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             var generatedTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGenerateDefaultType(reference, flags))
+                .Select(type => type.ResourceTypeProvider.TryGenerateDefaultType(type, reference, flags))
                 .WhereNotNull();
 
             // Here we are assuming that one of the namespaces will always return at least one result with TryGenerateDefaultType.

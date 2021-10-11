@@ -18,12 +18,6 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     [TestClass]
     public class LocalJsonModuleTests
     {
-        [ClassInitialize]
-        public static void Initialize(TestContext _)
-        {
-            DeploymentsInterop.Initialize();
-        }
-
         [DataTestMethod]
         [DataRow(@"{
 }")]

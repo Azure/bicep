@@ -7,7 +7,7 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public interface IAzResourceTypeLoader
     {
-        ResourceType LoadType(ResourceTypeReference reference);
+        ResourceTypeComponents LoadType(ResourceTypeReference reference);
 
         IEnumerable<ResourceTypeReference> GetAvailableTypes();
     }

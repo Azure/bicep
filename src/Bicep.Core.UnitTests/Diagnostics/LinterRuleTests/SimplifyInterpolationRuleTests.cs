@@ -19,16 +19,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class SimplifyInterpolationRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text)
+        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
-            AssertRuleCodeDiagnostics(SimplifyInterpolationRule.Code, text, diags => {
-                diags.Should().HaveCount(0, $"expecting linter rule to pass");
-            });
+            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, onCompileErrors, diags =>
+           {
+               diags.Should().HaveCount(0, $"expecting linter rule to pass");
+           });
         }
 
         private void ExpectDiagnosticWithFix(string text, string expectedFix)
         {
-            AssertRuleCodeDiagnostics(SimplifyInterpolationRule.Code, text, diags => {
+            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, diags =>
+            {
                 diags.Should().HaveCount(1, $"expected one fix per testcase");
 
                 diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
@@ -49,6 +51,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 param AutomationAccountName string
                 resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                     name: '${AutomationAccountName}'
+                    location: resourceGroup().location
                 }",
             "AutomationAccountName"
         )]
@@ -56,6 +59,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             @"
                 param p1 string
                 resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                    name: 'name'
+                    location: resourceGroup().location
                     properties: {
                         encryption: '${p1}'
                     }
@@ -66,6 +71,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             @"
                 param p1 string = 'a'
                 resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                    name: 'name'
+                    location: resourceGroup().location
                     properties: {
                         encryption: '${p1}'
                     }
@@ -73,7 +80,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "p1"
         )]
         [DataRow(@"
-                @secure
+                @secure()
                 param ssVal string
                 var stringVal = '${ssVal}'
             ",
@@ -95,14 +102,12 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "AutomationAccountName"
         )]
         [DataRow(@"
-                @secure
                 var ssVal = 'mystring'
                 var stringVal = '${ssVal}'
             ",
             "ssVal"
         )]
         [DataRow(@"
-                @secure
                 var ssVal = concat('a', 'b')
                 var stringVal = '${ssVal}'
             ",
@@ -118,24 +123,28 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     param AutomationAccountName string
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                         name: '${AutomationAccountName}text'
+                        location: resourceGroup().location
                     }"
         )]
         [DataRow(@"
                     param AutomationAccountName string
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                         name: ' ${AutomationAccountName}'
+                        location: resourceGroup().location
                     }"
         )]
         [DataRow(@"
                     param AutomationAccountName string
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                         name: ' ${AutomationAccountName} '
+                        location: resourceGroup().location
                     }"
         )]
         [DataRow(@"
                     var AutomationAccountName = 'hello'
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                         name: '${AutomationAccountName}${AutomationAccountName}'
+                        location: resourceGroup().location
                     }"
         )]
         [DataRow(
@@ -153,6 +162,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     param AutomationAccountName string
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
                         name: AutomationAccountName
+                        location: resourceGroup().location
                     }"
         )]
         [DataTestMethod]
@@ -162,6 +172,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [DataRow(@"
+            param scriptToExecute string
+            param location string
+            param uamiId string
+            param currentTime string
+
             resource dScript 'Microsoft.Resources/deploymentScripts@2019-10-01-preview' = {
                 name: 'scriptWithStorage'
                 location: location
@@ -184,6 +199,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     forceUpdateTag: currentTime // ensures script will run every time
                 }
             }
+
+            resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+                name: 'name'
+}
             "
         )]
         [DataTestMethod]
@@ -203,7 +222,10 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             "
         )]
         [DataRow(@"
-            var arrayOfStrings = [ 'a', 'b' ]
+            var arrayOfStrings = [
+                'a'
+                'b'
+            ]
             var stringVal = '${arrayOfStrings}'
         ")]
         [DataTestMethod]
@@ -232,7 +254,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void SyntaxErrors_ExpectNoFixes(string text)
         {
-            ExpectPass(text);
+            ExpectPass(text, OnCompileErrors.Ignore);
         }
     }
 }

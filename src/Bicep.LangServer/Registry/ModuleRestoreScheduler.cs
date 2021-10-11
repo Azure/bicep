@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
@@ -17,7 +18,7 @@ namespace Bicep.LanguageServer.Registry
 {
     public sealed class ModuleRestoreScheduler : IModuleRestoreScheduler, IAsyncDisposable
     {
-        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleReference> ModuleReferences);
+        private record QueueItem(ICompilationManager CompilationManager, DocumentUri Uri, ImmutableArray<ModuleReference> ModuleReferences, RootConfiguration Configuration);
 
         private record CompletionNotification(ICompilationManager CompilationManager, DocumentUri Uri);
 
@@ -43,13 +44,16 @@ namespace Bicep.LanguageServer.Registry
         /// Requests that the specified modules be restored to the local file system.
         /// Does not wait for the operation to complete and returns immediately.
         /// </summary>
+        /// <param name="compilationManager"></param>
         /// <param name="modules">The module references</param>
-        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleDeclarationSyntax> modules)
+        /// <param name="documentUri">The document URI that needs to be recompiled once restore completes asynchronously</param>
+        /// <param name="configuration">The configuration associated with the list of modules.</param>
+        public void RequestModuleRestore(ICompilationManager compilationManager, DocumentUri documentUri, IEnumerable<ModuleDeclarationSyntax> modules, RootConfiguration configuration)
         {
             this.CheckDisposed();
 
-            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules).ToImmutableArray();
-            var item = new QueueItem(compilationManager, documentUri, moduleReferences);
+            var moduleReferences = this.moduleDispatcher.GetValidModuleReferences(modules, configuration).ToImmutableArray();
+            var item = new QueueItem(compilationManager, documentUri, moduleReferences, configuration);
             lock (this.queue)
             {
                 this.queue.Enqueue(item);
@@ -108,11 +112,10 @@ namespace Bicep.LanguageServer.Registry
                 this.manualResetEvent.WaitOne();
                 token.ThrowIfCancellationRequested();
 
-                var notifications = new HashSet<CompletionNotification>();
-                var moduleReferences = new List<ModuleReference>();
+                var items = new List<QueueItem>();
                 lock (this.queue)
                 {
-                    this.UnsafeCollectModuleReferences(notifications, moduleReferences);
+                    this.UnsafeCollectQueueItems(items);
                     Debug.Assert(this.queue.Count == 0, "this.queue.Count == 0");
 
                     // queue has been consumed - next iteration should block until more items have been added
@@ -121,33 +124,31 @@ namespace Bicep.LanguageServer.Registry
 
                 // this blocks until restore is completed
                 // the dispatcher stores the results internally and manages their lifecycle
-                token.ThrowIfCancellationRequested();
-                if(!await this.moduleDispatcher.RestoreModules(moduleReferences))
+                foreach(var item in items)
                 {
-                    // nothing needed to be restored
-                    // no need to notify about completion
-                    continue;
-                }
+                    token.ThrowIfCancellationRequested();
+                    if (!await this.moduleDispatcher.RestoreModules(item.Configuration, item.ModuleReferences))
+                    {
+                        // nothing needed to be restored
+                        // no need to notify about completion
+                        continue;
+                    }
 
-                // notify compilation manager that restore is completed
-                // to recompile the affected modules
-                token.ThrowIfCancellationRequested();
-                foreach (var notification in notifications)
-                {
-                    notification.CompilationManager.RefreshCompilation(notification.Uri);
+                    // notify compilation manager that restore is completed
+                    // to recompile the affected modules
+                    token.ThrowIfCancellationRequested();
+                    item.CompilationManager.RefreshCompilation(item.Uri);
                 }
 
                 this.moduleDispatcher.PruneRestoreStatuses();
             }
         }
 
-        private void UnsafeCollectModuleReferences(HashSet<CompletionNotification> notifications, List<ModuleReference> moduleReferences)
+        private void UnsafeCollectQueueItems(List<QueueItem> items)
         {
-            while (this.queue.TryDequeue(out var item))
+            while(this.queue.TryDequeue(out var item))
             {
-                // the record implementation combined with the hashset will dedupe compilation manager/Uri combinations
-                notifications.Add(new(item.CompilationManager, item.Uri));
-                moduleReferences.AddRange(item.ModuleReferences);
+                items.Add(item);
             }
         }
 

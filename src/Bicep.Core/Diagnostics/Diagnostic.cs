@@ -10,8 +10,14 @@ namespace Bicep.Core.Diagnostics
     [DebuggerDisplay("Level = {" + nameof(Level) + "}, Code = {" + nameof(Code) + "}, Message = {" + nameof(Message) + "}")]
     public class Diagnostic : IDiagnostic
     {
-        public Diagnostic(TextSpan span, DiagnosticLevel level, string code, string message,
-                            Uri? documentationUri = null, DiagnosticLabel? label = null)
+        public Diagnostic(
+            TextSpan span,
+            DiagnosticLevel level,
+            string code,
+            string message,
+            Uri? documentationUri = null,
+            DiagnosticLabel? label = null,
+            string? source = null)
         {
             Span = span;
             Level = level;
@@ -19,7 +25,7 @@ namespace Bicep.Core.Diagnostics
             Message = message;
             Label = label;
             Uri = documentationUri;
-            Source = LanguageConstants.LanguageId;
+            Source = source ?? LanguageConstants.LanguageId;
         }
 
         public string Source { get; protected set; }

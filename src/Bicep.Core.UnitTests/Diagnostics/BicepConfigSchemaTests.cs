@@ -6,7 +6,6 @@ using System.IO;
 using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
-using Bicep.Core.Configuration;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
@@ -18,11 +17,9 @@ namespace Bicep.Core.UnitTests.Diagnostics
     [TestClass]
     public class BicepConfigSchemaTests
     {
-        private readonly ConfigHelper configHelper = new(null, BicepTestConstants.FileResolver);
-
         private (IBicepAnalyzerRule[] rules, JObject configSchema) GetRulesAndSchema()
         {
-            var linter = new LinterAnalyzer(configHelper);
+            var linter = new LinterAnalyzer(BicepTestConstants.BuiltInConfiguration);
             var ruleSet = linter.GetRuleSet();
             ruleSet.Should().NotBeEmpty();
 
@@ -77,6 +74,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                     },
 
                 */
+
                 var allOf = rule!.SelectToken("allOf");
                 Assert.IsNotNull(allOf, "Each rule should have a top-level allOf");
                 allOf.Count().Should().BeGreaterOrEqualTo(2);
@@ -89,6 +87,18 @@ namespace Bicep.Core.UnitTests.Diagnostics
                 var refString = lastAllOf?.SelectToken("$ref")?.ToString();
                 Assert.IsNotNull(refString, "each rule's last allOf should be a ref to the definition of a rule");
                 refString.Should().Be("#/definitions/rule", "each rule's last allOf should be a ref to the definition of a rule");
+            }
+        }
+
+        [TestMethod]
+        public void RuleConfigs_RuleNamesShouldUseCorrectCasing()
+        {
+            var (rules, schema) = GetRulesAndSchema();
+            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
+            Assert.IsNotNull(ruleConfigs);
+            foreach (var (key, rule) in ruleConfigs)
+            {
+                key.Should().MatchRegex("^[a-z][a-z-]*[a-z]$", "all rule keys should be lower-cased with hyphens, not start or end with hyphen");
             }
         }
     }

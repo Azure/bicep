@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13500409291415472659"
+      "templateHash": "220947672133229591"
     }
   },
   "parameters": {
@@ -282,7 +282,7 @@
     "omsAgentForLinux": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-12-01",
-      "name": "[format('{0}/{1}', parameters('vmName'), variables('omsAgentForLinuxName'))]",
+      "name": "[format('{0}/{1}', parameters('vmName'), format('{0}', variables('omsAgentForLinuxName')))]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.EnterpriseCloud.Monitoring",
@@ -303,7 +303,7 @@
     "omsDependencyAgentForLinux": {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "apiVersion": "2020-12-01",
-      "name": "[format('{0}/{1}', parameters('vmName'), variables('omsDependencyAgentForLinuxName'))]",
+      "name": "[format('{0}/{1}', parameters('vmName'), format('{0}', variables('omsDependencyAgentForLinuxName')))]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Azure.Monitoring.DependencyAgent",

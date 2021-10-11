@@ -148,6 +148,8 @@ namespace Bicep.Core.Emit
 
             this.EmitVariablesIfPresent(jsonWriter, emitter);
 
+            this.EmitImports(jsonWriter, emitter);
+
             this.EmitResources(jsonWriter, emitter);
 
             this.EmitOutputsIfPresent(jsonWriter, emitter);
@@ -195,7 +197,11 @@ namespace Bicep.Core.Emit
                     // There should be exact one matching decorator since there's no errors.
                     var decorator = namespaceType.DecoratorResolver.GetMatches(decoratorSymbol, argumentTypes).Single();
 
-                    result = decorator.Evaluate(decoratorSyntax, targetType, result);
+                    var evaluated = decorator.Evaluate(decoratorSyntax, targetType, result);
+                    if (evaluated is not null)
+                    {
+                        result = evaluated;
+                    }
                 }
             }
 
@@ -274,6 +280,37 @@ namespace Bicep.Core.Emit
             {
                 jsonWriter.WritePropertyName(variableSymbol.Name);
                 emitter.EmitExpression(variableSymbol.Value);
+            }
+
+            jsonWriter.WriteEndObject();
+        }
+
+        private void EmitImports(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        {
+            if (!context.SemanticModel.Root.ImportDeclarations.Any())
+            {
+                return;
+            }
+
+            jsonWriter.WritePropertyName("imports");
+            jsonWriter.WriteStartObject();
+
+            foreach (var import in this.context.SemanticModel.Root.ImportDeclarations)
+            {
+                var namespaceType = context.SemanticModel.GetTypeInfo(import.DeclaringSyntax) as NamespaceType  
+                    ?? throw new ArgumentException("Imported namespace does not have namespace type");
+
+                jsonWriter.WritePropertyName(import.DeclaringImport.AliasName.IdentifierName);
+                jsonWriter.WriteStartObject();
+
+                emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
+                emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
+                if (import.DeclaringImport.Config is {} config)
+                {
+                    emitter.EmitProperty("config", config);
+                }
+
+                jsonWriter.WriteEndObject();
             }
 
             jsonWriter.WriteEndObject();
@@ -534,7 +571,7 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
-            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter);
+            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter, body);
 
             if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
             {

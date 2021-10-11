@@ -89,6 +89,7 @@ jobs:
         run: npm ci && npm test
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_REGISTRY_ENABLED_EXPERIMENTAL: true
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
@@ -99,6 +100,7 @@ jobs:
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_REGISTRY_ENABLED_EXPERIMENTAL: true
       
       - name: Upload Language Server
         uses: actions/upload-artifact@v2
@@ -189,7 +191,7 @@ jobs:
         uses: actions/setup-dotnet@v1.8.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2.4.1
         with:
           node-version: 10.x
 
@@ -264,7 +266,7 @@ jobs:
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2.4.1
         with:
           node-version: 12.x
 
@@ -347,7 +349,7 @@ jobs:
         uses: actions/setup-dotnet@v1.8.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2.4.1
         with:
           node-version: 14.x
       
@@ -384,7 +386,7 @@ jobs:
         uses: actions/setup-dotnet@v1.8.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.4.0
+        uses: actions/setup-node@v2.4.1
         with:
           node-version: 14.x
       

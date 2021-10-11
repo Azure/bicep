@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Bicep.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Syntax;
@@ -18,6 +19,7 @@ using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.LangServer.UnitTests
 {
@@ -32,7 +34,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new BicepCompilationManager(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object);
+            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()));
 
             if (upsertCompilation)
             {
@@ -79,7 +81,7 @@ namespace Bicep.LangServer.UnitTests
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()
         {
             var scheduler = Repository.Create<IModuleRestoreScheduler>();
-            scheduler.Setup(m => m.RequestModuleRestore(It.IsAny<ICompilationManager>(), It.IsAny<DocumentUri>(), It.IsAny<IEnumerable<ModuleDeclarationSyntax>>()));
+            scheduler.Setup(m => m.RequestModuleRestore(It.IsAny<ICompilationManager>(), It.IsAny<DocumentUri>(), It.IsAny<IEnumerable<ModuleDeclarationSyntax>>(), It.IsAny<RootConfiguration>()));
 
             return scheduler;
         }

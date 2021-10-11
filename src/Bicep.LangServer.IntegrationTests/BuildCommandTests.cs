@@ -31,14 +31,16 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task Build_command_should_generate_template()
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var features = BicepTestConstants.CreateFeaturesProvider(
+                TestContext,
+                assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
             
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
                     NamespaceProvider: BuiltInTestTypes.Create(),
-                    Features: BicepTestConstants.Features,
-                    AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
+                    Features: features));
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,
@@ -66,15 +68,17 @@ namespace Bicep.LangServer.IntegrationTests
         public async Task Build_command_should_generate_template_with_symbolic_names_if_enabled()
         {
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var featuresProvider = BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: false, symbolicNameCodegenEnabled: true);
+            var features = BicepTestConstants.CreateFeaturesProvider(
+                TestContext,
+                symbolicNameCodegenEnabled: true,
+                assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
             
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
                     NamespaceProvider: BuiltInTestTypes.Create(),
-                    Features: featuresProvider,
-                    AssemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion));
+                    Features: features));
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,

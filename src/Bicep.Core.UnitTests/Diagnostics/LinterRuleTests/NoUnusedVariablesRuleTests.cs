@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Rules;
@@ -23,7 +23,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void CompileAndTest(string text, params string[] unusedVars)
         {
-            AssertRuleCodeDiagnostics(NoUnusedVariablesRule.Code, text, diags => {
+            CompileAndTest(text, OnCompileErrors.Fail, unusedVars);
+        }
+
+        private void CompileAndTest(string text, OnCompileErrors onCompileErrors, params string[] unusedVars)
+        {
+            AssertLinterRuleDiagnostics(NoUnusedVariablesRule.Code, text, onCompileErrors, diags =>
+            {
                 if (unusedVars.Any())
                 {
                     var rule = new NoUnusedVariablesRule();
@@ -84,7 +90,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void SyntaxErrors(string text, params string[] unusedVars)
         {
-            CompileAndTest(text, unusedVars);
+            CompileAndTest(text, OnCompileErrors.Ignore, unusedVars);
         }
     }
 }

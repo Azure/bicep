@@ -1,12 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Buffers;
 using System.IO;
 using System.Text;
 using System.Text.Json;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 
 namespace Bicep.Core.Registry
 {
@@ -53,14 +55,14 @@ namespace Bicep.Core.Registry
             model.Id,
             model.Name,
             model.Type,
-            model.SystemData.ToJsonElement(),
+            JsonElementFactory.CreateElement(model.SystemData),
             model.Location,
-            model.Tags?.ToJsonElement(),
+            JsonElementFactory.CreateNullableElement(model.Tags),
             model.Description,
-            model.LinkedTemplates?.ToJsonElement(),
-            model.Metadata?.ToJsonElement(),
-            model.MainTemplate.ToJsonElement(),
-            model.UiFormDefinition?.ToJsonElement());
+            JsonElementFactory.CreateNullableElement(model.LinkedTemplates),
+            JsonElementFactory.CreateNullableElement(model.Metadata),
+            JsonElementFactory.CreateElement(model.MainTemplate),
+            JsonElementFactory.CreateNullableElement(model.UiFormDefinition));
 
         public static TemplateSpecEntity FromJsonElement(JsonElement element)
         {
@@ -83,19 +85,19 @@ namespace Bicep.Core.Registry
                 switch (topLevelProperty.Name)
                 {
                     case "id":
-                        id = topLevelProperty.Value.GetNonNullString();
+                        id = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "name":
-                        name = topLevelProperty.Value.GetNonNullString();
+                        name = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "type":
-                        type = topLevelProperty.Value.GetNonNullString();
+                        type = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "location":
-                        location = topLevelProperty.Value.GetNonNullString();
+                        location = topLevelProperty.Value.ToNonNullString();
                         break;
 
                     case "tags" when topLevelProperty.Value.IsNotNullValue():
@@ -147,71 +149,71 @@ namespace Bicep.Core.Registry
 
         public string ToUtf8Json()
         {
-            using var stream = new MemoryStream();
-            using var writer = new Utf8JsonWriter(stream, new() { Indented = true });
-
-            // Top level properties.
-            writer.WriteStartObject();
-
-            writer.WritePropertyName("id");
-            writer.WriteStringValue(this.Id);
-
-            writer.WritePropertyName("name");
-            writer.WriteStringValue(this.Name);
-
-            writer.WritePropertyName("type");
-            writer.WriteStringValue(this.Type);
-
-            writer.WritePropertyName("location");
-            writer.WriteStringValue(this.Location);
-
-            if (this.Tags is { } tags)
+            var bufferWriter = new ArrayBufferWriter<byte>();
+            using (var writer = new Utf8JsonWriter(bufferWriter, new() { Indented = true }))
             {
-                writer.WritePropertyName("tags");
-                tags.WriteTo(writer);
-            }
-
-            writer.WritePropertyName("systemData");
-            this.SystemData.WriteTo(writer);
-
-            // properites.*
-            writer.WritePropertyName("properties");
-            {
+                // Top level properties.
                 writer.WriteStartObject();
 
-                if (this.Description is { } description)
+                writer.WritePropertyName("id");
+                writer.WriteStringValue(this.Id);
+
+                writer.WritePropertyName("name");
+                writer.WriteStringValue(this.Name);
+
+                writer.WritePropertyName("type");
+                writer.WriteStringValue(this.Type);
+
+                writer.WritePropertyName("location");
+                writer.WriteStringValue(this.Location);
+
+                if (this.Tags is { } tags)
                 {
-                    writer.WritePropertyName("description");
-                    writer.WriteStringValue(Description);
+                    writer.WritePropertyName("tags");
+                    tags.WriteTo(writer);
                 }
 
-                if (this.LinkedTemplates is { } linkedTemplates)
+                writer.WritePropertyName("systemData");
+                this.SystemData.WriteTo(writer);
+
+                // properites.*
+                writer.WritePropertyName("properties");
                 {
-                    writer.WritePropertyName("linkedTemplates");
-                    linkedTemplates.WriteTo(writer);
+                    writer.WriteStartObject();
+
+                    if (this.Description is { } description)
+                    {
+                        writer.WritePropertyName("description");
+                        writer.WriteStringValue(Description);
+                    }
+
+                    if (this.LinkedTemplates is { } linkedTemplates)
+                    {
+                        writer.WritePropertyName("linkedTemplates");
+                        linkedTemplates.WriteTo(writer);
+                    }
+
+                    if (this.Metadata is { } metadata)
+                    {
+                        writer.WritePropertyName("metadata");
+                        metadata.WriteTo(writer);
+                    }
+
+                    writer.WritePropertyName("mainTemplate");
+                    this.MainTemplate.WriteTo(writer);
+
+                    if (this.UiFormDefinition is { } uiFormDefinition)
+                    {
+                        writer.WritePropertyName("uiFormDefinition");
+                        uiFormDefinition.WriteTo(writer);
+                    }
+                    writer.WriteEndObject();
                 }
 
-                if (this.Metadata is { } metadata)
-                {
-                    writer.WritePropertyName("metadata");
-                    metadata.WriteTo(writer);
-                }
-
-                writer.WritePropertyName("mainTemplate");
-                this.MainTemplate.WriteTo(writer);
-
-                if (this.UiFormDefinition is { } uiFormDefinition)
-                {
-                    writer.WritePropertyName("uiFormDefinition");
-                    uiFormDefinition.WriteTo(writer);
-                }
                 writer.WriteEndObject();
             }
 
-            writer.WriteEndObject();
-            writer.Flush();
-
-            return Encoding.UTF8.GetString(stream.ToArray());
+            return Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
         }
     }
 }

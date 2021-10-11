@@ -6,12 +6,14 @@ using Bicep.Cli.Commands;
 using Bicep.Cli.Helpers;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
-using Bicep.Core.Diagnostics;
+using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
+using Bicep.Core.Exceptions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.Registry.Auth;
+using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
 using Bicep.Decompiler;
@@ -19,6 +21,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
+using System.IO.Abstractions;
 using System.Runtime;
 using System.Threading.Tasks;
 
@@ -33,7 +36,7 @@ namespace Bicep.Cli
             this.invocationContext = invocationContext;
         }
 
-        public static Task<int> Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             string profilePath = DirHelper.GetTempPath();
             ProfileOptimization.SetProfileRoot(profilePath);
@@ -47,15 +50,20 @@ namespace Bicep.Cli
                 Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
             }
 
-            var program = new Program(new InvocationContext(
-                new AzResourceTypeLoader(),
-                Console.Out,
-                Console.Error,
-                ThisAssembly.AssemblyFileVersion,
-                features: null,
-                clientFactory: null));
+            // this event listener picks up SDK events and writes them to Trace.WriteLine()
+            using(FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+            {
+                var program = new Program(new InvocationContext(
+                    new AzResourceTypeLoader(),
+                    Console.Out,
+                    Console.Error,
+                    features: null,
+                    clientFactory: null));
 
-            return program.RunAsync(args);
+                // this must be awaited so dispose of the listener occurs in the continuation
+                // rather than the sync part at the beginning of RunAsync()
+                return await program.RunAsync(args);
+            }
         }
 
         public async Task<int> RunAsync(string[] args)
@@ -86,17 +94,7 @@ namespace Bicep.Cli
                         return 1;
                 }
             }
-            catch (CommandLineException exception)
-            {
-                invocationContext.ErrorWriter.WriteLine(exception.Message);
-                return 1;
-            }
             catch (BicepException exception)
-            {
-                invocationContext.ErrorWriter.WriteLine(exception.Message);
-                return 1;
-            }
-            catch (ErrorDiagnosticException exception)
             {
                 invocationContext.ErrorWriter.WriteLine(exception.Message);
                 return 1;
@@ -122,6 +120,9 @@ namespace Bicep.Cli
                 .AddSingleton<IFileResolver, FileResolver>()
                 .AddSingleton<IModuleDispatcher, ModuleDispatcher>()
                 .AddSingleton<IModuleRegistryProvider, DefaultModuleRegistryProvider>()
+                .AddSingleton<IFileSystem, FileSystem>()
+                .AddSingleton<IConfigurationManager, ConfigurationManager>()
+                .AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>()
                 .AddSingleton<TemplateDecompiler>()
                 .AddSingleton<DecompilationWriter>()
                 .AddSingleton<CompilationWriter>()

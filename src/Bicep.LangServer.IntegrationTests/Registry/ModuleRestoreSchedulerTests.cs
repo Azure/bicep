@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Modules;
@@ -20,6 +21,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,8 +33,9 @@ namespace Bicep.LangServer.UnitTests.Registry
     {
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
 
+        private static readonly RootConfiguration Configuration = new ConfigurationManager(new FileSystem()).GetBuiltInConfiguration();
+
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         public async Task DisposeAfterCreateShouldNotThrow()
         {
             var moduleDispatcher = Repository.Create<IModuleDispatcher>();
@@ -44,7 +47,6 @@ namespace Bicep.LangServer.UnitTests.Registry
         }
 
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         public async Task DisposeAfterStartShouldNotThrow()
         {
             var moduleDispatcher = Repository.Create<IModuleDispatcher>();
@@ -66,7 +68,6 @@ namespace Bicep.LangServer.UnitTests.Registry
         }
 
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         public async Task PublicMethodsShouldThrowAfterDispose()
         {
             var moduleDispatcher = Repository.Create<IModuleDispatcher>();
@@ -76,11 +77,10 @@ namespace Bicep.LangServer.UnitTests.Registry
             Action startFail = () => scheduler.Start();
             startFail.Should().Throw<ObjectDisposedException>();
 
-            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ModuleDeclarationSyntax>());
+            Action requestFail = () => scheduler.RequestModuleRestore(Repository.Create<ICompilationManager>().Object, DocumentUri.From("untitled://one"), Enumerable.Empty<ModuleDeclarationSyntax>(), Configuration);
             requestFail.Should().Throw<ObjectDisposedException>();
         }
 
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Not needed")]
         [TestMethod]
         public async Task RestoreShouldBeScheduledAsRequested()
         {
@@ -110,8 +110,8 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             await using (var scheduler = new ModuleRestoreScheduler(dispatcher))
             {
-                scheduler.RequestModuleRestore(compilationManager.Object, firstUri, firstFileSet);
-                scheduler.RequestModuleRestore(compilationManager.Object, secondUri, secondFileSet);
+                scheduler.RequestModuleRestore(compilationManager.Object, firstUri, firstFileSet, Configuration);
+                scheduler.RequestModuleRestore(compilationManager.Object, secondUri, secondFileSet, Configuration);
 
                 // start processing, which will immediately pick up all the items in the queue
                 scheduler.Start();
@@ -119,11 +119,20 @@ namespace Bicep.LangServer.UnitTests.Registry
                 // wait until both compilation managers are notified
                 await IntegrationTestHelper.WithTimeoutAsync(Task.WhenAll(firstSource.Task, secondSource.Task));
 
-                // two separate requests should have been unified into single restore
                 if (mockRegistry.ModuleRestores.TryPop(out var initialRefs))
                 {
+                    mockRegistry.ModuleRestores.Should().NotBeEmpty();
+                    initialRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:three", "mock:four");
+                }
+                else
+                {
+                    throw new AssertFailedException("Scheduler did not perform the expected restores.");
+                }
+
+                if(mockRegistry.ModuleRestores.TryPop(out var secondRefs))
+                {
                     mockRegistry.ModuleRestores.Should().BeEmpty();
-                    initialRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:one", "mock:two", "mock:three", "mock:four");
+                    secondRefs.Select(mr => mr.FullyQualifiedReference).Should().BeEquivalentTo("mock:one", "mock:two");
                 }
                 else
                 {
@@ -132,7 +141,7 @@ namespace Bicep.LangServer.UnitTests.Registry
 
                 // request more restores
                 mockRegistry.ModuleRestores.Should().BeEmpty();
-                scheduler.RequestModuleRestore(compilationManager.Object, thirdUri, thirdFileSet);
+                scheduler.RequestModuleRestore(compilationManager.Object, thirdUri, thirdFileSet, Configuration);
 
                 // wait for completion
                 await IntegrationTestHelper.WithTimeoutAsync(thirdSource.Task);
@@ -171,23 +180,23 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 
-            public Task PublishModule(ModuleReference moduleReference, Stream compiled)
+            public Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled)
             {
                 throw new NotImplementedException();
             }
 
-            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<ModuleReference> references)
+            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> references)
             {
                 this.ModuleRestores.Push(references);
                 return Task.FromResult<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>>(new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>());
             }
 
-            public Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 throw new NotImplementedException();
             }
 
-            public ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+            public ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
             {
                 failureBuilder = null;
                 return new MockModuleRef(reference);
@@ -205,6 +214,8 @@ namespace Bicep.LangServer.UnitTests.Registry
             public string Value { get; }
 
             public override string UnqualifiedReference => this.Value;
+
+            public override bool IsExternal => true;
         }
     }
 }

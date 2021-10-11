@@ -46,7 +46,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         private static IEnumerable<object[]> GetModuleRefSubClasses() => typeof(ModuleReference).Assembly
             .GetTypes()
-            .Where(type => type.IsClass && type.IsSubclassOf(typeof(ModuleReference)))
+            .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(ModuleReference)))
             .Select(type => new[] { type });
     }
 }

@@ -1,14 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Features;
 
 namespace Bicep.Core.Emit
 {
     public class EmitterSettings
     {
-        public EmitterSettings(string assemblyFileVersion, bool enableSymbolicNames)
+        public EmitterSettings(IFeatureProvider features)
         {
-            AssemblyFileVersion = assemblyFileVersion;
-            EnableSymbolicNames = enableSymbolicNames;
+            AssemblyFileVersion = features.AssemblyVersion;
+            EnableSymbolicNames = features.SymbolicNameCodegenEnabled || features.ImportsEnabled;
         }
 
         /// <summary>
