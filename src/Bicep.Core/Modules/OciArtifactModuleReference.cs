@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using System;
 using System.Collections.Generic;
@@ -67,6 +68,8 @@ namespace Bicep.Core.Modules
 
         public override string UnqualifiedReference => this.ArtifactId;
 
+        public override bool IsExternal => true;
+
         public override bool Equals(object obj)
         {
             if(obj is not OciArtifactModuleReference other)
@@ -91,11 +94,22 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static OciArtifactModuleReference? TryParse(string rawValue, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static OciArtifactModuleReference? TryParse(string? aliasName, string rawValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            static string GetBadReference(string rawValue) => $"{ModuleReferenceSchemes.Oci}:{rawValue}";
+            static string GetBadReference(string referenceValue) => $"{ModuleReferenceSchemes.Oci}:{referenceValue}";
 
             static string UnescapeSegment(string segment) => HttpUtility.UrlDecode(segment);
+
+            if (aliasName is not null)
+            {
+                if (configuration.ModuleAliases.TryGetOciArtifactModuleAlias(aliasName, out failureBuilder) is not { } alias)
+                {
+                    return null;
+                }
+
+                rawValue = $"{alias}/{rawValue}";
+            }
+
 
             // the set of valid OCI artifact refs is a subset of the set of valid URIs if you remove the scheme portion from each URI
             // manually prepending any valid URI scheme allows to get free validation via the built-in URI parser
@@ -103,14 +117,14 @@ namespace Bicep.Core.Modules
                 artifactUri.Segments.Length <= 1 ||
                 !string.Equals(artifactUri.Segments[0], "/", StringComparison.Ordinal))
             {
-                failureBuilder = x => x.InvalidOciArtifactReference(GetBadReference(rawValue));
+                failureBuilder = x => x.InvalidOciArtifactReference(aliasName, GetBadReference(rawValue));
                 return null;
             }
 
             string registry = artifactUri.Authority;
             if(registry.Length > MaxRegistryLength)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(GetBadReference(rawValue), registry, MaxRegistryLength);
+                failureBuilder = x => x.InvalidOciArtifactReferenceRegistryTooLong(aliasName, GetBadReference(rawValue), registry, MaxRegistryLength);
                 return null;
             }
 
@@ -125,7 +139,7 @@ namespace Bicep.Core.Modules
                 if (!pathMatch.Success)
                 {
                     var invalidSegment = UnescapeSegment(current[0..^1]);
-                    failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(GetBadReference(rawValue), invalidSegment);
+                    failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), invalidSegment);
                     return null;
                 }
 
@@ -145,7 +159,7 @@ namespace Bicep.Core.Modules
             var name = UnescapeSegment(!HasTag(indexOfColon) ? lastSegment : lastSegment.Substring(0, indexOfColon));
             if (!ModulePathSegmentRegex.IsMatch(name))
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(GetBadReference(rawValue), name);
+                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name);
                 return null;
             }
 
@@ -154,33 +168,33 @@ namespace Bicep.Core.Modules
             string repository = repoBuilder.ToString();
             if (repository.Length > MaxRepositoryLength)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(GetBadReference(rawValue), repository, MaxRepositoryLength);
+                failureBuilder = x => x.InvalidOciArtifactReferenceRepositoryTooLong(aliasName, GetBadReference(rawValue), repository, MaxRepositoryLength);
                 return null;
             }
 
             // now we can complain about the missing tag
             if (!HasTag(indexOfColon))
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(GetBadReference(rawValue));
+                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(aliasName, GetBadReference(rawValue));
                 return null;
             }
 
             var tag = UnescapeSegment(lastSegment[(indexOfColon + 1)..]);
             if(string.IsNullOrEmpty(tag))
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(GetBadReference(rawValue));
+                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(aliasName, GetBadReference(rawValue));
                 return null;
             }
 
             if(tag.Length > MaxTagLength)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(GetBadReference(rawValue), tag, MaxTagLength);
+                failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(aliasName, GetBadReference(rawValue), tag, MaxTagLength);
                 return null;
             }
 
             if (!TagRegex.IsMatch(tag))
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(GetBadReference(rawValue), tag);
+                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(aliasName, GetBadReference(rawValue), tag);
                 return null;
             }
 

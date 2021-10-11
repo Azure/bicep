@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
@@ -46,19 +47,9 @@ namespace Bicep.Core.UnitTests.Utils
             public string Message { get; }
         }
 
-        private static string GetProgramText(BicepFile bicepFile)
-        {
-            var buffer = new StringBuilder();
-            var visitor = new PrintVisitor(buffer);
-
-            visitor.Visit(bicepFile.ProgramSyntax);
-
-            return buffer.ToString();
-        }
-
         private static string[] GetProgramTextLines(BicepFile bicepFile)
         {
-            var programText = GetProgramText(bicepFile);
+            var programText = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
 
             return StringUtils.ReplaceNewlines(programText, "\n").Split("\n");
         }

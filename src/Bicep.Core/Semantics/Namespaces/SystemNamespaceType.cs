@@ -21,6 +21,13 @@ namespace Bicep.Core.Semantics.Namespaces
     {
         public const string BuiltInName = "sys";
 
+        public static NamespaceSettings Settings { get; } = new(
+            IsSingleton: true,
+            BicepProviderName: BuiltInName,
+            ConfigurationType: null,
+            ArmTemplateProviderName: "System",
+            ArmTemplateProviderVersion: "1.0");
+
         private static readonly ImmutableArray<FunctionOverload> SystemOverloads = new[]
         {
             new FunctionOverloadBuilder(LanguageConstants.AnyFunction)
@@ -791,14 +798,12 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             return new NamespaceType(
                 aliasName,
-                BuiltInName,
+                Settings,
                 ImmutableArray<TypeProperty>.Empty,
                 SystemOverloads,
                 BannedFunctions,
                 GetSystemDecorators(),
-                new EmptyResourceTypeProvider(),
-                configurationType: null,
-                isSingleton: true);
+                new EmptyResourceTypeProvider());
         }
     }
 }

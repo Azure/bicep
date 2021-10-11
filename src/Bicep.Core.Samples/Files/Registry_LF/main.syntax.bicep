@@ -95,6 +95,57 @@ module appPlanDeploy 'br:mock-registry-one.invalid/demo/plan:v2' = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
+module appPlanDeploy2 'br/mock-registry-one:demo/plan:v2' = {
+//@[0:137) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |appPlanDeploy2|
+//@[22:57)  StringSyntax
+//@[22:57)   StringComplete |'br/mock-registry-one:demo/plan:v2'|
+//@[58:59)  Assignment |=|
+//@[60:137)  ObjectSyntax
+//@[60:61)   LeftBrace |{|
+//@[61:62)   NewLine |\n|
+  name: 'planDeploy2'
+//@[2:21)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:21)    StringSyntax
+//@[8:21)     StringComplete |'planDeploy2'|
+//@[21:22)   NewLine |\n|
+  scope: rg
+//@[2:11)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:11)    VariableAccessSyntax
+//@[9:11)     IdentifierSyntax
+//@[9:11)      Identifier |rg|
+//@[11:12)   NewLine |\n|
+  params: {
+//@[2:39)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:39)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:12)     NewLine |\n|
+    namePrefix: 'hello'
+//@[4:23)     ObjectPropertySyntax
+//@[4:14)      IdentifierSyntax
+//@[4:14)       Identifier |namePrefix|
+//@[14:15)      Colon |:|
+//@[16:23)      StringSyntax
+//@[16:23)       StringComplete |'hello'|
+//@[23:24)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
 var websites = [
 //@[0:110) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
@@ -270,6 +321,120 @@ module siteDeploy 'br:mock-registry-two.invalid/demo/site:v3' = [for site in web
 //@[1:2)   RightSquare |]|
 //@[2:4) NewLine |\n\n|
 
+module siteDeploy2 'br/demo-two:site:v3' = [for site in websites: {
+//@[0:267) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:18)  IdentifierSyntax
+//@[7:18)   Identifier |siteDeploy2|
+//@[19:40)  StringSyntax
+//@[19:40)   StringComplete |'br/demo-two:site:v3'|
+//@[41:42)  Assignment |=|
+//@[43:267)  ForSyntax
+//@[43:44)   LeftSquare |[|
+//@[44:47)   Identifier |for|
+//@[48:52)   LocalVariableSyntax
+//@[48:52)    IdentifierSyntax
+//@[48:52)     Identifier |site|
+//@[53:55)   Identifier |in|
+//@[56:64)   VariableAccessSyntax
+//@[56:64)    IdentifierSyntax
+//@[56:64)     Identifier |websites|
+//@[64:65)   Colon |:|
+//@[66:266)   ObjectSyntax
+//@[66:67)    LeftBrace |{|
+//@[67:68)    NewLine |\n|
+  name: '${site.name}siteDeploy2'
+//@[2:33)    ObjectPropertySyntax
+//@[2:6)     IdentifierSyntax
+//@[2:6)      Identifier |name|
+//@[6:7)     Colon |:|
+//@[8:33)     StringSyntax
+//@[8:11)      StringLeftPiece |'${|
+//@[11:20)      PropertyAccessSyntax
+//@[11:15)       VariableAccessSyntax
+//@[11:15)        IdentifierSyntax
+//@[11:15)         Identifier |site|
+//@[15:16)       Dot |.|
+//@[16:20)       IdentifierSyntax
+//@[16:20)        Identifier |name|
+//@[20:33)      StringRightPiece |}siteDeploy2'|
+//@[33:34)    NewLine |\n|
+  scope: rg
+//@[2:11)    ObjectPropertySyntax
+//@[2:7)     IdentifierSyntax
+//@[2:7)      Identifier |scope|
+//@[7:8)     Colon |:|
+//@[9:11)     VariableAccessSyntax
+//@[9:11)      IdentifierSyntax
+//@[9:11)       Identifier |rg|
+//@[11:12)    NewLine |\n|
+  params: {
+//@[2:150)    ObjectPropertySyntax
+//@[2:8)     IdentifierSyntax
+//@[2:8)      Identifier |params|
+//@[8:9)     Colon |:|
+//@[10:150)     ObjectSyntax
+//@[10:11)      LeftBrace |{|
+//@[11:12)      NewLine |\n|
+    appPlanId: appPlanDeploy.outputs.planId
+//@[4:43)      ObjectPropertySyntax
+//@[4:13)       IdentifierSyntax
+//@[4:13)        Identifier |appPlanId|
+//@[13:14)       Colon |:|
+//@[15:43)       PropertyAccessSyntax
+//@[15:36)        PropertyAccessSyntax
+//@[15:28)         VariableAccessSyntax
+//@[15:28)          IdentifierSyntax
+//@[15:28)           Identifier |appPlanDeploy|
+//@[28:29)         Dot |.|
+//@[29:36)         IdentifierSyntax
+//@[29:36)          Identifier |outputs|
+//@[36:37)        Dot |.|
+//@[37:43)        IdentifierSyntax
+//@[37:43)         Identifier |planId|
+//@[43:44)      NewLine |\n|
+    namePrefix: site.name
+//@[4:25)      ObjectPropertySyntax
+//@[4:14)       IdentifierSyntax
+//@[4:14)        Identifier |namePrefix|
+//@[14:15)       Colon |:|
+//@[16:25)       PropertyAccessSyntax
+//@[16:20)        VariableAccessSyntax
+//@[16:20)         IdentifierSyntax
+//@[16:20)          Identifier |site|
+//@[20:21)        Dot |.|
+//@[21:25)        IdentifierSyntax
+//@[21:25)         Identifier |name|
+//@[25:26)      NewLine |\n|
+    dockerImage: 'nginxdemos/hello'
+//@[4:35)      ObjectPropertySyntax
+//@[4:15)       IdentifierSyntax
+//@[4:15)        Identifier |dockerImage|
+//@[15:16)       Colon |:|
+//@[17:35)       StringSyntax
+//@[17:35)        StringComplete |'nginxdemos/hello'|
+//@[35:36)      NewLine |\n|
+    dockerImageTag: site.tag
+//@[4:28)      ObjectPropertySyntax
+//@[4:18)       IdentifierSyntax
+//@[4:18)        Identifier |dockerImageTag|
+//@[18:19)       Colon |:|
+//@[20:28)       PropertyAccessSyntax
+//@[20:24)        VariableAccessSyntax
+//@[20:24)         IdentifierSyntax
+//@[20:24)          Identifier |site|
+//@[24:25)        Dot |.|
+//@[25:28)        IdentifierSyntax
+//@[25:28)         Identifier |tag|
+//@[28:29)      NewLine |\n|
+  }
+//@[2:3)      RightBrace |}|
+//@[3:4)    NewLine |\n|
+}]
+//@[0:1)    RightBrace |}|
+//@[1:2)   RightSquare |]|
+//@[2:4) NewLine |\n\n|
+
 module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-spec:1.0' = {
 //@[0:168) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -289,6 +454,57 @@ module storageDeploy 'ts:00000000-0000-0000-0000-000000000000/test-rg/storage-sp
 //@[8:23)    StringSyntax
 //@[8:23)     StringComplete |'storageDeploy'|
 //@[23:24)   NewLine |\n|
+  scope: rg
+//@[2:11)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:11)    VariableAccessSyntax
+//@[9:11)     IdentifierSyntax
+//@[9:11)      Identifier |rg|
+//@[11:12)   NewLine |\n|
+  params: {
+//@[2:38)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |params|
+//@[8:9)    Colon |:|
+//@[10:38)    ObjectSyntax
+//@[10:11)     LeftBrace |{|
+//@[11:12)     NewLine |\n|
+    location: 'eastus'
+//@[4:22)     ObjectPropertySyntax
+//@[4:12)      IdentifierSyntax
+//@[4:12)       Identifier |location|
+//@[12:13)      Colon |:|
+//@[14:22)      StringSyntax
+//@[14:22)       StringComplete |'eastus'|
+//@[22:23)     NewLine |\n|
+  }
+//@[2:3)     RightBrace |}|
+//@[3:4)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+module storageDeploy2 'ts/mySpecRG:storage-spec:1.0' = {
+//@[0:134) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |storageDeploy2|
+//@[22:52)  StringSyntax
+//@[22:52)   StringComplete |'ts/mySpecRG:storage-spec:1.0'|
+//@[53:54)  Assignment |=|
+//@[55:134)  ObjectSyntax
+//@[55:56)   LeftBrace |{|
+//@[56:57)   NewLine |\n|
+  name: 'storageDeploy2'
+//@[2:24)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:24)    StringSyntax
+//@[8:24)     StringComplete |'storageDeploy2'|
+//@[24:25)   NewLine |\n|
   scope: rg
 //@[2:11)   ObjectPropertySyntax
 //@[2:7)    IdentifierSyntax
@@ -382,28 +598,28 @@ var vnets = [
 //@[0:1)   RightSquare |]|
 //@[1:3) NewLine |\n\n|
 
-module vnetDeploy 'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
-//@[0:241) ModuleDeclarationSyntax
+module vnetDeploy 'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2' = [for vnet in vnets: {
+//@[0:220) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |vnetDeploy|
-//@[18:101)  StringSyntax
-//@[18:101)   StringComplete |'ts:management.azure.com/11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'|
-//@[102:103)  Assignment |=|
-//@[104:241)  ForSyntax
-//@[104:105)   LeftSquare |[|
-//@[105:108)   Identifier |for|
-//@[109:113)   LocalVariableSyntax
-//@[109:113)    IdentifierSyntax
-//@[109:113)     Identifier |vnet|
-//@[114:116)   Identifier |in|
-//@[117:122)   VariableAccessSyntax
-//@[117:122)    IdentifierSyntax
-//@[117:122)     Identifier |vnets|
-//@[122:123)   Colon |:|
-//@[124:240)   ObjectSyntax
-//@[124:125)    LeftBrace |{|
-//@[125:126)    NewLine |\n|
+//@[18:80)  StringSyntax
+//@[18:80)   StringComplete |'ts:11111111-1111-1111-1111-111111111111/prod-rg/vnet-spec:v2'|
+//@[81:82)  Assignment |=|
+//@[83:220)  ForSyntax
+//@[83:84)   LeftSquare |[|
+//@[84:87)   Identifier |for|
+//@[88:92)   LocalVariableSyntax
+//@[88:92)    IdentifierSyntax
+//@[88:92)     Identifier |vnet|
+//@[93:95)   Identifier |in|
+//@[96:101)   VariableAccessSyntax
+//@[96:101)    IdentifierSyntax
+//@[96:101)     Identifier |vnets|
+//@[101:102)   Colon |:|
+//@[103:219)   ObjectSyntax
+//@[103:104)    LeftBrace |{|
+//@[104:105)    NewLine |\n|
   name: '${vnet.name}Deploy'
 //@[2:28)    ObjectPropertySyntax
 //@[2:6)     IdentifierSyntax

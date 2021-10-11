@@ -120,15 +120,12 @@ namespace Bicep.Core.Samples
             var jsonFileName = Path.Combine(outputDirectory, Path.GetFileName(example.JsonStreamName));
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
-            var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configHelper);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.DefaultTestSettings);
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName), configuration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettings);
 
-            // quiet the linter diagnostics
-            var overrideConfig = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-
-            foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
+            foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     bicepFile,
@@ -187,15 +184,12 @@ namespace Bicep.Core.Samples
             var jsonFileName = Path.Combine(jsonOutputDirectory, Path.GetFileName(relativeJsonStreamName));
 
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName));
-            var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configHelper);
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), EmitterSettingsHelper.WithSymbolicNamesEnabled);
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFileName), configuration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
+            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), BicepTestConstants.EmitterSettingsWithSymbolicNames);
 
-            // quiet the linter diagnostics
-            var overrideConfig = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-
-            foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile(overrideConfig))
+            foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())
             {
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     bicepFile,

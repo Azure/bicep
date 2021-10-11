@@ -347,29 +347,35 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Empty();
                 }
 
-                var declaredType = namespaceSymbol.DeclaredType;
+                if (namespaceSymbol.DeclaredType is not NamespaceType namespaceType)
+                {
+                    // We should have an error type here - return it directly.
+                    return namespaceSymbol.DeclaredType as ErrorType ?? ErrorType.Empty();
+                }
 
-                this.ValidateDecorators(syntax.Decorators, declaredType, diagnostics);
+                this.ValidateDecorators(syntax.Decorators, namespaceType, diagnostics);
 
                 if (syntax.Config is not null)
                 {
-                    // Force a type check on the configuration element, if present.
-                    var configType = this.GetTypeInfo(syntax.Config);
-
-                    if (declaredType is NamespaceType namespaceType && namespaceType.ConfigurationType is null)
+                    if (namespaceType.ConfigurationType is null)
                     {
                         diagnostics.Write(syntax.Config, x => x.ImportProviderDoesNotSupportConfiguration(namespaceType.ProviderName));
+                    }
+                    else
+                    {
+                        // Collect diagnostics for the configuration type assignment.
+                        TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binder, diagnostics, syntax.Config, namespaceType.ConfigurationType.Type, false);
                     }
                 }
                 else
                 {
-                    if (declaredType is NamespaceType namespaceType && namespaceType.ConfigurationType is not null)
+                    if (namespaceType.ConfigurationType is not null)
                     {
                         diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));
                     }
                 }
 
-                return declaredType;
+                return namespaceType;
             });
 
         private void ValidateDecorators(IEnumerable<DecoratorSyntax> decoratorSyntaxes, TypeSymbol targetType, IDiagnosticWriter diagnostics)

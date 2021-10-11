@@ -20,12 +20,13 @@ namespace Bicep.Core.IntegrationTests
     {
         private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
-            var configHelper = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
-            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configHelper);
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration);
 
             return compilation.GetEntrypointSemanticModel();
         }
-        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
+
+        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
             => GetSemanticModelForTest(programText, TestTypeHelper.CreateProviderWithTypes(definedTypes));
 
         [DataTestMethod]
@@ -371,7 +372,7 @@ var commentsPropAccess = jsonWithComments.key
 var invalidPropAccess = objectJson.invalidProp
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
 
             GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
             GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
@@ -384,7 +385,6 @@ var invalidPropAccess = objectJson.invalidProp
 
             GetTypeForNamedSymbol(model, "invalidPropAccess").Name.Should().Be("error");
 
-            var noLinterConfig = new ConfigHelper(null, BicepTestConstants.FileResolver).GetDisabledLinterConfig();
             model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP083", DiagnosticLevel.Error).And.HaveMessage("The type \"object\" does not contain property \"invalidProp\". Did you mean \"validProp\"?")
             );
@@ -397,7 +397,7 @@ var invalidPropAccess = objectJson.invalidProp
 var invalidJson = json('{""prop"": ""value')
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
 
             GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("error");
 
@@ -427,7 +427,7 @@ var singleItemKey = itemsOutput[0].key
 var singleItemValue = itemsOutput[0].value
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
             
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
@@ -443,7 +443,7 @@ var singleItemKey = itemsOutput[0].key
 var singleItemValue = itemsOutput[0].value
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
             
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("string");

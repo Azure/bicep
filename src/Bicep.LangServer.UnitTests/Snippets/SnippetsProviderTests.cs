@@ -20,7 +20,8 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver);
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager);
+        private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
 
         [TestMethod]
         public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()
@@ -140,6 +141,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndNoResourceDependencies_ShouldReturnSnippets()
         {
             ResourceType resourceType = new ResourceType(
+                azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
                 ResourceScope.ResourceGroup,
                 CreateObjectType("Microsoft.DataLakeStore/accounts@2016-11-01",
@@ -187,6 +189,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndResourceDependencies_ShouldReturnSnippets()
         {
             ResourceType resourceType = new ResourceType(
+                azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
                 ResourceScope.ResourceGroup,
                 CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
@@ -238,6 +241,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         public void GetResourceBodyCompletionSnippets_WithNestedResource_ShouldReturnSnippets()
         {
             ResourceType resourceType = new ResourceType(
+                azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/certificates@2019-06-01"),
                 ResourceScope.ResourceGroup,
                 CreateObjectType("Microsoft.Automation/automationAccounts/certificates@2019-06-01",
@@ -285,6 +289,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         public void GetResourceBodyCompletionSnippets_WithNoStaticTemplate_ShouldReturnSnippets()
         {
             ResourceType resourceType = new ResourceType(
+                azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
                 CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview",
@@ -336,6 +341,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         public void GetResourceBodyCompletionSnippets_WithNoRequiredProperties_ShouldReturnEmptySnippet()
         {
             ResourceType resourceType = new ResourceType(
+                azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
                 CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
@@ -430,6 +436,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
 
             ResourceType resourceType = new ResourceType(
+                azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
                 discriminatedObjectType);
@@ -468,6 +475,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
             var discriminatedObjectType = new DiscriminatedObjectType("discObj", TypeSymbolValidationFlags.Default, "discKey", new[] { objectTypeA, objectTypeB });
 
             ResourceType resourceType = new ResourceType(
+                azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
                 discriminatedObjectType);

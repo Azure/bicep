@@ -31,17 +31,25 @@ namespace Bicep.LanguageServer
         private readonly ICompilationProvider provider;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRestoreScheduler scheduler;
+        private readonly IConfigurationManager configurationManager;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
 
-        public BicepCompilationManager(ILanguageServerFacade server, ICompilationProvider provider, IWorkspace workspace, IFileResolver fileResolver, IModuleRestoreScheduler scheduler)
+        public BicepCompilationManager(
+            ILanguageServerFacade server,
+            ICompilationProvider provider,
+            IWorkspace workspace,
+            IFileResolver fileResolver,
+            IModuleRestoreScheduler scheduler,
+            IConfigurationManager configurationManager)
         {
             this.server = server;
             this.provider = provider;
             this.workspace = workspace;
             this.fileResolver = fileResolver;
             this.scheduler = scheduler;
+            this.configurationManager = configurationManager;
         }
 
         public void RefreshCompilation(DocumentUri documentUri, bool reloadBicepConfig = false)
@@ -187,12 +195,13 @@ namespace Bicep.LanguageServer
 
         private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false)
         {
+            var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
+
             try
             {
-                var folderContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath());
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), new ConfigHelper(folderContainingSourceFile, fileResolver)),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration),
                     (documentUri, prevContext) =>
                     {
                         var sourceDependencies = removedFiles
@@ -209,18 +218,11 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        ConfigHelper configHelper;
+                        var configuration = reloadBicepConfig
+                            ? this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic)
+                            : prevContext.Compilation.Configuration;
 
-                        if (reloadBicepConfig)
-                        {
-                            configHelper = new ConfigHelper(folderContainingSourceFile, fileResolver);
-                        }
-                        else
-                        {
-                            configHelper = prevContext.Compilation.ConfigHelper;
-                        }
-
-                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configHelper);
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration);
                     });
 
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
@@ -230,12 +232,17 @@ namespace Bicep.LanguageServer
                 }
 
                 // this completes immediately
-                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.ModulesToRestore);
+                this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.ModulesToRestore, configuration);
 
                 var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
 
                 // convert all the diagnostics to LSP diagnostics
                 var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
+
+                if (configurationDiagnostic is not null)
+                {
+                    diagnostics = diagnostics.Append(configurationDiagnostic);
+                }
 
                 // publish all the diagnostics
                 this.PublishDocumentDiagnostics(documentUri, version, diagnostics);
@@ -266,7 +273,34 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) => context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+        private RootConfiguration GetConfigurationSafely(DocumentUri documentUri, out Diagnostic? diagnostic)
+        {
+            try
+            {
+                diagnostic = null;
+                return this.configurationManager.GetConfiguration(documentUri.ToUri());
+            }
+            catch (ConfigurationException exception)
+            {
+                diagnostic = new Diagnostic
+                {
+                    Range = new Range
+                    {
+                        Start = new Position(0, 0),
+                        End = new Position(1, 0),
+                    },
+                    Severity = DiagnosticSeverity.Error,
+                    Message = exception.Message,
+                    Code = new DiagnosticCode("Invalid Bicep Configuration"),
+                };
+            }
+
+            // Fallback to the default configuration with analyzers disabled.
+            return this.configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+        }
+
+        private static IEnumerable<Core.Diagnostics.IDiagnostic> GetDiagnosticsFromContext(CompilationContext context) =>
+            context.Compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
         private void PublishDocumentDiagnostics(DocumentUri uri, int? version, IEnumerable<Diagnostic> diagnostics)
         {

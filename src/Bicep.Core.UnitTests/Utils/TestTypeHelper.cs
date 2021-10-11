@@ -21,9 +21,9 @@ namespace Bicep.Core.UnitTests.Utils
     {
         private class TestResourceTypeLoader : IAzResourceTypeLoader
         {
-            private readonly ImmutableDictionary<ResourceTypeReference, ResourceType> resourceTypes;
+            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes;
 
-            public TestResourceTypeLoader(IEnumerable<ResourceType> resourceTypes)
+            public TestResourceTypeLoader(IEnumerable<ResourceTypeComponents> resourceTypes)
             {
                 this.resourceTypes = resourceTypes.ToImmutableDictionary(
                     x => x.TypeReference,
@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Utils
                     ResourceTypeReferenceComparer.Instance);
             }
 
-            public ResourceType LoadType(ResourceTypeReference reference)
+            public ResourceTypeComponents LoadType(ResourceTypeReference reference)
                 => resourceTypes[reference];
 
             public IEnumerable<ResourceTypeReference> GetAvailableTypes()
@@ -39,21 +39,21 @@ namespace Bicep.Core.UnitTests.Utils
         }
 
         public static IAzResourceTypeLoader CreateEmptyAzResourceTypeLoader()
-            => new TestResourceTypeLoader(Enumerable.Empty<ResourceType>());
+            => new TestResourceTypeLoader(Enumerable.Empty<ResourceTypeComponents>());
 
-        public static IAzResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceType> resourceTypes)
+        public static IAzResourceTypeLoader CreateAzResourceTypeLoaderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new TestResourceTypeLoader(resourceTypes);
 
-        public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceType> resourceTypes)
+        public static INamespaceProvider CreateProviderWithTypes(IEnumerable<ResourceTypeComponents> resourceTypes)
             => new DefaultNamespaceProvider(CreateAzResourceTypeLoaderWithTypes(resourceTypes), BicepTestConstants.Features);
 
         public static INamespaceProvider CreateEmptyProvider()
-            => CreateProviderWithTypes(Enumerable.Empty<ResourceType>());
+            => CreateProviderWithTypes(Enumerable.Empty<ResourceTypeComponents>());
 
         public static INamespaceProvider CreateWithAzTypes()
             => new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features);
 
-        public static ResourceType CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
+        public static ResourceTypeComponents CreateCustomResourceType(string fullyQualifiedType, string apiVersion, TypeSymbolValidationFlags validationFlags, params TypeProperty[] customProperties)
         {
             var reference = ResourceTypeReference.Parse($"{fullyQualifiedType}@{apiVersion}");
 
@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Utils
                 .Concat(new TypeProperty("properties", new ObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.Required));
 
             var bodyType = new ObjectType(reference.FormatName(), validationFlags, resourceProperties, null);
-            return new ResourceType(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, bodyType);
+            return new ResourceTypeComponents(reference, ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource, bodyType);
         }
 
         public static ObjectType CreateObjectType(string name, params (string name, ITypeReference type)[] properties)

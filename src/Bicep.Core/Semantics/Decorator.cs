@@ -51,13 +51,8 @@ namespace Bicep.Core.Semantics
                 diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).CannotAttachDecoratorToTarget(this.Overload.Name, attachableType, targetType));
             }
 
-            // Custom validator provided.
-            if (this.validator != null)
-            {
-                this.validator.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
-
-                return;
-            }
+            // Invoke custom validator if provided.
+            this.validator?.Invoke(this.Overload.Name, decoratorSyntax, targetType, typeManager, binder, diagnosticWriter);
         }
 
         public ObjectSyntax? Evaluate(DecoratorSyntax decoratorSyntax, TypeSymbol targetType, ObjectSyntax? targetObject)

@@ -171,7 +171,7 @@ namespace Bicep.LangServer.IntegrationTests
         }
 
 
-        [DataTestMethod]
+        [TestMethod]
         public async Task PropertyHovers_are_displayed_on_properties()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -202,7 +202,7 @@ output string test = testRes.prop|erties.rea|donly
         }
 
 
-        [DataTestMethod]
+        [TestMethod]
         public async Task PropertyHovers_are_displayed_on_properties_with_loops()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -233,7 +233,7 @@ output string test = testRes[3].prop|erties.rea|donly
         }
 
 
-        [DataTestMethod]
+        [TestMethod]
         public async Task PropertyHovers_are_displayed_on_properties_with_conditions()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -263,7 +263,7 @@ output string test = testRes.prop|erties.rea|donly
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nreadonly: string\n```\nThis is a property which only supports reading.\n"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public async Task Hovers_are_displayed_on_discription_decorator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -299,7 +299,7 @@ resource test|Output string = 'str'
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output\n"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public async Task Hovers_are_displayed_on_discription_decorator_objects_across_bicep_modules()
         {
             var modFile = @"
@@ -352,7 +352,40 @@ output moduleOutput string = '${var|1}-${mod1.outputs.o|ut2}'
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
         }
 
-         [DataTestMethod]
+        [TestMethod]
+        public async Task Function_hovers_include_descriptions_if_function_overload_has_been_resolved()
+        {
+            var hovers = await RequestHoversAtCursorLocations(@"
+var rgFunc = resource|Group()
+var nsRgFunc = az.resourceGroup|()
+
+var concatFunc = conc|at('abc', 'def')
+var nsConcatFunc = sys.c|oncat('abc', 'def')
+");
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
+        }
+
+        [TestMethod]
+        public async Task Function_hovers_display_without_descriptions_if_function_overload_has_not_been_resolved()
+        {
+            // using the any type, we don't know which particular overload has been selected, so we cannot show an accurate description.
+            // this should be taken care of with https://github.com/Azure/bicep/issues/4588
+            var hovers = await RequestHoversAtCursorLocations(@"
+var concatFunc = conc|at(any('hello'))
+var nsConcatFunc = sys.conc|at(any('hello'))
+");
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"));
+        }
+
+        [TestMethod]
         public async Task Hovers_are_displayed_on_discription_decorator_objects_across_arm_modules()
         {
             var modFile = @"
@@ -416,7 +449,7 @@ output moduleOutput string = '${va|r1}-${mod1.outputs.ou|t2}'
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis  \nis  \nout2\n"));
         }
 
-        [DataTestMethod]
+        [TestMethod]
         public async Task PropertyHovers_are_displayed_on_partial_discriminator_objects()
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(@"
@@ -513,6 +546,17 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             }
 
             return hovers;
+        }
+
+        public async Task<IEnumerable<Hover?>> RequestHoversAtCursorLocations(string fileWithCursors)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            
+            
+            return await RequestHovers(client, bicepFile, cursors);
         }
     }
 }

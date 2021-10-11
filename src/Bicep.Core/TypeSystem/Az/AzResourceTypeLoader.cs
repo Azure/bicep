@@ -27,7 +27,7 @@ namespace Bicep.Core.TypeSystem.Az
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableTypes.Keys;
 
-        public ResourceType LoadType(ResourceTypeReference reference)
+        public ResourceTypeComponents LoadType(ResourceTypeReference reference)
         {
             var typeLocation = availableTypes[reference];
 

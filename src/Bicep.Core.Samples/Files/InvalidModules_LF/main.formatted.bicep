@@ -234,39 +234,39 @@ module moduleWithDuplicateName2 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
 }
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionB ''
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionC '' =
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionD '' = {}
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionE '' = {
   name: 'hello'
 }
 
-// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
-module cwdFileCompletionA '.'
+// #completionTest(29) -> cwdDotFileCompletions
+module cwdFileCompletionA './m'
 
-// #completionTest(26, 27) -> cwdMCompletions
+// #completionTest(26, 27) -> cwdFileCompletions
 module cwdFileCompletionB m
 
-// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
 module cwdFileCompletionC 'm'
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childFileCompletions
 module childCompletionA 'ChildModules/'
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotFileCompletions
 module childCompletionB './ChildModules/'
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childDotFileCompletions
 module childCompletionC './ChildModules/m'
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childFileCompletions
 module childCompletionD 'ChildModules/e'
 
 @minValue()

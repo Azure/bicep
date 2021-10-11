@@ -56,6 +56,10 @@ async function launchLanguageService(
 
   const clientOptions: lsp.LanguageClientOptions = {
     documentSelector: [{ language: "bicep" }],
+    initializationOptions: {
+      // this tells the server that this client can handle additional DocumentUri schemes
+      enableRegistryContent: true,
+    },
     progressOnInitialization: true,
     outputChannel,
     middleware: {

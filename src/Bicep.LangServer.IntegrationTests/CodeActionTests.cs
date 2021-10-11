@@ -33,7 +33,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class CodeActionTests
     {
         [NotNull]
@@ -102,6 +101,28 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var expectedBicepConfigContents = @"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -300,6 +321,28 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
             var bicepConfigContents = @"{}";
             var expectedBicepConfigContents = @"{
+  ""cloud"": {
+    ""currentProfile"": ""AzureCloud"",
+    ""profiles"": {
+      ""AzureCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.azure.com""
+      },
+      ""AzureChinaCloud"": {
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+      },
+      ""AzureUSGovernment"": {
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+      }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
+  },
+  ""moduleAliases"": {
+    ""ts"": {},
+    ""br"": {}
+  },
   ""analyzers"": {
     ""core"": {
       ""verbose"": false,
@@ -364,11 +407,11 @@ namespace Bicep.LangServer.IntegrationTests
             }
             else
             {
-                bicepConfigFilePath = Path.Combine(testOutputPath, LanguageConstants.BicepConfigSettingsFileName);
+                bicepConfigFilePath = Path.Combine(testOutputPath, LanguageConstants.BicepConfigurationFileName);
             }
 
             var workspace = new Workspace();
-            var compilation = GetCompilation(testOutputPath, bicepFilePath, workspace);
+            var compilation = GetCompilation(bicepFilePath, workspace);
 
             var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
 
@@ -405,19 +448,20 @@ namespace Bicep.LangServer.IntegrationTests
             await client.Workspace.ExecuteCommand(command);
 
             // Verify diagnostics is cleared
-            GetCompilation(testOutputPath, bicepFilePath, workspace).GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            GetCompilation(bicepFilePath, workspace).GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
 
             // Verify bicepconfig.json file contents
             File.ReadAllText(bicepConfigFilePath).Should().BeEquivalentToIgnoringNewlines(expectedBicepConfigFileContents);
         }
 
-        private Compilation GetCompilation(string? folderContainingBicepConfig, string bicepFilePath, Workspace workspace)
+        private Compilation GetCompilation(string bicepFilePath, Workspace workspace)
         {
             var moduleRegistryProvider = new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features);
             var dispatcher = new ModuleDispatcher(moduleRegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.BuiltInConfiguration);
+            var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(new Uri(bicepFilePath));
 
-            return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, new ConfigHelper(folderContainingBicepConfig, BicepTestConstants.FileResolver));
+            return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration);
         }
 
         private static IEnumerable<TextSpan> GetOverlappingSpans(TextSpan span)

@@ -53,7 +53,7 @@ namespace Bicep.Core
         public const string TargetScopeTypeSubscription = "subscription";
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
-        public const string BicepConfigSettingsFileName = "bicepconfig.json";
+        public const string BicepConfigurationFileName = "bicepconfig.json";
 
         public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
 

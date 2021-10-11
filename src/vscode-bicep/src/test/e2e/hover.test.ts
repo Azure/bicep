@@ -39,7 +39,7 @@ describe("hover", (): void => {
       startCharacter: 6,
       endLine: 1,
       endCharacter: 12,
-      contents: ["param vmName: string"],
+      contents: [codeblock("param vmName: string")],
     });
   });
 
@@ -54,7 +54,7 @@ describe("hover", (): void => {
       startCharacter: 4,
       endLine: 50,
       endCharacter: 22,
-      contents: ["var linuxConfiguration: object"],
+      contents: [codeblock("var linuxConfiguration: object")],
     });
   });
 
@@ -69,7 +69,11 @@ describe("hover", (): void => {
       startCharacter: 9,
       endLine: 108,
       endCharacter: 13,
-      contents: ["resource vnet\nMicrosoft.Network/virtualNetworks@2020-06-01"],
+      contents: [
+        codeblock(
+          "resource vnet\nMicrosoft.Network/virtualNetworks@2020-06-01"
+        ),
+      ],
     });
   });
 
@@ -84,7 +88,7 @@ describe("hover", (): void => {
       startCharacter: 7,
       endLine: 183,
       endCharacter: 28,
-      contents: ["output administratorUsername: string"],
+      contents: [codeblock("output administratorUsername: string")],
     });
   });
 
@@ -99,7 +103,12 @@ describe("hover", (): void => {
       startCharacter: 55,
       endLine: 18,
       endCharacter: 67,
-      contents: ["function uniqueString(string): string"],
+      contents: [
+        codeblockWithDescription(
+          "function uniqueString(string): string",
+          "Creates a deterministic hash string based on the values provided as parameters."
+        ),
+      ],
     });
   });
 
@@ -139,9 +148,7 @@ describe("hover", (): void => {
       );
       expect(hover.contents).toHaveLength(contents.length);
       hover.contents.forEach((content, contentIndex) => {
-        expect(normalizeMarkedString(content)).toBe(
-          marked(contents[contentIndex])
-        );
+        expect(normalizeMarkedString(content)).toBe(contents[contentIndex]);
       });
     });
   }
@@ -150,7 +157,14 @@ describe("hover", (): void => {
     return typeof markedString === "string" ? markedString : markedString.value;
   }
 
-  function marked(rawString: string): string {
+  function codeblock(rawString: string): string {
     return "```bicep\n" + rawString + "\n```\n";
+  }
+
+  function codeblockWithDescription(
+    rawString: string,
+    description: string
+  ): string {
+    return `${codeblock(rawString)}${description}\n`;
   }
 });

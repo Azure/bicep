@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10522944321173136296"
+      "templateHash": "4030133491330352149"
     }
   },
   "parameters": {
@@ -75,7 +75,7 @@
               "sessionAffinityEnabledState": "Disabled",
               "sessionAffinityTtlSeconds": 0,
               "webApplicationFirewallPolicyLink": {
-                "id": "[resourceInfo('resAzFdWaf').id]"
+                "id": "[format('{0}', resourceInfo('resAzFdWaf').id)]"
               }
             }
           }

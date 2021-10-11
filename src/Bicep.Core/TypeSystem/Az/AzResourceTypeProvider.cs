@@ -31,10 +31,10 @@ namespace Bicep.Core.TypeSystem.Az
                         ResourceTypeReferenceComparer.Instance.GetHashCode(x.type);
             }
 
-            private readonly ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType> cache
-                = new ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceType>(KeyComparer.Instance);
+            private readonly ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents> cache
+                = new ConcurrentDictionary<(ResourceTypeGenerationFlags flags, ResourceTypeReference type), ResourceTypeComponents>(KeyComparer.Instance);
 
-            public ResourceType GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceType> buildFunc)
+            public ResourceTypeComponents GetOrAdd(ResourceTypeGenerationFlags flags, ResourceTypeReference typeReference, Func<ResourceTypeComponents> buildFunc)
             {
                 var cacheKey = (flags, typeReference);
 
@@ -73,7 +73,7 @@ namespace Bicep.Core.TypeSystem.Az
             return new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, properties, null);
         }
 
-        private static ResourceType SetBicepResourceProperties(ResourceType resourceType, ResourceTypeGenerationFlags flags)
+        private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {
             var bodyType = resourceType.Body.Type;
 
@@ -138,10 +138,10 @@ namespace Bicep.Core.TypeSystem.Az
                 default:
                     // we exhaustively test deserialization of every resource type during CI, and this happens in a deterministic fashion,
                     // so this exception should never occur in the released product
-                    throw new ArgumentException($"Resource {resourceType.Name} has unexpected body type {bodyType.GetType()}");
+                    throw new ArgumentException($"Resource {resourceType.TypeReference.FormatName()} has unexpected body type {bodyType.GetType()}");
             }
 
-            return new ResourceType(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
+            return new ResourceTypeComponents(resourceType.TypeReference, resourceType.ValidParentScopes, bodyType);
         }
 
         private static ObjectType SetBicepResourceProperties(ObjectType objectType, ResourceScope validParentScopes, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
@@ -280,7 +280,7 @@ namespace Bicep.Core.TypeSystem.Az
         private static TypePropertyFlags ConvertToReadOnly(TypePropertyFlags typePropertyFlags)
             => (typePropertyFlags | TypePropertyFlags.ReadOnly) & ~TypePropertyFlags.Required;
 
-        public ResourceType? TryGetDefinedType(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
             if (!HasDefinedType(typeReference))
             {
@@ -288,26 +288,30 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // It's important to cache this result because generating the resource type is an expensive operation
-            return definedTypeCache.GetOrAdd(flags, typeReference, () =>
+            var resourceType =  definedTypeCache.GetOrAdd(flags, typeReference, () =>
             {
                 var resourceType = this.resourceTypeLoader.LoadType(typeReference);
 
                 return SetBicepResourceProperties(resourceType, flags);
             });
+
+            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
         }
 
-        public ResourceType? TryGenerateDefaultType(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
             // It's important to cache this result because generating the resource type is an expensive operation
-            return generatedTypeCache.GetOrAdd(flags, typeReference, () =>
+            var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
             {
-                var resourceType = new ResourceType(
+                var resourceType = new ResourceTypeComponents(
                     typeReference,
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup | ResourceScope.Resource,
                     CreateGenericResourceBody(typeReference, p => true));
 
                 return SetBicepResourceProperties(resourceType, flags);
             });
+
+            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

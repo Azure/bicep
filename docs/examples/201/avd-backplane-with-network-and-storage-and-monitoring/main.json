@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15916346895618039714"
+      "templateHash": "7390117122005755401"
     }
   },
   "parameters": {
@@ -886,7 +886,7 @@
             "value": "[parameters('uamiName')]"
           },
           "roleNameGalleryImage": {
-            "value": "BicepSIGRole"
+            "value": "[format('{0}', 'BicepSIGRole')]"
           }
         },
         "template": {
@@ -1068,7 +1068,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12367961123551245048"
+              "templateHash": "11901003945765009081"
             }
           },
           "parameters": {
@@ -1128,7 +1128,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]": {}
+                  "[format('{0}', resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName')))]": {}
                 }
               },
               "properties": {
@@ -1217,7 +1217,7 @@
               "identity": {
                 "type": "UserAssigned",
                 "userAssignedIdentities": {
-                  "[parameters('uamiId')]": {}
+                  "[format('{0}', parameters('uamiId'))]": {}
                 }
               },
               "properties": {

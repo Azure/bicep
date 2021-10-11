@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
@@ -30,29 +31,39 @@ namespace Bicep.Core.Registry
 
         public ImmutableArray<string> AvailableSchemes { get; }
 
-        public ModuleReference? TryGetModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ModuleReference? TryGetModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            var parts = reference.Split(':', 2, System.StringSplitOptions.None);
+            var parts = reference.Split(':', 2, StringSplitOptions.None);
             switch (parts.Length)
             {
                 case 1:
                     // local path reference
                     if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
-                        return localRegistry.TryParseModuleReference(parts[0], out failureBuilder);
+                        return localRegistry.TryParseModuleReference(null, parts[0], configuration, out failureBuilder);
                     }
 
                     failureBuilder = x => x.UnknownModuleReferenceScheme(ModuleReferenceSchemes.Local, this.AvailableSchemes);
                     return null;
 
                 case 2:
-                    var scheme = parts[0];
+                    string scheme = parts[0];
+                    string? aliasName = null;
+
+                    if (parts[0].Contains("/"))
+                    {
+                        // The sheme contains an alias.
+                        var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
+                        scheme = schemeParts[0];
+                        aliasName = schemeParts[1];
+                    }
 
                     if (!string.IsNullOrEmpty(scheme) && registries.TryGetValue(scheme, out var registry))
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
-                        return registry.TryParseModuleReference(rawValue, out failureBuilder);
+
+                        return registry.TryParseModuleReference(aliasName, rawValue, configuration, out failureBuilder);
                     }
 
                     // unknown scheme
@@ -66,7 +77,7 @@ namespace Bicep.Core.Registry
             }
         }
 
-        public ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var moduleReferenceString = SyntaxHelper.TryGetModulePath(module, out var getModulePathFailureBuilder);
             if (moduleReferenceString is null)
@@ -75,7 +86,7 @@ namespace Bicep.Core.Registry
                 return null;
             }
 
-            return this.TryGetModuleReference(moduleReferenceString, out failureBuilder);
+            return this.TryGetModuleReference(moduleReferenceString, configuration, out failureBuilder);
         }
 
         public RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference)
@@ -89,7 +100,6 @@ namespace Bicep.Core.Registry
             var registry = this.GetRegistry(moduleReference);
             
             // have we already failed to restore this module?
-            // TODO: This needs to reset after some time
             if (this.HasRestoreFailed(moduleReference, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
@@ -99,7 +109,6 @@ namespace Bicep.Core.Registry
             if (registry.IsModuleRestoreRequired(moduleReference))
             {
                 // module is not present on the local file system
-                // TODO: This error needs to have different text in CLI vs the language server
                 failureBuilder = x => x.ModuleRequiresRestore(moduleReference.FullyQualifiedReference);
                 return ModuleRestoreStatus.Unknown;
             }
@@ -108,7 +117,7 @@ namespace Bicep.Core.Registry
             return ModuleRestoreStatus.Succeeded;
         }
 
-        public Uri? TryGetLocalModuleEntryPointUri(Uri parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             // has restore already failed for this module?
             if(this.HasRestoreFailed(moduleReference, out var restoreFailureBuilder))
@@ -121,7 +130,7 @@ namespace Bicep.Core.Registry
             return registry.TryGetLocalModuleEntryPointUri(parentModuleUri, moduleReference, out failureBuilder);
         }
 
-        public async Task<bool> RestoreModules(IEnumerable<ModuleReference> moduleReferences)
+        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
@@ -140,7 +149,7 @@ namespace Bicep.Core.Registry
             // send each set of refs to its own registry
             foreach (var scheme in this.registries.Keys.Where(refType => referencesByScheme.Contains(refType)))
             {
-                var restoreStatuses = await this.registries[scheme].RestoreModules(referencesByScheme[scheme]);
+                var restoreStatuses = await this.registries[scheme].RestoreModules(configuration, referencesByScheme[scheme]);
 
                 // update restore status for each failed module restore
                 foreach(var (failedReference, failureBuilder) in restoreStatuses)
@@ -152,10 +161,10 @@ namespace Bicep.Core.Registry
             return true;
         }
 
-        public async Task PublishModule(ModuleReference moduleReference, Stream compiled)
+        public async Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled)
         {
             var registry = this.GetRegistry(moduleReference);
-            await registry.PublishModule(moduleReference, compiled);
+            await registry.PublishModule(configuration, moduleReference, compiled);
         }
 
         public void PruneRestoreStatuses()

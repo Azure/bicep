@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Web;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Emit;
@@ -1051,8 +1052,9 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItemBuilder CreateModulePathCompletionBuilder(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
-            path = StringUtils.EscapeBicepString(path);
-            var item = CompletionItemBuilder.Create(completionItemKind, name)
+            // unescape string according to https://stackoverflow.com/questions/575440/url-encoding-using-c-sharp
+            path = StringUtils.EscapeBicepString(Uri.UnescapeDataString(path));
+            var item = CompletionItemBuilder.Create(completionItemKind, Uri.UnescapeDataString(name))
                 .WithFilterText(path)
                 .WithSortText(GetSortText(name, priority));
             // Folder completions should keep us within the completion string
