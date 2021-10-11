@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
@@ -29,7 +29,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [DataRow(@"
-            resource dnsZone 'Microsoft.Network/dnsZones@2015-10-01' = {
+            resource dnsZone 'Microsoft.Network/dnsZones@2015-10-01-preview' = {
               name: 'name'
               location: resourceGroup().location
             }",
