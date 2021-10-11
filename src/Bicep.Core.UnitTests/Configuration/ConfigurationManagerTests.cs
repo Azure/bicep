@@ -38,13 +38,16 @@ namespace Bicep.Core.UnitTests.Configuration
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
     },
     ""credentialPrecedence"": [
@@ -106,13 +109,16 @@ namespace Bicep.Core.UnitTests.Configuration
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
     },
     ""credentialPrecedence"": [
@@ -205,6 +211,71 @@ namespace Bicep.Core.UnitTests.Configuration
             configuration.Should().BeSameAs(sut.GetBuiltInConfiguration());
         }
 
+        [DataTestMethod]
+        [DataRow(@"{
+  ""cloud"": {
+    ""currentProfile"": ""MyCloud""
+  }
+}", "The cloud profile \"MyCloud\" does not exist in the Bicep configuration \"*\". Available profiles include \"AzureChinaCloud\", \"AzureCloud\", \"AzureUSGovernment\".")]
+        [DataRow(@"{
+  ""cloud"": {
+    ""currentProfile"": ""MyCloud"",
+    ""profiles"": {
+      ""MyCloud"": {
+      }
+    }
+  }
+}", "The cloud profile \"MyCloud\" in the Bicep configuration \"*\". The \"resourceManagerEndpoint\" property cannot be null or undefined.")]
+        [DataRow(@"{
+  ""cloud"": {
+    ""currentProfile"": ""MyCloud"",
+    ""profiles"": {
+      ""MyCloud"": {
+        ""resourceManagerEndpoint"": ""Not and URL""
+      }
+    }
+  }
+}", "The cloud profile \"MyCloud\" in the Bicep configuration \"*\" is invalid. The value of the \"resourceManagerEndpoint\" property \"Not and URL\" is not a valid URL.")]
+        [DataRow(@"{
+  ""cloud"": {
+    ""currentProfile"": ""MyCloud"",
+    ""profiles"": {
+      ""MyCloud"": {
+        ""resourceManagerEndpoint"": ""https://example.invalid""
+      }
+    }
+  }
+}",
+            "The cloud profile \"MyCloud\" in the Bicep configuration \"*\". The \"activeDirectoryAuthority\" property cannot be null or undefined.")]
+        [DataRow(@"{
+  ""cloud"": {
+    ""currentProfile"": ""MyCloud"",
+    ""profiles"": {
+      ""MyCloud"": {
+        ""resourceManagerEndpoint"": ""https://example.invalid"",
+        ""activeDirectoryAuthority"": ""Not an URL""
+      }
+    }
+  }
+}", "The cloud profile \"MyCloud\" in the Bicep configuration \"*\" is invalid. The value of the \"activeDirectoryAuthority\" property \"Not an URL\" is not a valid URL.")]
+        public void GetConfiguration_InvalidCurrentCloudProfile_ThrowsConfigurationException(string configurationContents, string expectedExceptionMessage)
+        {
+            // Arrange.
+            var configurataionPath = CreatePath("path/to/bicepconfig.json");
+            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            {
+                [configurataionPath] = configurationContents,
+            });
+
+            var sut = new ConfigurationManager(fileSystem);
+            var sourceFileUri = new Uri(CreatePath("path/to/main.bicep"));
+
+            // Act & Assert.
+            FluentActions.Invoking(() => sut.GetConfiguration(sourceFileUri)).Should()
+                .Throw<ConfigurationException>()
+                .WithMessage(expectedExceptionMessage);
+        }
+
         [TestMethod]
         public void GetConfiguration_ValidCustomConfiguration_OverridesBuiltInConfiguration()
         {
@@ -218,7 +289,8 @@ namespace Bicep.Core.UnitTests.Configuration
     ""currentProfile"": ""MyCloud"",
     ""profiles"": {
       ""MyCloud"": {
-        ""resourceManagerEndpoint"": ""https://bicep.example.com""
+        ""resourceManagerEndpoint"": ""https://bicep.example.com"",
+        ""activeDirectoryAuthority"": ""https://login.bicep.example.com""
       }
     },
     ""credentialPrecedence"": [
@@ -276,16 +348,20 @@ namespace Bicep.Core.UnitTests.Configuration
     ""currentProfile"": ""MyCloud"",
     ""profiles"": {
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       },
       ""MyCloud"": {
-        ""resourceManagerEndpoint"": ""https://bicep.example.com""
+        ""resourceManagerEndpoint"": ""https://bicep.example.com"",
+        ""activeDirectoryAuthority"": ""https://login.bicep.example.com""
       }
     },
     ""credentialPrecedence"": [

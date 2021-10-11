@@ -16,7 +16,9 @@ namespace Bicep.Core.UnitTests.Registry
     [TestClass]
     public class TokenCredentialFactoryTests
     {
-        [DataRow(CredentialType.Environment,typeof(EnvironmentCredential))]
+        private static readonly Uri exampleAuthorityUri = new("https://bicep.test.invalid");
+
+        [DataRow(CredentialType.Environment, typeof(EnvironmentCredential))]
         [DataRow(CredentialType.ManagedIdentity, typeof(ManagedIdentityCredential))]
         [DataRow(CredentialType.VisualStudio, typeof(VisualStudioCredential))]
         [DataRow(CredentialType.VisualStudioCode, typeof(VisualStudioCodeCredential))]
@@ -26,20 +28,20 @@ namespace Bicep.Core.UnitTests.Registry
         public void ShouldCreateExpectedSingleCredential(CredentialType credentialType, Type expectedCredentialType)
         {
             var f = new TokenCredentialFactory();
-            f.CreateSingle(credentialType).Should().BeOfType(expectedCredentialType);
+            f.CreateSingle(credentialType, exampleAuthorityUri).Should().BeOfType(expectedCredentialType);
         }
 
         public void EmptyListOfCredentialTypesShouldThrow()
         {
             var f = new TokenCredentialFactory();
-            FluentActions.Invoking(() => f.CreateChain(Enumerable.Empty<CredentialType>())).Should().Throw<ArgumentException>();
+            FluentActions.Invoking(() => f.CreateChain(Enumerable.Empty<CredentialType>(), exampleAuthorityUri)).Should().Throw<ArgumentException>();
         }
 
         [TestMethod]
         public void ShouldCreateExpectedSingleItemChain()
         {
             var f = new TokenCredentialFactory();
-            var credential = f.CreateChain(new[] { CredentialType.VisualStudioCode });
+            var credential = f.CreateChain(new[] { CredentialType.VisualStudioCode }, exampleAuthorityUri);
             AssertCredentialTypes(credential, typeof(VisualStudioCodeCredential));
         }
 
@@ -47,7 +49,7 @@ namespace Bicep.Core.UnitTests.Registry
         public void ShouldCreateExpectedMultiItemChain()
         {
             var f = new TokenCredentialFactory();
-            var credential = f.CreateChain(new[] { CredentialType.AzureCLI, CredentialType.ManagedIdentity, CredentialType.VisualStudio });
+            var credential = f.CreateChain(new[] { CredentialType.AzureCLI, CredentialType.ManagedIdentity, CredentialType.VisualStudio }, exampleAuthorityUri);
             AssertCredentialTypes(credential, typeof(AzureCliCredential), typeof(ManagedIdentityCredential), typeof(VisualStudioCredential));
         }
 

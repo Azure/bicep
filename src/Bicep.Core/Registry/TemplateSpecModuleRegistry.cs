@@ -54,7 +54,7 @@ namespace Bicep.Core.Registry
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
                 try
                 {
-                    var repository = this.repositoryFactory.CreateRepository(configuration, reference.EndpointUri, reference.SubscriptionId);
+                    var repository = this.repositoryFactory.CreateRepository(configuration, reference.SubscriptionId);
                     var templateSpecEntity = await repository.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId);
 
                     await this.SaveModuleToDisk(reference, templateSpecEntity);

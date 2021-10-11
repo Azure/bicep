@@ -69,19 +69,23 @@ namespace Bicep.Core.UnitTests
             return mock.Object;
         }
 
-        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object> customConfigurationData, string? configurationPath = null)
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
         {
             var configurationData = new Dictionary<string, object>
             {
-                ["cloud.currentProfile"] = "MyProfile",
+                ["cloud.currentProfile"] = "AzureCloud",
                 ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
                 ["moduleAliases"] = new Dictionary<string, object>(),
                 ["analyzers"] = new Dictionary<string, object>(),
             };
 
-            foreach (var (path, value) in customConfigurationData)
+            if (customConfigurationData is not null)
             {
-                configurationData[path] = value;
+                foreach (var (path, value) in customConfigurationData)
+                {
+                    configurationData[path] = value;
+                }
             }
 
             var element = JsonElementFactory.CreateElement("{}");

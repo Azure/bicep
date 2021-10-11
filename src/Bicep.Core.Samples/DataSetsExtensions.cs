@@ -104,7 +104,7 @@ namespace Bicep.Core.Samples
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext testContext)
         {
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasTemplateSpecs)));
-            var repositoryMocksBySubscription = new Dictionary<(Uri? endpointUri, string subscriptionId), Mock<ITemplateSpecRepository>>();
+            var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
             {
@@ -116,19 +116,19 @@ namespace Bicep.Core.Samples
                 var templateSpecElement = JsonElementFactory.CreateElement(templateSpecInfo.ModuleSource);
                 var templateSpecEntity = TemplateSpecEntity.FromJsonElement(templateSpecElement);
 
-                repositoryMocksBySubscription.TryAdd((reference.EndpointUri, reference.SubscriptionId), StrictMock.Of<ITemplateSpecRepository>());
-                repositoryMocksBySubscription[(reference.EndpointUri, reference.SubscriptionId)]
+                repositoryMocksBySubscription.TryAdd(reference.SubscriptionId, StrictMock.Of<ITemplateSpecRepository>());
+                repositoryMocksBySubscription[reference.SubscriptionId]
                     .Setup(x => x.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
                     .ReturnsAsync(templateSpecEntity);
             }
 
             var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();
             repositoryFactoryMock
-                .Setup(x => x.CreateRepository(It.IsAny<RootConfiguration>(), It.IsAny<Uri?>(), It.IsAny<string>()))
-                .Returns<RootConfiguration, Uri?, string>((_, endpointUri, subscriptionId) =>
-                    repositoryMocksBySubscription.TryGetValue((endpointUri, subscriptionId), out var repository)
+                .Setup(x => x.CreateRepository(It.IsAny<RootConfiguration>(), It.IsAny<string>()))
+                .Returns<RootConfiguration, string>((_, subscriptionId) =>
+                    repositoryMocksBySubscription.TryGetValue(subscriptionId, out var repository)
                         ? repository.Object
-                        : throw new InvalidOperationException($"No mock client was registered for endpoint '{endpointUri}' and subscription '{subscriptionId}'."));
+                        : throw new InvalidOperationException($"No mock client was registered for subscription '{subscriptionId}'."));
 
             return repositoryFactoryMock.Object;
         }

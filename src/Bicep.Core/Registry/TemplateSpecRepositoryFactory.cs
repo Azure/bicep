@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Azure.ResourceManager;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
@@ -18,14 +17,15 @@ namespace Bicep.Core.Registry
             this.credentialFactory = credentialFactory;
         }
 
-        public ITemplateSpecRepository CreateRepository(RootConfiguration configuration, Uri? endpointUri, string subscriptionId)
+        public ITemplateSpecRepository CreateRepository(RootConfiguration configuration, string subscriptionId)
         {
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
             options.ApiVersions.SetApiVersion("templateSpecs", "2021-05-01");
+            options.Scope = configuration.Cloud.AuthenticationScope;
 
-            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence);
-            var armClient = new ArmClient(subscriptionId, endpointUri, credential, options);
+            var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
+            var armClient = new ArmClient(subscriptionId, configuration.Cloud.ResourceManagerEndpointUri, credential, options);
 
             return new TemplateSpecRepository(armClient);
         }
