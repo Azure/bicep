@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Bicep.Core.ApiVersion;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 
@@ -32,33 +33,89 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            List<IDiagnostic> diagnostics = new();
 
             foreach (var resourceSymbol in model.Root.ResourceDeclarations)
             {
                 if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference)
                 {
                     string apiVersion = resourceTypeReference.ApiVersion;
-                    if (ApiVersionProvider.GetRecentApiVersionDate(resourceTypeReference.FullyQualifiedType) is DateTime recentNonPreviewApiVersion)
+                    DateTime currentApiVersionDate = ConvertApiVersionToDateTime(apiVersion);
+                    string? recentNonPreviewApiVersion = ApiVersionProvider.GetRecentApiVersionDate(resourceTypeReference.FullyQualifiedType);
+
+                    if (apiVersion.EndsWith("-preview"))
                     {
-                        if (apiVersion.EndsWith("-preview"))
-                        {
-                            if (ApiVersionProvider.ConvertApiVersionToDateTime(apiVersion) is DateTime currentApiVersion &&
-                                DateTime.Compare(recentNonPreviewApiVersion, currentApiVersion) > 0)
-                            {
-                                diagnostics.Add(CreateDiagnosticForSpan(resourceSymbol.DeclaringResource.Type.Span, recentNonPreviewApiVersion.ToString()));
-                            }
+                        string? recentPreviewVersionWithoutPreviewPrefix = ApiVersionProvider.GetRecentApiVersionDate(resourceTypeReference.FullyQualifiedType, useNonApiVersionCache: false);
 
-                        }
-                        else
+                        if (recentPreviewVersionWithoutPreviewPrefix is not null)
                         {
-
+                            AddDiagnosticsIfPreviewVersionIsNotLatest(resourceSymbol.DeclaringResource.Type.Span,
+                                                                      recentPreviewVersionWithoutPreviewPrefix,
+                                                                      recentNonPreviewApiVersion,
+                                                                      currentApiVersionDate,
+                                                                      diagnostics);
                         }
+                    }
+                    else
+                    {
+                        AddDiagnosticsIfNonPreviewVersionIsNotLatest(resourceSymbol.DeclaringResource.Type.Span,
+                                                                     recentNonPreviewApiVersion,
+                                                                     currentApiVersionDate,
+                                                                     diagnostics);
                     }
                 }
             }
 
             return diagnostics;
+        }
+
+        // A preview version is valid only if it is latest and there is no later non-preview version
+        public void AddDiagnosticsIfPreviewVersionIsNotLatest(TextSpan span,
+                                                              string recentPreviewVersionWithoutPreviewPrefix,
+                                                              string? recentNonPreviewApiVersion,
+                                                              DateTime currentApiVersionDate,
+                                                              List<IDiagnostic> diagnostics)
+        {
+            DateTime recentPreviewVersionDate = ConvertApiVersionToDateTime(recentPreviewVersionWithoutPreviewPrefix);
+
+            if (recentNonPreviewApiVersion is not null &&
+                DateTime.Parse(recentNonPreviewApiVersion) is DateTime recentNonPreviewApiVersionDate &&
+                DateTime.Compare(recentNonPreviewApiVersionDate, recentPreviewVersionDate) >= 0 &&
+                DateTime.Compare(recentNonPreviewApiVersionDate, currentApiVersionDate) >= 0)
+            {
+                diagnostics.Add(CreateDiagnosticForSpan(span, recentNonPreviewApiVersion));
+                return;
+            }
+
+            if (DateTime.Compare(recentPreviewVersionDate, currentApiVersionDate) > 0)
+            {
+                diagnostics.Add(CreateDiagnosticForSpan(span, recentPreviewVersionWithoutPreviewPrefix + "-preview"));
+            }
+        }
+
+        // 1. Any non-preview version is allowed as long as it's not > 2 years old, even if there is a more recent non-preview version
+        // 2. If there is no non preview apiVersion less than 2 years old, then take the latest one available from the cache of non preview versions
+        public void AddDiagnosticsIfNonPreviewVersionIsNotLatest(TextSpan span,
+                                                                 string? recentNonPreviewApiVersion,
+                                                                 DateTime currentApiVersionDate,
+                                                                 List<IDiagnostic> diagnostics)
+        {
+            if (recentNonPreviewApiVersion is null || DateTime.Now.Year - currentApiVersionDate.Year <= 2)
+            {
+                return;
+            }
+
+            DateTime recentNonPreviewApiVersionDate = DateTime.Parse(recentNonPreviewApiVersion);
+
+            if (DateTime.Compare(recentNonPreviewApiVersionDate, currentApiVersionDate) > 0)
+            {
+                diagnostics.Add(CreateDiagnosticForSpan(span, recentNonPreviewApiVersion));
+            }
+        }
+
+        private static DateTime ConvertApiVersionToDateTime(string apiVersion)
+        {
+            return DateTime.Parse(apiVersion.Split("-preview")[0]);
         }
     }
 }

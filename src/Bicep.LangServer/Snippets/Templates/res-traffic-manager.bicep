@@ -1,5 +1,5 @@
 ﻿// Traffic Manager Profile
-resource /*${1:trafficManagerProfile}*/trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {
+resource /*${1:trafficManagerProfile}*/trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-08-01' = {
   name: /*${2:'name'}*/'name'
   location: 'global'
   properties: {

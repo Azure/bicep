@@ -15,8 +15,8 @@ namespace Bicep.Core.ApiVersion
 {
     public class ApiVersionProvider
     {
-        private Dictionary<string, List<DateTime>> previewVersions = new();
-        private Dictionary<string, List<DateTime>> nonPreviewVersions = new();
+        private Dictionary<string, List<string>> previewVersions = new();
+        private Dictionary<string, List<string>> nonPreviewVersions = new();
 
         public ApiVersionProvider()
         {
@@ -41,44 +41,35 @@ namespace Bicep.Core.ApiVersion
                 }
             }
 
-            previewVersions = previewVersions.ToDictionary(x => x.Key, x => x.Value.OrderByDescending(y => y.Date).ToList());
-            nonPreviewVersions = nonPreviewVersions.ToDictionary(x => x.Key, x => x.Value.OrderByDescending(y => y.Date).ToList());
+            previewVersions = previewVersions.ToDictionary(x => x.Key, x => x.Value.OrderByDescending(y => y).ToList());
+            nonPreviewVersions = nonPreviewVersions.ToDictionary(x => x.Key, x => x.Value.OrderByDescending(y => y).ToList());
         }
 
-        private void UpdateCache(Dictionary<string, List<DateTime>> cache, ResourceTypeReference resourceTypeReference)
+        private void UpdateCache(Dictionary<string, List<string>> cache, ResourceTypeReference resourceTypeReference)
         {
             string apiVersion = resourceTypeReference.ApiVersion.Split("-preview").ElementAt(0);
-            if (cache.TryGetValue(resourceTypeReference.FullyQualifiedType, out List<DateTime> value))
+            if (cache.TryGetValue(resourceTypeReference.FullyQualifiedType, out List<string> value))
             {
-                value.Add(DateTime.ParseExact(apiVersion, "yyyy-MM-dd", CultureInfo.InvariantCulture));
+                value.Add(apiVersion);
                 cache[resourceTypeReference.FullyQualifiedType] = value;
             }
             else
             {
-                cache.Add(resourceTypeReference.FullyQualifiedType, new List<DateTime> { DateTime.ParseExact(apiVersion, "yyyy-MM-dd", CultureInfo.InvariantCulture) });
+                cache.Add(resourceTypeReference.FullyQualifiedType, new List<string> { apiVersion });
             }
         }
 
-        public DateTime? ConvertApiVersionToDateTime(string apiVersion)
+        public string? GetRecentApiVersionDate(string fullyQualifiedName, bool useNonApiVersionCache = true)
         {
-            if (apiVersion.Split("-preview") is string[] words &&
-                words is not null)
+            if (useNonApiVersionCache)
             {
-                return DateTime.ParseExact(words[0], "yyyy-MM-dd", CultureInfo.InvariantCulture);
+                if (nonPreviewVersions.TryGetValue(fullyQualifiedName, out List<string> nonPreviewVersionDates) &&
+                    nonPreviewVersionDates.Any())
+                {
+                    return nonPreviewVersionDates.First();
+                }
             }
-
-            return null;
-        }
-
-        public DateTime? GetRecentApiVersionDate(string fullyQualifiedName, bool useNonApiVersionCache = true)
-        {
-            if (useNonApiVersionCache &&
-                nonPreviewVersions.TryGetValue(fullyQualifiedName, out List<DateTime> nonPreviewVersionDates) &&
-                nonPreviewVersionDates.Any())
-            {
-                return nonPreviewVersionDates.First();
-            }
-            else if (previewVersions.TryGetValue(fullyQualifiedName, out List<DateTime> previewVersionDates)
+            else if (previewVersions.TryGetValue(fullyQualifiedName, out List<string> previewVersionDates)
                 && previewVersionDates.Any())
             {
                 return previewVersionDates.First();

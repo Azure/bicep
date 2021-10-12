@@ -1,13 +1,11 @@
 // $1 = logicAppConnector
 // $2 = 'name'
-// $3 = 'name'
-// $4 = 'logicAppConnectorApi'
+// $3 = 'logicAppConnectorApi'
 
-resource logicAppConnector 'Microsoft.Web/connections@2015-08-01-preview' = {
+resource logicAppConnector 'Microsoft.Web/connections@2016-06-01' = {
   name: 'name'
   location: resourceGroup().location
   properties: {
-    name: 'name'
     api: any({
       id: subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'logicAppConnectorApi')
     })

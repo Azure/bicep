@@ -4,7 +4,7 @@
 // $4 = 'Desktop'
 // $5 = 'desktopVirtualizationHostPools.id'
 
-resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
+resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2021-07-12' = {
   name: 'name'
   location: resourceGroup().location
   properties: {
