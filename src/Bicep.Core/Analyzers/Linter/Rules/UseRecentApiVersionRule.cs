@@ -8,6 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -37,9 +38,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var resourceSymbol in model.Root.ResourceDeclarations)
             {
-                if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference)
+                if (resourceSymbol.TryGetResourceTypeReference() is ResourceTypeReference resourceTypeReference &&
+                    resourceTypeReference.ApiVersion is string apiVersion &&
+                    GetReplacementSpan(resourceSymbol, apiVersion) is TextSpan replacementSpan)
                 {
-                    string apiVersion = resourceTypeReference.ApiVersion;
                     DateTime currentApiVersionDate = ConvertApiVersionToDateTime(apiVersion);
                     string? recentNonPreviewApiVersion = ApiVersionProvider.GetRecentApiVersionDate(resourceTypeReference.FullyQualifiedType);
 
@@ -49,7 +51,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                         if (recentPreviewVersionWithoutPreviewPrefix is not null)
                         {
-                            AddDiagnosticsIfPreviewVersionIsNotLatest(resourceSymbol.DeclaringResource.Type.Span,
+                            AddDiagnosticsIfPreviewVersionIsNotLatest(replacementSpan,
                                                                       recentPreviewVersionWithoutPreviewPrefix,
                                                                       recentNonPreviewApiVersion,
                                                                       currentApiVersionDate,
@@ -58,7 +60,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
                     else
                     {
-                        AddDiagnosticsIfNonPreviewVersionIsNotLatest(resourceSymbol.DeclaringResource.Type.Span,
+                        AddDiagnosticsIfNonPreviewVersionIsNotLatest(replacementSpan,
                                                                      recentNonPreviewApiVersion,
                                                                      currentApiVersionDate,
                                                                      diagnostics);
@@ -68,6 +70,22 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             return diagnostics;
         }
+
+        private TextSpan? GetReplacementSpan(ResourceSymbol resourceSymbol, string apiVersion)
+        {
+            if (resourceSymbol.DeclaringResource.TypeString is StringSyntax typeString &&
+                typeString.TryGetLiteralValue() is string value &&
+                value is not null)
+            {
+                TextSpan typeSpan = typeString.Span;
+                int replacementSpanStart = typeSpan.Position + value.IndexOf(apiVersion) + 1;
+
+                return new TextSpan(replacementSpanStart, typeSpan.Position + typeSpan.Length - replacementSpanStart);
+            }
+
+            return null;
+        }
+
 
         // A preview version is valid only if it is latest and there is no later non-preview version
         public void AddDiagnosticsIfPreviewVersionIsNotLatest(TextSpan span,
