@@ -7,8 +7,6 @@ namespace Bicep.Core.ApiVersion
 {
     public interface IApiVersionProvider
     {
-        public DateTime? GetRecentApiVersionDate(string fullyQualifiedName, bool useNonPreviewVersionsCache = true);
-
-        public DateTime? ConvertApiVersionToDateTime(string apiVersion);
+        public string? GetRecentApiVersion(string fullyQualifiedName, bool useNonApiVersionCache = true);
     }
 }

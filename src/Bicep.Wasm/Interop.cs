@@ -21,6 +21,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Features;
 using Bicep.Core.Configuration;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Bicep.Core.ApiVersion;
 
 namespace Bicep.Wasm
 {

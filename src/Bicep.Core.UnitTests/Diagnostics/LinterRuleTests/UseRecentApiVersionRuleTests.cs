@@ -5,16 +5,22 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Diagnostics;
+using Bicep.Core.ApiVersion;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Parsing;
+using Bicep.Core.Semantics;
+using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using static Bicep.Core.Analyzers.Linter.Rules.UseRecentApiVersionRule;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
     public class UseRecentApiVersionRuleTests : LinterRuleTestsBase
     {
+        private readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
+
         private void CompileAndTest(string text, params string[] useRecentApiVersions)
         {
             AssertRuleCodeDiagnostics(UseRecentApiVersionRule.Code, text, diags =>
@@ -31,6 +37,11 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             });
         }
+
+        private SemanticModel SemanticModel => new Compilation(TestTypeHelper.CreateEmptyProvider(),
+                                                               SourceFileGroupingFactory.CreateFromText("", BicepTestConstants.FileResolver),
+                                                               BicepTestConstants.BuiltInConfiguration,
+                                                               BicepTestConstants.ApiVersionProvider).GetEntrypointSemanticModel();
 
         [DataRow(@"
             resource dnsZone 'Microsoft.Network/dnsZones@2015-10-01-preview' = {
@@ -86,97 +97,91 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfNonPreviewVersionIsNotLatest_WithCurrentApiVersionLessThanTwoYearsOld_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WithCurrentApiVersionLessThanTwoYearsOld_ShouldNotAddDiagnostics()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-1);
             DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddMonths(-5);
 
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                                 recentNonPreviewApiVersion,
-                                                                                 currentApiVersionDate,
-                                                                                 diagnostics);
+            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                                 recentNonPreviewApiVersion,
+                                                                 currentApiVersionDate);
 
-            diagnostics.Should().BeEmpty();
+            spanFixes.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfNonPreviewVersionIsNotLatest_WithCurrentApiVersionMoreThanTwoYearsOldAndRecentApiVersionIsAvailable_ShouldAddDiagnostics()
+        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WithCurrentApiVersionMoreThanTwoYearsOldAndRecentApiVersionIsAvailable_ShouldAddDiagnostics()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
             DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddMonths(-5);
 
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                                 recentNonPreviewApiVersion,
-                                                                                 currentApiVersionDate,
-                                                                                 diagnostics);
+            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                             recentNonPreviewApiVersion,
+                                                             currentApiVersionDate);
 
-            diagnostics.Should().SatisfyRespectively(
+            spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Code.Should().Be("use-recent-api-version");
-                    x.Message.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
                 });
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfNonPreviewVersionIsNotLatest_WithCurrentAndRecentApiVersionsMoreThanTwoYearsOld_ShouldAddDiagnosticsToUseRecentApiVersion()
+        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WithCurrentAndRecentApiVersionsMoreThanTwoYearsOld_ShouldAddDiagnosticsToUseRecentApiVersion()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-4);
             DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-3);
 
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                                 recentNonPreviewApiVersion,
-                                                                                 currentApiVersionDate,
-                                                                                 diagnostics);
+            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                             recentNonPreviewApiVersion,
+                                                             currentApiVersionDate);
 
-            diagnostics.Should().SatisfyRespectively(
+            spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Code.Should().Be("use-recent-api-version");
-                    x.Message.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
                 });
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfNonPreviewVersionIsNotLatest_WhenCurrentAndRecentApiVersionsAreSameAndMoreThanTwoYearsOld_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WhenCurrentAndRecentApiVersionsAreSameAndMoreThanTwoYearsOld_ShouldNotAddDiagnostics()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
             DateTime recentNonPreviewApiVersionDate = currentApiVersionDate;
 
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                                 recentNonPreviewApiVersion,
-                                                                                 currentApiVersionDate,
-                                                                                 diagnostics);
+            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                             recentNonPreviewApiVersion,
+                                                             currentApiVersionDate);
 
-            diagnostics.Should().BeEmpty();
+            spanFixes.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfPreviewVersionIsNotLatest_WhenCurrentApiVersionIsLatest_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenCurrentApiVersionIsLatest_ShouldNotAddDiagnostics()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-1);
             DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-3);
@@ -185,21 +190,20 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
             string recentPreviewApiVersion = ConvertDateTimeToString(recentPreviewApiVersionDate) + "-preview";
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                              recentPreviewApiVersion,
-                                                                              recentNonPreviewApiVersion,
-                                                                              currentApiVersionDate,
-                                                                              diagnostics);
+            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                          recentPreviewApiVersion,
+                                                          recentNonPreviewApiVersion,
+                                                          currentApiVersionDate);
 
-            diagnostics.Should().BeEmpty();
+            spanFixes.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfPreviewVersionIsNotLatest_WhenRecentPreviewVersionIsAvailable_ShouldAddDiagnostics()
+        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentPreviewVersionIsAvailable_ShouldAddDiagnostics()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-5);
             DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-3);
@@ -208,26 +212,24 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
             string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                              recentPreviewApiVersionWithoutPreviewPrefix,
-                                                                              recentNonPreviewApiVersion,
-                                                                              currentApiVersionDate,
-                                                                              diagnostics);
+            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                          recentPreviewApiVersionWithoutPreviewPrefix,
+                                                          recentNonPreviewApiVersion,
+                                                          currentApiVersionDate);
 
-            diagnostics.Should().SatisfyRespectively(
+            spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Code.Should().Be("use-recent-api-version");
-                    x.Message.Should().Be("Use recent api version " + recentPreviewApiVersionWithoutPreviewPrefix + "-preview");
+                    x.Value.Description.Should().Be("Use recent api version " + recentPreviewApiVersionWithoutPreviewPrefix + "-preview");
                 });
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionIsAvailable_ShouldAddDiagnostics()
+        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionIsAvailable_ShouldAddDiagnostics()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-5);
             DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-2);
@@ -236,26 +238,24 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
             string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                              recentPreviewApiVersionWithoutPreviewPrefix,
-                                                                              recentNonPreviewApiVersion,
-                                                                              currentApiVersionDate,
-                                                                              diagnostics);
+            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                          recentPreviewApiVersionWithoutPreviewPrefix,
+                                                          recentNonPreviewApiVersion,
+                                                          currentApiVersionDate);
 
-            diagnostics.Should().SatisfyRespectively(
+            spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Code.Should().Be("use-recent-api-version");
-                    x.Message.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
                 });
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisSameAsPreviewVersion_ShouldAddDiagnosticsUsingNonPreviewVersion()
+        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisSameAsPreviewVersion_ShouldAddDiagnosticsUsingNonPreviewVersion()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
             DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-2);
@@ -264,69 +264,64 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
             string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                              recentPreviewApiVersionWithoutPreviewPrefix,
-                                                                              recentNonPreviewApiVersion,
-                                                                              currentApiVersionDate,
-                                                                              diagnostics);
+            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                          recentPreviewApiVersionWithoutPreviewPrefix,
+                                                          recentNonPreviewApiVersion,
+                                                          currentApiVersionDate);
 
-            diagnostics.Should().SatisfyRespectively(
+            spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Code.Should().Be("use-recent-api-version");
-                    x.Message.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
                 });
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisNull_AndCurrentApiVersionIsNotRecent_ShouldAddDiagnosticsUsingPreviewVersion()
+        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisNull_AndCurrentApiVersionIsNotRecent_ShouldAddDiagnosticsUsingPreviewVersion()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
             DateTime recentPreviewApiVersionDate = DateTime.Today.AddYears(-2);
 
             string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                              recentPreviewApiVersionWithoutPreviewPrefix,
-                                                                              null,
-                                                                              currentApiVersionDate,
-                                                                              diagnostics);
+            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                          recentPreviewApiVersionWithoutPreviewPrefix,
+                                                          null,
+                                                          currentApiVersionDate);
 
-            diagnostics.Should().SatisfyRespectively(
+            spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Code.Should().Be("use-recent-api-version");
-                    x.Message.Should().Be("Use recent api version " + recentPreviewApiVersionWithoutPreviewPrefix + "-preview");
+                    x.Value.Description.Should().Be("Use recent api version " + recentPreviewApiVersionWithoutPreviewPrefix + "-preview");
                 });
         }
 
         [TestMethod]
-        public void AddDiagnosticsIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisNull_AndCurrentApiVersionIsRecent_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisNull_AndCurrentApiVersionIsRecent_ShouldNotAddDiagnostics()
         {
             DateTime currentApiVersionDate = DateTime.Today.AddYears(-2);
             DateTime recentPreviewApiVersionDate = currentApiVersionDate;
 
             string recentPreviewApiVersion = ConvertDateTimeToString(recentPreviewApiVersionDate) + "-preview";
 
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            Dictionary<TextSpan, CodeFix> spanFixes = new();
 
-            var useRecentApiVersionRule = new UseRecentApiVersionRule();
+            Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            useRecentApiVersionRule.AddDiagnosticsIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                              recentPreviewApiVersion,
-                                                                              null,
-                                                                              currentApiVersionDate,
-                                                                              diagnostics);
+            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
+                                                          recentPreviewApiVersion,
+                                                          null,
+                                                          currentApiVersionDate);
 
-            diagnostics.Should().BeEmpty();
+            spanFixes.Should().BeEmpty();
         }
 
         private string ConvertDateTimeToString(DateTime dateTime)

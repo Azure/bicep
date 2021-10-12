@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Bicep.Core.Features;
 using Bicep.Core.Resources;
@@ -13,7 +11,7 @@ using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.ApiVersion
 {
-    public class ApiVersionProvider
+    public class ApiVersionProvider : IApiVersionProvider
     {
         private Dictionary<string, List<string>> previewVersions = new();
         private Dictionary<string, List<string>> nonPreviewVersions = new();
@@ -59,7 +57,7 @@ namespace Bicep.Core.ApiVersion
             }
         }
 
-        public string? GetRecentApiVersionDate(string fullyQualifiedName, bool useNonApiVersionCache = true)
+        public string? GetRecentApiVersion(string fullyQualifiedName, bool useNonApiVersionCache = true)
         {
             if (useNonApiVersionCache)
             {

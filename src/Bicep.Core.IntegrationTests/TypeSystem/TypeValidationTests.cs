@@ -21,8 +21,7 @@ namespace Bicep.Core.IntegrationTests
         private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration);
-
+            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration, BicepTestConstants.ApiVersionProvider);
             return compilation.GetEntrypointSemanticModel();
         }
 

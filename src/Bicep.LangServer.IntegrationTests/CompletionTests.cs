@@ -1043,6 +1043,10 @@ module mod2 './|' = {}
                 },
                 x =>
                 {
+                    x.Label.Should().Be("res-automation-module");
+                },
+                x =>
+                {
                     x.Label.Should().Be("res-automation-runbook");
                 },
                 x =>

@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Logging;
+using Bicep.Core.ApiVersion;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -24,6 +25,7 @@ namespace Bicep.Cli.Services
         private readonly InvocationContext invocationContext;
         private readonly Workspace workspace;
         private readonly TemplateDecompiler decompiler;
+        private readonly IApiVersionProvider apiVersionProvider;
 
         public CompilationService(
             IDiagnosticLogger diagnosticLogger,
@@ -31,7 +33,8 @@ namespace Bicep.Cli.Services
             InvocationContext invocationContext,
             IModuleDispatcher moduleDispatcher,
             IConfigurationManager configurationManager,
-            TemplateDecompiler decompiler)
+            TemplateDecompiler decompiler,
+            IApiVersionProvider apiVersionProvider)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.fileResolver = fileResolver;
@@ -40,6 +43,7 @@ namespace Bicep.Cli.Services
             this.invocationContext = invocationContext;
             this.workspace = new Workspace();
             this.decompiler = decompiler;
+            this.apiVersionProvider = apiVersionProvider;
         }
 
         public async Task RestoreAsync(string inputPath)
@@ -72,7 +76,8 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration);
+            var configuration = this.configurationManager.GetConfiguration(inputUri);
+            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, apiVersionProvider);
 
             LogDiagnostics(compilation);
 

@@ -16,6 +16,7 @@ using Moq;
 using System.Collections.Generic;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Bicep.Core.Json;
+using Bicep.Core.ApiVersion;
 
 namespace Bicep.Core.UnitTests
 {
@@ -49,6 +50,8 @@ namespace Bicep.Core.UnitTests
         public static readonly RootConfiguration BuiltInConfiguration = ConfigurationManager.GetBuiltInConfiguration();
 
         public static readonly RootConfiguration BuiltInConfigurationWithAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+
+        public static readonly IApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
 
         public static IFeatureProvider CreateFeaturesProvider(
             TestContext testContext,
