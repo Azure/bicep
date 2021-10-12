@@ -22,11 +22,11 @@ namespace Bicep.Core.Syntax
         public static bool HasParseErrors(this SyntaxBase syntax)
             => syntax.GetParseDiagnostics().Any(d => d.Level == DiagnosticLevel.Error);
 
-        public static bool ReferencesResource(this VariableAccessSyntax syntax, ResourceDeclarationSyntax resource)
-            => LanguageConstants.IdentifierComparer.Equals(syntax.Name.IdentifierName, resource.Name.IdentifierName);
-
         public static bool NameEquals(this FunctionCallSyntax funcSyntax, string compareTo)
             => LanguageConstants.IdentifierComparer.Equals(funcSyntax.Name.IdentifierName, compareTo);
+
+        public static bool NameEquals(this IdentifierSyntax identifier, string compareTo)
+            => LanguageConstants.IdentifierComparer.Equals(identifier.IdentifierName, compareTo);
     }
 }
 

@@ -22,6 +22,14 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             Ignore,
         }
 
+        protected void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        {
+            AssertLinterRuleDiagnostics(ruleCode, bicepText, onCompileErrors, diags =>
+            {
+                diags.Select(d => d.Message).Should().BeEquivalentTo(expectedMessagesForCode);
+            });
+        }
+
         protected void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, int expectedDiagnosticCountForCode, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
             AssertLinterRuleDiagnostics(ruleCode, bicepText, onCompileErrors, diags =>
