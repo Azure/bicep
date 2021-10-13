@@ -5,7 +5,7 @@
 // $5 = 'BreadthFirst'
 // $6 = 'Desktop'
 
-resource hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
+resource hostPool 'Microsoft.DesktopVirtualization/hostpools@2021-07-12' = {
   name: 'name'
   location: resourceGroup().location
   properties: {

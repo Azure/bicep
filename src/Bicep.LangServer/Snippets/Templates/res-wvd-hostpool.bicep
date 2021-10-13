@@ -1,5 +1,5 @@
 // WVD Host Pool
-resource /*${1:hostPool}*/hostPool 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {
+resource /*${1:hostPool}*/hostPool 'Microsoft.DesktopVirtualization/hostpools@2021-07-12' = {
   name: /*${2:'name'}*/'name'
   location: resourceGroup().location
   properties: {

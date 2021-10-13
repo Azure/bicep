@@ -13,7 +13,7 @@
 // $13 = 100
 // $14 = 1
 
-resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {
+resource trafficManagerProfile 'Microsoft.Network/trafficManagerProfiles@2018-08-01' = {
   name: 'name'
   location: 'global'
   properties: {

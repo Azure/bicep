@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Bicep.Core;
+using Bicep.Core.ApiVersion;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -75,7 +76,7 @@ namespace Bicep.LangServer.UnitTests
 
         public static ICompilationProvider CreateEmptyCompilationProvider()
         {
-            return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider));
+            return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider), BicepTestConstants.ApiVersionProvider);
         }
 
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()

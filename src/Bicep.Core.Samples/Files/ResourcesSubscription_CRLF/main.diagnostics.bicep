@@ -6,6 +6,7 @@ param contributorPrincipals array
 param readerPrincipals array
 
 resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+//@[56:74) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2020-04-01-preview|
   name: guid('owner', ownerPrincipalId)
   properties: {
     principalId: ownerPrincipalId
@@ -14,6 +15,7 @@ resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
 }
 
 resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for contributor in contributorPrincipals: {
+//@[63:81) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2020-04-01-preview|
   name: guid('contributor', contributor)
   properties: {
     principalId: contributor
@@ -25,6 +27,7 @@ resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-previe
 }]
 
 resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for reader in readerPrincipals: {
+//@[58:76) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2020-04-01-preview|
   name: guid('reader', reader)
   properties: {
     principalId: reader

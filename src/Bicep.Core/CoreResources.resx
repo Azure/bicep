@@ -167,4 +167,10 @@
     <value>Variable "{0}" is declared but never used.</value>
     <comment>.</comment>
   </data>
+  <data name="UseRecentApiVersionRuleDescription" xml:space="preserve">
+    <value>Use recent api version.</value>
+  </data>
+  <data name="UseRecentApiVersionRuleMessageFormat" xml:space="preserve">
+    <value>Use recent api version {0}</value>
+  </data>
 </root>
