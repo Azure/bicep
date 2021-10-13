@@ -4,6 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoUnusedVariablesRule() : base(
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
-            docUri: new System.Uri("https://aka.ms/bicep/linter/no-unused-vars"),
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 
