@@ -3,7 +3,7 @@
 // $3 = 'description'
 // $4 = 'displayName'
 
-resource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {
+resource templateSpec 'Microsoft.Resources/templateSpecs@2021-05-01' = {
   name: 'name'
   location: resourceGroup().location
   properties: {

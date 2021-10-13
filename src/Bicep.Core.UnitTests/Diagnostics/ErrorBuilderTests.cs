@@ -191,48 +191,48 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
          [DataRow(@"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                  }",
              @"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                    name:
                  }"
          )]
          [DataRow(@"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
 
                  }",
              @"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                    name:
                  }"
          )]
          // There is leading whitespace in this one
         [DataRow(@"
-                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                   
                 }",
             @"
-                resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                   name:
                 }"
         )]
          [DataRow(@"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                    location: 'westus2'
                  }",
              @"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                    location: 'westus2'
                    name:
                  }"
          )]
          [DataRow(@"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                                location: 'westus2'
                  }",
              @"
-                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
+                 resource vnet 'Microsoft.Network/virtualNetworks@2019-11-01' = {
                                location: 'westus2'
                                name:
                  }"

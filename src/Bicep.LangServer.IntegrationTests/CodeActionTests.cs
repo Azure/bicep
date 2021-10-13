@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -392,6 +391,59 @@ namespace Bicep.LangServer.IntegrationTests
                                                   expectedBicepConfigFileContents: expectedBicepConfigContents);
         }
 
+        [TestMethod]
+        public async Task VerifyCodeFixToUseRecentApiVersion()
+        {
+            string text = @"resource dnsZone 'Microsoft.Network/dnsZones@2017-09-01' = {
+  name: 'name'
+  location: 'global'
+}";
+
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", text, testOutputPath);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+
+            var fileSystemDict = new Dictionary<Uri, string>();
+            fileSystemDict[documentUri.ToUri()] = text;
+
+            var workspace = new Workspace();
+            var compilation = GetCompilation(bicepFilePath, workspace);
+
+            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
+
+            // Start language server
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext,
+                text,
+                documentUri,
+                creationOptions: serverOptions);
+
+            var fixable = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>().First();
+
+            fixable.Fixes.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Description.Should().Be("Use recent api version 2018-05-01");
+                });
+
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
+
+            var quickFixes = await client.RequestCodeAction(new CodeActionParams
+            {
+                TextDocument = new TextDocumentIdentifier(documentUri),
+                Range = fixable.Span.ToRange(lineStarts)
+            });
+
+            var quickFixList = quickFixes.Where(x => x.CodeAction!.Kind == CodeActionKind.QuickFix).ToList();
+
+            quickFixList.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.IsCodeAction.Should().BeTrue();
+                    x.CodeAction!.Kind.Should().Be(CodeActionKind.QuickFix);
+                    x.CodeAction.Title.Should().Be("Use recent api version 2018-05-01");
+                });
+        }
 
         private async Task VerifyLinterRuleIsDisabledAsync(string bicepFileContents, string? bicepConfigFileContents, DiagnosticLevel diagnosticLevel, string diagnosticMessage, string expectedBicepConfigFileContents)
         {
@@ -467,7 +519,7 @@ namespace Bicep.LangServer.IntegrationTests
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.BuiltInConfiguration);
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(new Uri(bicepFilePath));
 
-            return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration);
+            return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration, BicepTestConstants.ApiVersionProvider);
         }
 
         private static IEnumerable<TextSpan> GetOverlappingSpans(TextSpan span)
