@@ -107,8 +107,39 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         ",
             "Don't include secrets in an output. Found: function 'listAnything'"
         )]
+        [DataRow(@"
+            param storageName string
+
+            var v = {}
+
+            output badResult object = {
+            value: v.listAnything().keys[0].value // storage is not a resource, so no failure
+            }
+        "
+        )]
         [DataTestMethod]
         public void If_ListFunctionInOutput_AsResourceMethod_ShouldFail(string text, params string[] expectedMessages)
+        {
+            CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
+        }
+
+        [DataRow(@"
+            param storageName string
+
+            resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+              name: storageName
+            }
+
+            var storage = stg
+
+            output badResult object = {
+              value: storage.listAnything().keys[0].value
+            }
+        ",
+            "Don't include secrets in an output. Found: function 'listAnything'"
+        )]
+        [DataTestMethod]
+        public void If_ListFunctionInOutput_AsResourceMethod_ThroughVariable_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
@@ -143,6 +174,26 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         )]
         [DataTestMethod]
         public void If_ListFunctionInOutput_AsStandaloneFunction_ShouldFail(string text, params string[] expectedMessages)
+        {
+            CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
+        }
+
+        [DataRow(@"
+            param storageName string
+
+            resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+              name: storageName
+            }
+
+            output badResult object = az.listAnything(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
+        ",
+            // TTK output:
+            // [-] Outputs Must Not Contain Secrets(6 ms)
+            // Output contains secret: badResult
+            "Don't include secrets in an output. Found: function 'listAnything'"
+        )]
+        [DataTestMethod]
+        public void If_ListFunctionInOutput_AsAzInstanceFunction_ShouldFail(string text, params string[] expectedMessages)
         {
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }

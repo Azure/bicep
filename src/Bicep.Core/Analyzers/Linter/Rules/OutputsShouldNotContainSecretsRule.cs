@@ -5,6 +5,7 @@ using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using System;
@@ -124,15 +125,33 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax)
             {
-                // Look for usage of list*() member function, e.g.:
-                //
-                //   output badResult object = stg.listKeys().keys[0].value
-                //
-
                 if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
                 {
-                    string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
-                    this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
+                    bool isFailure = false;
+
+                    Symbol? baseSymbol = model.GetSymbolInfo(syntax.BaseExpression);
+                    if (baseSymbol is ResourceSymbol resource)
+                    {
+                        // It's a usage of a list*() member function for a resource value, e.g.:
+                        //
+                        //   output badResult object = stg.listKeys().keys[0].value
+                        //
+                        isFailure = true;
+                    }
+                    else if (baseSymbol is BuiltInNamespaceSymbol namespaceType)
+                    {
+                        // It's a usage of a built-in list*() function as a member of the built-in "az" module, e.g.:
+                        //
+                        //   output badResult object = az.listKeys(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
+                        //
+                        isFailure = true;
+                    }
+
+                    if (isFailure)
+                    {
+                        string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
+                        this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
+                    }
                 }
 
                 base.VisitInstanceFunctionCallSyntax(syntax);
