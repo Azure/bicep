@@ -46,27 +46,5 @@ namespace Bicep.Core.UnitTests.ApiVersion
             version.Should().Be(expectedVersion);
             prefix.Should().Be(expectedPrefix);
         }
-
-        [DataRow("invalid-text")]
-        [DataRow("")]
-        [DataRow("   ")]
-        [TestMethod]
-        public void GetApiVersionDate_WithInvalidVersion(string apiVersion)
-        {
-            DateTime? actual = ApiVersionProvider.GetApiVersionDate(apiVersion);
-
-            actual.Should().BeNull();
-        }
-
-        [DataRow("2015-04-01-rc", "2015-04-01")]
-        [DataRow("2016-04-01", "2016-04-01")]
-        [DataRow("2016-04-01-privatepreview", "2016-04-01")]
-        [TestMethod]
-        public void GetApiVersionDate_WithValidVersion(string apiVersion, string expectedVersion)
-        {
-            DateTime? actual = ApiVersionProvider.GetApiVersionDate(apiVersion);
-
-            actual.Should().Be(DateTime.Parse(expectedVersion));
-        }
     }
 }

@@ -9,8 +9,6 @@ namespace Bicep.Core.ApiVersion
     {
         public (string?, string?) GetApiVersionAndPrefix(string apiVersion);
 
-        public DateTime? GetApiVersionDate(string apiVersion);
-
         public string? GetRecentApiVersion(string fullyQualifiedName, string? prefix);
     }
 }

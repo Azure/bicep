@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -112,18 +111,6 @@ namespace Bicep.Core.ApiVersion
             if (cache.TryGetValue(fullyQualifiedName, out List<string> apiVersionDates) && apiVersionDates.Any())
             {
                 return apiVersionDates.First();
-            }
-
-            return null;
-        }
-
-        public DateTime? GetApiVersionDate(string apiVersion)
-        {
-            (string? version, string? _) = GetApiVersionAndPrefix(apiVersion);
-
-            if (version is not null)
-            {
-                return DateTime.Parse(version);
             }
 
             return null;
