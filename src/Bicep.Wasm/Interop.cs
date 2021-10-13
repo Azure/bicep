@@ -163,7 +163,7 @@ namespace Bicep.Wasm
             var configuration = configurationManager.GetBuiltInConfiguration();
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri, configuration);
 
-            return new Compilation(namespaceProvider, sourceFileGrouping, configuration);
+            return new Compilation(namespaceProvider, sourceFileGrouping, configuration, new ApiVersionProvider());
         }
 
         private static string ReadStreamToEnd(Stream stream)

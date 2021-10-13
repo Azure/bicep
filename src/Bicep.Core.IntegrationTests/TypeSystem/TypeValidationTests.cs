@@ -21,7 +21,8 @@ namespace Bicep.Core.IntegrationTests
         private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration, BicepTestConstants.ApiVersionProvider);
+            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration, BicepTestConstants.ApiVersionProvider);
+
             return compilation.GetEntrypointSemanticModel();
         }
 
@@ -427,7 +428,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
@@ -443,7 +444,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("string");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
@@ -463,7 +464,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, BuiltInTestTypes.Create());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'readonly' | 'readwrite' | 'required'");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("string");

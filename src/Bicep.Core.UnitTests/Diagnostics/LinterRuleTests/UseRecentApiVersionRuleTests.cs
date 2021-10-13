@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     {
         private void CompileAndTest(string text, params string[] useRecentApiVersions)
         {
-            AssertRuleCodeDiagnostics(UseRecentApiVersionRule.Code, text, diags =>
+            AssertLinterRuleDiagnostics(UseRecentApiVersionRule.Code, text, diags =>
             {
                 if (useRecentApiVersions.Any())
                 {

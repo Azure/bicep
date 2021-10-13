@@ -16,6 +16,7 @@ resource dnsZone 'Microsoft.Network/dnszones@2018-05-01' = {
 }
 
 resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
+//@[61:71) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2017-10-01|
   name: 'myencryptedone'
   location: 'eastus2'
   properties: {
@@ -40,6 +41,7 @@ resource myStorageAccount 'Microsoft.Storage/storageAccounts@2017-10-01' = {
 }
 
 resource withExpressions 'Microsoft.Storage/storageAccounts@2017-10-01' = {
+//@[60:70) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2017-10-01|
   name: 'myencryptedone2'
   location: 'eastus2'
   properties: {

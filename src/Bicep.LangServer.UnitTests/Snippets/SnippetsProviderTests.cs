@@ -20,7 +20,7 @@ namespace Bicep.LangServer.UnitTests.Snippets
     [TestClass]
     public class SnippetsProviderTests
     {
-        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager);
+        private readonly SnippetsProvider snippetsProvider = new(BicepTestConstants.NamespaceProvider, BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager, BicepTestConstants.ApiVersionProvider);
         private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
 
         [TestMethod]
@@ -189,9 +189,10 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndResourceDependencies_ShouldReturnSnippets()
         {
             ResourceType resourceType = new ResourceType(
-                ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2019-06-01"),
+                azNamespaceType,
+                ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
                 ResourceScope.ResourceGroup,
-                CreateObjectType("Microsoft.Automation/automationAccounts/modules@2019-06-01",
+                CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
                 ("name", LanguageConstants.String, TypePropertyFlags.Required),
                 ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
@@ -219,7 +220,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
     }
   }
 }
-resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
   name: ${1:'name'}
 }
 ");
@@ -384,10 +385,6 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
                 x =>
                 {
                     x.Prefix.Should().Be("res-automation-job-schedule");
-                },
-                x =>
-                {
-                    x.Prefix.Should().Be("res-automation-module");
                 },
                 x =>
                 {
