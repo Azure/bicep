@@ -425,7 +425,7 @@
     "detail": "locations (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nAn array that contains all of the locations enabled for the Cosmos DB account.  \n"
+      "value": "Type: `Location[]`  \nAn array that contains the georeplication locations enabled for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
