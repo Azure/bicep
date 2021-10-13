@@ -203,7 +203,7 @@
           "title": "Core Bicep Analyzer",
           "description": "Core analyzer built into bicep",
           "type": "object",
-          "required": ["enabled"],
+          "required": [],
           "properties": {
             "verbose": {
               "type": "boolean",
