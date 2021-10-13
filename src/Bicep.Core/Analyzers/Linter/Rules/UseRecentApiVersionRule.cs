@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public UseRecentApiVersionRule() : base(
             code: Code,
             description: CoreResources.UseRecentApiVersionRuleDescription,
-            docUri: new Uri("https://aka.ms/bicep/linter/no-unused-params"),
+            docUri: new Uri("https://aka.ms/bicep/linter/use-recent-api-version"),
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         {
         }
@@ -39,7 +39,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             private readonly IApiVersionProvider apiVersionProvider;
             private readonly SemanticModel model;
-            private readonly Dictionary<TextSpan, CodeFix> spanFixes;  
+            private readonly Dictionary<TextSpan, CodeFix> spanFixes;
 
             public Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model)
             {
@@ -57,26 +57,27 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     GetReplacementSpan(resourceSymbol, apiVersion) is TextSpan replacementSpan)
                 {
                     string fullyQualifiedType = resourceTypeReference.FullyQualifiedType;
-                    DateTime currentApiVersionDate = ConvertApiVersionToDateTime(apiVersion);
-                    string? recentNonPreviewApiVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType);
+                    (string? currentApiVersion, string? prefix) = apiVersionProvider.GetApiVersionAndPrefix(apiVersion);
 
-                    if (apiVersion.EndsWith("-preview"))
+                    string? recentGAVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionPrefixConstants.GA);
+
+                    if (string.IsNullOrEmpty(prefix))
                     {
-                        string? recentPreviewVersionWithoutPreviewPrefix = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, useNonApiVersionCache: false);
-
-                        if (recentPreviewVersionWithoutPreviewPrefix is not null)
-                        {
-                            AddCodeFixIfPreviewVersionIsNotLatest(replacementSpan,
-                                                                      recentPreviewVersionWithoutPreviewPrefix,
-                                                                      recentNonPreviewApiVersion,
-                                                                      currentApiVersionDate);
-                        }
+                        AddCodeFixIfGAVersionIsNotLatest(replacementSpan,
+                                                         recentGAVersion,
+                                                         currentApiVersion);
                     }
                     else
                     {
-                        AddCodeFixIfNonPreviewVersionIsNotLatest(replacementSpan,
-                                                                     recentNonPreviewApiVersion,
-                                                                     currentApiVersionDate);
+                        string? recentNonGAVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, prefix);
+                        string? recentPreviewVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionPrefixConstants.Preview);
+
+                        AddCodeFixIfNonGAVersionIsNotLatest(replacementSpan,
+                                                            recentGAVersion,
+                                                            recentPreviewVersion,
+                                                            recentNonGAVersion,
+                                                            prefix,
+                                                            currentApiVersion);
                     }
                 }
 
@@ -99,35 +100,79 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
 
             // A preview version is valid only if it is latest and there is no later non-preview version
-            public void AddCodeFixIfPreviewVersionIsNotLatest(TextSpan span,
-                                                                  string recentPreviewVersionWithoutPreviewPrefix,
-                                                                  string? recentNonPreviewApiVersion,
-                                                                  DateTime currentApiVersionDate)
+            public void AddCodeFixIfNonGAVersionIsNotLatest(TextSpan span,
+                                                            string? recentGAVersion,
+                                                            string? recentPreviewVersion,
+                                                            string? recentNonGAVersion,
+                                                            string prefix,
+                                                            string? currentApiVersionWithoutPrefix)
             {
-                DateTime recentPreviewVersionDate = ConvertApiVersionToDateTime(recentPreviewVersionWithoutPreviewPrefix);
-
-                if (recentNonPreviewApiVersion is not null &&
-                    DateTime.Parse(recentNonPreviewApiVersion) is DateTime recentNonPreviewApiVersionDate &&
-                    DateTime.Compare(recentNonPreviewApiVersionDate, recentPreviewVersionDate) >= 0 &&
-                    DateTime.Compare(recentNonPreviewApiVersionDate, currentApiVersionDate) >= 0)
+                if (currentApiVersionWithoutPrefix is null)
                 {
-                    AddCodeFix(span, recentNonPreviewApiVersion);
                     return;
                 }
 
-                if (DateTime.Compare(recentPreviewVersionDate, currentApiVersionDate) > 0)
+                DateTime currentApiVersionDate = DateTime.Parse(currentApiVersionWithoutPrefix);
+
+                Dictionary<string, DateTime> prefixToRecentApiVersionDateMap = new Dictionary<string, DateTime>();
+
+                if (prefix.Equals(ApiVersionPrefixConstants.Preview))
                 {
-                    AddCodeFix(span, recentPreviewVersionWithoutPreviewPrefix + "-preview");
+                    if (recentGAVersion is not null)
+                    {
+                        prefixToRecentApiVersionDateMap.Add(recentGAVersion, DateTime.Parse(recentGAVersion));
+                    }
+
+                    if (recentPreviewVersion is not null)
+                    {
+                        prefixToRecentApiVersionDateMap.Add(recentPreviewVersion + prefix, DateTime.Parse(recentPreviewVersion));
+                    }
+                }
+                else
+                {
+                    if (recentGAVersion is not null)
+                    {
+                        prefixToRecentApiVersionDateMap.Add(recentGAVersion, DateTime.Parse(recentGAVersion));
+                    }
+
+                    if (recentNonGAVersion is not null)
+                    {
+                        prefixToRecentApiVersionDateMap.Add(recentNonGAVersion + prefix, DateTime.Parse(recentNonGAVersion));
+                    }
+
+                    if (recentPreviewVersion is not null)
+                    {
+                        prefixToRecentApiVersionDateMap.Add(recentPreviewVersion + ApiVersionPrefixConstants.Preview, DateTime.Parse(recentPreviewVersion));
+                    }
+                }
+
+                if (prefixToRecentApiVersionDateMap.Any())
+                {
+                    var sortedPrefixToRecentApiVersionDateMap = prefixToRecentApiVersionDateMap.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+
+                    KeyValuePair<string, DateTime> kvp = sortedPrefixToRecentApiVersionDateMap.First();
+
+                    if (DateTime.Compare(kvp.Value, currentApiVersionDate) > 0)
+                    {
+                        AddCodeFix(span, kvp.Key);
+                    }
                 }
             }
 
             // 1. Any non-preview version is allowed as long as it's not > 2 years old, even if there is a more recent non-preview version
             // 2. If there is no non preview apiVersion less than 2 years old, then take the latest one available from the cache of non preview versions
-            public void AddCodeFixIfNonPreviewVersionIsNotLatest(TextSpan span,
-                                                                 string? recentNonPreviewApiVersion,
-                                                                 DateTime currentApiVersionDate)
+            public void AddCodeFixIfGAVersionIsNotLatest(TextSpan span,
+                                                         string? recentNonPreviewApiVersion,
+                                                         string? currentApiVersion)
             {
-                if (recentNonPreviewApiVersion is null || DateTime.Now.Year - currentApiVersionDate.Year <= 2)
+                if (currentApiVersion is null || recentNonPreviewApiVersion is null)
+                {
+                    return;
+                }
+
+                DateTime currentApiVersionDate = DateTime.Parse(currentApiVersion);
+
+                if (DateTime.Now.Year - currentApiVersionDate.Year <= 2)
                 {
                     return;
                 }
@@ -138,11 +183,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     AddCodeFix(span, recentNonPreviewApiVersion);
                 }
-            }
-
-            private static DateTime ConvertApiVersionToDateTime(string apiVersion)
-            {
-                return DateTime.Parse(apiVersion.Split("-preview")[0]);
             }
 
             private void AddCodeFix(TextSpan span, string apiVersion)

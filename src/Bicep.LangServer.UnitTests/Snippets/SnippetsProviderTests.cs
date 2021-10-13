@@ -189,10 +189,9 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         public void GetResourceBodyCompletionSnippets_WithStaticTemplateAndResourceDependencies_ShouldReturnSnippets()
         {
             ResourceType resourceType = new ResourceType(
-                azNamespaceType,
-                ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
+                ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2019-06-01"),
                 ResourceScope.ResourceGroup,
-                CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
+                CreateObjectType("Microsoft.Automation/automationAccounts/modules@2019-06-01",
                 ("name", LanguageConstants.String, TypePropertyFlags.Required),
                 ("location", LanguageConstants.String, TypePropertyFlags.Required)));
 
@@ -220,7 +219,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
     }
   }
 }
-resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {
+resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: ${1:'name'}
 }
 ");
@@ -385,6 +384,10 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 x =>
                 {
                     x.Prefix.Should().Be("res-automation-job-schedule");
+                },
+                x =>
+                {
+                    x.Prefix.Should().Be("res-automation-module");
                 },
                 x =>
                 {

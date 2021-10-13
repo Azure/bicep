@@ -669,7 +669,7 @@ resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
   location: location
 }
 
-resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: '${guid(rg.name, 'owner')}'
   scope: rg
   properties: {
@@ -679,7 +679,7 @@ resource rgOwner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = 
   }
 }
 
-resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: '${guid(rg.name, 'contributor')}'
   scope: rg
   properties: {
@@ -689,7 +689,7 @@ resource rgContributor 'Microsoft.Authorization/roleAssignments@2020-04-01-previ
   }
 }
 
-resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource rgReader 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: '${guid(rg.name, 'reader')}'
   scope: rg
   properties: {
@@ -1272,7 +1272,7 @@ resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets' existi
   name: aksDefaultPoolSubnetName
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: guid(aksDefaultPoolSubnet.id, 'Network Contributor')
   scope: aksDefaultPoolSubnet
   properties: {
@@ -1318,7 +1318,7 @@ resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-08
   name: aksDefaultPoolSubnetName
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: guid(aksDefaultPoolSubnet.id, 'Network Contributor')
   scope: aksDefaultPoolSubnet
   properties: {
@@ -1358,7 +1358,7 @@ resource userAssignedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentitie
   location: 'West US'
 }
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {
   name: guid(virtualNetwork::aksDefaultPoolSubnet.id, 'Network Contributor')
   scope: virtualNetwork::aksDefaultPoolSubnet
   properties: {
@@ -1403,7 +1403,7 @@ resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-08
   name: aksDefaultPoolSubnetName
 }]
 
-resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for (vnet, i) in vnets: {
+resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = [for (vnet, i) in vnets: {
   name: guid(aksDefaultPoolSubnet[i].id, 'Network Contributor')
   scope: aksDefaultPoolSubnet[i]
   properties: {

@@ -19,8 +19,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class UseRecentApiVersionRuleTests : LinterRuleTestsBase
     {
-        private readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
-
         private void CompileAndTest(string text, params string[] useRecentApiVersions)
         {
             AssertRuleCodeDiagnostics(UseRecentApiVersionRule.Code, text, diags =>
@@ -97,229 +95,255 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WithCurrentApiVersionLessThanTwoYearsOld_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfGAVersionIsNotLatest_WithCurrentVersionLessThanTwoYearsOld_ShouldNotAddDiagnostics()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-1);
-            DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddMonths(-5);
+            DateTime currentVersionDate = DateTime.Today.AddYears(-1);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
+            DateTime recentGAVersionDate = DateTime.Today.AddMonths(-5);
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                                 recentNonPreviewApiVersion,
-                                                                 currentApiVersionDate);
+            visitor.AddCodeFixIfGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                     recentGAVersion,
+                                                     currentVersion);
 
             spanFixes.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WithCurrentApiVersionMoreThanTwoYearsOldAndRecentApiVersionIsAvailable_ShouldAddDiagnostics()
+        public void AddCodeFixIfGAVersionIsNotLatest_WithCurrentVersionMoreThanTwoYearsOldAndRecentApiVersionIsAvailable_ShouldAddDiagnostics()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
-            DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddMonths(-5);
+            DateTime currentVersionDate = DateTime.Today.AddYears(-3);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
+            DateTime recentGAVersionDate = DateTime.Today.AddMonths(-5);
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                             recentNonPreviewApiVersion,
-                                                             currentApiVersionDate);
+            visitor.AddCodeFixIfGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                     recentGAVersion,
+                                                     currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentGAVersion);
                 });
         }
 
         [TestMethod]
-        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WithCurrentAndRecentApiVersionsMoreThanTwoYearsOld_ShouldAddDiagnosticsToUseRecentApiVersion()
+        public void AddCodeFixIfGAVersionIsNotLatest_WithCurrentAndRecentApiVersionsMoreThanTwoYearsOld_ShouldAddDiagnosticsToUseRecentApiVersion()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-4);
-            DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-3);
+            DateTime currentVersionDate = DateTime.Today.AddYears(-4);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
+            DateTime recentGAVersionDate = DateTime.Today.AddYears(-3);
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                             recentNonPreviewApiVersion,
-                                                             currentApiVersionDate);
+            visitor.AddCodeFixIfGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                     recentGAVersion,
+                                                     currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentGAVersion);
                 });
         }
 
         [TestMethod]
-        public void AddCodeFixIfNonPreviewVersionIsNotLatest_WhenCurrentAndRecentApiVersionsAreSameAndMoreThanTwoYearsOld_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfGAVersionIsNotLatest_WhenCurrentAndRecentApiVersionsAreSameAndMoreThanTwoYearsOld_ShouldNotAddDiagnostics()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
-            DateTime recentNonPreviewApiVersionDate = currentApiVersionDate;
+            DateTime currentVersionDate = DateTime.Today.AddYears(-3);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
+            DateTime recentGAVersionDate = currentVersionDate;
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfNonPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                             recentNonPreviewApiVersion,
-                                                             currentApiVersionDate);
+            visitor.AddCodeFixIfGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                     recentGAVersion,
+                                                     currentVersion);
 
             spanFixes.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenCurrentApiVersionIsLatest_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfNonGAVersionIsNotLatest_WhenCurrentPreviewApiVersionIsLatest_ShouldNotAddDiagnostics()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-1);
-            DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-3);
-            DateTime recentPreviewApiVersionDate = currentApiVersionDate;
+            DateTime currentVersionDate = DateTime.Today.AddYears(-1);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
-            string recentPreviewApiVersion = ConvertDateTimeToString(recentPreviewApiVersionDate) + "-preview";
+            DateTime recentGAVersionDate = DateTime.Today.AddYears(-3);
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
+
+            DateTime recentPreviewVersionDate = currentVersionDate;
+            string recentPreviewVersion = ConvertDateTimeToString(recentPreviewVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                          recentPreviewApiVersion,
-                                                          recentNonPreviewApiVersion,
-                                                          currentApiVersionDate);
+            visitor.AddCodeFixIfNonGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                        recentGAVersion,
+                                                        recentPreviewVersion,
+                                                        null,
+                                                        ApiVersionPrefixConstants.Preview,
+                                                        currentVersion);
 
             spanFixes.Should().BeEmpty();
         }
 
         [TestMethod]
-        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentPreviewVersionIsAvailable_ShouldAddDiagnostics()
+        public void AddCodeFixIfNonGAVersionIsNotLatest_WhenRecentPreviewVersionIsAvailable_ShouldAddDiagnostics()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-5);
-            DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-3);
-            DateTime recentPreviewApiVersionDate = DateTime.Today.AddYears(-2);
+            DateTime currentVersionDate = DateTime.Today.AddYears(-5);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
-            string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
+            DateTime recentGAVersionDate = DateTime.Today.AddYears(-3);
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
+
+            DateTime recentPreviewVersionDate = DateTime.Today.AddYears(-2);
+            string recentPreviewVersion = ConvertDateTimeToString(recentPreviewVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                          recentPreviewApiVersionWithoutPreviewPrefix,
-                                                          recentNonPreviewApiVersion,
-                                                          currentApiVersionDate);
+            visitor.AddCodeFixIfNonGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                        recentGAVersion,
+                                                        recentPreviewVersion,
+                                                        null,
+                                                        ApiVersionPrefixConstants.Preview,
+                                                        currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent api version " + recentPreviewApiVersionWithoutPreviewPrefix + "-preview");
+                    x.Value.Description.Should().Be("Use recent api version " + recentPreviewVersion + ApiVersionPrefixConstants.Preview);
                 });
         }
 
         [TestMethod]
-        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionIsAvailable_ShouldAddDiagnostics()
+        public void AddCodeFixIfNonGAVersionIsNotLatest_WhenRecentGAVersionIsAvailable_ShouldAddDiagnostics()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-5);
-            DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-2);
-            DateTime recentPreviewApiVersionDate = DateTime.Today.AddYears(-3);
+            DateTime currentVersionDate = DateTime.Today.AddYears(-5);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
-            string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
+            DateTime recentGAVersionDate = DateTime.Today.AddYears(-2);
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
+
+            DateTime recentPreviewVersionDate = DateTime.Today.AddYears(-3);
+            string recentPreviewVersion = ConvertDateTimeToString(recentPreviewVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                          recentPreviewApiVersionWithoutPreviewPrefix,
-                                                          recentNonPreviewApiVersion,
-                                                          currentApiVersionDate);
+            visitor.AddCodeFixIfNonGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                        recentGAVersion,
+                                                        recentPreviewVersion,
+                                                        null,
+                                                        ApiVersionPrefixConstants.Preview,
+                                                        currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentGAVersion);
                 });
         }
 
         [TestMethod]
-        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisSameAsPreviewVersion_ShouldAddDiagnosticsUsingNonPreviewVersion()
+        public void AddCodeFixIfNonGAVersionIsNotLatest_WhenRecentGAVersionIsSameAsPreviewVersion_ShouldAddDiagnosticsUsingGAPreviewVersion()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
-            DateTime recentNonPreviewApiVersionDate = DateTime.Today.AddYears(-2);
-            DateTime recentPreviewApiVersionDate = DateTime.Today.AddYears(-2);
+            DateTime currentVersionDate = DateTime.Today.AddYears(-3);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentNonPreviewApiVersion = ConvertDateTimeToString(recentNonPreviewApiVersionDate);
-            string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
+            DateTime recentGAVersionDate = DateTime.Today.AddYears(-2);
+            string recentGAVersion = ConvertDateTimeToString(recentGAVersionDate);
+
+            DateTime recentPreviewVersionDate = DateTime.Today.AddYears(-2);
+            string recentPreviewVersion = ConvertDateTimeToString(recentPreviewVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                          recentPreviewApiVersionWithoutPreviewPrefix,
-                                                          recentNonPreviewApiVersion,
-                                                          currentApiVersionDate);
+            visitor.AddCodeFixIfNonGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                        recentGAVersion,
+                                                        recentPreviewVersion,
+                                                        null,
+                                                        ApiVersionPrefixConstants.Preview,
+                                                        currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent api version " + recentNonPreviewApiVersion);
+                    x.Value.Description.Should().Be("Use recent api version " + recentGAVersion);
                 });
         }
 
         [TestMethod]
-        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisNull_AndCurrentApiVersionIsNotRecent_ShouldAddDiagnosticsUsingPreviewVersion()
+        public void AddCodeFixIfNonGAVersionIsNotLatest_WhenGAVersionisNull_AndCurrentVersionIsNotRecent_ShouldAddDiagnosticsUsingPreviewVersion()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-3);
-            DateTime recentPreviewApiVersionDate = DateTime.Today.AddYears(-2);
+            DateTime currentVersionDate = DateTime.Today.AddYears(-3);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentPreviewApiVersionWithoutPreviewPrefix = ConvertDateTimeToString(recentPreviewApiVersionDate);
+            DateTime recentPreviewVersionDate = DateTime.Today.AddYears(-2);
+            string recentPreviewVersion = ConvertDateTimeToString(recentPreviewVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                          recentPreviewApiVersionWithoutPreviewPrefix,
-                                                          null,
-                                                          currentApiVersionDate);
+            visitor.AddCodeFixIfNonGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                        null,
+                                                        recentPreviewVersion,
+                                                        null,
+                                                        ApiVersionPrefixConstants.Preview,
+                                                        currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent api version " + recentPreviewApiVersionWithoutPreviewPrefix + "-preview");
+                    x.Value.Description.Should().Be("Use recent api version " + recentPreviewVersion + ApiVersionPrefixConstants.Preview);
                 });
         }
 
         [TestMethod]
-        public void AddCodeFixIfPreviewVersionIsNotLatest_WhenRecentNonPreviewVersionisNull_AndCurrentApiVersionIsRecent_ShouldNotAddDiagnostics()
+        public void AddCodeFixIfNonGAVersionIsNotLatest_WhenGAVersionisNull_AndCurrentVersionIsRecent_ShouldNotAddDiagnostics()
         {
-            DateTime currentApiVersionDate = DateTime.Today.AddYears(-2);
-            DateTime recentPreviewApiVersionDate = currentApiVersionDate;
+            DateTime currentVersionDate = DateTime.Today.AddYears(-2);
+            string currentVersion = ConvertDateTimeToString(currentVersionDate);
 
-            string recentPreviewApiVersion = ConvertDateTimeToString(recentPreviewApiVersionDate) + "-preview";
+            DateTime recentPreviewVersionDate = currentVersionDate;
+            string recentPreviewApiVersion = ConvertDateTimeToString(recentPreviewVersionDate);
 
             Dictionary<TextSpan, CodeFix> spanFixes = new();
 
             Visitor visitor = new Visitor(spanFixes, SemanticModel);
 
-            visitor.AddCodeFixIfPreviewVersionIsNotLatest(new TextSpan(37, 75),
-                                                          recentPreviewApiVersion,
-                                                          null,
-                                                          currentApiVersionDate);
+            visitor.AddCodeFixIfNonGAVersionIsNotLatest(new TextSpan(37, 75),
+                                                        null,
+                                                        recentPreviewApiVersion,
+                                                        null,
+                                                        ApiVersionPrefixConstants.Preview,
+                                                        currentVersion);
 
             spanFixes.Should().BeEmpty();
         }
