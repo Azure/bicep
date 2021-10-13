@@ -9,7 +9,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
@@ -49,13 +51,14 @@ namespace Bicep.Core.Samples
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, features));
             var workspace = new Workspace();
             var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), features);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri);
-            if (await dispatcher.RestoreModules(dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore)))
+            var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(fileUri);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, fileUri, configuration);
+            if (await dispatcher.RestoreModules(configuration, dispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
             {
-                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping);
+                sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            return (new Compilation(namespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration), outputDirectory, fileUri);
+            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
@@ -66,7 +69,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
-                if(dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) is not OciArtifactModuleReference targetReference)
+                if(dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not OciArtifactModuleReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
                 }
@@ -84,8 +87,8 @@ namespace Bicep.Core.Samples
 
             var clientFactory = new Mock<IContainerRegistryClientFactory>(MockBehavior.Strict);
             clientFactory
-                .Setup(m => m.CreateBlobClient(It.IsAny<Uri>(), It.IsAny<string>(), It.IsAny<TokenCredential>()))
-                .Returns<Uri, string, TokenCredential>((registryUri, repository, _) =>
+                .Setup(m => m.CreateBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Returns<RootConfiguration ,Uri, string>((_, registryUri, repository) =>
                 {
                     if (repoToClient.TryGetValue((registryUri, repository), out var client))
                     {
@@ -101,31 +104,31 @@ namespace Bicep.Core.Samples
         public static ITemplateSpecRepositoryFactory CreateMockTemplateSpecRepositoryFactory(this DataSet dataSet, TestContext testContext)
         {
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.CreateFeaturesProvider(testContext, registryEnabled: dataSet.HasTemplateSpecs)));
-            var repositoryMocksBySubscription = new Dictionary<(Uri? endpointUri, string subscriptionId), Mock<ITemplateSpecRepository>>();
+            var repositoryMocksBySubscription = new Dictionary<string, Mock<ITemplateSpecRepository>>();
 
             foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
             {
-                if(dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, out _) is not TemplateSpecModuleReference reference)
+                if(dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }
 
-                var templateSpecElement = JsonDocument.Parse(templateSpecInfo.ModuleSource).RootElement;
+                var templateSpecElement = JsonElementFactory.CreateElement(templateSpecInfo.ModuleSource);
                 var templateSpecEntity = TemplateSpecEntity.FromJsonElement(templateSpecElement);
 
-                repositoryMocksBySubscription.TryAdd((reference.EndpointUri, reference.SubscriptionId), StrictMock.Of<ITemplateSpecRepository>());
-                repositoryMocksBySubscription[(reference.EndpointUri, reference.SubscriptionId)]
+                repositoryMocksBySubscription.TryAdd(reference.SubscriptionId, StrictMock.Of<ITemplateSpecRepository>());
+                repositoryMocksBySubscription[reference.SubscriptionId]
                     .Setup(x => x.FindTemplateSpecByIdAsync(reference.TemplateSpecResourceId, It.IsAny<CancellationToken>()))
                     .ReturnsAsync(templateSpecEntity);
             }
 
             var repositoryFactoryMock = StrictMock.Of<ITemplateSpecRepositoryFactory>();
             repositoryFactoryMock
-                .Setup(x => x.CreateRepository(It.IsAny<Uri?>(), It.IsAny<string>(), It.IsAny<TokenCredential>()))
-                .Returns<Uri?, string, TokenCredential>((endpointUri, subscriptionId, _) =>
-                    repositoryMocksBySubscription.TryGetValue((endpointUri, subscriptionId), out var repository)
+                .Setup(x => x.CreateRepository(It.IsAny<RootConfiguration>(), It.IsAny<string>()))
+                .Returns<RootConfiguration, string>((_, subscriptionId) =>
+                    repositoryMocksBySubscription.TryGetValue(subscriptionId, out var repository)
                         ? repository.Object
-                        : throw new InvalidOperationException($"No mock client was registered for endpoint '{endpointUri}' and subscription '{subscriptionId}'."));
+                        : throw new InvalidOperationException($"No mock client was registered for subscription '{subscriptionId}'."));
 
             return repositoryFactoryMock.Object;
         }
@@ -136,7 +139,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
-                var targetReference = dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, out _) ?? throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
+                var targetReference = dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) ?? throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
 
                 var result = CompilationHelper.Compile(publishInfo.ModuleSource);
                 if (result.Template is null)
@@ -152,7 +155,7 @@ namespace Bicep.Core.Samples
                 }
 
                 stream.Position = 0;
-                await dispatcher.PublishModule(targetReference, stream);
+                await dispatcher.PublishModule(BicepTestConstants.BuiltInConfiguration, targetReference, stream);
             }
         }
     }

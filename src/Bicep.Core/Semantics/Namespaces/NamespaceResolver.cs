@@ -96,7 +96,7 @@ namespace Bicep.Core.Semantics.Namespaces
         public ResourceType GetResourceType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
         {
             var definedTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGetDefinedType(reference, flags))
+                .Select(type => type.ResourceTypeProvider.TryGetDefinedType(type, reference, flags))
                 .WhereNotNull();
 
             if (definedTypes.FirstOrDefault() is {} definedType)
@@ -105,7 +105,7 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             var generatedTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGenerateDefaultType(reference, flags))
+                .Select(type => type.ResourceTypeProvider.TryGenerateDefaultType(type, reference, flags))
                 .WhereNotNull();
 
             // Here we are assuming that one of the namespaces will always return at least one result with TryGenerateDefaultType.

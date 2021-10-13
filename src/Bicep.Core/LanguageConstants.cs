@@ -152,11 +152,12 @@ namespace Bicep.Core
 
         public const string AnyFunction = "any";
         public static readonly TypeSymbol Any = new AnyType();
+        public static readonly TypeSymbol Never = new UnionType("never", ImmutableArray<ITypeReference>.Empty);
 
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
         // type used for the item type in the dependsOn array type
-        public static readonly TypeSymbol ResourceOrResourceCollectionRefItem = UnionType.Create(
+        public static readonly TypeSymbol ResourceOrResourceCollectionRefItem = TypeHelper.CreateTypeUnion(
             ResourceRef,
             new TypedArrayType(CreateResourceScopeReference(ResourceScope.Module), TypeSymbolValidationFlags.Default),
             new TypedArrayType(CreateResourceScopeReference(ResourceScope.Resource), TypeSymbolValidationFlags.Default));
@@ -185,7 +186,7 @@ namespace Bicep.Core
             ("utf-16", Encoding.Unicode)
         }.ToImmutableArray();
 
-        public static readonly TypeSymbol LoadTextContentEncodings = UnionType.Create(SupportedEncodings.Select(s => new StringLiteralType(s.name)));
+        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Select(s => new StringLiteralType(s.name)));
 
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);

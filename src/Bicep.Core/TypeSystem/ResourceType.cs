@@ -4,11 +4,17 @@ using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem
 {
+    public record ResourceTypeComponents(
+        ResourceTypeReference TypeReference,
+        ResourceScope ValidParentScopes,
+        ITypeReference Body);
+
     public class ResourceType : TypeSymbol, IScopeReference
     {
-        public ResourceType(ResourceTypeReference typeReference, ResourceScope validParentScopes, ITypeReference body)
+        public ResourceType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceScope validParentScopes, ITypeReference body)
             : base(typeReference.FormatName())
         {
+            DeclaringNamespace = declaringNamespace;
             TypeReference = typeReference;
             ValidParentScopes = validParentScopes;
             Body = body;
@@ -16,6 +22,7 @@ namespace Bicep.Core.TypeSystem
 
         public override TypeKind TypeKind => TypeKind.Resource;
 
+        public NamespaceType DeclaringNamespace { get; }
         public ResourceTypeReference TypeReference { get; }
 
         /// <summary>

@@ -2107,25 +2107,14 @@ var someText = isTrue ? sys.concat('a', sys.concat('b', 'c')) : 'someText'
 // Bicep functions that cannot be converted into ARM functions
 //@[62:63) NewLine |\n|
 var scopesWithoutArmRepresentation = {
-//@[0:214) VariableDeclarationSyntax
+//@[0:195) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
 //@[4:34)  IdentifierSyntax
 //@[4:34)   Identifier |scopesWithoutArmRepresentation|
 //@[35:36)  Assignment |=|
-//@[37:214)  ObjectSyntax
+//@[37:195)  ObjectSyntax
 //@[37:38)   LeftBrace |{|
 //@[38:39)   NewLine |\n|
-  tenant: tenant()
-//@[2:18)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |tenant|
-//@[8:9)    Colon |:|
-//@[10:18)    FunctionCallSyntax
-//@[10:16)     IdentifierSyntax
-//@[10:16)      Identifier |tenant|
-//@[16:17)     LeftParen |(|
-//@[17:18)     RightParen |)|
-//@[18:19)   NewLine |\n|
   subscription: subscription('10b57a01-6350-4ce2-972a-6a13642f00bf')
 //@[2:68)   ObjectPropertySyntax
 //@[2:14)    IdentifierSyntax
@@ -2162,6 +2151,56 @@ var scopesWithoutArmRepresentation = {
 //@[74:84)       StringComplete |'myRgName'|
 //@[84:85)     RightParen |)|
 //@[85:86)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:3) NewLine |\n\n|
+
+var scopesWithArmRepresentation = {
+//@[0:123) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:31)  IdentifierSyntax
+//@[4:31)   Identifier |scopesWithArmRepresentation|
+//@[32:33)  Assignment |=|
+//@[34:123)  ObjectSyntax
+//@[34:35)   LeftBrace |{|
+//@[35:36)   NewLine |\n|
+  tenant: tenant()
+//@[2:18)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |tenant|
+//@[8:9)    Colon |:|
+//@[10:18)    FunctionCallSyntax
+//@[10:16)     IdentifierSyntax
+//@[10:16)      Identifier |tenant|
+//@[16:17)     LeftParen |(|
+//@[17:18)     RightParen |)|
+//@[18:19)   NewLine |\n|
+  subscription: subscription()
+//@[2:30)   ObjectPropertySyntax
+//@[2:14)    IdentifierSyntax
+//@[2:14)     Identifier |subscription|
+//@[14:15)    Colon |:|
+//@[16:30)    FunctionCallSyntax
+//@[16:28)     IdentifierSyntax
+//@[16:28)      Identifier |subscription|
+//@[28:29)     LeftParen |(|
+//@[29:30)     RightParen |)|
+//@[30:31)   NewLine |\n|
+  resourceGroup: az.resourceGroup()
+//@[2:35)   ObjectPropertySyntax
+//@[2:15)    IdentifierSyntax
+//@[2:15)     Identifier |resourceGroup|
+//@[15:16)    Colon |:|
+//@[17:35)    InstanceFunctionCallSyntax
+//@[17:19)     VariableAccessSyntax
+//@[17:19)      IdentifierSyntax
+//@[17:19)       Identifier |az|
+//@[19:20)     Dot |.|
+//@[20:33)     IdentifierSyntax
+//@[20:33)      Identifier |resourceGroup|
+//@[33:34)     LeftParen |(|
+//@[34:35)     RightParen |)|
+//@[35:36)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|

@@ -159,9 +159,10 @@ namespace Bicep.Wasm
             var fileResolver = new FileResolver();
             var dispatcher = new ModuleDispatcher(new EmptyModuleRegistryProvider());
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri);
+            var configuration = configurationManager.GetBuiltInConfiguration();
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri, configuration);
 
-            return new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration());
+            return new Compilation(namespaceProvider, sourceFileGrouping, configuration);
         }
 
         private static string ReadStreamToEnd(Stream stream)

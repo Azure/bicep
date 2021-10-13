@@ -2,12 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using Azure.Core;
+using Bicep.Core.Configuration;
 
 namespace Bicep.Core.Registry
 {
     public interface ITemplateSpecRepositoryFactory
     {
-        ITemplateSpecRepository CreateRepository(Uri? endpoint, string subscriptionId, TokenCredential? tokenCredential = null);
+        ITemplateSpecRepository CreateRepository(RootConfiguration configuration, string subscriptionId);
     }
 }

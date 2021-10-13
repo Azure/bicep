@@ -35,7 +35,7 @@ describe("bicep publish", () => {
     invokingBicepCommand("publish", "fake.bicep", "--target", target)
       .shouldFail()
       .withStderr(
-        /The specified OCI artifact reference "br:wrong-ref" is not valid\. Specify a reference in the format of "br:<artifact uri>:<tag>"\./
+        /The specified OCI artifact reference "br:wrong-ref" is not valid\. Specify a reference in the format of "br:<artifact-uri>:<tag>", or "br\/<module-alias>:<module-name-or-path>:<tag>"\./
       );
   });
 });

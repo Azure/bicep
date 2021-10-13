@@ -42,7 +42,7 @@ namespace Bicep.Core.TypeSystem
 
             this.UnionMembersByKey = unionMembersByKey.ToImmutableDictionary();
             this.ValidationFlags = validationFlags;
-            this.DiscriminatorKeysUnionType = UnionType.Create(unionKeyTypes);
+            this.DiscriminatorKeysUnionType = TypeHelper.CreateTypeUnion(unionKeyTypes);
             this.DiscriminatorProperty = new TypeProperty(discriminatorKey, this.DiscriminatorKeysUnionType, discriminatorPropertyFlags);
         }
 

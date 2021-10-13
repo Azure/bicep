@@ -3,6 +3,7 @@
 
 using Bicep.Core.Emit;
 using Bicep.Core.Configuration;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -12,7 +13,9 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Collections.Generic;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Bicep.Core.Json;
 
 namespace Bicep.Core.UnitTests
 {
@@ -64,6 +67,35 @@ namespace Bicep.Core.UnitTests
             mock.SetupGet(m => m.CacheRootDirectory).Returns(testPath);
 
             return mock.Object;
+        }
+
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
+        {
+            var configurationData = new Dictionary<string, object>
+            {
+                ["cloud.currentProfile"] = "AzureCloud",
+                ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
+                ["moduleAliases"] = new Dictionary<string, object>(),
+                ["analyzers"] = new Dictionary<string, object>(),
+            };
+
+            if (customConfigurationData is not null)
+            {
+                foreach (var (path, value) in customConfigurationData)
+                {
+                    configurationData[path] = value;
+                }
+            }
+
+            var element = JsonElementFactory.CreateElement("{}");
+
+            foreach (var (path, value) in configurationData)
+            {
+                element = element.SetPropertyByPath(path, value);
+            }
+
+            return RootConfiguration.Bind(element, configurationPath);
         }
 
         private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled, string assemblyFileVersion)

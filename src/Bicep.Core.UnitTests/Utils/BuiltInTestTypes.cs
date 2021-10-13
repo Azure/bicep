@@ -21,17 +21,17 @@ namespace Bicep.Core.UnitTests.Utils
             yield return new TypeProperty(LanguageConstants.ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "apiVersion property");
         }
 
-        private static ResourceType BasicTestsType()
+        private static ResourceTypeComponents BasicTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/basicTests@2020-01-01");
 
-            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
                 GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
                 }), null));
         }
 
-        private static ResourceType ReadWriteTestsType()
+        private static ResourceTypeComponents ReadWriteTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/readWriteTests@2020-01-01");
 
@@ -42,13 +42,13 @@ namespace Bicep.Core.UnitTests.Utils
                 new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "This is a property which is required."),
             }, null);
 
-            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
                 GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }), null));
         }
 
-        private static ResourceType DiscriminatorTestsType()
+        private static ResourceTypeComponents DiscriminatorTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/discriminatorTests@2020-01-01");
 
@@ -83,10 +83,44 @@ namespace Bicep.Core.UnitTests.Utils
                     }), null),
                 });
 
-            return new ResourceType(resourceType, ResourceScope.ResourceGroup, bodyType);
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, bodyType);
         }
 
-        private static ResourceType FallbackPropertyTestsType()
+        private static ResourceTypeComponents DiscriminatedPropertiesTestsType()
+        {
+            var resourceType = ResourceTypeReference.Parse("Test.Rp/discriminatedPropertiesTests@2020-01-01");
+
+            var propsA = new ObjectType(
+                "PropertiesA",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propType", new StringLiteralType("PropertiesA"), TypePropertyFlags.None, "..."),
+                    new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
+                },
+                null);
+
+            var propsB = new ObjectType(
+                "PropertiesB",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propType", new StringLiteralType("PropertiesB"), TypePropertyFlags.None, "..."),
+                    new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
+                },
+                null);
+
+            var propertiesType = new DiscriminatedObjectType(
+                "properties",
+                TypeSymbolValidationFlags.Default,
+                "propType",
+                new[] { propsA, propsB });
+
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                GetCommonResourceProperties(resourceType).Concat(new[] {
+                    new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
+                }), null));
+        }
+
+        private static ResourceTypeComponents FallbackPropertyTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/fallbackProperties@2020-01-01");
 
@@ -94,7 +128,7 @@ namespace Bicep.Core.UnitTests.Utils
                 new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "This is a property which is required."),
             }, null);
 
-            return new ResourceType(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
                 GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }).Concat(
@@ -108,6 +142,7 @@ namespace Bicep.Core.UnitTests.Utils
                 BasicTestsType(),
                 ReadWriteTestsType(),
                 DiscriminatorTestsType(),
+                DiscriminatedPropertiesTestsType(),
                 FallbackPropertyTestsType(),
             });
     }

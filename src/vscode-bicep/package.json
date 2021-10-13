@@ -224,10 +224,10 @@
   },
   "devDependencies": {
     "@types/copy-webpack-plugin": "^8.0.1",
-    "@types/cytoscape": "^3.14.17",
+    "@types/cytoscape": "^3.14.19",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.0.0",
-    "@types/node": "^16.9.6",
+    "@types/node": "^16.10.3",
     "@types/react": "^17.0.24",
     "@types/react-dom": "^17.0.9",
     "@types/react-test-renderer": "^17.0.1",
