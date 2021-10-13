@@ -131,7 +131,7 @@
     <value>Don't include secrets in an output.</value>
   </data>
   <data name="OutputsShouldNotContainSecretsMessageFormat" xml:space="preserve">
-    <value>{0} Found: {1}</value>
+    <value>{0} Found possible secret: {1}</value>
     <comment>{0} is the rule description as a sentence ending with a period, {1} is the name of what was found, e.g. 'myParameter'</comment>
   </data>
   <data name="OutputsShouldNotContainSecretsOutputName" xml:space="preserve">
