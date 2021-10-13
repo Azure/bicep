@@ -114,7 +114,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //   output badResult object = listKeys(resourceId('Microsoft.Storage/storageAccounts', 'storageName'), '2021-02-01')
                 //
 
-                if (syntax.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
+                if (SemanticModelHelper.TryGetFunctionInNamespace(model, AzNamespaceType.BuiltInName, syntax) is FunctionCallSyntaxBase listFunction
+                    && listFunction.Name.IdentifierName.StartsWithOrdinalInsensitively(ListFunctionPrefix))
                 {
                     string foundMessage = string.Format(CoreResources.OutputsShouldNotContainSecretsFunction, syntax.Name.IdentifierName);
                     this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, foundMessage));
@@ -138,7 +139,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         //
                         isFailure = true;
                     }
-                    else if (baseSymbol is BuiltInNamespaceSymbol namespaceType)
+                    else if (baseSymbol is BuiltInNamespaceSymbol)
                     {
                         // It's a usage of a built-in list*() function as a member of the built-in "az" module, e.g.:
                         //
