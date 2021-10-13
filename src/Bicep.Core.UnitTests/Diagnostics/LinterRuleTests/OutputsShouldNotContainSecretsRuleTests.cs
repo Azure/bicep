@@ -123,6 +123,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             CompileAndTest(text, OnCompileErrors.Ignore, expectedMessages);
         }
 
+        [Ignore("TODO: blocked by https://github.com/Azure/bicep/issues/4833")]
         [DataRow(@"
             param storageName string
 
