@@ -21,7 +21,6 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics()
         {
             var documentUri = DocumentUri.From("/template.bicep");
@@ -55,8 +54,12 @@ randomToken
                     d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
                 },
                 d => {
+                    d.Range.Should().HaveRange((2, 9), (2, 14));
+                    d.Should().HaveCodeAndSeverity("BCP035", DiagnosticSeverity.Error);
+                },
+                d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
-                    d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);
+                    d.Should().HaveCodeAndSeverity("BCP081", DiagnosticSeverity.Warning);
                 },
                 d => {
                     d.Range.Should().HaveRange((5, 0), (5, 11));
@@ -82,8 +85,12 @@ randomToken
                     d.Should().HaveCodeAndSeverity(new NoUnusedParametersRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
                 d => {
+                    d.Range.Should().HaveRange((2, 9), (2, 14));
+                    d.Should().HaveCodeAndSeverity("BCP035", DiagnosticSeverity.Error);
+                },
+                d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
-                    d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);
+                    d.Should().HaveCodeAndSeverity("BCP081", DiagnosticSeverity.Warning);
                 },
                 d => {
                     d.Range.Should().HaveRange((5, 0), (5, 11));

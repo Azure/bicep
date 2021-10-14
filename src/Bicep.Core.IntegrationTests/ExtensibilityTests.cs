@@ -182,7 +182,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""15801027717662115707""
+      ""templateHash"": ""5882562684412012112""
     }
   },
   ""parameters"": {
@@ -225,7 +225,7 @@ Hello from Bicep!"));
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""2398183545454595320""
+              ""templateHash"": ""8211526298425597548""
             }
           },
           ""parameters"": {
@@ -246,12 +246,10 @@ Hello from Bicep!"));
           ""resources"": {
             ""container"": {
               ""type"": ""container"",
-              ""apiVersion"": """",
               ""name"": ""bicep""
             },
             ""blob"": {
               ""type"": ""blob"",
-              ""apiVersion"": """",
               ""name"": ""blob.txt"",
               ""containerName"": ""[resourceInfo('container').name]"",
               ""base64Content"": ""[base64('\nHello from Bicep!')]"",

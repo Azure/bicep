@@ -1836,7 +1836,7 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 
 // #completionTest(15,36,37) -> resourceTypes
 resource comp1 'Microsoft.Resources/'
-//@[9:14) Resource comp1. Type: Microsoft.Resources. Declaration start char: 0, length: 37
+//@[9:14) Resource comp1. Type: error. Declaration start char: 0, length: 37
 
 // #completionTest(15,16,17) -> resourceTypes
 resource comp2 ''
@@ -1856,7 +1856,7 @@ resource comp5 'Microsoft.Storage/storageAccounts'
 
 // #completionTest(50) -> storageAccountsResourceTypes
 resource comp6 'Microsoft.Storage/storageAccounts@'
-//@[9:14) Resource comp6. Type: Microsoft.Storage/storageAccounts. Declaration start char: 0, length: 51
+//@[9:14) Resource comp6. Type: error. Declaration start char: 0, length: 51
 
 // #completionTest(52) -> templateSpecsResourceTypes
 resource comp7 'Microsoft.Resources/templateSpecs@20'

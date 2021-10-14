@@ -1989,7 +1989,7 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 
 // #completionTest(15,36,37) -> resourceTypes
 resource comp1 'Microsoft.Resources/'
-//@[15:37) [BCP081 (Warning)] Resource type "Microsoft.Resources" does not have types available. (CodeDescription: none) |'Microsoft.Resources/'|
+//@[15:37) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Resources/'|
 //@[37:37) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(15,16,17) -> resourceTypes
@@ -2014,7 +2014,7 @@ resource comp5 'Microsoft.Storage/storageAccounts'
 
 // #completionTest(50) -> storageAccountsResourceTypes
 resource comp6 'Microsoft.Storage/storageAccounts@'
-//@[15:51) [BCP081 (Warning)] Resource type "Microsoft.Storage/storageAccounts" does not have types available. (CodeDescription: none) |'Microsoft.Storage/storageAccounts@'|
+//@[15:51) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Storage/storageAccounts@'|
 //@[51:51) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(52) -> templateSpecsResourceTypes

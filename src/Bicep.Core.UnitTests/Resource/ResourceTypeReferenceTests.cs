@@ -11,17 +11,13 @@ namespace Bicep.Core.UnitTests.Resource
     {
         [DataTestMethod]
         [DataRow("")]
-        [DataRow("wrong")]
-        [DataRow("Microsoft.Compute")]
-        [DataRow("Microsoft.Compute/")]
-        [DataRow("Microsoft.Compute/virtualMachines")]
-        [DataRow("Microsoft.Compute/virtualMachines/")]
-        [DataRow("Microsoft.Compute/virtualMachines@")]
-        [DataRow("Microsoft.Compute/virtualMachines@foo")]
-        [DataRow("Microsoft.Compute/virtualMachines@2020")]
-        [DataRow("Microsoft.Compute/virtualMachines@2020-01")]
-        [DataRow("Microsoft.Compute/virtualMachines@2020-02-0")]
-        [DataRow("Microsoft.Compute/virtualMachines@2020-02-02-fake")]
+        [DataRow("+-")]
+        [DataRow("-/abc")]
+        [DataRow("abc/-")]
+        [DataRow("@")]
+        [DataRow("@2020-01-01")]
+        [DataRow("-@2020-01-01")]
+        [DataRow("abc@+")]
         public void InvalidType_ShouldBeRejected(string value)
         {
             ResourceTypeReference.TryParse(value).Should().BeNull();
