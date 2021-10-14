@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Bicep.Core.ApiVersion;
 using Bicep.Core.CodeAction;
@@ -114,14 +113,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return;
                 }
 
-                DateTime currentApiVersionDate = DateTime.Parse(currentApiVersion, CultureInfo.InvariantCulture);
+                DateTime currentApiVersionDate = DateTime.Parse(currentApiVersion);
 
                 if (DateTime.Now.Year - currentApiVersionDate.Year <= 2)
                 {
                     return;
                 }
 
-                DateTime recentGAVersionDate = DateTime.Parse(recentGAVersion, CultureInfo.InvariantCulture);
+                DateTime recentGAVersionDate = DateTime.Parse(recentGAVersion);
 
                 if (DateTime.Compare(recentGAVersionDate.Date, currentApiVersionDate.Date) > 0)
                 {
@@ -143,7 +142,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return;
                 }
 
-                DateTime currentVersionDate = DateTime.Parse(currentVersion, CultureInfo.InvariantCulture);
+                DateTime currentVersionDate = DateTime.Parse(currentVersion);
 
                 Dictionary<string, DateTime> prefixToRecentApiVersionMap = new Dictionary<string, DateTime>();
 
@@ -151,29 +150,29 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (recentGAVersion is not null)
                     {
-                        prefixToRecentApiVersionMap.Add(recentGAVersion, DateTime.Parse(recentGAVersion, CultureInfo.InvariantCulture));
+                        prefixToRecentApiVersionMap.Add(recentGAVersion, DateTime.Parse(recentGAVersion));
                     }
 
                     if (recentPreviewVersion is not null)
                     {
-                        prefixToRecentApiVersionMap.Add(recentPreviewVersion + prefix, DateTime.Parse(recentPreviewVersion, CultureInfo.InvariantCulture));
+                        prefixToRecentApiVersionMap.Add(recentPreviewVersion + prefix, DateTime.Parse(recentPreviewVersion));
                     }
                 }
                 else
                 {
                     if (recentGAVersion is not null)
                     {
-                        prefixToRecentApiVersionMap.Add(recentGAVersion, DateTime.Parse(recentGAVersion, CultureInfo.InvariantCulture));
+                        prefixToRecentApiVersionMap.Add(recentGAVersion, DateTime.Parse(recentGAVersion));
                     }
 
                     if (recentNonPreviewVersion is not null)
                     {
-                        prefixToRecentApiVersionMap.Add(recentNonPreviewVersion + prefix, DateTime.Parse(recentNonPreviewVersion, CultureInfo.InvariantCulture));
+                        prefixToRecentApiVersionMap.Add(recentNonPreviewVersion + prefix, DateTime.Parse(recentNonPreviewVersion));
                     }
 
                     if (recentPreviewVersion is not null)
                     {
-                        prefixToRecentApiVersionMap.Add(recentPreviewVersion + ApiVersionPrefixConstants.Preview, DateTime.Parse(recentPreviewVersion, CultureInfo.InvariantCulture));
+                        prefixToRecentApiVersionMap.Add(recentPreviewVersion + ApiVersionPrefixConstants.Preview, DateTime.Parse(recentPreviewVersion));
                     }
                 }
 
@@ -204,7 +203,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 if (version is not null)
                 {
-                    return DateTime.Parse(version, CultureInfo.InvariantCulture);
+                    return DateTime.Parse(version);
                 }
 
                 return null;

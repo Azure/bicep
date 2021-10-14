@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.ApiVersion;
@@ -492,7 +491,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             DateTime? actual = visitor.GetApiVersionDate(apiVersion);
 
-            actual.Should().Be(DateTime.Parse(expectedVersion, CultureInfo.InvariantCulture));
+            actual.Should().Be(DateTime.Parse(expectedVersion));
         }
 
         private string ConvertDateTimeToString(DateTime dateTime)
