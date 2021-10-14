@@ -1,18 +1,22 @@
+@description('Configuration store name')
 param configStoreName string = 'myConfigStore'
-param location string = resourceGroup().location
 
-// Specifies the names of the key-value resources. 
+@description('Location for all resources')
+param location string = resourceGroup().location
+ 
+@description('Specifies the names of the key-value resources')
 param keyValueNames array = [
   'myKey'
   'myKey2$myLabel' // The name is a combination of key and label with $ as delimiter. The label is optional.
 ]
 
-// Specifies the values of the key-value resources. It's optional
+@description('Specifies optional values of the key-value resources')
 param keyValueValues array = [
   'key-value without label'
   'key-value with label'
 ]
 
+@description('Content type')
 param contentType string = 'the-content-type' // suprised this isn't an enum value?
 
 resource config 'Microsoft.AppConfiguration/configurationStores@2020-07-01-preview' = {
