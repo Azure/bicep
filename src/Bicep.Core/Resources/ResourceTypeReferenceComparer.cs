@@ -18,6 +18,6 @@ namespace Bicep.Core.Resources
 
         public int GetHashCode(ResourceTypeReference obj)
             => Enumerable.Select(obj.TypeSegments, x => StringComparer.OrdinalIgnoreCase.GetHashCode(x)).Aggregate((a, b) => a ^ b) ^
-                StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Version);
+                (obj.Version is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Version));
     }
 }

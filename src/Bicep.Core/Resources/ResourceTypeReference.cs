@@ -62,6 +62,11 @@ namespace Bicep.Core.Resources
                 .ToImmutableArray();
             var version = match.Groups["version"].Value;
 
+            if (string.IsNullOrEmpty(version))
+            {
+                return new ResourceTypeReference(types, null);
+            }
+
             return new ResourceTypeReference(types, version);
         }
 

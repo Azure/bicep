@@ -17,7 +17,7 @@ resource fo/o
 //@[13:13) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 resource foo 'ddd'
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'ddd'|
+//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
 //@[18:18) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(23) -> resourceTypes
@@ -28,18 +28,20 @@ resource trailingSpace
 // #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'ddd'|
+//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
 //@[20:20) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
 // wrong resource type
 resource foo 'ddd'={
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'ddd'|
+//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
+//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
 }
 
 resource foo 'ddd'=if (1 + 1 == 2) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[13:18) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'ddd'|
+//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
+//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
 }
 
 // using string interpolation for the resource type
@@ -1025,7 +1027,7 @@ resource missingType
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
 resource startedTypingTypeWithQuotes 'virma'
-//@[37:44) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'virma'|
+//@[37:44) [BCP081 (Warning)] Resource type "virma" does not have types available. (CodeDescription: none) |'virma'|
 //@[44:44) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
@@ -1865,8 +1867,9 @@ resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 }
 
 resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
+//@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
   parent: p5_res1
-//@[10:17) [BCP171 (Error)] Resource type "Microsoft.Rp2/resource2/child2" is not a valid child resource of parent "Microsoft.Rp1/resource1". (CodeDescription: none) |p5_res1|
+//@[10:17) [BCP036 (Error)] The property "parent" expected a value of type "Microsoft.Rp2/resource2" but the provided value is of type "Microsoft.Rp1/resource1@2020-06-01". (CodeDescription: none) |p5_res1|
   name: 'res2'
 }
 
@@ -1877,8 +1880,9 @@ resource p6_res1 '${true}' = {
 }
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
+//@[17:60) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child2@2020-06-01'|
   parent: p6_res1
-//@[10:17) [BCP172 (Error)] The resource type cannot be validated due to an error in parent resource "p6_res1". (CodeDescription: none) |p6_res1|
+//@[10:17) [BCP062 (Error)] The referenced declaration with name "p6_res1" is not valid. (CodeDescription: none) |p6_res1|
   name: 'res2'
 }
 
@@ -1985,7 +1989,7 @@ resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-
 
 // #completionTest(15,36,37) -> resourceTypes
 resource comp1 'Microsoft.Resources/'
-//@[15:37) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Resources/'|
+//@[15:37) [BCP081 (Warning)] Resource type "Microsoft.Resources" does not have types available. (CodeDescription: none) |'Microsoft.Resources/'|
 //@[37:37) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(15,16,17) -> resourceTypes
@@ -1995,27 +1999,27 @@ resource comp2 ''
 
 // #completionTest(38) -> resourceTypes
 resource comp3 'Microsoft.Resources/t'
-//@[15:38) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Resources/t'|
+//@[15:38) [BCP081 (Warning)] Resource type "Microsoft.Resources/t" does not have types available. (CodeDescription: none) |'Microsoft.Resources/t'|
 //@[38:38) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(40) -> resourceTypes
 resource comp4 'Microsoft.Resources/t/v'
-//@[15:40) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Resources/t/v'|
+//@[15:40) [BCP081 (Warning)] Resource type "Microsoft.Resources/t/v" does not have types available. (CodeDescription: none) |'Microsoft.Resources/t/v'|
 //@[40:40) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(49) -> resourceTypes
 resource comp5 'Microsoft.Storage/storageAccounts'
-//@[15:50) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Storage/storageAccounts'|
+//@[15:50) [BCP081 (Warning)] Resource type "Microsoft.Storage/storageAccounts" does not have types available. (CodeDescription: none) |'Microsoft.Storage/storageAccounts'|
 //@[50:50) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(50) -> storageAccountsResourceTypes
 resource comp6 'Microsoft.Storage/storageAccounts@'
-//@[15:51) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Storage/storageAccounts@'|
+//@[15:51) [BCP081 (Warning)] Resource type "Microsoft.Storage/storageAccounts" does not have types available. (CodeDescription: none) |'Microsoft.Storage/storageAccounts@'|
 //@[51:51) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(52) -> templateSpecsResourceTypes
 resource comp7 'Microsoft.Resources/templateSpecs@20'
-//@[15:53) [BCP029 (Error)] The resource type is not valid. Specify a valid resource type of format "<provider>/<types>@<apiVersion>". (CodeDescription: none) |'Microsoft.Resources/templateSpecs@20'|
+//@[15:53) [BCP081 (Warning)] Resource type "Microsoft.Resources/templateSpecs@20" does not have types available. (CodeDescription: none) |'Microsoft.Resources/templateSpecs@20'|
 //@[53:53) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(60,61) -> virtualNetworksResourceTypes
