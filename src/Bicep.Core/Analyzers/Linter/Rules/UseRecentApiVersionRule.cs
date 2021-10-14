@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.ApiVersion;
 using Bicep.Core.CodeAction;
@@ -181,6 +182,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     var sortedPrefixToRecentApiVersionDateMap = prefixToRecentApiVersionMap.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
 
                     KeyValuePair<string, DateTime> kvp = sortedPrefixToRecentApiVersionDateMap.First();
+
+                    Trace.WriteLine("Preview version");
+                    Trace.WriteLine("Date1: "+ kvp.Value);
+                    Trace.WriteLine("Date2: " + currentVersionDate);
 
                     if (DateTime.Compare(kvp.Value, currentVersionDate) > 0)
                     {
