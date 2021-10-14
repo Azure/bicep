@@ -202,7 +202,7 @@ resource postgreSQL 'Microsoft.DBForPostgreSQL/servers@2017-12-01' existing = {
   }]
 }
 
-resource dbLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (item, index) in PSQL_DATABASES: {
+resource dbLocks 'Microsoft.Authorization/locks@2020-05-01' = [for (item, index) in PSQL_DATABASES: {
   name: 'dbLock'
   scope: postgreSQL::database[index]
   properties: {

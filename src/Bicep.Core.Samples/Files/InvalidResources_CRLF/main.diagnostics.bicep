@@ -1962,12 +1962,14 @@ resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [fo
 
 resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
 //@[9:23) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". (CodeDescription: none) |anyTypeInScope|
+//@[55:65) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   scope: any(invalidExistingLocationRef)
 //@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(invalidExistingLocationRef)|
 }
 
 resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
 //@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". (CodeDescription: none) |anyTypeInScopeConditional|
+//@[66:76) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   scope: any(invalidExistingLocationRef)
 //@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(invalidExistingLocationRef)|
 }

@@ -6,7 +6,7 @@
 // $6 = 'startIpAddress'
 // $7 = 'endIpAddress'
 
-resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2021-05-01-preview' = {
   name: 'name'
   location: resourceGroup().location
   properties: {
@@ -15,7 +15,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
   }
 }
 
-resource sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2021-02-01-preview' = {
+resource sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2021-05-01-preview' = {
   parent: sqlServer
   name: 'name'
   properties: {

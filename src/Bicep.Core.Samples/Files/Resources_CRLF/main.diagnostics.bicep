@@ -387,6 +387,7 @@ resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0
 }]
 
 resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in range(0,2): {
+//@[53:63) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   name: 'lock${lock}'
   properties: {
     level: 'CanNotDelete'
@@ -395,6 +396,7 @@ resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in 
 }]
 
 resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (lock, i) in range(0,3): {
+//@[57:67) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   name: 'another${i}'
   properties: {
     level: 'ReadOnly'
@@ -403,6 +405,7 @@ resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (loc
 }]
 
 resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[62:72) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   name: 'single-lock'
   properties: {
     level: 'ReadOnly'

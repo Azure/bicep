@@ -14,6 +14,7 @@ resource singleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
 
 // extension of single resource
 resource singleResourceExtension 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[64:74) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   scope: singleResource
   name: 'single-resource-lock'
   properties: {
@@ -23,6 +24,7 @@ resource singleResourceExtension 'Microsoft.Authorization/locks@2016-09-01' = {
 
 // single resource cascade extension
 resource singleResourceCascadeExtension 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[71:81) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   scope: singleResourceExtension
   name: 'single-resource-cascade-extension'
   properties: {
@@ -46,6 +48,7 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (
 
 // extension of a single resource in a collection
 resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09-01' = {
+//@[73:83) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   name: 'one-resource-collection-item-lock'
   properties: {
     level: 'ReadOnly'
@@ -55,6 +58,7 @@ resource extendSingleResourceInCollection 'Microsoft.Authorization/locks@2016-09
 
 // collection of extensions
 resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) in range(0,1): {
+//@[60:70) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   name: 'lock-${i}-${i2}'
   properties: {
     level: i == 0 && i2 == 0 ? 'CanNotDelete' : 'ReadOnly'
@@ -65,6 +69,7 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for (
 // cascade extend the extension
 @batchSize(1)
 resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for (i, i2) in range(0,1): {
+//@[53:63) [use-recent-api-version (Warning)] Use recent api version. (CodeDescription: bicep core(https://aka.ms/bicep/linter/use-recent-api-version)) |2016-09-01|
   name: 'lock-the-lock-${i}-${i2}'
   properties: {
     level: i == 0 && i2 == 0 ? 'CanNotDelete' : 'ReadOnly'

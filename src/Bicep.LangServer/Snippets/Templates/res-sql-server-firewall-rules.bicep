@@ -1,5 +1,5 @@
 ﻿// SQL Server Firewall Rules
-resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
+resource sqlServer 'Microsoft.Sql/servers@2021-05-01-preview' = {
   name: /*${1:'name'}*/'name'
   location: resourceGroup().location
   properties: {
@@ -8,7 +8,7 @@ resource sqlServer 'Microsoft.Sql/servers@2021-02-01-preview' = {
   }
 }
 
-resource /*${4:sqlServerFirewallRules}*/sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2021-02-01-preview' = {
+resource /*${4:sqlServerFirewallRules}*/sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2021-05-01-preview' = {
   parent: sqlServer
   name: /*${5:'name'}*/'name'
   properties: {

@@ -1731,7 +1731,7 @@ var sqlDatabase = {
   dataEncryption: 'Enabled'
 }
 
-resource sqlDb 'Microsoft.Sql/servers/databases@2021-02-01-preview' existing = {
+resource sqlDb 'Microsoft.Sql/servers/databases@2021-05-01-preview' existing = {
   name: '${sqlServerName}/${sqlDatabase.name}'
 }
 
@@ -2121,7 +2121,7 @@ resource pubipv4 'Microsoft.Network/publicIpAddresses@2020-05-01' = {
   ] : null
 }
 
-resource lock 'Microsoft.Authorization/locks@2016-09-01' = {
+resource lock 'Microsoft.Authorization/locks@2020-05-01' = {
   name: 'lock'
   properties: {
     level: 'CanNotDelete'

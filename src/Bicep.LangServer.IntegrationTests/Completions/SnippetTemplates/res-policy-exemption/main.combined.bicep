@@ -9,7 +9,7 @@
 // $9 = '0.1.0'
 // $10 = 'source'
 
-resource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {
+resource policyExemption 'Microsoft.Authorization/policyExemptions@2021-07-01' = {
   name: 'name'
   properties: {
     policyAssignmentId: 'policyAssignmentId'

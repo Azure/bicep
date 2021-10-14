@@ -1,5 +1,5 @@
 //Policy Exemption
-resource /*${1:policyExemption}*/policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {
+resource /*${1:policyExemption}*/policyExemption 'Microsoft.Authorization/policyExemptions@2021-07-01' = {
   name: /*${2:'name'}*/'name'
   properties: {
     policyAssignmentId: /*${3:'policyAssignmentId'}*/'policyAssignmentId'
