@@ -122,7 +122,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 DateTime recentGAVersionDate = DateTime.Parse(recentGAVersion);
 
-                if (DateTime.Compare(recentGAVersionDate.Date, currentApiVersionDate.Date) > 0)
+                if (DateTime.Compare(recentGAVersionDate, currentApiVersionDate) > 0)
                 {
                     AddCodeFix(span, recentGAVersion);
                 }
@@ -182,7 +182,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                     KeyValuePair<string, DateTime> kvp = sortedPrefixToRecentApiVersionDateMap.First();
 
-                    if (DateTime.Compare(kvp.Value.Date, currentVersionDate.Date) > 0)
+                    if (DateTime.Compare(kvp.Value, currentVersionDate) > 0)
                     {
                         AddCodeFix(span, kvp.Key);
                     }
