@@ -183,12 +183,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                     KeyValuePair<string, DateTime> kvp = sortedPrefixToRecentApiVersionDateMap.First();
 
-                    Trace.WriteLine("Preview version");
-                    Trace.WriteLine("Date1: "+ kvp.Value);
-                    Trace.WriteLine("Date2: " + currentVersionDate);
-
                     if (DateTime.Compare(kvp.Value, currentVersionDate) > 0)
                     {
+                        Trace.WriteLine("Preview version");
+                        Trace.WriteLine("Date1: " + kvp.Value);
+                        Trace.WriteLine("Date2: " + currentVersionDate);
+
                         AddCodeFix(span, kvp.Key);
                     }
                 }
