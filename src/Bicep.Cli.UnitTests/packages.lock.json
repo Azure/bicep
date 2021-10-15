@@ -1339,7 +1339,7 @@
       "bicep.core.registryclient": {
         "type": "Project",
         "dependencies": {
-          "Azure.Core": "1.14.0"
+          "Azure.Core": "1.20.0"
         }
       },
       "bicep.decompiler": {
