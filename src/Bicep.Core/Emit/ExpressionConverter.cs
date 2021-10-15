@@ -876,6 +876,14 @@ namespace Bicep.Core.Emit
             }
         }
 
+        /// <summary>
+        /// Generates a management group id, using the managementGroup() function. Only suitable for use if the template being generated is targeting the management group scope.
+        /// </summary>
+        public static LanguageExpression GenerateCurrentManagementGroupId()
+            => AppendProperties(
+                CreateFunction("managementGroup"),
+                new JTokenExpression("id"));
+
         private static FunctionExpression CreateFunction(string name, params LanguageExpression[] parameters)
             => CreateFunction(name, parameters as IEnumerable<LanguageExpression>);
 

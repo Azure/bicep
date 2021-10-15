@@ -2749,5 +2749,50 @@ output test string = '${port}'
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
             evaluated.Should().HaveValueAtPath("$.outputs['test'].value", "1234", "the evaluated output should be of type string");
         }
+
+        // https://github.com/Azure/bicep/issues/1228
+        [TestMethod]
+        public void Test_Issue1228()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+resource policy01 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
+  name: 'Allowed locations'
+  properties: {
+    policyType: 'Custom'
+    mode: 'All'
+    policyRule: {
+      if: {
+         field: 'location'
+         notIn: [
+           'westeurope'
+        ]
+      }
+      then: {
+         effect: 'Deny'
+      }
+   }
+  }
+}
+
+resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {
+  name: 'Default initiative'
+  properties: {
+    policyDefinitions: [
+      {
+        policyDefinitionId: policy01.id
+//        policyDefinitionId: '/providers/Microsoft.Management/managementGroups/MYMANAGEMENTGROUP/providers/${policy01.id}'
+      }
+    ]
+  }
+}
+");
+
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'Allowed locations')]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
+        }
     }
 }
