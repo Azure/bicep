@@ -49,6 +49,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               location: resourceGroup().location
               properties: {
                 storageProfile: {
+                }
+              }
+            }")]
+        [DataRow(@"
+            resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
+              name: 'virtualMachineName'
+              location: resourceGroup().location
+              properties: {
+                storageProfile: {
                   imageReference: {
                     offer: 'WindowsServer'
                     sku: '2019-Datacenter'
@@ -114,15 +123,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
               }
             }", "offer", "version")]
-        [DataRow(@"
-            resource vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
-              name: 'virtualMachineName'
-              location: resourceGroup().location
-              properties: {
-                storageProfile: {
-                }
-              }
-            }")]
         [DataTestMethod]
         public void TestRule(string text, params string[] useRecentApiVersions)
         {

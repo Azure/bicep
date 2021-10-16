@@ -81,13 +81,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (syntax.Value is ObjectSyntax objectSyntax)
                     {
-                        AddDiagnosticsIfObjectSyntaxPropertiesContainPreview(objectSyntax);
+                        AddDiagnosticsIfImageReferencePropertiesContainPreview(objectSyntax);
                     }
                     else if (syntax.Value is VariableAccessSyntax &&
                              model.GetSymbolInfo(syntax.Value) is VariableSymbol variableSymbol &&
                              variableSymbol.Value is ObjectSyntax variableValueSyntax)
                     {
-                        AddDiagnosticsIfObjectSyntaxPropertiesContainPreview(variableValueSyntax);
+                        AddDiagnosticsIfImageReferencePropertiesContainPreview(variableValueSyntax);
                     }
                 }
                 else
@@ -96,15 +96,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
             }
 
-            private bool ValueContainsPreview(string key, string value)
-            {
-                return (key.Equals("offer", StringComparison.OrdinalIgnoreCase) ||
-                        key.Equals("sku", StringComparison.OrdinalIgnoreCase) ||
-                        key.Equals("version", StringComparison.OrdinalIgnoreCase)) &&
-                        value.Contains("preview");
-            }
-
-            private void AddDiagnosticsIfObjectSyntaxPropertiesContainPreview(ObjectSyntax objectSyntax)
+            private void AddDiagnosticsIfImageReferencePropertiesContainPreview(ObjectSyntax objectSyntax)
             {
                 foreach (var child in objectSyntax.Children)
                 {
@@ -117,6 +109,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         diagnostics.Add(parent.CreateDiagnosticForSpan(valueSyntax.Span, key));
                     }
                 }
+            }
+
+            private bool ValueContainsPreview(string key, string value)
+            {
+                return (key.Equals("offer", StringComparison.OrdinalIgnoreCase) ||
+                        key.Equals("sku", StringComparison.OrdinalIgnoreCase) ||
+                        key.Equals("version", StringComparison.OrdinalIgnoreCase)) &&
+                        value.Contains("preview");
             }
         }
     }
