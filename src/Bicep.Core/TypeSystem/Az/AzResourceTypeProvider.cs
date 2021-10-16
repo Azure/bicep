@@ -218,7 +218,7 @@ namespace Bicep.Core.TypeSystem.Az
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
 
-            var functions = GetBicepMethods(typeReference);
+            var functions = objectType.MethodResolver.functionOverloads.AddRange(GetBicepMethods(typeReference));
 
             foreach (var item in LanguageConstants.KnownTopLevelResourceProperties())
             {

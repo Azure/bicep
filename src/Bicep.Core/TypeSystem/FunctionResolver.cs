@@ -15,7 +15,7 @@ namespace Bicep.Core.TypeSystem
 {
     public class FunctionResolver
     {
-        private readonly ImmutableArray<FunctionOverload> functionOverloads;
+        public readonly ImmutableArray<FunctionOverload> functionOverloads;
         private readonly ImmutableArray<BannedFunction> bannedFunctions;
         private readonly ObjectType declaringObject;
 

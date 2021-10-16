@@ -26,22 +26,6 @@
           "OmniSharp.Extensions.LanguageServer.Shared": "0.19.2"
         }
       },
-      "Azure.Bicep.Types": {
-        "type": "Transitive",
-        "resolved": "0.1.304",
-        "contentHash": "sxaNlc6bH+gneUl77BQt0JvVK0lWSRn1HNqoTlDelD3yPrD0v/0e6V1FYlp/UJFbhfio12mcI2TlIrByU3Obpg==",
-        "dependencies": {
-          "System.Text.Json": "5.0.2"
-        }
-      },
-      "Azure.Bicep.Types.Az": {
-        "type": "Transitive",
-        "resolved": "0.1.304",
-        "contentHash": "iT/z7QtI9L1P7E7IGvg/pCSeObGINMEMiUm47l8h00TSQ83rd91Y7Et+vpA9WMiLBQi75gq/Ogkffv7Zq1bjKw==",
-        "dependencies": {
-          "Azure.Bicep.Types": "0.1.304"
-        }
-      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.20.0",
@@ -577,11 +561,23 @@
         "resolved": "4.5.4",
         "contentHash": "zteT+G8xuGu6mS+mzDzYXbzS7rd3K6Fjb9RiZlYlJPam2/hU7JCBZBVEcywNuR+oZ1ncTvc/cq0faRr3P01OVg=="
       },
+      "Azure.Bicep.Types": {
+        "type": "Project",
+        "dependencies": {
+          "System.Text.Json": "5.0.2"
+        }
+      },
+      "Azure.Bicep.Types.Az": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Types": "1.0.0"
+        }
+      },
       "bicep.core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "0.1.304",
-          "Azure.Bicep.Types.Az": "0.1.304",
+          "Azure.Bicep.Types": "1.0.0",
+          "Azure.Bicep.Types.Az": "1.0.0",
           "Azure.Deployments.Core": "1.0.253",
           "Azure.Deployments.Expression": "1.0.253",
           "Azure.Deployments.Templates": "1.0.253",

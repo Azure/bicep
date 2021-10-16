@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Azure.Bicep.Types.Az;
@@ -13,6 +14,7 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
+        private readonly ImmutableDictionary<string, ImmutableArray<TypeLocation>> availableFunctions;
 
         public AzResourceTypeLoader()
         {
@@ -22,6 +24,10 @@ namespace Bicep.Core.TypeSystem.Az
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value,
                 ResourceTypeReferenceComparer.Instance);
+            this.availableFunctions = typeLoader.GetIndexedTypes().Functions.ToImmutableDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.ToImmutableArray(),
+                StringComparer.OrdinalIgnoreCase);
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
@@ -31,8 +37,14 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var typeLocation = availableTypes[reference];
 
+            if (!availableFunctions.TryGetValue(reference.FullyQualifiedType, out var functions))
+            {
+                functions = ImmutableArray<TypeLocation>.Empty;
+            }
+            var functionOverloads = functions.Select(typeLocation => resourceTypeFactory.GetResourceFunctionType(typeLoader.LoadResourceFunctionType(typeLocation)));
+
             var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
-            return resourceTypeFactory.GetResourceType(serializedResourceType);
+            return resourceTypeFactory.GetResourceType(serializedResourceType, functionOverloads);
         }
     }
 }

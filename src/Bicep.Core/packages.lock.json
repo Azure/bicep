@@ -2,24 +2,6 @@
   "version": 1,
   "dependencies": {
     ".NETStandard,Version=v2.1": {
-      "Azure.Bicep.Types": {
-        "type": "Direct",
-        "requested": "[0.1.304, )",
-        "resolved": "0.1.304",
-        "contentHash": "sxaNlc6bH+gneUl77BQt0JvVK0lWSRn1HNqoTlDelD3yPrD0v/0e6V1FYlp/UJFbhfio12mcI2TlIrByU3Obpg==",
-        "dependencies": {
-          "System.Text.Json": "5.0.2"
-        }
-      },
-      "Azure.Bicep.Types.Az": {
-        "type": "Direct",
-        "requested": "[0.1.304, )",
-        "resolved": "0.1.304",
-        "contentHash": "iT/z7QtI9L1P7E7IGvg/pCSeObGINMEMiUm47l8h00TSQ83rd91Y7Et+vpA9WMiLBQi75gq/Ogkffv7Zq1bjKw==",
-        "dependencies": {
-          "Azure.Bicep.Types": "0.1.304"
-        }
-      },
       "Azure.Deployments.Core": {
         "type": "Direct",
         "requested": "[1.0.253, )",
@@ -1504,6 +1486,18 @@
           "System.Threading": "4.3.0",
           "System.Xml.ReaderWriter": "4.3.0",
           "System.Xml.XmlDocument": "4.3.0"
+        }
+      },
+      "Azure.Bicep.Types": {
+        "type": "Project",
+        "dependencies": {
+          "System.Text.Json": "5.0.2"
+        }
+      },
+      "Azure.Bicep.Types.Az": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Types": "1.0.0"
         }
       },
       "bicep.core.registryclient": {
