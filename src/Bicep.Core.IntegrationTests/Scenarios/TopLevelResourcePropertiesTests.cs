@@ -19,7 +19,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
     /// https://github.com/Azure/bicep/issues/3000
     /// </summary>
     [TestClass]
-    public class FallbackTopLevelResourcePropertiesTests
+    public class TopLevelResourcePropertiesTests
     {
         private static readonly RootConfiguration Configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
 
@@ -265,7 +265,7 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = new Compilation(BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration);
 
-            compilation.Should().HaveDiagnostics(new[] {                
+            compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" from source declaration \"inputs\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\"."),
                 ("BCP183", DiagnosticLevel.Error, "The value of the module \"params\" property must be an object literal."),
             });
@@ -307,6 +307,40 @@ output outputa string = '${inputa}-${inputb}'
             compilation.Should().HaveDiagnostics(new[] {
                 ("BCP053", DiagnosticLevel.Error, $"The type \"module\" does not contain property \"{property}\". Available properties include \"name\", \"outputs\".")
             });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4668
+        /// </summary>
+        [TestMethod]
+        public void Issue_4668()
+        {
+            var result = CompilationHelper.Compile(@"
+@description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
+@allowed([
+  'AzureCLI'
+  'AzurePowerShell'
+])
+param kind string = 'AzureCLI'
+
+@description('The identity that will be used to execute the Deployment Script.')
+param identity object
+
+@description('The properties of the Deployment Script.')
+param properties object
+
+resource mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'testscript'
+  location: 'westeurope'
+  kind: kind
+  identity: identity
+  properties: properties
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP224", DiagnosticLevel.Warning, "The discriminator property \"kind\" value cannot be determined at compilation time. Type checking for this resource is disabled.")
+            }).And.GenerateATemplate();
         }
     }
 }

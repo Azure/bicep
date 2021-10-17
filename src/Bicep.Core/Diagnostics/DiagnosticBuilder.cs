@@ -1307,7 +1307,14 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(string? aliasName, string templateSpecVersion, string referenceValue) => new(
                 TextSpan,
                 "BCP223",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\".");
+
+            public Diagnostic AmbiguousDiscriminatorPropertyValue(string propertyName) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP224",
+                $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this resource is disabled.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

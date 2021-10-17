@@ -381,7 +381,7 @@ namespace Bicep.Core.TypeSystem
             // Let's not do this just yet, and see if a use-case arises.
 
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
-            switch(discriminatorType)
+            switch (discriminatorType)
             {
                 case AnyType:
                     return LanguageConstants.Any;
@@ -401,8 +401,8 @@ namespace Bicep.Core.TypeSystem
 
                                 if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(stringLiteralDiscriminator.Name, discriminatorCandidates) is { } suggestion)
                                 {
-                            // only look up suggestions if we're not sourcing this type from another declaration.
-                            return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
+                                    // only look up suggestions if we're not sourcing this type from another declaration.
+                                    return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
                                 }
 
                                 return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
@@ -420,9 +420,20 @@ namespace Bicep.Core.TypeSystem
                     return NarrowObjectType(config, expression, selectedObjectType);
 
                 default:
-                    diagnosticWriter.Write(
-                        config.OriginSyntax ?? expression,
-                        x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+                    //check if discriminatorType is a subset of targetType.DiscriminatorKeysUnionType.
+                    //If true - then warn with message that using property is not recommended and type validation is suspended and return generic object type
+                    if (AreTypesAssignable(discriminatorType, targetType.DiscriminatorKeysUnionType))
+                    {
+                        diagnosticWriter.Write(discriminatorProperty.Value, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
+                        return LanguageConstants.Any;
+                    }
+                    else
+                    {
+                        diagnosticWriter.Write(
+                            config.OriginSyntax ?? discriminatorProperty.Value,
+                            x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
+                    }
+
                     return LanguageConstants.Any;
             }
         }
@@ -557,8 +568,8 @@ namespace Bicep.Core.TypeSystem
 
                         if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(keyName, validUnspecifiedProperties) is { } suggestedKeyName)
                         {
-                                // only look up suggestions if we're not sourcing this type from another declaration.
-                                return x.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName);
+                            // only look up suggestions if we're not sourcing this type from another declaration.
+                            return x.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName);
                         }
 
                         return x.DisallowedProperty(shouldWarn, sourceDeclaration, keyName, targetType, validUnspecifiedProperties, config.IsResourceDeclaration);
