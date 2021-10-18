@@ -196,18 +196,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var fix = new CodeFix(description, true, codeReplacement);
                 spanFixes[span] = fix;
             }
-
-            public DateTime? GetApiVersionDate(string apiVersion)
-            {
-                (string? version, string? _) = apiVersionProvider.GetApiVersionAndPrefix(apiVersion);
-
-                if (version is not null)
-                {
-                    return DateTime.Parse(version);
-                }
-
-                return null;
-            }
         }
     }
 }

@@ -466,34 +466,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().BeEmpty();
         }
 
-        [DataRow("invalid-text")]
-        [DataRow("")]
-        [DataRow("   ")]
-        [TestMethod]
-        public void GetApiVersionDate_WithInvalidVersion(string apiVersion)
-        {
-            Dictionary<TextSpan, CodeFix> spanFixes = new();
-            Visitor visitor = new Visitor(spanFixes, SemanticModel);
-
-            DateTime? actual = visitor.GetApiVersionDate(apiVersion);
-
-            actual.Should().BeNull();
-        }
-
-        [DataRow("2015-04-01-rc", "2015-04-01")]
-        [DataRow("2016-04-01", "2016-04-01")]
-        [DataRow("2016-04-01-privatepreview", "2016-04-01")]
-        [TestMethod]
-        public void GetApiVersionDate_WithValidVersion(string apiVersion, string expectedVersion)
-        {
-            Dictionary<TextSpan, CodeFix> spanFixes = new();
-            Visitor visitor = new Visitor(spanFixes, SemanticModel);
-
-            DateTime? actual = visitor.GetApiVersionDate(apiVersion);
-
-            actual.Should().Be(DateTime.Parse(expectedVersion));
-        }
-
         private string ConvertDateTimeToString(DateTime dateTime)
         {
             return dateTime.Year + "-" + dateTime.Month + "-" + dateTime.Day;
