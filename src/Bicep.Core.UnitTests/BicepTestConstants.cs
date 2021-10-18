@@ -16,11 +16,14 @@ using Moq;
 using System.Collections.Generic;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Bicep.Core.Json;
+using Bicep.LanguageServer.Registry;
 
 namespace Bicep.Core.UnitTests
 {
-    public static class BicepTestConstants 
+    public static class BicepTestConstants
     {
+        private static readonly MockRepository Repository = new(MockBehavior.Strict);
+
         public const string DevAssemblyFileVersion = "dev";
 
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
@@ -49,6 +52,8 @@ namespace Bicep.Core.UnitTests
         public static readonly RootConfiguration BuiltInConfiguration = ConfigurationManager.GetBuiltInConfiguration();
 
         public static readonly RootConfiguration BuiltInConfigurationWithAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+
+        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 
         public static IFeatureProvider CreateFeaturesProvider(
             TestContext testContext,
@@ -107,6 +112,13 @@ namespace Bicep.Core.UnitTests
             mock.SetupGet(m => m.AssemblyVersion).Returns(assemblyFileVersion);
 
             return mock;
+        }
+
+        private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
+        {
+            var moduleDispatcher = Repository.Create<IModuleDispatcher>();
+
+            return new ModuleRestoreScheduler(moduleDispatcher.Object);
         }
     }
 }
