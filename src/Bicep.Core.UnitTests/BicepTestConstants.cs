@@ -117,7 +117,6 @@ namespace Bicep.Core.UnitTests
         private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
         {
             var moduleDispatcher = Repository.Create<IModuleDispatcher>();
-
             return new ModuleRestoreScheduler(moduleDispatcher.Object);
         }
     }
