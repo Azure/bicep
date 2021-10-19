@@ -151,6 +151,14 @@
     <value>Parameter "{0}" is declared but never used.</value>
     <comment>{0} is the paramenter name</comment>
   </data>
+  <data name="PossibleSecretMessageFunction" xml:space="preserve">
+    <value>function '{0}'</value>
+    <comment>{0} is the function name</comment>
+  </data>
+  <data name="PossibleSecretMessageSecureParam" xml:space="preserve">
+    <value>secure parameter '{0}'</value>
+    <comment>{0} is the parameter name</comment>
+  </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters should not have hardcoded defaults (except for empty or newGuid()).</value>
   </data>
@@ -165,6 +173,13 @@
   </data>
   <data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
     <value>Variable "{0}" is declared but never used.</value>
-    <comment>.</comment>
+    <comment>{0} is the variable name</comment>
+  </data>
+  <data name="UseProtectedSettingsForCommandToExecuteSecretsRuleDescription" xml:space="preserve">
+    <value>Use protectedSettings for commandToExecute secrets</value>
+  </data>
+  <data name="UseProtectedSettingsForCommandToExecuteSecretsRuleMessage" xml:space="preserve">
+    <value>Use protectedSettings for commandToExecute secrets. Found possible secret: {0}</value>
+    <comment>{0} is the description of what was found</comment>
   </data>
 </root>

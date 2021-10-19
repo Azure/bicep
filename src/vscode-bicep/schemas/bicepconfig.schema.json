@@ -7,7 +7,7 @@
       "description": "Type of diagnostic to display, defaults to warning",
       "type": "string",
       "default": "warning",
-      "enum": ["off", "info", "warning", "error"]
+      "enum": [ "off", "info", "warning", "error" ]
     },
     "rule": {
       "type": "object",
@@ -19,12 +19,12 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": ["level"]
+      "required": [ "level" ]
     },
     "cloudProfile": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["resourceManagerEndpoint", "activeDirectoryAuthority"],
+      "required": [ "resourceManagerEndpoint", "activeDirectoryAuthority" ],
       "properties": {
         "resourceManagerEndpoint": {
           "title": "Resource Manager Endpoint",
@@ -54,7 +54,7 @@
     "templateSpecModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["subscription", "resourceGroup"],
+      "required": [ "subscription", "resourceGroup" ],
       "properties": {
         "subscription": {
           "title": "Subscription ID",
@@ -75,7 +75,7 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["registry"],
+      "required": [ "registry" ],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -106,14 +106,14 @@
       "title": "Cloud",
       "type": "object",
       "additionalProperties": false,
-      "required": ["currentProfile"],
+      "required": [ "currentProfile" ],
       "properties": {
         "currentProfile": {
           "title": "Current Profile",
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": ["AzureCloud", "AzureChinaCloud", "AzureUSGovernment"]
+              "enum": [ "AzureCloud", "AzureChinaCloud", "AzureUSGovernment" ]
             },
             {
               "type": "string"
@@ -194,6 +194,9 @@
             },
             "simplify-interpolation": {
               "level": "warning"
+            },
+            "use-protectedsettings-for-commandtoexecute-secrets": {
+              "level": "warning"
             }
           }
         }
@@ -203,7 +206,7 @@
           "title": "Core Bicep Analyzer",
           "description": "Core analyzer built into bicep",
           "type": "object",
-          "required": ["enabled"],
+          "required": [ "enabled" ],
           "properties": {
             "verbose": {
               "type": "boolean",
@@ -312,6 +315,16 @@
                   "allOf": [
                     {
                       "description": "It isn't necessary to use interpolation to reference a parameter or variable. See https://aka.ms/bicep/linter/simplify-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "use-protectedsettings-for-commandtoexecute-secrets": {
+                  "allOf": [
+                    {
+                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/use-protectedsettings-for-commandtoexecute-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule"

@@ -107,6 +107,18 @@ namespace Bicep.Core {
             }
         }
         
+        internal static string PossibleSecretMessageFunction {
+            get {
+                return ResourceManager.GetString("PossibleSecretMessageFunction", resourceCulture);
+            }
+        }
+        
+        internal static string PossibleSecretMessageSecureParam {
+            get {
+                return ResourceManager.GetString("PossibleSecretMessageSecureParam", resourceCulture);
+            }
+        }
+        
         internal static string SecureParameterDefaultRuleDescription {
             get {
                 return ResourceManager.GetString("SecureParameterDefaultRuleDescription", resourceCulture);
@@ -134,6 +146,18 @@ namespace Bicep.Core {
         internal static string UnusedVariableRuleMessageFormat {
             get {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        internal static string UseProtectedSettingsForCommandToExecuteSecretsRuleDescription {
+            get {
+                return ResourceManager.GetString("UseProtectedSettingsForCommandToExecuteSecretsRuleDescription", resourceCulture);
+            }
+        }
+        
+        internal static string UseProtectedSettingsForCommandToExecuteSecretsRuleMessage {
+            get {
+                return ResourceManager.GetString("UseProtectedSettingsForCommandToExecuteSecretsRuleMessage", resourceCulture);
             }
         }
     }

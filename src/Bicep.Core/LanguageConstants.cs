@@ -102,6 +102,7 @@ namespace Bicep.Core
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
+        public const string ResourcePropertiesPropertyName = "properties";
 
         // types
         public const string TypeNameString = "string";
@@ -145,6 +146,8 @@ namespace Bicep.Core
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
+
+        public static readonly StringComparer ResourceTypeComparer = StringComparer.OrdinalIgnoreCase;
 
         public const string StringDelimiter = "'";
         public const string StringHoleOpen = "${";
