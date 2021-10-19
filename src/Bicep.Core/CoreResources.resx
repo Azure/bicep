@@ -124,7 +124,7 @@
   <data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
     <value>No bicepconfig.json found for configuration override.</value>
   </data>
-	<data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
+  <data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
     <value>When setting an adminUserName property, don't use a literal value.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
@@ -147,7 +147,7 @@
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>Parameter is declared but never used.</value>
   </data>
-  <data name="ParameterMustBeUsedRuleMessageFormat" xml:space="preserve">
+  <data name="ParameterMustBeUsedRuleFixMessageFormat" xml:space="preserve">
     <value>Parameter "{0}" is declared but never used.</value>
     <comment>{0} is the paramenter name</comment>
   </data>
@@ -163,14 +163,14 @@
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
     <value>Variable is declared but never used.</value>
   </data>
-  <data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
+  <data name="UnusedVariableRuleFixMessageFormat" xml:space="preserve">
     <value>Variable "{0}" is declared but never used.</value>
     <comment>.</comment>
   </data>
   <data name="UseRecentApiVersionRuleDescription" xml:space="preserve">
     <value>Use recent API version.</value>
   </data>
-  <data name="UseRecentApiVersionRuleMessageFormat" xml:space="preserve">
+  <data name="UseRecentApiVersionRuleFixMessageFormat" xml:space="preserve">
     <value>Use recent API version {0}</value>
   </data>
 </root>

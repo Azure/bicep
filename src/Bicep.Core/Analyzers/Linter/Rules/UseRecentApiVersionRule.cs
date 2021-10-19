@@ -192,7 +192,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private void AddCodeFix(TextSpan span, string apiVersion)
             {
                 var codeReplacement = new CodeReplacement(span, apiVersion);
-                string description = string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, apiVersion);
+                string description = string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, apiVersion);
                 var fix = new CodeFix(description, true, codeReplacement);
                 spanFixes[span] = fix;
             }

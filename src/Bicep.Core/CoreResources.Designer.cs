@@ -144,9 +144,9 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Parameter &quot;{0}&quot; is declared but never used..
         /// </summary>
-        public static string ParameterMustBeUsedRuleMessageFormat {
+        public static string ParameterMustBeUsedRuleFixMessageFormat {
             get {
-                return ResourceManager.GetString("ParameterMustBeUsedRuleMessageFormat", resourceCulture);
+                return ResourceManager.GetString("ParameterMustBeUsedRuleFixMessageFormat", resourceCulture);
             }
         }
         
@@ -189,9 +189,9 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Variable &quot;{0}&quot; is declared but never used..
         /// </summary>
-        public static string UnusedVariableRuleMessageFormat {
+        public static string UnusedVariableRuleFixMessageFormat {
             get {
-                return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
+                return ResourceManager.GetString("UnusedVariableRuleFixMessageFormat", resourceCulture);
             }
         }
         
@@ -207,9 +207,9 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Use recent API version {0}.
         /// </summary>
-        public static string UseRecentApiVersionRuleMessageFormat {
+        public static string UseRecentApiVersionRuleFixMessageFormat {
             get {
-                return ResourceManager.GetString("UseRecentApiVersionRuleMessageFormat", resourceCulture);
+                return ResourceManager.GetString("UseRecentApiVersionRuleFixMessageFormat", resourceCulture);
             }
         }
     }

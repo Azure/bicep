@@ -24,7 +24,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override string FormatMessage(params object[] values)
         {
-            return string.Format(CoreResources.UnusedVariableRuleMessageFormat, values);
+            return string.Format(CoreResources.UnusedVariableRuleFixMessageFormat, values);
         }
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
