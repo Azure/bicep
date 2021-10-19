@@ -168,9 +168,9 @@
     <comment>.</comment>
   </data>
   <data name="UseRecentApiVersionRuleDescription" xml:space="preserve">
-    <value>Use recent api version.</value>
+    <value>Use recent API version.</value>
   </data>
   <data name="UseRecentApiVersionRuleMessageFormat" xml:space="preserve">
-    <value>Use recent api version {0}</value>
+    <value>Use recent API version {0}</value>
   </data>
 </root>
