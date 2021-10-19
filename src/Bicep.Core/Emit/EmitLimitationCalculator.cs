@@ -115,7 +115,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FullyQualifiedType, namePropertyValue);
+                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FormatType(), namePropertyValue);
             }
         }
 

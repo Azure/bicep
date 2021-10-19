@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             yield return new TypeProperty(AzResourceTypeProvider.ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "id property");
             yield return new TypeProperty(AzResourceTypeProvider.ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "name property");
-            yield return new TypeProperty(AzResourceTypeProvider.ResourceTypePropertyName, new StringLiteralType(reference.FullyQualifiedType), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "type property");
+            yield return new TypeProperty(AzResourceTypeProvider.ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "type property");
             yield return new TypeProperty(AzResourceTypeProvider.ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "apiVersion property");
         }
 

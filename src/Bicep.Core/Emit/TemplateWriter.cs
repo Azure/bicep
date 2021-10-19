@@ -463,7 +463,7 @@ namespace Bicep.Core.Emit
                 throw new InvalidOperationException("nested loops are not supported");
             }
 
-            emitter.EmitProperty("type", resource.TypeReference.FullyQualifiedType);
+            emitter.EmitProperty("type", resource.TypeReference.FormatType());
             emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
             if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
             {

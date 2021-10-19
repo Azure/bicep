@@ -693,8 +693,8 @@ namespace Bicep.Core.TypeSystem
                     if (!parentResourceType.TypeReference.IsParentOf(typeReference))
                     {
                         return ErrorType.Create(DiagnosticBuilder.ForPosition(referenceParentSyntax).ResourceTypeIsNotValidParent(
-                            typeReference.FullyQualifiedType,
-                            parentResourceType.TypeReference.FullyQualifiedType));
+                            typeReference.FormatType(),
+                            parentResourceType.TypeReference.FormatType()));
                     }
                 }
             }

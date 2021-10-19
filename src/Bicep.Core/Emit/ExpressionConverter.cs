@@ -251,7 +251,7 @@ namespace Bicep.Core.Emit
                     // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                     return ConvertExpression(resource.NameSyntax);
                 case ("type", false):
-                    return new JTokenExpression(resource.TypeReference.FullyQualifiedType);
+                    return new JTokenExpression(resource.TypeReference.FormatType());
                 case ("apiVersion", false):
                     return new JTokenExpression(resource.TypeReference.ApiVersion);
                 case ("properties", _):
@@ -459,7 +459,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.TypeReference.FullyQualifiedType,
+                resource.TypeReference.FormatType(),
                 GetResourceNameSegments(resource));
         }
 
@@ -469,7 +469,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.TypeReference.FullyQualifiedType,
+                resource.TypeReference.FormatType(),
                 GetResourceNameSegments(resource));
         }
 
