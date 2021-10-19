@@ -17,7 +17,6 @@ using Bicep.LanguageServer.Registry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
-using Bicep.Core.Json;
 using Bicep.Core.ApiVersion;
 
 namespace Bicep.Core.UnitTests
