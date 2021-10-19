@@ -41,10 +41,10 @@ namespace Bicep.Cli.Commands
 
         public async Task<int> RunAsync(PublishArguments args)
         {
-            var moduleReference = ValidateReference(args.TargetModuleReference);
-
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-
+            var inputUri = PathHelper.FilePathToFileUrl(inputPath);
+            var configuration = this.configurationManager.GetConfiguration(inputUri);
+            var moduleReference = ValidateReference(args.TargetModuleReference, configuration);
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
             if(diagnosticLogger.ErrorCount > 0)
@@ -62,9 +62,9 @@ namespace Bicep.Cli.Commands
             return 0;
         }
 
-        private ModuleReference ValidateReference(string targetModuleReference)
+        private ModuleReference ValidateReference(string targetModuleReference, RootConfiguration configuration)
         {
-            var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, this.configurationManager.GetBuiltInConfiguration(), out var failureBuilder);
+            var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, configuration, out var failureBuilder);
             if(moduleReference is null)
             {
                 failureBuilder = failureBuilder ?? throw new InvalidOperationException($"{nameof(moduleDispatcher.TryGetModuleReference)} did not provide an error.");
