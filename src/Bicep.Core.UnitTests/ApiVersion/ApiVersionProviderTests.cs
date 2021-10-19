@@ -16,13 +16,13 @@ namespace Bicep.Core.UnitTests.ApiVersion
         [DataRow("  ", ApiVersionSuffixConstants.Preview, null)]
         [DataRow("invalid-text", ApiVersionSuffixConstants.Preview, null)]
         [DataRow("Microsoft.Network/dnsZones", null, null)]
-        [DataRow("Microsoft.Network/dnsZones", "-invalid-prefix", null)]
+        [DataRow("Microsoft.Network/dnsZones", "-invalid-suffix", null)]
         [DataRow("Microsoft.Network/dnsZones", ApiVersionSuffixConstants.GA, "2018-05-01")]
         [DataRow("Microsoft.Network/dnsZones", ApiVersionSuffixConstants.Preview, "2018-03-01")]
         [DataTestMethod]
-        public void GetRecentApiVersion(string fullyQualifiedName, string? prefix, string? expected)
+        public void GetRecentApiVersion(string fullyQualifiedName, string? suffix, string? expected)
         {
-            string? actual = ApiVersionProvider.GetRecentApiVersion(fullyQualifiedName, prefix);
+            string? actual = ApiVersionProvider.GetRecentApiVersion(fullyQualifiedName, suffix);
 
             actual.Should().Be(expected);
         }
@@ -38,12 +38,12 @@ namespace Bicep.Core.UnitTests.ApiVersion
         [DataRow("2016-04-01-privatepreview", "2016-04-01", ApiVersionSuffixConstants.PrivatePreview)]
         [DataRow("2015-04-01-rc", "2015-04-01", ApiVersionSuffixConstants.RC)]
         [DataTestMethod]
-        public void GetApiVersionAndPrefix(string apiVersionWithPrefix, string? expectedVersion, string? expectedPrefix)
+        public void ParseApiVersion(string apiVersionWithSuffix, string? expectedVersion, string? expectedSuffix)
         {
-            (string? version, string? prefix) = ApiVersionProvider.GetApiVersionAndPrefix(apiVersionWithPrefix);
+            (string? version, string? suffix) = ApiVersionProvider.ParseApiVersion(apiVersionWithSuffix);
 
             version.Should().Be(expectedVersion);
-            prefix.Should().Be(expectedPrefix);
+            suffix.Should().Be(expectedSuffix);
         }
     }
 }

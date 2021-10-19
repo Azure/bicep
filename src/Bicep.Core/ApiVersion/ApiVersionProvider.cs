@@ -19,7 +19,7 @@ namespace Bicep.Core.ApiVersion
         private Dictionary<string, List<string>> privatePreviewVersions = new();
         private Dictionary<string, List<string>> rcVersions = new();
 
-        private static readonly Regex VersionPattern = new Regex(@"^((?<version>(\d{4}-\d{2}-\d{2}))(?<prefix>-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
+        private static readonly Regex VersionPattern = new Regex(@"^((?<version>(\d{4}-\d{2}-\d{2}))(?<suffix>-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
         private readonly INamespaceProvider NamespaceProvider;
 
@@ -37,27 +37,27 @@ namespace Bicep.Core.ApiVersion
 
             foreach (var resourceTypeReference in resourceTypeReferences)
             {
-                (string? apiVersion, string? prefix) = GetApiVersionAndPrefix(resourceTypeReference.ApiVersion);
+                (string? date, string? suffix) = ParseApiVersion(resourceTypeReference.ApiVersion);
 
-                switch (prefix)
+                switch (suffix)
                 {
                     case ApiVersionSuffixConstants.GA:
-                        UpdateCache(gaVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(gaVersions, date, resourceTypeReference.FullyQualifiedType);
                         break;
                     case ApiVersionSuffixConstants.Alpha:
-                        UpdateCache(alphaVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(alphaVersions, date, resourceTypeReference.FullyQualifiedType);
                         break;
                     case ApiVersionSuffixConstants.Beta:
-                        UpdateCache(betaVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(betaVersions, date, resourceTypeReference.FullyQualifiedType);
                         break;
                     case ApiVersionSuffixConstants.Preview:
-                        UpdateCache(previewVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(previewVersions, date, resourceTypeReference.FullyQualifiedType);
                         break;
                     case ApiVersionSuffixConstants.PrivatePreview:
-                        UpdateCache(privatePreviewVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(privatePreviewVersions, date, resourceTypeReference.FullyQualifiedType);
                         break;
                     case ApiVersionSuffixConstants.RC:
-                        UpdateCache(rcVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(rcVersions, date, resourceTypeReference.FullyQualifiedType);
                         break;
                 }
             }
@@ -86,9 +86,9 @@ namespace Bicep.Core.ApiVersion
             }
         }
 
-        public string? GetRecentApiVersion(string fullyQualifiedName, string? prefix)
+        public string? GetRecentApiVersion(string fullyQualifiedName, string? suffix)
         {
-            switch (prefix)
+            switch (suffix)
             {
                 case ApiVersionSuffixConstants.GA:
                     return GetRecentApiVersion(fullyQualifiedName, gaVersions);
@@ -117,24 +117,24 @@ namespace Bicep.Core.ApiVersion
             return null;
         }
 
-        public (string?, string?) GetApiVersionAndPrefix(string apiVersion)
+        public (string?, string?) ParseApiVersion(string apiVersion)
         {
             MatchCollection matches = VersionPattern.Matches(apiVersion);
-            string? prefix = null;
+            string? suffix = null;
             string? version = null;
 
             foreach (Match match in matches)
             {
                 version = match.Groups["version"].Value;
-                prefix = match.Groups["prefix"].Value;
+                suffix = match.Groups["suffix"].Value;
 
                 if (version is not null)
                 {
-                    return (version, prefix);
+                    return (version, suffix);
                 }
             }
 
-            return (version, prefix);
+            return (version, suffix);
         }
     }
 }

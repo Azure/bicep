@@ -42,7 +42,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource Update="CoreResources.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
+			<Generator>PublicResXFileCodeGenerator</Generator>
 			<LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
 		</EmbeddedResource>
 	</ItemGroup>

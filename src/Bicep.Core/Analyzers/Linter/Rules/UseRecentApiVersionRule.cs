@@ -62,11 +62,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     GetReplacementSpan(resourceSymbol, apiVersion) is TextSpan replacementSpan)
                 {
                     string fullyQualifiedType = resourceTypeReference.FullyQualifiedType;
-                    (string? currentApiVersion, string? prefix) = apiVersionProvider.GetApiVersionAndPrefix(apiVersion);
+                    (string? currentApiVersion, string? suffix) = apiVersionProvider.ParseApiVersion(apiVersion);
 
                     string? recentGAVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionSuffixConstants.GA);
 
-                    if (string.IsNullOrEmpty(prefix))
+                    if (string.IsNullOrEmpty(suffix))
                     {
                         AddCodeFixIfGAVersionIsNotLatest(replacementSpan,
                                                          recentGAVersion,
@@ -74,14 +74,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     }
                     else
                     {
-                        string? recentNonPreviewVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, prefix);
+                        string? recentNonPreviewVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, suffix);
                         string? recentPreviewVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionSuffixConstants.Preview);
 
                         AddCodeFixIfNonGAVersionIsNotLatest(replacementSpan,
                                                             recentGAVersion,
                                                             recentPreviewVersion,
                                                             recentNonPreviewVersion,
-                                                            prefix,
+                                                            suffix,
                                                             currentApiVersion);
                     }
                 }
