@@ -207,9 +207,9 @@ namespace Bicep.Core {
         /// <summary>
         ///   Looks up a localized string similar to Virtual machines shouldn&apos;t use preview images. Use stable version in imageReference property &quot;{0}&quot;..
         /// </summary>
-        internal static string UseStableVMImageFormat {
+        internal static string UseStableVMImageRuleFixMessageFormat {
             get {
-                return ResourceManager.GetString("UseStableVMImageFormat", resourceCulture);
+                return ResourceManager.GetString("UseStableVMImageRuleFixMessageFormat", resourceCulture);
             }
         }
     }

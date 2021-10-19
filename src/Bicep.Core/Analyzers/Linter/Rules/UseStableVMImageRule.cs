@@ -25,7 +25,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         }
         public override string FormatMessage(params object[] values)
         {
-            return string.Format(CoreResources.UseStableVMImageFormat, values);
+            return string.Format(CoreResources.UseStableVMImageRuleFixMessageFormat, values);
         }
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
