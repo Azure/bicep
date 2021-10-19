@@ -224,35 +224,12 @@ namespace Bicep.Core.Registry
                 this.moduleReference = moduleReference;
             }
 
-            public override bool Equals(object obj)
-            {
-                if (obj is not RestoreFailureKey other)
-                {
-                    return false;
-                }
+            public override bool Equals(object obj) =>
+                obj is RestoreFailureKey other &&
+                this.configuration.Equals(other.configuration) &&
+                this.moduleReference.Equals(other.moduleReference);
 
-                return this.configuration.ResourceManagerEndpointUri.Equals(other.configuration.ResourceManagerEndpointUri) &&
-                    this.configuration.ActiveDirectoryAuthorityUri.Equals(other.configuration.ActiveDirectoryAuthorityUri) &&
-                    this.configuration.CredentialPrecedence.SequenceEqual(other.configuration.CredentialPrecedence) &&
-                    this.moduleReference.Equals(other.moduleReference);
-            }
-
-            public override int GetHashCode()
-            {
-                var hashCode = new HashCode();
-
-                hashCode.Add(this.configuration.ResourceManagerEndpointUri);
-                hashCode.Add(this.configuration.ActiveDirectoryAuthorityUri);
-
-                foreach (var credentialType in this.configuration.CredentialPrecedence)
-                {
-                    hashCode.Add(credentialType);
-                }
-
-                hashCode.Add(this.moduleReference);
-
-                return hashCode.ToHashCode();
-            }
+            public override int GetHashCode() => HashCode.Combine(this.configuration, this.moduleReference);
         }
 
         private class RestoreFailureInfo
