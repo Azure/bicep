@@ -3,7 +3,7 @@
 
 namespace Bicep.Core.ApiVersion
 {
-    public static class ApiVersionPrefixConstants
+    public static class ApiVersionSuffixConstants
     {
         public const string Alpha = "-alpha";
         public const string Beta = "-beta";

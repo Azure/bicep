@@ -202,7 +202,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         recentGAVersion,
                                                         recentPreviewVersion,
                                                         null,
-                                                        ApiVersionPrefixConstants.Preview,
+                                                        ApiVersionSuffixConstants.Preview,
                                                         currentVersion);
 
             spanFixes.Should().BeEmpty();
@@ -228,13 +228,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         recentGAVersion,
                                                         recentPreviewVersion,
                                                         null,
-                                                        ApiVersionPrefixConstants.Preview,
+                                                        ApiVersionSuffixConstants.Preview,
                                                         currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentPreviewVersion + ApiVersionPrefixConstants.Preview));
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentPreviewVersion + ApiVersionSuffixConstants.Preview));
                 });
         }
 
@@ -258,7 +258,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         recentGAVersion,
                                                         recentPreviewVersion,
                                                         null,
-                                                        ApiVersionPrefixConstants.Preview,
+                                                        ApiVersionSuffixConstants.Preview,
                                                         currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
@@ -287,7 +287,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         recentGAVersion,
                                                         recentPreviewVersion,
                                                         null,
-                                                        ApiVersionPrefixConstants.Preview,
+                                                        ApiVersionSuffixConstants.Preview,
                                                         currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
@@ -314,13 +314,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         null,
                                                         recentPreviewVersion,
                                                         null,
-                                                        ApiVersionPrefixConstants.Preview,
+                                                        ApiVersionSuffixConstants.Preview,
                                                         currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentPreviewVersion + ApiVersionPrefixConstants.Preview));
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentPreviewVersion + ApiVersionSuffixConstants.Preview));
                 });
         }
 
@@ -341,7 +341,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         null,
                                                         recentPreviewVersion,
                                                         null,
-                                                        ApiVersionPrefixConstants.Preview,
+                                                        ApiVersionSuffixConstants.Preview,
                                                         currentVersion);
 
             spanFixes.Should().BeEmpty();
@@ -367,13 +367,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         null,
                                                         recentPreviewVersion,
                                                         null,
-                                                        ApiVersionPrefixConstants.RC,
+                                                        ApiVersionSuffixConstants.RC,
                                                         currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentPreviewVersion + ApiVersionPrefixConstants.Preview));
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentPreviewVersion + ApiVersionSuffixConstants.Preview));
                 });
         }
 
@@ -400,7 +400,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         recentGAVersion,
                                                         recentPreviewVersion,
                                                         recentNonPreviewVersion,
-                                                        ApiVersionPrefixConstants.Alpha,
+                                                        ApiVersionSuffixConstants.Alpha,
                                                         currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
@@ -427,13 +427,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         null,
                                                         null,
                                                         recentNonPreviewVersion,
-                                                        ApiVersionPrefixConstants.Alpha,
+                                                        ApiVersionSuffixConstants.Alpha,
                                                         currentVersion);
 
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentNonPreviewVersion + ApiVersionPrefixConstants.Alpha));
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, recentNonPreviewVersion + ApiVersionSuffixConstants.Alpha));
                 });
         }
 
@@ -460,7 +460,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                                                         recentGAVersion,
                                                         recentPreviewVersion,
                                                         recentNonPreviewVersion,
-                                                        ApiVersionPrefixConstants.Alpha,
+                                                        ApiVersionSuffixConstants.Alpha,
                                                         currentVersion);
 
             spanFixes.Should().BeEmpty();

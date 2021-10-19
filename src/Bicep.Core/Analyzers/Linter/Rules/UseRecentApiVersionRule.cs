@@ -64,7 +64,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     string fullyQualifiedType = resourceTypeReference.FullyQualifiedType;
                     (string? currentApiVersion, string? prefix) = apiVersionProvider.GetApiVersionAndPrefix(apiVersion);
 
-                    string? recentGAVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionPrefixConstants.GA);
+                    string? recentGAVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionSuffixConstants.GA);
 
                     if (string.IsNullOrEmpty(prefix))
                     {
@@ -75,7 +75,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     else
                     {
                         string? recentNonPreviewVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, prefix);
-                        string? recentPreviewVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionPrefixConstants.Preview);
+                        string? recentPreviewVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionSuffixConstants.Preview);
 
                         AddCodeFixIfNonGAVersionIsNotLatest(replacementSpan,
                                                             recentGAVersion,
@@ -146,7 +146,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 Dictionary<string, DateTime> prefixToRecentApiVersionMap = new Dictionary<string, DateTime>();
 
-                if (prefix.Equals(ApiVersionPrefixConstants.Preview))
+                if (prefix.Equals(ApiVersionSuffixConstants.Preview))
                 {
                     if (recentGAVersion is not null)
                     {
@@ -172,7 +172,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                     if (recentPreviewVersion is not null)
                     {
-                        prefixToRecentApiVersionMap.Add(recentPreviewVersion + ApiVersionPrefixConstants.Preview, DateTime.Parse(recentPreviewVersion));
+                        prefixToRecentApiVersionMap.Add(recentPreviewVersion + ApiVersionSuffixConstants.Preview, DateTime.Parse(recentPreviewVersion));
                     }
                 }
 

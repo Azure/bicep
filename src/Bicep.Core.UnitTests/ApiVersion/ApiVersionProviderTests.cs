@@ -12,13 +12,13 @@ namespace Bicep.Core.UnitTests.ApiVersion
     {
         private readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(BicepTestConstants.NamespaceProvider);
 
-        [DataRow("", ApiVersionPrefixConstants.Preview, null)]
-        [DataRow("  ", ApiVersionPrefixConstants.Preview, null)]
-        [DataRow("invalid-text", ApiVersionPrefixConstants.Preview, null)]
+        [DataRow("", ApiVersionSuffixConstants.Preview, null)]
+        [DataRow("  ", ApiVersionSuffixConstants.Preview, null)]
+        [DataRow("invalid-text", ApiVersionSuffixConstants.Preview, null)]
         [DataRow("Microsoft.Network/dnsZones", null, null)]
         [DataRow("Microsoft.Network/dnsZones", "-invalid-prefix", null)]
-        [DataRow("Microsoft.Network/dnsZones", ApiVersionPrefixConstants.GA, "2018-05-01")]
-        [DataRow("Microsoft.Network/dnsZones", ApiVersionPrefixConstants.Preview, "2018-03-01")]
+        [DataRow("Microsoft.Network/dnsZones", ApiVersionSuffixConstants.GA, "2018-05-01")]
+        [DataRow("Microsoft.Network/dnsZones", ApiVersionSuffixConstants.Preview, "2018-03-01")]
         [DataTestMethod]
         public void GetRecentApiVersion(string fullyQualifiedName, string? prefix, string? expected)
         {
@@ -31,12 +31,12 @@ namespace Bicep.Core.UnitTests.ApiVersion
         [DataRow("  ", null, null)]
         [DataRow("invalid-text", null, null)]
         [DataRow("2020-06-01-intpreview", null, null)]
-        [DataRow("2014-04-01", "2014-04-01", ApiVersionPrefixConstants.GA)]
-        [DataRow("2004-08-11-alpha", "2004-08-11", ApiVersionPrefixConstants.Alpha)]
-        [DataRow("2017-09-12-beta", "2017-09-12", ApiVersionPrefixConstants.Beta)]
-        [DataRow("2020-06-01-preview", "2020-06-01", ApiVersionPrefixConstants.Preview)]
-        [DataRow("2016-04-01-privatepreview", "2016-04-01", ApiVersionPrefixConstants.PrivatePreview)]
-        [DataRow("2015-04-01-rc", "2015-04-01", ApiVersionPrefixConstants.RC)]
+        [DataRow("2014-04-01", "2014-04-01", ApiVersionSuffixConstants.GA)]
+        [DataRow("2004-08-11-alpha", "2004-08-11", ApiVersionSuffixConstants.Alpha)]
+        [DataRow("2017-09-12-beta", "2017-09-12", ApiVersionSuffixConstants.Beta)]
+        [DataRow("2020-06-01-preview", "2020-06-01", ApiVersionSuffixConstants.Preview)]
+        [DataRow("2016-04-01-privatepreview", "2016-04-01", ApiVersionSuffixConstants.PrivatePreview)]
+        [DataRow("2015-04-01-rc", "2015-04-01", ApiVersionSuffixConstants.RC)]
         [DataTestMethod]
         public void GetApiVersionAndPrefix(string apiVersionWithPrefix, string? expectedVersion, string? expectedPrefix)
         {

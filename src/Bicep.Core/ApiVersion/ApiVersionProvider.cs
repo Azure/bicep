@@ -41,22 +41,22 @@ namespace Bicep.Core.ApiVersion
 
                 switch (prefix)
                 {
-                    case ApiVersionPrefixConstants.GA:
+                    case ApiVersionSuffixConstants.GA:
                         UpdateCache(gaVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
                         break;
-                    case ApiVersionPrefixConstants.Alpha:
+                    case ApiVersionSuffixConstants.Alpha:
                         UpdateCache(alphaVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
                         break;
-                    case ApiVersionPrefixConstants.Beta:
+                    case ApiVersionSuffixConstants.Beta:
                         UpdateCache(betaVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
                         break;
-                    case ApiVersionPrefixConstants.Preview:
+                    case ApiVersionSuffixConstants.Preview:
                         UpdateCache(previewVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
                         break;
-                    case ApiVersionPrefixConstants.PrivatePreview:
+                    case ApiVersionSuffixConstants.PrivatePreview:
                         UpdateCache(privatePreviewVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
                         break;
-                    case ApiVersionPrefixConstants.RC:
+                    case ApiVersionSuffixConstants.RC:
                         UpdateCache(rcVersions, apiVersion, resourceTypeReference.FullyQualifiedType);
                         break;
                 }
@@ -90,17 +90,17 @@ namespace Bicep.Core.ApiVersion
         {
             switch (prefix)
             {
-                case ApiVersionPrefixConstants.GA:
+                case ApiVersionSuffixConstants.GA:
                     return GetRecentApiVersion(fullyQualifiedName, gaVersions);
-                case ApiVersionPrefixConstants.Alpha:
+                case ApiVersionSuffixConstants.Alpha:
                     return GetRecentApiVersion(fullyQualifiedName, alphaVersions);
-                case ApiVersionPrefixConstants.Beta:
+                case ApiVersionSuffixConstants.Beta:
                     return GetRecentApiVersion(fullyQualifiedName, betaVersions);
-                case ApiVersionPrefixConstants.Preview:
+                case ApiVersionSuffixConstants.Preview:
                     return GetRecentApiVersion(fullyQualifiedName, previewVersions);
-                case ApiVersionPrefixConstants.PrivatePreview:
+                case ApiVersionSuffixConstants.PrivatePreview:
                     return GetRecentApiVersion(fullyQualifiedName, privatePreviewVersions);
-                case ApiVersionPrefixConstants.RC:
+                case ApiVersionSuffixConstants.RC:
                     return GetRecentApiVersion(fullyQualifiedName, rcVersions);
             }
 
