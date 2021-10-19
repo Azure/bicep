@@ -2,7 +2,7 @@
 
 **Code**: use-stable-vm-image
 
-**Description**: Virtual machines shouldn't use preview images. We will check below properties under "imageReference" and fail the linter rule if they contain string "preview": 
+**Description**: Virtual machines shouldn't use preview images. This rule checks the following properties under "imageReference" and fails if any of them contain the string "preview": 
 * offer
 * sku
 * version
