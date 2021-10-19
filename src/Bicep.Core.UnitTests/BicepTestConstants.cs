@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests
 
         public static readonly RootConfiguration BuiltInConfigurationWithAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
 
-        public static readonly IApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
+        public static readonly IApiVersionProvider ApiVersionProvider = new ApiVersionProvider(NamespaceProvider);
 
         public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
 

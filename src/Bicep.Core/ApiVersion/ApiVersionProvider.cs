@@ -4,11 +4,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using Bicep.Core.Features;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.ApiVersion
 {
@@ -23,15 +21,18 @@ namespace Bicep.Core.ApiVersion
 
         private static readonly Regex VersionPattern = new Regex(@"^((?<version>(\d{4}-\d{2}-\d{2}))(?<prefix>-(preview|alpha|beta|rc|privatepreview))?$)", RegexOptions.Compiled | RegexOptions.ExplicitCapture);
 
-        public ApiVersionProvider()
+        private readonly INamespaceProvider NamespaceProvider;
+
+        public ApiVersionProvider(INamespaceProvider namespaceProvider)
         {
+            NamespaceProvider = namespaceProvider;
+
             CacheApiVersions();
         }
 
         private void CacheApiVersions()
         {
-            DefaultNamespaceProvider defaultNamespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), new FeatureProvider());
-            NamespaceResolver namespaceResolver = NamespaceResolver.Create(defaultNamespaceProvider, TypeSystem.ResourceScope.ResourceGroup, Enumerable.Empty<ImportedNamespaceSymbol>());
+            NamespaceResolver namespaceResolver = NamespaceResolver.Create(NamespaceProvider, TypeSystem.ResourceScope.ResourceGroup, Enumerable.Empty<ImportedNamespaceSymbol>());
             IEnumerable<ResourceTypeReference> resourceTypeReferences = namespaceResolver.GetAvailableResourceTypes();
 
             foreach (var resourceTypeReference in resourceTypeReferences)

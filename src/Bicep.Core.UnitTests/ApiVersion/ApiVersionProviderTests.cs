@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using Bicep.Core.ApiVersion;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,7 +10,7 @@ namespace Bicep.Core.UnitTests.ApiVersion
     [TestClass]
     public class ApiVersionProviderTests
     {
-        private readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider();
+        private readonly ApiVersionProvider ApiVersionProvider = new ApiVersionProvider(BicepTestConstants.NamespaceProvider);
 
         [DataRow("", ApiVersionPrefixConstants.Preview, null)]
         [DataRow("  ", ApiVersionPrefixConstants.Preview, null)]

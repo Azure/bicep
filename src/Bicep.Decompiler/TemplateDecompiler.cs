@@ -27,10 +27,11 @@ namespace Bicep.Decompiler
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
         private readonly IConfigurationManager configurationManager;
-        private readonly ApiVersionProvider apiVersionProvider = new ApiVersionProvider();
+        private readonly IApiVersionProvider apiVersionProvider;
 
-        public TemplateDecompiler(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
+        public TemplateDecompiler(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager, IApiVersionProvider apiVersionProvider)
         {
+            this.apiVersionProvider = apiVersionProvider;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;

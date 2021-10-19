@@ -48,7 +48,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public Visitor(Dictionary<TextSpan, CodeFix> spanFixes, SemanticModel model)
             {
-                this.apiVersionProvider = model.ApiVersionProvider ?? new ApiVersionProvider();
+                this.apiVersionProvider = model.ApiVersionProvider;
                 this.spanFixes = spanFixes;
                 this.model = model;
             }
