@@ -1,29 +1,27 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Emit;
+using System.Collections.Generic;
 using Bicep.Core.Configuration;
+using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.LanguageServer.Registry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using System.Collections.Generic;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
-using Bicep.Core.Json;
-using Bicep.LanguageServer.Registry;
 
 namespace Bicep.Core.UnitTests
 {
     public static class BicepTestConstants
     {
-        private static readonly MockRepository Repository = new(MockBehavior.Strict);
-
         public const string DevAssemblyFileVersion = "dev";
 
         public const string GeneratorTemplateHashPath = "metadata._generator.templateHash";
@@ -60,7 +58,7 @@ namespace Bicep.Core.UnitTests
             bool registryEnabled = false,
             bool symbolicNameCodegenEnabled = false,
             bool importsEnabled = false,
-            string assemblyFileVersion = BicepTestConstants.DevAssemblyFileVersion)
+            string assemblyFileVersion = DevAssemblyFileVersion)
         {
             var mock = CreateMockFeaturesProvider(
                 registryEnabled: registryEnabled,
@@ -116,7 +114,7 @@ namespace Bicep.Core.UnitTests
 
         private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
         {
-            var moduleDispatcher = Repository.Create<IModuleDispatcher>();
+            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
             return new ModuleRestoreScheduler(moduleDispatcher.Object);
         }
     }
