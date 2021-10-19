@@ -134,7 +134,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentGAVersion);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentGAVersion));
                 });
         }
 
@@ -158,7 +158,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentGAVersion);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentGAVersion));
                 });
         }
 
@@ -234,7 +234,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentPreviewVersion + ApiVersionPrefixConstants.Preview);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentPreviewVersion + ApiVersionPrefixConstants.Preview));
                 });
         }
 
@@ -264,7 +264,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentGAVersion);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentGAVersion));
                 });
         }
 
@@ -293,7 +293,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentGAVersion);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentGAVersion));
                 });
         }
 
@@ -320,7 +320,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentPreviewVersion + ApiVersionPrefixConstants.Preview);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentPreviewVersion + ApiVersionPrefixConstants.Preview));
                 });
         }
 
@@ -373,7 +373,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentPreviewVersion + ApiVersionPrefixConstants.Preview);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentPreviewVersion + ApiVersionPrefixConstants.Preview));
                 });
         }
 
@@ -406,7 +406,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentGAVersion);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentGAVersion));
                 });
         }
 
@@ -433,7 +433,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             spanFixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Value.Description.Should().Be("Use recent API version " + recentNonPreviewVersion + ApiVersionPrefixConstants.Alpha);
+                    x.Value.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleMessageFormat, recentNonPreviewVersion + ApiVersionPrefixConstants.Alpha));
                 });
         }
 
