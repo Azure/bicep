@@ -23,9 +23,9 @@ namespace Bicep.Core.Registry
 
         RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference);
 
-        ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
+        ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorDetailBuilder);
 
-        Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
+        Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences);
 

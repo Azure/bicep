@@ -19,7 +19,7 @@ using Bicep.Core.Json;
 
 namespace Bicep.Core.UnitTests
 {
-    public static class BicepTestConstants 
+    public static class BicepTestConstants
     {
         public const string DevAssemblyFileVersion = "dev";
 
@@ -76,6 +76,7 @@ namespace Bicep.Core.UnitTests
                 ["cloud.currentProfile"] = "AzureCloud",
                 ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
                 ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
+                ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
                 ["moduleAliases"] = new Dictionary<string, object>(),
                 ["analyzers"] = new Dictionary<string, object>(),
             };

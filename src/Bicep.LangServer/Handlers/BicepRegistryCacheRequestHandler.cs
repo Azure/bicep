@@ -55,12 +55,12 @@ namespace Bicep.LanguageServer.Handlers
                 throw new InvalidOperationException($"The specified module reference '{request.Target}' refers to a local module which is not supported by {BicepCacheLspMethod} requests.");
             }
 
-            if (this.moduleDispatcher.GetModuleRestoreStatus(moduleReference, out _) != ModuleRestoreStatus.Succeeded)
+            if (this.moduleDispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _) != ModuleRestoreStatus.Succeeded)
             {
                 throw new InvalidOperationException($"The module '{moduleReference.FullyQualifiedReference}' has not yet been successfully restored.");
             }
 
-            var uri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(null, moduleReference, out _) ?? throw new InvalidOperationException($"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
+            var uri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(null, moduleReference, configuration, out _) ?? throw new InvalidOperationException($"Unable to obtain the entry point URI for module '{moduleReference.FullyQualifiedReference}'.");
             if (!this.fileResolver.TryRead(uri, out var contents, out var failureBuilder))
             {
                 var message = failureBuilder(DiagnosticBuilder.ForPosition(new TextSpan(0, 0))).Message;
