@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     {
         private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
         {
-            LanguageConstants.ResourceNamePropertyName,
+            AzResourceTypeProvider.ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);

@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.Semantics.Metadata
 {
@@ -44,7 +45,7 @@ namespace Bicep.Core.Semantics.Metadata
                     // Skip analysis for ErrorSymbol and similar cases, these are invalid cases, and won't be emitted.
                     if (!resourceSymbols.Value.TryGetValue(resourceDeclarationSyntax, out var symbol) || 
                         symbol.TryGetResourceType() is not {} resourceType ||
-                        symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not {} nameSyntax)
+                        symbol.SafeGetBodyPropertyValue(AzResourceTypeProvider.ResourceNamePropertyName) is not {} nameSyntax)
                     {
                         break;
                     }

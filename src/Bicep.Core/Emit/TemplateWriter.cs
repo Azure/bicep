@@ -48,7 +48,7 @@ namespace Bicep.Core.Emit
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
-            LanguageConstants.ResourceNamePropertyName,
+            AzResourceTypeProvider.ResourceNamePropertyName,
         }.ToImmutableHashSet();
 
         private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new[] {

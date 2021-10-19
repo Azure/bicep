@@ -95,7 +95,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("type", LanguageConstants.String),
                 new TypeProperty("location", LanguageConstants.String),
                 new TypeProperty("managedBy", LanguageConstants.String),
-                new TypeProperty("tags", LanguageConstants.Tags),
+                new TypeProperty("tags", AzResourceTypeProvider.Tags),
                 new TypeProperty("properties", properties),
             });
         }

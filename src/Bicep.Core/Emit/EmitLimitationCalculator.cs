@@ -76,7 +76,7 @@ namespace Bicep.Core.Emit
                     //module has invalid scope provided, ignoring from duplicate check
                     continue;
                 }
-                if (module.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) is not StringSyntax propertyNameValue)
+                if (module.SafeGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) is not StringSyntax propertyNameValue)
                 {
                     //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
                     continue;
