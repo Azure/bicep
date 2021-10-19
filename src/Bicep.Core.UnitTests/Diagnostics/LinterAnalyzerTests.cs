@@ -36,6 +36,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(NoUnusedVariablesRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
+        [DataRow(UseProtectedSettingsForCommandToExecuteSecretsRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
             var linter = new LinterAnalyzer(configuration);
