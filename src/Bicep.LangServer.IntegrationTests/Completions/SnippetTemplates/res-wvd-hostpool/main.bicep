@@ -5,4 +5,6 @@
 // $5 = 'BreadthFirst'
 // $6 = 'Desktop'
 
+param location string
+
 // Insert snippet here

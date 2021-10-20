@@ -3,4 +3,6 @@
 // $3 = 'Basic'
 // $4 = false
 
+param location string
+
 // Insert snippet here

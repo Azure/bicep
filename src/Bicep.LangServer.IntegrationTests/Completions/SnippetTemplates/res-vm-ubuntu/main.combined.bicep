@@ -7,11 +7,12 @@
 // $7 = 'id'
 // $8 = 'storageUri'
 
+param location string
 param adminUsername string
 
 resource ubuntuVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_A2_v2'

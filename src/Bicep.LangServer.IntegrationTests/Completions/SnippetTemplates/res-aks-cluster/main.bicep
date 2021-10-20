@@ -8,5 +8,6 @@
 // $8 = 'REQUIRED'
 
 param adminUsername string
+param location string
 
 // Insert snippet here

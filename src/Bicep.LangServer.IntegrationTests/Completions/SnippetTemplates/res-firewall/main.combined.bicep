@@ -33,9 +33,11 @@
 // $33 = 'id'
 // $34 = 'id'
 
+param location string
+
 resource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     applicationRuleCollections: [
       {

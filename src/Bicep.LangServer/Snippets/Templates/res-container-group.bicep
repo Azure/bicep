@@ -1,7 +1,7 @@
 ﻿// Container Group
 resource /*${1:containerGroup}*/containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     containers: [
       {

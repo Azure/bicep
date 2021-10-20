@@ -19,4 +19,6 @@
 // $19 = Tcp
 // $20 = 80
 
+param location string
+
 // Insert snippet here

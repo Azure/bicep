@@ -4,9 +4,11 @@
 // $4 = 'name'
 // $5 = ARecords
 
+param location string
+
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
 }
 
 resource dnsRecord 'Microsoft.Network/dnsZones/A@2018-05-01' = {

@@ -98,6 +98,7 @@ namespace Bicep.Core
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
+        public const string ResourceLocationPropertyName = "location";
 
         // types
         public const string TypeNameString = "string";

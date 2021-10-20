@@ -5,4 +5,6 @@
 // $5 = 'sasToken'
 // $6 = 'configurationFunction'
 
+param location string
+
 // Insert snippet here

@@ -1,7 +1,7 @@
 ﻿// Log Analytics Solution
 resource /*${1:logAnalyticsSolution}*/logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     workspaceResourceId: /*${3:'operationalInsightsWorkspace.id'}*/'operationalInsightsWorkspace.id'
     containedResources: [

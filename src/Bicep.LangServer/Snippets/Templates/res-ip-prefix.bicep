@@ -1,7 +1,7 @@
 ﻿// Public IP Prefix
 resource /*${1:publicIPPrefix}*/publicIPPrefix 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   sku: {
     name: 'Standard'
   }

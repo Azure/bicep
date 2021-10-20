@@ -2,4 +2,6 @@
 // $2 = 'name'
 // $3 = 'Basic'
 
+param location string
+
 // Insert snippet here

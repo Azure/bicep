@@ -103,7 +103,7 @@
     "detail": "DNS Record",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\n{\n  name: 'name'\n  location: resourceGroup().location\n}\n\n```"
+      "value": "```bicep\n{\n  name: 'name'\n  location: location\n}\n\n```"
     },
     "deprecated": false,
     "preselect": true,
@@ -112,7 +112,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "{\n  name: ${1:'name'}\n  location: resourceGroup().location\n}\n"
+      "newText": "{\n  name: ${1:'name'}\n  location: location\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",

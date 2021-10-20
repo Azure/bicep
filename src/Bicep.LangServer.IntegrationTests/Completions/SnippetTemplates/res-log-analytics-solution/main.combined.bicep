@@ -7,9 +7,11 @@
 // $7 = 'publisher'
 // $8 = 'promotionCode'
 
+param location string
+
 resource logAnalyticsSolution 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     workspaceResourceId: 'operationalInsightsWorkspace.id'
     containedResources: [

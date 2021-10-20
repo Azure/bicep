@@ -7,7 +7,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Semantics
 {
-    [DebuggerDisplay("Name = {" + nameof(Name) +"}, Kind = {" + nameof(Kind) +"}")]
+    [DebuggerDisplay("Name = {" + nameof(Name) + "}, Kind = {" + nameof(Kind) + "}, Type = {GetType().Name}")]
     public abstract class Symbol
     {
         protected Symbol(string name)

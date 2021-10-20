@@ -1,13 +1,13 @@
 ﻿// SQL Database
 resource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={
   name: /*${1:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
 }
 
 resource /*${2:sqlServerDatabase}*/sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
   parent: sqlServer
   name: /*${3:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     collation: /*${4:'collation'}*/'collation'
     edition: /*'${5|Basic,Business,BusinessCritical,DataWarehouse,Free,GeneralPurpose,Hyperscale,Premium,PremiumRS,Standard,Stretch,System,System2,Web|}'*/'Basic'

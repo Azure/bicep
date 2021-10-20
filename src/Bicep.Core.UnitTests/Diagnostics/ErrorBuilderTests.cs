@@ -190,54 +190,54 @@ namespace Bicep.Core.UnitTests.Diagnostics
             actualText.Should().Be(expectedText);
         }
 
-         [DataRow(@"
+        [DataRow(@"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
                  }",
-             @"
+            @"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
                    name:
                  }"
-         )]
-         [DataRow(@"
+        )]
+        [DataRow(@"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
 
                  }",
-             @"
+            @"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
                    name:
                  }"
-         )]
-         // There is leading whitespace in this one
+        )]
+        // There is leading whitespace in this one
         [DataRow(@"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
                   
                 }",
-            @"
+           @"
                 resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
                   name:
                 }"
-        )]
-         [DataRow(@"
+       )]
+        [DataRow(@"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                   location: 'westus2'
+                   location: 'global'
                  }",
-             @"
+            @"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                   location: 'westus2'
+                   location: 'global'
                    name:
                  }"
-         )]
-         [DataRow(@"
+        )]
+        [DataRow(@"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                               location: 'westus2'
+                               location: 'global'
                  }",
-             @"
+            @"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                               location: 'westus2'
+                               location: 'global'
                                name:
                  }"
-         )]
-         [DataRow(@"
+        )]
+        [DataRow(@"
                  resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
                        sku: {
 
@@ -246,7 +246,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
                        }
                        // comment
                  }",
-             @"
+            @"
                  resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
                        sku: {
 
@@ -257,18 +257,18 @@ namespace Bicep.Core.UnitTests.Diagnostics
                        location:
                        name:
                  }"
-         )]
-         [DataRow(@"
+        )]
+        [DataRow(@"
                  resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
                        sku: {}
                  }",
-             @"
+            @"
                  resource appService 'Microsoft.Web/serverFarms@2020-06-01' = {
                        sku: {}
                        location:
                        name:
                  }"
-         )]
+        )]
         [DataTestMethod]
         public void MissingTypePropertiesHasFix(string text, string expectedFix)
         {

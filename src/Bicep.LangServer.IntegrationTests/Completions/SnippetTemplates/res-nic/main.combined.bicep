@@ -4,9 +4,11 @@
 // $4 = Dynamic
 // $5 = 'subnet.id'
 
+param location string
+
 resource networkInterface 'Microsoft.Network/networkInterfaces@2020-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     ipConfigurations: [
       {

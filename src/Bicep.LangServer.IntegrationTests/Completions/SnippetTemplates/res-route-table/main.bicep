@@ -6,4 +6,6 @@
 // $6 = '0.11.26.162'
 // $7 = true
 
+param location string
+
 // Insert snippet here

@@ -6,9 +6,11 @@
 // $6 = 'publisherEmail@contoso.com'
 // $7 = 'publisherName'
 
+param location string
+
 resource apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   sku:{
     capacity: 1
     name: 'Developer'

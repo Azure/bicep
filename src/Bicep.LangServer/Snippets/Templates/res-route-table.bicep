@@ -1,7 +1,7 @@
 ﻿// Route Table
 resource /*${1:routeTable}*/routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     routes: [
       {

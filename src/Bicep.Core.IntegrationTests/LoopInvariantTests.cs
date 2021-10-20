@@ -66,7 +66,7 @@ resource ds3 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for (script, 
 ";
 
             var result = CompilationHelper.Compile(text);
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -124,7 +124,7 @@ module mod5 'mod.bicep' = [for (a,i) in []: {
                 ("main.bicep", text),
                 ("mod.bicep", "param foo string"));
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' = [for (item, i) in []: {
   location:'s'
 }]";
             var result = CompilationHelper.Compile(text);
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
@@ -154,7 +154,7 @@ module mod 'mod.bicep' = [for a in []: {
             var result = CompilationHelper.Compile(
                 ("main.bicep", text),
                 ("mod.bicep", "param foo string"));
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
 {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
             });
@@ -180,7 +180,7 @@ module mod2 'mod.bicep' = [for (x, i) in []: {
             var result = CompilationHelper.Compile(
                 ("main.bicep", text),
                 ("mod.bicep", "param foo string"));
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"a\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"x\" or the index variable \"i\" must be referenced in at least one of the value expressions of the following properties in the loop body: \"name\", \"scope\"")
@@ -203,7 +203,7 @@ resource foos2 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
 
 ";
             var result = CompilationHelper.Compile(text);
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" or the index variable \"i\" must be referenced in at least one of the value expressions of the following properties in the loop body: \"name\""),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\"")
@@ -229,7 +229,7 @@ resource c3 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for (cname,i) in []
 }]
 ";
             var result = CompilationHelper.Compile(text);
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
             });
@@ -254,7 +254,7 @@ module mod 'mod.bicep' = [for a in []: {
             var result = CompilationHelper.Compile(
                 ("main.bicep", text),
                 ("mod.bicep", "param foo string"));
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
 {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
             });
@@ -282,7 +282,7 @@ module mod2 'mod.bicep' = [for (x, i) in []: {
             var result = CompilationHelper.Compile(
                 ("main.bicep", text),
                 ("mod.bicep", "param foo string"));
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"a\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
                 ("BCP179", DiagnosticLevel.Warning, "The loop item variable \"x\" or the index variable \"i\" must be referenced in at least one of the value expressions of the following properties in the loop body: \"name\", \"scope\"")
@@ -298,7 +298,7 @@ resource foos 'Microsoft.Network/dnsZones@2018-05-01' existing = [for (item, i) 
 }]
 ";
             var result = CompilationHelper.Compile(text);
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
 }

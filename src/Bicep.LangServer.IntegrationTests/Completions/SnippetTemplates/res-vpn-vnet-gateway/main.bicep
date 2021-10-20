@@ -9,4 +9,6 @@
 // $9 = PolicyBased
 // $10 = true
 
+param location string
+
 // Insert snippet here

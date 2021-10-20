@@ -4,4 +4,6 @@
 // $4 = 'fileUris'
 // $5 = customScript.ps1
 
+param location string
+
 // Insert snippet here

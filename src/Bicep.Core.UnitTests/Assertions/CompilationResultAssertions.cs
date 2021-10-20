@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Analyzers;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -17,6 +18,14 @@ namespace Bicep.Core.UnitTests.Assertions
         public static CompilationResultAssertions Should(this CompilationResult result)
         {
             return new CompilationResultAssertions(result); 
+        }
+
+        public static CompilationResult ExcludingLinterDiagnostics(this CompilationResult result, params string[] codes)
+        {
+            return new CompilationResult(
+                result.Template,
+                result.Diagnostics.ExcludingLinterDiagnostics(),
+                result.Compilation);
         }
     }
 

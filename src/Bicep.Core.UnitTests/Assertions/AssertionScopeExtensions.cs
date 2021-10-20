@@ -34,6 +34,18 @@ namespace Bicep.Core.UnitTests.Assertions
                 "diagnostics",
                 diagnostics.Select(x => new PrintHelper.Annotation(x.Span, $"[{x.Code} ({x.Level})] {x.Message}")));
 
+        /// <summary>
+        /// Prints the entire program syntax with line numbers if a test fails in the given assertion scope.
+        /// </summary>
+        public static AssertionScope WithFullSource(this AssertionScope assertionScope, BicepFile bicepFile)
+        {
+            assertionScope.AddReportable(
+                "source",
+                () => PrintHelper.PrintFullSource(bicepFile, 1, true));
+
+            return assertionScope;
+        }
+
         public static AssertionScope WithAnnotatedSource(AssertionScope assertionScope, BicepFile bicepFile, string contextName, IEnumerable<PrintHelper.Annotation> annotations)
         {
             assertionScope.AddReportable(

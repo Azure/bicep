@@ -8,218 +8,203 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bicep.Core
-{
+namespace Bicep.Core {
     using System;
     using System.Reflection;
-
-
+    
+    
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class CoreResources
-    {
-
+    internal class CoreResources {
+        
         private static System.Resources.ResourceManager resourceMan;
-
+        
         private static System.Globalization.CultureInfo resourceCulture;
-
+        
         [System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal CoreResources()
-        {
+        internal CoreResources() {
         }
-
+        
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static System.Resources.ResourceManager ResourceManager
-        {
-            get
-            {
-                if (object.Equals(null, resourceMan))
-                {
+        internal static System.Resources.ResourceManager ResourceManager {
+            get {
+                if (object.Equals(null, resourceMan)) {
                     System.Resources.ResourceManager temp = new System.Resources.ResourceManager("Bicep.Core.CoreResources", typeof(CoreResources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
             }
         }
-
+        
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static System.Globalization.CultureInfo Culture
-        {
-            get
-            {
+        internal static System.Globalization.CultureInfo Culture {
+            get {
                 return resourceCulture;
             }
-            set
-            {
+            set {
                 resourceCulture = value;
             }
         }
-
-        internal static string BicepConfigCustomSettingsFoundFormatMessage
-        {
-            get
-            {
+        
+        internal static string BicepConfigCustomSettingsFoundFormatMessage {
+            get {
                 return ResourceManager.GetString("BicepConfigCustomSettingsFoundFormatMessage", resourceCulture);
             }
         }
-
-        internal static string BicepConfigNoCustomSettingsMessage
-        {
-            get
-            {
+        
+        internal static string BicepConfigNoCustomSettingsMessage {
+            get {
                 return ResourceManager.GetString("BicepConfigNoCustomSettingsMessage", resourceCulture);
             }
         }
-
-        internal static string AdminUsernameShouldNotBeLiteralRuleDescription
-        {
-            get
-            {
+        
+        internal static string AdminUsernameShouldNotBeLiteralRuleDescription {
+            get {
                 return ResourceManager.GetString("AdminUsernameShouldNotBeLiteralRuleDescription", resourceCulture);
             }
         }
-
-        internal static string EnvironmentUrlHardcodedRuleDescription
-        {
-            get
-            {
+        
+        internal static string EnvironmentUrlHardcodedRuleDescription {
+            get {
                 return ResourceManager.GetString("EnvironmentUrlHardcodedRuleDescription", resourceCulture);
             }
         }
-
-        internal static string InterpolateNotConcatFixTitle
-        {
-            get
-            {
+        
+        internal static string InterpolateNotConcatFixTitle {
+            get {
                 return ResourceManager.GetString("InterpolateNotConcatFixTitle", resourceCulture);
             }
         }
-
-        internal static string InterpolateNotConcatRuleDescription
-        {
-            get
-            {
+        
+        internal static string InterpolateNotConcatRuleDescription {
+            get {
                 return ResourceManager.GetString("InterpolateNotConcatRuleDescription", resourceCulture);
             }
         }
-
-        internal static string LinterDisabledFormatMessage
-        {
-            get
-            {
+        
+        internal static string LinterDisabledFormatMessage {
+            get {
                 return ResourceManager.GetString("LinterDisabledFormatMessage", resourceCulture);
             }
         }
-
-        internal static string LinterRuleExceptionMessageFormat
-        {
-            get
-            {
+        
+        internal static string LinterRuleExceptionMessageFormat {
+            get {
                 return ResourceManager.GetString("LinterRuleExceptionMessageFormat", resourceCulture);
             }
         }
-
-        internal static string LocationSetByParameterRuleDescription
-        {
-            get
-            {
-                return ResourceManager.GetString("LocationSetByParameterRuleDescription", resourceCulture);
-            }
-        }
-
-        internal static string NoUnnecessaryDependsOnRuleDescription
-        {
-            get
-            {
+        
+        internal static string NoUnnecessaryDependsOnRuleDescription {
+            get {
                 return ResourceManager.GetString("NoUnnecessaryDependsOnRuleDescription", resourceCulture);
             }
         }
-
-        internal static string NoUnnecessaryDependsOnRuleMessage
-        {
-            get
-            {
+        
+        internal static string NoUnnecessaryDependsOnRuleMessage {
+            get {
                 return ResourceManager.GetString("NoUnnecessaryDependsOnRuleMessage", resourceCulture);
             }
         }
-
-        internal static string ParameterMustBeUsedRuleDescription
-        {
-            get
-            {
+        
+        internal static string NoHardcodedLocationRuleDescription {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocationRuleDescription", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_LocationMustBeTypeString {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_LocationMustBeTypeString", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_LocationMustBeTypeString_FixDescription {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_LocationMustBeTypeString_FixDescription", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_DoNotUseDeploymentOrResourceGroupLocation {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_DoNotUseDeploymentOrResourceGroupLocation", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_LocationDefaultInvalidValue {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_LocationDefaultInvalidValue", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ModuleLocationNeedsExplicitValue {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ModuleLocationNeedsExplicitValue", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal", resourceCulture);
+            }
+        }
+        
+        internal static string ParameterMustBeUsedRuleDescription {
+            get {
                 return ResourceManager.GetString("ParameterMustBeUsedRuleDescription", resourceCulture);
             }
         }
-
-        internal static string ParameterMustBeUsedRuleMessageFormat
-        {
-            get
-            {
+        
+        internal static string ParameterMustBeUsedRuleMessageFormat {
+            get {
                 return ResourceManager.GetString("ParameterMustBeUsedRuleMessageFormat", resourceCulture);
             }
         }
-
-        internal static string SecureParameterDefaultFixTitle
-        {
-            get
-            {
+        
+        internal static string SecureParameterDefaultFixTitle {
+            get {
                 return ResourceManager.GetString("SecureParameterDefaultFixTitle", resourceCulture);
             }
         }
-
-        internal static string SecureParameterDefaultRuleDescription
-        {
-            get
-            {
+        
+        internal static string SecureParameterDefaultRuleDescription {
+            get {
                 return ResourceManager.GetString("SecureParameterDefaultRuleDescription", resourceCulture);
             }
         }
-
-        internal static string SimplifyInterpolationFixTitle
-        {
-            get
-            {
+        
+        internal static string SimplifyInterpolationFixTitle {
+            get {
                 return ResourceManager.GetString("SimplifyInterpolationFixTitle", resourceCulture);
             }
         }
-
-        internal static string SimplifyInterpolationRuleDescription
-        {
-            get
-            {
+        
+        internal static string SimplifyInterpolationRuleDescription {
+            get {
                 return ResourceManager.GetString("SimplifyInterpolationRuleDescription", resourceCulture);
             }
         }
-
-        internal static string UnusedVariableRuleDescription
-        {
-            get
-            {
+        
+        internal static string UnusedVariableRuleDescription {
+            get {
                 return ResourceManager.GetString("UnusedVariableRuleDescription", resourceCulture);
             }
         }
-
-        internal static string UnusedVariableRuleMessageFormat
-        {
-            get
-            {
+        
+        internal static string UnusedVariableRuleMessageFormat {
+            get {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
             }
         }
-
-        internal static string UseStableVMImage
-        {
-            get
-            {
+        
+        internal static string UseStableVMImage {
+            get {
                 return ResourceManager.GetString("UseStableVMImage", resourceCulture);
             }
         }
-
-        internal static string UseStableVMImageRuleFixMessageFormat
-        {
-            get
-            {
+        
+        internal static string UseStableVMImageRuleFixMessageFormat {
+            get {
                 return ResourceManager.GetString("UseStableVMImageRuleFixMessageFormat", resourceCulture);
             }
         }

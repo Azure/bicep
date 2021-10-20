@@ -1,7 +1,7 @@
-// ExpressRoute Circuit
+﻿// ExpressRoute Circuit
 resource /*${1:expressRouteCircuit}*/expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   sku:{
     family: /*${3|'MeteredData','UnlimitedData'|}*/'MeteredData'
     tier: /*${4|'Local','Standard','Premium'|}*/'Local'

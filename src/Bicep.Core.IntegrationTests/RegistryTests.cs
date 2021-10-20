@@ -73,7 +73,7 @@ namespace Bicep.Core.IntegrationTests
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 
-            diagnostics.Single().Value.Should().SatisfyRespectively(
+            diagnostics.Single().Value.ExcludingLinterDiagnostics().Should().SatisfyRespectively(
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);

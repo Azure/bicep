@@ -8,10 +8,11 @@
 // $8 = 'storageUri'
 
 param adminUsername string
+param location string
 
 resource windowsVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_A2_v2'

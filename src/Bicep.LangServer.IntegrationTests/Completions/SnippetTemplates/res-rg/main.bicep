@@ -1,5 +1,7 @@
 ﻿// $1 = resourceGroup
 // $2 = 'name'
-// $3 = 'westeurope'
+
 targetScope = 'subscription'
+param location string
+
 // Insert snippet here

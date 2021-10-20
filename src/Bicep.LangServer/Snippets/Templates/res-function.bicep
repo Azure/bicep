@@ -1,7 +1,7 @@
 ﻿// Azure Functions (v2)
 resource /*${1:azureFunction}*/azureFunction 'Microsoft.Web/sites@2020-12-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   kind: 'functionapp'
   properties: {
     serverFarmId: /*${3:'serverfarms.id'}*/'serverfarms.id'

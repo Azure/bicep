@@ -198,6 +198,9 @@
             "adminusername-should-not-be-literal": {
               "level": "warning"
             },
+            "no-hardcoded-location": {
+              "level": "warning"
+            },
             "no-hardcoded-env-urls": {
               "level": "warning"
             },
@@ -249,6 +252,16 @@
                   "allOf": [
                     {
                       "description": "When setting an adminUserName property, don't use a literal value. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-hardcoded-location": {
+                  "allOf": [
+                    {
+                      "description": "Resource location should not be hard-coded. See https://aka.ms/bicep/linter/no-hardcoded-location"
                     },
                     {
                       "$ref": "#/definitions/rule"

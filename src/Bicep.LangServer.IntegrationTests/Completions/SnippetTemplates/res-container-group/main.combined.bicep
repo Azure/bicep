@@ -10,9 +10,11 @@
 // $10 = 'TCP'
 // $11 = 80
 
+param location string
+
 resource containerGroup 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     containers: [
       {

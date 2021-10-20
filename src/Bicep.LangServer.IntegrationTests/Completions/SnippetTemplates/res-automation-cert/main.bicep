@@ -6,4 +6,6 @@
 // $6 = 'thumbprint'
 // $7 = true
 
+param location string
+
 // Insert snippet here

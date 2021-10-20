@@ -9,11 +9,11 @@ using FluentAssertions.Collections;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class IDiagnosticCollectionExtensions 
+    public static class IDiagnosticCollectionExtensions
     {
         public static IDiagnosticCollectionAssertions Should(this IEnumerable<IDiagnostic> diagnostics)
         {
-            return new IDiagnosticCollectionAssertions(diagnostics); 
+            return new IDiagnosticCollectionAssertions(diagnostics);
         }
     }
 
@@ -52,19 +52,48 @@ namespace Bicep.Core.UnitTests.Assertions
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 
+        public AndConstraint<IDiagnosticCollectionAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs)
+        {
+            AssertionExtensions.Should(Subject).BeEmpty();
+            return new AndConstraint<IDiagnosticCollectionAssertions>(this);
+        }
+
         public AndConstraint<IDiagnosticCollectionAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> diagnostics, string because = "", params object[] becauseArgs)
         {
             var actions = new List<Action<IDiagnostic>>();
             foreach (var (code, level, message) in diagnostics)
             {
-                actions.Add(x => x.Should().HaveCodeAndSeverity(code, level).And.HaveMessage(message));
+                actions.Add(x =>
+                {
+                    x.Should().HaveCodeAndSeverity(code, level).And.HaveMessage(message);
+                });
             }
+
 
             AssertionExtensions.Should(Subject).SatisfyRespectively(actions, because, becauseArgs);
 
             return new AndConstraint<IDiagnosticCollectionAssertions>(this);
         }
 
+        public AndConstraint<IDiagnosticCollectionAssertions> HaveFixableDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message, string fixDescription, string fixReplacementText)> diagnostics, string because = "", params object[] becauseArgs)
+        {
+            var actions = new List<Action<IDiagnostic>>();
+            foreach (var (code, level, message, fixDescription, fixReplacementText) in diagnostics)
+            {
+                actions.Add(x =>
+                {
+                    x.Should()
+                    .HaveCodeAndSeverity(code, level)
+                    .And.HaveMessage(message)
+                    .And.HaveCodeFix(fixDescription, fixReplacementText);
+                });
+            }
+
+
+            AssertionExtensions.Should(Subject).SatisfyRespectively(actions, because, becauseArgs);
+
+            return new AndConstraint<IDiagnosticCollectionAssertions>(this);
+        }
         public AndConstraint<IDiagnosticCollectionAssertions> NotHaveErrors(string because = "", params object[] becauseArgs)
         {
             AssertionExtensions.Should(Subject.Where(x => x.Level == DiagnosticLevel.Error)).BeEmpty(because, becauseArgs);

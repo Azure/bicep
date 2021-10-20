@@ -165,7 +165,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
   name: ${2:'name'}
-  location: resourceGroup().location
+  location: location
   properties: {
     newTier: ${3|'Consumption','Commitment_1TB','Commitment_10TB','Commitment_100TB','Commitment_500TB','Commitment_1PB','Commitment_5PB'|}
     encryptionState: ${4|'Enabled','Disabled'|}

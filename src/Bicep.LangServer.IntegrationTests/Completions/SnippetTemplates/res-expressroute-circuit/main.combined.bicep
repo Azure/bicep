@@ -8,9 +8,11 @@
 // $8 = 'Telia Carrier'
 // $9 = false
 
+param location string
+
 resource expressRouteCircuit 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   sku:{
     family: 'MeteredData'
     tier: 'Local'

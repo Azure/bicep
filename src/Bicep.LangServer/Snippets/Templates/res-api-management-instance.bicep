@@ -1,7 +1,7 @@
 // Api Management Instance
 resource /*${1:apiManagementInstance}*/apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   sku:{
     capacity: /*${3|0,1|}*/0
     name: /*${4|'Developer','Consumption'|}*/'Developer'

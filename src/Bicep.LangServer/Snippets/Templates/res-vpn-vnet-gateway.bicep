@@ -1,7 +1,7 @@
 ﻿// VPN Virtual Network Gateway
 resource /*${1:virtualNetworkGateway}*/virtualNetworkGateway 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     ipConfigurations: [
       {

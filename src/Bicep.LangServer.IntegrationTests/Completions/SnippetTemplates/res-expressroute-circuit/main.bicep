@@ -8,4 +8,6 @@
 // $8 = 'Telia Carrier'
 // $9 = false
 
+param location string
+
 // Insert snippet here

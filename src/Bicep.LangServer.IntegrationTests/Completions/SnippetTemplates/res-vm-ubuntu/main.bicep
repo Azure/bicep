@@ -7,6 +7,7 @@
 // $7 = 'id'
 // $8 = 'storageUri'
 
+param location string
 param adminUsername string
 
 // Insert snippet here

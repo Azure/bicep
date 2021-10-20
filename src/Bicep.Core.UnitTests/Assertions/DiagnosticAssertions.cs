@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Workspaces;
 using FluentAssertions;
@@ -11,11 +13,11 @@ using FluentAssertions.Primitives;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class DiagnosticExtensions 
+    public static class DiagnosticExtensions
     {
         public static DiagnosticAssertions Should(this IDiagnostic diagnostic)
         {
-            return new DiagnosticAssertions(diagnostic); 
+            return new DiagnosticAssertions(diagnostic);
         }
     }
 
@@ -79,6 +81,33 @@ namespace Bicep.Core.UnitTests.Assertions
                 .Given<string>(() => Subject.Message)
                 .ForCondition(x => x == message)
                 .FailWith("Expected message to be {0}{reason} but it was {1}", _ => message, x => x);
+
+            return new AndConstraint<DiagnosticAssertions>(this);
+        }
+
+        public AndConstraint<DiagnosticAssertions> HaveCodeFix(string description, string replacement, string because = "", params object[] becauseArgs)
+        {
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .Given<IDiagnostic>(() => Subject)
+                .ForCondition(x => x is IFixable)
+                .FailWith("Expected diagnostic to be fixable")
+                .Then
+                .Given<IFixable>(_ => (IFixable)Subject)
+                .ForCondition(x => x.Fixes.Count() == 1)
+                .FailWith("Expected diagnostic to have exactly one fix {reason} but it had {0}", x => x.Fixes.Count())
+                .Then
+                .Given<IFixable>(_ => (IFixable)Subject)
+                .ForCondition(x => x.Fixes.Single().Description == description)
+                .FailWith("Expected diagnostic's fix to have description '{0}'{reason} but it was '{1}'", _ => description, x => x.Fixes.Single().Description)
+                .Then
+                .Given<IFixable>(_ => (IFixable)Subject)
+                .ForCondition(x => x.Fixes.Single().Replacements.Count() == 1)
+                .FailWith("Expected diagnostic's fix to have exactly one replacement {reason} but it had {0}", x => x.Fixes.Single().Replacements.Count())
+                .Then
+                .Given<IFixable>(_ => (IFixable)Subject)
+                .ForCondition(x => x.Fixes.Single().Replacements.Single().Text == replacement)
+                .FailWith("Expected diagnositc's fix to have replacement '{0}'{reason} but it was '{1}'", _ => replacement, x => x.Fixes.Single().Replacements.Single().Text);
 
             return new AndConstraint<DiagnosticAssertions>(this);
         }

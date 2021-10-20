@@ -6,9 +6,11 @@
 // $6 = '0.11.26.162'
 // $7 = true
 
+param location string
+
 resource routeTable 'Microsoft.Network/routeTables@2019-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     routes: [
       {

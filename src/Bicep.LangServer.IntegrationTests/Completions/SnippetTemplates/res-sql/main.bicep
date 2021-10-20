@@ -6,4 +6,6 @@
 // $6 = 'maxSizeBytes'
 // $7 = Basic
 
+param location string
+
 // Insert snippet here

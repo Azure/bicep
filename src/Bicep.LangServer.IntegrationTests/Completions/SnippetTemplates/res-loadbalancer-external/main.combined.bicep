@@ -19,9 +19,11 @@
 // $19 = Tcp
 // $20 = 80
 
+param location string
+
 resource loadBalancerExternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     frontendIPConfigurations: [
       {

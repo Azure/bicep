@@ -11,5 +11,6 @@
 // $11 = 'insightsComponents'
 // $12 = dotnet
 
+param location string
 
 // Insert snippet here

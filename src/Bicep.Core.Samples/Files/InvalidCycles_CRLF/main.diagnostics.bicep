@@ -61,6 +61,7 @@ resource res1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: res2.n
 //@[8:12) [BCP080 (Error)] The expression is involved in a cycle ("res2" -> "res1"). (CodeDescription: none) |res2|
   location: 'l'
+//@[12:15) [no-hardcoded-location (Warning)] A resource location should be either an expression or the string 'global'. Found 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   sku: {
     name: 'Premium_LRS'
     // #completionTest(15) -> empty
@@ -74,6 +75,7 @@ resource res2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: res1.name
 //@[8:12) [BCP080 (Error)] The expression is involved in a cycle ("res1" -> "res2"). (CodeDescription: none) |res1|
   location: 'l'
+//@[12:15) [no-hardcoded-location (Warning)] A resource location should be either an expression or the string 'global'. Found 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   sku: {
     name: 'Premium_LRS'
   }

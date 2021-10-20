@@ -145,15 +145,36 @@
     <value>Analyzer '{0}' encountered an unexpected exception. {1}</value>
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
-	<data name="LocationSetByParameterRuleDescription" xml:space="preserve">
-    <value>Resource location should be specified by a parameter with no default value or one that defaults to 'global' or resourceGroup().location.</value>
-  </data>
   <data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
     <value>No unnecessary dependsOn.</value>
   </data>
   <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
     <value>Remove unnecessary dependsOn entry '{0}'.</value>
     <comment>Text for linter rule error. {0} is a programmatic expression</comment>
+  </data>
+	<data name="NoHardcodedLocationRuleDescription" xml:space="preserve">
+    <value>Resource location should not be hard-coded.</value>
+  </data>
+  <data name="NoHardcodedLocation_LocationMustBeTypeString" xml:space="preserve">
+    <value>Location parameter must be of type 'string'.</value>
+  </data>
+  <data name="NoHardcodedLocation_LocationMustBeTypeString_FixDescription" xml:space="preserve">
+    <value>Change parameter type to string</value>
+  </data>
+	<data name="NoHardcodedLocation_DoNotUseDeploymentOrResourceGroupLocation" xml:space="preserve">
+    <value>Use a parameter named `location` here instead of '{0}'. '{0}' should only be used as a default for parameter `location`.</value>
+    <comment>{0} = programmatic expression, e.g. 'resourceGroup().location'</comment>
+    </data>
+	<data name="NoHardcodedLocation_LocationDefaultInvalidValue" xml:space="preserve">
+    <value>The default value for the location parameter must be resourceGroup().location, deployment().location or 'global'.</value>
+  </data>
+	<data name="NoHardcodedLocation_ModuleLocationNeedsExplicitValue" xml:space="preserve">
+    <value>The '{0}' parameter for module '{1}' should be assigned an explicit value.</value>
+    <comment>{0} and {1} are programmatic variable names</comment>
+  </data>
+	<data name="NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal" xml:space="preserve">
+    <value>A resource location should be either an expression or the string '{0}'. Found '{1}'</value>
+    <comment>{0} = programmatic string value, e.g. 'global. {1} = programmatic string value, e.g. 'westus'</comment>
   </data>
 	<data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>No unused parameters.</value>

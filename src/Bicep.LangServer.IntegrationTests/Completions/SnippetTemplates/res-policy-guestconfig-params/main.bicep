@@ -9,4 +9,6 @@
 // $9 = 'parameter2[dscResourceType]dscResourceName;propertyName'
 // $10 = 'parameter2Value'
 
+param location string
+
 // Insert snippet here

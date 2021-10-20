@@ -2,9 +2,11 @@
 // $2 = 'name'
 // $3 = 'Basic'
 
+param location string
+
 resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     sku: {
       name: 'Basic'

@@ -1,7 +1,7 @@
 ﻿// Kubernetes Service Cluster
 resource /*${1:aksCluster}*/aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   identity: {
     type: 'SystemAssigned'
   }

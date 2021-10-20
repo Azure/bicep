@@ -15,4 +15,6 @@
 // $15 = 'value'
 // $16 = 'metricResourceUri'
 
+param location string
+
 // Insert snippet here
