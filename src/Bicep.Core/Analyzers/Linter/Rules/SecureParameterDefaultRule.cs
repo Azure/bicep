@@ -5,6 +5,7 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,7 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SecureParameterDefaultRule() : base(
             code: Code,
             description: CoreResources.SecureParameterDefaultRuleDescription,
-            docUri: new System.Uri("https://aka.ms/bicep/linter/secure-parameter-default"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)

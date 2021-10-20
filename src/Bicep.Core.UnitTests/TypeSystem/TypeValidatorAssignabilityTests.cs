@@ -10,6 +10,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -54,7 +55,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Array).Should().BeTrue();
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Object).Should().BeTrue();
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Null).Should().BeTrue();
-            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Tags).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, AzResourceTypeProvider.Tags).Should().BeTrue();
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.ParameterModifierMetadata).Should().BeTrue();
         }
 
@@ -88,61 +89,61 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void NothingShouldBeAssignableToNeverType()
         {
-            var never = UnionType.Create(Enumerable.Empty<ITypeReference>());
+            var never = TypeHelper.CreateTypeUnion(Enumerable.Empty<ITypeReference>());
             TypeValidator.AreTypesAssignable(LanguageConstants.Bool, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.Int, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.String, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.Array, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.Object, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.Null, never).Should().BeFalse();
-            TypeValidator.AreTypesAssignable(LanguageConstants.Tags, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(AzResourceTypeProvider.Tags, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.ParameterModifierMetadata, never).Should().BeFalse();
         }
 
         [TestMethod]
         public void OnlyMemberOfUnionShouldBeAssignableToUnion()
         {
-            var union = UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int);
+            var union = TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.Int);
 
             TypeValidator.AreTypesAssignable(LanguageConstants.Int, union).Should().BeTrue();
             TypeValidator.AreTypesAssignable(LanguageConstants.Bool, union).Should().BeTrue();
 
             TypeValidator.AreTypesAssignable(LanguageConstants.String, union).Should().BeFalse();
-            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.String, LanguageConstants.Null), union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Null), union).Should().BeFalse();
         }
 
         [TestMethod]
         public void UnionSubsetShouldBeAssignableToUnion()
         {
-            var union = UnionType.Create(LanguageConstants.Int, LanguageConstants.Bool, LanguageConstants.String);
+            var union = TypeHelper.CreateTypeUnion(LanguageConstants.Int, LanguageConstants.Bool, LanguageConstants.String);
 
             TypeValidator.AreTypesAssignable(LanguageConstants.Bool, union).Should().BeTrue();
-            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.String), union).Should().BeTrue();
-            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeTrue();
-            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.Int), union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.String), union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.String, LanguageConstants.Int), union).Should().BeTrue();
         }
 
         [TestMethod]
         public void UnionSupersetShouldNotBeAssignableToUnion()
         {
-            var union = UnionType.Create(LanguageConstants.Bool, LanguageConstants.String);
+            var union = TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.String);
 
             TypeValidator.AreTypesAssignable(LanguageConstants.Int, union).Should().BeFalse();
-            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeFalse();
-            TypeValidator.AreTypesAssignable(UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.String), union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.Int), union).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.Int, LanguageConstants.String), union).Should().BeFalse();
         }
 
         [TestMethod]
         public void UnionShouldBeAssignableToTypeIfAllMembersAre()
         {
-            var boolIntUnion = UnionType.Create(LanguageConstants.Bool, LanguageConstants.Int);
-            var stringUnion = UnionType.Create(LanguageConstants.String);
+            var boolIntUnion = TypeHelper.CreateTypeUnion(LanguageConstants.Bool, LanguageConstants.Int);
+            var stringUnion = TypeHelper.CreateTypeUnion(LanguageConstants.String);
             TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.String).Should().BeTrue();
             TypeValidator.AreTypesAssignable(stringUnion, LanguageConstants.Bool).Should().BeFalse();
             TypeValidator.AreTypesAssignable(stringUnion, boolIntUnion).Should().BeFalse();
 
-            var logLevelsUnion = UnionType.Create(new StringLiteralType("Error"), new StringLiteralType("Warning"), new StringLiteralType("Info"));
-            var failureLogLevelsUnion = UnionType.Create(new StringLiteralType("Error"), new StringLiteralType("Warning"));
+            var logLevelsUnion = TypeHelper.CreateTypeUnion(new StringLiteralType("Error"), new StringLiteralType("Warning"), new StringLiteralType("Info"));
+            var failureLogLevelsUnion = TypeHelper.CreateTypeUnion(new StringLiteralType("Error"), new StringLiteralType("Warning"));
             TypeValidator.AreTypesAssignable(logLevelsUnion, LanguageConstants.String).Should().BeTrue();
             TypeValidator.AreTypesAssignable(logLevelsUnion, stringUnion).Should().BeTrue();
             TypeValidator.AreTypesAssignable(logLevelsUnion, boolIntUnion).Should().BeFalse();
@@ -178,7 +179,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var literalVal1 = new StringLiteralType("evie");
             var literalVal2 = new StringLiteralType("casper");
-            var literalUnion = UnionType.Create(literalVal1, literalVal2);
+            var literalUnion = TypeHelper.CreateTypeUnion(literalVal1, literalVal2);
 
             var genericString = LanguageConstants.String;
             var looseString = LanguageConstants.LooseString;
@@ -505,7 +506,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         [TestMethod]
         public void UnionType_narrowing_and_diagnostics_provides_expected_results()
         {
-            var unionType = UnionType.Create(
+            var unionType = TypeHelper.CreateTypeUnion(
                 LanguageConstants.String,
                 LanguageConstants.Int,
                 LanguageConstants.Bool);
@@ -540,7 +541,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 narrowedType.Should().Be(LanguageConstants.String);
             }
 
-            var stringLiteralUnionType = UnionType.Create(
+            var stringLiteralUnionType = TypeHelper.CreateTypeUnion(
                 new StringLiteralType("dave"),
                 new StringLiteralType("nora"));
 

@@ -105,15 +105,22 @@ namespace Bicep.LangServer.IntegrationTests
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},
@@ -321,15 +328,22 @@ namespace Bicep.LangServer.IntegrationTests
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},
@@ -450,7 +464,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var moduleRegistryProvider = new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features);
             var dispatcher = new ModuleDispatcher(moduleRegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.BuiltInConfiguration);
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(new Uri(bicepFilePath));
 
             return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration);

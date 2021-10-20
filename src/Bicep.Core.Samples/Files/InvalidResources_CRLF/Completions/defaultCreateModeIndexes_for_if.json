@@ -365,7 +365,7 @@
     "detail": "locations (Required)",
     "documentation": {
       "kind": "markdown",
-      "value": "Type: `Location[]`  \nAn array that contains all of the locations enabled for the Cosmos DB account.  \n"
+      "value": "Type: `Location[]`  \nAn array that contains the georeplication locations enabled for the Cosmos DB account.  \n"
     },
     "deprecated": false,
     "preselect": false,
@@ -3154,6 +3154,23 @@
     "commitCharacters": [
       ":"
     ]
+  },
+  {
+    "label": "items",
+    "kind": "function",
+    "detail": "items()",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_items",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "items($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
   },
   {
     "label": "json",

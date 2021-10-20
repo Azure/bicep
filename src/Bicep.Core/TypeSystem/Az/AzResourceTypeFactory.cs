@@ -94,7 +94,7 @@ namespace Bicep.Core.TypeSystem.Az
                 }
                 case Azure.Bicep.Types.Concrete.UnionType unionType:
                 {
-                    return UnionType.Create(unionType.Elements.Select(x => GetTypeReference(x)));
+                    return TypeHelper.CreateTypeUnion(unionType.Elements.Select(x => GetTypeReference(x)));
                 }
                 case Azure.Bicep.Types.Concrete.StringLiteralType stringLiteralType:
                     return new StringLiteralType(stringLiteralType.Value);

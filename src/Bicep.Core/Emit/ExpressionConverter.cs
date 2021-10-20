@@ -118,7 +118,7 @@ namespace Bicep.Core.Emit
             switch (functionCall)
             {
                 case FunctionCallSyntax function:
-                    return ConvertFunction(
+                    return CreateFunction(
                         function.Name.IdentifierName,
                         function.Arguments.Select(a => ConvertExpression(a.Expression)));
 
@@ -133,7 +133,7 @@ namespace Bicep.Core.Emit
                     {
                         case INamespaceSymbol namespaceSymbol:
                             Debug.Assert(indexExpression is null, "Indexing into a namespace should have been blocked by type analysis");
-                            return ConvertFunction(
+                            return CreateFunction(
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
                         case ResourceSymbol resourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is { } resource:
@@ -727,33 +727,6 @@ namespace Bicep.Core.Emit
             throw new NotImplementedException($"Unexpected expression type '{converted.GetType().Name}'.");
         }
 
-        private static LanguageExpression ConvertFunction(string functionName, IEnumerable<LanguageExpression> arguments)
-        {
-            if (ShouldReplaceUnsupportedFunction(functionName, arguments, out var replacementExpression))
-            {
-                return replacementExpression;
-            }
-
-            return CreateFunction(functionName, arguments);
-        }
-
-        private static bool ShouldReplaceUnsupportedFunction(string functionName, IEnumerable<LanguageExpression> arguments, [NotNullWhen(true)] out LanguageExpression? replacementExpression)
-        {
-            switch (functionName)
-            {
-                // These functions have not yet been implemented in ARM. For now, we will just return an empty object if they are accessed directly.
-                case "tenant":
-                case "managementGroup":
-                case "subscription" when arguments.Any():
-                case "resourceGroup" when arguments.Any():
-                    replacementExpression = GetCreateObjectExpression();
-                    return true;
-            }
-
-            replacementExpression = null;
-            return false;
-        }
-
         private FunctionExpression ConvertArray(ArraySyntax syntax)
         {
             // we are using the createArray() function as a proxy for an array literal
@@ -910,6 +883,14 @@ namespace Bicep.Core.Emit
                 return GenerateUnqualifiedResourceId(managementGroupType, new[] { managementGroupName });
             }
         }
+
+        /// <summary>
+        /// Generates a management group id, using the managementGroup() function. Only suitable for use if the template being generated is targeting the management group scope.
+        /// </summary>
+        public static LanguageExpression GenerateCurrentManagementGroupId()
+            => AppendProperties(
+                CreateFunction("managementGroup"),
+                new JTokenExpression("id"));
 
         private static FunctionExpression CreateFunction(string name, params LanguageExpression[] parameters)
             => CreateFunction(name, parameters as IEnumerable<LanguageExpression>);

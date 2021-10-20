@@ -14,24 +14,6 @@ namespace Bicep.Core.TypeSystem.Az
 {
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
-        public const string ResourceIdPropertyName = "id";
-        public const string ResourceLocationPropertyName = "location";
-        public const string ResourceNamePropertyName = "name";
-        public const string ResourceTypePropertyName = "type";
-        public const string ResourceApiVersionPropertyName = "apiVersion";
-
-        /*
-         * The following top-level properties must be set deploy-time constant values,
-         * and it is safe to read them at deploy-time because their values cannot be changed.
-         */
-        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
-        {
-            ResourceIdPropertyName,
-            ResourceNamePropertyName,
-            ResourceTypePropertyName,
-            ResourceApiVersionPropertyName,
-        };
-
         private class ResourceTypeCache
         {
             private class KeyComparer : IEqualityComparer<(ResourceTypeGenerationFlags flags, ResourceTypeReference type)>
@@ -59,10 +41,54 @@ namespace Bicep.Core.TypeSystem.Az
             }
         }
 
+        public const string ResourceIdPropertyName = "id";
+        public const string ResourceLocationPropertyName = "location";
+        public const string ResourceNamePropertyName = "name";
+        public const string ResourceTypePropertyName = "type";
+        public const string ResourceApiVersionPropertyName = "apiVersion";
+
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
         public const string ResourceTypeKeyVault = "Microsoft.KeyVault/vaults";
+
+        /*
+         * The following top-level properties must be set deploy-time constant values,
+         * and it is safe to read them at deploy-time because their values cannot be changed.
+         */
+        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
+        {
+            ResourceIdPropertyName,
+            ResourceNamePropertyName,
+            ResourceTypePropertyName,
+            ResourceApiVersionPropertyName,
+        };
+
+        /*
+         * The following top-level properties must be set deploy-time constant values
+         * when declared in resource bodies. However, it is not safe to read their values
+         * at deploy-time due to the fact that:
+         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
+         *   - Their values may be normalized by RPs
+         *   - Some RPs are doing Put-as-Patch
+         */
+        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
+        {
+            "location",
+            "kind",
+            "subscriptionId",
+            "resourceGroup",
+            "managedBy",
+            "extendedLocation",
+            "zones",
+            "plan",
+            "sku",
+            "identity",
+            "managedByExtended",
+            "tags",
+        };
+
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly IAzResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
@@ -75,6 +101,68 @@ namespace Bicep.Core.TypeSystem.Az
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
         }.ToImmutableHashSet();
+
+        public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
+        {
+            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant);
+            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.Version!), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+        }
+
+        public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
+        {
+            /*
+             * The following properties are intentionally excluded from this model:
+             * - SystemData - this is a read-only property that doesn't belong on PUTs
+             * - id - that is not allowed in templates
+             * - type - included in resource type on resource declarations
+             * - apiVersion - included in resource type on resource declarations
+             */
+
+            foreach (var prop in GetCommonResourceProperties(resourceTypeReference))
+            {
+                yield return prop;
+            }
+
+            foreach (var prop in KnownTopLevelResourceProperties())
+            {
+                yield return prop;
+            }
+        }
+
+        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
+        {
+            yield return new TypeProperty("location", LanguageConstants.String);
+
+            yield return new TypeProperty("tags", Tags);
+
+            yield return new TypeProperty("properties", LanguageConstants.Object);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("sku", LanguageConstants.Object);
+
+            yield return new TypeProperty("kind", LanguageConstants.String);
+            yield return new TypeProperty("managedBy", LanguageConstants.String);
+
+            var stringArray = new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default);
+            yield return new TypeProperty("managedByExtended", stringArray);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("extendedLocation", LanguageConstants.Object);
+
+            yield return new TypeProperty("zones", stringArray);
+
+            yield return new TypeProperty("plan", LanguageConstants.Object);
+
+            yield return new TypeProperty("eTag", LanguageConstants.String);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("scale", LanguageConstants.Object);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("identity", LanguageConstants.Object);
+        }
 
         public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader)
         {
@@ -198,7 +286,7 @@ namespace Bicep.Core.TypeSystem.Az
                 }
 
                 // TODO: move this to the type library.
-                foreach (var propertyName in LanguageConstants.WriteOnlyDeployTimeConstantPropertyNames)
+                foreach (var propertyName in WriteOnlyDeployTimeConstantPropertyNames)
                 {
                     if (properties.TryGetValue(propertyName, out var typeProperty))
                     {
@@ -339,71 +427,5 @@ namespace Bicep.Core.TypeSystem.Az
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
             => availableResourceTypes;
-
-        public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
-        {
-            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant);
-            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            if (reference.Version is not null)
-            {
-                yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.Version), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            }
-        }
-
-        public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
-        {
-            /*
-             * The following properties are intentionally excluded from this model:
-             * - SystemData - this is a read-only property that doesn't belong on PUTs
-             * - id - that is not allowed in templates
-             * - type - included in resource type on resource declarations
-             * - apiVersion - included in resource type on resource declarations
-             */
-
-            foreach (var prop in GetCommonResourceProperties(resourceTypeReference))
-            {
-                yield return prop;
-            }
-
-            foreach (var prop in KnownTopLevelResourceProperties())
-            {
-                yield return prop;
-            }
-        }
-
-        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
-        {
-            yield return new TypeProperty("location", LanguageConstants.String);
-
-            yield return new TypeProperty("tags", LanguageConstants.Tags);
-
-            yield return new TypeProperty("properties", LanguageConstants.Object);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("sku", LanguageConstants.Object);
-
-            yield return new TypeProperty("kind", LanguageConstants.String);
-            yield return new TypeProperty("managedBy", LanguageConstants.String);
-
-            var stringArray = new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default);
-            yield return new TypeProperty("managedByExtended", stringArray);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("extendedLocation", LanguageConstants.Object);
-
-            yield return new TypeProperty("zones", stringArray);
-
-            yield return new TypeProperty("plan", LanguageConstants.Object);
-
-            yield return new TypeProperty("eTag", LanguageConstants.String);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("scale", LanguageConstants.Object);
-
-            // TODO: Model type fully
-            yield return new TypeProperty("identity", LanguageConstants.Object);
-
-        }
     }
 }

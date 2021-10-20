@@ -6,6 +6,7 @@ using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Tracing;
 using Bicep.Core.TypeSystem.Az;
@@ -39,7 +40,8 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null);
+            IFeatureProvider? Features = null,
+            IModuleRestoreScheduler? ModuleRestoreScheduler = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -119,13 +121,14 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IModuleDispatcher, ModuleDispatcher>();
             services.AddSingleton<IFileSystem, FileSystem>();
             services.AddSingleton<IConfigurationManager, ConfigurationManager>();
+            services.AddSingleton<ITokenCredentialFactory, TokenCredentialFactory>();
             services.AddSingleton<ITelemetryProvider, TelemetryProvider>();
             services.AddSingleton<IWorkspace, Workspace>();
             services.AddSingleton<ICompilationManager, BicepCompilationManager>();
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
-            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
+            services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -33,11 +34,14 @@ namespace Bicep.Core.Workspaces
         // uri -> syntax tree load failure 
         private readonly Dictionary<Uri, ErrorBuilderDelegate> errorBuildersByUri;
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace)
+        private readonly RootConfiguration configuration;
+
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, RootConfiguration configuration)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
+            this.configuration = configuration;
             this.sourceFilesByModuleDeclaration = new();
             this.errorBuildersByModuleDeclaration = new();
             this.modulesToRestore = new();
@@ -45,11 +49,12 @@ namespace Bicep.Core.Workspaces
             this.errorBuildersByUri = new();
         }
 
-        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        private SourceFileGroupingBuilder(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, RootConfiguration configuration)
         {
             this.fileResolver = fileResolver;
             this.moduleDispatcher = moduleDispatcher;
             this.workspace = workspace;
+            this.configuration = configuration;
 
             this.sourceFilesByModuleDeclaration = new(current.SourceFilesByModuleDeclaration);
             this.errorBuildersByModuleDeclaration = new(current.ErrorBuildersByModuleDeclaration);
@@ -60,16 +65,16 @@ namespace Bicep.Core.Workspaces
             this.errorBuildersByUri = new();
         }
 
-        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri)
+        public static SourceFileGrouping Build(IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, Uri entryFileUri, RootConfiguration configuration)
         {
-            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace);
+            var builder = new SourceFileGroupingBuilder(fileResolver, moduleDispatcher, workspace, configuration);
 
             return builder.Build(entryFileUri);
         }
 
-        public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current)
+        public static SourceFileGrouping Rebuild(IModuleDispatcher moduleDispatcher, IReadOnlyWorkspace workspace, SourceFileGrouping current, RootConfiguration configuration)
         {
-            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current);
+            var builder = new SourceFileGroupingBuilder(current.FileResolver, moduleDispatcher, workspace, current, configuration);
 
             foreach (var module in current.ModulesToRestore)
             {
@@ -169,7 +174,7 @@ namespace Bicep.Core.Workspaces
 
             foreach (var childModule in GetModuleDeclarations(bicepFile))
             {
-                var childModuleReference = this.moduleDispatcher.TryGetModuleReference(childModule, out var parseReferenceFailureBuilder);
+                var childModuleReference = this.moduleDispatcher.TryGetModuleReference(childModule, this.configuration, out var parseReferenceFailureBuilder);
                 if(childModuleReference is null)
                 {
                     // module reference is not valid
@@ -177,7 +182,7 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, out var restoreErrorBuilder);
+                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, this.configuration, out var restoreErrorBuilder);
                 if (restoreStatus != ModuleRestoreStatus.Succeeded)
                 {
                     if(restoreStatus == ModuleRestoreStatus.Unknown)
@@ -192,7 +197,7 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                var childModuleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, childModuleReference, out var moduleGetPathFailureBuilder);
+                var childModuleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, childModuleReference, this.configuration, out var moduleGetPathFailureBuilder);
                 if (childModuleFileUri is null)
                 {
                     // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:

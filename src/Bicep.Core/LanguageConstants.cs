@@ -103,30 +103,6 @@ namespace Bicep.Core
         public const string TypeNameString = "string";
         public const string TypeNameModule = "module";
 
-        /*
-         * The following top-level properties must be set deploy-time constant values
-         * when declared in resource bodies. However, it is not safe to read their values
-         * at deploy-time due to the fact that:
-         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
-         *   - Their values may be normalized by RPs
-         *   - Some RPs are doing Put-as-Patch
-         */
-        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
-        {
-            "location",
-            "kind",
-            "subscriptionId",
-            "resourceGroup",
-            "managedBy",
-            "extendedLocation",
-            "zones",
-            "plan",
-            "sku",
-            "identity",
-            "managedByExtended",
-            "tags",
-        };
-
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
@@ -136,11 +112,12 @@ namespace Bicep.Core
 
         public const string AnyFunction = "any";
         public static readonly TypeSymbol Any = new AnyType();
+        public static readonly TypeSymbol Never = new UnionType("never", ImmutableArray<ITypeReference>.Empty);
 
         public static readonly TypeSymbol ResourceRef = CreateResourceScopeReference(ResourceScope.Module | ResourceScope.Resource);
 
         // type used for the item type in the dependsOn array type
-        public static readonly TypeSymbol ResourceOrResourceCollectionRefItem = UnionType.Create(
+        public static readonly TypeSymbol ResourceOrResourceCollectionRefItem = TypeHelper.CreateTypeUnion(
             ResourceRef,
             new TypedArrayType(CreateResourceScopeReference(ResourceScope.Module), TypeSymbolValidationFlags.Default),
             new TypedArrayType(CreateResourceScopeReference(ResourceScope.Resource), TypeSymbolValidationFlags.Default));
@@ -169,12 +146,10 @@ namespace Bicep.Core
             ("utf-16", Encoding.Unicode)
         }.ToImmutableArray();
 
-        public static readonly TypeSymbol LoadTextContentEncodings = UnionType.Create(SupportedEncodings.Select(s => new StringLiteralType(s.name)));
+        public static readonly TypeSymbol LoadTextContentEncodings = TypeHelper.CreateTypeUnion(SupportedEncodings.Select(s => new StringLiteralType(s.name)));
 
         // declares the description property but also allows any other property of any type
         public static readonly TypeSymbol ParameterModifierMetadata = new ObjectType(nameof(ParameterModifierMetadata), TypeSymbolValidationFlags.Default, CreateParameterModifierMetadataProperties(), Any, TypePropertyFlags.Constant);
-
-        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), String, TypePropertyFlags.None);
 
         // types allowed to use in output and parameter declarations
         public static readonly ImmutableSortedDictionary<string, TypeSymbol> DeclarationTypes = new[] { String, Object, Int, Bool, Array }.ToImmutableSortedDictionary(type => type.Name, type => type, StringComparer.Ordinal);

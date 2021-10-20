@@ -1190,7 +1190,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
                     ResourceScope.ResourceGroup,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent/child@2020-10-01",
-                        ("name", UnionType.Create(new StringLiteralType("val1"), new StringLiteralType("val2"))),
+                        ("name", TypeHelper.CreateTypeUnion(new StringLiteralType("val1"), new StringLiteralType("val2"))),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
                                 ("onlyOnEnum", LanguageConstants.Bool))))),
@@ -1650,6 +1650,32 @@ resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
             result.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Warning, "The property \"valThatDoesNotExist\" from source declaration \"vmNotWorkingProps\" is not allowed on objects of type \"VirtualMachineProperties\". Permissible properties include \"additionalCapabilities\", \"availabilitySet\", \"billingProfile\", \"diagnosticsProfile\", \"evictionPolicy\", \"extensionsTimeBudget\", \"hardwareProfile\", \"host\", \"hostGroup\", \"licenseType\", \"networkProfile\", \"osProfile\", \"priority\", \"proximityPlacementGroup\", \"securityProfile\", \"storageProfile\", \"virtualMachineScaleSet\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
+        }
+
+        [TestMethod]
+        // https://github.com/azure/bicep/issues/2535
+        public void Test_Issue2535()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+resource mg 'Microsoft.Management/managementGroups@2020-05-01' = {
+  name: 'MyChildMG'
+  scope: tenant()
+  properties: {
+    displayName: 'This should be a child of MyParentMG'
+    details: {
+      parent: managementGroup()
+    }
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[0].properties.details.parent", "[managementGroup()]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.resources[0].properties.details.parent.id", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f");
         }
 
         [TestMethod]
@@ -2723,6 +2749,51 @@ output test string = '${port}'
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
             evaluated.Should().HaveValueAtPath("$.outputs['test'].value", "1234", "the evaluated output should be of type string");
+        }
+
+        // https://github.com/Azure/bicep/issues/1228
+        [TestMethod]
+        public void Test_Issue1228()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+resource policy01 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
+  name: 'Allowed locations'
+  properties: {
+    policyType: 'Custom'
+    mode: 'All'
+    policyRule: {
+      if: {
+         field: 'location'
+         notIn: [
+           'westeurope'
+        ]
+      }
+      then: {
+         effect: 'Deny'
+      }
+   }
+  }
+}
+
+resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {
+  name: 'Default initiative'
+  properties: {
+    policyDefinitions: [
+      {
+        policyDefinitionId: policy01.id
+//        policyDefinitionId: '/providers/Microsoft.Management/managementGroups/MYMANAGEMENTGROUP/providers/${policy01.id}'
+      }
+    ]
+  }
+}
+");
+
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'Allowed locations')]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
         }
     }
 }

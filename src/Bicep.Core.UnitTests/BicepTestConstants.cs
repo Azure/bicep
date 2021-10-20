@@ -1,22 +1,26 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Emit;
+using System.Collections.Generic;
 using Bicep.Core.Configuration;
+using Bicep.Core.Emit;
+using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Json;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.LanguageServer.Registry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 
 namespace Bicep.Core.UnitTests
 {
-    public static class BicepTestConstants 
+    public static class BicepTestConstants
     {
         public const string DevAssemblyFileVersion = "dev";
 
@@ -47,12 +51,14 @@ namespace Bicep.Core.UnitTests
 
         public static readonly RootConfiguration BuiltInConfigurationWithAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
 
+        public static readonly IModuleRestoreScheduler ModuleRestoreScheduler = CreateMockModuleRestoreScheduler();
+
         public static IFeatureProvider CreateFeaturesProvider(
             TestContext testContext,
             bool registryEnabled = false,
             bool symbolicNameCodegenEnabled = false,
             bool importsEnabled = false,
-            string assemblyFileVersion = BicepTestConstants.DevAssemblyFileVersion)
+            string assemblyFileVersion = DevAssemblyFileVersion)
         {
             var mock = CreateMockFeaturesProvider(
                 registryEnabled: registryEnabled,
@@ -66,6 +72,36 @@ namespace Bicep.Core.UnitTests
             return mock.Object;
         }
 
+        public static RootConfiguration CreateMockConfiguration(Dictionary<string, object>? customConfigurationData = null, string? configurationPath = null)
+        {
+            var configurationData = new Dictionary<string, object>
+            {
+                ["cloud.currentProfile"] = "AzureCloud",
+                ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid",
+                ["cloud.credentialPrecedence"] = new[] { "AzureCLI", "AzurePowerShell" },
+                ["moduleAliases"] = new Dictionary<string, object>(),
+                ["analyzers"] = new Dictionary<string, object>(),
+            };
+
+            if (customConfigurationData is not null)
+            {
+                foreach (var (path, value) in customConfigurationData)
+                {
+                    configurationData[path] = value;
+                }
+            }
+
+            var element = JsonElementFactory.CreateElement("{}");
+
+            foreach (var (path, value) in configurationData)
+            {
+                element = element.SetPropertyByPath(path, value);
+            }
+
+            return RootConfiguration.Bind(element, configurationPath);
+        }
+
         private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled, string assemblyFileVersion)
         {
             var mock = StrictMock.Of<IFeatureProvider>();
@@ -75,6 +111,12 @@ namespace Bicep.Core.UnitTests
             mock.SetupGet(m => m.AssemblyVersion).Returns(assemblyFileVersion);
 
             return mock;
+        }
+
+        private static IModuleRestoreScheduler CreateMockModuleRestoreScheduler()
+        {
+            var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
+            return new ModuleRestoreScheduler(moduleDispatcher.Object);
         }
     }
 }

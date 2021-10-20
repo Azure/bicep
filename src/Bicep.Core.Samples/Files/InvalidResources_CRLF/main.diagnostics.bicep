@@ -2036,7 +2036,6 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
     definition: ''
   }
   identity: {
-//@[2:10) [BCP187 (Warning)] The property "identity" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |identity|
     type: 'SystemAssigned'
   }
   extendedLocation: {}
@@ -2073,8 +2072,7 @@ resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
     definition: ''
   }
   identity: 'SystemAssigned'
-//@[2:10) [BCP187 (Warning)] The property "identity" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |identity|
-//@[12:28) [BCP036 (Error)] The property "identity" expected a value of type "object" but the provided value is of type "'SystemAssigned'". (CodeDescription: none) |'SystemAssigned'|
+//@[12:28) [BCP036 (Error)] The property "identity" expected a value of type "ManagedServiceIdentity | null" but the provided value is of type "'SystemAssigned'". (CodeDescription: none) |'SystemAssigned'|
   extendedLocation: 'eastus'
 //@[2:18) [BCP187 (Warning)] The property "extendedLocation" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |extendedLocation|
 //@[20:28) [BCP036 (Error)] The property "extendedLocation" expected a value of type "object" but the provided value is of type "'eastus'". (CodeDescription: none) |'eastus'|

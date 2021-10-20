@@ -5,6 +5,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -16,7 +17,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoUnusedParametersRule() : base(
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
-            docUri: new System.Uri("https://aka.ms/bicep/linter/no-unused-params"),
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
             diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary)
         { }
 

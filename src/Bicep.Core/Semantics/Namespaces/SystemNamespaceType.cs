@@ -48,7 +48,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("concat")
                 .WithReturnType(LanguageConstants.String)
                 .WithDescription("Combines multiple string, integer, or boolean values and returns them as a concatenated string.")
-                .WithVariableParameter("arg", UnionType.Create(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool), minimumCount: 1, "The string, int, or boolean value for concatenation")
+                .WithVariableParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool), minimumCount: 1, "The string, int, or boolean value for concatenation")
                 .Build(),
 
             new FunctionOverloadBuilder("format")
@@ -67,7 +67,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("padLeft")
                 .WithReturnType(LanguageConstants.String)
                 .WithDescription("Returns a right-aligned string by adding characters to the left until reaching the total specified length.")
-                .WithRequiredParameter("valueToPad", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), "The value to right-align.")
+                .WithRequiredParameter("valueToPad", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), "The value to right-align.")
                 .WithRequiredParameter("totalLength", LanguageConstants.Int, "The total number of characters in the returned string.")
                 .WithOptionalParameter("paddingCharacter", LanguageConstants.String, "The character to use for left-padding until the total length is reached. The default value is a space.")
                 .Build(),
@@ -95,14 +95,14 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("length")
                 .WithReturnType(LanguageConstants.Int)
                 .WithDescription("Returns the number of characters in a string, elements in an array, or root-level properties in an object.")
-                .WithRequiredParameter("arg", UnionType.Create(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array), "The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties.")
+                .WithRequiredParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object, LanguageConstants.Array), "The array to use for getting the number of elements, the string to use for getting the number of characters, or the object to use for getting the number of root-level properties.")
                 .Build(),
 
             new FunctionOverloadBuilder("split")
                 .WithReturnType(LanguageConstants.Array)
                 .WithDescription("Returns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The string to split.")
-                .WithRequiredParameter("delimiter", UnionType.Create(LanguageConstants.String, LanguageConstants.Array), "The delimiter to use for splitting the string.")
+                .WithRequiredParameter("delimiter", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array), "The delimiter to use for splitting the string.")
                 .Build(),
 
             new FunctionOverloadBuilder("string")
@@ -114,7 +114,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("int")
                 .WithReturnType(LanguageConstants.Int)
                 .WithDescription("Converts the specified value to an integer.")
-                .WithRequiredParameter("valueToConvert", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), "The value to convert to an integer.")
+                .WithRequiredParameter("valueToConvert", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), "The value to convert to an integer.")
                 .Build(),
 
             new FunctionOverloadBuilder("uniqueString")
@@ -182,7 +182,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("empty")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithDescription("Determines if an array, object, or string is empty.")
-                .WithRequiredParameter("itemToTest", UnionType.Create(LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.Array, LanguageConstants.String), "The value to check if it is empty.")
+                .WithRequiredParameter("itemToTest", TypeHelper.CreateTypeUnion(LanguageConstants.Null, LanguageConstants.Object, LanguageConstants.Array, LanguageConstants.String), "The value to check if it is empty.")
                 .Build(),
 
             new FunctionOverloadBuilder("contains")
@@ -422,7 +422,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
                 .WithDynamicReturnType(LoadContentAsBase64TypeBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
-                .Build()
+                .Build(),
+
+            new FunctionOverloadBuilder("items")
+                .WithDescription("Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.")
+                .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys and values for")
+                .WithDynamicReturnType(ItemsTypeBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
+                .Build(),
         }.ToImmutableArray();
 
         private static Uri? GetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, string filePath, SyntaxBase filePathArgument)
@@ -517,6 +523,50 @@ namespace Bicep.Core.Semantics.Namespaces
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
         }
 
+        private static TypeSymbol GetItemsReturnType(TypeSymbol keyType, TypeSymbol valueType)
+            => new TypedArrayType(
+                new ObjectType(
+                    "object",
+                    TypeSymbolValidationFlags.Default,
+                    new [] {
+                        new TypeProperty("key", keyType, description: "The key of the object property being iterated over."),
+                        new TypeProperty("value", valueType, description: "The value of the object property being iterated over."),
+                    },
+                    null),
+                TypeSymbolValidationFlags.Default);
+
+        private static TypeSymbol ItemsTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            if (argumentTypes[0] is not ObjectType objectType)
+            {
+                return GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any);
+            }
+
+            var keyTypes = new List<TypeSymbol>();
+            var valueTypes = new List<TypeSymbol>();
+            foreach (var property in objectType.Properties.Values)
+            {
+                if (property.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                {
+                    // we're reading the values - exclude write-only properties
+                    continue;
+                }
+
+                keyTypes.Add(new StringLiteralType(property.Name));
+                valueTypes.Add(property.TypeReference.Type);
+            }
+
+            if (objectType.AdditionalPropertiesType?.Type is {} additionalPropertiesType)
+            {
+                keyTypes.Add(LanguageConstants.String);
+                valueTypes.Add(additionalPropertiesType);
+            }
+
+            return GetItemsReturnType(
+                keyType: TypeHelper.CreateTypeUnion(keyTypes),
+                valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any);
+        }
+
         private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
             static TypeSymbol ToBicepType(JToken token)
@@ -527,7 +577,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         @object.Properties().Select(x => new TypeProperty(x.Name, ToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
                         null),
                     JArray @array => new TypedArrayType(
-                        UnionType.Create(@array.Select(x => ToBicepType(x))),
+                        TypeHelper.CreateTypeUnion(@array.Select(x => ToBicepType(x))),
                         TypeSymbolValidationFlags.Default),
                     JValue value => value.Type switch {
                         JTokenType.String => new StringLiteralType(value.ToString()),
@@ -621,7 +671,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return new DecoratorBuilder(LanguageConstants.ParameterSecurePropertyName)
                 .WithDescription("Makes the parameter a secure parameter.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Object))
+                .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Object))
                 .WithEvaluator((_, targetType, targetObject) =>
                 {
                     if (ReferenceEquals(targetType, LanguageConstants.String))
@@ -686,7 +736,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the minimum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The minimum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
+                .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMinLengthPropertyName, SingleArgumentSelector))
                 .Build();
@@ -695,7 +745,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithDescription("Defines the maximum length of the parameter.")
                 .WithRequiredParameter("length", LanguageConstants.Int, "The maximum length.")
                 .WithFlags(FunctionFlags.ParameterDecorator)
-                .WithAttachableType(UnionType.Create(LanguageConstants.String, LanguageConstants.Array))
+                .WithAttachableType(TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Array))
                 .WithValidator(ValidateLength)
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.ParameterMaxLengthPropertyName, SingleArgumentSelector))
                 .Build();

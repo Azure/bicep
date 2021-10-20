@@ -16,7 +16,6 @@ using Bicep.Core.Rewriters;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Decompiler
@@ -121,8 +120,9 @@ namespace Bicep.Decompiler
         {
             var hasChanges = false;
             var dispatcher = new ModuleDispatcher(this.registryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration());
+            var configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
+            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration);
 
             foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
             {
@@ -139,8 +139,8 @@ namespace Bicep.Decompiler
                     var newFile = new BicepFile(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
                     workspace.UpsertSourceFile(newFile);
 
-                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri);
-                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration());
+                    sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
+                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration);
                 }
             }
 

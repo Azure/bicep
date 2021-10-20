@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17745481455827955903"
+      "templateHash": "167637713640915716"
     }
   },
   "parameters": {
@@ -220,9 +220,13 @@
     "isFalse": "[not(variables('isTrue'))]",
     "someText": "[if(variables('isTrue'), concat('a', concat('b', 'c')), 'someText')]",
     "scopesWithoutArmRepresentation": {
-      "tenant": "[createObject()]",
       "subscription": "[createObject()]",
       "resourceGroup": "[createObject()]"
+    },
+    "scopesWithArmRepresentation": {
+      "tenant": "[tenant()]",
+      "subscription": "[subscription()]",
+      "resourceGroup": "[resourceGroup()]"
     },
     "issue1332_propname": "ptest",
     "issue1332": "[if(true(), createObject('prop1', createObject(format('{0}', variables('issue1332_propname')), createObject())), createObject())]",

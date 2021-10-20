@@ -104,7 +104,7 @@ namespace Bicep.LanguageServer.Handlers
                 && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                 && matchingNodes[^2] is StringSyntax stringToken
                 && context.Compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
-                && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, out _) is { } moduleReference)
+                && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, context.Compilation.Configuration, out _) is { } moduleReference)
             {
                 // goto beginning of the module file.
                 return Task.FromResult(GetModuleDefinitionLocation(
@@ -131,8 +131,12 @@ namespace Bicep.LanguageServer.Handlers
             // the client expectation when the user navigates to a file with a bicep-cache:// URI is to request file content
             // via the textDocument/bicepCache LSP request implemented in the BicepRegistryCacheRequestHandler.
 
-            // the fully qualified reference has a : that needs to be url-encoded
-            return new Uri($"bicep-cache:///{WebUtility.UrlEncode(moduleReference.FullyQualifiedReference)}");
+            // The file path and fully qualified reference may contain special characters (like :) that needs to be url-encoded.
+            var sourceFilePath = WebUtility.UrlEncode(sourceFile.FileUri.AbsolutePath);
+            var fullyQualifiedReference = WebUtility.UrlEncode(moduleReference.FullyQualifiedReference);
+
+            // Encode the source file path as a path and the fully qualified reference as a fragment.
+            return new Uri($"bicep-cache:///{sourceFilePath}#{fullyQualifiedReference}");
         }
 
         private static Task<LocationOrLocationLinks> HandleDeclaredDefinitionLocationAsync(DefinitionParams request, SymbolResolutionResult result, DeclaredSymbol declaration)

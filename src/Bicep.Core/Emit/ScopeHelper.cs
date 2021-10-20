@@ -249,17 +249,19 @@ namespace Bicep.Core.Emit
                     // We've got to DIY it, unfortunately. The resourceId() function behaves differently when used at different scopes, so is unsuitable here.
                     return ExpressionConverter.GenerateExtensionResourceId(scope, fullyQualifiedType, nameSegments);
                 case ResourceScope.ManagementGroup:
+                    LanguageExpression mgScope;
                     if (scopeData.ManagementGroupNameProperty != null)
                     {
-                        var managementGroupScope = converter.GenerateManagementGroupResourceId(scopeData.ManagementGroupNameProperty, true);
-
-                        return ExpressionConverter.GenerateExtensionResourceId(managementGroupScope, fullyQualifiedType, nameSegments);
+                        mgScope = converter.GenerateManagementGroupResourceId(scopeData.ManagementGroupNameProperty, true);
+                    }
+                    else 
+                    {
+                        // use managementGroup().id to format the scope. This will only work at management group scope,
+                        // but we only permit referencing a parameter-less management group function at this scope.
+                        mgScope = ExpressionConverter.GenerateCurrentManagementGroupId();
                     }
 
-                    // We need to do things slightly differently for Management Groups, because there is no IL to output for "Give me a fully-qualified resource id at the current scope",
-                    // and we don't even have a mechanism for reliably getting the current scope (e.g. something like 'deployment().scope'). There are plans to add a managementGroupResourceId function,
-                    // but until we have it, we should generate unqualified resource Ids. There should not be a risk of collision, because we do not allow mixing of resource scopes in a single bicep file.
-                    return ExpressionConverter.GenerateUnqualifiedResourceId(fullyQualifiedType, nameSegments);
+                    return ExpressionConverter.GenerateExtensionResourceId(mgScope, fullyQualifiedType, nameSegments);
                 case ResourceScope.Resource:
                     if (scopeData.ResourceScope is not { } resource)
                     {

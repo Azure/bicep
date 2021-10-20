@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
@@ -77,9 +78,9 @@ namespace Bicep.Core.UnitTests.Modules
         }
 
         // bad
-        [DataRow("", "BCP193", "The specified OCI artifact reference \"br:\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
-        [DataRow("a", "BCP193", "The specified OCI artifact reference \"br:a\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
-        [DataRow("a/", "BCP193", "The specified OCI artifact reference \"br:a/\" is not valid. Specify a reference in the format of \"br:<artifact uri>:<tag>\".")]
+        [DataRow("", "BCP193", "The specified OCI artifact reference \"br:\" is not valid. Specify a reference in the format of \"br:<artifact-uri>:<tag>\", or \"br/<module-alias>:<module-name-or-path>:<tag>\".")]
+        [DataRow("a", "BCP193", "The specified OCI artifact reference \"br:a\" is not valid. Specify a reference in the format of \"br:<artifact-uri>:<tag>\", or \"br/<module-alias>:<module-name-or-path>:<tag>\".")]
+        [DataRow("a/", "BCP193", "The specified OCI artifact reference \"br:a/\" is not valid. Specify a reference in the format of \"br:<artifact-uri>:<tag>\", or \"br/<module-alias>:<module-name-or-path>:<tag>\".")]
         [DataRow("a/b", "BCP196", "The specified OCI artifact reference \"br:a/b\" is not valid. The module tag is missing.")]
         [DataRow("a/b:", "BCP196", "The specified OCI artifact reference \"br:a/b:\" is not valid. The module tag is missing.")]
         [DataRow("a/b:$", "BCP198", "The specified OCI artifact reference \"br:a/b:$\" is not valid. The tag \"$\" is not valid. Valid characters are alphanumeric, \".\", \"_\", or \"-\" but the tag cannot begin with \".\", \"_\", or \"-\".")]
@@ -94,7 +95,7 @@ namespace Bicep.Core.UnitTests.Modules
         [DataTestMethod]
         public void InvalidReferencesShouldProduceExpectedError(string value, string expectedCode, string expectedError)
         {
-            OciArtifactModuleReference.TryParse(value, out var failureBuilder).Should().BeNull();
+            OciArtifactModuleReference.TryParse(null, value, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder).Should().BeNull();
             failureBuilder!.Should().NotBeNull();
 
             using (new AssertionScope())
@@ -126,9 +127,63 @@ namespace Bicep.Core.UnitTests.Modules
             first.GetHashCode().Should().NotBe(second.GetHashCode());
         }
 
+        [DataTestMethod]
+        [DataRow("")]
+        [DataRow(" ")]
+        [DataRow("****")]
+        [DataRow("/")]
+        [DataRow(":")]
+        [DataRow("foo bar ÄÄÄ")]
+        public void TryParse_InvalidAliasName_ReturnsNullAndSetsErrorDiagnostic(string aliasName)
+        {
+            var reference = OciArtifactModuleReference.TryParse(aliasName, "", BicepTestConstants.BuiltInConfiguration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            errorBuilder!.Should().HaveCode("BCP211");
+            errorBuilder!.Should().HaveMessage($"The module alias name \"{aliasName}\" is invalid. Valid characters are alphanumeric, \"_\", or \"-\".");
+        }
+
+        [DataTestMethod]
+        [DataRow("myRegistry", "path/to/module:v1", null, "BCP213", "The OCI artifact module alias name \"myRegistry\" does not exist in the built-in Bicep configuration.")]
+        [DataRow("myModulePath", "myModule:v2", "bicepconfig.json", "BCP213", "The OCI artifact module alias name \"myModulePath\" does not exist in the Bicep configuration \"bicepconfig.json\".")]
+        public void TryParse_AliasNotInConfiguration_ReturnsNullAndSetsError(string aliasName, string referenceValue, string? configurationPath, string expectedCode, string expectedMessage)
+        {
+            var configuration = BicepTestConstants.CreateMockConfiguration(configurationPath: configurationPath);
+
+            var reference = OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().HaveCode(expectedCode);
+            errorBuilder!.Should().HaveMessage(expectedMessage);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetInvalidAliasData), DynamicDataSourceType.Method)]
+        public void TryParse_InvalidAlias_ReturnsNullAndSetsError(string aliasName, string referenceValue, RootConfiguration configuration, string expectedCode, string expectedMessage)
+        {
+            var reference = OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().BeNull();
+            ((object?)errorBuilder).Should().NotBeNull();
+            errorBuilder!.Should().HaveCode(expectedCode);
+            errorBuilder!.Should().HaveMessage(expectedMessage);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidAliasData), DynamicDataSourceType.Method)]
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName,  string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        {
+            var reference = OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
+
+            reference.Should().NotBeNull();
+            reference!.FullyQualifiedReference.Should().Be(fullyQualifiedReferenceValue);
+        }
+
+
         private static OciArtifactModuleReference Parse(string package)
         {
-            var parsed = OciArtifactModuleReference.TryParse(package, out var failureBuilder);
+            var parsed = OciArtifactModuleReference.TryParse(null, package, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out var failureBuilder);
             failureBuilder!.Should().BeNull();
             parsed.Should().NotBeNull();
             return parsed!;
@@ -150,6 +205,66 @@ namespace Bicep.Core.UnitTests.Modules
             yield return CreateRow("example.com/" + ExampleRepositoryOfMaxLength + ":v3", "example.com", ExampleRepositoryOfMaxLength, "v3");
             yield return CreateRow(ExampleRegistryOfMaxLength + "/hello/there:1.0", ExampleRegistryOfMaxLength, "hello/there", "1.0");
         }
+
+        private static IEnumerable<object[]> GetInvalidAliasData()
+        {
+            yield return new object[]
+            {
+                "myModulePath",
+                "myModule:v1",
+                BicepTestConstants.CreateMockConfiguration(
+                    new()
+                    {
+                        ["moduleAliases.br.myModulePath.modulePath"] = "path",
+                    }),
+                "BCP216",
+                "The OCI artifact module alias \"myModulePath\" in the built-in Bicep configuration is invalid. The \"registry\" property cannot be null or undefined.",
+            };
+
+            yield return new object[]
+            {
+                "myModulePath2",
+                "myModule:v2",
+                BicepTestConstants.CreateMockConfiguration(
+                    new()
+                    {
+                        ["moduleAliases.br.myModulePath2.modulePath"] = "path2",
+                    },
+                    "bicepconfig.json"),
+                "BCP216",
+                "The OCI artifact module alias \"myModulePath2\" in the Bicep configuration \"bicepconfig.json\" is invalid. The \"registry\" property cannot be null or undefined.",
+            };
+        }
+
+        private static IEnumerable<object[]> GetValidAliasData()
+        {
+            yield return new object[]
+            {
+                "myModulePath",
+                "mymodule:v1",
+                "br:example.com/path/mymodule:v1",
+                BicepTestConstants.CreateMockConfiguration(new()
+                {
+                    ["moduleAliases.br.myModulePath.registry"] = "example.com",
+                    ["moduleAliases.br.myModulePath.modulePath"] = "path",
+                }),
+            };
+
+            yield return new object[]
+            {
+                "myModulePath2",
+                "mymodule:v2",
+                "br:localhost:8000/root/parent/mymodule:v2",
+                BicepTestConstants.CreateMockConfiguration(
+                    new()
+                    {
+                        ["moduleAliases.br.myModulePath2.registry"] = "localhost:8000",
+                        ["moduleAliases.br.myModulePath2.modulePath"] = "root/parent",
+                    },
+                    "bicepconfig.json"),
+            };
+        }
+
 
         public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((ValidCase)data[0]).Value}";
     }

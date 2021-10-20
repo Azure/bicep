@@ -28,7 +28,7 @@ namespace Bicep.LangServer.IntegrationTests
 {
     public static class IntegrationTestHelper
     {
-        private const int DefaultTimeout = 20000;
+        private const int DefaultTimeout = 30000;
 
         public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager);
 
@@ -41,13 +41,14 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions = creationOptions with
             {
                 SnippetsProvider = creationOptions.SnippetsProvider ?? SnippetsProvider,
-                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>())
+                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string>()),
+                ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler
             };
 
             var server = new Server(serverPipe.Reader, clientPipe.Writer, creationOptions);
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
-            
-            var client = LanguageClient.PreInit(options => 
+
+            var client = LanguageClient.PreInit(options =>
             {
                 options
                     .WithInput(clientPipe.Reader)
@@ -104,7 +105,8 @@ namespace Bicep.LangServer.IntegrationTests
             creationOptions ??= new Server.CreationOptions();
             creationOptions = creationOptions with
             {
-                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, })
+                FileResolver = creationOptions.FileResolver ?? new InMemoryFileResolver(new Dictionary<Uri, string> { [documentUri.ToUri()] = text, }),
+                ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler
             };
             var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
                 testContext,

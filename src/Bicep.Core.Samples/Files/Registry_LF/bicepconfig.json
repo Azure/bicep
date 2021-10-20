@@ -1,0 +1,19 @@
+{
+  "moduleAliases": {
+    "ts": {
+      "mySpecRG": {
+        "subscription": "00000000-0000-0000-0000-000000000000",
+        "resourceGroup": "test-rg"
+      }
+    },
+    "br": {
+      "mock-registry-one": {
+        "registry": "mock-registry-one.invalid"
+      },
+      "demo-two": {
+        "registry": "mock-registry-two.invalid",
+        "modulePath": "demo"
+      }
+    }
+  }
+}

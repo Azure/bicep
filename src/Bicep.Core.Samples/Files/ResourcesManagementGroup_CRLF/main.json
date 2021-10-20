@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4677180672072707203"
+      "templateHash": "2821996608423621848"
     }
   },
   "parameters": {
@@ -43,7 +43,7 @@
         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
       },
       "dependsOn": [
-        "[format('Microsoft.Authorization/roleAssignments/{0}', guid('owner', parameters('ownerPrincipalId')))]"
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/roleAssignments', guid('owner', parameters('ownerPrincipalId')))]"
       ]
     },
     {
@@ -59,8 +59,8 @@
         "roleDefinitionId": "b24988ac-6180-42a0-ab88-20f7382dd24c"
       },
       "dependsOn": [
-        "[format('Microsoft.Authorization/roleAssignments/{0}', guid('contributor', parameters('contributorPrincipals')[0]))]",
-        "[format('Microsoft.Authorization/roleAssignments/{0}', guid('owner', parameters('ownerPrincipalId')))]"
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/roleAssignments', guid('contributor', parameters('contributorPrincipals')[0]))]",
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/roleAssignments', guid('owner', parameters('ownerPrincipalId')))]"
       ]
     },
     {

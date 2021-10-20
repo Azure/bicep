@@ -29,7 +29,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public NoHardcodedEnvironmentUrlsRule() : base(
             code: Code,
             description: CoreResources.EnvironmentUrlHardcodedRuleDescription,
-            docUri: new Uri("https://aka.ms/bicep/linter/no-hardcoded-env-urls"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         {
         }
 
@@ -37,8 +37,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             base.Configure(config);
 
-            this.disallowedHosts = this.GetConfigurationValue(nameof(DisallowedHosts), Array.Empty<string>()).ToImmutableArray();
-            this.excludedHosts = this.GetConfigurationValue(nameof(ExcludedHosts), Array.Empty<string>()).ToImmutableArray();
+            this.disallowedHosts = this.GetConfigurationValue(nameof(DisallowedHosts).ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
+            this.excludedHosts = this.GetConfigurationValue(nameof(ExcludedHosts).ToLowerInvariant(), Array.Empty<string>()).ToImmutableArray();
 
             this.minimumHostLength = this.disallowedHosts.Any() ? this.disallowedHosts.Min(h => h.Length) : 0;
             this.HasHosts = this.disallowedHosts.Any();
