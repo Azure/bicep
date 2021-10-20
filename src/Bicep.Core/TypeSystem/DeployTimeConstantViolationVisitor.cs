@@ -7,6 +7,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -95,9 +96,9 @@ namespace Bicep.Core.TypeSystem
                 declaringResource.TryGetBody() is { } bodySyntax)
             {
                 var declaredTopLevelPropertyNames = bodySyntax.ToNamedPropertyDictionary().Keys
-                    .Append(LanguageConstants.ResourceIdPropertyName)
-                    .Append(LanguageConstants.ResourceTypePropertyName)
-                    .Append(LanguageConstants.ResourceApiVersionPropertyName);
+                    .Append(AzResourceTypeProvider.ResourceIdPropertyName)
+                    .Append(AzResourceTypeProvider.ResourceTypePropertyName)
+                    .Append(AzResourceTypeProvider.ResourceApiVersionPropertyName);
 
                 accessiblePropertyNames = accessiblePropertyNames.Intersect(declaredTopLevelPropertyNames, LanguageConstants.IdentifierComparer);
             }

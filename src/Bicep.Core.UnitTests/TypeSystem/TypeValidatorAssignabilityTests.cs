@@ -10,6 +10,7 @@ using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -54,7 +55,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Array).Should().BeTrue();
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Object).Should().BeTrue();
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Null).Should().BeTrue();
-            TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.Tags).Should().BeTrue();
+            TypeValidator.AreTypesAssignable(LanguageConstants.Any, AzResourceTypeProvider.Tags).Should().BeTrue();
             TypeValidator.AreTypesAssignable(LanguageConstants.Any, LanguageConstants.ParameterModifierMetadata).Should().BeTrue();
         }
 
@@ -95,7 +96,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             TypeValidator.AreTypesAssignable(LanguageConstants.Array, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.Object, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.Null, never).Should().BeFalse();
-            TypeValidator.AreTypesAssignable(LanguageConstants.Tags, never).Should().BeFalse();
+            TypeValidator.AreTypesAssignable(AzResourceTypeProvider.Tags, never).Should().BeFalse();
             TypeValidator.AreTypesAssignable(LanguageConstants.ParameterModifierMetadata, never).Should().BeFalse();
         }
 

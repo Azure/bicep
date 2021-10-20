@@ -25,7 +25,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
     {
         private static readonly ImmutableHashSet<string> ExpectedLoopVariantProperties = new[]
         {
-            LanguageConstants.ResourceNamePropertyName,
+            AzResourceTypeProvider.ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName
         }.ToImmutableHashSet(LanguageConstants.IdentifierComparer);
@@ -79,13 +79,13 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                     var topLevelProperties = GetTopLevelProperties(resourceType);
                     var symbolicProperties = topLevelProperties.Where(property => IsSymbolicProperty(property));
                     symbolicProperties.Should().NotBeEmpty();
-                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny), $"because all symbolic properties in type '{availableType.FullyQualifiedType}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.DisallowAny)} flag.");
+                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny), $"because all symbolic properties in type '{availableType.FormatType()}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.DisallowAny)} flag.");
 
                     var loopVariantProperties = topLevelProperties.Where(property =>
                         ExpectedLoopVariantProperties.Contains(property.Name) &&
                         (!string.Equals(property.Name, LanguageConstants.ResourceScopePropertyName, LanguageConstants.IdentifierComparison) || IsSymbolicProperty(property)));
                     loopVariantProperties.Should().NotBeEmpty();
-                    loopVariantProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant), $"because all loop variant properties in type '{availableType.FullyQualifiedType}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.LoopVariant)} flag.");
+                    loopVariantProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant), $"because all loop variant properties in type '{availableType.FormatType()}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.LoopVariant)} flag.");
 
                     if (flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
                     {
