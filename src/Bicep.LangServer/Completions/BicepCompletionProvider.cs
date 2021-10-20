@@ -208,7 +208,7 @@ namespace Bicep.LanguageServer.Completions
                 // for the FQT, and then create a "no version" completion + a completion for each version.
                 var filtered = model.Binder.NamespaceResolver.GetAvailableResourceTypes()
                     .Where(rt => parentTypeReference.IsParentOf(rt))
-                    .ToLookup(rt => rt.FullyQualifiedType);
+                    .ToLookup(rt => rt.FormatType());
 
                 var index = 0;
                 var items = new List<CompletionItem>();
@@ -236,8 +236,8 @@ namespace Bicep.LanguageServer.Completions
                 // newest api versions should be shown first
                 // strict filtering on type so that we show api versions for only the selected type
                 return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FullyQualifiedType))
-                    .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FormatType()))
+                    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
                     .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
                     .ToList();
@@ -248,9 +248,9 @@ namespace Bicep.LanguageServer.Completions
             // we still order by apiVersion first to have consistent indexes
             return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
                 .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                .GroupBy(rt => rt.FullyQualifiedType)
+                .GroupBy(rt => rt.FormatType())
                 .Select(rt => rt.First())
-                .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false))
                 .ToList();
         }
@@ -1014,21 +1014,21 @@ namespace Bicep.LanguageServer.Completions
             // Splitting ResourceType Completion in to two pieces, one for the 'Namespace/type', the second for '@<api-version>'
             if (showApiVersion)
             {
-                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}@{resourceType.ApiVersion}");
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}@{resourceType.ApiVersion}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, resourceType.ApiVersion)
                     .WithFilterText(insertText)
                     .WithPlainTextEdit(replacementRange, insertText)
-                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
+                    .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
             }
             else
             {
-                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}");
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
-                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}`")
+                    .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
                     .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
@@ -1044,7 +1044,7 @@ namespace Bicep.LanguageServer.Completions
                 StringUtils.EscapeBicepString($"{resourceType.Types[^1]}");
             return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                 .WithPlainTextEdit(replacementRange, insertText)
-                .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{displayApiVersion}`")
+                .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}API Version: `{displayApiVersion}`")
                 // 8 hex digits is probably overkill :)
                 .WithSortText(index.ToString("x8"))
                 .Build();

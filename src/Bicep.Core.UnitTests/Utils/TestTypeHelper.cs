@@ -57,7 +57,7 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var reference = ResourceTypeReference.Parse($"{fullyQualifiedType}@{apiVersion}");
 
-            var resourceProperties = LanguageConstants.GetCommonResourceProperties(reference)
+            var resourceProperties = AzResourceTypeProvider.GetCommonResourceProperties(reference)
                 .Concat(new TypeProperty("properties", new ObjectType("properties", validationFlags, customProperties, null), TypePropertyFlags.Required));
 
             var bodyType = new ObjectType(reference.FormatName(), validationFlags, resourceProperties, null);

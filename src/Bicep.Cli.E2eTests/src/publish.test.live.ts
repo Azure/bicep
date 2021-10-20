@@ -29,6 +29,18 @@ describe("bicep publish", () => {
     ).shouldSucceed();
   });
 
+  it("should publish valid module with alias", () => {
+    const exampleFilePath = pathToExampleFile("101", "aks", "main.bicep");
+    const target = builder.getBicepReferenceWithPublishAlias("aks", "v1");
+    console.log(`target = ${target}`);
+    invokingBicepCommand(
+      "publish",
+      exampleFilePath,
+      "--target",
+      target
+    ).shouldSucceed();
+  });
+
   it("should fail to publish invalid module", () => {
     const exampleFilePath = pathToExampleFile("101", "aks", "flawed.bicep");
     const target = builder.getBicepReference("aks-flawed", "v1");

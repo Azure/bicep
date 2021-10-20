@@ -49,10 +49,11 @@ namespace Bicep.Core.Resources
 
         public string ApiVersion { get; }
 
-        public string FullyQualifiedType => $"{this.Namespace}/{this.TypesString}";
+        public string FormatType()
+            => $"{this.Namespace}/{this.TypesString}";
 
         public string FormatName()
-            => $"{this.FullyQualifiedType}@{this.ApiVersion}";
+            => $"{this.FormatType()}@{this.ApiVersion}";
 
         public bool IsRootType => Types.Length == 1;
 

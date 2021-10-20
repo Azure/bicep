@@ -4,6 +4,7 @@
 using System.Buffers;
 using System.IO;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
@@ -150,7 +151,16 @@ namespace Bicep.Core.Registry
         public string ToUtf8Json()
         {
             var bufferWriter = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(bufferWriter, new() { Indented = true }))
+            var writterOptions = new JsonWriterOptions
+            {
+                // Using UnsafeRelaxedJsonEscaping to avoid escaping HTML-sensitive characters such as <, >, &, and '.
+                // It is safe to use it because we are dealing with responses from the Azure SDK,
+                // and the output will not be emitted into an HTML page or a <script> element.
+                Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
+                Indented = true,
+            };
+
+            using (var writer = new Utf8JsonWriter(bufferWriter, writterOptions))
             {
                 // Top level properties.
                 writer.WriteStartObject();
