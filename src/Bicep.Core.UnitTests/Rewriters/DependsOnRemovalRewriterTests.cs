@@ -6,7 +6,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.IntegrationTests.ArmHelpers
+namespace Bicep.Core.UnitTests.Rewriters
 {
     [TestClass]
     public class DependsOnRemovalRewriterTests

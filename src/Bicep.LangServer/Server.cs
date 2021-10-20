@@ -40,7 +40,8 @@ namespace Bicep.LanguageServer
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null);
+            IFeatureProvider? Features = null,
+            Action<IServiceCollection>? onRegisterServices = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -78,7 +79,13 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
+                    .WithHandler<InsertResourceHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
+
+                if (creationOptions.onRegisterServices is not null)
+                {
+                    creationOptions.onRegisterServices(options.Services);
+                }
 
                 onOptionsFunc(options);
             });
@@ -128,6 +135,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
+            services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
         }
     }
 }

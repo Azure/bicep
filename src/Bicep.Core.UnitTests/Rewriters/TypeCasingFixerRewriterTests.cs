@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
-using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
+using Bicep.Core.Rewriters;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.IntegrationTests.ArmHelpers
+namespace Bicep.Core.UnitTests.Rewriters
 {
     [TestClass]
     public class TypeCasingFixerRewriterTests
