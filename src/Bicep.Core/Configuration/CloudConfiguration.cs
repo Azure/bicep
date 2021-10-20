@@ -102,9 +102,10 @@ namespace Bicep.Core.Configuration
             return hashCode.ToHashCode();
         }
 
-        public override bool Equals(object obj) => obj is CloudConfiguration other && this.Equals(other);
+        public override bool Equals(object? obj) => obj is CloudConfiguration other && this.Equals(other);
 
-        public bool Equals(CloudConfiguration other) =>
+        public bool Equals(CloudConfiguration? other) =>
+            other is not null &&
             this.ResourceManagerEndpointUri.Equals(other.ResourceManagerEndpointUri) &&
             this.ActiveDirectoryAuthorityUri.Equals(other.ActiveDirectoryAuthorityUri) &&
             this.CredentialPrecedence.SequenceEqual(other.CredentialPrecedence);
