@@ -8,6 +8,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ using System.Threading.Tasks;
 namespace Bicep.LanguageServer.Handlers
 {
     [Method(BicepRegistryCacheRequestHandler.BicepCacheLspMethod, Direction.ClientToServer)]
-    public record BicepRegistryCacheParams(string Target) : IRequest<BicepRegistryCacheResponse>;
+    public record BicepRegistryCacheParams(TextDocumentIdentifier TextDocument, string Target) : ITextDocumentIdentifierParams, IRequest<BicepRegistryCacheResponse>;
 
     public record BicepRegistryCacheResponse(string Content);
 
@@ -46,8 +47,7 @@ namespace Bicep.LanguageServer.Handlers
             // it indicates a code defect client or server-side.
             // In normal operation, the user should never see them regardless of how malformed their code is.            
 
-            // TODO: Add documentUri to BicepRegistryCacheParams and get the config for the documentUri.
-            var configuration = this.configurationManager.GetBuiltInConfiguration();
+            var configuration = this.configurationManager.GetConfiguration(request.TextDocument.Uri.ToUri());
             var moduleReference = this.moduleDispatcher.TryGetModuleReference(request.Target, configuration, out _) ?? throw new InvalidOperationException($"The client specified an invalid module reference '{request.Target}'.");
 
             if(!moduleReference.IsExternal)
