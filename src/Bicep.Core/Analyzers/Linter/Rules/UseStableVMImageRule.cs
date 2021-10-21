@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -17,7 +18,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "use-stable-vm-image";
 
-        private readonly HashSet<string> imageReferenceProperties = new HashSet<string> { "offer", "sku", "version" };
+        private readonly ImmutableHashSet<string> imageReferenceProperties = ImmutableHashSet.Create<string>("offer", "sku", "version");
 
         public UseStableVMImageRule() : base(
             code: Code,
@@ -37,7 +38,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (ResourceMetadata resource in model.AllResources)
             {
                 ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
-                if (resourceSyntax.TryGetBody()?.SafeGetPropertyByName("properties") is ObjectPropertySyntax propertiesSyntax
+                if (resourceSyntax.TryGetBody()?.SafeGetPropertyByNameRecursive("properties") is ObjectPropertySyntax propertiesSyntax
                     && propertiesSyntax.Value is ObjectSyntax properties)
                 {                
                     if (properties.SafeGetPropertyByNameRecursive("storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)
@@ -66,10 +67,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             foreach (string property in imageReferenceProperties)
             {
-                if (objectSyntax.SafeGetPropertyByName(property) is ObjectPropertySyntax objectPropertySyntax &&
+                if (objectSyntax.SafeGetPropertyByNameRecursive(property) is ObjectPropertySyntax objectPropertySyntax &&
                     objectPropertySyntax.Value is StringSyntax valueSyntax &&
                     valueSyntax.TryGetLiteralValue() is string value &&
-                    value.Contains("preview"))
+                    value.Contains("preview", StringComparison.OrdinalIgnoreCase))
                 {
                     diagnostics.Add(CreateDiagnosticForSpan(valueSyntax.Span, property));
                 }
