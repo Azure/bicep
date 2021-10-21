@@ -147,7 +147,7 @@ namespace Bicep.Core.Emit
                                 var convertedArgs = instanceFunctionCall.Arguments.SelectArray(a => ConvertExpression(a.Expression));
                                 var resourceIdExpression = converter.GetFullyQualifiedResourceId(resource);
 
-                                var apiVersion = resource.TypeReference.Version ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                                 var apiVersionExpression = new JTokenExpression(apiVersion);
 
                                 var listArgs = convertedArgs.Length switch
@@ -255,7 +255,7 @@ namespace Bicep.Core.Emit
                 case ("type", false):
                     return new JTokenExpression(resource.TypeReference.FormatType());
                 case ("apiVersion", false):
-                    var apiVersion = resource.TypeReference.Version ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                    var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                     return new JTokenExpression(apiVersion);
                 case ("properties", _):
                     // use the reference() overload without "full" to generate a shorter expression
@@ -514,7 +514,7 @@ namespace Bicep.Core.Emit
                 GenerateSymbolicReference(resource.Symbol.Name, indexExpression) :
                 GetFullyQualifiedResourceId(resource);
 
-            var apiVersion = resource.TypeReference.Version ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");    
+            var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");    
 
             // full gives access to top-level resource properties, but generates a longer statement
             if (full)

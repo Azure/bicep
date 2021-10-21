@@ -10,7 +10,7 @@ resource foo
 resource fo/o
 //@[9:11) Resource fo. Type: error. Declaration start char: 0, length: 13
 resource foo 'ddd'
-//@[9:12) Resource foo. Type: ddd. Declaration start char: 0, length: 18
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 18
 
 // #completionTest(23) -> resourceTypes
 resource trailingSpace  
@@ -18,15 +18,15 @@ resource trailingSpace
 
 // #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
-//@[9:12) Resource foo. Type: ddd. Declaration start char: 0, length: 20
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 20
 
 // wrong resource type
 resource foo 'ddd'={
-//@[9:12) Resource foo. Type: ddd. Declaration start char: 0, length: 23
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 23
 }
 
 resource foo 'ddd'=if (1 + 1 == 2) {
-//@[9:12) Resource foo. Type: ddd. Declaration start char: 0, length: 39
+//@[9:12) Resource foo. Type: error. Declaration start char: 0, length: 39
 }
 
 // using string interpolation for the resource type
@@ -897,7 +897,7 @@ resource missingType
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
 resource startedTypingTypeWithQuotes 'virma'
-//@[9:36) Resource startedTypingTypeWithQuotes. Type: virma. Declaration start char: 0, length: 44
+//@[9:36) Resource startedTypingTypeWithQuotes. Type: error. Declaration start char: 0, length: 44
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
 resource startedTypingTypeWithoutQuotes virma
@@ -1844,15 +1844,15 @@ resource comp2 ''
 
 // #completionTest(38) -> resourceTypes
 resource comp3 'Microsoft.Resources/t'
-//@[9:14) Resource comp3. Type: Microsoft.Resources/t. Declaration start char: 0, length: 38
+//@[9:14) Resource comp3. Type: error. Declaration start char: 0, length: 38
 
 // #completionTest(40) -> resourceTypes
 resource comp4 'Microsoft.Resources/t/v'
-//@[9:14) Resource comp4. Type: Microsoft.Resources/t/v. Declaration start char: 0, length: 40
+//@[9:14) Resource comp4. Type: error. Declaration start char: 0, length: 40
 
 // #completionTest(49) -> resourceTypes
 resource comp5 'Microsoft.Storage/storageAccounts'
-//@[9:14) Resource comp5. Type: Microsoft.Storage/storageAccounts. Declaration start char: 0, length: 50
+//@[9:14) Resource comp5. Type: error. Declaration start char: 0, length: 50
 
 // #completionTest(50) -> storageAccountsResourceTypes
 resource comp6 'Microsoft.Storage/storageAccounts@'

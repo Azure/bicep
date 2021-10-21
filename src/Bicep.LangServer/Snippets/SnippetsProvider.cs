@@ -481,7 +481,7 @@ namespace Bicep.LanguageServer.Snippets
                 foreach (ResourceTypeReference nestedResourceTypeReference in nestedResourceTypeReferences)
                 {
                     // Nested resources must specify a single type segment, and optionally can specify an api version using the format "<type>@<apiVersion>"
-                    string? nestedType = $"{nestedResourceTypeReference.TypeSegments.Last()}@{nestedResourceTypeReference.Version!}";
+                    string? nestedType = $"{nestedResourceTypeReference.TypeSegments.Last()}@{nestedResourceTypeReference.ApiVersion!}";
 
                     if (nestedType is not null)
                     {

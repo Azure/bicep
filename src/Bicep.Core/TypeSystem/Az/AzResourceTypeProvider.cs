@@ -107,7 +107,7 @@ namespace Bicep.Core.TypeSystem.Az
             yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
             yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant);
             yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.Version!), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion!), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
@@ -408,6 +408,11 @@ namespace Bicep.Core.TypeSystem.Az
 
         public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
+            if (typeReference.TypeSegments.Length < 2 || typeReference.ApiVersion is null)
+            {
+                return null;
+            }
+
             // It's important to cache this result because generating the resource type is an expensive operation
             var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
             {

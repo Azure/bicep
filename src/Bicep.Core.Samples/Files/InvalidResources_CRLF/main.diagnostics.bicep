@@ -17,7 +17,7 @@ resource fo/o
 //@[13:13) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 resource foo 'ddd'
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
+//@[13:18) [BCP210 (Error)] Failed to find resource of type "ddd". (CodeDescription: none) |'ddd'|
 //@[18:18) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(23) -> resourceTypes
@@ -28,20 +28,18 @@ resource trailingSpace
 // #completionTest(19,20) -> resourceObject
 resource foo 'ddd'= 
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
+//@[13:18) [BCP210 (Error)] Failed to find resource of type "ddd". (CodeDescription: none) |'ddd'|
 //@[20:20) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
 // wrong resource type
 resource foo 'ddd'={
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
-//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
+//@[13:18) [BCP210 (Error)] Failed to find resource of type "ddd". (CodeDescription: none) |'ddd'|
 }
 
 resource foo 'ddd'=if (1 + 1 == 2) {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
-//@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
-//@[13:18) [BCP081 (Warning)] Resource type "ddd" does not have types available. (CodeDescription: none) |'ddd'|
+//@[13:18) [BCP210 (Error)] Failed to find resource of type "ddd". (CodeDescription: none) |'ddd'|
 }
 
 // using string interpolation for the resource type
@@ -1027,7 +1025,7 @@ resource missingType
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
 resource startedTypingTypeWithQuotes 'virma'
-//@[37:44) [BCP081 (Warning)] Resource type "virma" does not have types available. (CodeDescription: none) |'virma'|
+//@[37:44) [BCP210 (Error)] Failed to find resource of type "virma". (CodeDescription: none) |'virma'|
 //@[44:44) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
@@ -1999,17 +1997,17 @@ resource comp2 ''
 
 // #completionTest(38) -> resourceTypes
 resource comp3 'Microsoft.Resources/t'
-//@[15:38) [BCP081 (Warning)] Resource type "Microsoft.Resources/t" does not have types available. (CodeDescription: none) |'Microsoft.Resources/t'|
+//@[15:38) [BCP210 (Error)] Failed to find resource of type "Microsoft.Resources/t". (CodeDescription: none) |'Microsoft.Resources/t'|
 //@[38:38) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(40) -> resourceTypes
 resource comp4 'Microsoft.Resources/t/v'
-//@[15:40) [BCP081 (Warning)] Resource type "Microsoft.Resources/t/v" does not have types available. (CodeDescription: none) |'Microsoft.Resources/t/v'|
+//@[15:40) [BCP210 (Error)] Failed to find resource of type "Microsoft.Resources/t/v". (CodeDescription: none) |'Microsoft.Resources/t/v'|
 //@[40:40) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(49) -> resourceTypes
 resource comp5 'Microsoft.Storage/storageAccounts'
-//@[15:50) [BCP081 (Warning)] Resource type "Microsoft.Storage/storageAccounts" does not have types available. (CodeDescription: none) |'Microsoft.Storage/storageAccounts'|
+//@[15:50) [BCP210 (Error)] Failed to find resource of type "Microsoft.Storage/storageAccounts". (CodeDescription: none) |'Microsoft.Storage/storageAccounts'|
 //@[50:50) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // #completionTest(50) -> storageAccountsResourceTypes

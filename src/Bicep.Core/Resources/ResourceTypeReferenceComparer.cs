@@ -14,10 +14,10 @@ namespace Bicep.Core.Resources
 
         public bool Equals(ResourceTypeReference x, ResourceTypeReference y)
             => Enumerable.SequenceEqual(x.TypeSegments, y.TypeSegments, StringComparer.OrdinalIgnoreCase) &&
-                StringComparer.OrdinalIgnoreCase.Equals(x.Version, y.Version);
+                StringComparer.OrdinalIgnoreCase.Equals(x.ApiVersion, y.ApiVersion);
 
         public int GetHashCode(ResourceTypeReference obj)
             => Enumerable.Select(obj.TypeSegments, x => StringComparer.OrdinalIgnoreCase.GetHashCode(x)).Aggregate((a, b) => a ^ b) ^
-                (obj.Version is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Version));
+                (obj.ApiVersion is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(obj.ApiVersion));
     }
 }

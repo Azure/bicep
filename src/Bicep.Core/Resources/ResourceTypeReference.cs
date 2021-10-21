@@ -27,18 +27,18 @@ namespace Bicep.Core.Resources
             }
 
             TypeSegments = typeSegments;
-            Version = version;
+            ApiVersion = version;
         }
 
         public string FormatName()
-            => $"{FormatType()}{(this.Version == null ? "" : $"@{this.Version}")}";
+            => $"{FormatType()}{(this.ApiVersion == null ? "" : $"@{this.ApiVersion}")}";
 
         public string FormatType()
             => string.Join('/', this.TypeSegments);
 
         public ImmutableArray<string> TypeSegments { get; }
 
-        public string? Version { get; }
+        public string? ApiVersion { get; }
 
         public bool IsParentOf(ResourceTypeReference other)
         {
@@ -74,7 +74,7 @@ namespace Bicep.Core.Resources
         {
             return new ResourceTypeReference(
                 baseType.TypeSegments.AddRange(nestedType.TypeSegments),
-                nestedType.Version ?? baseType.Version);
+                nestedType.ApiVersion ?? baseType.ApiVersion);
          }
 
         public static ResourceTypeReference Parse(string resourceType)

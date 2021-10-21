@@ -34,7 +34,7 @@ namespace Bicep.Core.UnitTests.Resource
             {
                 typeRef.Should().NotBeNull();
 
-                typeRef!.Version.Should().Be(expectedVersion);
+                typeRef!.ApiVersion.Should().Be(expectedVersion);
                 typeRef.TypeSegments.Should().Equal(expectedTypes);
             }
 
