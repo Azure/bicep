@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
@@ -15,6 +16,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class UseStableVMImageRule : LinterRuleBase
     {
         public new const string Code = "use-stable-vm-image";
+
+        private readonly HashSet<string> imageReferenceProperties = new HashSet<string> { "offer", "sku", "version" };
 
         public UseStableVMImageRule() : base(
             code: Code,
@@ -30,93 +33,47 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            var visitor = new ResourceVisitor(this, model);
-            visitor.Visit(model.SourceFile.ProgramSyntax);
-            return visitor.diagnostics;
+            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+
+            foreach (ResourceMetadata resource in model.AllResources)
+            {
+                ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
+                if (resourceSyntax.TryGetBody()?.SafeGetPropertyByName("properties") is ObjectPropertySyntax propertiesSyntax
+                    && propertiesSyntax.Value is ObjectSyntax properties)
+                {                
+                    if (properties.SafeGetPropertyByNameRecursive("storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)
+                    {
+                        var imageReferenceValue = imageReferenceSyntax.Value;
+
+                        if (imageReferenceValue is ObjectSyntax imageReferenceProperties)
+                        {
+                            AddDiagnosticsIfImageReferencePropertiesContainPreview(imageReferenceProperties, diagnostics);
+                        }
+                        else if (imageReferenceValue is VariableAccessSyntax &&
+                                 model.GetSymbolInfo(imageReferenceValue) is VariableSymbol variableSymbol &&
+                                 variableSymbol.Value is ObjectSyntax variableValueSyntax)
+                        {
+                            AddDiagnosticsIfImageReferencePropertiesContainPreview(variableValueSyntax, diagnostics);
+                        }
+                    }
+
+                }
+            }
+
+            return diagnostics;
         }
 
-        private class ResourceVisitor : SyntaxVisitor
+        private void AddDiagnosticsIfImageReferencePropertiesContainPreview(ObjectSyntax objectSyntax, List<IDiagnostic> diagnostics)
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
-
-            private readonly SemanticModel model;
-            private readonly UseStableVMImageRule parent;
-
-            public ResourceVisitor(UseStableVMImageRule parent, SemanticModel model)
+            foreach (string property in imageReferenceProperties)
             {
-                this.model = model;
-                this.parent = parent;
-            }
-
-            public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
-            {
-                var visitor = new PropertiesVisitor(this.parent, diagnostics, model);
-                visitor.Visit(syntax);
-
-                // Note: PropertiesVisitor will navigate through all child resources, so don't call base
-            }
-        }
-
-        private class PropertiesVisitor : SyntaxVisitor
-        {
-            private List<IDiagnostic> diagnostics;
-
-            private const string imageReferencePropertyName = "imageReference";
-
-            private readonly SemanticModel model;
-            private readonly UseStableVMImageRule parent;
-
-            public PropertiesVisitor(UseStableVMImageRule parent, List<IDiagnostic> diagnostics, SemanticModel model)
-            {
-                this.model = model;
-                this.parent = parent;
-                this.diagnostics = diagnostics;
-            }
-
-            public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
-            {
-                string? propertyName = syntax.TryGetKeyText();
-                // Check all properties with the name 'imageReference', regardless of casing
-                if (propertyName != null && StringComparer.OrdinalIgnoreCase.Equals(propertyName, imageReferencePropertyName))
+                if (objectSyntax.SafeGetPropertyByName(property) is ObjectPropertySyntax objectPropertySyntax &&
+                    objectPropertySyntax.Value is StringSyntax valueSyntax &&
+                    valueSyntax.TryGetLiteralValue() is string value &&
+                    value.Contains("preview"))
                 {
-                    if (syntax.Value is ObjectSyntax objectSyntax)
-                    {
-                        AddDiagnosticsIfImageReferencePropertiesContainPreview(objectSyntax);
-                    }
-                    else if (syntax.Value is VariableAccessSyntax &&
-                             model.GetSymbolInfo(syntax.Value) is VariableSymbol variableSymbol &&
-                             variableSymbol.Value is ObjectSyntax variableValueSyntax)
-                    {
-                        AddDiagnosticsIfImageReferencePropertiesContainPreview(variableValueSyntax);
-                    }
+                    diagnostics.Add(CreateDiagnosticForSpan(valueSyntax.Span, property));
                 }
-                else
-                {
-                    base.VisitObjectPropertySyntax(syntax);
-                }
-            }
-
-            private void AddDiagnosticsIfImageReferencePropertiesContainPreview(ObjectSyntax objectSyntax)
-            {
-                foreach (var child in objectSyntax.Children)
-                {
-                    if (child is ObjectPropertySyntax objectPropertySyntax &&
-                        objectPropertySyntax.TryGetKeyText() is string key &&
-                        objectPropertySyntax.Value is StringSyntax valueSyntax &&
-                        valueSyntax.TryGetLiteralValue() is string value &&
-                        ValueContainsPreview(key, value))
-                    {
-                        diagnostics.Add(parent.CreateDiagnosticForSpan(valueSyntax.Span, key));
-                    }
-                }
-            }
-
-            private bool ValueContainsPreview(string key, string value)
-            {
-                return (key.Equals("offer", StringComparison.OrdinalIgnoreCase) ||
-                        key.Equals("sku", StringComparison.OrdinalIgnoreCase) ||
-                        key.Equals("version", StringComparison.OrdinalIgnoreCase)) &&
-                        value.Contains("preview");
             }
         }
     }
