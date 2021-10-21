@@ -60,7 +60,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     resourceTypeReference.ApiVersion is string apiVersion &&
                     GetReplacementSpan(resourceSymbol, apiVersion) is TextSpan replacementSpan)
                 {
-                    string fullyQualifiedType = resourceTypeReference.FullyQualifiedType;
+                    string fullyQualifiedType = resourceTypeReference.FormatType();
                     (string? currentApiVersion, string? suffix) = apiVersionProvider.ParseApiVersion(apiVersion);
 
                     string? recentGAVersion = apiVersionProvider.GetRecentApiVersion(fullyQualifiedType, ApiVersionSuffixConstants.GA);

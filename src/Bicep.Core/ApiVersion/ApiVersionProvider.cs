@@ -42,22 +42,22 @@ namespace Bicep.Core.ApiVersion
                 switch (suffix)
                 {
                     case ApiVersionSuffixConstants.GA:
-                        UpdateCache(gaVersions, date, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(gaVersions, date, resourceTypeReference.FormatType());
                         break;
                     case ApiVersionSuffixConstants.Alpha:
-                        UpdateCache(alphaVersions, date, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(alphaVersions, date, resourceTypeReference.FormatType());
                         break;
                     case ApiVersionSuffixConstants.Beta:
-                        UpdateCache(betaVersions, date, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(betaVersions, date, resourceTypeReference.FormatType());
                         break;
                     case ApiVersionSuffixConstants.Preview:
-                        UpdateCache(previewVersions, date, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(previewVersions, date, resourceTypeReference.FormatType());
                         break;
                     case ApiVersionSuffixConstants.PrivatePreview:
-                        UpdateCache(privatePreviewVersions, date, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(privatePreviewVersions, date, resourceTypeReference.FormatType());
                         break;
                     case ApiVersionSuffixConstants.RC:
-                        UpdateCache(rcVersions, date, resourceTypeReference.FullyQualifiedType);
+                        UpdateCache(rcVersions, date, resourceTypeReference.FormatType());
                         break;
                 }
             }
