@@ -1,4 +1,4 @@
-# Use recent api version
+# Use recent API version
 
 **Code**: use-recent-api-version
 
