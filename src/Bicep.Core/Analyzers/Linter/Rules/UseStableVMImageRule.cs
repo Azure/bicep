@@ -38,25 +38,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (ResourceMetadata resource in model.AllResources)
             {
                 ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
-                if (resourceSyntax.TryGetBody()?.SafeGetPropertyByNameRecursive("properties") is ObjectPropertySyntax propertiesSyntax
-                    && propertiesSyntax.Value is ObjectSyntax properties)
-                {                
-                    if (properties.SafeGetPropertyByNameRecursive("storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)
+                if (resourceSyntax.TryGetBody()?.SafeGetPropertyByNameRecursive("properties", "storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)
+                {
+                    var imageReferenceValue = imageReferenceSyntax.Value;
+
+                    if (imageReferenceValue is ObjectSyntax imageReferenceProperties)
                     {
-                        var imageReferenceValue = imageReferenceSyntax.Value;
-
-                        if (imageReferenceValue is ObjectSyntax imageReferenceProperties)
-                        {
-                            AddDiagnosticsIfImageReferencePropertiesContainPreview(imageReferenceProperties, diagnostics);
-                        }
-                        else if (imageReferenceValue is VariableAccessSyntax &&
-                                 model.GetSymbolInfo(imageReferenceValue) is VariableSymbol variableSymbol &&
-                                 variableSymbol.Value is ObjectSyntax variableValueSyntax)
-                        {
-                            AddDiagnosticsIfImageReferencePropertiesContainPreview(variableValueSyntax, diagnostics);
-                        }
+                        AddDiagnosticsIfImageReferencePropertiesContainPreview(imageReferenceProperties, diagnostics);
                     }
-
+                    else if (imageReferenceValue is VariableAccessSyntax &&
+                             model.GetSymbolInfo(imageReferenceValue) is VariableSymbol variableSymbol &&
+                             variableSymbol.Value is ObjectSyntax variableValueSyntax)
+                    {
+                        AddDiagnosticsIfImageReferencePropertiesContainPreview(variableValueSyntax, diagnostics);
+                    }
                 }
             }
 
