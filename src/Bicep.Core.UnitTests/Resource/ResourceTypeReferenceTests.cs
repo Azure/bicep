@@ -55,7 +55,7 @@ namespace Bicep.Core.UnitTests.Resource
             var actual = ResourceTypeReference.TryParse(value);
 
             actual.Should().NotBeNull();
-            actual!.FullyQualifiedType.Should().Be(expectedFullyQualifiedType);
+            actual!.FormatType().Should().Be(expectedFullyQualifiedType);
         }
 
         [DataTestMethod]

@@ -42,6 +42,7 @@ export const deploymentGraphRequestType = new ProtocolRequestType<
 >("textDocument/deploymentGraph");
 
 export interface BicepCacheParams {
+  textDocument: TextDocumentIdentifier;
   target: string;
 }
 

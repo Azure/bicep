@@ -27,7 +27,7 @@ namespace Bicep.Core.Configuration
         public string? ActiveDirectoryAuthority { get; init; }
     }
 
-    public class CloudConfiguration : ConfigurationSection<Cloud>
+    public class CloudConfiguration : ConfigurationSection<Cloud>, IEquatable<CloudConfiguration>
     {
         public CloudConfiguration(Cloud data, Uri resourceManagerEndpointUri, Uri activeDirectoryAuthorityUri)
             : base(data)
@@ -86,5 +86,28 @@ namespace Bicep.Core.Configuration
 
             return (endpointUri, authorityUri);
         }
+
+        public override int GetHashCode()
+        {
+            var hashCode = new HashCode();
+
+            hashCode.Add(this.ResourceManagerEndpointUri);
+            hashCode.Add(this.ActiveDirectoryAuthorityUri);
+
+            foreach (var credentialType in this.CredentialPrecedence)
+            {
+                hashCode.Add(credentialType);
+            }
+
+            return hashCode.ToHashCode();
+        }
+
+        public override bool Equals(object? obj) => obj is CloudConfiguration other && this.Equals(other);
+
+        public bool Equals(CloudConfiguration? other) =>
+            other is not null &&
+            this.ResourceManagerEndpointUri.Equals(other.ResourceManagerEndpointUri) &&
+            this.ActiveDirectoryAuthorityUri.Equals(other.ActiveDirectoryAuthorityUri) &&
+            this.CredentialPrecedence.SequenceEqual(other.CredentialPrecedence);
     }
 }

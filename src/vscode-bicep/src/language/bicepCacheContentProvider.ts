@@ -1,7 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as vscode from "vscode";
-import { LanguageClient } from "vscode-languageclient/node";
+import {
+  LanguageClient,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node";
 import { Disposable } from "../utils";
 import { bicepCacheRequestType } from "./protocol";
 
@@ -33,19 +36,20 @@ export class BicepCacheContentProvider
   ): Promise<string> {
     const response = await this.languageClient.sendRequest(
       bicepCacheRequestType,
-      {
-        target: this.getTarget(uri),
-      },
+      this.getBicepCacheRequest(uri),
       token
     );
 
     return response.content;
   }
 
-  private getTarget(uri: vscode.Uri) {
-    // the URIs have the format of bicep-cache:///<uri-encoded bicep module reference>
-    // the path of a URI will also have a leading slash that needs to be removed
-    return decodeURIComponent(uri.path.substring(1));
+  private getBicepCacheRequest(uri: vscode.Uri) {
+    // The URIs have the format of bicep-cache:///<uri-encoded bicep file path>#<uri-encoded bicep module reference>.
+    // The path of a URI will also have a leading slash that needs to be removed.
+    const path = decodeURIComponent(uri.path.substring(1));
+    const target = decodeURIComponent(uri.fragment);
+
+    return { textDocument: TextDocumentIdentifier.create(path), target };
   }
 
   private getModuleReferenceScheme(document: vscode.TextDocument) {
