@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
             var fullyQualifiedType = resourceId.FormatFullyQualifiedType();
 
             var allTypes = azResourceTypeLoader.GetAvailableTypes()
-                .ToLookup(x => x.FullyQualifiedType, StringComparer.OrdinalIgnoreCase);
+                .ToLookup(x => x.FormatType(), StringComparer.OrdinalIgnoreCase);
 
             var matchedType = allTypes[fullyQualifiedType]
                 .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
