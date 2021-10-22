@@ -33,8 +33,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> inferredDependenciesMap =
-                ResourceDependencyVisitor.GetResourceDependencies(model, new ResourceDependencyVisitor.Options { IgnoreExplicitDependsOn = true });
+            Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap =
+                new Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>>(
+                    () => ResourceDependencyVisitor.GetResourceDependencies(
+                        model,
+                        new ResourceDependencyVisitor.Options { IgnoreExplicitDependsOn = true }));
             var visitor = new ResourceVisitor(this, inferredDependenciesMap, model);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
@@ -45,10 +48,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
 
             private readonly NoUnnecessaryDependsOnRule parent;
-            IImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> inferredDependenciesMap;
+            Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap;
             private readonly SemanticModel model;
 
-            public ResourceVisitor(NoUnnecessaryDependsOnRule parent, IImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> inferredDependenciesMap, SemanticModel model)
+            public ResourceVisitor(NoUnnecessaryDependsOnRule parent, Lazy<ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>> inferredDependenciesMap, SemanticModel model)
             {
                 this.parent = parent;
                 this.inferredDependenciesMap = inferredDependenciesMap;
@@ -65,7 +68,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         if (model.GetSymbolInfo(syntax) is DeclaredSymbol thisResource)
                         {
                             // If this resource has no implicit dependencies, than all explicit dependsOn entries must be valid, so don't bother checking
-                            if (inferredDependenciesMap.TryGetValue(thisResource, out ImmutableHashSet<ResourceDependency>? inferredDependencies))
+                            if (inferredDependenciesMap.Value.TryGetValue(thisResource, out ImmutableHashSet<ResourceDependency>? inferredDependencies))
                             {
                                 foreach (ArrayItemSyntax declaredDependency in declaredDependencies.Items)
                                 {
