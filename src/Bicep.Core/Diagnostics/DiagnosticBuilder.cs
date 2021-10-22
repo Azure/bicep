@@ -1252,12 +1252,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic FailedToFindResourceTypeInNamespace(string @namespace, string resourceType) => new(
                 TextSpan,
                 "BCP209",
-                $"Failed to find resource of type \"{resourceType}\" in namespace \"{@namespace}\".");
+                $"Failed to find resource type \"{resourceType}\" in namespace \"{@namespace}\".");
 
             public ErrorDiagnostic FailedToFindResourceType(string resourceType) => new(
                 TextSpan,
                 "BCP210",
-                $"Failed to find resource of type \"{resourceType}\".");
+                $"Failed to find resource type \"{resourceType}\".");
 
             public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
                 TextSpan,

@@ -739,8 +739,10 @@ namespace Bicep.Core.TypeSystem
             }
             else if (binder.GetSymbolInfo(resource) is ResourceSymbol resourceSymbol &&
                 binder.TryGetCycle(resourceSymbol) is null &&
-                resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax)
+                resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax &&
+                binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
             {
+                parentResource = parentResourceSymbol.DeclaringResource;
                 parentResourceType = GetDeclaredType(referenceParentSyntax);
             }
 
