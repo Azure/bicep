@@ -40,30 +40,53 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (ResourceMetadata resource in semanticModel.AllResources)
             {
-                ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
-                if (resourceSyntax.TryGetBody()?.SafeGetPropertyByName("properties") is ObjectPropertySyntax propertiesSyntax
-                    && propertiesSyntax.Value is ObjectSyntax properties)
-                {
-                    if (properties.SafeGetPropertyByName("type")?.Value is StringSyntax typeSyntax
-                        && typeSyntax.TryGetLiteralValue() is string typePropertyValue)
-                    {
-                        if (typePropertyValue.Contains("CustomScript", StringComparison.OrdinalIgnoreCase))
-                        {
-                            if (properties.SafeGetPropertyByNameRecursive("settings", "commandToExecute") is ObjectPropertySyntax commandToExecuteSyntax)
-                            {
-                                // We found a commandToExecute property under "settings" instead of "protectedSettings"
+                // We're looking for this pattern:
+                //
+                // resource xxx '{Microsoft.Compute/virtualMachines/extensions,Microsoft.HybridCompute/machines/extensions}@xxx' = { // right now, these properties apply to Microsoft.{Hybrid,}Compute/virtualMachines/extensions
+                //   name: 'xxx'
+                //   properties: { <<== required
+                //     publisher: 'Microsoft.Compute'
+                //     type: 'CustomScriptExtension' <<==  contains "CustomScript"
+                //     autoUpgradeMinorVersion: true
+                //     settings: {  <<== required
+                //       fileUris: split(fileUris, ' ')
+                //       commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File ${firstFileName} ${arguments}'  <<== this property under settings
+                //     }
+                //   }
+                // }
+                //
+                // This will be a test failure if commandToExecute contains possible secrets
 
-                                // Does it contain any secrets?
-                                var secrets = FindPossibleSecretsVisitor.FindPossibleSecrets(semanticModel, commandToExecuteSyntax.Value);
-                                if (secrets.Any())
+                var typeName = resource.TypeReference.FullyQualifiedType;
+                if (LanguageConstants.ResourceTypeComparer.Equals(typeName, "Microsoft.Compute/virtualMachines/extensions")
+                    || LanguageConstants.ResourceTypeComparer.Equals(typeName, "Microsoft.HybridCompute/machines/extensions"))
+                {
+                    ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
+                    if (resourceSyntax.TryGetBody()?.SafeGetPropertyByName("properties") is ObjectPropertySyntax propertiesSyntax
+                        && propertiesSyntax.Value is ObjectSyntax properties)
+                    {
+                        if (properties.SafeGetPropertyByName("type")?.Value is StringSyntax typeSyntax
+                            && typeSyntax.TryGetLiteralValue() is string typePropertyValue)
+                        {
+                            if (typePropertyValue.Contains("CustomScript", StringComparison.OrdinalIgnoreCase))
+                            {
+                                if (properties.SafeGetPropertyByNameRecursive("settings", "commandToExecute") is ObjectPropertySyntax commandToExecuteSyntax)
                                 {
-                                    diagnostics.Add(CreateDiagnosticForSpan(commandToExecuteSyntax.Key.Span, secrets[0].FoundMessage));
+                                    // We found a commandToExecute property under "settings" instead of "protectedSettings"
+
+                                    // Does it contain any secrets?
+                                    var secrets = FindPossibleSecretsVisitor.FindPossibleSecrets(semanticModel, commandToExecuteSyntax.Value);
+                                    if (secrets.Any())
+                                    {
+                                        diagnostics.Add(CreateDiagnosticForSpan(commandToExecuteSyntax.Key.Span, secrets[0].FoundMessage));
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+
             return diagnostics;
         }
     }
