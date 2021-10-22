@@ -74,10 +74,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private VariableAccessSyntax? AddCodeFixIfSingleInterpolatedString(SyntaxBase valueSyntax)
             {
+                // We're looking for code with this pattern:
+                //
+                // resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                //   name: '${AutomationAccountName}'   <<= a string literal with a single interpolated value
+
                 if (valueSyntax is StringSyntax strSyntax
                     && strSyntax.Expressions.Length == 1
                     && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
-                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // AariableAccessSyntax applies to params and vars
+                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // VariableAccessSyntax applies to params and vars and modules
                 {
                     // We only want to trigger if the var or param is of type string (because interpolation
                     // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')
