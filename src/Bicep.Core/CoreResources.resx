@@ -144,6 +144,13 @@
   <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
     <value>Resource location should be specified by a parameter with no default value or one that defaults to 'global' or resourceGroup().location.</value>
   </data>
+  <data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
+    <value>No unnecessary dependsOn.</value>
+  </data>
+  <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
+    <value>Remove unnecessary dependsOn entry '{0}'.</value>
+    <comment>Text for linter rule error. {0} is a programmatic expression</comment>
+  </data>
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>Parameter is declared but never used.</value>
   </data>
@@ -157,15 +164,11 @@
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
   </data>
-  <data name="UnnecessaryDependsOnRuleDescription" xml:space="preserve">
-    <value>Remove unnecessary dependsOn.</value>
-  </data>
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
     <value>Variable is declared but never used.</value>
   </data>
   <data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
     <value>Variable "{0}" is declared but never used.</value>
-    <comment>.</comment>
   </data>
   <data name="UseStableVMImage" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images.</value>

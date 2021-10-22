@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
@@ -14,12 +15,24 @@ namespace Bicep.Core.Emit
     public class ResourceDependencyVisitor : SyntaxVisitor
     {
         private readonly SemanticModel model;
+        private Options? options;
         private readonly IDictionary<DeclaredSymbol, HashSet<ResourceDependency>> resourceDependencies;
         private DeclaredSymbol? currentDeclaration;
 
-        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model)
+        public struct Options
         {
-            var visitor = new ResourceDependencyVisitor(model);
+            // If true, only inferred dependencies will be returned, not those declared explicitly by dependsOn entries
+            public bool? IgnoreExplicitDependsOn;
+        }
+
+        /// <summary>
+        /// Determines resource dependencies between all resources, returning it as a map of resource -> dependencies.
+        /// Consider usage in expressions, parent/child relationships and (by default) dependsOn entries
+        /// </summary>
+        /// <returns></returns>
+        public static ImmutableDictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>> GetResourceDependencies(SemanticModel model, Options? options = null)
+        {
+            var visitor = new ResourceDependencyVisitor(model, options);
             visitor.Visit(model.Root.Syntax);
 
             var output = new Dictionary<DeclaredSymbol, ImmutableHashSet<ResourceDependency>>();
@@ -41,16 +54,17 @@ namespace Bicep.Core.Emit
                     : @group)
                 .ToImmutableHashSet();
 
-        private ResourceDependencyVisitor(SemanticModel model)
+        private ResourceDependencyVisitor(SemanticModel model, Options? options)
         {
             this.model = model;
+            this.options = options;
             this.resourceDependencies = new Dictionary<DeclaredSymbol, HashSet<ResourceDependency>>();
             this.currentDeclaration = null;
         }
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (model.ResourceMetadata.TryLookup(syntax) is not {} resource)
+            if (model.ResourceMetadata.TryLookup(syntax) is not { } resource)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;
@@ -113,7 +127,10 @@ namespace Bicep.Core.Emit
                 // recursively visit dependent variables
                 this.Visit(declaredSymbol.DeclaringSyntax);
 
-                dependencies = resourceDependencies[declaredSymbol];
+                if (!resourceDependencies.TryGetValue(declaredSymbol, out dependencies))
+                {
+                    return Enumerable.Empty<ResourceDependency>();
+                }
             }
 
             return dependencies;
@@ -126,12 +143,18 @@ namespace Bicep.Core.Emit
                 return;
             }
 
+            if (!this.resourceDependencies.TryGetValue(currentDeclaration, out HashSet<ResourceDependency>? currentResourceDependencies))
+            {
+                Debug.Fail("currentDeclaration should be guaranteed to be contained in this.resourceDependencies in VisitResourceDeclarationSyntax");
+                return;
+            }
+
             switch (model.GetSymbolInfo(syntax))
             {
                 case VariableSymbol variableSymbol:
                     var varDependencies = GetResourceDependencies(variableSymbol);
 
-                    resourceDependencies[currentDeclaration].UnionWith(varDependencies);
+                    currentResourceDependencies.UnionWith(varDependencies);
                     return;
 
                 case ResourceSymbol resourceSymbol:
@@ -139,15 +162,15 @@ namespace Bicep.Core.Emit
                     {
                         var existingDependencies = GetResourceDependencies(resourceSymbol);
 
-                        resourceDependencies[currentDeclaration].UnionWith(existingDependencies);
+                        currentResourceDependencies.UnionWith(existingDependencies);
                         return;
                     }
 
-                    resourceDependencies[currentDeclaration].Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    resourceDependencies[currentDeclaration].Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
                     return;
             }
         }
@@ -159,6 +182,12 @@ namespace Bicep.Core.Emit
                 return;
             }
 
+            if (!this.resourceDependencies.TryGetValue(currentDeclaration, out HashSet<ResourceDependency>? currentResourceDependencies))
+            {
+                Debug.Fail("currentDeclaration should be guaranteed to be in this.resourceDependencies in VisitResourceDeclarationSyntax");
+                return;
+            }
+
             switch (model.GetSymbolInfo(syntax))
             {
                 case ResourceSymbol resourceSymbol:
@@ -166,26 +195,26 @@ namespace Bicep.Core.Emit
                     {
                         var existingDependencies = GetResourceDependencies(resourceSymbol);
 
-                        resourceDependencies[currentDeclaration].UnionWith(existingDependencies);
+                        currentResourceDependencies.UnionWith(existingDependencies);
                         return;
                     }
 
-                    resourceDependencies[currentDeclaration].Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    resourceDependencies[currentDeclaration].Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
                     return;
             }
         }
-            
+
         private SyntaxBase? GetIndexExpression(SyntaxBase syntax, bool isCollection)
         {
             SyntaxBase? candidateIndexExpression = isCollection && this.model.Binder.GetParent(syntax) is ArrayAccessSyntax arrayAccess && ReferenceEquals(arrayAccess.BaseExpression, syntax)
                 ? arrayAccess.IndexExpression
                 : null;
 
-            if(candidateIndexExpression is null)
+            if (candidateIndexExpression is null)
             {
                 // there is no index expression
                 // depend on the entire collection instead
@@ -208,7 +237,7 @@ namespace Bicep.Core.Emit
 
             // using the resource/module body as the context to allow indexed depdnencies relying on the resource/module loop index to work as expected
             var inaccessibleLocals = dfa.GetInaccessibleLocalsAfterSyntaxMove(candidateIndexExpression, context);
-            if(inaccessibleLocals.Any())
+            if (inaccessibleLocals.Any())
             {
                 // some local will become inaccessible
                 // depend on the entire collection instead
@@ -216,6 +245,23 @@ namespace Bicep.Core.Emit
             }
 
             return candidateIndexExpression;
+        }
+
+        public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+        {
+            if (options?.IgnoreExplicitDependsOn == true)
+            {
+                if (syntax.Key is IdentifierSyntax key)
+                {
+                    if (key.NameEquals(LanguageConstants.ResourceDependsOnPropertyName))
+                    {
+                        // Ignore dependsOn properties
+                        return;
+                    }
+                }
+            }
+
+            base.VisitObjectPropertySyntax(syntax);
         }
     }
 }
