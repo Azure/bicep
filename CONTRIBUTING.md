@@ -103,7 +103,7 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 
 ### Snippets
 
-If you'd like to contribute to the collection of snippets:  
+If you'd like to contribute to the collection of snippets:
 
 * A snippet should either be a single, generic resource or follow [parent-child syntax](https://github.com/Azure/bicep/blob/a22b9c80ba4f8b977f5d948f8bd8c54155ff6870/docs/spec/resource-scopes.md#parent-child-syntax). Ensure your snippet meets this criteria.
 * Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep
@@ -129,6 +129,25 @@ If you'd like to contribute to the collection of snippets:
 * See [Running the tests](#running-the-tests) if you'd like to test locally before submitting a PR.
 
 * Submit a PR for review
+
+### Linter Rules
+
+We are not yet ready to extend linter rules to third-party extensions. Our current goal is to first build up a set of general-purpose best practice rules, such as those in the [ARM TTK](https://github.com/Azure/arm-ttk/tree/master/arm-ttk) (documented [here](https://docs.microsoft.com/en-us/azure/azure-resource-manager/templates/template-test-cases)) and get a better sense of how to properly integrate them into our code, then we will look at an extension story.  If you have an idea for a linter rule, please enter an [issue](https://github.com/Azure/bicep/issues/new?assignees=&labels=&template=bug_report.md&labels=linting-rule-idea) and add the label `linting-rule-idea`.  
+
+If you are very interested in adding an implementation for a core rule with our current limited support, please follow these guidelines:
+* Add a proposal in a new issue and indicate you'd like to implement it.
+* The issue should indicate why this rule is of general interest and exactly what it will check for.
+* Wait for us to give you the go-ahead before implementing.
+
+#### Implementation tips (subject to change):
+* Write your unit tests first
+  * Include some realistic examples
+  * Include edge and error cases (analysis occurs on the template as users are typing, so syntax will frequently be in an incomplete state)
+  * Include positive and negative result testcases
+  * Consider performance - analysis occurs frequently so must be fast
+
+#### Steps
+* 
 
 ## Feature Suggestions
 
