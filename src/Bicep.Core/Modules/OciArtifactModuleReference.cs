@@ -70,7 +70,7 @@ namespace Bicep.Core.Modules
 
         public override bool IsExternal => true;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if(obj is not OciArtifactModuleReference other)
             {

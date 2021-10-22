@@ -48,6 +48,6 @@ namespace Bicep.Core.Utils
             }
         }
 
-        public bool TryPeek(out T result) => visitingStack.TryPeek(out result);
+        public bool TryPeek(out T? result) => visitingStack.TryPeek(out result);
     }
 }

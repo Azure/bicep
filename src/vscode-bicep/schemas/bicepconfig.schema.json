@@ -194,6 +194,9 @@
             },
             "simplify-interpolation": {
               "level": "warning"
+            },
+            "use-stable-vm-image": {
+              "level": "warning"
             }
           }
         }
@@ -312,6 +315,16 @@
                   "allOf": [
                     {
                       "description": "It isn't necessary to use interpolation to reference a parameter or variable. See https://aka.ms/bicep/linter/simplify-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "use-stable-vm-image": {
+                  "allOf": [
+                    {
+                      "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
                     },
                     {
                       "$ref": "#/definitions/rule"

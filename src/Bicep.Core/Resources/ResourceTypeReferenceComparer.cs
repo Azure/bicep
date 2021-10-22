@@ -12,9 +12,16 @@ namespace Bicep.Core.Resources
         public static IEqualityComparer<ResourceTypeReference> Instance { get; }
             = new ResourceTypeReferenceComparer();
 
-        public bool Equals(ResourceTypeReference x, ResourceTypeReference y)
-            => Enumerable.SequenceEqual(x.TypeSegments, y.TypeSegments, StringComparer.OrdinalIgnoreCase) &&
+        public bool Equals(ResourceTypeReference? x, ResourceTypeReference? y)
+        {
+            if (x is null || y is null)
+            {
+                return x == y;
+            }
+
+            return Enumerable.SequenceEqual(x.TypeSegments, y.TypeSegments, StringComparer.OrdinalIgnoreCase) &&
                 StringComparer.OrdinalIgnoreCase.Equals(x.ApiVersion, y.ApiVersion);
+        }
 
         public int GetHashCode(ResourceTypeReference obj)
             => Enumerable.Select(obj.TypeSegments, x => StringComparer.OrdinalIgnoreCase.GetHashCode(x)).Aggregate((a, b) => a ^ b) ^
