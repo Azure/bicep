@@ -80,9 +80,9 @@ namespace Bicep.Core.Resources
         public static ResourceTypeReference Parse(string resourceType)
             => TryParse(resourceType) ?? throw new ArgumentException($"Unable to parse '{resourceType}'", nameof(resourceType));
 
-        public static bool IsNamespaceAndTypeSegment(string segment)
+        public static bool HasApiVersion(string segment)
         {
-            return ResourceTypePattern.Match(segment).Success;
+            return ResourceTypePattern.Match(segment).Success && segment.Contains('@');
         }
     }
 }
