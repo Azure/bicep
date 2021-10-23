@@ -1343,6 +1343,32 @@ namespace Bicep.Core.Diagnostics
                 "BCP226",
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
+
+            public ErrorDiagnostic UnsupportedResourceTypeParameterType(string resourceType) => new(
+                TextSpan,
+                "BCP227",
+                $"The type \"{resourceType}\" cannot be used as a parameter type. Extensibility types are currently not supported as parameters or outputs.");
+
+            public ErrorDiagnostic UnsupportedResourceTypeOutputType(string resourceType) => new(
+                TextSpan,
+                "BCP228",
+                $"The type \"{resourceType}\" cannot be used as an output type. Extensibility types are currently not supported as parameters or outputs.");
+
+            public ErrorDiagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => new(
+                TextSpan,
+                "BCP229",
+                $"The parameter \"{parameterName}\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource.");
+
+            public Diagnostic ModuleParamOrOutputResourceTypeUnavailable(ResourceTypeReference resourceTypeReference) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP230",
+                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available.");
+
+            public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
+                TextSpan,
+                "BCP231",
+                "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

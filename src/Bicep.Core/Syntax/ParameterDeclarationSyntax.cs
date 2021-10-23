@@ -20,7 +20,7 @@ namespace Bicep.Core.Syntax
         {
             AssertKeyword(keyword, nameof(keyword), LanguageConstants.ParameterKeyword);
             AssertSyntaxType(name, nameof(name), typeof(IdentifierSyntax));
-            AssertSyntaxType(type, nameof(type), typeof(TypeSyntax), typeof(SkippedTriviaSyntax));
+            AssertSyntaxType(type, nameof(type), typeof(SimpleTypeSyntax), typeof(ResourceTypeSyntax), typeof(SkippedTriviaSyntax));
             AssertSyntaxType(modifier, nameof(modifier), typeof(ParameterDefaultValueSyntax), typeof(SkippedTriviaSyntax));
 
             this.Keyword = keyword;
@@ -48,24 +48,14 @@ namespace Bicep.Core.Syntax
         /// </summary>
         public TypeSyntax? ParameterType => this.Type as TypeSyntax;
 
-        public TypeSymbol GetDeclaredType()
-        {
-            // assume "any" type when the parameter has parse errors (either missing or was skipped)
-            var declaredType = this.ParameterType == null
-                ? LanguageConstants.Any
-                : LanguageConstants.TryGetDeclarationType(this.ParameterType.TypeName);
-
-            if (declaredType == null)
-            {
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(this.Type).InvalidParameterType());
-            }
-
-            return declaredType;
-        }
-
         public TypeSymbol GetAssignedType(ITypeManager typeManager, ArraySyntax? allowedSyntax)
         {
-            var assignedType = this.GetDeclaredType();
+            var assignedType = typeManager.GetDeclaredType(this);
+            if (assignedType is null)
+            {
+                // We don't expect this to happen for a parameter.
+                return ErrorType.Empty();
+            }
 
             // TODO: remove SyntaxHelper.TryGetAllowedSyntax when we drop parameter modifiers support.
             if (allowedSyntax is not null && !allowedSyntax.Items.Any())

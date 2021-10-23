@@ -953,7 +953,7 @@ param resrefpar string = foo.id
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |resrefpar|
-//@[16:22)  TypeSyntax
+//@[16:22)  SimpleTypeSyntax
 //@[16:22)   Identifier |string|
 //@[23:31)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
@@ -971,7 +971,7 @@ output resrefout bool = bar.id
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
 //@[7:16)   Identifier |resrefout|
-//@[17:21)  TypeSyntax
+//@[17:21)  SimpleTypeSyntax
 //@[17:21)   Identifier |bool|
 //@[22:23)  Assignment |=|
 //@[24:30)  PropertyAccessSyntax
@@ -9063,7 +9063,7 @@ output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[0:6)  Identifier |output|
 //@[7:25)  IdentifierSyntax
 //@[7:25)   Identifier |directRefViaOutput|
-//@[26:31)  TypeSyntax
+//@[26:31)  SimpleTypeSyntax
 //@[26:31)   Identifier |array|
 //@[32:33)  Assignment |=|
 //@[34:64)  FunctionCallSyntax
@@ -11375,7 +11375,7 @@ param dataCollectionRule object
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |dataCollectionRule|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |object|
 //@[31:33) NewLine |\r\n|
 param tags object
@@ -11383,7 +11383,7 @@ param tags object
 //@[0:5)  Identifier |param|
 //@[6:10)  IdentifierSyntax
 //@[6:10)   Identifier |tags|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |object|
 //@[17:21) NewLine |\r\n\r\n|
 
@@ -11972,7 +11972,7 @@ param issue4668_kind string = 'AzureCLI'
 //@[0:5)  Identifier |param|
 //@[6:20)  IdentifierSyntax
 //@[6:20)   Identifier |issue4668_kind|
-//@[21:27)  TypeSyntax
+//@[21:27)  SimpleTypeSyntax
 //@[21:27)   Identifier |string|
 //@[28:40)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -11996,7 +11996,7 @@ param issue4668_identity object
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |issue4668_identity|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |object|
 //@[31:33) NewLine |\r\n|
 @description('The properties of the Deployment Script.')
@@ -12016,7 +12016,7 @@ param issue4668_properties object
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |issue4668_properties|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |object|
 //@[33:35) NewLine |\r\n|
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {

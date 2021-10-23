@@ -103,6 +103,10 @@ namespace Bicep.Core.TypeSystem
                     // Assigning a resource to a parent property.
                     return sourceResourceType.TypeReference.IsParentOf(targetResourceParentType.ChildTypeReference);
 
+                case (ResourceType sourceResourceType, ResourceParameterType resourceParameterType):
+                    // Assigning a resource to a parameter ignores the API Version
+                    return sourceResourceType.TypeReference.FormatType().Equals(resourceParameterType.TypeReference.FormatType(), StringComparison.OrdinalIgnoreCase);
+
                 case (ResourceType sourceResourceType, _):
                     // When assigning a resource, we're really assigning the value of the resource body.
                     return AreTypesAssignable(sourceResourceType.Body.Type, targetType);

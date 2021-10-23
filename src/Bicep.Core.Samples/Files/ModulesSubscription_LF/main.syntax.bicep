@@ -11,7 +11,7 @@ param prefix string = 'majastrz'
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |prefix|
-//@[13:19)  TypeSyntax
+//@[13:19)  SimpleTypeSyntax
 //@[13:19)   Identifier |string|
 //@[20:32)  ParameterDefaultValueSyntax
 //@[20:21)   Assignment |=|

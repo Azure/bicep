@@ -125,6 +125,9 @@ If you would like to report any issues or inaccurate conversions, please see htt
   <data name="SymbolicNamesDisclaimerMessage" xml:space="preserve">
     <value>WARNING: Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
   </data>
+  <data name="ResourceTypesDisclaimerMessage" xml:space="preserve">
+    <value>WARNING: Resource-typed parameters and outputs in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!</value>
+  </data>
   <data name="DecompilationFailedFormat" xml:space="preserve">
     <value>{0}: Decompilation failed with fatal error "{1}"</value>
     <comment>{0} json path      {1} message string</comment>

@@ -35,7 +35,7 @@ namespace Bicep.LanguageServer.CodeFixes
             {
                 yield break;
             }
-            if(!supportedTypes.Any(t => parameterSyntax.ParameterType?.TypeName == t))
+            if(parameterSyntax.ParameterType is SimpleTypeSyntax simpleType && !supportedTypes.Any(t => simpleType.TypeName == t))
             {
                 yield break;
             }
