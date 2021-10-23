@@ -222,30 +222,34 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[50:51)  Assignment |=|
 //@[52:83)  IfConditionSyntax
 //@[52:54)   Identifier |if|
-//@[55:83)   ParenthesizedExpressionSyntax
+//@[55:78)   ParenthesizedExpressionSyntax
 //@[55:56)    LeftParen |(|
-//@[56:83)    ObjectSyntax
-//@[56:57)     LeftBrace |{|
-//@[58:64)     ObjectPropertySyntax
-//@[58:61)      StringSyntax
-//@[58:61)       StringComplete |'a'|
-//@[61:62)      Colon |:|
-//@[63:64)      VariableAccessSyntax
-//@[63:64)       IdentifierSyntax
-//@[63:64)        Identifier |b|
-//@[65:82)     SkippedTriviaSyntax
-//@[65:66)      RightBrace |}|
+//@[56:77)    BinaryOperationSyntax
+//@[56:68)     PropertyAccessSyntax
+//@[56:66)      ObjectSyntax
+//@[56:57)       LeftBrace |{|
+//@[58:58)       SkippedTriviaSyntax
+//@[58:64)       ObjectPropertySyntax
+//@[58:61)        StringSyntax
+//@[58:61)         StringComplete |'a'|
+//@[61:62)        Colon |:|
+//@[63:64)        VariableAccessSyntax
+//@[63:64)         IdentifierSyntax
+//@[63:64)          Identifier |b|
+//@[65:65)       SkippedTriviaSyntax
+//@[65:66)       RightBrace |}|
 //@[66:67)      Dot |.|
-//@[67:68)      Identifier |a|
-//@[69:71)      Equals |==|
+//@[67:68)      IdentifierSyntax
+//@[67:68)       Identifier |a|
+//@[69:71)     Equals |==|
+//@[72:77)     StringSyntax
 //@[72:77)      StringComplete |'foo'|
-//@[77:78)      RightParen |)|
-//@[79:80)      LeftBrace |{|
-//@[80:82)      NewLine |\r\n|
+//@[77:78)    RightParen |)|
+//@[79:83)   ObjectSyntax
+//@[79:80)    LeftBrace |{|
+//@[80:82)    NewLine |\r\n|
 }
-//@[0:1)     RightBrace |}|
-//@[1:1)    SkippedTriviaSyntax
-//@[1:1)   SkippedTriviaSyntax
+//@[0:1)    RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
 // simulate typing if condition
