@@ -297,7 +297,7 @@ resource parent 'My.RP/parentType@invalid-version' = {
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
-                ("BCP081", DiagnosticLevel.Error, "Resource type \"My.RP/parentType@invalid-version\" does not have types available."),
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"My.RP/parentType@invalid-version\" does not have types available."),
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
             });
         }

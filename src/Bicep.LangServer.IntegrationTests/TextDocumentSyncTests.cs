@@ -54,12 +54,8 @@ randomToken
                     d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
                 },
                 d => {
-                    d.Range.Should().HaveRange((2, 9), (2, 14));
-                    d.Should().HaveCodeAndSeverity("BCP035", DiagnosticSeverity.Error);
-                },
-                d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
-                    d.Should().HaveCodeAndSeverity("BCP081", DiagnosticSeverity.Warning);
+                    d.Should().HaveCodeAndSeverity("BCP210", DiagnosticSeverity.Error);
                 },
                 d => {
                     d.Range.Should().HaveRange((5, 0), (5, 11));
@@ -85,12 +81,8 @@ randomToken
                     d.Should().HaveCodeAndSeverity(new NoUnusedParametersRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
                 d => {
-                    d.Range.Should().HaveRange((2, 9), (2, 14));
-                    d.Should().HaveCodeAndSeverity("BCP035", DiagnosticSeverity.Error);
-                },
-                d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
-                    d.Should().HaveCodeAndSeverity("BCP081", DiagnosticSeverity.Warning);
+                    d.Should().HaveCodeAndSeverity("BCP210", DiagnosticSeverity.Error);
                 },
                 d => {
                     d.Range.Should().HaveRange((5, 0), (5, 11));
