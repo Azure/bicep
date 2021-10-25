@@ -188,6 +188,11 @@
           "group": "1_open"
         },
         {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_open"
+        },
+        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_build"
