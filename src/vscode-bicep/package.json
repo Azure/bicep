@@ -171,6 +171,11 @@
           "group": "navigation"
         },
         {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
