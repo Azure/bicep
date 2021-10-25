@@ -188,6 +188,13 @@
           "group": "1_build"
         }
       ],
+      "editor/context": [
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_open"
+        }
+      ],
       "commandPalette": [
         {
           "command": "bicep.build",
