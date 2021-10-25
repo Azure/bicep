@@ -143,6 +143,11 @@
         "command": "bicep.build",
         "key": "ctrl+shift+b",
         "when": "resourceLangId == bicep"
+      },
+      {
+        "command": "bicep.showVisualizerToSide",
+        "key": "ctrl+k v",
+        "when": "resourceLangId == bicep && commandsRegistered"
       }
     ],
     "menus": {
