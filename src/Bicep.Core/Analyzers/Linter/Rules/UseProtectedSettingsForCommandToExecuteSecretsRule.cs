@@ -57,7 +57,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //
                 // This will be a test failure if commandToExecute contains possible secrets
 
-                var typeName = resource.TypeReference.FullyQualifiedType;
+                var typeName = resource.TypeReference.FormatType();
                 if (LanguageConstants.ResourceTypeComparer.Equals(typeName, "Microsoft.Compute/virtualMachines/extensions")
                     || LanguageConstants.ResourceTypeComparer.Equals(typeName, "Microsoft.HybridCompute/machines/extensions"))
                 {
