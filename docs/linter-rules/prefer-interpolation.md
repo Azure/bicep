@@ -2,7 +2,7 @@
 
 **Code**: prefer-interpolation
 
-**Description**: String interpolation should be used instead of the concat function.
+**Description**: Use string interpolation instead of the concat function.
 
 The following example fails this test because the concat function is used.
 
