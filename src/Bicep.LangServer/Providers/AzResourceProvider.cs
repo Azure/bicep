@@ -3,7 +3,6 @@
 using System;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Azure.Deployments.Core.Definitions.Identifiers;
 using Azure.ResourceManager;
 using Bicep.Core.Tracing;
 using Bicep.Core.Registry.Auth;
@@ -33,15 +32,15 @@ namespace Bicep.LanguageServer.Providers
             return new ArmClient(configuration.Cloud.ResourceManagerEndpointUri, credential, options);
         }
 
-        public async Task<JsonElement> GetGenericResource(RootConfiguration configuration, ResourceId resourceId, string apiVersion, CancellationToken cancellationToken)
+        public async Task<JsonElement> GetGenericResource(RootConfiguration configuration, IAzResourceProvider.AzResourceIdentifier resourceId, string apiVersion, CancellationToken cancellationToken)
         {
-            var armClient = CreateArmClient(configuration, resourceId.FormatFullyQualifiedType(), apiVersion);
+            var armClient = CreateArmClient(configuration, resourceId.FullyQualifiedType, apiVersion);
 
             var response = await armClient.GetGenericResource(resourceId.FullyQualifiedId).GetAsync(cancellationToken);
             if (response is null ||
                 response.GetRawResponse().ContentStream is not { } contentStream)
             {
-                throw new Exception($"Failed to fetch resource from Id '{resourceId}'");
+                throw new Exception($"Failed to fetch resource from Id '{resourceId.FullyQualifiedId}'");
             }
 
             contentStream.Position = 0;
