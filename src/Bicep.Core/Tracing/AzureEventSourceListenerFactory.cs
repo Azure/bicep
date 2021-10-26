@@ -31,12 +31,17 @@ namespace Bicep.Core.Tracing
         }
 
         // EventWrittenEventArgs does not appear mockable, so we will expose this method with deconstructed parameters
-        public static string? GetFormattedMessageWithoutHeaders(TraceVerbosity verbosity, string eventSourceName, string formatString, ReadOnlyCollection<string> parameterNames, ReadOnlyCollection<object> parameterValues)
+        public static string? GetFormattedMessageWithoutHeaders(TraceVerbosity verbosity, string? eventSourceName, string? formatString, ReadOnlyCollection<string>? parameterNames, ReadOnlyCollection<object?>? parameterValues)
         {
             if (verbosity == TraceVerbosity.Full || !string.Equals(eventSourceName, "Azure-Core"))
             {
                 // we have full verbosity enabled or the event came from non Azure-Core source
                 // (non Azure-Core sources do not appear to produce large traces)
+                return null;
+            }
+
+            if (formatString is null || parameterNames is null || parameterValues is null)
+            {
                 return null;
             }
 

@@ -1,0 +1,10 @@
+{
+  "moduleAliases": {
+    "br": {
+      "publish-alias": {
+        "registry": "biceptestdf.azurecr.io",
+        "modulePath": "publish"
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2022767932279852077"
+      "templateHash": "4645215035624560254"
     }
   },
   "parameters": {
@@ -63,7 +63,7 @@
         "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', variables('policyDefinitionName'))]"
       },
       "dependsOn": [
-        "[format('Microsoft.Authorization/policyDefinitions/{0}', variables('policyDefinitionName'))]"
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', variables('policyDefinitionName'))]"
       ]
     }
   ]

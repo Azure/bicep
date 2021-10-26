@@ -4,7 +4,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualnetworks`  \nAPI Version: `2015-05-01-preview`"
+      "value": "Type: `Microsoft.Network/virtualnetworks`  \nAPI Version: `2015-05-01-preview`"
     },
     "deprecated": false,
     "preselect": false,
@@ -22,7 +22,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2015-06-15`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2015-06-15`"
     },
     "deprecated": false,
     "preselect": false,
@@ -40,7 +40,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2016-03-30`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2016-03-30`"
     },
     "deprecated": false,
     "preselect": false,
@@ -58,7 +58,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2016-06-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2016-06-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -76,7 +76,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2016-09-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2016-09-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -94,7 +94,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2016-12-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2016-12-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -112,7 +112,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-03-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2017-03-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -130,7 +130,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-03-30`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2017-03-30`"
     },
     "deprecated": false,
     "preselect": false,
@@ -148,7 +148,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-06-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2017-06-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -166,7 +166,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-08-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2017-08-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -184,7 +184,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-09-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2017-09-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -202,7 +202,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-10-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2017-10-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -220,7 +220,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2017-11-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2017-11-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -238,7 +238,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-01-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-01-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -256,7 +256,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-02-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-02-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -274,7 +274,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-04-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-04-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -292,7 +292,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-06-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-06-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -310,7 +310,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-07-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-07-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -328,7 +328,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-08-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-08-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -346,7 +346,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-10-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-10-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -364,7 +364,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-11-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-11-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -382,7 +382,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2018-12-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2018-12-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -400,7 +400,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-02-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-02-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -418,7 +418,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-04-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-04-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -436,7 +436,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-06-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-06-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -454,7 +454,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-07-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-07-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -472,7 +472,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-08-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-08-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -490,7 +490,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-09-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-09-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -508,7 +508,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-11-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-11-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -526,7 +526,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2019-12-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2019-12-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -544,7 +544,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2020-03-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2020-03-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -562,7 +562,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2020-04-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2020-04-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -580,7 +580,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2020-05-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2020-05-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -598,7 +598,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2020-06-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2020-06-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -616,7 +616,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2020-07-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2020-07-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -634,7 +634,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2020-08-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2020-08-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -652,7 +652,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2020-11-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2020-11-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -670,7 +670,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2021-02-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2021-02-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -688,7 +688,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Network`  \nType: `virtualNetworks`  \nAPI Version: `2021-03-01`"
+      "value": "Type: `Microsoft.Network/virtualNetworks`  \nAPI Version: `2021-03-01`"
     },
     "deprecated": false,
     "preselect": false,

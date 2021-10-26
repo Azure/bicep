@@ -7,7 +7,12 @@
       "description": "Type of diagnostic to display, defaults to warning",
       "type": "string",
       "default": "warning",
-      "enum": [ "off", "info", "warning", "error" ]
+      "enum": [
+        "off",
+        "info",
+        "warning",
+        "error"
+      ]
     },
     "rule": {
       "type": "object",
@@ -19,12 +24,17 @@
           "$ref": "#/definitions/level"
         }
       },
-      "required": [ "level" ]
+      "required": [
+        "level"
+      ]
     },
     "cloudProfile": {
       "type": "object",
       "additionalProperties": false,
-      "required": [ "resourceManagerEndpoint", "activeDirectoryAuthority" ],
+      "required": [
+        "resourceManagerEndpoint",
+        "activeDirectoryAuthority"
+      ],
       "properties": {
         "resourceManagerEndpoint": {
           "title": "Resource Manager Endpoint",
@@ -54,7 +64,10 @@
     "templateSpecModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [ "subscription", "resourceGroup" ],
+      "required": [
+        "subscription",
+        "resourceGroup"
+      ],
       "properties": {
         "subscription": {
           "title": "Subscription ID",
@@ -75,7 +88,9 @@
     "bicepRegistryModuleAlias": {
       "type": "object",
       "additionalProperties": false,
-      "required": [ "registry" ],
+      "required": [
+        "registry"
+      ],
       "properties": {
         "registry": {
           "title": "Registry",
@@ -106,14 +121,20 @@
       "title": "Cloud",
       "type": "object",
       "additionalProperties": false,
-      "required": [ "currentProfile" ],
+      "required": [
+        "currentProfile"
+      ],
       "properties": {
         "currentProfile": {
           "title": "Current Profile",
           "description": "The current cloud profile",
           "anyOf": [
             {
-              "enum": [ "AzureCloud", "AzureChinaCloud", "AzureUSGovernment" ]
+              "enum": [
+                "AzureCloud",
+                "AzureChinaCloud",
+                "AzureUSGovernment"
+              ]
             },
             {
               "type": "string"
@@ -197,6 +218,9 @@
             },
             "use-protectedsettings-for-commandtoexecute-secrets": {
               "level": "warning"
+            },
+            "use-stable-vm-image": {
+              "level": "warning"
             }
           }
         }
@@ -206,7 +230,9 @@
           "title": "Core Bicep Analyzer",
           "description": "Core analyzer built into bicep",
           "type": "object",
-          "required": [ "enabled" ],
+          "required": [
+            "enabled"
+          ],
           "properties": {
             "verbose": {
               "type": "boolean",
@@ -325,6 +351,16 @@
                   "allOf": [
                     {
                       "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/use-protectedsettings-for-commandtoexecute-secrets"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "use-stable-vm-image": {
+                  "allOf": [
+                    {
+                      "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
                     },
                     {
                       "$ref": "#/definitions/rule"

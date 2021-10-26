@@ -81,10 +81,10 @@ namespace Bicep.Core.Modules
                 return null;
             }
 
-            string subscriptionId = match.BoundVariables["subscriptionId"];
-            string resourceGroupName = match.BoundVariables["resourceGroupName"];
-            string templateSpecName = match.BoundVariables["templateSpecName"];
-            string templateSpecVersion = match.BoundVariables["version"];
+            string subscriptionId = GetBoundVariable(match, nameof(subscriptionId));
+            string resourceGroupName = GetBoundVariable(match, nameof(resourceGroupName));
+            string templateSpecName = GetBoundVariable(match, nameof(templateSpecName));
+            string version = GetBoundVariable(match, nameof(version));
 
             // Validate subscription ID.
             if (!Guid.TryParse(subscriptionId, out _))
@@ -122,21 +122,24 @@ namespace Bicep.Core.Modules
             }
 
             // Validate template spec version.
-            if (templateSpecVersion.Length > ResourceNameMaximumLength)
+            if (version.Length > ResourceNameMaximumLength)
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(aliasName, templateSpecVersion, FullyQualify(referenceValue), ResourceNameMaximumLength);
+                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(aliasName, version, FullyQualify(referenceValue), ResourceNameMaximumLength);
                 return null;
             }
 
-            if (!ResourceNameRegex.IsMatch(templateSpecVersion))
+            if (!ResourceNameRegex.IsMatch(version))
             {
-                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, templateSpecVersion, FullyQualify(referenceValue));
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue));
                 return null;
             }
 
             errorBuilder = null;
-            return new(subscriptionId, resourceGroupName, templateSpecName, templateSpecVersion);
+            return new(subscriptionId, resourceGroupName, templateSpecName, version);
         }
         private static string FullyQualify(string referenceValue) => $"{ModuleReferenceSchemes.TemplateSpecs}:{referenceValue}";
+
+        private static string GetBoundVariable(UriTemplateMatch match, string variableName) =>
+            match.BoundVariables[variableName] ?? throw new InvalidOperationException($"Could not get bound variable \"{variableName}\".");
     }
 }

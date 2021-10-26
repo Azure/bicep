@@ -31,10 +31,11 @@ namespace Bicep.LangServer.IntegrationTests
             var diagnosticsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var fileSystemDict = new Dictionary<Uri, string>();
 
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"

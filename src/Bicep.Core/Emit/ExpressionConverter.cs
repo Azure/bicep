@@ -251,7 +251,7 @@ namespace Bicep.Core.Emit
                     // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                     return ConvertExpression(resource.NameSyntax);
                 case ("type", false):
-                    return new JTokenExpression(resource.TypeReference.FullyQualifiedType);
+                    return new JTokenExpression(resource.TypeReference.FormatType());
                 case ("apiVersion", false):
                     return new JTokenExpression(resource.TypeReference.ApiVersion);
                 case ("properties", _):
@@ -450,7 +450,7 @@ namespace Bicep.Core.Emit
         public static SyntaxBase GetModuleNameSyntax(ModuleSymbol moduleSymbol)
         {
             // this condition should have already been validated by the type checker
-            return moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+            return moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
         }
 
         public LanguageExpression GetUnqualifiedResourceId(ResourceMetadata resource)
@@ -459,7 +459,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.TypeReference.FullyQualifiedType,
+                resource.TypeReference.FormatType(),
                 GetResourceNameSegments(resource));
         }
 
@@ -469,7 +469,7 @@ namespace Bicep.Core.Emit
                 context,
                 this,
                 context.ResourceScopeData[resource],
-                resource.TypeReference.FullyQualifiedType,
+                resource.TypeReference.FormatType(),
                 GetResourceNameSegments(resource));
         }
 
@@ -875,6 +875,14 @@ namespace Bicep.Core.Emit
                 return GenerateUnqualifiedResourceId(managementGroupType, new[] { managementGroupName });
             }
         }
+
+        /// <summary>
+        /// Generates a management group id, using the managementGroup() function. Only suitable for use if the template being generated is targeting the management group scope.
+        /// </summary>
+        public static LanguageExpression GenerateCurrentManagementGroupId()
+            => AppendProperties(
+                CreateFunction("managementGroup"),
+                new JTokenExpression("id"));
 
         private static FunctionExpression CreateFunction(string name, params LanguageExpression[] parameters)
             => CreateFunction(name, parameters as IEnumerable<LanguageExpression>);

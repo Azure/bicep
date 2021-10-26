@@ -65,6 +65,11 @@ namespace Bicep.Core.Configuration
         {
             using var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream(BuiltInConfigurationResourceName);
 
+            if (stream is null)
+            {
+                throw new InvalidOperationException("Could not get manifest resource stream for build-in configuration.");
+            }
+
             return JsonElementFactory.CreateElement(stream);
         }
 

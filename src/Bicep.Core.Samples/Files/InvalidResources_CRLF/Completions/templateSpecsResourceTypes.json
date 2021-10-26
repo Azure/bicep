@@ -4,7 +4,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Resources`  \nType: `templateSpecs`  \nAPI Version: `2019-06-01-preview`"
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2019-06-01-preview`"
     },
     "deprecated": false,
     "preselect": false,
@@ -22,7 +22,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Resources`  \nType: `templateSpecs`  \nAPI Version: `2021-03-01-preview`"
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2021-03-01-preview`"
     },
     "deprecated": false,
     "preselect": false,
@@ -40,7 +40,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Resources`  \nType: `templateSpecs`  \nAPI Version: `2021-05-01`"
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2021-05-01`"
     },
     "deprecated": false,
     "preselect": false,

@@ -354,7 +354,7 @@ namespace Bicep.Core.Emit
                 };
 
                 if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not {} resource ||
-                    !string.Equals(resource.TypeReference.FullyQualifiedType, "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
+                    !string.Equals(resource.TypeReference.FormatType(), "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
                 {
                     throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
                 }

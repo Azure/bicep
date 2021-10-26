@@ -58,7 +58,7 @@ namespace Bicep.Core.Analyzers.Linter
             {
                 try
                 {
-                    rules.Add((IBicepAnalyzerRule)Activator.CreateInstance(ruleType));
+                    rules.Add(Activator.CreateInstance(ruleType) as IBicepAnalyzerRule ?? throw new InvalidOperationException($"Failed to create an instance of \"{ruleType.Name}\"."));
                 }
                 catch (Exception ex)
                 {

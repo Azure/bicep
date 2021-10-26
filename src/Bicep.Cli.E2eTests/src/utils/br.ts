@@ -31,9 +31,20 @@ export class BicepRegistryReferenceBuilder {
   }
 
   public getBicepReference(name: string, tagPrefix: string): string {
-    return `br:${this.registry}/${this.getRepository(name)}:${tagPrefix}_${
-      this.tagSuffix
-    }`;
+    const tag = this.getTag(tagPrefix);
+    return `br:${this.registry}/${this.getRepository(name)}:${tag}`;
+  }
+
+  public getBicepReferenceWithPublishAlias(
+    name: string,
+    tagPrefix: string
+  ): string {
+    const tag = this.getTag(tagPrefix);
+    return `br/publish-alias:${name}:${tag}`;
+  }
+
+  private getTag(tagPrefix: string) {
+    return `${tagPrefix}_${this.tagSuffix}`;
   }
 }
 

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
@@ -127,28 +128,105 @@ namespace Bicep.Core.UnitTests.Registry
             badValidationBuilder!.Should().HaveCode("BCPMock");
             badValidationBuilder!.Should().HaveMessage("Bad ref error");
 
-            dispatcher.GetModuleRestoreStatus(validRef, out var goodAvailabilityBuilder).Should().Be(ModuleRestoreStatus.Unknown);
+            dispatcher.GetModuleRestoreStatus(validRef, configuration, out var goodAvailabilityBuilder).Should().Be(ModuleRestoreStatus.Unknown);
             goodAvailabilityBuilder!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder!.Should().HaveMessage("The module with reference \"mock:validRef\" has not been restored.");
 
-            dispatcher.GetModuleRestoreStatus(validRef2, out var goodAvailabilityBuilder2).Should().Be(ModuleRestoreStatus.Succeeded);
+            dispatcher.GetModuleRestoreStatus(validRef2, configuration, out var goodAvailabilityBuilder2).Should().Be(ModuleRestoreStatus.Succeeded);
             goodAvailabilityBuilder2!.Should().BeNull();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3).Should().Be(ModuleRestoreStatus.Unknown);
+            dispatcher.GetModuleRestoreStatus(validRef3, configuration, out var goodAvailabilityBuilder3).Should().Be(ModuleRestoreStatus.Unknown);
             goodAvailabilityBuilder3!.Should().HaveCode("BCP190");
             goodAvailabilityBuilder3!.Should().HaveMessage("The module with reference \"mock:validRef3\" has not been restored.");
 
-            dispatcher.TryGetLocalModuleEntryPointUri(new Uri("mock://mock"), validRef, out var entryPointBuilder).Should().Be(new Uri("untitled://validRef"));
+            dispatcher.TryGetLocalModuleEntryPointUri(new Uri("mock://mock"), validRef, configuration, out var entryPointBuilder).Should().Be(new Uri("untitled://validRef"));
             entryPointBuilder!.Should().BeNull();
 
-            dispatcher.TryGetLocalModuleEntryPointUri(new Uri("mock://mock"), validRef3, out var entryPointBuilder3).Should().Be(new Uri("untitled://validRef3"));
+            dispatcher.TryGetLocalModuleEntryPointUri(new Uri("mock://mock"), validRef3, configuration, out var entryPointBuilder3).Should().Be(new Uri("untitled://validRef3"));
             entryPointBuilder3!.Should().BeNull();
 
             (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, new[] { validRef, validRef3 })).Should().BeTrue();
 
-            dispatcher.GetModuleRestoreStatus(validRef3, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ModuleRestoreStatus.Failed);
+            dispatcher.GetModuleRestoreStatus(validRef3, configuration, out var goodAvailabilityBuilder3AfterRestore).Should().Be(ModuleRestoreStatus.Failed);
             goodAvailabilityBuilder3AfterRestore!.Should().HaveCode("RegFail");
             goodAvailabilityBuilder3AfterRestore!.Should().HaveMessage("Failed to restore module");
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetConfigurationData), DynamicDataSourceType.Method)]
+        public async Task GetModuleRestoreStatus_ConfigurationChanges_ReturnsCachedStatusWhenChangeIsIrrelevant(RootConfiguration changedConfiguration, ModuleRestoreStatus expectedStatus)
+        {
+            // Arrange.
+            var badReference = new MockModuleReference("bad");
+
+            var registryMock = StrictMock.Of<IModuleRegistry>();
+            registryMock.SetupGet(x => x.Scheme).Returns("mock");
+            registryMock.Setup(x => x.RestoreModules(It.IsAny<RootConfiguration>(), It.IsAny<IEnumerable<ModuleReference>>()))
+                .ReturnsAsync(new Dictionary<ModuleReference, ErrorBuilderDelegate>
+                {
+                    [badReference] = x => new ErrorDiagnostic(x.TextSpan, "RestoreFailure", "Failed to restore module.")
+                });
+            registryMock.Setup(x => x.IsModuleRestoreRequired(badReference))
+                .Returns(true);
+
+            var dispatcher = CreateDispatcher(registryMock.Object);
+            var configuration = BicepTestConstants.CreateMockConfiguration();
+
+            await dispatcher.RestoreModules(configuration, new[] { badReference });
+
+            // Act.
+            var status = dispatcher.GetModuleRestoreStatus(badReference, changedConfiguration, out _);
+
+            // Assert.
+            status.Should().Be(expectedStatus);
+        }
+
+        private static IEnumerable<object[]> GetConfigurationData()
+        {
+            yield return new object[]
+            {
+                // Irrelevant change.
+                BicepTestConstants.CreateMockConfiguration(new()
+                {
+                    ["cloud.profiles.AzureCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
+                    ["cloud.profiles.AzureCloud.activeDirectoryAuthority"] = "https://example.invalid/",
+                }),
+                ModuleRestoreStatus.Failed
+            };
+
+            yield return new object[]
+            {
+                // Irrelevant change.
+                BicepTestConstants.CreateMockConfiguration(new()
+                {
+                    ["cloud.currentProfile"] = "MyCloud",
+                    ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "HTTPS://EXAMPLE.INVALID",
+                    ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://example.invalid/",
+                }),
+                ModuleRestoreStatus.Failed
+            };
+
+            yield return new object[]
+            {
+                // Relevant change.
+                BicepTestConstants.CreateMockConfiguration(new()
+                {
+                    ["cloud.currentProfile"] = "MyCloud",
+                    ["cloud.profiles.MyCloud.resourceManagerEndpoint"] = "https://example.invalid",
+                    ["cloud.profiles.MyCloud.activeDirectoryAuthority"] = "https://foo.bar.com",
+                }),
+                ModuleRestoreStatus.Unknown
+            };
+
+            yield return new object[]
+            {
+                // Relevant change.
+                BicepTestConstants.CreateMockConfiguration(new()
+                {
+                    ["cloud.credentialPrecedence"] = new[] { "VisualStudioCode" },
+                }),
+                ModuleRestoreStatus.Unknown
+            };
         }
 
         private static IModuleDispatcher CreateDispatcher(params IModuleRegistry[] registries)
@@ -178,6 +256,10 @@ namespace Bicep.Core.UnitTests.Registry
             public override string UnqualifiedReference => this.Reference;
 
             public override bool IsExternal => true;
+
+            public override bool Equals(object? obj) => obj is MockModuleReference other && this.Reference.Equals(other.Reference);
+
+            public override int GetHashCode() => this.Reference.GetHashCode();
         }
     }
 }

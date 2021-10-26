@@ -124,7 +124,7 @@
   <data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
     <value>No bicepconfig.json found for configuration override.</value>
   </data>
-	<data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
+  <data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
     <value>When setting an adminUserName property, don't use a literal value.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
@@ -181,5 +181,11 @@
   <data name="UseProtectedSettingsForCommandToExecuteSecretsRuleMessage" xml:space="preserve">
     <value>Use protectedSettings for commandToExecute secrets. Found possible secret: {0}</value>
     <comment>{0} is the description of what was found</comment>
+  </data>
+  <data name="UseStableVMImage" xml:space="preserve">
+    <value>Virtual machines shouldn't use preview images.</value>
+  </data>
+  <data name="UseStableVMImageRuleFixMessageFormat" xml:space="preserve">
+    <value>Virtual machines shouldn't use preview images. Use stable version in imageReference property "{0}".</value>
   </data>
 </root>

@@ -34,13 +34,14 @@ using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.Langu
 
 namespace Bicep.LanguageServer
 {
-    public class Server
+    public class Server : IDisposable
     {
         public record CreationOptions(
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null);
+            IFeatureProvider? Features = null,
+            IModuleRestoreScheduler? ModuleRestoreScheduler = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -127,7 +128,12 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
-            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
+            services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
+        }
+
+        public void Dispose()
+        {
+            server.Dispose();
         }
     }
 }
