@@ -36,18 +36,13 @@ export class InsertResourceCommand implements Command {
       return;
     }
 
-    await this.client.sendNotification(
-      insertResourceRequestType,
-      {
-        textDocument: 
-          this.client.code2ProtocolConverter.asTextDocumentIdentifier(
-            document
-          ),
-        position: this.client.code2ProtocolConverter.asPosition(
-          editor.selection.start
-        ),
-        resourceId: resourceId,
-      }
-    );
+    await this.client.sendNotification(insertResourceRequestType, {
+      textDocument:
+        this.client.code2ProtocolConverter.asTextDocumentIdentifier(document),
+      position: this.client.code2ProtocolConverter.asPosition(
+        editor.selection.start
+      ),
+      resourceId: resourceId,
+    });
   }
 }
