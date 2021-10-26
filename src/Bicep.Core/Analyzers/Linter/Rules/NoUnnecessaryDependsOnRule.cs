@@ -73,21 +73,21 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 foreach (ArrayItemSyntax declaredDependency in declaredDependencies.Items)
                                 {
                                     // Is this a simple reference to a resource collection?
-                                    if (model.GetSymbolInfo(declaredDependency.Value) is ResourceSymbol referencedResouce)
+                                    if (model.GetSymbolInfo(declaredDependency.Value) is ResourceSymbol referencedResource)
                                     {
-                                        if (referencedResouce.IsCollection)
+                                        if (referencedResource.IsCollection)
                                         {
                                             // Ignore dependsOn entries pointing to a resource collection - dependency analyis would
                                             // be complex and user probably knows what they're doing.
                                             continue;
                                         }
 
-                                        if (inferredDependencies.Any(d => d.Resource == referencedResouce))
+                                        if (inferredDependencies.Any(d => d.Resource == referencedResource))
                                         {
                                             this.diagnostics.Add(
                                                 parent.CreateDiagnosticForSpan(
                                                     declaredDependency.Span,
-                                                    referencedResouce.Name));
+                                                    referencedResource.Name));
                                         }
                                     }
                                 }
