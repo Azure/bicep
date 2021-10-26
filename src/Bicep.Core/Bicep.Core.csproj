@@ -12,6 +12,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.2" />
 		<PackageReference Include="Azure.Identity" Version="1.5.0" />
 		<PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.2" />
 		<PackageReference Include="JetBrains.Annotations" Version="2021.2.0">
@@ -28,10 +29,6 @@
 		<PackageReference Include="Azure.Bicep.Types" Version="0.1.304" />
 		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.304" />
 		<PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Bicep.Core.RegistryClient\Bicep.Core.RegistryClient.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">
