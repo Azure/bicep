@@ -34,7 +34,7 @@ Bicep code is transpiled to standard ARM Template JSON files, which effectively 
 
 To get going with Bicep:
 
-1. **Start by [installing the tooling](./docs/installing.md).**
+1. **Start by [installing the tooling](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install).**
 2. **Complete the [Bicep Learning Path](https://docs.microsoft.com/learn/paths/bicep-deploy/)**
 
 Alternatively, you can try the [Bicep Playground](https://aka.ms/bicepdemo) or use the [VS Code Devcontainer/Codespaces](https://github.com/Azure/vscode-remote-try-bicep) repo to get a preconfigured environment.
@@ -45,7 +45,7 @@ Full details of how the bicep language works can be found in the [Bicep document
 
 ## How does Bicep work?
 
-First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](./docs/installing.md#bicep-vs-code-extension)
+First, author your Bicep code using the Bicep language service as part of the [Bicep VS Code extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension)
 
 Both [Az CLI](https://docs.microsoft.com/cli/azure/install-azure-cli) (2.20.0+) and the [PowerShell Az module](https://docs.microsoft.com/en-us/powershell/azure/install-az-ps) (v5.6.0+) have Bicep support built-in. This means you can use the standard deployment commands with your `*.bicep` files and the tooling will transpile the code and send it to ARM on your behalf. For example, to deploy `main.bicep` to a resource group `my-rg`, we can use the CLI command we are already used to:
 
@@ -53,7 +53,7 @@ Both [Az CLI](https://docs.microsoft.com/cli/azure/install-azure-cli) (2.20.0+) 
 az deployment group create -f ./main.bicep -g my-rg
 ```
 
-For more detail on taking advantage of new Bicep constructs that replace an equivalent from ARM Templates, you can read the [moving from ARM => Bicep](./docs/arm2bicep.md) doc.
+For more detail on taking advantage of new Bicep constructs that replace an equivalent from ARM Templates, you can read the [moving from ARM => Bicep](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/compare-template-syntax) doc.
 
 ## Known limitations
 
@@ -66,10 +66,10 @@ For more detail on taking advantage of new Bicep constructs that replace an equi
 **What unique benefits do you get with Bicep?**
 
 1. Day 0 resource provider support. Any Azure resource — whether in private or public preview or GA — can be provisioned using Bicep.
-2. Much simpler syntax [compared to equivalent ARM Template JSON](./docs/arm2bicep.md)
+2. Much simpler syntax [compared to equivalent ARM Template JSON](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/compare-template-syntax)
 3. No state or state files to manage. All state is stored in Azure, so makes it easy to collaborate and make changes to resources confidently. 
 4. Tooling is the cornerstone to any great experience with a programming language. Our VS Code extension for Bicep makes it extremely easy to author and get started with advanced type validation based on all Azure resource type [API definitions](https://github.com/Azure/azure-rest-api-specs/tree/master/specification).
-5. Easily break apart your code with native [modules](./docs/spec/modules.md) 
+5. Easily break apart your code with native [modules](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/modules) 
 6. Supported by Microsoft support and 100% free to use.
 
 **Why create a new language instead of using an existing one?**
@@ -96,7 +96,7 @@ Bicep is a DSL focused on deploying end-to-end solutions in Azure. In practice, 
 
 **What happens to my existing ARM Template investments?**
 
-One of our goals is to make the transition from ARM Templates to Bicep as easy as possible. The Bicep CLI supports a `decompile` command to generate Bicep code from an ARM template. Please see [Decompiling an ARM Template](https://github.com/Azure/bicep/blob/main/docs/decompiling.md) for usage information.
+One of our goals is to make the transition from ARM Templates to Bicep as easy as possible. The Bicep CLI supports a `decompile` command to generate Bicep code from an ARM template. Please see [Decompiling an ARM Template](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/decompile) for usage information.
 
 Note that while we want to make it easy to transition to Bicep, we will continue to support and enhance the underlying ARM Template JSON language. As mentioned in [What is Bicep?](#what-is-bicep), ARM Template JSON remains the wire format that will be sent to Azure to carry out a deployment.
 
@@ -108,7 +108,7 @@ We are here to help you be successful with Bicep, please do not hesitate to reac
 
 ## Reference
 
-* [Complete language spec](./docs/spec/bicep.md)
+* [Complete language spec](https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/file)
 * [@BicepLang](https://twitter.com/BicepLang)
 * [ARM Template Reference](https://docs.microsoft.com/azure/templates/)
 
