@@ -58,7 +58,7 @@ namespace Bicep.LangServer.IntegrationTests
                 new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly));
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(typeDefinition.AsEnumerable());
             
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => {
                     options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams));
@@ -74,6 +74,7 @@ namespace Bicep.LangServer.IntegrationTests
                         services.AddSingleton<IAzResourceProvider>(mockAzResourceProvider.Object);
                         services.AddSingleton<IAzResourceTypeLoader>(typeLoader);
                     }));
+            var client = helper.Client;
 
             var resourceId = ResourceGroupLevelResourceId.Create("23775d31-d753-4290-805b-e5bde53eba6e", "myRg", "My.Rp", new [] { "myTypes"}, new [] { "myName"});
             var mockResource = new JObject

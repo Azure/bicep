@@ -42,7 +42,12 @@ namespace Bicep.Core.Configuration
 
         public Uri ActiveDirectoryAuthorityUri { get; }
 
+        // this is needed for all track 1 SDKs and track 2 management plane SDKs
         public string AuthenticationScope => ResourceManagerEndpointUri.AbsoluteUri + ".default";
+
+        // this is needed for track 2 data plane SDKs
+        // this does not work with regional ARM endpoints
+        public string ResourceManagerAudience => ResourceManagerEndpointUri.AbsoluteUri.TrimEnd('/');
 
         public static CloudConfiguration Bind(JsonElement element, string? configurationPath)
         {

@@ -25,12 +25,13 @@ namespace Bicep.LangServer.IntegrationTests
             var documentUri = DocumentUri.From("/template.bicep");
             var diagnosticsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(this.TestContext, options => 
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(this.TestContext, options => 
             {
                 options.OnPublishDiagnostics(diagnostics => {
                     diagnosticsReceived.SetResult(diagnostics);
                 });
             });
+            var client = helper.Client;
 
             // client opens the document
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, @"

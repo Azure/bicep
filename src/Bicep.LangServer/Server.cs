@@ -34,7 +34,7 @@ using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.Langu
 
 namespace Bicep.LanguageServer
 {
-    public class Server
+    public class Server : IDisposable
     {
         public record CreationOptions(
             ISnippetsProvider? SnippetsProvider = null,
@@ -137,6 +137,11 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
+        }
+
+        public void Dispose()
+        {
+            server.Dispose();
         }
     }
 }
