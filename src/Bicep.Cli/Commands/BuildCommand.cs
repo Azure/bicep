@@ -60,7 +60,7 @@ namespace Bicep.Cli.Commands
             }
 
             // return non-zero exit code on errors
-           return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
+            return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
     }
 }
