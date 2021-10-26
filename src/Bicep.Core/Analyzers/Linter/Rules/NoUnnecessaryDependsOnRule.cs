@@ -87,7 +87,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                             this.diagnostics.Add(
                                                 parent.CreateDiagnosticForSpan(
                                                     declaredDependency.Span,
-                                                    referencedResouce.Name)); //asdff fixable
+                                                    referencedResouce.Name));
                                         }
                                     }
                                 }
