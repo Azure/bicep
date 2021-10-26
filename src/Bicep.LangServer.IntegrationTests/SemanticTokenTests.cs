@@ -35,7 +35,8 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
             var bicepFile = SourceFileFactory.CreateBicepFile(uri.ToUri(), dataSet.Bicep);
 
-            using var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext, dataSet.Bicep, uri);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, dataSet.Bicep, uri);
+            var client = helper.Client;
 
             var semanticTokens = await client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
             {
