@@ -58,45 +58,60 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.model = model;
             }
 
+            public override void VisitModuleDeclarationSyntax(ModuleDeclarationSyntax syntax)
+            {
+                if (syntax.TryGetBody() is ObjectSyntax body)
+                {
+                    VisitResourceOrModuleDeclaration(syntax, body);
+                }
+
+                base.VisitModuleDeclarationSyntax(syntax);
+            }
+
             public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             {
                 if (syntax.TryGetBody() is ObjectSyntax body)
                 {
-                    var dependsOnProperty = body.SafeGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
-                    if (dependsOnProperty?.Value is ArraySyntax declaredDependencies)
-                    {
-                        if (model.GetSymbolInfo(syntax) is DeclaredSymbol thisResource)
-                        {
-                            // If this resource has no implicit dependencies, than all explicit dependsOn entries must be valid, so don't bother checking
-                            if (inferredDependenciesMap.Value.TryGetValue(thisResource, out ImmutableHashSet<ResourceDependency>? inferredDependencies))
-                            {
-                                foreach (ArrayItemSyntax declaredDependency in declaredDependencies.Items)
-                                {
-                                    // Is this a simple reference to a resource collection?
-                                    if (model.GetSymbolInfo(declaredDependency.Value) is ResourceSymbol referencedResource)
-                                    {
-                                        if (referencedResource.IsCollection)
-                                        {
-                                            // Ignore dependsOn entries pointing to a resource collection - dependency analyis would
-                                            // be complex and user probably knows what they're doing.
-                                            continue;
-                                        }
+                    VisitResourceOrModuleDeclaration(syntax, body);
+                }
 
-                                        if (inferredDependencies.Any(d => d.Resource == referencedResource))
-                                        {
-                                            this.diagnostics.Add(
-                                                parent.CreateDiagnosticForSpan(
-                                                    declaredDependency.Span,
-                                                    referencedResource.Name));
-                                        }
+                base.VisitResourceDeclarationSyntax(syntax);
+            }
+
+            private void VisitResourceOrModuleDeclaration(SyntaxBase declaringSyntax, ObjectSyntax body)
+            {
+                var dependsOnProperty = body.SafeGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
+                if (dependsOnProperty?.Value is ArraySyntax declaredDependencies)
+                {
+                    if (model.GetSymbolInfo(declaringSyntax) is DeclaredSymbol thisResource)
+                    {
+                        // If this resource has no implicit dependencies, than all explicit dependsOn entries must be valid, so don't bother checking
+                        if (inferredDependenciesMap.Value.TryGetValue(thisResource, out ImmutableHashSet<ResourceDependency>? inferredDependencies))
+                        {
+                            foreach (ArrayItemSyntax declaredDependency in declaredDependencies.Items)
+                            {
+                                // Is this a simple reference to a resource collection?
+                                if (model.GetSymbolInfo(declaredDependency.Value) is ResourceSymbol referencedResource)
+                                {
+                                    if (referencedResource.IsCollection)
+                                    {
+                                        // Ignore dependsOn entries pointing to a resource collection - dependency analyis would
+                                        // be complex and user probably knows what they're doing.
+                                        continue;
+                                    }
+
+                                    if (inferredDependencies.Any(d => d.Resource == referencedResource))
+                                    {
+                                        this.diagnostics.Add(
+                                            parent.CreateDiagnosticForSpan(
+                                                declaredDependency.Span,
+                                                referencedResource.Name));
                                     }
                                 }
                             }
                         }
                     }
                 }
-
-                base.VisitResourceDeclarationSyntax(syntax);
             }
         }
     }

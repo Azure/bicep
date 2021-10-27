@@ -134,6 +134,37 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
+        public void If_SimpleUnnecessaryDependsOn_InModule_ShouldFail()
+        {
+            CompileAndTest(
+                @"
+                    resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                      name: 'name'
+                      location: resourceGroup().location
+                      kind: 'StorageV2'
+                      sku: {
+                        name: 'Premium_LRS'
+                      }
+                    }
+
+                    module m1 'module.bicep' = {
+                       name: 'm1'
+                       params: {
+                         p1: storageaccount.id
+                       }
+                       dependsOn: [
+                         storageaccount // fails
+                       ]
+                    }
+            ",
+              OnCompileErrors.Ignore,
+              new string[] {
+                "Remove unnecessary dependsOn entry 'storageaccount'."
+              }
+            );
+        }
+
+        [TestMethod]
         public void If_Indirect_UnnecessaryDependsOn_ShouldFail()
         {
             CompileAndTest(
@@ -425,32 +456,29 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
           );
         }
 
-        [TestMethod]
-        public void If_DependsOnModule_Should_IgnoreAndPass()
-        {
-            CompileAndTest(@"
-              module m1 'module.bicep' = {
-                name: 'm1'
-                dependsOn: []
-              }
+        // TODO: We don't currently support analyzing dependencies to modules
+        //[TestMethod]
+        //public void If_Unnecessary_DependsOn_ForModule_Should_Fail()
+        //{
+        //    CompileAndTest(@"
+        //        module m1 'module.bicep' = {
+        //          name: 'm1'
+        //          dependsOn: []
+        //        }
 
-              resource vn3 'Microsoft.Network/virtualNetworks@2021-02-01' existing = [for i in range(0, 1): {
-                name: 'vn3${i}'
-              }]
-
-              resource subnet3 'Microsoft.Network/virtualNetworks/subnets@2021-02-01' = [for i in range(0, 1): {
-                name: 'subnet3'
-                parent: vn3[i]
-                dependsOn: [
-                  m1
-                ]
-              }]
-            ",
-            OnCompileErrors.Ignore, // Will get an error about not finding the module
-            new string[] {
-            }
-          );
-        }
+        //        resource vn 'Microsoft.Network/virtualNetworks@2021-02-01' = [for i in range(0, 1): {
+        //          name: '${m1.name}${i}'
+        //          dependsOn: [
+        //            m1 // fails
+        //          ]
+        //        }]
+        //    ",
+        //    OnCompileErrors.Ignore, // Will get an error about not finding the module
+        //    new string[] {
+        //        "Remove unnecessary dependsOn entry 'm1'."
+        //    }
+        //  );
+        //}
 
         [TestMethod]
         public void TolerantOfSyntaxErrors_1()
@@ -491,6 +519,48 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   userAssignedIdentities
                 ]
               }
+            ",
+            OnCompileErrors.Ignore,
+            new string[] {
+            }
+          );
+        }
+
+        [TestMethod]
+        public void Test_Issue1986_loops()
+        {
+            CompileAndTest(@"
+                var aksServicePrincipalObjectId = 'aksServicePrincipalObjectId'
+                var aksDefaultPoolSubnetName = 'asdf'
+                var vnets = [
+                  'vnet1'
+                  'vnet2'
+                ]
+                resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' = [for vnet in vnets: {
+                  name: vnet
+                }]
+
+                resource userAssignedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+                  name: 'asdfsdf'
+                  location: 'West US'
+                }
+
+                resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets@2020-08-01' existing = [for (vnet, i) in vnets: {
+                  parent: virtualNetwork[i]
+                  name: aksDefaultPoolSubnetName
+                }]
+
+                resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for (vnet, i) in vnets: {
+                  name: guid(aksDefaultPoolSubnet[i].id, 'Network Contributor')
+                  scope: aksDefaultPoolSubnet[i]
+                  properties: {
+                    principalId: aksServicePrincipalObjectId
+                    roleDefinitionId: '4d97b98b-1d4f-4787-a291-c67834d212e7'
+                  }
+                  dependsOn: [
+                    userAssignedIdentities
+                  ]
+                }]
             ",
             OnCompileErrors.Ignore,
             new string[] {
