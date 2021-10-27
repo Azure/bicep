@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -247,21 +248,36 @@ namespace Bicep.Core.Emit
             return candidateIndexExpression;
         }
 
-        public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
+        public override void VisitObjectPropertySyntax(ObjectPropertySyntax propertySyntax)
         {
             if (options?.IgnoreExplicitDependsOn == true)
             {
-                if (syntax.Key is IdentifierSyntax key)
+                // Is it a property named "dependsOn"?
+                if (propertySyntax.Key is IdentifierSyntax key && key.NameEquals(LanguageConstants.ResourceDependsOnPropertyName))
                 {
-                    if (key.NameEquals(LanguageConstants.ResourceDependsOnPropertyName))
+                    // ... that is the a top-level resource or module property?
+                    if (this.IsTopLevelPropertyOfCurrentDeclaration(propertySyntax))
                     {
-                        // Ignore dependsOn properties
+                        // Yes - don't include dependencies from this property value
                         return;
                     }
                 }
             }
 
-            base.VisitObjectPropertySyntax(syntax);
+            base.VisitObjectPropertySyntax(propertySyntax);
+        }
+
+        private bool IsTopLevelPropertyOfCurrentDeclaration(ObjectPropertySyntax propertySyntax)
+        {
+            SyntaxBase? declaringSyntax = this.currentDeclaration switch
+            {
+                ResourceSymbol resourceSymbol => (resourceSymbol.DeclaringSyntax as ResourceDeclarationSyntax)?.Value,
+                ModuleSymbol moduleSymbol => (moduleSymbol.DeclaringSyntax as ModuleDeclarationSyntax)?.Value,
+                _ => null
+            };
+            IEnumerable<ObjectPropertySyntax>? currentDeclarationProperties = (declaringSyntax as ObjectSyntax)?.Properties;
+
+            return currentDeclarationProperties?.Contains(propertySyntax) ?? false;
         }
     }
 }

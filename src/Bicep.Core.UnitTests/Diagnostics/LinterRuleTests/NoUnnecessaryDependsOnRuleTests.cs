@@ -56,13 +56,47 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
                 dependsOn: [
                     webApplication
-                    webApplication //asdf fail because of duplicate entry?
                     webApplication2
                 ]
               }
             ",
               OnCompileErrors.Fail,
               new string[] { }
+            );
+        }
+
+        [TestMethod]
+        public void DependsOn_Property_NotAtTopLevelOfResource_ShouldNotBeIgnoredForDependencies()
+        {
+            CompileAndTest(@"
+                resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  sku: {
+                    name: 'F1'
+                    capacity: 1
+                  }
+                }
+
+                resource webApplication 'Microsoft.Web/sites@2018-11-01' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  properties: {
+                    serverFarmId: 'appServicePlanId'
+                    dependsOn: [
+                      // This should be picked up as a dependency of appServicePlan and not ignored, even though the property name is
+                      // dependsOn, but it's not a top-level property
+                      appServicePlan.id
+                    ]
+                  }
+                  dependsOn: [
+                    appServicePlan // Should fail because we already have reference to appServicePlan.id in non-top-level property dependsOn
+                  ]
+                }
+            ",
+              OnCompileErrors.Fail,
+              new string[] {
+                "Remove unnecessary dependsOn entry 'appServicePlan'."}
             );
         }
 
