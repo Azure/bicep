@@ -560,11 +560,11 @@ output string test2 = testRes.properties.|
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports writing.")),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("apiVersion property"),
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("id property"),
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("name property"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource api version"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource id"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource name"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("properties property"),
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("type property")),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource type")),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports reading."),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
