@@ -231,7 +231,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax declarationSyntax
                 && declarationSyntax.Type is StringSyntax stringSyntax
                 && stringSyntax.TryGetLiteralValue() is string entered
-                && ResourceTypeReference.HasApiVersion(entered))
+                && ResourceTypeReference.HasResourceTypePrefix(entered))
             {
                 // newest api versions should be shown first
                 // strict filtering on type so that we show api versions for only the selected type

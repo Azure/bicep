@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -18,6 +19,7 @@ namespace Bicep.Core.Resources
 
         private const RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
         private static readonly Regex ResourceTypePattern = new Regex(@$"^(?<type>{TypeSegmentPattern})(/(?<type>{TypeSegmentPattern}))*(@(?<version>{VersionPattern}))?$", PatternRegexOptions);
+        private static readonly Regex ResourceTypePrefixPattern = new Regex(@$"^(?<type>{TypeSegmentPattern})(/(?<type>{TypeSegmentPattern}))*@", PatternRegexOptions);
 
         public ResourceTypeReference(ImmutableArray<string> typeSegments, string? version)
         {
@@ -80,9 +82,7 @@ namespace Bicep.Core.Resources
         public static ResourceTypeReference Parse(string resourceType)
             => TryParse(resourceType) ?? throw new ArgumentException($"Unable to parse '{resourceType}'", nameof(resourceType));
 
-        public static bool HasApiVersion(string segment)
-        {
-            return ResourceTypePattern.Match(segment).Success && segment.Contains('@');
-        }
+        public static bool HasResourceTypePrefix(string segment)
+            => ResourceTypePrefixPattern.Match(segment).Success;
     }
 }

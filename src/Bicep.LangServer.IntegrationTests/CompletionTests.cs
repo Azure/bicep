@@ -1176,6 +1176,32 @@ module a '|' = {
             );
         }
 
+        [TestMethod]
+        public async Task Resource_type_completions_return_filtered_api_versions()
+        {
+            var fileWithCursors = @"
+resource abc 'Test.Rp/basicTests@|'
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+                completions.Should().SatisfyRespectively(
+                    c => c.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("2020-01-01"))));
+        }
+
+        [TestMethod]
+        public async Task Resource_type_completions_return_filtered_types()
+        {
+            var fileWithCursors = @"
+resource abc 'Test.Rp/basic|'
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+                completions.Should().SatisfyRespectively(
+                    c => c.Should().Contain(
+                        x => x.Label == "'Test.Rp/basicTests'")));
+        }
+
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
         {
             foreach (var completionList in completionLists)
