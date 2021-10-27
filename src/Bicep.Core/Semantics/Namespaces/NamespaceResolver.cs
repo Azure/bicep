@@ -109,14 +109,11 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             var generatedTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGenerateDefaultType(type, typeReference, flags))
+                .Select(type => type.ResourceTypeProvider.TryGenerateFallbackType(type, typeReference, flags))
                 .WhereNotNull();
 
             return generatedTypes.FirstOrDefault();
         }
-
-        public bool HasResourceType(ResourceTypeReference reference)
-            => namespaceTypes.Values.Any(type => type.ResourceTypeProvider.HasDefinedType(reference));
 
         public IEnumerable<ResourceTypeReference> GetAvailableResourceTypes()
         {

@@ -14,7 +14,7 @@ namespace Bicep.Core.TypeSystem
         public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             => null;
 
-        public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             => null;
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

@@ -202,7 +202,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidResourceType() => new(
                 TextSpan,
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\".");
+                "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\".");
 
             public ErrorDiagnostic InvalidOutputType() => new(
                 TextSpan,
@@ -453,7 +453,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedResourceTypeString() => new(
                 TextSpan,
                 "BCP068",
-                "Expected a resource type string. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\".");
+                "Expected a resource type string. Specify a valid resource type of format \"<types>@<apiVersion>\".");
 
             public ErrorDiagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => new(
                 TextSpan,
@@ -1253,11 +1253,6 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP209",
                 $"Failed to find resource type \"{resourceType}\" in namespace \"{@namespace}\".");
-
-            public ErrorDiagnostic FailedToFindResourceType(string resourceType) => new(
-                TextSpan,
-                "BCP210",
-                $"Failed to find resource type \"{resourceType}\".");
 
             public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
                 TextSpan,

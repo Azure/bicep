@@ -1860,7 +1860,7 @@ resource comp6 'Microsoft.Storage/storageAccounts@'
 
 // #completionTest(52) -> templateSpecsResourceTypes
 resource comp7 'Microsoft.Resources/templateSpecs@20'
-//@[9:14) Resource comp7. Type: Microsoft.Resources/templateSpecs@20. Declaration start char: 0, length: 53
+//@[9:14) Resource comp7. Type: error. Declaration start char: 0, length: 53
 
 // #completionTest(60,61) -> virtualNetworksResourceTypes
 resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'

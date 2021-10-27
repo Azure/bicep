@@ -41,6 +41,10 @@ namespace Bicep.Core.TypeSystem.Az
             }
         }
 
+        private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
+        private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
+        private static readonly Regex ApiVersionPattern = new Regex(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
+
         public const string ResourceIdPropertyName = "id";
         public const string ResourceLocationPropertyName = "location";
         public const string ResourceNamePropertyName = "name";
@@ -406,9 +410,11 @@ namespace Bicep.Core.TypeSystem.Az
             return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
         }
 
-        public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
-            if (typeReference.TypeSegments.Length < 2 || typeReference.ApiVersion is null)
+            if (typeReference.ApiVersion is null ||
+                !ResourceTypePattern.IsMatch(typeReference.FormatType()) ||
+                !ApiVersionPattern.IsMatch(typeReference.ApiVersion))
             {
                 return null;
             }

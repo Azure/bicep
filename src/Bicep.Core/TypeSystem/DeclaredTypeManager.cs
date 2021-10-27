@@ -697,7 +697,7 @@ namespace Bicep.Core.TypeSystem
                     return definedResource;
                 }
 
-                if (namespaceType.ResourceTypeProvider.TryGenerateDefaultType(namespaceType, typeReference, typeGenerationFlags) is {} defaultResource)
+                if (namespaceType.ResourceTypeProvider.TryGenerateFallbackType(namespaceType, typeReference, typeGenerationFlags) is {} defaultResource)
                 {
                     return defaultResource;
                 }
@@ -722,7 +722,7 @@ namespace Bicep.Core.TypeSystem
                     return resourceType;
                 }
 
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).FailedToFindResourceType(stringContent));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType());
             }
         }
 
@@ -769,7 +769,6 @@ namespace Bicep.Core.TypeSystem
         {
             if (ResourceTypeReference.TryParse(typeString) is not {} typeReference)
             {
-                // TODO ensure error message gives accurate formatting advice
                 return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType()), null);
             }
 

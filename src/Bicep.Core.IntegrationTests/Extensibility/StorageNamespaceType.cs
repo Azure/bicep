@@ -59,7 +59,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                     }, null)),
             }.ToImmutableDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
 
-            public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+            public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
                 => null;
 
             public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)

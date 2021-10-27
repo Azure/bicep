@@ -56,7 +56,7 @@ randomToken
                 },
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
-                    d.Should().HaveCodeAndSeverity("BCP210", DiagnosticSeverity.Error);
+                    d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);
                 },
                 d => {
                     d.Range.Should().HaveRange((5, 0), (5, 11));
@@ -83,7 +83,7 @@ randomToken
                 },
                 d => {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
-                    d.Should().HaveCodeAndSeverity("BCP210", DiagnosticSeverity.Error);
+                    d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);
                 },
                 d => {
                     d.Range.Should().HaveRange((5, 0), (5, 11));
