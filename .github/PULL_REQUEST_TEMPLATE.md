@@ -4,7 +4,7 @@ If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). 
 
 ## Contributing to documentation
 
-* [ ] All documentation contributions should be made directly in the [bicep documentation on Microsoft Docs](https://docs.microsoft.com/azure/azure-resource-manager/bicep/).
+* [ ] All documentation contributions should be made directly in the [Bicep documentation on Microsoft Docs](https://docs.microsoft.com/azure/azure-resource-manager/bicep/).
 
 ## Contributing an example
 
