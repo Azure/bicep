@@ -691,9 +691,29 @@ namespace Bicep.LanguageServer.Completions
                     .Select(symbol => CreateSymbolCompletion(symbol, context.ReplacementRange));
             }
 
+            if (context.PropertyAccess.BaseExpression is PropertyAccessSyntax firstPropertyAccess // myMod.<outputs>
+                && firstPropertyAccess.BaseExpression is VariableAccessSyntax variableAccess  // <myMod>.
+                && compilation.GetEntrypointSemanticModel().GetSymbolInfo(variableAccess) is ModuleSymbol moduleSymbol
+                && moduleSymbol.DeclaringSyntax is ModuleDeclarationSyntax moduleDeclaration)
+            {
+                return GetProperties(declaredType)
+                .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
+                .Select(p => CreatePropertyAccessCompletion(
+                    p,
+                    compilation.SourceFileGrouping.EntryPoint, 
+                    context.PropertyAccess, 
+                    context.ReplacementRange,
+                    moduleDeclaration.TryGetModuleDescription(
+                        compilation,
+                        firstPropertyAccess.PropertyName.IdentifierName, // outputs
+                        p.Name)))
+                .Concat(GetMethods(declaredType)
+                    .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
+            }
+
             return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.WriteOnly))
-                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange))
+                .Select(p => CreatePropertyAccessCompletion(p, compilation.SourceFileGrouping.EntryPoint, context.PropertyAccess, context.ReplacementRange, descriptionDecorator: null))
                 .Concat(GetMethods(declaredType)
                     .Select(m => CreateSymbolCompletion(m, context.ReplacementRange)));
         }
@@ -753,10 +773,26 @@ namespace Bicep.LanguageServer.Completions
             // exclude read-only properties as they can't be set
             // exclude properties whose name has been specified in the object already
             var includeColon = !context.Kind.HasFlag(BicepCompletionContextKind.ObjectPropertyColonExists);
-            return GetProperties(declaredType)
+
+            // Retrieve decorator description for module parameters
+            if (context.EnclosingDeclaration is ModuleDeclarationSyntax modDeclaration &&
+                context.Property is ObjectPropertySyntax objPropSyntax &&
+                string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ModuleParamsPropertyName, StringComparison.Ordinal))
+            {
+                return GetProperties(declaredType)
                 .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly)
                             && specifiedPropertyNames.ContainsKey(p.Name) == false)
-                .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange));
+                .Select(p => CreatePropertyNameCompletion(
+                    p, 
+                    includeColon, 
+                    context.ReplacementRange, 
+                    modDeclaration.TryGetModuleDescription(model.Compilation, LanguageConstants.ModuleParamsPropertyName, p.Name)));
+            }
+
+            return GetProperties(declaredType)
+            .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly)
+                        && specifiedPropertyNames.ContainsKey(p.Name) == false)
+            .Select(p => CreatePropertyNameCompletion(p, includeColon, context.ReplacementRange, descriptionDecorator: null));
         }
 
         private static IEnumerable<TypeProperty> GetProperties(TypeSymbol? type)
@@ -928,7 +964,7 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange)
+        private static CompletionItem CreatePropertyNameCompletion(TypeProperty property, bool includeColon, Range replacementRange, string? descriptionDecorator)
         {
             var required = property.Flags.HasFlag(TypePropertyFlags.Required);
 
@@ -938,7 +974,7 @@ namespace Bicep.LanguageServer.Completions
                 // property names that much Bicep keywords or containing non-identifier chars need to be escaped
                 .WithPlainTextEdit(replacementRange, $"{escapedPropertyName}{suffix}")
                 .WithDetail(FormatPropertyDetail(property))
-                .WithDocumentation(FormatPropertyDocumentation(property))
+                .WithDocumentation(FormatPropertyDocumentation(property, descriptionDecorator))
                 .WithSortText(GetSortText(property.Name, required ? CompletionPriority.High : CompletionPriority.Medium))
                 .Preselect(required)
                 .Build();
@@ -950,17 +986,17 @@ namespace Bicep.LanguageServer.Completions
             return CompletionItemBuilder.Create(CompletionItemKind.Property, escaped)
                 .WithPlainTextEdit(replacementRange, escaped)
                 .WithDetail(FormatPropertyDetail(property))
-                .WithDocumentation(FormatPropertyDocumentation(property))
+                .WithDocumentation(FormatPropertyDocumentation(property, descriptionDecorator: null))
                 .WithSortText(GetSortText(escaped, priority))
                 .Build();
         }
 
-        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, CompletionPriority priority = CompletionPriority.Medium)
+        private static CompletionItem CreatePropertyAccessCompletion(TypeProperty property, BicepFile tree, PropertyAccessSyntax propertyAccess, Range replacementRange, string? descriptionDecorator, CompletionPriority priority = CompletionPriority.Medium)
         {
             var item = CompletionItemBuilder.Create(CompletionItemKind.Property, property.Name)
                 .WithCommitCharacters(PropertyAccessCommitChars)
                 .WithDetail(FormatPropertyDetail(property))
-                .WithDocumentation(FormatPropertyDocumentation(property))
+                .WithDocumentation(FormatPropertyDocumentation(property, descriptionDecorator))
                 .WithSortText(GetSortText(property.Name, priority));
 
             if (IsPropertyNameEscapingRequired(property))
@@ -1213,7 +1249,7 @@ namespace Bicep.LanguageServer.Completions
                 ? $"{property.Name} (Required)"
                 : property.Name;
 
-        private static string FormatPropertyDocumentation(TypeProperty property)
+        private static string FormatPropertyDocumentation(TypeProperty property, string? descriptionDecorator)
         {
             var buffer = new StringBuilder();
 
@@ -1239,6 +1275,11 @@ namespace Bicep.LanguageServer.Completions
             if (property.Description is not null)
             {
                 buffer.Append($"{property.Description}{MarkdownNewLine}");
+            }
+
+            if (descriptionDecorator is not null)
+            {
+                buffer.Append($"`@description`: {descriptionDecorator}{MarkdownNewLine}");
             }
 
             return buffer.ToString();
