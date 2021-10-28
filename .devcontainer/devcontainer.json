@@ -9,17 +9,17 @@
       "bash": {
         "path": "/bin/bash"
       }
-    },
-    "workbench.iconTheme": "vscode-icons"
+    }
   },
   "extensions": [
+    "msazurermtools.azurerm-vscode-tools",
+    "ms-azuretools.vscode-bicep",
     "ms-dotnettools.csharp",
     "ms-azuretools.vscode-docker",
     "ms-vsliveshare.vsliveshare",
     "editorconfig.editorconfig",
     "github.copilot",
     "github.vscode-pull-request-github",
-    "vscode-icons-team.vscode-icons",
     "davidanson.vscode-markdownlint"
   ]
 }
