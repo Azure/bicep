@@ -203,10 +203,10 @@
       ]
     },
     "subnet": {
+      "existing": true,
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2021-02-01",
       "name": "[format('{0}/{1}', parameters('vnetName'), parameters('subnetName'))]",
-      "existing": true,
       "dependsOn": [
         "virtualNetwork"
       ]

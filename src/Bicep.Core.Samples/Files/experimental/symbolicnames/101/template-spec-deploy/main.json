@@ -29,16 +29,16 @@
   "functions": [],
   "resources": {
     "tsVersion": {
+      "existing": true,
       "type": "Microsoft.Resources/templateSpecs/versions",
       "apiVersion": "2019-06-01-preview",
-      "name": "[format('{0}/{1}', parameters('templateSpecName'), parameters('templateSpecVersion'))]",
-      "existing": true
+      "name": "[format('{0}/{1}', parameters('templateSpecName'), parameters('templateSpecVersion'))]"
     },
     "ts": {
+      "existing": true,
       "type": "Microsoft.Resources/templateSpecs",
       "apiVersion": "2019-06-01-preview",
-      "name": "[parameters('templateSpecName')]",
-      "existing": true
+      "name": "[parameters('templateSpecName')]"
     },
     "deployTs": {
       "type": "Microsoft.Resources/deployments",
