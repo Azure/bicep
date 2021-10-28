@@ -3,8 +3,6 @@
 using System;
 using System.Linq;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -89,77 +87,6 @@ namespace Bicep.Core.Syntax
             }
 
             return targetScope;
-        }
-
-        public static string? TryGetModuleDescription(this ModuleDeclarationSyntax moduleDeclaration, Compilation compilation, string symbolType, string symbolName)
-        {
-            if (compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclaration) is BicepFile bicepFile
-                && compilation.GetSemanticModel(bicepFile) is SemanticModel model)
-            {
-                if (string.Equals(symbolType, LanguageConstants.ModuleParamsPropertyName, StringComparison.Ordinal))
-                {
-                    var paramSymbol = model.Root.GetDeclarationsByName(symbolName).OfType<ParameterSymbol>().FirstOrDefault();
-
-                    if (paramSymbol is not null &&
-                        TryGetDescription(paramSymbol.DeclaringParameter, model) is {} description)
-                    {
-                        return description;
-                    }
-                }
-                else if (string.Equals(symbolType, LanguageConstants.ModuleOutputsPropertyName, StringComparison.Ordinal))
-                {
-                    var outputSymbol = model.Root.GetDeclarationsByName(symbolName).OfType<OutputSymbol>().FirstOrDefault();
-
-                    if (outputSymbol is not null &&
-                        TryGetDescription(outputSymbol.DeclaringOutput, model) is {} description)
-                    {
-                        return description;
-                    }
-                }    
-            }
-            else if (compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclaration) is ArmTemplateFile armTemplate
-                && compilation.GetSemanticModel(armTemplate) is ArmTemplateSemanticModel armModel)
-            {
-                if (string.Equals(symbolType, LanguageConstants.ModuleParamsPropertyName, StringComparison.Ordinal))
-                {
-                    var armTemplateParamDescription = armModel.ParameterTypeProperties
-                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
-                        ?.Description;
-                    if (armTemplateParamDescription is not null)
-                    {
-                        return armTemplateParamDescription;
-                    }
-                }
-                else if (string.Equals(symbolType, LanguageConstants.ModuleOutputsPropertyName, StringComparison.Ordinal))
-                {
-                    var armTemplateOutputDescription = armModel.OutputTypeProperties
-                        .FirstOrDefault(param => LanguageConstants.IdentifierComparer.Equals(symbolName, param.Name))
-                        ?.Description;
-                    if (armTemplateOutputDescription is not null)
-                    {
-                        return armTemplateOutputDescription;
-                    }
-                }    
-            }
-            return null;
-        }
-
-        public static string? TryGetDescription(this StatementSyntax statement, SemanticModel semanticModel)
-        {
-            var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(
-                semanticModel,
-                statement,
-                SystemNamespaceType.BuiltInName,
-                LanguageConstants.MetadataDescriptionPropertyName);
-
-            if (decorator is not null &&
-                decorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
-                && stringSyntax.TryGetLiteralValue() is string description)
-            {
-                return description;
-            }
-
-            return null;
         }
     }
 }
