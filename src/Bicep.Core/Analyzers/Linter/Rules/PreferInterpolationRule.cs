@@ -74,7 +74,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (GetCodeReplacement(functionCallSyntax) is CodeReplacement cr)
                 {
-                    return new CodeFix($"Use string interpolation: {cr.Text}", true, cr); // TODO: localize
+                    string title = string.Format(CoreResources.InterpolateNotConcatFixTitle, cr.Text);
+                    return new CodeFix(title, true, cr);
                 }
                 return null;
             }

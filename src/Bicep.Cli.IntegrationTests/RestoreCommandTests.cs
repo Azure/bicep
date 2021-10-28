@@ -8,11 +8,9 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -67,6 +65,32 @@ namespace Bicep.Cli.IntegrationTests
             }
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Restore_NonExistentModules_ShouldFail(DataSet dataSet)
+{
+            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+
+            // do not publish modules to the registry
+
+            var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
+
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: dataSet.HasExternalModules), clientFactory, templateSpecRepositoryFactory);
+            TestContext.WriteLine($"Cache root = {settings.Features.CacheRootDirectory}");
+            var (output, error, result) = await Bicep(settings, "restore", bicepFilePath);
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+                error.Should().ContainAll(": Error BCP192: Unable to restore the module with reference ", "The module does not exist in the registry.");
+            }
+        }
+
         private static IEnumerable<object[]> GetAllDataSets() => DataSets.AllDataSets.ToDynamicTestData();
+
+        private static IEnumerable<object[]> GetValidDataSetsWithExternalModules() => DataSets.AllDataSets.Where(ds => ds.IsValid && ds.HasExternalModules).ToDynamicTestData();
     }
 }
