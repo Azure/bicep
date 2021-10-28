@@ -1,6 +1,6 @@
 # Key features of the Bicep VS Code extension
 
-The [bicep VS Code extension](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension) is capable of many of the features you would expect out of other language tooling. Here is a comprehensive list of the features that are currently implemented.
+The [Bicep VS Code extension](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install#vs-code-and-bicep-extension) is capable of many of the features you would expect out of other language tooling. Here is a comprehensive list of the features that are currently implemented.
 
 ## Validation
 
