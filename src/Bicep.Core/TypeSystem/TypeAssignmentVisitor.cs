@@ -369,7 +369,8 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (namespaceType.ConfigurationType is not null)
+                    if (namespaceType.ConfigurationType is not null &&
+                        namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
                         diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));
                     }
