@@ -774,9 +774,11 @@ namespace Bicep.Core.TypeSystem
 
             if (!flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
+                // this is not a syntactically nested resource - return the type reference as-is
                 return (null, typeReference);
             }
 
+            // we're dealing with a syntactically nested resource here
             if (parentResourceType is null)
             {
                 return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType()), null);

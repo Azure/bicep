@@ -955,7 +955,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidAncestorResourceType() => new(
                 TextSpan,
                 "BCP157",
-                $"The resource type cannot be determined due to an error in the parent resource.");
+                $"The resource type cannot be determined due to an error in the containing resource.");
 
             public ErrorDiagnostic ResourceRequiredForResourceAccess(string wrongType) => new(
                 TextSpan,
