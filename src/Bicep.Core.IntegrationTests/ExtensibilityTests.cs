@@ -136,7 +136,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""16492559867717304205""
+      ""templateHash"": ""8081169935437228964""
     }
   },
   ""parameters"": {
@@ -179,7 +179,7 @@ Hello from Bicep!"));
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""9407188780587710254""
+              ""templateHash"": ""429789881986791985""
             }
           },
           ""parameters"": {
@@ -199,16 +199,20 @@ Hello from Bicep!"));
           },
           ""resources"": {
             ""container"": {
-              ""type"": ""AzureStorage/containers"",
-              ""apiVersion"": ""2020-01-01"",
-              ""name"": ""bicep""
+              ""import"": ""stg"",
+              ""type"": ""AzureStorage/containers@2020-01-01"",
+              ""properties"": {
+                ""name"": ""bicep""
+              }
             },
             ""blob"": {
-              ""type"": ""AzureStorage/blobs"",
-              ""apiVersion"": ""2020-01-01"",
-              ""name"": ""blob.txt"",
-              ""containerName"": ""[resourceInfo('container').name]"",
-              ""base64Content"": ""[base64('\nHello from Bicep!')]"",
+              ""import"": ""stg"",
+              ""type"": ""AzureStorage/blobs@2020-01-01"",
+              ""properties"": {
+                ""name"": ""blob.txt"",
+                ""containerName"": ""[reference('container').name]"",
+                ""base64Content"": ""[base64('\nHello from Bicep!')]""
+              },
               ""dependsOn"": [
                 ""container""
               ]
