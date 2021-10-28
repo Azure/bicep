@@ -675,6 +675,12 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).UnknownResourceReferenceScheme(scheme, binder.NamespaceResolver.GetNamespaceNames().OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
                 }
 
+                if (parentResourceType is not null &&
+                    parentResourceType.DeclaringNamespace != namespaceType)
+                {
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).ParentResourceInDifferentNamespace(namespaceType.Name, parentResourceType.DeclaringNamespace.Name));
+                }
+
                 var (errorType, typeReference) = GetCombinedTypeReference(typeGenerationFlags, resource, parentResourceType, typeString);
                 if (errorType is not null)
                 {
@@ -684,12 +690,6 @@ namespace Bicep.Core.TypeSystem
                 if (typeReference is null)
                 {
                     throw new InvalidOperationException($"typeReference is null");
-                }
-
-                if (parentResourceType is not null &&
-                    parentResourceType.DeclaringNamespace != namespaceType)
-                {
-                    // TODO error here
                 }
 
                 if (namespaceType.ResourceTypeProvider.TryGetDefinedType(namespaceType, typeReference, typeGenerationFlags) is {} definedResource)
@@ -726,16 +726,16 @@ namespace Bicep.Core.TypeSystem
             }
         }
 
-        private (ResourceTypeGenerationFlags flags, ResourceType? parentResource) GetResourceTypeGenerationFlags(ResourceDeclarationSyntax resource)
+        private (ResourceTypeGenerationFlags flags, ResourceType? parentResourceType) GetResourceTypeGenerationFlags(ResourceDeclarationSyntax resource)
         {
             var isSyntacticallyNested = false;
-            TypeSymbol? parentResourceType = null;            
+            TypeSymbol? parentType = null;            
 
             var parentResource = binder.GetAllAncestors<ResourceDeclarationSyntax>(resource).LastOrDefault();
             if (parentResource is not null)
             {
                 isSyntacticallyNested = true;
-                parentResourceType = GetDeclaredType(parentResource);
+                parentType = GetDeclaredType(parentResource);
             }
             else if (binder.GetSymbolInfo(resource) is ResourceSymbol resourceSymbol &&
                 binder.TryGetCycle(resourceSymbol) is null &&
@@ -743,7 +743,7 @@ namespace Bicep.Core.TypeSystem
                 binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
             {
                 parentResource = parentResourceSymbol.DeclaringResource;
-                parentResourceType = GetDeclaredType(referenceParentSyntax);
+                parentType = GetDeclaredType(referenceParentSyntax);
             }
 
             var flags = ResourceTypeGenerationFlags.None;
@@ -762,7 +762,7 @@ namespace Bicep.Core.TypeSystem
                 flags |= ResourceTypeGenerationFlags.HasParentDefined;
             }
 
-            return (flags, parentResourceType as ResourceType);
+            return (flags, parentType as ResourceType);
         }
 
         private static (ErrorType? error, ResourceTypeReference? typeReference) GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceDeclarationSyntax resource, ResourceType? parentResourceType, string typeString)
@@ -777,13 +777,8 @@ namespace Bicep.Core.TypeSystem
                 return (null, typeReference);
             }
 
-            // This is a nested resource, the type name is a compound of all of the ancestor
-            // type names.
-            //
-            // Ex: 'My.Rp/someType@2020-01-01' -> 'someChild' -> 'someGrandchild'
             if (parentResourceType is null)
             {
-                // TODO add back some of the custom error detection here
                 return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType()), null);
             }
 

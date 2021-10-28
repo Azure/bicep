@@ -202,12 +202,12 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is SyntaxBase &&
                 model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(context.EnclosingDeclaration) is ResourceDeclarationSyntax parentSyntax &&
                 model.GetSymbolInfo(parentSyntax) is ResourceSymbol parentSymbol &&
-                parentSymbol.TryGetResourceTypeReference() is ResourceTypeReference parentTypeReference)
+                parentSymbol.TryGetResourceType() is {} parentResourceType)
             {
                 // This is more complex because we allow the API version to be omitted, so we want to make a list of unique values
                 // for the FQT, and then create a "no version" completion + a completion for each version.
-                var filtered = model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                    .Where(rt => parentTypeReference.IsParentOf(rt))
+                var filtered = parentResourceType.DeclaringNamespace.ResourceTypeProvider.GetAvailableTypes()
+                    .Where(rt => parentResourceType.TypeReference.IsParentOf(rt))
                     .ToLookup(rt => rt.FormatType());
 
                 var index = 0;
@@ -215,7 +215,7 @@ namespace Bicep.LanguageServer.Completions
                 foreach (var group in filtered.OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     // Doesn't matter which one of the group we take, we're leaving out the version.
-                    items.Add(CreateResourceTypeSegmentCompletion(group.First(), index++, context.ReplacementRange, includeApiVersion: false, displayApiVersion: parentTypeReference.ApiVersion));
+                    items.Add(CreateResourceTypeSegmentCompletion(group.First(), index++, context.ReplacementRange, includeApiVersion: false, displayApiVersion: parentResourceType.TypeReference.ApiVersion));
 
                     foreach (var resourceType in group.Where(rt => rt.ApiVersion is not null).OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance))
                     {

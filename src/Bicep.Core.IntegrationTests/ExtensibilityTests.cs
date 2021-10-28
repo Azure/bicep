@@ -127,6 +127,29 @@ resource blob 'bar:blob' = {
         }
 
         [TestMethod]
+        public void Child_resource_with_parent_namespace_mismatch_returns_error()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import stg from storage {
+  connectionString: 'asdf'
+}
+
+resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
+  name: 'stgParent'
+
+  resource container 'stg:container' = {
+    name: 'myblob'
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
+                ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
+            });
+        }
+
+        [TestMethod]
         public void Storage_import_end_to_end_test()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), 

@@ -955,7 +955,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidAncestorResourceType() => new(
                 TextSpan,
                 "BCP157",
-                $"The resource type cannot be determined due to an error in the containing resource.");
+                $"The resource type cannot be determined due to an error in the parent resource.");
 
             public ErrorDiagnostic ResourceRequiredForResourceAccess(string wrongType) => new(
                 TextSpan,
@@ -1253,6 +1253,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP209",
                 $"Failed to find resource type \"{resourceType}\" in namespace \"{@namespace}\".");
+
+            public ErrorDiagnostic ParentResourceInDifferentNamespace(string childNamespace, string parentNamespace) => new(
+                TextSpan,
+                "BCP210",
+                $"Resource type belonging to namespace \"{childNamespace}\" cannot have a parent resource type belonging to different namespace \"{parentNamespace}\".");
 
             public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
                 TextSpan,

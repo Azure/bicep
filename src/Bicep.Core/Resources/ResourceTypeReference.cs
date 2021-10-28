@@ -45,8 +45,7 @@ namespace Bicep.Core.Resources
         public bool IsParentOf(ResourceTypeReference other)
         {
             // Parent should have N types, child should have N+1, first N types should be equal
-            return 
-                // TODO ensure we're comparing within the same namespace
+            return
                 this.TypeSegments.Length + 1 == other.TypeSegments.Length &&
                 Enumerable.SequenceEqual(this.TypeSegments, other.TypeSegments.Take(this.TypeSegments.Length), StringComparer.OrdinalIgnoreCase);
         }
