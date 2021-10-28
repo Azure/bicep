@@ -90,9 +90,6 @@ namespace Bicep.Core.Semantics.Namespaces
         public IEnumerable<string> GetKnownPropertyNames()
             => this.namespaceTypes.Values.SelectMany(type => type.Properties.Keys);
 
-        public IEnumerable<string> GetNamespaceNames()
-            => this.namespaceTypes.Keys;
-
         public ResourceType GetResourceType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
         {
             var definedTypes = namespaceTypes.Values
