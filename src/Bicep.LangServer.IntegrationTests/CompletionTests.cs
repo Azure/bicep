@@ -1210,8 +1210,13 @@ var modOut = m.outputs.inputTi|
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
             var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
-            var completions = await RequestCompletions(client, bicepFile, cursors);
+            var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                this.TestContext, 
+                file, 
+                bicepFile.FileUri,
+                null,
+                creationOptions);
+            var completions = await RequestCompletions(helper.Client, bicepFile, cursors);
 
             completions.Should().SatisfyRespectively(
                 y => y.Should().SatisfyRespectively(
