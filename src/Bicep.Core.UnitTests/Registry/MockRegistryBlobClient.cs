@@ -8,7 +8,6 @@ using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Mock;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;

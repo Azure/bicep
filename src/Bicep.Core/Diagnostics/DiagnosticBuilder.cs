@@ -1184,10 +1184,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP195",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The module path segment \"{badSegment}\" is not valid. Each module name path segment must be a lowercase alphanumeric string optionally separated by a \".\", \"_\" , or \"-\".");
 
-            public ErrorDiagnostic InvalidOciArtifactReferenceMissingTag(string? aliasName, string badRef) => new(
+            public ErrorDiagnostic InvalidOciArtifactReferenceMissingTagOrDigest(string? aliasName, string badRef) => new(
                 TextSpan,
                 "BCP196",
-                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The module tag is missing.");
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The module tag or digest is missing.");
 
             public ErrorDiagnostic InvalidOciArtifactReferenceTagTooLong(string? aliasName, string badRef, string badTag, int maxLength) => new(
                 TextSpan,
@@ -1307,7 +1307,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(string? aliasName, string templateSpecVersion, string referenceValue) => new(
                 TextSpan,
                 "BCP223",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\".");
+
+            public ErrorDiagnostic InvalidOciArtifactReferenceInvalidDigest(string? aliasName, string badRef, string badDigest) => new(
+                TextSpan,
+                "BCP224",
+                $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The digest \"{badDigest}\" is not valid. The valid format is a string \"sha256:\" followed by exactly 64 lowercase hexadecimal digits.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
