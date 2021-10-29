@@ -689,6 +689,8 @@ namespace Bicep.Core.TypeSystem
 
                 if (typeReference is null)
                 {
+                    // this won't happen, because GetCombinedTypeReference will either return non-null errorType, or non-null typeReference.
+                    // there's no great way to enforce this in the type system sadly - https://github.com/dotnet/roslyn/discussions/56962
                     throw new InvalidOperationException($"typeReference is null");
                 }
 
@@ -714,6 +716,8 @@ namespace Bicep.Core.TypeSystem
 
                 if (typeReference is null)
                 {
+                    // this won't happen, because GetCombinedTypeReference will either return non-null errorType, or non-null typeReference.
+                    // there's no great way to enforce this in the type system sadly - https://github.com/dotnet/roslyn/discussions/56962
                     throw new InvalidOperationException($"qualifiedTypeReference is null");
                 }
 

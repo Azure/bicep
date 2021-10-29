@@ -1244,10 +1244,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP207",
                 $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
 
-            public ErrorDiagnostic UnknownResourceReferenceScheme(string identifier, IEnumerable<string> allowedSchemes) => new(
+            public ErrorDiagnostic UnknownResourceReferenceScheme(string badNamespace, IEnumerable<string> allowedNamespaces) => new(
                 TextSpan,
                 "BCP208",
-                $"The specified namespace \"{identifier}\" is not recognized. Specify a resource reference using one of the following namespaces: {ToQuotedString(allowedSchemes)}.");
+                $"The specified namespace \"{badNamespace}\" is not recognized. Specify a resource reference using one of the following namespaces: {ToQuotedString(allowedNamespaces)}.");
 
             public ErrorDiagnostic FailedToFindResourceTypeInNamespace(string @namespace, string resourceType) => new(
                 TextSpan,
