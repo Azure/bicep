@@ -525,8 +525,7 @@ namespace Bicep.Core.Emit
             // full gives access to top-level resource properties, but generates a longer statement
             if (full)
             {
-                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");    
-
+                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                 return CreateFunction(
                     "reference",
                     referenceExpression,
@@ -534,11 +533,10 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
+            // we've got a reference to a resource which isn't explicitly defined in this template - we must supply the apiVersion for reference() to work
             if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
             {
-                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");    
-
-                // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
+                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                 return CreateFunction(
                     "reference",
                     referenceExpression,
