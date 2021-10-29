@@ -85,7 +85,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return syntax;
             }
 
-            if (resourceType.TypeReference.Types.Length < 2)
+            if (resourceType.TypeReference.TypeSegments.Length < 3)
             {
                 // we're only looking for child resources here
                 return syntax;
@@ -96,8 +96,8 @@ namespace Bicep.Core.Decompiler.Rewriters
                 var otherResourceSymbol = otherResource.Symbol;
 
                 if (otherResourceSymbol.Type is not ResourceType otherResourceType ||
-                    otherResourceType.TypeReference.Types.Length != resourceType.TypeReference.Types.Length - 1 ||
-                    !resourceType.TypeReference.TypesString.StartsWith($"{otherResourceType.TypeReference.TypesString}/", StringComparison.OrdinalIgnoreCase))
+                    otherResourceType.TypeReference.TypeSegments.Length != resourceType.TypeReference.TypeSegments.Length - 1 ||
+                    !resourceType.TypeReference.FormatType().StartsWith($"{otherResourceType.TypeReference.FormatType()}/", StringComparison.OrdinalIgnoreCase))
                 {
                     continue;
                 }
