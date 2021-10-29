@@ -3,7 +3,8 @@
     "currentProfile": "AzureCloud",
     "credentialPrecedence": [
       // used by CI
-      "Environment"
+      "Environment",
+      "AzureCLI"
     ]
   },
   "moduleAliases": {
