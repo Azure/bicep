@@ -202,7 +202,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidResourceType() => new(
                 TextSpan,
                 "BCP029",
-                "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\".");
+                "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\".");
 
             public ErrorDiagnostic InvalidOutputType() => new(
                 TextSpan,
@@ -453,7 +453,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ExpectedResourceTypeString() => new(
                 TextSpan,
                 "BCP068",
-                "Expected a resource type string. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\".");
+                "Expected a resource type string. Specify a valid resource type of format \"<types>@<apiVersion>\".");
 
             public ErrorDiagnostic FunctionNotSupportedOperatorAvailable(string function, string @operator) => new(
                 TextSpan,
@@ -952,10 +952,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP156",
                 $"The resource type segment \"{typeSegment}\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\".");
 
-            public ErrorDiagnostic InvalidAncestorResourceType(string resourceName) => new(
+            public ErrorDiagnostic InvalidAncestorResourceType() => new(
                 TextSpan,
                 "BCP157",
-                $"The resource type cannot be determined due to an error in containing resource \"{resourceName}\".");
+                $"The resource type cannot be determined due to an error in the containing resource.");
 
             public ErrorDiagnostic ResourceRequiredForResourceAccess(string wrongType) => new(
                 TextSpan,
@@ -1243,6 +1243,21 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP207",
                 $"Namespace \"{identifier}\" is imported multiple times. Remove the duplicates.");
+
+            public ErrorDiagnostic UnknownResourceReferenceScheme(string badNamespace, IEnumerable<string> allowedNamespaces) => new(
+                TextSpan,
+                "BCP208",
+                $"The specified namespace \"{badNamespace}\" is not recognized. Specify a resource reference using one of the following namespaces: {ToQuotedString(allowedNamespaces)}.");
+
+            public ErrorDiagnostic FailedToFindResourceTypeInNamespace(string @namespace, string resourceType) => new(
+                TextSpan,
+                "BCP209",
+                $"Failed to find resource type \"{resourceType}\" in namespace \"{@namespace}\".");
+
+            public ErrorDiagnostic ParentResourceInDifferentNamespace(string childNamespace, string parentNamespace) => new(
+                TextSpan,
+                "BCP210",
+                $"Resource type belonging to namespace \"{childNamespace}\" cannot have a parent resource type belonging to different namespace \"{parentNamespace}\".");
 
             public ErrorDiagnostic InvalidModuleAliasName(string aliasName) => new(
                 TextSpan,

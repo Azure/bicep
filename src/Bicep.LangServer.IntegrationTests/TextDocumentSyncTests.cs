@@ -21,7 +21,6 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
         public async Task DidOpenTextDocument_should_trigger_PublishDiagnostics()
         {
             var documentUri = DocumentUri.From("/template.bicep");

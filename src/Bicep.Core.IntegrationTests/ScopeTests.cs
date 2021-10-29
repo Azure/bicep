@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.UnitTests.Assertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using Bicep.Core.UnitTests.Utils;
-using Newtonsoft.Json.Linq;
 using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.TypeSystem;

@@ -226,6 +226,7 @@ namespace Bicep.Core.Emit
 
                 if (propertyType.Flags.HasFlag(TypePropertyFlags.DeployTimeConstant))
                 {
+                    // TODO: Do we need to special case resource properties here?
                     if (resourceSymbol is not null &&
                         !AzResourceTypeProvider.ReadWriteDeployTimeConstantPropertyNames.Contains(propertyName, LanguageConstants.IdentifierComparer))
                     {
