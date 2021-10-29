@@ -22,9 +22,10 @@ namespace Bicep.Core.Registry
         string Scheme { get; }
 
         /// <summary>
-        /// Gets the capabilities of this registry.
+        /// Gets the capabilities of this registry for the specified module reference.
         /// </summary>
-        RegistryCapabilities Capabilities { get; }
+        /// <param name="reference">The module reference</param>
+        RegistryCapabilities GetCapabilities(ModuleReference reference);
 
         /// <summary>
         /// Attempts to parse the specified unqualified reference or returns a failure builder.
