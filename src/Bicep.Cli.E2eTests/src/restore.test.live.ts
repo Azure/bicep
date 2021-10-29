@@ -51,8 +51,6 @@ describe("bicep restore", () => {
       .shouldSucceed()
       .withEmptyStdout();
 
-    logFiles(pathToCachedTsModuleFile());
-
     expectFileExists(
       pathToCachedTsModuleFile(
         `${environment.templateSpecSubscriptionId}/bicep-ci/storageaccountspec-${environment.resourceSuffix}/v1`,
