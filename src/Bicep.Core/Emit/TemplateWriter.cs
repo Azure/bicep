@@ -479,7 +479,10 @@ namespace Bicep.Core.Emit
             if (isAzResource)
             {
                 emitter.EmitProperty("type", resource.TypeReference.FormatType());
-                emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+                if (resource.TypeReference.ApiVersion is not null)
+                {
+                    emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+                }
             }
             else
             {

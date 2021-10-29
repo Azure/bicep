@@ -93,10 +93,14 @@ namespace Bicep.Core.Semantics.Namespaces
         public IEnumerable<string> GetNamespaceNames()
             => this.namespaceTypes.Keys;
 
-        public ResourceType GetResourceType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+        public NamespaceType? TryGetNamespace(string name)
+            => this.namespaceTypes.TryGetValue(name);
+
+        public ResourceType? TryGetResourceType(ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
+            // TODO should we return an array of matching types here?
             var definedTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGetDefinedType(type, reference, flags))
+                .Select(type => type.ResourceTypeProvider.TryGetDefinedType(type, typeReference, flags))
                 .WhereNotNull();
 
             if (definedTypes.FirstOrDefault() is {} definedType)
@@ -105,16 +109,11 @@ namespace Bicep.Core.Semantics.Namespaces
             }
 
             var generatedTypes = namespaceTypes.Values
-                .Select(type => type.ResourceTypeProvider.TryGenerateDefaultType(type, reference, flags))
+                .Select(type => type.ResourceTypeProvider.TryGenerateFallbackType(type, typeReference, flags))
                 .WhereNotNull();
 
-            // Here we are assuming that one of the namespaces will always return at least one result with TryGenerateDefaultType.
-            // This is a fair assumption at present, because the "az" namespace is always imported.
-            return generatedTypes.First();
+            return generatedTypes.FirstOrDefault();
         }
-
-        public bool HasResourceType(ResourceTypeReference reference)
-            => namespaceTypes.Values.Any(type => type.ResourceTypeProvider.HasDefinedType(reference));
 
         public IEnumerable<ResourceTypeReference> GetAvailableResourceTypes()
         {

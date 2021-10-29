@@ -297,8 +297,8 @@ resource parent 'My.RP/parentType@invalid-version' = {
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.Should().HaveDiagnostics(new[] {
-                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\"."),
-                ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in containing resource \"parent\"."),
+                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
+                ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
             });
         }
 
@@ -330,7 +330,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
-                ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in containing resource \"child\"."),
+                ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
             });
         }
 
@@ -509,7 +509,8 @@ resource parent 'My.RP/parentType@2020-01-01' = [for item in items: {
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[]
                 {
                     ("BCP179", DiagnosticLevel.Warning,"The loop item variable \"item\" must be referenced in at least one of the value expressions of the following properties: \"name\", \"scope\""),
-                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression.")
+                    ("BCP160", DiagnosticLevel.Error, "A nested resource cannot appear inside of a resource with a for-expression."),
+                    ("BCP157", DiagnosticLevel.Error, "The resource type cannot be determined due to an error in the containing resource."),
                 });
             }
         }
