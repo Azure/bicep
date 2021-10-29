@@ -49,13 +49,14 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
                 creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"
@@ -129,13 +130,14 @@ param requiredInput string
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
                 creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"
@@ -196,13 +198,14 @@ param requiredIpnut string
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
                 creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/path/to/main.bicep");
             fileSystemDict[mainUri.ToUri()] = @"

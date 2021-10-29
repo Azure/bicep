@@ -1729,7 +1729,7 @@ resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 }
 
 resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[9:16) Resource p5_res2. Type: error. Declaration start char: 0, length: 102
+//@[9:16) Resource p5_res2. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 102
   parent: p5_res1
   name: 'res2'
 }
@@ -1741,7 +1741,7 @@ resource p6_res1 '${true}' = {
 }
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[9:16) Resource p6_res2. Type: error. Declaration start char: 0, length: 102
+//@[9:16) Resource p6_res2. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 102
   parent: p6_res1
   name: 'res2'
 }

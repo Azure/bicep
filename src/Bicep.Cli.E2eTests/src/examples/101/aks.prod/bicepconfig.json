@@ -1,0 +1,18 @@
+{
+  "cloud": {
+    "currentProfile": "AzureCloud",
+    "credentialPrecedence": [
+      // used by CI
+      "Environment",
+      "AzureCLI"
+    ]
+  },
+  "moduleAliases": {
+    "br": {
+      "publish-alias": {
+        "registry": "biceptestdf.azurecr.io",
+        "modulePath": "publish"
+      }
+    }
+  }
+}

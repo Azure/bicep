@@ -1,0 +1,18 @@
+{
+  "cloud": {
+    "currentProfile": "AzureUSGovernment",
+    "credentialPrecedence": [
+      // used by CI
+      "Environment",
+      "AzureCLI"
+    ]
+  },
+  "moduleAliases": {
+    "br": {
+      "publish-alias": {
+        "registry": "biceptestff.azurecr.us",
+        "modulePath": "publish"
+      }
+    }
+  }
+}

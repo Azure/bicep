@@ -46,7 +46,8 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
 
             // start language server
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
+            var client = helper.Client;
 
             // construct a parallel compilation
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -422,10 +423,11 @@ namespace Bicep.LangServer.IntegrationTests
             var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
 
             // Start language server
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext,
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext,
                 bicepFileContents,
                 documentUri,
                 creationOptions: serverOptions);
+            var client = helper.Client;
 
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 

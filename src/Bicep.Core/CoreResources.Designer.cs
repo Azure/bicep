@@ -71,6 +71,12 @@ namespace Bicep.Core {
             }
         }
         
+        internal static string InterpolateNotConcatFixTitle {
+            get {
+                return ResourceManager.GetString("InterpolateNotConcatFixTitle", resourceCulture);
+            }
+        }
+        
         internal static string InterpolateNotConcatRuleDescription {
             get {
                 return ResourceManager.GetString("InterpolateNotConcatRuleDescription", resourceCulture);
@@ -107,21 +113,27 @@ namespace Bicep.Core {
             }
         }
         
+        internal static string SecureParameterDefaultFixTitle {
+            get {
+                return ResourceManager.GetString("SecureParameterDefaultFixTitle", resourceCulture);
+            }
+        }
+        
         internal static string SecureParameterDefaultRuleDescription {
             get {
                 return ResourceManager.GetString("SecureParameterDefaultRuleDescription", resourceCulture);
             }
         }
         
-        internal static string SimplifyInterpolationRuleDescription {
+        internal static string SimplifyInterpolationFixTitle {
             get {
-                return ResourceManager.GetString("SimplifyInterpolationRuleDescription", resourceCulture);
+                return ResourceManager.GetString("SimplifyInterpolationFixTitle", resourceCulture);
             }
         }
         
-        internal static string UnnecessaryDependsOnRuleDescription {
+        internal static string SimplifyInterpolationRuleDescription {
             get {
-                return ResourceManager.GetString("UnnecessaryDependsOnRuleDescription", resourceCulture);
+                return ResourceManager.GetString("SimplifyInterpolationRuleDescription", resourceCulture);
             }
         }
         
@@ -134,6 +146,18 @@ namespace Bicep.Core {
         internal static string UnusedVariableRuleMessageFormat {
             get {
                 return ResourceManager.GetString("UnusedVariableRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        internal static string UseStableVMImage {
+            get {
+                return ResourceManager.GetString("UseStableVMImage", resourceCulture);
+            }
+        }
+        
+        internal static string UseStableVMImageRuleFixMessageFormat {
+            get {
+                return ResourceManager.GetString("UseStableVMImageRuleFixMessageFormat", resourceCulture);
             }
         }
     }

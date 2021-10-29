@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Security.Cryptography;
-using System.Xml.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
@@ -15,7 +13,6 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -1288,7 +1285,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\"."),
+                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"aksDefaultPoolSubnet\" is not valid."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"aksDefaultPoolSubnet\" is not valid."),
                 ("BCP057", DiagnosticLevel.Error, "The name \"aksServicePrincipalObjectId\" does not exist in the current context."),
@@ -2793,6 +2790,162 @@ resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = 
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
             evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
+        }
+        
+        // https://github.com/Azure/bicep/issues/4955
+        [TestMethod]
+        public void Test_Issue4955()
+        {
+            // missing new line at the start and end of the array
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': ['hi']
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                // diagnostics for both the start and end of the array missing new lines
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the start of the array
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': ['hi'
+    ]
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the end of the array
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': [
+      'hi']
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+        }
+        
+        // https://github.com/Azure/bicep/issues/4955
+        [TestMethod]
+        public void Test_Issue4955_objects()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': {foo: 'bar'}
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                // diagnostics for both the start and end of the object missing new lines
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the start of the object
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': {foo: 'bar'
+    }
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the end of the object
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': {
+      foo: 'bar'}
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
         }
     }
 }

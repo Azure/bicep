@@ -17,12 +17,12 @@ import {
 
 describe("bicep build", () => {
   it("should build a bicep file", () => {
-    const bicepFilePath = pathToExampleFile("101", "aks", "main.bicep");
+    const bicepFilePath = pathToExampleFile("101", "aks.prod", "main.bicep");
     invokingBicepCommand("build", bicepFilePath)
       .shouldSucceed()
       .withEmptyStdout();
 
-    const jsonFilePath = pathToExampleFile("101", "aks", "main.json");
+    const jsonFilePath = pathToExampleFile("101", "aks.prod", "main.json");
     expectFileExists(jsonFilePath);
 
     const jsonContents = readFileSync(jsonFilePath);
@@ -35,12 +35,12 @@ describe("bicep build", () => {
   });
 
   it("should log to stderr if a bicep file has errors", () => {
-    const bicepFilePath = pathToExampleFile("101", "aks", "flawed.bicep");
+    const bicepFilePath = pathToExampleFile("101", "aks.prod", "flawed.bicep");
     invokingBicepCommand("build", bicepFilePath)
       .shouldFail()
       .withNonEmptyStderr();
 
-    const jsonFilePath = pathToExampleFile("101", "aks", "flawed.json");
+    const jsonFilePath = pathToExampleFile("101", "aks.prod", "flawed.json");
     expectFileNotExists(jsonFilePath);
   });
 });

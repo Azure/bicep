@@ -224,7 +224,7 @@ namespace Bicep.Core.Registry
                 this.moduleReference = moduleReference;
             }
 
-            public override bool Equals(object obj) =>
+            public override bool Equals(object? obj) =>
                 obj is RestoreFailureKey other &&
                 this.configuration.Equals(other.configuration) &&
                 this.moduleReference.Equals(other.moduleReference);
