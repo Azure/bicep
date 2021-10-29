@@ -21,7 +21,6 @@ import {
   expectFileExists,
   writeTempFile,
   readFileSync,
-  logFiles,
 } from "./utils/fs";
 import {
   environments,
