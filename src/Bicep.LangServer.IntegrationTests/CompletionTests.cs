@@ -1157,7 +1157,52 @@ module a '|' = {
                 y => y.Should().SatisfyRespectively(
                     x => x.Label.Should().Be("mod with space.bicep"),
                     x => x.Label.Should().Be("percentage%file.bicep"),
-                    x => x.Label.Should().Be("already escaped.bicep"))
+                    x => x.Label.Should().Be("already escaped.bicep")
+                )
+            );
+        }
+
+        [TestMethod]
+        public async Task ModuleCompletionsShouldContainDescriptions()
+        {
+            var moduleContent = @"
+@description('input that you want multiplied by 3')
+param input int = 2
+
+@description('input multiplies by 3')
+output inputTimesThree int = input * 3
+";
+
+
+            var mainContent = @"
+module m 'mod.bicep' = {
+    name: 'myMod'
+    params: {
+        i|
+    }
+}
+
+var modOut = m.outputs.inputTi|
+";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(mainContent);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [mainUri] = file
+            });
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
+            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
+            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: creationOptions);
+            var completions = await RequestCompletions(client, bicepFile, cursors);
+
+            completions.Should().SatisfyRespectively(
+                y => y.Should().SatisfyRespectively(
+                    x => x.Documentation?.MarkupContent?.Value.Should().Contain("input that you want multiplied by 3")),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Documentation?.MarkupContent?.Value.Should().Contain("input multiplies by 3"))
             );
         }
 
