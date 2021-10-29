@@ -37,6 +37,27 @@ export function readFileSync(filePath: string): string {
   return fs.readFileSync(filePath, { encoding: "utf-8" });
 }
 
+export function logFiles(dirPath: string) {
+  const files: string[] = [];
+  logFilesInternal(files, dirPath);
+  console.log(`File count ${files.length}\n${files.join("\n")}`);
+}
+
+function logFilesInternal(files: string[], dirPath: string) {
+  const items = fs.readdirSync(dirPath);
+  items.forEach((name) => {
+    const itemPath = path.join(dirPath, name);
+    const stat = fs.statSync(itemPath);
+    if (stat.isFile()) {
+      files.push(itemPath);
+    }
+
+    if (stat.isDirectory()) {
+      logFiles(itemPath);
+    }
+  });
+}
+
 export async function emptyDir(dirPath: string): Promise<void> {
   await rimrafAsync(dirPath);
 }

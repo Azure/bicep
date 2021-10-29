@@ -1,0 +1,9 @@
+{
+  "cloud": {
+    "currentProfile": "AzureCloud",
+    "credentialPrecedence": [
+      // used by CI
+      "Environment"
+    ]
+  }
+}

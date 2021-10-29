@@ -4,7 +4,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { expectFileExists, pathToCachedBrModuleFile } from "./fs";
 import path from "path";
-import { invokingBicepCommand } from "./command";
+import { invokingBicepCommandWithEnvOverrides } from "./command";
 import { pathToExampleFile } from "./fs";
 
 // The modules published from live tests to our test ACR instances need to be periodically
@@ -59,11 +59,13 @@ export function expectBrModuleStructure(...pathNames: string[]): void {
 }
 
 export function publishModule(
+  envOverrides: { [key: string]: string },
   moduleReference: string,
   ...examplePathNames: string[]
 ): void {
   const storagePath = pathToExampleFile(...examplePathNames);
-  invokingBicepCommand(
+  invokingBicepCommandWithEnvOverrides(
+    envOverrides,
     "publish",
     storagePath,
     "--target",
