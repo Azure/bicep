@@ -229,41 +229,43 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression? ConvertResourcePropertyAccess(ResourceMetadata resource, SyntaxBase? indexExpression, string propertyName)
         {
+            if (!resource.IsAzResource)
+            {
+                // For an extensible resource, always generate a 'reference' statement.
+                // User-defined properties appear inside "properties", so use a non-full reference.
+                return AppendProperties(
+                    GetReferenceExpression(resource, indexExpression, false),
+                    new JTokenExpression(propertyName));
+            }
+
             // special cases for certain resource property access. if we recurse normally, we'll end up
             // generating statements like reference(resourceId(...)).id which are not accepted by ARM
-
-            switch ((propertyName, context.Settings.EnableSymbolicNames, resource.IsAzResource))
+            switch ((propertyName, context.Settings.EnableSymbolicNames))
             {
-                case (_, _, false):
-                    // For an extensible resource, always generate a 'reference' statement.
-                    // User-defined properties appear inside "properties", so use a non-full reference.
-                    return AppendProperties(
-                        GetReferenceExpression(resource, indexExpression, false),
-                        new JTokenExpression(propertyName));
-                case ("id", true, _):
-                case ("name", true, _):
-                case ("type", true, _):
-                case ("apiVersion", true, _):
+                case ("id", true):
+                case ("name", true):
+                case ("type", true):
+                case ("apiVersion", true):
                     var symbolExpression = GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
 
                     return AppendProperties(
                         CreateFunction("resourceInfo", symbolExpression),
                         new JTokenExpression(propertyName));
-                case ("id", false, _):
+                case ("id", false):
                     // the ID is dependent on the name expression which could involve locals in case of a resource collection
                     return GetFullyQualifiedResourceId(resource);
-                case ("name", false, _):
+                case ("name", false):
                     // the name is dependent on the name expression which could involve locals in case of a resource collection
 
                     // Note that we don't want to return the fully-qualified resource name in the case of name property access.
                     // we should return whatever the user has set as the value of the 'name' property for a predictable user experience.
                     return ConvertExpression(resource.NameSyntax);
-                case ("type", false, _):
+                case ("type", false):
                     return new JTokenExpression(resource.TypeReference.FormatType());
-                case ("apiVersion", false, _):
+                case ("apiVersion", false):
                     var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                     return new JTokenExpression(apiVersion);
-                case ("properties", _, _):
+                case ("properties", _):
                     // use the reference() overload without "full" to generate a shorter expression
                     // this is dependent on the name expression which could involve locals in case of a resource collection
                     return GetReferenceExpression(resource, indexExpression, false);

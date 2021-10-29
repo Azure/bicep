@@ -468,7 +468,6 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteValue(true);
             }
 
-            var isAzResource = resource.Type.DeclaringNamespace.ProviderNameEquals(AzNamespaceType.BuiltInName);
             var importSymbol = context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => resource.Type.DeclaringNamespace.AliasNameEquals(i.Name));
 
             if (importSymbol is not null)
@@ -476,7 +475,7 @@ namespace Bicep.Core.Emit
                 emitter.EmitProperty("import", importSymbol.Name);
             }
 
-            if (isAzResource)
+            if (resource.IsAzResource)
             {
                 emitter.EmitProperty("type", resource.TypeReference.FormatType());
                 if (resource.TypeReference.ApiVersion is not null)
