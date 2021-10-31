@@ -419,21 +419,18 @@ namespace Bicep.Core.TypeSystem
                     // we have a match!
                     return NarrowObjectType(config, expression, selectedObjectType);
 
-                default:
+                // ReSharper disable once ConvertTypeCheckPatternToNullCheck - using null pattern check causes compiler to think that discriminatorType might be null in the default clause.
+                case TypeSymbol when AreTypesAssignable(discriminatorType, targetType.DiscriminatorKeysUnionType):
                     //check if discriminatorType is a subset of targetType.DiscriminatorKeysUnionType.
-                    //If true - then warn with message that using property is not recommended and type validation is suspended and return generic object type
-                    if (AreTypesAssignable(discriminatorType, targetType.DiscriminatorKeysUnionType))
-                    {
-                        diagnosticWriter.Write(discriminatorProperty.Value, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
-                        return LanguageConstants.Any;
-                    }
-                    else
-                    {
-                        diagnosticWriter.Write(
-                            config.OriginSyntax ?? discriminatorProperty.Value,
-                            x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
-                    }
+                    //If match - then warn with message that using property is not recommended and type validation is suspended and return generic object type
+                    diagnosticWriter.Write(discriminatorProperty.Value, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
+                    //TODO: make a deep merge of the discriminator types to return combined object for type checking. Additionally, we need to cover hints.
+                    return LanguageConstants.Any;
 
+                default:
+                    diagnosticWriter.Write(
+                        config.OriginSyntax ?? discriminatorProperty.Value,
+                        x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
                     return LanguageConstants.Any;
             }
         }

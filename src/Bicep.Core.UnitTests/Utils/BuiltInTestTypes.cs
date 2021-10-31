@@ -113,6 +113,47 @@ namespace Bicep.Core.UnitTests.Utils
                 }), null));
         }
 
+        private static ResourceTypeComponents DiscriminatedPropertiesTestsType2()
+        {
+            var resourceType = ResourceTypeReference.Parse("Test.Rp/discriminatedPropertiesTests2@2020-01-01");
+
+            var bodyAProps = new ObjectType(
+                "BodyAProperties",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
+                },
+                null);
+
+            var bodyBProps = new ObjectType(
+                "BodyBProperties",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
+                },
+                null);
+
+            var propertiesType = new DiscriminatedObjectType(
+                "properties",
+                TypeSymbolValidationFlags.Default,
+                "propType",
+                new[] {
+                    new ObjectType("BodyA", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
+                        new TypeProperty("propType", new StringLiteralType("PropertiesA"), TypePropertyFlags.None, "This is the propType of body A"),
+                        new TypeProperty("values", bodyAProps, TypePropertyFlags.None, "These are the properties for body A"),
+                    }), null),
+                    new ObjectType("BodyB", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
+                        new TypeProperty("propType", new StringLiteralType("PropertiesB"), TypePropertyFlags.None, "This is the propType of body B"),
+                        new TypeProperty("values", bodyBProps, TypePropertyFlags.None, "These are the properties for body B"),
+                    }), null),
+                });
+
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
+                    new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
+                }), null));
+        }
+
         private static ResourceTypeComponents FallbackPropertyTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/fallbackProperties@2020-01-01");
@@ -136,6 +177,7 @@ namespace Bicep.Core.UnitTests.Utils
                 ReadWriteTestsType(),
                 DiscriminatorTestsType(),
                 DiscriminatedPropertiesTestsType(),
+                DiscriminatedPropertiesTestsType2(),
                 FallbackPropertyTestsType(),
             });
     }

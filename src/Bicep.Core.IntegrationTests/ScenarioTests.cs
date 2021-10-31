@@ -40,7 +40,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 return new string(Enumerable.Repeat(chars, generateRandomInt())
-                  .Select(s => s[generateRandomInt(0, s.Length-1)]).ToArray());
+                  .Select(s => s[generateRandomInt(0, s.Length - 1)]).ToArray());
             }
 
             var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
@@ -2613,7 +2613,7 @@ output test string = res.id
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
             });
         }
-        
+
         // https://github.com/Azure/bicep/issues/4542
         [TestMethod]
         public void Test_Issue4542()
@@ -2791,7 +2791,7 @@ resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = 
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
             evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
         }
-        
+
         // https://github.com/Azure/bicep/issues/4955
         [TestMethod]
         public void Test_Issue4955()
@@ -2869,7 +2869,7 @@ var otherExp = noValidation
                 ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
             });
         }
-        
+
         // https://github.com/Azure/bicep/issues/4955
         [TestMethod]
         public void Test_Issue4955_objects()
@@ -2946,6 +2946,85 @@ var otherExp = noValidation
                 ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
                 ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
             });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4668
+        /// </summary>
+        [TestMethod]
+        public void Issue_4668_1()
+        {
+            var result = CompilationHelper.Compile(@"
+@description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
+@allowed([
+  'AzureCLI'
+  'AzurePowerShell'
+])
+param kind string = 'AzureCLI'
+
+@description('The identity that will be used to execute the Deployment Script.')
+param identity object
+
+@description('The properties of the Deployment Script.')
+param properties object
+
+resource mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'testscript'
+  location: 'westeurope'
+  kind: kind
+  identity: identity
+  properties: properties
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"kind\" value cannot be determined at compilation time. Type checking for this object is disabled.")
+            }).And.GenerateATemplate();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4668
+        /// </summary>
+        [TestMethod]
+        public void Issue_4668_2()
+        {
+            var result = CompilationHelper.Compile(new CompilationHelper.CompilationHelperContext(NamespaceProvider: BuiltInTestTypes.Create()), @"
+param properties object
+
+resource mainResource 'Test.Rp/discriminatedPropertiesTests@2020-01-01' = {
+  name: 'testresource'
+  properties: properties
+}
+");
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/4668
+        /// </summary>
+        [TestMethod]
+        public void Issue_4668_3()
+        {
+            var result = CompilationHelper.Compile(new CompilationHelper.CompilationHelperContext(NamespaceProvider: BuiltInTestTypes.Create()), @"
+@allowed([
+  'PropertiesA'
+  'PropertiesB'
+])
+param propType string
+param values object
+
+resource mainResource 'Test.Rp/discriminatedPropertiesTests2@2020-01-01' = {
+  name: 'testresource'
+  properties: {
+    propType: propType
+    values: values
+  }
+}
+");
+            result.Should().HaveDiagnostics(new[]
+            {
+                ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"propType\" value cannot be determined at compilation time. Type checking for this object is disabled.")
+            }).And.GenerateATemplate();
         }
     }
 }
