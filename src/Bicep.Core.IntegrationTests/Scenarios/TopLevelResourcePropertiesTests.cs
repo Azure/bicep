@@ -339,7 +339,7 @@ resource mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 ");
             result.Should().HaveDiagnostics(new[]
             {
-                ("BCP224", DiagnosticLevel.Warning, "The discriminator property \"kind\" value cannot be determined at compilation time. Type checking for this resource is disabled.")
+                ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"kind\" value cannot be determined at compilation time. Type checking for this resource is disabled.")
             }).And.GenerateATemplate();
         }
     }

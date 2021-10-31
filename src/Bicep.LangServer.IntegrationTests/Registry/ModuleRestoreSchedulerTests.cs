@@ -176,7 +176,7 @@ namespace Bicep.LangServer.UnitTests.Registry
 
             public string Scheme => "mock";
 
-            public RegistryCapabilities Capabilities => throw new NotImplementedException();
+            public RegistryCapabilities GetCapabilities(ModuleReference reference) => throw new NotImplementedException();
 
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 

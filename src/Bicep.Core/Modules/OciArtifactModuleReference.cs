@@ -29,6 +29,8 @@ namespace Bicep.Core.Modules
         // must be kept in sync with the tag max length
         private static readonly Regex TagRegex = new(@"^[a-zA-Z0-9_][a-zA-Z0-9._-]{0,127}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
 
+        private static readonly Regex DigestRegex = new(@"^sha256:[a-f0-9]{64}$", RegexOptions.Compiled | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant);
+
         // the registry component is equivalent to a host in a URI, which are case-insensitive
         public static readonly IEqualityComparer<string> RegistryComparer = StringComparer.OrdinalIgnoreCase;
 
@@ -36,14 +38,26 @@ namespace Bicep.Core.Modules
         public static readonly IEqualityComparer<string> RepositoryComparer = StringComparer.Ordinal;
 
         // tags are case-sensitive and may contain upper and lowercase characters
-        public static readonly IEqualityComparer<string> TagComparer = StringComparer.Ordinal;
+        public static readonly IEqualityComparer<string?> TagComparer = StringComparer.Ordinal;
 
-        public OciArtifactModuleReference(string registry, string repository, string tag)
+        // digests are case sensitive
+        public static readonly IEqualityComparer<string?> DigestComparer = StringComparer.Ordinal;
+
+        public OciArtifactModuleReference(string registry, string repository, string? tag, string? digest)
              : base(ModuleReferenceSchemes.Oci)
         {
+            switch(tag,digest)
+            {
+                case (null, null):
+                    throw new ArgumentException($"Both {nameof(tag)} and {nameof(digest)} cannot be null.");
+                case (not null, not null):
+                    throw new ArgumentException($"Both {nameof(tag)} and {nameof(digest)} cannot be non-null.");
+            }
+
             this.Registry = registry;
             this.Repository = repository;
             this.Tag = tag;
+            this.Digest = digest;
         }
 
         /// <summary>
@@ -57,14 +71,21 @@ namespace Bicep.Core.Modules
         public string Repository { get; }
 
         /// <summary>
-        /// Gets the tag.
+        /// Gets the tag. Either tag or digest is set but not both.
         /// </summary>
-        public string Tag { get; }
+        public string? Tag { get; }
+
+        /// <summary>
+        /// Gets the digest. Either tag or digest is set but not both.
+        /// </summary>
+        public string? Digest { get; }
 
         /// <summary>
         /// Gets the artifact ID.
         /// </summary>
-        public string ArtifactId => $"{this.Registry}/{this.Repository}:{this.Tag}";
+        public string ArtifactId => this.Digest is null
+            ? $"{this.Registry}/{this.Repository}:{this.Tag}"
+            : $"{this.Registry}/{this.Repository}@{this.Digest}";
 
         public override string UnqualifiedReference => this.ArtifactId;
 
@@ -81,7 +102,8 @@ namespace Bicep.Core.Modules
                 // TODO: Are all of these case-sensitive?
                 RegistryComparer.Equals(this.Registry, other.Registry) &&
                 RepositoryComparer.Equals(this.Repository, other.Repository) &&
-                TagComparer.Equals(this.Tag, other.Tag);
+                TagComparer.Equals(this.Tag, other.Tag) &&
+                DigestComparer.Equals(this.Digest, other.Digest);
         }
 
         public override int GetHashCode()
@@ -90,6 +112,7 @@ namespace Bicep.Core.Modules
             hash.Add(this.Registry, RegistryComparer);
             hash.Add(this.Repository, RepositoryComparer);
             hash.Add(this.Tag, TagComparer);
+            hash.Add(this.Digest, DigestComparer);
 
             return hash.ToHashCode();
         }
@@ -148,15 +171,28 @@ namespace Bicep.Core.Modules
                 repoBuilder.Append(UnescapeSegment(current));
             }
 
-            // on a valid ref it would look something like "bar:v1"
+            // on a valid ref it would look something like "bar:v1" or "bar@sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
             var lastSegment = artifactUri.Segments[^1];
-            var indexOfColon = lastSegment.IndexOf(':');
+            
+            static (int index, char? delimiter) FindLastSegmentDelimiter(string lastSegment)
+            {
+                for(int i = 0; i < lastSegment.Length; i++)
+                {
+                    var current = lastSegment[i];
+                    if(current == ':' || current == '@')
+                    {
+                        return (i, current);
+                    }
+                }
 
-            static bool HasTag(int indexOfColon) => indexOfColon >= 0;
+                return (-1, null);
+            }
+
+            var (indexOfLastSegmentDelimiter, delimiter) = FindLastSegmentDelimiter(lastSegment);            
 
             // users will type references from left to right, so we should validate the last component of the module path
             // before we complain about the missing tag, which is the last part of the module ref
-            var name = UnescapeSegment(!HasTag(indexOfColon) ? lastSegment : lastSegment.Substring(0, indexOfColon));
+            var name = UnescapeSegment(!delimiter.HasValue ? lastSegment : lastSegment.Substring(0, indexOfLastSegmentDelimiter));
             if (!ModulePathSegmentRegex.IsMatch(name))
             {
                 failureBuilder = x => x.InvalidOciArtifactReferenceInvalidPathSegment(aliasName, GetBadReference(rawValue), name);
@@ -172,34 +208,53 @@ namespace Bicep.Core.Modules
                 return null;
             }
 
-            // now we can complain about the missing tag
-            if (!HasTag(indexOfColon))
+            // now we can complain about the missing tag or digest
+            if (!delimiter.HasValue)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(aliasName, GetBadReference(rawValue));
+                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
                 return null;
             }
 
-            var tag = UnescapeSegment(lastSegment[(indexOfColon + 1)..]);
-            if(string.IsNullOrEmpty(tag))
+            var tagOrDigest = UnescapeSegment(lastSegment[(indexOfLastSegmentDelimiter + 1)..]);
+            if (string.IsNullOrEmpty(tagOrDigest))
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTag(aliasName, GetBadReference(rawValue));
+                failureBuilder = x => x.InvalidOciArtifactReferenceMissingTagOrDigest(aliasName, GetBadReference(rawValue));
                 return null;
             }
 
-            if(tag.Length > MaxTagLength)
+            switch (delimiter.Value)
             {
-                failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(aliasName, GetBadReference(rawValue), tag, MaxTagLength);
-                return null;
-            }
+                case ':':
+                    var tag = tagOrDigest;
+                    if (tag.Length > MaxTagLength)
+                    {
+                        failureBuilder = x => x.InvalidOciArtifactReferenceTagTooLong(aliasName, GetBadReference(rawValue), tag, MaxTagLength);
+                        return null;
+                    }
 
-            if (!TagRegex.IsMatch(tag))
-            {
-                failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(aliasName, GetBadReference(rawValue), tag);
-                return null;
-            }
+                    if (!TagRegex.IsMatch(tag))
+                    {
+                        failureBuilder = x => x.InvalidOciArtifactReferenceInvalidTag(aliasName, GetBadReference(rawValue), tag);
+                        return null;
+                    }
 
-            failureBuilder = null;
-            return new OciArtifactModuleReference(registry, repository, tag);
+                    failureBuilder = null;
+                    return new OciArtifactModuleReference(registry, repository, tag: tag, digest: null);
+
+                case '@':
+                    var digest = tagOrDigest;
+                    if(!DigestRegex.IsMatch(digest))
+                    {
+                        failureBuilder = x => x.InvalidOciArtifactReferenceInvalidDigest(aliasName, GetBadReference(rawValue), digest);
+                        return null;
+                    }
+
+                    failureBuilder = null;
+                    return new OciArtifactModuleReference(registry, repository, tag: null, digest: digest);
+
+                default:
+                    throw new NotImplementedException($"Unexpected last segment delimiter character '{delimiter.Value}'.");
+            }
         }
     }
 }

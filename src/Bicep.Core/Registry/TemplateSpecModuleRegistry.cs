@@ -29,7 +29,7 @@ namespace Bicep.Core.Registry
 
         public override string Scheme => ModuleReferenceSchemes.TemplateSpecs;
 
-        public override RegistryCapabilities Capabilities => RegistryCapabilities.Default;
+        public override RegistryCapabilities GetCapabilities(TemplateSpecModuleReference reference) => RegistryCapabilities.Default;
 
         public override ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             TemplateSpecModuleReference.TryParse(aliasName, reference, configuration, out failureBuilder);
