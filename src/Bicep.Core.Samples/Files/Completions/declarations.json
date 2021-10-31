@@ -946,7 +946,7 @@
     "detail": "Cosmos DB Mongo Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource mongoDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource mongoDb 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -955,7 +955,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:mongoDb} 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
+      "newText": "resource ${1:mongoDb} 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
