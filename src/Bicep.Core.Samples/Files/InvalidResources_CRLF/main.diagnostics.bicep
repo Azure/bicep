@@ -2199,7 +2199,7 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
   name: 'testscript'
   location: 'westeurope'
   kind: issue4668_kind
-//@[8:22) [BCP225 (Warning)] The discriminator property "kind" value cannot be determined at compilation time. Type checking for this resource is disabled. (CodeDescription: none) |issue4668_kind|
+//@[8:22) [BCP225 (Warning)] The discriminator property "kind" value cannot be determined at compilation time. Type checking for this object is disabled. (CodeDescription: none) |issue4668_kind|
   identity: issue4668_identity
   properties: issue4668_properties
 }
