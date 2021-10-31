@@ -1033,7 +1033,7 @@
     "detail": "Cosmos Table Storage",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1042,7 +1042,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource ${1:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
