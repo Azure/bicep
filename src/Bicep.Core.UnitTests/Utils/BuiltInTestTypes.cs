@@ -14,20 +14,12 @@ namespace Bicep.Core.UnitTests.Utils
     /// </summary>
     public class BuiltInTestTypes
     {
-        private static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
-        {
-            yield return new TypeProperty(AzResourceTypeProvider.ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "id property");
-            yield return new TypeProperty(AzResourceTypeProvider.ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "name property");
-            yield return new TypeProperty(AzResourceTypeProvider.ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "type property");
-            yield return new TypeProperty(AzResourceTypeProvider.ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "apiVersion property");
-        }
-
         private static ResourceTypeComponents BasicTestsType()
         {
             var resourceType = ResourceTypeReference.Parse("Test.Rp/basicTests@2020-01-01");
 
             return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
-                GetCommonResourceProperties(resourceType).Concat(new[] {
+                AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
                 }), null));
         }
@@ -44,7 +36,7 @@ namespace Bicep.Core.UnitTests.Utils
             }, null);
 
             return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
-                GetCommonResourceProperties(resourceType).Concat(new[] {
+                AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }), null));
         }
@@ -74,11 +66,11 @@ namespace Bicep.Core.UnitTests.Utils
                 TypeSymbolValidationFlags.Default,
                 "kind",
                 new[] {
-                    new ObjectType("BodyA", TypeSymbolValidationFlags.Default, GetCommonResourceProperties(resourceType).Concat(new [] {
+                    new ObjectType("BodyA", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
                         new TypeProperty("kind", new StringLiteralType("BodyA"), TypePropertyFlags.None, "This is the kind of body A"),
                         new TypeProperty("properties", bodyAProps, TypePropertyFlags.None, "These are the properties for body A"),
                     }), null),
-                    new ObjectType("BodyB", TypeSymbolValidationFlags.Default, GetCommonResourceProperties(resourceType).Concat(new [] {
+                    new ObjectType("BodyB", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
                         new TypeProperty("kind", new StringLiteralType("BodyB"), TypePropertyFlags.None, "This is the kind of body B"),
                         new TypeProperty("properties", bodyBProps, TypePropertyFlags.None, "These are the properties for body B"),
                     }), null),
@@ -116,7 +108,48 @@ namespace Bicep.Core.UnitTests.Utils
                 new[] { propsA, propsB });
 
             return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
-                GetCommonResourceProperties(resourceType).Concat(new[] {
+                AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
+                    new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
+                }), null));
+        }
+
+        private static ResourceTypeComponents DiscriminatedPropertiesTestsType2()
+        {
+            var resourceType = ResourceTypeReference.Parse("Test.Rp/discriminatedPropertiesTests2@2020-01-01");
+
+            var bodyAProps = new ObjectType(
+                "BodyAProperties",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propA", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propA!"),
+                },
+                null);
+
+            var bodyBProps = new ObjectType(
+                "BodyBProperties",
+                TypeSymbolValidationFlags.WarnOnTypeMismatch,
+                new[] {
+                    new TypeProperty("propB", LanguageConstants.String, TypePropertyFlags.None, "This is the description for propB!"),
+                },
+                null);
+
+            var propertiesType = new DiscriminatedObjectType(
+                "properties",
+                TypeSymbolValidationFlags.Default,
+                "propType",
+                new[] {
+                    new ObjectType("BodyA", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
+                        new TypeProperty("propType", new StringLiteralType("PropertiesA"), TypePropertyFlags.None, "This is the propType of body A"),
+                        new TypeProperty("values", bodyAProps, TypePropertyFlags.None, "These are the properties for body A"),
+                    }), null),
+                    new ObjectType("BodyB", TypeSymbolValidationFlags.Default, AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new [] {
+                        new TypeProperty("propType", new StringLiteralType("PropertiesB"), TypePropertyFlags.None, "This is the propType of body B"),
+                        new TypeProperty("values", bodyBProps, TypePropertyFlags.None, "These are the properties for body B"),
+                    }), null),
+                });
+
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
+                AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }), null));
         }
@@ -130,7 +163,7 @@ namespace Bicep.Core.UnitTests.Utils
             }, null);
 
             return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, new ObjectType(resourceType.FormatName(), TypeSymbolValidationFlags.Default,
-                GetCommonResourceProperties(resourceType).Concat(new[] {
+                AzResourceTypeProvider.GetCommonResourceProperties(resourceType).Concat(new[] {
                     new TypeProperty("properties", propertiesType, TypePropertyFlags.Required, "properties property"),
                 }).Concat(
                     AzResourceTypeProvider.KnownTopLevelResourceProperties().Where(p => !string.Equals(p.Name, "properties", LanguageConstants.IdentifierComparison))
@@ -144,6 +177,7 @@ namespace Bicep.Core.UnitTests.Utils
                 ReadWriteTestsType(),
                 DiscriminatorTestsType(),
                 DiscriminatedPropertiesTestsType(),
+                DiscriminatedPropertiesTestsType2(),
                 FallbackPropertyTestsType(),
             });
     }

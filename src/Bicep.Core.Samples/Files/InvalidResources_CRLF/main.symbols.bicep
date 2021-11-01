@@ -1729,7 +1729,7 @@ resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 }
 
 resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[9:16) Resource p5_res2. Type: error. Declaration start char: 0, length: 102
+//@[9:16) Resource p5_res2. Type: Microsoft.Rp2/resource2/child2@2020-06-01. Declaration start char: 0, length: 102
   parent: p5_res1
   name: 'res2'
 }
@@ -1741,7 +1741,7 @@ resource p6_res1 '${true}' = {
 }
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[9:16) Resource p6_res2. Type: error. Declaration start char: 0, length: 102
+//@[9:16) Resource p6_res2. Type: Microsoft.Rp1/resource1/child2@2020-06-01. Declaration start char: 0, length: 102
   parent: p6_res1
   name: 'res2'
 }
@@ -2001,5 +2001,27 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
     dataSources: dataCollectionRule.dataSources
     dataFlows: dataCollectionRule.dataFlows
   }
+}
+
+@description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
+@allowed([
+  'AzureCLI'
+  'AzurePowerShell'
+])
+param issue4668_kind string = 'AzureCLI'
+//@[6:20) Parameter issue4668_kind. Type: 'AzureCLI' | 'AzurePowerShell'. Declaration start char: 0, length: 176
+@description('The identity that will be used to execute the Deployment Script.')
+param issue4668_identity object
+//@[6:24) Parameter issue4668_identity. Type: object. Declaration start char: 0, length: 113
+@description('The properties of the Deployment Script.')
+param issue4668_properties object
+//@[6:26) Parameter issue4668_properties. Type: object. Declaration start char: 0, length: 91
+resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[9:31) Resource issue4668_mainResource. Type: Microsoft.Resources/deploymentScripts@2020-10-01. Declaration start char: 0, length: 229
+  name: 'testscript'
+  location: 'westeurope'
+  kind: issue4668_kind
+  identity: issue4668_identity
+  properties: issue4668_properties
 }
 

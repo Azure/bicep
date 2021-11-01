@@ -9,6 +9,7 @@ using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -354,7 +355,7 @@ namespace Bicep.Core.Emit
                 };
 
                 if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not {} resource ||
-                    !string.Equals(resource.TypeReference.FormatType(), "microsoft.keyvault/vaults", StringComparison.OrdinalIgnoreCase))
+                    !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
                 {
                     throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
                 }

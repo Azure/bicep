@@ -49,7 +49,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
 
                 yield return CreateFixableDiagnosticForSpan(defaultValueSyntax.Span,
-                    new CodeFix("Remove default value", true,  // TODO: localize
+                    new CodeFix(CoreResources.SecureParameterDefaultFixTitle, true,
                             new CodeReplacement(defaultValueSyntax.Span, string.Empty)));
             }
         }

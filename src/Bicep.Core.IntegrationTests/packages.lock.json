@@ -75,6 +75,15 @@
           "Azure.Bicep.Types": "0.1.304"
         }
       },
+      "Azure.Containers.ContainerRegistry": {
+        "type": "Transitive",
+        "resolved": "1.1.0-beta.2",
+        "contentHash": "6YvevNtaQdiwPJ50gBpf2RQUcrcjixg4flU6T0NeHih79VCCtf1rDOu1CL5la7mDbIfwVMbEL/rSb7ABabEKOA==",
+        "dependencies": {
+          "Azure.Core": "1.19.0",
+          "System.Text.Json": "4.6.0"
+        }
+      },
       "Azure.Core": {
         "type": "Transitive",
         "resolved": "1.20.0",
@@ -2262,24 +2271,18 @@
         "dependencies": {
           "Azure.Bicep.Types": "0.1.304",
           "Azure.Bicep.Types.Az": "0.1.304",
+          "Azure.Containers.ContainerRegistry": "1.1.0-beta.2",
           "Azure.Deployments.Core": "1.0.253",
           "Azure.Deployments.Expression": "1.0.253",
           "Azure.Deployments.Templates": "1.0.253",
           "Azure.Identity": "1.5.0",
           "Azure.ResourceManager.Resources": "1.0.0-beta.2",
-          "Bicep.Core.RegistryClient": "1.0.0",
           "Microsoft.Extensions.Configuration": "5.0.0",
           "Microsoft.Extensions.Configuration.Binder": "5.0.0",
           "Microsoft.Extensions.Configuration.Json": "5.0.0",
           "Newtonsoft.Json": "13.0.1",
           "System.Collections.Immutable": "5.0.0",
           "System.IO.Abstractions": "13.2.47"
-        }
-      },
-      "bicep.core.registryclient": {
-        "type": "Project",
-        "dependencies": {
-          "Azure.Core": "1.20.0"
         }
       },
       "bicep.core.samples": {

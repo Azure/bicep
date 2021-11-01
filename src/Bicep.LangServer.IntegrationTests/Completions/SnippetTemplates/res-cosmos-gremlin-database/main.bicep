@@ -1,6 +1,6 @@
 ﻿// $1 = gremlinDb
-// $2 = 'accountName/gremlin/databaseName'
+// $2 = 'accountName/databaseName'
 // $3 = 'id'
-// $4 = 'throughput'
+// $4 = 1000
 
 // Insert snippet here

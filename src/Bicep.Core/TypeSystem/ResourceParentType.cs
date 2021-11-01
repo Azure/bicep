@@ -20,6 +20,6 @@ namespace Bicep.Core.TypeSystem
         public override TypeKind TypeKind => TypeKind.Resource;
 
         private static string GetFullyQualifiedParentTypeName(ResourceTypeReference childTypeReference) =>
-            $"{childTypeReference.Namespace}/{childTypeReference.Types.Take(childTypeReference.Types.Length - 1).ConcatString("/")}";
+            childTypeReference.TypeSegments.Take(childTypeReference.TypeSegments.Length - 1).ConcatString("/");
     }
 }

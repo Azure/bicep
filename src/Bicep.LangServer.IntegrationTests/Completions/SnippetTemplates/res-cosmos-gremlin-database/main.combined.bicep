@@ -1,16 +1,16 @@
 // $1 = gremlinDb
-// $2 = 'accountName/gremlin/databaseName'
+// $2 = 'accountName/databaseName'
 // $3 = 'id'
-// $4 = 'throughput'
+// $4 = 1000
 
-resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
-  name: 'accountName/gremlin/databaseName'
+resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {
+  name: 'accountName/databaseName'
   properties: {
     resource: {
       id: 'id'
     }
     options: {
-      throughput: 'throughput'
+      throughput: 1000
     }
   }
 }
