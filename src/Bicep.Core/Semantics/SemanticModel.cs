@@ -86,7 +86,8 @@ namespace Bicep.Core.Semantics
                         typePropertyFlags |= TypePropertyFlags.Required;
                     }
 
-                    paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
+                    var description = SemanticModelHelper.TryGetDescription(this, param.DeclaringParameter);
+                    paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags, description));
                 }
 
                 return paramTypeProperties.ToImmutableArray();
@@ -98,7 +99,8 @@ namespace Bicep.Core.Semantics
 
                 foreach (var output in this.Root.OutputDeclarations.DistinctBy(o => o.Name))
                 {
-                    outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+                    var description = SemanticModelHelper.TryGetDescription(this, output.DeclaringOutput);
+                    outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly, description));
                 }
 
                 return outputTypeProperties.ToImmutableArray();
