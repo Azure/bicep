@@ -423,7 +423,7 @@ namespace Bicep.LangServer.IntegrationTests
             fixable.Fixes.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Description.Should().Be("Use recent api version 2018-05-01");
+                    x.Description.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, "2018-05-01"));
                 });
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -441,7 +441,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     x.IsCodeAction.Should().BeTrue();
                     x.CodeAction!.Kind.Should().Be(CodeActionKind.QuickFix);
-                    x.CodeAction.Title.Should().Be("Use recent api version 2018-05-01");
+                    x.CodeAction.Title.Should().Be(string.Format(CoreResources.UseRecentApiVersionRuleFixMessageFormat, "2018-05-01"));
                 });
         }
 
