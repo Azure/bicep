@@ -1184,7 +1184,7 @@ module a '|' = {
 @description('input that you want multiplied by 3')
 param input int = 2
 
-@description('input multiplies by 3')
+@description('input multiplied by 3')
 output inputTimesThree int = input * 3
 ";
 
@@ -1222,7 +1222,7 @@ var modOut = m.outputs.inputTi|
                 y => y.Should().SatisfyRespectively(
                     x => x.Documentation?.MarkupContent?.Value.Should().Contain("input that you want multiplied by 3")),
                 y => y.Should().SatisfyRespectively(
-                    x => x.Documentation?.MarkupContent?.Value.Should().Contain("input multiplies by 3"))
+                    x => x.Documentation?.MarkupContent?.Value.Should().Contain("input multiplied by 3"))
             );
         }
 
