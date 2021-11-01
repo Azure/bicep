@@ -1210,7 +1210,7 @@ var modOut = m.outputs.inputTi|
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
             var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
-            var helper = await LanguageServerHelper.StartServerWithTextAsync(
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
                 this.TestContext, 
                 file, 
                 bicepFile.FileUri,
