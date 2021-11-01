@@ -1,6 +1,6 @@
 ﻿// $1 = cassandraKeyspace
-// $2 = 'accountName/cassandra/databaseName'
+// $2 = 'accountName/databaseName'
 // $3 = 'id'
-// $4 = 'throughput'
+// $4 = 1000
 
 // Insert snippet here

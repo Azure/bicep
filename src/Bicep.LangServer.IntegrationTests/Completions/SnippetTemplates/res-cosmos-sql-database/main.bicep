@@ -1,6 +1,6 @@
 ﻿// $1 = sqlDb
-// $2 = 'accountName/sql/databaseName'
+// $2 = 'accountName/databaseName'
 // $3 = 'id'
-// $4 = 'throughput'
+// $4 = 1000
 
 // Insert snippet here

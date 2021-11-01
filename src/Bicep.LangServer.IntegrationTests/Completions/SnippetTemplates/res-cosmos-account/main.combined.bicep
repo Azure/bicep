@@ -11,7 +11,7 @@
 
 resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
   name: 'name'
-  location: resourceGroup().location
+  location: 'location'
   kind: 'GlobalDocumentDB'
   properties: {
     consistencyPolicy: {
