@@ -47,6 +47,7 @@ namespace Bicep.Core.Semantics.Metadata
                         symbol.TryGetResourceType() is not {} resourceType ||
                         symbol.SafeGetBodyPropertyValue(AzResourceTypeProvider.ResourceNamePropertyName) is not {} nameSyntax)
                     {
+                        // TODO genericize this name property check
                         break;
                     }
 

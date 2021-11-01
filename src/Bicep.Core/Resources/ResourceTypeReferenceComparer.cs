@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Bicep.Core.Resources
 {
@@ -12,16 +13,19 @@ namespace Bicep.Core.Resources
             = new ResourceTypeReferenceComparer();
 
         public bool Equals(ResourceTypeReference? x, ResourceTypeReference? y)
-            => x is not null &&
-            y is not null &&
-            LanguageConstants.ResourceTypeComparer.Equals(x.Namespace, y.Namespace) &&
-            x.Types.Length == y.Types.Length &&
-            Enumerable.SequenceEqual(x.Types, y.Types, LanguageConstants.ResourceTypeComparer) &&
-            LanguageConstants.ResourceTypeComparer.Equals(x.ApiVersion, y.ApiVersion);
+        {
+            if (x is null || y is null)
+            {
+                return x == y;
+            }
+
+            return Enumerable.SequenceEqual(x.TypeSegments, y.TypeSegments, LanguageConstants.ResourceTypeComparer) &&
+                LanguageConstants.ResourceTypeComparer.Equals(x.ApiVersion, y.ApiVersion);
+        }
 
         public int GetHashCode(ResourceTypeReference obj)
-            => LanguageConstants.ResourceTypeComparer.GetHashCode(obj.Namespace) ^
-            Enumerable.Select(obj.Types, x => LanguageConstants.ResourceTypeComparer.GetHashCode(x)).Aggregate((a, b) => a ^ b) ^
-            LanguageConstants.ResourceTypeComparer.GetHashCode(obj.ApiVersion);
+            => HashCode.Combine(
+                Enumerable.Select(obj.TypeSegments, x => LanguageConstants.ResourceTypeComparer.GetHashCode(x)).Aggregate((a, b) => a ^ b),
+                (obj.ApiVersion is null ? 0 : LanguageConstants.ResourceTypeComparer.GetHashCode(obj.ApiVersion)));
     }
 }

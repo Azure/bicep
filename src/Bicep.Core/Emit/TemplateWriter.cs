@@ -464,7 +464,11 @@ namespace Bicep.Core.Emit
             }
 
             emitter.EmitProperty("type", resource.TypeReference.FormatType());
-            emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+            if (resource.TypeReference.ApiVersion is not null)
+            {
+                emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+            }
+
             if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
             {
                 ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);

@@ -560,11 +560,11 @@ output string test2 = testRes.properties.|
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports writing.")),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("apiVersion property"),
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("id property"),
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("name property"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource api version"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource id"),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource name"),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("properties property"),
-                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("type property")),
+                        d => d.Documentation!.MarkupContent!.Value.Should().Contain("The resource type")),
                     x => x!.OrderBy(d => d.SortText).Should().SatisfyRespectively(
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which only supports reading."),
                         d => d.Documentation!.MarkupContent!.Value.Should().Contain("This is a property which supports reading AND writing!"),
@@ -1174,6 +1174,32 @@ module a '|' = {
                     x => x.Label.Should().Be("percentage%file.bicep"),
                     x => x.Label.Should().Be("already escaped.bicep"))
             );
+        }
+
+        [TestMethod]
+        public async Task Resource_type_completions_return_filtered_api_versions()
+        {
+            var fileWithCursors = @"
+resource abc 'Test.Rp/basicTests@|'
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+                completions.Should().SatisfyRespectively(
+                    c => c.Should().SatisfyRespectively(
+                        x => x.Label.Should().Be("2020-01-01"))));
+        }
+
+        [TestMethod]
+        public async Task Resource_type_completions_return_filtered_types()
+        {
+            var fileWithCursors = @"
+resource abc 'Test.Rp/basic|'
+";
+
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+                completions.Should().SatisfyRespectively(
+                    c => c.Should().Contain(
+                        x => x.Label == "'Test.Rp/basicTests'")));
         }
 
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)

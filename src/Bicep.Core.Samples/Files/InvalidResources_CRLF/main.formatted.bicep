@@ -1512,3 +1512,21 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
     dataFlows: dataCollectionRule.dataFlows
   }
 }
+
+@description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
+@allowed([
+  'AzureCLI'
+  'AzurePowerShell'
+])
+param issue4668_kind string = 'AzureCLI'
+@description('The identity that will be used to execute the Deployment Script.')
+param issue4668_identity object
+@description('The properties of the Deployment Script.')
+param issue4668_properties object
+resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+  name: 'testscript'
+  location: 'westeurope'
+  kind: issue4668_kind
+  identity: issue4668_identity
+  properties: issue4668_properties
+}

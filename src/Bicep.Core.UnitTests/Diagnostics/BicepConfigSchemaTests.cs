@@ -7,6 +7,7 @@ using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -57,7 +58,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
             Assert.IsNotNull(ruleConfigs);
-            foreach (var (key, rule) in ruleConfigs)
+            foreach (var (configKey, ruleConfig) in ruleConfigs)
             {
                 // Example of minimum expected format for each rule definition
                 /*
@@ -75,13 +76,17 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
                 */
 
-                var allOf = rule!.SelectToken("allOf");
+                var allOf = ruleConfig!.SelectToken("allOf");
                 Assert.IsNotNull(allOf, "Each rule should have a top-level allOf");
                 allOf.Count().Should().BeGreaterOrEqualTo(2);
 
                 var description = allOf[0]?.SelectToken("description")?.ToString();
                 Assert.IsNotNull(description);
-                description.Should().Contain($"https://aka.ms/bicep/linter/{key}", "each rule's description should contain a link to the rule's docs");
+                description.Should().Contain($"https://aka.ms/bicep/linter/{configKey}", "each rule's description should contain a link to the rule's docs");
+
+                var matchingRule = rules.SingleOrDefault(r => r.Code == configKey);
+                matchingRule.Should().NotBeNull("Rule's key in config does not match any linter rule's code");
+                description.Should().Contain(matchingRule!.Description, "each rule's description should contain the same description as is specified in the rule");
 
                 var lastAllOf = allOf[allOf.Count() - 1];
                 var refString = lastAllOf?.SelectToken("$ref")?.ToString();
