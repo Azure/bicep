@@ -2649,6 +2649,65 @@
     }
   },
   {
+    "label": "issue4668_identity",
+    "kind": "field",
+    "detail": "issue4668_identity",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue4668_identity",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue4668_identity"
+    }
+  },
+  {
+    "label": "issue4668_kind",
+    "kind": "field",
+    "detail": "issue4668_kind",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue4668_kind",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue4668_kind"
+    }
+  },
+  {
+    "label": "issue4668_mainResource",
+    "kind": "interface",
+    "detail": "issue4668_mainResource",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue4668_mainResource",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue4668_mainResource"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
+    "label": "issue4668_properties",
+    "kind": "field",
+    "detail": "issue4668_properties",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_issue4668_properties",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "issue4668_properties"
+    }
+  },
+  {
     "label": "item",
     "kind": "variable",
     "detail": "item",

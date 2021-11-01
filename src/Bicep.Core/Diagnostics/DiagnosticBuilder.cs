@@ -1292,32 +1292,32 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidSubscirptionId(string? aliasName, string subscriptionId, string referenceValue) => new(
                 TextSpan,
                 "BCP217",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The subscription ID \"{subscriptionId}\" in is not a GUID."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The subscription ID \"{subscriptionId}\" in is not a GUID.");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceResourceGroupNameTooLong(string? aliasName, string resourceGroupName, string referenceValue, int maximumLength) => new(
                 TextSpan,
                 "BCP218",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" exceeds the maximum length of {maximumLength} characters."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" exceeds the maximum length of {maximumLength} characters.");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidResourceGroupName(string? aliasName, string resourceGroupName, string referenceValue) => new(
                 TextSpan,
                 "BCP219",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode charaters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\"."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The resource group name \"{resourceGroupName}\" is invalid. Valid characters are alphanumeric, unicode charaters, \".\", \"_\", \"-\", \"(\", or \")\", but the resource group name cannot end with \".\".");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecNameTooLong(string? aliasName, string templateSpecName, string referenceValue, int maximumLength) => new(
                 TextSpan,
                 "BCP220",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" exceeds the maximum length of {maximumLength} characters."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" exceeds the maximum length of {maximumLength} characters.");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecName(string? aliasName, string templateSpecName, string referenceValue) => new(
                 TextSpan,
                 "BCP221",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\"."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec name \"{templateSpecName}\" is invalid. Valid characters are alphanumeric, \".\", \"_\", \"-\", \"(\", or \")\", but the Template Spec name cannot end with \".\".");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(string? aliasName, string templateSpecVersion, string referenceValue, int maximumLength) => new(
                 TextSpan,
                 "BCP222",
-                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" exceeds the maximum length of {maximumLength} characters."); 
+                $"{BuildInvalidTemplateSpecReferenceClause(aliasName, referenceValue)} The Template Spec version \"{templateSpecVersion}\" exceeds the maximum length of {maximumLength} characters.");
 
             public ErrorDiagnostic InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(string? aliasName, string templateSpecVersion, string referenceValue) => new(
                 TextSpan,
@@ -1328,6 +1328,13 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP224",
                 $"{BuildInvalidOciArtifactReferenceClause(aliasName, badRef)} The digest \"{badDigest}\" is not valid. The valid format is a string \"sha256:\" followed by exactly 64 lowercase hexadecimal digits.");
+
+            public Diagnostic AmbiguousDiscriminatorPropertyValue(string propertyName) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP225",
+                $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this object is disabled.");
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -66,7 +66,7 @@ namespace Bicep.LangServer.IntegrationTests
                     // Assert.
                     quickFixes.Should().NotBeNull();
 
-                    var quickFixList = quickFixes.Where(x => x.CodeAction.Kind == CodeActionKind.QuickFix).ToList();
+                    var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
                     var bicepFixList = fixable.Fixes.ToList();
 
                     quickFixList.Should().HaveSameCount(bicepFixList);
