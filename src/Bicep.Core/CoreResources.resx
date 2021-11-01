@@ -155,9 +155,6 @@
     <value>Remove unnecessary dependsOn entry '{0}'.</value>
     <comment>Text for linter rule error. {0} is a programmatic expression</comment>
   </data>
-  <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
-    <value>Parameter is declared but never used.</value>
-  </data>
 	<data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>No unused parameters.</value>
   </data>
@@ -173,11 +170,6 @@
   </data>
 	<data name="SimplifyInterpolationFixTitle" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
-  </data>
-  <data name="UnusedVariableRuleDescription" xml:space="preserve">
-    <value>Variable is declared but never used.</value>
-  </data>
-  <data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
   </data>
 	<data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
