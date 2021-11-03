@@ -3,6 +3,7 @@
 using Bicep.Core.Resources;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Semantics.Namespaces;
 
 namespace Bicep.Core.Semantics.Metadata
 {
@@ -15,5 +16,7 @@ namespace Bicep.Core.Semantics.Metadata
         bool IsExistingResource)
     {
         public ResourceTypeReference TypeReference => Type.TypeReference;
+
+        public bool IsAzResource => Type.DeclaringNamespace.ProviderNameEquals(AzNamespaceType.BuiltInName);
     }
 }

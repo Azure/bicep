@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2021474326145495883"
+      "templateHash": "10910894560050238019"
     }
   },
   "parameters": {
@@ -230,7 +230,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3151175958798169873"
+              "templateHash": "15297506896368941142"
             }
           },
           "parameters": {
@@ -371,7 +371,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "2497063281393301459"
+                      "templateHash": "15952827541288753365"
                     }
                   },
                   "parameters": {
@@ -456,16 +456,16 @@
                           "functions": [],
                           "resources": {
                             "hostPool": {
+                              "existing": true,
                               "type": "Microsoft.DesktopVirtualization/hostPools",
                               "apiVersion": "2020-11-02-preview",
-                              "name": "[parameters('hostpoolName')]",
-                              "existing": true
+                              "name": "[parameters('hostpoolName')]"
                             },
                             "workspace": {
+                              "existing": true,
                               "type": "Microsoft.DesktopVirtualization/workspaces",
                               "apiVersion": "2020-11-02-preview",
-                              "name": "[parameters('workspaceName')]",
-                              "existing": true
+                              "name": "[parameters('workspaceName')]"
                             },
                             "avdhpds": {
                               "type": "Microsoft.Insights/diagnosticSettings",
@@ -1147,10 +1147,10 @@
           "functions": [],
           "resources": {
             "managedidentity": {
+              "existing": true,
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
-              "name": "[parameters('uamiName')]",
-              "existing": true
+              "name": "[parameters('uamiName')]"
             },
             "imageTemplateName_resource": {
               "type": "Microsoft.VirtualMachineImages/imageTemplates",

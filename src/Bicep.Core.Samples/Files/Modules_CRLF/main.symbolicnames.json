@@ -87,26 +87,26 @@
       ]
     },
     "kv": {
+      "existing": true,
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
-      "name": "testkeyvault",
-      "existing": true
+      "name": "testkeyvault"
     },
     "scopedKv": {
+      "existing": true,
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
-      "name": "testkeyvault",
-      "existing": true
+      "name": "testkeyvault"
     },
     "loopedKv": {
       "copy": {
         "name": "loopedKv",
         "count": "[length(variables('vaults'))]"
       },
+      "existing": true,
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
-      "name": "[variables('vaults')[copyIndex()].vaultName]",
-      "existing": true
+      "name": "[variables('vaults')[copyIndex()].vaultName]"
     },
     "modATest": {
       "type": "Microsoft.Resources/deployments",

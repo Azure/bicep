@@ -24,16 +24,16 @@
   "functions": [],
   "resources": {
     "hostPool": {
+      "existing": true,
       "type": "Microsoft.DesktopVirtualization/hostPools",
       "apiVersion": "2020-11-02-preview",
-      "name": "[parameters('hostpoolName')]",
-      "existing": true
+      "name": "[parameters('hostpoolName')]"
     },
     "workspace": {
+      "existing": true,
       "type": "Microsoft.DesktopVirtualization/workspaces",
       "apiVersion": "2020-11-02-preview",
-      "name": "[parameters('workspaceName')]",
-      "existing": true
+      "name": "[parameters('workspaceName')]"
     },
     "avdhpds": {
       "type": "Microsoft.Insights/diagnosticSettings",

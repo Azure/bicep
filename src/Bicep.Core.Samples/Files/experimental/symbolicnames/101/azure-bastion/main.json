@@ -99,10 +99,10 @@
     },
     "existingVirtualNetwork": {
       "condition": "[equals(parameters('vnetNewOrExisting'), 'existing')]",
+      "existing": true,
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-05-01",
-      "name": "[parameters('vnetName')]",
-      "existing": true
+      "name": "[parameters('vnetName')]"
     },
     "subnet": {
       "condition": "[equals(parameters('vnetNewOrExisting'), 'existing')]",

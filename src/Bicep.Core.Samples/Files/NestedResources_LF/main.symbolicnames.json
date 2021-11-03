@@ -77,10 +77,10 @@
       }
     },
     "existingChild": {
+      "existing": true,
       "type": "My.Rp/parentType/childType",
       "apiVersion": "2020-12-01",
-      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]",
-      "existing": true
+      "name": "[format('{0}/{1}', 'existingParent', 'existingChild')]"
     },
     "conditionGrandchild": {
       "condition": "[and(and(parameters('createParent'), parameters('createChild')), parameters('createGrandchild'))]",
@@ -126,10 +126,10 @@
       }
     },
     "existingParent": {
+      "existing": true,
       "type": "My.Rp/parentType",
       "apiVersion": "2020-12-01",
-      "name": "existingParent",
-      "existing": true
+      "name": "existingParent"
     },
     "conditionParent": {
       "condition": "[parameters('createParent')]",
