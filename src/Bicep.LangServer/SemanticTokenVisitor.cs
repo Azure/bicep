@@ -298,5 +298,17 @@ namespace Bicep.LanguageServer
             AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
             base.VisitImportDeclarationSyntax(syntax);
         }
+
+        public override void VisitDisableNextLineSyntax(DisableNextLineSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+
+            foreach (Token token in syntax.DiagnosticCodes)
+            {
+                AddTokenType(token, SemanticTokenType.EnumMember);
+            }
+
+            base.VisitDisableNextLineSyntax(syntax);
+        }
     }
 }

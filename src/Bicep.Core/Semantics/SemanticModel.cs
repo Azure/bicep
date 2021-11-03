@@ -193,7 +193,7 @@ namespace Bicep.Core.Semantics
 
             foreach (IDiagnostic diagnostic in AssembleDiagnostics())
             {
-                if (spansToIgnore.TryGetValue(diagnostic.Code, out List<TextSpan> spans) &&
+                if (spansToIgnore.TryGetValue(diagnostic.Code, out List<TextSpan>? spans) &&
                     spans.Any(x => x.ContainsInclusive(diagnostic.Span.Position) &&
                     x.ContainsInclusive(diagnostic.Span.Position + diagnostic.Span.Length)))
                 {
@@ -219,7 +219,7 @@ namespace Bicep.Core.Semantics
                 {
                     if (TokenContainsCommentPattern(DisableDiagnosticComment, childToken, out string? code) && code is not null)
                     {
-                        if (disableCommentsMap.TryGetValue(code, out List<int> value))
+                        if (disableCommentsMap.TryGetValue(code, out List<int>? value))
                         {
                             value.Add(childToken.Span.Position);
                             disableCommentsMap[code] = value;
@@ -232,14 +232,14 @@ namespace Bicep.Core.Semantics
 
                     if (TokenContainsCommentPattern(EnableDiagnosticComment, childToken, out code) && code is not null)
                     {
-                        if (disableCommentsMap.TryGetValue(code, out List<int> value) && value.Any())
+                        if (disableCommentsMap.TryGetValue(code, out List<int>? value) && value.Any())
                         {
                             int spanStart = value.First();
                             TextSpan span = new TextSpan(spanStart, childToken.Span.Position - spanStart);
                             value.RemoveAt(0);
                             disableCommentsMap[code] = value;
 
-                            if (spansToIgnore.TryGetValue(code, out List<TextSpan> textSpans))
+                            if (spansToIgnore.TryGetValue(code, out List<TextSpan>? textSpans))
                             {
                                 textSpans.Add(span);
                                 spansToIgnore[code] = textSpans;

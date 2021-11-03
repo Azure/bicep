@@ -92,6 +92,28 @@ namespace Bicep.Core.Parsing
             return segments;
         }
 
+        public string? TryGetStringBeforeWhitespace()
+        {
+            StringBuilder sb = new StringBuilder();
+
+            while (true)
+            {
+                var nextChar = textWindow.Next();
+
+                if (nextChar != ' ' || nextChar != '\t')
+                {
+                    sb.Append(nextChar);
+
+                    textWindow.Advance();
+                    continue;
+                }
+
+                break;
+            }
+
+            return sb.ToString();
+        }
+
         public static string? TryGetMultilineStringValue(Token stringToken)
         {
             var tokenText = stringToken.Text;
@@ -138,7 +160,8 @@ namespace Bicep.Core.Parsing
         /// <param name="stringToken">the string token</param>
         public static string? TryGetStringValue(Token stringToken)
         {
-            var (start, end) = stringToken.Type switch {
+            var (start, end) = stringToken.Type switch
+            {
                 TokenType.StringComplete => (LanguageConstants.StringDelimiter, LanguageConstants.StringDelimiter),
                 TokenType.StringLeftPiece => (LanguageConstants.StringDelimiter, LanguageConstants.StringHoleOpen),
                 TokenType.StringMiddlePiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringHoleOpen),
@@ -194,7 +217,7 @@ namespace Bicep.Core.Parsing
                         }
 
                         var codePointText = ScanHexNumber(window);
-                        if(!TryParseCodePoint(codePointText, out uint codePoint))
+                        if (!TryParseCodePoint(codePointText, out uint codePoint))
                         {
                             // invalid codepoint
                             return null;
@@ -267,7 +290,7 @@ namespace Bicep.Core.Parsing
             if (codePoint < 0x00010000)
             {
                 lowSurrogate = SlidingTextWindow.InvalidCharacter;
-                return (char) codePoint;
+                return (char)codePoint;
             }
 
             Debug.Assert(codePoint > 0x0000FFFF && codePoint <= 0x0010FFFF);
@@ -761,6 +784,30 @@ namespace Bicep.Core.Parsing
                     return TokenType.Semicolon;
                 case '+':
                     return TokenType.Plus;
+                case '#':
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append("#");
+
+                    while (true)
+                    {
+                        var next = textWindow.Peek();
+
+                        if (char.IsWhiteSpace(next))
+                        {
+                            break;
+                        }
+
+                        sb.Append(next);
+
+                        textWindow.Advance();
+                        continue;
+                    }
+
+                    if (sb.ToString() == LanguageConstants.DisableNextLineKeyword)
+                    {
+                        return TokenType.DisableNextLine;
+                    }
+                    return TokenType.Unrecognized;
                 case '-':
                     return TokenType.Minus;
                 case '%':
@@ -892,7 +939,7 @@ namespace Bicep.Core.Parsing
         private static bool IsIdentifierStart(char c) => c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c == '_';
 
         // obtaining the unicode category is expensive and should be avoided in the main cases
-        private static bool IsIdentifierContinuation(char c) => IsIdentifierStart(c) || IsDigit(c);
+        private static bool IsIdentifierContinuation(char c) => IsIdentifierStart(c) || IsDigit(c) || c == '-';
 
         private static bool IsDigit(char c) => c >= '0' && c <= '9';
 

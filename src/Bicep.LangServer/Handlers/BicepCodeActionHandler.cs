@@ -112,13 +112,7 @@ namespace Bicep.LanguageServer.Handlers
             TextEdit disableDiagnosticStart = new TextEdit
             {
                 Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
-                NewText = string.Format("/* Disable {0} */\n", diagnosticCode.String)
-            };
-
-            TextEdit disableDiagnosticEnd = new TextEdit
-            {
-                Range = new Range(declarationRange.End.Line, declarationRange.End.Character, declarationRange.End.Line, declarationRange.End.Character),
-                NewText = string.Format("\n/* Enable {0} */\n", diagnosticCode.String)
+                NewText = LanguageConstants.DisableNextLineKeyword + ' ' + diagnosticCode.String + '\n'
             };
 
             var command = Command.Create(LanguageConstants.DisableDiagnostic, documentUri, diagnosticCode);
@@ -131,7 +125,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
                     {
-                        [documentUri] = new List<TextEdit> { disableDiagnosticStart, disableDiagnosticEnd }
+                        [documentUri] = new List<TextEdit> { disableDiagnosticStart }
                     }
                 },
                 Command = command

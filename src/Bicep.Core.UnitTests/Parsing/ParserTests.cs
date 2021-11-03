@@ -105,6 +105,15 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
+        [DataRow("#disable-next-line no-unused-params BCP101")]
+        public void DisableNextLine_Should_Parse_Correctly(string text)
+        {
+            var program = ParserHelper.Parse(text);
+
+            program.Children.First().Should().BeOfType<DisableNextLineSyntax>();
+        }
+
+        [DataTestMethod]
         [DataRow("'${>}def'")]
         [DataRow("'${concat(}def'")]
         [DataRow("'${concat)}def'")]

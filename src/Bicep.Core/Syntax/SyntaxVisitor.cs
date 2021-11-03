@@ -340,5 +340,15 @@ namespace Bicep.Core.Syntax
                 this.Visit(node);
             }
         }
+
+        public virtual void VisitDisableNextLineSyntax(DisableNextLineSyntax syntax)
+        {
+            this.Visit(syntax.Keyword);
+
+            foreach (Token token in syntax.DiagnosticCodes)
+            {
+                this.Visit(token);
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -99,6 +100,7 @@ namespace Bicep.Core.Parsing
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                         },
+                        TokenType.DisableNextLine => DisableDiagnosticSyntax(),
                         TokenType.NewLine => this.NewLine(),
 
                         _ => leadingNodes.Count > 0
@@ -172,6 +174,52 @@ namespace Bicep.Core.Parsing
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
             return new TargetScopeSyntax(leadingNodes, keyword, assignment, value);
+        }
+
+        private bool CheckDisableNextLineKeyword(string keyword)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            while (true)
+            {
+                var next = reader.Read();
+
+                if (next.TrailingTrivia.Any() &&
+                    next.TrailingTrivia[0] is SyntaxTrivia syntaxTrivia &&
+                    syntaxTrivia.Type is SyntaxTriviaType.Whitespace)
+                {
+                    break;
+                }
+
+                sb.Append(next.Text);
+            }
+
+            return sb.ToString() == keyword;
+        }
+
+        private DisableNextLineSyntax DisableDiagnosticSyntax()
+        {
+            var keyword = Expect(TokenType.DisableNextLine, b => b.ExpectedCharacter(LanguageConstants.DisableNextLineKeyword));
+
+            List<Token> tokens = new();
+
+            while (true)
+            {
+                var next = reader.Read();
+
+                if (next.Type == TokenType.EndOfFile || next.Type == TokenType.NewLine)
+                {
+                    break;
+                }
+
+                if (next.Type == TokenType.Identifier)
+                {
+                    tokens.Add(next);
+                }
+            }
+
+          //  StringSyntax stringSyntax = new StringSyntax(tokens, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<string>());
+            return new DisableNextLineSyntax(keyword, tokens);
         }
 
         private SyntaxBase Decorator()
