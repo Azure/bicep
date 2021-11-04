@@ -56,6 +56,7 @@ var div = {
 // additive
 var add = null + 's'
 var sub = true - false
+var add = 'bad' + 'str'
 
 // equality (== and != can't have a type error because they work on "any" type)
 var eq = true =~ null
@@ -189,6 +190,7 @@ var invalidInstanceFunctionCall = az.az()
 var invalidPropertyAccessOnAzNamespace = az.az
 var invalidPropertyAccessOnSysNamespace = sys.az
 var invalidOperands = 1 + az
+var invalidStringAddition = 'hello' + sampleObject.myStr
 
 var bannedFunctions = {
   var: variables()

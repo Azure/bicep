@@ -1334,7 +1334,11 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP225",
                 $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this object is disabled.");
-
+            
+            public ErrorDiagnostic InvalidStringAddOperator() => new(
+                TextSpan,
+                "BCP226",
+                $"Cannot apply operator \"+\" on two strings. Use string interpolation.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
