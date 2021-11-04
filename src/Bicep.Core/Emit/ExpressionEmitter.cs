@@ -114,7 +114,7 @@ namespace Bicep.Core.Emit
 
         public void EmitIndexedSymbolReference(ResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
         {
-            var expression = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext)
+            var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameSyntax, indexExpression, newContext)
                 .GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
