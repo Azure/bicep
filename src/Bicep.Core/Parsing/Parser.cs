@@ -176,13 +176,13 @@ namespace Bicep.Core.Parsing
             return new TargetScopeSyntax(leadingNodes, keyword, assignment, value);
         }
 
-        private DisableNextLineSyntax DisableDiagnosticSyntax()
+        private DisableNextLineDiagnosticsSyntax DisableDiagnosticSyntax()
         {
             var keyword = Expect(TokenType.DisableNextLine, b => b.ExpectedCharacter(LanguageConstants.DisableNextLineKeyword));
 
             var tokens = GetTokens();
 
-            return new DisableNextLineSyntax(keyword, tokens);
+            return new DisableNextLineDiagnosticsSyntax(keyword, tokens);
         }
 
         private IEnumerable<SyntaxBase> GetTokens()

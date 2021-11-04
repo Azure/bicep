@@ -299,7 +299,7 @@ namespace Bicep.LanguageServer
             base.VisitImportDeclarationSyntax(syntax);
         }
 
-        public override void VisitDisableNextLineSyntax(DisableNextLineSyntax syntax)
+        public override void VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
 

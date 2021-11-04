@@ -187,7 +187,7 @@ namespace Bicep.Core.Semantics
         {
             List<IDiagnostic> updatedDiagnostics = new List<IDiagnostic>();
 
-            var disableNextLineSyntaxes = SourceFile.ProgramSyntax.Children.OfType<DisableNextLineSyntax>();
+            var disableNextLineSyntaxes = SourceFile.ProgramSyntax.Children.OfType<DisableNextLineDiagnosticsSyntax>();
             var diagnostics = AssembleDiagnostics();
 
             if (!disableNextLineSyntaxes.Any())

@@ -8,9 +8,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class DisableNextLineSyntax : DisableDiagnosticsSyntax
+    public class DisableNextLineDiagnosticsSyntax : DisableDiagnosticsSyntax
     {
-        public DisableNextLineSyntax(Token keyword, IEnumerable<SyntaxBase> diagnosticCodes)
+        public DisableNextLineDiagnosticsSyntax(Token keyword, IEnumerable<SyntaxBase> diagnosticCodes)
             :base(keyword, diagnosticCodes, TokenType.DisableNextLine)
         {
         }

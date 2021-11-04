@@ -341,7 +341,7 @@ namespace Bicep.Core.Syntax
             }
         }
 
-        public virtual void VisitDisableNextLineSyntax(DisableNextLineSyntax syntax)
+        public virtual void VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
         {
             this.Visit(syntax.Keyword);
 

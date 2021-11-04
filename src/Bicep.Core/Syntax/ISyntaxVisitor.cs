@@ -84,6 +84,6 @@ namespace Bicep.Core.Syntax
 
         void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax);
 
-        void VisitDisableNextLineSyntax(DisableNextLineSyntax syntax);
+        void VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax);
     }
 }

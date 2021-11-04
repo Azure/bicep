@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("var mvVar = 'hello'", typeof(VariableDeclarationSyntax))]
         [DataRow("resource myRes 'My.Provider/someResource@2020-08-01' = { \n }", typeof(ResourceDeclarationSyntax))]
         [DataRow("output string myOutput = 'hello'", typeof(OutputDeclarationSyntax))]
-        [DataRow("#disable-next-line no-unused-params BCP101", typeof(DisableNextLineSyntax))]
+        [DataRow("#disable-next-line no-unused-params BCP101", typeof(DisableNextLineDiagnosticsSyntax))]
         public void NewLinesForDeclarationsShouldBeOptionalAtEof(string text, Type expectedType)
         {
             var validFiles = new (int statementCount, string file)[]
@@ -112,7 +112,7 @@ namespace Bicep.Core.UnitTests.Parsing
         {
             var program = ParserHelper.Parse(text);
 
-            program.Children.First().Should().BeOfType<DisableNextLineSyntax>();
+            program.Children.First().Should().BeOfType<DisableNextLineDiagnosticsSyntax>();
         }
 
         [DataTestMethod]
