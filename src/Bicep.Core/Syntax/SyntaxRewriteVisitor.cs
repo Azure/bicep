@@ -715,7 +715,8 @@ namespace Bicep.Core.Syntax
 
         protected virtual SyntaxBase ReplaceDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
         {
-            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            var hasChanges = TryRewriteStrict(syntax.Pound, out var pound);
+            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
             hasChanges |= TryRewriteStrict(syntax.DiagnosticCodes, out var diagnosticCodes);
 
             if (!hasChanges)
@@ -723,7 +724,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new DisableNextLineDiagnosticsSyntax(keyword, diagnosticCodes);
+            return new DisableNextLineDiagnosticsSyntax(pound, keyword, diagnosticCodes);
         }
     }
 }

@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -100,7 +99,7 @@ namespace Bicep.Core.Parsing
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                         },
-                        TokenType.DisableNextLine => DisableDiagnosticSyntax(),
+                        TokenType.Pound => DisableDiagnosticSyntax(),
                         TokenType.NewLine => this.NewLine(),
 
                         _ => leadingNodes.Count > 0
@@ -178,11 +177,11 @@ namespace Bicep.Core.Parsing
 
         private DisableNextLineDiagnosticsSyntax DisableDiagnosticSyntax()
         {
-            var keyword = Expect(TokenType.DisableNextLine, b => b.ExpectedCharacter(LanguageConstants.DisableNextLineKeyword));
-
+            Token pound = this.Expect(TokenType.Pound, b => b.ExpectedCharacter("#"));
+            var keyword = ExpectKeyword(LanguageConstants.DisableNextLineDiagnosticsKeyword);
             var tokens = GetTokens();
 
-            return new DisableNextLineDiagnosticsSyntax(keyword, tokens);
+            return new DisableNextLineDiagnosticsSyntax(pound, keyword, tokens);
         }
 
         private IEnumerable<SyntaxBase> GetTokens()

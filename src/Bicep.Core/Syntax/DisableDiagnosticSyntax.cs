@@ -9,13 +9,16 @@ namespace Bicep.Core.Syntax
 {
     public abstract class DisableDiagnosticsSyntax : SyntaxBase
     {
-        public DisableDiagnosticsSyntax(Token keyword, IEnumerable<SyntaxBase> diagnosticCodes, TokenType tokenType)
+        public DisableDiagnosticsSyntax(Token pound, Token keyword, IEnumerable<SyntaxBase> diagnosticCodes, string keywordName)
         {
-            AssertTokenType(keyword, nameof(keyword), tokenType);
-
+            AssertTokenType(pound, nameof(pound), TokenType.Pound);
+            AssertKeyword(keyword, nameof(keyword), keywordName);
+            Pound = pound;
             Keyword = keyword;
             DiagnosticCodes = diagnosticCodes.ToImmutableArray();
         }
+
+        public Token Pound { get; }
 
         public Token Keyword { get; }
 

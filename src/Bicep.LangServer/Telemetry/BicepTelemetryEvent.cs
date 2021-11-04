@@ -62,5 +62,15 @@ namespace Bicep.LanguageServer.Telemetry
                     ["name"] = name
                 },
             };
+
+        public static BicepTelemetryEvent CreateDisableNextLineDiagnostics(string code)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.DisableNextLineDiagnostics,
+                Properties = new()
+                {
+                    ["code"] = code,
+                },
+            };
     }
 }

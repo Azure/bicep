@@ -343,6 +343,7 @@ namespace Bicep.Core.Syntax
 
         public virtual void VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
         {
+            this.Visit(syntax.Pound);
             this.Visit(syntax.Keyword);
 
             foreach (SyntaxBase node in syntax.DiagnosticCodes)

@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -785,29 +784,7 @@ namespace Bicep.Core.Parsing
                 case '+':
                     return TokenType.Plus;
                 case '#':
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("#");
-
-                    while (true)
-                    {
-                        var next = textWindow.Peek();
-
-                        if (char.IsWhiteSpace(next))
-                        {
-                            break;
-                        }
-
-                        sb.Append(next);
-
-                        textWindow.Advance();
-                        continue;
-                    }
-
-                    if (sb.ToString() == LanguageConstants.DisableNextLineKeyword)
-                    {
-                        return TokenType.DisableNextLine;
-                    }
-                    return TokenType.Unrecognized;
+                    return TokenType.Pound;
                 case '-':
                     return TokenType.Minus;
                 case '%':

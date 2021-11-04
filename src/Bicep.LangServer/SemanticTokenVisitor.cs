@@ -301,13 +301,14 @@ namespace Bicep.LanguageServer
 
         public override void VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
         {
+            AddTokenType(syntax.Pound, SemanticTokenType.Keyword);
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
 
             foreach (SyntaxBase syntaxbase in syntax.DiagnosticCodes)
             {
                 if (syntaxbase is Token token)
                 {
-                    AddTokenType(token, SemanticTokenType.EnumMember);
+                    AddTokenType(token, SemanticTokenType.String);
                 }
             }
 

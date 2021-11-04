@@ -14,6 +14,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
+using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -87,7 +88,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (commandOrCodeAction is not null)
                 {
                     commandOrCodeActions.Add(commandOrCodeAction);
-                }
+                 }
             }
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
@@ -103,7 +104,7 @@ namespace Bicep.LanguageServer.Handlers
                 .Where(x => x.Span.ContainsInclusive(span.Position) && x.Span.ContainsInclusive(span.Position + span.Length))
                 .FirstOrDefault();
 
-            if (declaration is null)
+            if (declaration is null || diagnosticCode.String is null)
             {
                 return null;
             }
@@ -112,10 +113,11 @@ namespace Bicep.LanguageServer.Handlers
             TextEdit disableDiagnosticStart = new TextEdit
             {
                 Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
-                NewText = LanguageConstants.DisableNextLineKeyword + ' ' + diagnosticCode.String + '\n'
+                NewText = "#" + LanguageConstants.DisableNextLineDiagnosticsKeyword + ' ' + diagnosticCode.String + '\n'
             };
 
-            var command = Command.Create(LanguageConstants.DisableDiagnostic, documentUri, diagnosticCode);
+            BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateDisableNextLineDiagnostics(diagnosticCode.String);
+            var telemetryCommand = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
 
             return new CodeAction
             {
@@ -128,7 +130,7 @@ namespace Bicep.LanguageServer.Handlers
                         [documentUri] = new List<TextEdit> { disableDiagnosticStart }
                     }
                 },
-                Command = command
+                Command = telemetryCommand
             };
         }
 

@@ -2,16 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
-using System.Collections.Immutable;
-using System.Linq;
 using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
     public class DisableNextLineDiagnosticsSyntax : DisableDiagnosticsSyntax
     {
-        public DisableNextLineDiagnosticsSyntax(Token keyword, IEnumerable<SyntaxBase> diagnosticCodes)
-            :base(keyword, diagnosticCodes, TokenType.DisableNextLine)
+        public DisableNextLineDiagnosticsSyntax(Token pound, Token keyword, IEnumerable<SyntaxBase> diagnosticCodes)
+            :base(pound, keyword, diagnosticCodes, LanguageConstants.DisableNextLineDiagnosticsKeyword)
         {
         }
 
