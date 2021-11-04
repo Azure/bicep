@@ -582,8 +582,11 @@ namespace Bicep.LanguageServer.Completions
 
             if (!context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
             {
-                // add namespaces first
-                AddSymbolCompletions(completions, nsTypeDict.Keys);
+                if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceOrModuleItem))
+                {
+                    // add namespaces first
+                    AddSymbolCompletions(completions, nsTypeDict.Keys);
+                }
 
                 // add accessible symbols from innermost scope and then move to outer scopes
                 // reverse loop iteration
@@ -592,6 +595,10 @@ namespace Bicep.LanguageServer.Completions
                     // add the non-output declarations with valid identifiers at current scope
                     var currentScope = context.ActiveScopes[depth];
                     AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
+                }
+                if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceOrModuleItem))
+                {
+                    return completions.Values;
                 }
             }
             else

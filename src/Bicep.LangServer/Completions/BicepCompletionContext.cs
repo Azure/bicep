@@ -127,7 +127,8 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsOutputValueContext(matchingNodes, offset), BicepCompletionContextKind.OutputValue | BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
-                       ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName);
+                       ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
+                       ConvertFlag(IsResourceOrModuleItemContext(matchingNodes, offset), BicepCompletionContextKind.ResourceOrModuleItem);
                        
             if (featureProvider.ImportsEnabled)
             {
@@ -550,6 +551,16 @@ namespace Bicep.LanguageServer.Completions
             SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => offset > import.FromKeyword.GetEndPosition() && import.ProviderName.Child is SkippedTriviaSyntax) ||
             // import foo from f|
             SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
+
+        private static bool IsResourceOrModuleItemContext(List<SyntaxBase> matchingNodes, int offset) => 
+            // dependsOn on module
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax, ArraySyntax, Token>(matchingNodes, (_, _, objPropSyntax, _, _) => string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ResourceDependsOnPropertyName)) ||
+            // dependsOn on resource
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax, ArraySyntax, Token>(matchingNodes, (_, _, objPropSyntax, _, _) => string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ResourceDependsOnPropertyName)) ||
+            // resource1 = { parent: | }
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax>(matchingNodes, (_, _, objPropSyntax) => string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ResourceParentPropertyName)) ||
+            // resource1 = { scope: | }
+            SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax>(matchingNodes, (_, _, objPropSyntax) => string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ResourceScopePropertyName));
 
         private static bool IsOuterExpressionContext(List<SyntaxBase> matchingNodes, int offset)
         {
