@@ -304,7 +304,15 @@ var sub = true - false
 //@[10:14) TrueKeyword |true|
 //@[15:16) Minus |-|
 //@[17:22) FalseKeyword |false|
-//@[22:24) NewLine |\n\n|
+//@[22:23) NewLine |\n|
+var add = 'bad' + 'str'
+//@[0:3) Identifier |var|
+//@[4:7) Identifier |add|
+//@[8:9) Assignment |=|
+//@[10:15) StringComplete |'bad'|
+//@[16:17) Plus |+|
+//@[18:23) StringComplete |'str'|
+//@[23:25) NewLine |\n\n|
 
 // equality (== and != can't have a type error because they work on "any" type)
 //@[79:80) NewLine |\n|
@@ -1204,7 +1212,17 @@ var invalidOperands = 1 + az
 //@[22:23) Integer |1|
 //@[24:25) Plus |+|
 //@[26:28) Identifier |az|
-//@[28:30) NewLine |\n\n|
+//@[28:29) NewLine |\n|
+var invalidStringAddition = 'hello' + sampleObject.myStr
+//@[0:3) Identifier |var|
+//@[4:25) Identifier |invalidStringAddition|
+//@[26:27) Assignment |=|
+//@[28:35) StringComplete |'hello'|
+//@[36:37) Plus |+|
+//@[38:50) Identifier |sampleObject|
+//@[50:51) Dot |.|
+//@[51:56) Identifier |myStr|
+//@[56:58) NewLine |\n\n|
 
 var bannedFunctions = {
 //@[0:3) Identifier |var|
