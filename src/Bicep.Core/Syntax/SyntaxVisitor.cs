@@ -345,9 +345,9 @@ namespace Bicep.Core.Syntax
         {
             this.Visit(syntax.Keyword);
 
-            foreach (Token token in syntax.DiagnosticCodes)
+            foreach (SyntaxBase node in syntax.DiagnosticCodes)
             {
-                this.Visit(token);
+                this.Visit(node);
             }
         }
     }

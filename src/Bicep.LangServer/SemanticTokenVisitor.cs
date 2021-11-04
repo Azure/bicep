@@ -303,9 +303,12 @@ namespace Bicep.LanguageServer
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
 
-            foreach (Token token in syntax.DiagnosticCodes)
+            foreach (SyntaxBase syntaxbase in syntax.DiagnosticCodes)
             {
-                AddTokenType(token, SemanticTokenType.EnumMember);
+                if (syntaxbase is Token token)
+                {
+                    AddTokenType(token, SemanticTokenType.EnumMember);
+                }
             }
 
             base.VisitDisableNextLineSyntax(syntax);

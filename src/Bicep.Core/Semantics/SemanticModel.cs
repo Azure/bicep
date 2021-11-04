@@ -11,6 +11,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
@@ -187,8 +188,14 @@ namespace Bicep.Core.Semantics
             List<IDiagnostic> updatedDiagnostics = new List<IDiagnostic>();
 
             var disableNextLineSyntaxes = SourceFile.ProgramSyntax.Children.OfType<DisableNextLineSyntax>();
+            var diagnostics = AssembleDiagnostics();
 
-            foreach (IDiagnostic diagnostic in AssembleDiagnostics())
+            if (!disableNextLineSyntaxes.Any())
+            {
+                return diagnostics;
+            }
+
+            foreach (IDiagnostic diagnostic in diagnostics)
             {
                 var (diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
 
@@ -198,7 +205,7 @@ namespace Bicep.Core.Semantics
                 {
                     var disableNextLineSyntaxBeforeThisDiagnostic = disableNextLineSyntaxesBeforeThisDiagnostic.First();
 
-                    if (disableNextLineSyntaxBeforeThisDiagnostic.DiagnosticCodes.Any(x => x.Text.Equals(diagnostic.Code, StringComparison.OrdinalIgnoreCase)))
+                    if (disableNextLineSyntaxBeforeThisDiagnostic.DiagnosticCodes.Any(x => x is Token token && token.Text.Equals(diagnostic.Code, StringComparison.OrdinalIgnoreCase)))
                     {
                         continue;
                     }

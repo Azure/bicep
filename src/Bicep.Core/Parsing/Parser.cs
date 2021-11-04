@@ -176,41 +176,40 @@ namespace Bicep.Core.Parsing
             return new TargetScopeSyntax(leadingNodes, keyword, assignment, value);
         }
 
-        private bool CheckDisableNextLineKeyword(string keyword)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            while (true)
-            {
-                var next = reader.Read();
-
-                if (next.TrailingTrivia.Any() &&
-                    next.TrailingTrivia[0] is SyntaxTrivia syntaxTrivia &&
-                    syntaxTrivia.Type is SyntaxTriviaType.Whitespace)
-                {
-                    break;
-                }
-
-                sb.Append(next.Text);
-            }
-
-            return sb.ToString() == keyword;
-        }
-
         private DisableNextLineSyntax DisableDiagnosticSyntax()
         {
             var keyword = Expect(TokenType.DisableNextLine, b => b.ExpectedCharacter(LanguageConstants.DisableNextLineKeyword));
 
+            var tokens = GetTokens();
+
+            return new DisableNextLineSyntax(keyword, tokens);
+        }
+
+        private IEnumerable<SyntaxBase> GetTokens()
+        {
             List<Token> tokens = new();
 
             while (true)
             {
-                var next = reader.Read();
+                var next = this.reader.Peek();
 
                 if (next.Type == TokenType.EndOfFile || next.Type == TokenType.NewLine)
                 {
+                    if (!tokens.Any())
+                    {
+                        var span = next.ToZeroLengthSpan();
+                        var skippedSyntax = new SkippedTriviaSyntax(
+                            span,
+                            Enumerable.Empty<Token>(),
+                            DiagnosticBuilder.ForPosition(span).MissingDiagnosticCodes().AsEnumerable()
+                        );
+
+                        return new List<SyntaxBase> { skippedSyntax };
+                    }
                     break;
                 }
+
+                next = this.reader.Read();
 
                 if (next.Type == TokenType.Identifier)
                 {
@@ -218,8 +217,7 @@ namespace Bicep.Core.Parsing
                 }
             }
 
-          //  StringSyntax stringSyntax = new StringSyntax(tokens, Enumerable.Empty<SyntaxBase>(), Enumerable.Empty<string>());
-            return new DisableNextLineSyntax(keyword, tokens);
+            return tokens;
         }
 
         private SyntaxBase Decorator()
@@ -1061,7 +1059,7 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
         {
-            if(!isResourceOrModuleContext)
+            if (!isResourceOrModuleContext)
             {
                 // we're not parsing a resource or module body, which means we can have any expression at this point
                 return this.Expression(WithExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals));
@@ -1387,7 +1385,7 @@ namespace Bicep.Core.Parsing
 
         private Token ExpectKeyword(string expectedKeyword)
         {
-            return GetOptionalKeyword(expectedKeyword) ?? 
+            return GetOptionalKeyword(expectedKeyword) ??
                 throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
         }
 

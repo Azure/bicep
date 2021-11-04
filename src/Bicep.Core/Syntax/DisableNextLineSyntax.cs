@@ -8,22 +8,13 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class DisableNextLineSyntax : SyntaxBase
+    public class DisableNextLineSyntax : DisableDiagnosticsSyntax
     {
-        public DisableNextLineSyntax(Token keyword, IEnumerable<Token> diagnosticCodes)
+        public DisableNextLineSyntax(Token keyword, IEnumerable<SyntaxBase> diagnosticCodes)
+            :base(keyword, diagnosticCodes, TokenType.DisableNextLine)
         {
-            AssertTokenType(keyword, nameof(keyword), TokenType.DisableNextLine);
-
-            Keyword = keyword;
-            DiagnosticCodes = diagnosticCodes.ToImmutableArray();
         }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitDisableNextLineSyntax(this);
-
-        public Token Keyword { get; }
-
-        public ImmutableArray<Token> DiagnosticCodes { get; }
-
-        public override TextSpan Span => TextSpan.BetweenInclusiveAndExclusive(Keyword, DiagnosticCodes.Last());
     }
 }
