@@ -691,15 +691,16 @@ namespace Bicep.Core.TypeSystem
                     return operatorInfo.ReturnType;
                 }
 
-                // we do not have a match
-                // operand types didn't match available operators
-                string? additionalInfo;
+                string? additionalInfo = null;
                 if (operandType1.TypeKind is TypeKind.StringLiteral &&
                     operandType2.TypeKind is TypeKind.StringLiteral &&
                     syntax.Operator is BinaryOperator.Add)
                 {
                     additionalInfo = "Use string interpolation instead.";
                 }
+                
+                // we do not have a match
+                // operand types didn't match available operators
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2, additionalInfo: additionalInfo));
             });
 
