@@ -693,13 +693,14 @@ namespace Bicep.Core.TypeSystem
 
                 // we do not have a match
                 // operand types didn't match available operators
+                string? additionalInfo;
                 if (operandType1.TypeKind is TypeKind.StringLiteral &&
                     operandType2.TypeKind is TypeKind.StringLiteral &&
                     syntax.Operator is BinaryOperator.Add)
                 {
-                   return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidStringAddOperator());
+                    additionalInfo = "Use string interpolation instead.";
                 }
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2, additionalInfo: additionalInfo));
             });
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)

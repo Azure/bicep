@@ -315,10 +315,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP044",
                 $"Cannot apply operator \"{operatorName}\" to operand of type \"{type}\".");
 
-            public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2) => new(
+            public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2, string? additionalInfo) => new(
                 TextSpan,
                 "BCP045",
-                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".");
+                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".{additionalInfo ?? : ""}");
 
             public ErrorDiagnostic ValueTypeMismatch(TypeSymbol type) => new(
                 TextSpan,
@@ -1335,10 +1335,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP225",
                 $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this object is disabled.");
             
-            public ErrorDiagnostic InvalidStringAddOperator() => new(
-                TextSpan,
-                "BCP226",
-                $"Cannot apply operator \"+\" on two strings. Use string interpolation.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
