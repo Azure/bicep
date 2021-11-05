@@ -114,16 +114,16 @@ namespace Bicep.Core.Emit
 
         public void EmitIndexedSymbolReference(ResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
         {
-            var expression = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext)
-                .GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
+            var replacementContext = converter.TryGetReplacementContext(resource.NameSyntax, indexExpression, newContext);
+            var expression = converter.GenerateSymbolicReference(resource.Symbol.Name, replacementContext);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
         public void EmitIndexedSymbolReference(ModuleSymbol moduleSymbol, SyntaxBase indexExpression, SyntaxBase newContext)
         {
-            var expression = converter.CreateConverterForIndexReplacement(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext)
-                .GenerateSymbolicReference(moduleSymbol.Name, indexExpression);
+            var replacementContext = converter.TryGetReplacementContext(ExpressionConverter.GetModuleNameSyntax(moduleSymbol), indexExpression, newContext);
+            var expression = converter.GenerateSymbolicReference(moduleSymbol.Name, replacementContext);
 
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
@@ -348,11 +348,7 @@ namespace Bicep.Core.Emit
         {
             if (syntax is InstanceFunctionCallSyntax instanceFunctionCall && string.Equals(instanceFunctionCall.Name.IdentifierName, "getSecret", LanguageConstants.IdentifierComparison))
             {
-                var baseSyntax = instanceFunctionCall.BaseExpression switch
-                {
-                    ArrayAccessSyntax arrayAccessSyntax => arrayAccessSyntax.BaseExpression,
-                    _ => instanceFunctionCall.BaseExpression,
-                };
+                var (baseSyntax, indexExpression) = SyntaxHelper.UnwrapArrayAccessSyntax(instanceFunctionCall.BaseExpression);
 
                 if (context.SemanticModel.ResourceMetadata.TryLookup(baseSyntax) is not {} resource ||
                     !StringComparer.OrdinalIgnoreCase.Equals(resource.TypeReference.FormatType(), AzResourceTypeProvider.ResourceTypeKeyVault))
@@ -360,12 +356,8 @@ namespace Bicep.Core.Emit
                     throw new InvalidOperationException("Cannot emit parameter's KeyVault secret reference.");
                 }
 
-                var keyVaultId = instanceFunctionCall.BaseExpression switch
-                {
-                    ArrayAccessSyntax arrayAccessSyntax => converter.CreateConverterForIndexReplacement(resource.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCall)
-                                                                    .GetFullyQualifiedResourceId(resource),
-                    _ => converter.GetFullyQualifiedResourceId(resource)
-                };
+                var keyVaultId = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, instanceFunctionCall)
+                    .GetFullyQualifiedResourceId(resource);
 
                 writer.WritePropertyName("reference");
                 writer.WriteStartObject();
