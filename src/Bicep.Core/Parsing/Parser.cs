@@ -6,6 +6,7 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -99,7 +100,6 @@ namespace Bicep.Core.Parsing
                                 ? new MissingDeclarationSyntax(leadingNodes)
                                 : throw new ExpectedTokenException(current, b => b.UnrecognizedDeclaration()),
                         },
-                        TokenType.Pound => DisableDiagnosticSyntax(),
                         TokenType.NewLine => this.NewLine(),
 
                         _ => leadingNodes.Count > 0
@@ -173,50 +173,6 @@ namespace Bicep.Core.Parsing
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
             return new TargetScopeSyntax(leadingNodes, keyword, assignment, value);
-        }
-
-        private DisableNextLineDiagnosticsSyntax DisableDiagnosticSyntax()
-        {
-            Token pound = this.Expect(TokenType.Pound, b => b.ExpectedCharacter("#"));
-            var keyword = ExpectKeyword(LanguageConstants.DisableNextLineDiagnosticsKeyword);
-            var tokens = GetTokens();
-
-            return new DisableNextLineDiagnosticsSyntax(pound, keyword, tokens);
-        }
-
-        private IEnumerable<SyntaxBase> GetTokens()
-        {
-            List<Token> tokens = new();
-
-            while (true)
-            {
-                var next = this.reader.Peek();
-
-                if (next.Type == TokenType.EndOfFile || next.Type == TokenType.NewLine)
-                {
-                    if (!tokens.Any())
-                    {
-                        var span = next.ToZeroLengthSpan();
-                        var skippedSyntax = new SkippedTriviaSyntax(
-                            span,
-                            Enumerable.Empty<Token>(),
-                            DiagnosticBuilder.ForPosition(span).MissingDiagnosticCodes().AsEnumerable()
-                        );
-
-                        return new List<SyntaxBase> { skippedSyntax };
-                    }
-                    break;
-                }
-
-                next = this.reader.Read();
-
-                if (next.Type == TokenType.Identifier)
-                {
-                    tokens.Add(next);
-                }
-            }
-
-            return tokens;
         }
 
         private SyntaxBase Decorator()

@@ -11,6 +11,7 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -81,14 +82,21 @@ namespace Bicep.LanguageServer.Handlers
                     (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset)))
                 .OfType<IDiagnostic>();
 
+            HashSet<string> diagnosticCodesToSuppressInline = new();
+
             foreach (IDiagnostic diagnostic in diagnosticsOfTypeWarningAndInfo)
             {
-                var commandOrCodeAction = DisableDiagnostic(documentUri, diagnostic.Code, semanticModel.SourceFile, diagnostic.Span, compilationContext.LineStarts);
-
-                if (commandOrCodeAction is not null)
+                if (!diagnosticCodesToSuppressInline.Contains(diagnostic.Code))
                 {
-                    commandOrCodeActions.Add(commandOrCodeAction);
-                 }
+                    diagnosticCodesToSuppressInline.Add(diagnostic.Code);
+
+                    var commandOrCodeAction = DisableDiagnostic(documentUri, diagnostic.Code, semanticModel.SourceFile, diagnostic.Span, compilationContext.LineStarts);
+
+                    if (commandOrCodeAction is not null)
+                    {
+                        commandOrCodeActions.Add(commandOrCodeAction);
+                    }
+                }
             }
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
@@ -100,21 +108,35 @@ namespace Bicep.LanguageServer.Handlers
             TextSpan span,
             ImmutableArray<int> lineStarts)
         {
-            var declaration = bicepFile.ProgramSyntax.Declarations
-                .Where(x => x.Span.ContainsInclusive(span.Position) && x.Span.ContainsInclusive(span.Position + span.Length))
-                .FirstOrDefault();
-
-            if (declaration is null || diagnosticCode.String is null)
+            if (diagnosticCode.String is null)
             {
                 return null;
             }
 
-            var declarationRange = declaration.Span.ToRange(lineStarts);
-            TextEdit disableDiagnosticStart = new TextEdit
+            var syntaxTrivia = DisableDiagnosticsHelper.GetDisableNextLineDiagnosticFromPreviousLine(bicepFile.ProgramSyntax,
+                                                                                                     bicepFile.LineStarts,
+                                                                                                     span.Position,
+                                                                                                     out int previousLine);
+            TextEdit? disableDiagnosticStart;
+
+            if (syntaxTrivia is null)
             {
-                Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
-                NewText = "#" + LanguageConstants.DisableNextLineDiagnosticsKeyword + ' ' + diagnosticCode.String + '\n'
-            };
+                var declarationRange = span.ToRange(lineStarts);
+                disableDiagnosticStart = new TextEdit
+                {
+                    Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
+                    NewText = "#" + LanguageConstants.DisableNextLineDiagnosticsKeyword + ' ' + diagnosticCode.String + '\n'
+                };
+            }
+            else
+            {
+                int position = syntaxTrivia.GetEndPosition();
+                disableDiagnosticStart = new TextEdit
+                {
+                    Range = new Range(previousLine, position, previousLine, position),
+                    NewText = ' ' + diagnosticCode.String
+                };
+            }
 
             BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateDisableNextLineDiagnostics(diagnosticCode.String);
             var telemetryCommand = Command.Create(TelemetryConstants.CommandName, telemetryEvent);

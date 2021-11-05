@@ -11,12 +11,13 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
+using Bicep.Core.Navigation;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -186,38 +187,27 @@ namespace Bicep.Core.Semantics
         public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
             List<IDiagnostic> updatedDiagnostics = new List<IDiagnostic>();
-
-            var disableNextLineSyntaxes = SourceFile.ProgramSyntax.Children.OfType<DisableNextLineDiagnosticsSyntax>();
             var diagnostics = AssembleDiagnostics();
-
-            if (!disableNextLineSyntaxes.Any())
-            {
-                return diagnostics;
-            }
 
             foreach (IDiagnostic diagnostic in diagnostics)
             {
-                var (diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
+                var diagnosticsSpan = diagnostic.Span;
+                var syntaxTrivia = DisableDiagnosticsHelper.GetDisableNextLineDiagnosticFromPreviousLine(SourceFile.ProgramSyntax,
+                                                                                                         SourceFile.LineStarts,
+                                                                                                         diagnostic.Span.Position,
+                                                                                                         out _);
 
-                var disableNextLineSyntaxesBeforeThisDiagnostic = disableNextLineSyntaxes.Where(x => TextCoordinateConverter.GetPosition(SourceFile.LineStarts, x.Span.Position).line + 1 == diagnosticLine);
-
-                if (disableNextLineSyntaxesBeforeThisDiagnostic.Any())
+                if (syntaxTrivia is not null)
                 {
-                    var disableNextLineSyntaxBeforeThisDiagnostic = disableNextLineSyntaxesBeforeThisDiagnostic.First();
+                    string[] codes = syntaxTrivia.Text.Split(' ');
 
-                    if (disableNextLineSyntaxBeforeThisDiagnostic.DiagnosticCodes.Any(x => x is Token token && token.Text.Equals(diagnostic.Code, StringComparison.OrdinalIgnoreCase)))
+                    if (codes.Contains(diagnostic.Code))
                     {
                         continue;
                     }
-                    else
-                    {
-                        updatedDiagnostics.Add(diagnostic);
-                    }
                 }
-                else
-                {
-                    updatedDiagnostics.Add(diagnostic);
-                }
+
+                updatedDiagnostics.Add(diagnostic);
             }
 
             return updatedDiagnostics;

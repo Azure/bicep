@@ -304,6 +304,17 @@ namespace Bicep.Core.Parsing
                 yield return ScanWhitespace();
             }
 
+            if (textWindow.Peek() == '#')
+            {
+                foreach (char c in LanguageConstants.DisableNextLineDiagnosticsKeyword)
+                {
+                    if (textWindow.Peek(1) == c)
+                    {
+                        continue;
+                    }
+                }
+            }
+
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
             {
                 yield return ScanSingleLineComment();
@@ -334,11 +345,68 @@ namespace Bicep.Core.Parsing
                     yield return ScanMultiLineComment();
                     yield break;
                 }
+                else if (textWindow.Peek() == '#' && CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword))
+                {
+                    yield return ScanDisableDiagnosticsDirective(LanguageConstants.DisableNextLineDiagnosticsKeyword,
+                                                                 SyntaxTriviaType.DisableNextLineDirective);
+                }
                 else
                 {
                     yield break;
                 }
             }
+        }
+
+        private bool CheckAdjacentText(string text)
+        {
+            int i = 0;
+            foreach (char c in text)
+            {
+                if (textWindow.Peek(i + 1) == c)
+                {
+                    i++;
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (i != text.Length)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private SyntaxTrivia ScanDisableDiagnosticsDirective(string text, SyntaxTriviaType syntaxTriviaType)
+        {
+            textWindow.Reset();
+            textWindow.Advance(text.Length + 1);
+
+            StringBuilder sb = new StringBuilder();
+
+            while (!textWindow.IsAtEnd())
+            {
+                var nextChar = textWindow.Peek();
+                sb.Append(nextChar);
+
+                if (IsNewLine(nextChar))
+                {
+                    break;
+                }
+
+                textWindow.Advance();
+            }
+
+            if (string.IsNullOrWhiteSpace(sb.ToString()))
+            {
+                AddDiagnostic(b => b.MissingDiagnosticCodes());
+            }
+
+            return new SyntaxTrivia(syntaxTriviaType, textWindow.GetSpan(), textWindow.GetText());
         }
 
         private void LexToken()
