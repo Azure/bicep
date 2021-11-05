@@ -62,7 +62,7 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
       publishModule(
         envOverrides,
         storageRef,
-        "local-modules" + environment.suffix,
+        "modules" + environment.suffix,
         "storage.bicep"
       );
 
@@ -70,7 +70,7 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
       publishModule(
         envOverrides,
         passthroughRef,
-        "local-modules" + environment.suffix,
+        "modules" + environment.suffix,
         "passthrough.bicep"
       );
 
@@ -96,10 +96,7 @@ output blobEndpoint string = storage.outputs.blobEndpoint
       const bicepPath = writeTempFile("build", "build-external.bicep", bicep);
 
       const exampleConfig = readFileSync(
-        pathToExampleFile(
-          "local-modules" + environment.suffix,
-          "bicepconfig.json"
-        )
+        pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
       );
       writeTempFile("build", "bicepconfig.json", exampleConfig);
 
