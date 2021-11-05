@@ -6409,6 +6409,38 @@ resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource scopeCompletion 'My.Rp/mockResource@2020-12-01' = {
+//@[0:138) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:24)  IdentifierSyntax
+//@[9:24)   Identifier |scopeCompletion|
+//@[25:56)  StringSyntax
+//@[25:56)   StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[57:58)  Assignment |=|
+//@[59:138)  ObjectSyntax
+//@[59:60)   LeftBrace |{|
+//@[60:62)   NewLine |\r\n|
+  name: 'selfScope'
+//@[2:19)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:19)    StringSyntax
+//@[8:19)     StringComplete |'selfScope'|
+//@[19:21)   NewLine |\r\n|
+  // #completionTest(11) -> symbolicNames
+//@[41:43)   NewLine |\r\n|
+  scope: 
+//@[2:9)   ObjectPropertySyntax
+//@[2:7)    IdentifierSyntax
+//@[2:7)     Identifier |scope|
+//@[7:8)    Colon |:|
+//@[9:9)    SkippedTriviaSyntax
+//@[9:11)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 var notAResource = {
 //@[0:54) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|
@@ -9806,6 +9838,38 @@ resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 //@[0:1)   RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource p1_child2 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:142) ResourceDeclarationSyntax
+//@[0:8)  Identifier |resource|
+//@[9:18)  IdentifierSyntax
+//@[9:18)   Identifier |p1_child2|
+//@[19:62)  StringSyntax
+//@[19:62)   StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:64)  Assignment |=|
+//@[65:142)  ObjectSyntax
+//@[65:66)   LeftBrace |{|
+//@[66:68)   NewLine |\r\n|
+  // #completionTest(12) -> symbolicNames
+//@[41:43)   NewLine |\r\n|
+  parent: 
+//@[2:10)   ObjectPropertySyntax
+//@[2:8)    IdentifierSyntax
+//@[2:8)     Identifier |parent|
+//@[8:9)    Colon |:|
+//@[10:10)    SkippedTriviaSyntax
+//@[10:12)   NewLine |\r\n|
+  name: 'child1'
+//@[2:16)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:16)    StringSyntax
+//@[8:16)     StringComplete |'child1'|
+//@[16:18)   NewLine |\r\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // parent property with scope on child resource
 //@[47:49) NewLine |\r\n|
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
@@ -10321,14 +10385,14 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 //@[1:5) NewLine |\r\n\r\n|
 
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[0:259) ResourceDeclarationSyntax
+//@[0:310) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:27)  IdentifierSyntax
 //@[9:27)   Identifier |anyTypeInDependsOn|
 //@[28:67)  StringSyntax
 //@[28:67)   StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
 //@[68:69)  Assignment |=|
-//@[70:259)  ObjectSyntax
+//@[70:310)  ObjectSyntax
 //@[70:71)   LeftBrace |{|
 //@[71:73)   NewLine |\r\n|
   name: 'anyTypeInDependsOn'
@@ -10355,11 +10419,11 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
 //@[28:36)      Identifier |location|
 //@[36:38)   NewLine |\r\n|
   dependsOn: [
-//@[2:115)   ObjectPropertySyntax
+//@[2:166)   ObjectPropertySyntax
 //@[2:11)    IdentifierSyntax
 //@[2:11)     Identifier |dependsOn|
 //@[11:12)    Colon |:|
-//@[13:115)    ArraySyntax
+//@[13:166)    ArraySyntax
 //@[13:14)     LeftSquare |[|
 //@[14:16)     NewLine |\r\n|
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
@@ -10398,6 +10462,14 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
 //@[8:12)         TrueKeyword |true|
 //@[12:13)       RightParen |)|
 //@[13:15)     NewLine |\r\n|
+    // #completionTest(7) -> symbolicNames
+//@[42:44)     NewLine |\r\n|
+    a
+//@[4:5)     ArrayItemSyntax
+//@[4:5)      VariableAccessSyntax
+//@[4:5)       IdentifierSyntax
+//@[4:5)        Identifier |a|
+//@[5:7)     NewLine |\r\n|
   ]
 //@[2:3)     RightSquare |]|
 //@[3:5)   NewLine |\r\n|

@@ -1164,6 +1164,13 @@ resource selfScope 'My.Rp/mockResource@2020-12-01' = {
   scope: selfScope
 }
 
+resource scopeCompletion 'My.Rp/mockResource@2020-12-01' = {
+//@[9:24) Resource scopeCompletion. Type: My.Rp/mockResource@2020-12-01. Declaration start char: 0, length: 138
+  name: 'selfScope'
+  // #completionTest(11) -> symbolicNames
+  scope: 
+}
+
 var notAResource = {
 //@[4:16) Variable notAResource. Type: object. Declaration start char: 0, length: 54
   im: 'not'
@@ -1684,6 +1691,13 @@ resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
   name: 'child1'
 }
 
+resource p1_child2 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[9:18) Resource p1_child2. Type: Microsoft.Rp1/resource1/child1@2020-06-01. Declaration start char: 0, length: 142
+  // #completionTest(12) -> symbolicNames
+  parent: 
+  name: 'child1'
+}
+
 // parent property with scope on child resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[9:16) Resource p2_res1. Type: Microsoft.Rp1/resource1@2020-06-01. Declaration start char: 0, length: 76
@@ -1785,13 +1799,15 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 }
 
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[9:27) Resource anyTypeInDependsOn. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 259
+//@[9:27) Resource anyTypeInDependsOn. Type: Microsoft.Network/dnsZones@2018-05-01. Declaration start char: 0, length: 310
   name: 'anyTypeInDependsOn'
   location: resourceGroup().location
   dependsOn: [
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
     's'
     any(true)
+    // #completionTest(7) -> symbolicNames
+    a
   ]
 }
 

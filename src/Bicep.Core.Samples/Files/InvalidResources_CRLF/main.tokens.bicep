@@ -4169,6 +4169,28 @@ resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource scopeCompletion 'My.Rp/mockResource@2020-12-01' = {
+//@[0:8) Identifier |resource|
+//@[9:24) Identifier |scopeCompletion|
+//@[25:56) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[57:58) Assignment |=|
+//@[59:60) LeftBrace |{|
+//@[60:62) NewLine |\r\n|
+  name: 'selfScope'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:19) StringComplete |'selfScope'|
+//@[19:21) NewLine |\r\n|
+  // #completionTest(11) -> symbolicNames
+//@[41:43) NewLine |\r\n|
+  scope: 
+//@[2:7) Identifier |scope|
+//@[7:8) Colon |:|
+//@[9:11) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 var notAResource = {
 //@[0:3) Identifier |var|
 //@[4:16) Identifier |notAResource|
@@ -6329,6 +6351,28 @@ resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource p1_child2 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:18) Identifier |p1_child2|
+//@[19:62) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[63:64) Assignment |=|
+//@[65:66) LeftBrace |{|
+//@[66:68) NewLine |\r\n|
+  // #completionTest(12) -> symbolicNames
+//@[41:43) NewLine |\r\n|
+  parent: 
+//@[2:8) Identifier |parent|
+//@[8:9) Colon |:|
+//@[10:12) NewLine |\r\n|
+  name: 'child1'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:16) StringComplete |'child1'|
+//@[16:18) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 // parent property with scope on child resource
 //@[47:49) NewLine |\r\n|
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
@@ -6719,6 +6763,11 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
 //@[8:12) TrueKeyword |true|
 //@[12:13) RightParen |)|
 //@[13:15) NewLine |\r\n|
+    // #completionTest(7) -> symbolicNames
+//@[42:44) NewLine |\r\n|
+    a
+//@[4:5) Identifier |a|
+//@[5:7) NewLine |\r\n|
   ]
 //@[2:3) RightSquare |]|
 //@[3:5) NewLine |\r\n|
