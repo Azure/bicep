@@ -128,7 +128,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
-                       ConvertFlag(IsResourceOrModuleItemContext(matchingNodes, offset), BicepCompletionContextKind.ResourceOrModuleItem);
+                       ConvertFlag(IsResourceOrModuleItemContext(matchingNodes, offset), BicepCompletionContextKind.SymbolicName);
                        
             if (featureProvider.ImportsEnabled)
             {

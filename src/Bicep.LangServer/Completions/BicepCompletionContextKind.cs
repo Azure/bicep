@@ -140,8 +140,8 @@ namespace Bicep.LanguageServer.Completions
         ImportFromFollower = 1 << 24,
 
         /// <summary>
-        /// We're inside dependsOn array
+        /// We need to provide module or resource completions
         /// </summary>
-        ResourceOrModuleItem = 1 << 25,
+        SymbolicName = 1 << 25,
     }
 }

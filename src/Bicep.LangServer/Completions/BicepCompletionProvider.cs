@@ -582,7 +582,7 @@ namespace Bicep.LanguageServer.Completions
 
             if (!context.Kind.HasFlag(BicepCompletionContextKind.DecoratorName))
             {
-                if (!context.Kind.HasFlag(BicepCompletionContextKind.ResourceOrModuleItem))
+                if (!context.Kind.HasFlag(BicepCompletionContextKind.SymbolicName))
                 {
                     // add namespaces first
                     AddSymbolCompletions(completions, nsTypeDict.Keys);
@@ -596,7 +596,7 @@ namespace Bicep.LanguageServer.Completions
                     var currentScope = context.ActiveScopes[depth];
                     AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
                 }
-                if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceOrModuleItem))
+                if (context.Kind.HasFlag(BicepCompletionContextKind.SymbolicName))
                 {
                     return completions.Values;
                 }
