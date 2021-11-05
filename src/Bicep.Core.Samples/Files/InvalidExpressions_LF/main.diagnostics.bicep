@@ -146,11 +146,16 @@ var div = {
 
 // additive
 var add = null + 's'
+//@[4:7) [BCP028 (Error)] Identifier "add" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |add|
 //@[4:7) [no-unused-vars (Warning)] Variable "add" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |add|
 //@[10:20) [BCP045 (Error)] Cannot apply operator "+" to operands of type "null" and "'s'". (CodeDescription: none) |null + 's'|
 var sub = true - false
 //@[4:7) [no-unused-vars (Warning)] Variable "sub" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |sub|
 //@[10:22) [BCP045 (Error)] Cannot apply operator "-" to operands of type "bool" and "bool". (CodeDescription: none) |true - false|
+var add = 'bad' + 'str'
+//@[4:7) [BCP028 (Error)] Identifier "add" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |add|
+//@[4:7) [no-unused-vars (Warning)] Variable "add" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |add|
+//@[10:23) [BCP226 (Error)] Cannot apply operator "+" on two strings. Use string interpolation. (CodeDescription: none) |'bad' + 'str'|
 
 // equality (== and != can't have a type error because they work on "any" type)
 var eq = true =~ null
@@ -440,6 +445,9 @@ var invalidPropertyAccessOnSysNamespace = sys.az
 var invalidOperands = 1 + az
 //@[4:19) [no-unused-vars (Warning)] Variable "invalidOperands" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidOperands|
 //@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "az". (CodeDescription: none) |1 + az|
+var invalidStringAddition = 'hello' + sampleObject.myStr
+//@[4:25) [no-unused-vars (Warning)] Variable "invalidStringAddition" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidStringAddition|
+//@[28:56) [BCP226 (Error)] Cannot apply operator "+" on two strings. Use string interpolation. (CodeDescription: none) |'hello' + sampleObject.myStr|
 
 var bannedFunctions = {
 //@[4:19) [no-unused-vars (Warning)] Variable "bannedFunctions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bannedFunctions|
