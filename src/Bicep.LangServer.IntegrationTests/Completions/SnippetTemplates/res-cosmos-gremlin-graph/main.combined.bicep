@@ -1,21 +1,27 @@
-// $1 = 'accountName/databaseName'
-// $2 = 'id'
-// $3 = 1000
-// $4 = cosmosDBGremlinGraph
-// $5 = 'name'
-// $6 = 'id'
-// $7 = 'paths'
-// $8 = Hash
-// $9 = consistent
-// $10 = 'path'
-// $11 = Hash
-// $12 = String
-// $13 = -1
-// $14 = 'path'
-// $15 = 1000
+// $1 = 'accountName'
+// $2 = 'databaseName'
+// $3 = 'id'
+// $4 = 1000
+// $5 = cosmosDBGremlinGraph
+// $6 = 'name'
+// $7 = 'id'
+// $8 = 'paths'
+// $9 = Hash
+// $10 = consistent
+// $11 = 'path'
+// $12 = Hash
+// $13 = String
+// $14 = -1
+// $15 = 'path'
+// $16 = 1000
+
+resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {
+  name: 'accountName'
+}
 
 resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {
-  name: 'accountName/databaseName'
+  parent: cosmosDBAccount
+  name: 'databaseName'
   properties: {
     resource: {
       id: 'id'
