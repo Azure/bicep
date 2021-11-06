@@ -1,11 +1,17 @@
-// $1 = routeTableRoute
-// $2 = 'routeTableName/name'
-// $3 = '0.11.26.162'
-// $4 = 'None'
-// $5 = '248.233.26.131'
+// $1 = 'routeTableName'
+// $2 = routeTableRoute
+// $3 = 'name'
+// $4 = '0.11.26.162'
+// $5 = 'None'
+// $6 = '248.233.26.131'
+
+resource routeTable 'Microsoft.Network/routeTables@2021-03-01' existing = {
+  name: 'name'
+}
 
 resource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {
-  name: 'routeTableName/name'
+  parent: routeTable
+  name: 'name'
   properties: {
     addressPrefix: '0.11.26.162'
     nextHopType: 'None'

@@ -1,17 +1,23 @@
-// $1 = networkSecurityGroupSecurityRule
-// $2 = 'networkSecurityGroup/name'
-// $3 = 'description'
-// $4 = 'Tcp'
-// $5 = '1026'
-// $6 = '1067'
-// $7 = '0.11.26.162'
-// $8 = '248.233.26.131'
-// $9 = 'Allow'
-// $10 = 100
-// $11 = 'Inbound'
+// $1 = 'networkSecurityGroup'
+// $2 = networkSecurityGroupSecurityRule
+// $3 = 'name'
+// $4 = 'description'
+// $5 = 'Tcp'
+// $6 = '1026'
+// $7 = '1067'
+// $8 = '0.11.26.162'
+// $9 = '248.233.26.131'
+// $10 = 'Allow'
+// $11 = 100
+// $12 = 'Inbound'
 
-resource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {
-  name: 'networkSecurityGroup/name'
+resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-03-01' existing = {
+  name: 'networkSecurityGroup'
+}
+
+resource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2021-03-01' = {
+  parent: networkSecurityGroup
+  name: 'name'
   properties: {
     description: 'description'
     protocol: 'Tcp'

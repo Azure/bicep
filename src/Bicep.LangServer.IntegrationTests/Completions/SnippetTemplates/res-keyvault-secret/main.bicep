@@ -1,5 +1,6 @@
-﻿// $1 = keyVaultSecret
-// $2 = 'keyVaultName/name'
-// $3 = 'value'
+﻿// $1 = 'keyVaultName'
+// $2 = keyVaultSecret
+// $3 = 'name'
+// $4 = 'value'
 
 // Insert snippet here

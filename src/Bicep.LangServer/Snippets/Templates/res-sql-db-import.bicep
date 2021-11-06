@@ -1,18 +1,23 @@
 ﻿// SQL Database Import
-resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
-  name: /*${1:'name'}*/'sqlDatabase/Import'
-  location: /*${2:'location'}*/'location'
+resource sqlServer 'Microsoft.Sql/servers@2014-04-01' existing = {
+  name: /*${1:'name'}*/'sqlDatabase'
 }
 
-resource /*${3:sqlDatabaseImport}*/sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {
+resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {
+  parent: sqlServer
+  name: /*${2:'name'}*/'Import'
+  location: /*${3:'location'}*/'location'
+}
+
+resource /*${4:sqlDatabaseImport}*/sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {
   parent: sqlServerDatabase
   name: 'import'
   properties: {
-    storageKeyType: /*'${4|StorageAccessKey,SharedAccessKey|}'*/'StorageAccessKey'
-    storageKey: /*${5:'storageKey'}*/'storageKey'
-    storageUri: /*${6:'storageUri'}*/'storageUri'
-    administratorLogin: /*${7:'administratorLogin'}*/'administratorLogin'
-    administratorLoginPassword: /*${8:'administratorLoginPassword'}*/'administratorLoginPassword'
+    storageKeyType: /*'${5|StorageAccessKey,SharedAccessKey|}'*/'StorageAccessKey'
+    storageKey: /*${6:'storageKey'}*/'storageKey'
+    storageUri: /*${7:'storageUri'}*/'storageUri'
+    administratorLogin: /*${8:'administratorLogin'}*/'administratorLogin'
+    administratorLoginPassword: /*${9:'administratorLoginPassword'}*/'administratorLoginPassword'
     operationMode: 'Import'
   }
 }

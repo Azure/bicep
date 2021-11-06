@@ -1352,7 +1352,7 @@
     "detail": "Key Vault Secret",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: 'keyVaultName/name'\n  properties: {\n    value: 'value'\n  }\n}\n\n```"
+      "value": "```bicep\nresource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' existing = {\n  name: 'keyVaultName'\n}\n\nresource keyVaultSecret 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  parent: keyVault\n  name: 'name'\n  properties: {\n    value: 'value'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1361,7 +1361,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:keyVaultSecret} 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: ${2:'keyVaultName/name'}\n  properties: {\n    value: ${3:'value'}\n  }\n}\n"
+      "newText": "resource keyVault 'Microsoft.KeyVault/vaults@2019-09-01' existing = {\n  name: ${1:'keyVaultName'}\n}\n\nresource ${2:keyVaultSecret} 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  parent: keyVault\n  name: ${3:'name'}\n  properties: {\n    value: ${4:'value'}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1758,7 +1758,7 @@
     "detail": "Network Security Group Rule",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: 'networkSecurityGroup/name'\n  properties: {\n    description: 'description'\n    protocol: '*'\n    sourcePortRange: 'sourcePortRange'\n    destinationPortRange: 'destinationPortRange'\n    sourceAddressPrefix: 'sourceAddressPrefix'\n    destinationAddressPrefix: 'destinationAddressPrefix'\n    access: 'Allow'\n    priority: 100\n    direction: 'Inbound'\n  }\n}\n\n```"
+      "value": "```bicep\nresource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-03-01' existing = {\n  name: 'name'\n}\n\nresource networkSecurityGroupSecurityRule 'Microsoft.Network/networkSecurityGroups/securityRules@2021-03-01' = {\n  parent: networkSecurityGroup\n  name: 'name'\n  properties: {\n    description: 'description'\n    protocol: '*'\n    sourcePortRange: 'sourcePortRange'\n    destinationPortRange: 'destinationPortRange'\n    sourceAddressPrefix: 'sourceAddressPrefix'\n    destinationAddressPrefix: 'destinationAddressPrefix'\n    access: 'Allow'\n    priority: 100\n    direction: 'Inbound'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1767,7 +1767,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:networkSecurityGroupSecurityRule} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: ${2:'networkSecurityGroup/name'}\n  properties: {\n    description: ${3:'description'}\n    protocol: ${4|'*','Ah','Esp','Icmp','Tcp','Udb'|}\n    sourcePortRange: ${5:'sourcePortRange'}\n    destinationPortRange: ${6:'destinationPortRange'}\n    sourceAddressPrefix: ${7:'sourceAddressPrefix'}\n    destinationAddressPrefix: ${8:'destinationAddressPrefix'}\n    access: ${9|'Allow','Deny'|}\n    priority: ${10:100}\n    direction: ${11|'Inbound','Outbound'|}\n  }\n}\n"
+      "newText": "resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2021-03-01' existing = {\n  name: ${1:'name'}\n}\n\nresource ${2:networkSecurityGroupSecurityRule} 'Microsoft.Network/networkSecurityGroups/securityRules@2021-03-01' = {\n  parent: networkSecurityGroup\n  name: ${3:'name'}\n  properties: {\n    description: ${4:'description'}\n    protocol: ${5|'*','Ah','Esp','Icmp','Tcp','Udb'|}\n    sourcePortRange: ${6:'sourcePortRange'}\n    destinationPortRange: ${7:'destinationPortRange'}\n    sourceAddressPrefix: ${8:'sourceAddressPrefix'}\n    destinationAddressPrefix: ${9:'destinationAddressPrefix'}\n    access: ${10|'Allow','Deny'|}\n    priority: ${11:100}\n    direction: ${12|'Inbound','Outbound'|}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2251,7 +2251,7 @@
     "detail": "Azure Route Table Route",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: 'routeTableName/name'\n  properties: {\n    addressPrefix: 'addressPrefix'\n    nextHopType: 'VirtualNetworkGateway'\n    nextHopIpAddress: 'nextHopIp'\n  }\n}\n\n```"
+      "value": "```bicep\nresource routeTable 'Microsoft.Network/routeTables@2021-03-01' existing = {\n  name: 'routeTableName'\n}\n\nresource routeTableRoute 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  parent: routeTable\n  name: 'name'\n  properties: {\n    addressPrefix: 'addressPrefix'\n    nextHopType: 'VirtualNetworkGateway'\n    nextHopIpAddress: 'nextHopIp'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2260,7 +2260,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:routeTableRoute} 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: ${2:'routeTableName/name'}\n  properties: {\n    addressPrefix: ${3:'addressPrefix'}\n    nextHopType: ${4|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n    nextHopIpAddress: ${5:'nextHopIp'}\n  }\n}\n"
+      "newText": "resource routeTable 'Microsoft.Network/routeTables@2021-03-01' existing = {\n  name: ${3:'routeTableName'}\n}\n\nresource ${2:routeTableRoute} 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  parent: routeTable\n  name: ${3:'name'}\n  properties: {\n    addressPrefix: ${4:'addressPrefix'}\n    nextHopType: ${5|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n    nextHopIpAddress: ${6:'nextHopIp'}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2338,7 +2338,7 @@
     "detail": "SQL Database Import",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: 'name'\n  location: 'location'\n}\n\nresource sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: 'StorageAccessKey'\n    storageKey: 'storageKey'\n    storageUri: 'storageUri'\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    operationMode: 'Import'\n  }\n}\n\n```"
+      "value": "```bicep\nresource sqlServer 'Microsoft.Sql/servers@2014-04-01' existing = {\n  name: 'name'\n}\n\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: 'name'\n  location: 'location'\n}\n\nresource sqlDatabaseImport 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: 'StorageAccessKey'\n    storageKey: 'storageKey'\n    storageUri: 'storageUri'\n    administratorLogin: 'administratorLogin'\n    administratorLoginPassword: 'administratorLoginPassword'\n    operationMode: 'Import'\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2347,7 +2347,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: ${1:'name'}\n  location: ${2:'location'}\n}\n\nresource ${3:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: '${4|StorageAccessKey,SharedAccessKey|}'\n    storageKey: ${5:'storageKey'}\n    storageUri: ${6:'storageUri'}\n    administratorLogin: ${7:'administratorLogin'}\n    administratorLoginPassword: ${8:'administratorLoginPassword'}\n    operationMode: 'Import'\n  }\n}\n"
+      "newText": "resource sqlServer 'Microsoft.Sql/servers@2014-04-01' existing = {\n  name: ${1:'name'}\n}\n\nresource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: ${2:'name'}\n  location: ${3:'location'}\n}\n\nresource ${4:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: '${5|StorageAccessKey,SharedAccessKey|}'\n    storageKey: ${6:'storageKey'}\n    storageUri: ${7:'storageUri'}\n    administratorLogin: ${8:'administratorLogin'}\n    administratorLoginPassword: ${9:'administratorLoginPassword'}\n    operationMode: 'Import'\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -2773,7 +2773,7 @@
     "detail": "Virtual Network Peering",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: 'virtualNetwork/name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: 'virtualNetworks.id'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-03-01' existing = {\n  name: 'virtualNetwork'\n}\n\nresource peering 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  parent: virtualNetwork\n  name: 'name'\n  properties: {\n    allowVirtualNetworkAccess: true\n    allowForwardedTraffic: true\n    allowGatewayTransit: true\n    useRemoteGateways: true\n    remoteVirtualNetwork: {\n      id: 'virtualNetworks.id'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -2782,7 +2782,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: ${2:'virtualNetwork/name'}\n  properties: {\n    allowVirtualNetworkAccess: ${3|true,false|}\n    allowForwardedTraffic: ${4|true,false|}\n    allowGatewayTransit: ${5|true,false|}\n    useRemoteGateways: ${6|true,false|}\n    remoteVirtualNetwork: {\n      id: ${7:'virtualNetworks.id'}\n    }\n  }\n}\n"
+      "newText": "resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-03-01' existing = {\n  name: ${1:'virtualNetwork'}\n}\n\nresource ${2:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  parent: virtualNetwork\n  name: ${3:'name'}\n  properties: {\n    allowVirtualNetworkAccess: ${4|true,false|}\n    allowForwardedTraffic: ${5|true,false|}\n    allowGatewayTransit: ${6|true,false|}\n    useRemoteGateways: ${7|true,false|}\n    remoteVirtualNetwork: {\n      id: ${8:'virtualNetworks.id'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
