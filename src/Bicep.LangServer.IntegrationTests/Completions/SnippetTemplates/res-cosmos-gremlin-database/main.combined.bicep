@@ -1,10 +1,16 @@
-// $1 = gremlinDb
-// $2 = 'accountName/databaseName'
-// $3 = 'id'
-// $4 = 1000
+// $1 = 'accountName'
+// $2 = gremlinDb
+// $3 = 'databaseName'
+// $4 = 'id'
+// $5 = 1000
+
+resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {
+  name: 'accountName'
+}
 
 resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {
-  name: 'accountName/databaseName'
+  parent: cosmosDBAccount
+  name: 'databaseName'
   properties: {
     resource: {
       id: 'id'

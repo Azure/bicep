@@ -1,12 +1,17 @@
 ﻿// Cosmos DB Gremlin Database
-resource /*${1:gremlinDb}*/gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {
-  name: /*${2:'name'}*/'account-name/database-name'
+resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {
+  name: /*${1:'name'}*/'name'
+}
+
+resource /*${2:gremlinDb}*/gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {
+  parent: cosmosDBAccount
+  name: /*${3:'name'}*/'database-name'
   properties: {
     resource: {
-      id: /*${3:'id'}*/'id'
+      id: /*${4:'id'}*/'id'
     }
     options: {
-      throughput: /*${4:'throughput'}*/'throughput'
+      throughput: /*${5:'throughput'}*/'throughput'
     }
   }
 }
