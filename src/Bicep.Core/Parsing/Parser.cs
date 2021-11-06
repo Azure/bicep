@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
@@ -1014,7 +1013,7 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
         {
-            if (!isResourceOrModuleContext)
+            if(!isResourceOrModuleContext)
             {
                 // we're not parsing a resource or module body, which means we can have any expression at this point
                 return this.Expression(WithExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals));
@@ -1045,11 +1044,6 @@ namespace Bicep.Core.Parsing
 
             var itemsOrTokens = new List<SyntaxBase>();
 
-            if (!Check(TokenType.NewLine))
-            {
-                itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-            }
-
             while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightSquare)
             {
                 // this produces an item node, skipped tokens node, or just a newline token
@@ -1069,16 +1063,6 @@ namespace Bicep.Core.Parsing
                             DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         itemsOrTokens.Add(skippedSyntax);
-                    }
-
-                    // we've got a ']' immediately after a property.
-                    // consume it and exit early with an error to avoid assuming we're still inside the object
-                    if (Check(TokenType.RightSquare))
-                    {
-                        itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-                        var earlyCloseBracket = this.reader.Read();
-
-                        return new ArraySyntax(openBracket, itemsOrTokens, earlyCloseBracket);
                     }
 
                     // items must be followed by newlines
@@ -1123,12 +1107,6 @@ namespace Bicep.Core.Parsing
             }
 
             var propertiesOrResourcesTokens = new List<SyntaxBase>();
-
-            if (!Check(TokenType.NewLine))
-            {
-                propertiesOrResourcesTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-            }
-
             while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightBrace)
             {
                 // this produces a property node, skipped tokens node, or just a newline token
@@ -1148,16 +1126,6 @@ namespace Bicep.Core.Parsing
                             DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         propertiesOrResourcesTokens.Add(skippedSyntax);
-                    }
-
-                    // we've got a '}' immediately after a property.
-                    // consume it and exit early with an error to avoid assuming we're still inside the object
-                    if (Check(TokenType.RightBrace))
-                    {
-                        propertiesOrResourcesTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
-                        var earlyCloseBrace = this.reader.Read();
-
-                        return new ObjectSyntax(openBrace, propertiesOrResourcesTokens, earlyCloseBrace);
                     }
 
                     // properties must be followed by newlines
@@ -1340,7 +1308,7 @@ namespace Bicep.Core.Parsing
 
         private Token ExpectKeyword(string expectedKeyword)
         {
-            return GetOptionalKeyword(expectedKeyword) ??
+            return GetOptionalKeyword(expectedKeyword) ?? 
                 throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
         }
 

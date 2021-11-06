@@ -91,28 +91,6 @@ namespace Bicep.Core.Parsing
             return segments;
         }
 
-        public string? TryGetStringBeforeWhitespace()
-        {
-            StringBuilder sb = new StringBuilder();
-
-            while (true)
-            {
-                var nextChar = textWindow.Next();
-
-                if (nextChar != ' ' || nextChar != '\t')
-                {
-                    sb.Append(nextChar);
-
-                    textWindow.Advance();
-                    continue;
-                }
-
-                break;
-            }
-
-            return sb.ToString();
-        }
-
         public static string? TryGetMultilineStringValue(Token stringToken)
         {
             var tokenText = stringToken.Text;
@@ -302,17 +280,6 @@ namespace Bicep.Core.Parsing
             if (IsWhiteSpace(textWindow.Peek()))
             {
                 yield return ScanWhitespace();
-            }
-
-            if (textWindow.Peek() == '#')
-            {
-                foreach (char c in LanguageConstants.DisableNextLineDiagnosticsKeyword)
-                {
-                    if (textWindow.Peek(1) == c)
-                    {
-                        continue;
-                    }
-                }
             }
 
             if (textWindow.Peek() == '/' && textWindow.Peek(1) == '/')
@@ -851,8 +818,6 @@ namespace Bicep.Core.Parsing
                     return TokenType.Semicolon;
                 case '+':
                     return TokenType.Plus;
-                case '#':
-                    return TokenType.Pound;
                 case '-':
                     return TokenType.Minus;
                 case '%':

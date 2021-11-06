@@ -48,7 +48,6 @@ namespace Bicep.Core.Parsing
         EndOfFile,
         DoubleQuestion,
         DoubleColon,
-        Pound,
         DisableNextLine
     }
 }
