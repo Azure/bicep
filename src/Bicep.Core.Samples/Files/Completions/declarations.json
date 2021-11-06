@@ -830,7 +830,7 @@
     "detail": "Cosmos DB Cassandra Namespace",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: 'name'\n}\n\nresource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -839,7 +839,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:cassandraKeyspace} 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: ${1:'name'}\n}\n\nresource ${2:cassandraKeyspace} 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: ${3:'name'}\n  properties: {\n    resource: {\n      id: ${4:'id'}\n    }\n    options: {\n      throughput: ${5:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
