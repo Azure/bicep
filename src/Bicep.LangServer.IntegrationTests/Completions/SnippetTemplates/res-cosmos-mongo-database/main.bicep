@@ -1,5 +1,6 @@
-﻿// $1 = mongoDb
-// $2 = 'accountName/databaseName'
-// $3 = 'id'
+﻿// $1 = 'accountName'
+// $2 = mongoDb
+// $3 = 'databaseName'
+// $4 = 'id'
 
 // Insert snippet here
