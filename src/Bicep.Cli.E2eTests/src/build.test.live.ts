@@ -15,6 +15,7 @@ import {
 import { invokingBicepCommand } from "./utils/command";
 import {
   expectFileExists,
+  pathToCachedTsModuleFile,
   pathToExampleFile,
   pathToTempFile,
   readFileSync,
@@ -87,6 +88,10 @@ module storage '${storageRef}' = {
   }
 }
 
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
+  name: 'webAppModuleV1'
+}
+
 output blobEndpoint string = storage.outputs.blobEndpoint
     `;
 
@@ -114,6 +119,13 @@ output blobEndpoint string = storage.outputs.blobEndpoint
         builder.registry,
         "build$storage",
         `v1_${builder.tagSuffix}$4002000`
+      );
+
+      expectFileExists(
+        pathToCachedTsModuleFile(
+          `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
+          "main.json"
+        )
       );
     }
   );
