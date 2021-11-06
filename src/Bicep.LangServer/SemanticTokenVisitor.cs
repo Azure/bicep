@@ -256,6 +256,9 @@ namespace Bicep.LanguageServer
                 case SyntaxTriviaType.MultiLineComment:
                     AddTokenType(syntaxTrivia, SemanticTokenType.Comment);
                     break;
+                case SyntaxTriviaType.DisableNextLineDirective:
+                    AddTokenType(syntaxTrivia, SemanticTokenType.Macro);
+                    break;
             }
         }
 
@@ -297,22 +300,6 @@ namespace Bicep.LanguageServer
             AddContextualKeyword(syntax.FromKeyword, LanguageConstants.FromKeyword);
             AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
             base.VisitImportDeclarationSyntax(syntax);
-        }
-
-        public override void VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
-        {
-            AddTokenType(syntax.Pound, SemanticTokenType.Keyword);
-            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-
-            foreach (SyntaxBase syntaxbase in syntax.DiagnosticCodes)
-            {
-                if (syntaxbase is Token token)
-                {
-                    AddTokenType(token, SemanticTokenType.String);
-                }
-            }
-
-            base.VisitDisableNextLineSyntax(syntax);
         }
     }
 }

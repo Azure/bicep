@@ -710,21 +710,5 @@ namespace Bicep.Core.Syntax
             return new MissingDeclarationSyntax(leadingNodes);
         }
         void ISyntaxVisitor.VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMissingDeclarationSyntax);
-
-        void ISyntaxVisitor.VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax) => ReplaceCurrent(syntax, ReplaceDisableNextLineSyntax);
-
-        protected virtual SyntaxBase ReplaceDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
-        {
-            var hasChanges = TryRewriteStrict(syntax.Pound, out var pound);
-            hasChanges |= TryRewriteStrict(syntax.Keyword, out var keyword);
-            hasChanges |= TryRewriteStrict(syntax.DiagnosticCodes, out var diagnosticCodes);
-
-            if (!hasChanges)
-            {
-                return syntax;
-            }
-
-            return new DisableNextLineDiagnosticsSyntax(pound, keyword, diagnosticCodes);
-        }
     }
 }

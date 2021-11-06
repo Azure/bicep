@@ -340,16 +340,5 @@ namespace Bicep.Core.Syntax
                 this.Visit(node);
             }
         }
-
-        public virtual void VisitDisableNextLineSyntax(DisableNextLineDiagnosticsSyntax syntax)
-        {
-            this.Visit(syntax.Pound);
-            this.Visit(syntax.Keyword);
-
-            foreach (SyntaxBase node in syntax.DiagnosticCodes)
-            {
-                this.Visit(node);
-            }
-        }
     }
 }
