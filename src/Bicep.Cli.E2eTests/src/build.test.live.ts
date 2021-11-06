@@ -12,10 +12,7 @@ import {
   expectBrModuleStructure,
   publishModule,
 } from "./utils/br";
-import {
-  invokingBicepCommand,
-  invokingBicepCommandWithEnvOverrides,
-} from "./utils/command";
+import { invokingBicepCommand } from "./utils/command";
 import {
   expectFileExists,
   pathToExampleFile,
@@ -57,10 +54,10 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
         testArea
       );
 
-      const envOverrides = createEnvironmentOverrides(environment);
+      const environmentOverrides = createEnvironmentOverrides(environment);
       const storageRef = builder.getBicepReference("storage", "v1");
       publishModule(
-        envOverrides,
+        environmentOverrides,
         storageRef,
         "modules" + environment.suffix,
         "storage.bicep"
@@ -68,7 +65,7 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
 
       const passthroughRef = builder.getBicepReference("passthrough", "v1");
       publishModule(
-        envOverrides,
+        environmentOverrides,
         passthroughRef,
         "modules" + environment.suffix,
         "passthrough.bicep"
@@ -100,7 +97,8 @@ output blobEndpoint string = storage.outputs.blobEndpoint
       );
       writeTempFile("build", "bicepconfig.json", exampleConfig);
 
-      invokingBicepCommandWithEnvOverrides(envOverrides, "build", bicepPath)
+      invokingBicepCommand("build", bicepPath)
+        .withEnvironmentOverrides(environmentOverrides)
         .shouldSucceed()
         .withEmptyStdout();
 

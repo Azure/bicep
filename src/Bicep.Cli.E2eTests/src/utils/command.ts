@@ -5,6 +5,7 @@
 import spawn from "cross-spawn";
 
 import { bicepCli } from "./fs";
+import { EnvironmentOverrides } from "./types";
 
 class StdoutAssertionBuilder {
   constructor(private readonly stdout: string) {}
@@ -43,10 +44,16 @@ class StderrAssertionBuilder {
 }
 
 class BicepCommandTestRunner {
-  constructor(
-    private readonly envOverrides: { [key: string]: string },
-    private readonly args: string[]
-  ) {}
+  private environmentOverrides: EnvironmentOverrides = {};
+
+  constructor(private readonly args: string[]) {}
+
+  withEnvironmentOverrides(
+    environmentOverrides: EnvironmentOverrides
+  ): BicepCommandTestRunner {
+    this.environmentOverrides = environmentOverrides;
+    return this;
+  }
 
   shouldSucceed(): StdoutAssertionBuilder {
     const result = this.runCommand();
@@ -72,7 +79,7 @@ class BicepCommandTestRunner {
       stdio: "pipe",
       encoding: "utf-8",
       // overrides take precedence over inherited env vars
-      env: { ...process.env, ...this.envOverrides },
+      env: { ...process.env, ...this.environmentOverrides },
     });
 
     expect(result).toBeTruthy();
@@ -89,12 +96,5 @@ class BicepCommandTestRunner {
 export function invokingBicepCommand(
   ...args: string[]
 ): BicepCommandTestRunner {
-  return new BicepCommandTestRunner({}, args);
-}
-
-export function invokingBicepCommandWithEnvOverrides(
-  envOverrides: { [key: string]: string },
-  ...args: string[]
-): BicepCommandTestRunner {
-  return new BicepCommandTestRunner(envOverrides, args);
+  return new BicepCommandTestRunner(args);
 }

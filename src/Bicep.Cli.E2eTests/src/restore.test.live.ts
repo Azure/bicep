@@ -12,7 +12,7 @@ import {
   expectBrModuleStructure,
   publishModule,
 } from "./utils/br";
-import { invokingBicepCommandWithEnvOverrides } from "./utils/command";
+import { invokingBicepCommand } from "./utils/command";
 import {
   moduleCacheRoot,
   pathToCachedTsModuleFile,
@@ -64,11 +64,8 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     writeTempFile("restore-ts", "bicepconfig.json", exampleConfig);
 
-    invokingBicepCommandWithEnvOverrides(
-      createEnvironmentOverrides(environment),
-      "restore",
-      bicepPath
-    )
+    invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(createEnvironmentOverrides(environment))
       .shouldSucceed()
       .withEmptyStdout();
 
@@ -100,10 +97,10 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
       testArea
     );
 
-    const envOverrides = createEnvironmentOverrides(environment);
+    const environmentOverrides = createEnvironmentOverrides(environment);
     const storageRef = builder.getBicepReference("storage", "v1");
     publishModule(
-      envOverrides,
+      environmentOverrides,
       storageRef,
       "modules" + environment.suffix,
       "storage.bicep"
@@ -111,7 +108,7 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
     publishModule(
-      envOverrides,
+      environmentOverrides,
       passthroughRef,
       "modules" + environment.suffix,
       "passthrough.bicep"
@@ -159,7 +156,8 @@ output blobEndpoint string = storage.outputs.blobEndpoint
     );
     writeTempFile("restore-br", "bicepconfig.json", exampleConfig);
 
-    invokingBicepCommandWithEnvOverrides(envOverrides, "restore", bicepPath)
+    invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(environmentOverrides)
       .shouldSucceed()
       .withEmptyStdout();
 
