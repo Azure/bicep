@@ -2,6 +2,7 @@
 // $2 = mongoDb
 // $3 = 'databaseName'
 // $4 = 'id'
+
 resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {
   name: 'accountName'
 }

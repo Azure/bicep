@@ -917,7 +917,7 @@
     "detail": "Cosmos DB Gremlin Graph",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\nresource cosmosDbGremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {\n  parent: gremlinDb\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: -1\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: 'name'\n}\n\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\nresource cosmosDbGremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {\n  parent: gremlinDb\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: -1\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -926,7 +926,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {\n      throughput: ${3:'throughput'}\n    }\n  }\n}\n\nresource ${4:cosmosDbGremlinGraph} 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {\n  parent: gremlinDb\n  name: ${5:'name'}\n  properties: {\n    resource: {\n      id: ${6:'id'}\n      partitionKey: {\n        paths: [\n          ${7:'paths'}\n        ]\n        kind: '${8|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${9|consistent,lazy,none|}'\n        includedPaths: [\n          {\n            path: ${10:'path'}\n            indexes: [\n              {\n                kind: '${11|Hash,Range,Spatial|}'\n                dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${13:-1}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${14:'path'}\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: ${15:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: ${1:'name'}\n}\n\nresource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n\nresource ${5:cosmosDbGremlinGraph} 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {\n  parent: gremlinDb\n  name: ${6:'name'}\n  properties: {\n    resource: {\n      id: ${7:'id'}\n      partitionKey: {\n        paths: [\n          ${8:'paths'}\n        ]\n        kind: '${9|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${10|consistent,lazy,none|}'\n        includedPaths: [\n          {\n            path: ${11:'path'}\n            indexes: [\n              {\n                kind: '${12|Hash,Range,Spatial|}'\n                dataType: '${13|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${14:-1}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${15:'path'}\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: ${16:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -946,7 +946,7 @@
     "detail": "Cosmos DB Mongo Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource mongoDb 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: 'name'\n}\n\nresource mongoDb 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -955,7 +955,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:mongoDb} 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
+      "newText": "resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: ${1:'name'}\n}\n\nresource ${2:mongoDb} 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: ${3:'name'}\n  properties: {\n    resource: {\n      id: ${4:'id'}\n    }\n    options: {}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -975,7 +975,7 @@
     "detail": "Cosmos DB SQL Container",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource sqlContainerName 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {\n  parent: sqlDb \n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: 'precision'\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: 'name'\n}\n\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {}\n  }\n}\n\nresource sqlContainerName 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {\n  parent: sqlDb \n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n      partitionKey: {\n        paths: [\n          'paths'\n        ]\n        kind: 'Hash'\n      }\n      indexingPolicy: {\n        indexingMode: 'consistent'\n        includedPaths: [\n          {\n            path: 'path'\n            indexes: [\n              {\n                kind: 'Hash'\n                dataType: 'String'\n                precision: 'precision'\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: 'path'\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -984,7 +984,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:sqlContainerName} 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {\n  parent: sqlDb \n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n      partitionKey: {\n        paths: [\n          ${6:'paths'}\n        ]\n        kind: '${7|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${8|consistent,lazy,none|}'\n        includedPaths: [\n          {\n            path: ${9:'path'}\n            indexes: [\n              {\n                kind: '${10|Hash,Range,Spatial|}'\n                dataType: '${11|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${12:'precision'}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${13:'path'}\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n"
+      "newText": "resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: ${1:'name'}\n}\n\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${4:sqlContainerName} 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {\n  parent: sqlDb \n  name: ${5:'name'}\n  properties: {\n    resource: {\n      id: ${6:'id'}\n      partitionKey: {\n        paths: [\n          ${7:'paths'}\n        ]\n        kind: '${8|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${9|consistent,lazy,none|}'\n        includedPaths: [\n          {\n            path: ${10:'path'}\n            indexes: [\n              {\n                kind: '${11|Hash,Range,Spatial|}'\n                dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${13:'precision'}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${14:'path'}\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1004,7 +1004,7 @@
     "detail": "Cosmos DB SQL Database",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: 'name'\n}\n\nresource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1013,7 +1013,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:sqlDb} 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: ${1:'name'}\n}\n\nresource ${2:sqlDb} 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: ${3:'name'}\n  properties: {\n    resource: {\n      id: ${4:'id'}\n    }\n    options: {\n      throughput: ${5:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",
@@ -1033,7 +1033,7 @@
     "detail": "Cosmos Table Storage",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nresource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
+      "value": "```bicep\nresource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: 'name'\n}\n\nresource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: 'name'\n  properties: {\n    resource: {\n      id: 'id'\n    }\n    options: {\n      throughput: 'throughput'\n    }\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
@@ -1042,7 +1042,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
+      "newText": "resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {\n  name: ${1:'name'}\n}\n\nresource ${2:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  parent: cosmosDBAccount\n  name: ${3:'name'}\n  properties: {\n    resource: {\n      id: ${4:'id'}\n    }\n    options: {\n      throughput: ${5:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
       "command": "bicep.Telemetry",

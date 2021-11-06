@@ -12,6 +12,7 @@
 // $12 = String
 // $13 = -1
 // $14 = 'path'
+
 resource cosmosDBAccount 'Microsoft.DocumentDB/databaseAccounts@2021-06-15' existing = {
   name: 'accountName'
 }
