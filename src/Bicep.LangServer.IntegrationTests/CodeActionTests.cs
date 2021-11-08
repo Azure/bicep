@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
-using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -17,6 +16,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -26,6 +26,7 @@ using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -35,6 +36,8 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CodeActionTests
     {
+        private static readonly INamespaceProvider NamespaceProvider = BicepTestConstants.NamespaceProvider;
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -393,6 +396,55 @@ namespace Bicep.LangServer.IntegrationTests
                                                   expectedBicepConfigFileContents: expectedBicepConfigContents);
         }
 
+
+        [TestMethod]
+        public async Task VerifyDisableNextLineDiagnosticsCodeActionInvocation()
+        {
+            var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var files = new Dictionary<Uri, string>
+            {
+                [uri] = bicepFileContents,
+            };
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            diagnostics.Should().HaveCount(1);
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Code.Should().Be("no-unused-params");
+                });
+
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                this.TestContext,
+                bicepFileContents,
+                documentUri,
+                creationOptions: new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            ILanguageClient client = helper.Client;
+
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
+
+            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            {
+                TextDocument = new TextDocumentIdentifier(documentUri),
+                Range = diagnostics.First().ToRange(lineStarts)
+            });
+
+            codeActions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.CodeAction!.Title.Should().Be("Disable linter rule");
+                },
+                x =>
+                {
+                    x.CodeAction!.Title.Should().Be("Disable no-unused-params");
+                });
+        }
 
         private async Task VerifyLinterRuleIsDisabledAsync(string bicepFileContents, string? bicepConfigFileContents, DiagnosticLevel diagnosticLevel, string diagnosticMessage, string expectedBicepConfigFileContents)
         {

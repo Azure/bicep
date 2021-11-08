@@ -11,6 +11,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -169,6 +170,78 @@ namespace Bicep.Core.IntegrationTests.Semantics
                 .Where(refSyntax => !(refSyntax is INamedDeclarationSyntax));
 
             symbolReferences.Should().BeSubsetOf(foundReferences);
+        }
+
+        [TestMethod]
+        public void GetAllDiagnostics_WithMultipleDiagnosticCodesInDisableNextLineStatement_ShouldNotReturnAnyDiagnostics()
+        {
+            var bicepFileContents = @"var vmProperties = {
+  diagnosticsProfile: {
+    bootDiagnostics: {
+      enabled: 123
+      storageUri: true
+      unknownProp: 'asdf'
+    }
+  }
+  evictionPolicy: 'Deallocate'
+}
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'vm'
+  location: 'West US'
+#disable-next-line BCP036 BCP037
+  properties: vmProperties
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var files = new Dictionary<Uri, string>
+            {
+                [uri] = bicepFileContents,
+            };
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void GetAllDiagnostics_WithDisableNextLineStatement_ShouldNotReturnDiagnostics()
+        {
+            var bicepFileContents = @"#disable-next-line no-unused-params
+param storageAccount string = 'testStorageAccount'";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var files = new Dictionary<Uri, string>
+            {
+                [uri] = bicepFileContents,
+            };
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void GetAllDiagnostics_WithDisableNextLineStatementNotInPreviousLine_ShouldReturnDiagnostics()
+        {
+            var bicepFileContents = @"#disable-next-line no-unused-params
+
+param storageAccount string = 'testStorageAccount'";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var files = new Dictionary<Uri, string>
+            {
+                [uri] = bicepFileContents,
+            };
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Count().Should().Be(1);
         }
 
         private static List<SyntaxBase> GetAllBoundSymbolReferences(ProgramSyntax program)

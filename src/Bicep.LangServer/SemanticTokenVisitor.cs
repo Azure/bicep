@@ -256,6 +256,9 @@ namespace Bicep.LanguageServer
                 case SyntaxTriviaType.MultiLineComment:
                     AddTokenType(syntaxTrivia, SemanticTokenType.Comment);
                     break;
+                case SyntaxTriviaType.DisableNextLineStatement:
+                    AddTokenType(syntaxTrivia, SemanticTokenType.Macro);
+                    break;
             }
         }
 

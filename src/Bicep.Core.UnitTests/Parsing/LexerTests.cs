@@ -8,7 +8,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Parsing
@@ -101,6 +100,74 @@ namespace Bicep.Core.UnitTests.Parsing
                 "BCP002",
                 expectedTokenText: expectedTokenText,
                 expectedStartPosition: expectedTokenText.Length);
+        }
+
+        [TestMethod]
+        public void MissingCodesInDisableNextLineStatement_ShouldBeRecognizedWithError()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("#disable-next-line"), diagnosticWriter);
+            lexer.Lex();
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP226");
+                    x.Message.Should().Be("Expected at least one diagnostic at this location. Valid format is #disable-next-line diagnosticCode1 diagnosticCode2 ...");
+                });
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineStatement_ShouldLexCorrectly()
+        {
+            string text = "#disable-next-line BCP226";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(1);
+
+            var disableNextLineSyntaxTrivia = leadingTrivia.First();
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineStatement);
+            disableNextLineSyntaxTrivia.Text.Should().Be(text);
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineStatement_FollowedByComment_ShouldLexCorrectly()
+        {
+            string text = "#disable-next-line BCP226 // test";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(2);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Text.Should().Be("#disable-next-line BCP226 ");
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineStatement);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("// test");
+                    x.Type.Should().Be(SyntaxTriviaType.SingleLineComment);
+                });
         }
 
         [TestMethod]
@@ -244,7 +311,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataTestMethod]
         public void Multiline_strings_should_lex_correctly(string text, string expectedValue)
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create(); 
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
@@ -260,7 +327,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataTestMethod]
         public void Unterminated_multiline_strings_should_attach_a_diagnostic(string text)
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create(); 
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 

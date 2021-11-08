@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -312,11 +311,71 @@ namespace Bicep.Core.Parsing
                     yield return ScanMultiLineComment();
                     yield break;
                 }
+                else if (textWindow.Peek() == '#' && CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword))
+                {
+                    yield return ScanDisableDiagnosticsStatement(LanguageConstants.DisableNextLineDiagnosticsKeyword,
+                                                                 SyntaxTriviaType.DisableNextLineStatement);
+                }
                 else
                 {
                     yield break;
                 }
             }
+        }
+
+        private bool CheckAdjacentText(string text)
+        {
+            int i = 0;
+            foreach (char c in text)
+            {
+                if (textWindow.Peek(i + 1) == c)
+                {
+                    i++;
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (i != text.Length)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private SyntaxTrivia ScanDisableDiagnosticsStatement(string text, SyntaxTriviaType syntaxTriviaType)
+        {
+            textWindow.Reset();
+            textWindow.Advance(text.Length + 1); // Length of disable next statement plus #
+
+            StringBuilder sb = new StringBuilder();
+
+            while (!textWindow.IsAtEnd())
+            {
+                var nextChar = textWindow.Peek();
+                sb.Append(nextChar);
+
+                if (IsIdentifierContinuation(nextChar) || nextChar == '-' || nextChar == ' ' || nextChar == '\t')
+                {
+                    textWindow.Advance();
+                }
+                else
+                {
+                    break;
+                }
+
+            }
+
+            if (string.IsNullOrWhiteSpace(sb.ToString()))
+            {
+                AddDiagnostic(b => b.MissingDiagnosticCodes());
+            }
+
+            return new SyntaxTrivia(syntaxTriviaType, textWindow.GetSpan(), textWindow.GetText());
         }
 
         private void LexToken()

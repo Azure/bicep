@@ -15,6 +15,7 @@ using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Utils;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -183,7 +184,30 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
-            return AssembleDiagnostics();
+            List<IDiagnostic> updatedDiagnostics = new List<IDiagnostic>();
+            var diagnostics = AssembleDiagnostics();
+
+            foreach (IDiagnostic diagnostic in diagnostics)
+            {
+                var syntaxTrivia = DisableDiagnosticsHelper.GetDisableNextLineDiagnosticStatementFromPreviousLine(SourceFile.ProgramSyntax,
+                                                                                                                  SourceFile.LineStarts,
+                                                                                                                  diagnostic.Span.Position,
+                                                                                                                  out _);
+
+                if (syntaxTrivia is not null)
+                {
+                    string[] codes = syntaxTrivia.Text.Split(' ');
+
+                    if (codes.Contains(diagnostic.Code))
+                    {
+                        continue;
+                    }
+                }
+
+                updatedDiagnostics.Add(diagnostic);
+            }
+
+            return updatedDiagnostics;
         }
 
         private IEnumerable<IDiagnostic> AssembleDiagnostics()
