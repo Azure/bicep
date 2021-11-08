@@ -16,10 +16,10 @@
     },
     "br": {
       "test-registry": {
-        "registry": "biceptestff.azurecr.us"
+        "registry": "biceptestdf.azurecr.io"
       },
       "test-modules": {
-        "registry": "biceptestff.azurecr.us",
+        "registry": "biceptestdf.azurecr.io",
         "modulePath": "restore"
       }
     }
