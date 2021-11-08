@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11249342276080840433"
+      "templateHash": "4197243106892100471"
     }
   },
   "parameters": {
@@ -132,10 +132,10 @@
     },
     "storageAccountVulnerabilityAssessments": {
       "condition": "[and(and(parameters('sqlLogicalServer').azureDefender.enabled, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
+      "existing": true,
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
-      "name": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name]",
-      "existing": true
+      "name": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name]"
     },
     "vulnerabilityAssessments": {
       "condition": "[and(and(parameters('sqlLogicalServer').azureDefender.enabled, parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
@@ -199,20 +199,20 @@
     },
     "masterDb": {
       "condition": "[or(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)))]",
+      "existing": true,
       "type": "Microsoft.Sql/servers/databases",
       "apiVersion": "2021-02-01-preview",
       "name": "[format('{0}/{1}', parameters('sqlLogicalServer').name, 'master')]",
-      "existing": true,
       "dependsOn": [
         "sqlLogicalServerRes"
       ]
     },
     "logAnalyticsWorkspace": {
       "condition": "[or(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name)))]",
+      "existing": true,
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-10-01",
-      "name": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name]",
-      "existing": true
+      "name": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name]"
     },
     "auditDiagnosticSettings": {
       "condition": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.auditLogs]",
@@ -444,10 +444,10 @@
             },
             "storageAccountVulnerabilityAssessments": {
               "condition": "[and(and(parameters('sqlDatabase').azureDefender.enabled, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
+              "existing": true,
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2021-04-01",
-              "name": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name]",
-              "existing": true
+              "name": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name]"
             },
             "vulnerabilityAssessments": {
               "condition": "[and(and(parameters('sqlDatabase').azureDefender.enabled, parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.recurringScans), not(empty(parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name)))]",
@@ -471,10 +471,10 @@
             },
             "logAnalyticsWorkspace": {
               "condition": "[or(parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs, not(empty(parameters('sqlDatabase').diagnosticLogsAndMetrics.name)))]",
+              "existing": true,
               "type": "Microsoft.OperationalInsights/workspaces",
               "apiVersion": "2020-10-01",
-              "name": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.name]",
-              "existing": true
+              "name": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.name]"
             },
             "auditDiagnosticSettings": {
               "condition": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.auditLogs]",

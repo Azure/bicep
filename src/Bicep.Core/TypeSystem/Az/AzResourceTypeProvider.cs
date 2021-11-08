@@ -12,7 +12,6 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
         private class ResourceTypeCache
@@ -42,6 +41,10 @@ namespace Bicep.Core.TypeSystem.Az
             }
         }
 
+        private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
+        private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
+        private static readonly Regex ApiVersionPattern = new Regex(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
+
         public const string ResourceIdPropertyName = "id";
         public const string ResourceLocationPropertyName = "location";
         public const string ResourceNamePropertyName = "name";
@@ -51,6 +54,7 @@ namespace Bicep.Core.TypeSystem.Az
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
+        public const string ResourceTypeKeyVault = "Microsoft.KeyVault/vaults";
 
         /*
          * The following top-level properties must be set deploy-time constant values,
@@ -104,10 +108,13 @@ namespace Bicep.Core.TypeSystem.Az
 
         public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
         {
-            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant);
-            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
-            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(reference.ApiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant);
+            // We don't expect any Az resource types without an API version
+            var apiVersion = reference.ApiVersion ?? throw new ArgumentException($"Resource reference {reference.FormatName()} contains null API Version", nameof(reference));
+
+            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource id");
+            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "The resource name");
+            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource type");
+            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource api version");
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
@@ -179,6 +186,10 @@ namespace Bicep.Core.TypeSystem.Az
             return new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, properties, null);
         }
 
+        private static bool SupportsLiteralNames(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
+            => resourceType.TypeReference.TypeSegments.Length == 2 ||
+            flags.HasFlag(ResourceTypeGenerationFlags.HasParentDefined);
+
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {
             var bodyType = resourceType.Body.Type;
@@ -188,7 +199,7 @@ namespace Bicep.Core.TypeSystem.Az
                 case ObjectType bodyObjectType:
                     if (bodyObjectType.Properties.TryGetValue(ResourceNamePropertyName, out var nameProperty) &&
                         nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString } &&
-                        !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
+                        !SupportsLiteralNames(resourceType, flags))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').
@@ -211,7 +222,7 @@ namespace Bicep.Core.TypeSystem.Az
                 case DiscriminatedObjectType bodyDiscriminatedType:
 
                     if (bodyDiscriminatedType.TryGetDiscriminatorProperty(ResourceNamePropertyName) is not null &&
-                        !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
+                        !SupportsLiteralNames(resourceType, flags))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // If needed, we should be able to flatten the discriminated object and provide slightly better type validation here.
@@ -309,7 +320,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // add the 'parent' property for child resource types that are not nested inside a parent resource
-            if (!typeReference.IsRootType && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
+            if (typeReference.TypeSegments.Length > 2 && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
                 var parentType = new ResourceParentType(typeReference);
                 var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
@@ -353,17 +364,15 @@ namespace Bicep.Core.TypeSystem.Az
                 .WithFlags(FunctionFlags.RequiresInlining)
                 .Build();
 
-            switch (resourceType.FormatType().ToLowerInvariant())
+            if (StringComparer.OrdinalIgnoreCase.Equals(resourceType.FormatType(), ResourceTypeKeyVault))
             {
-                case "microsoft.keyvault/vaults":
-                    yield return new FunctionOverloadBuilder("getSecret")
-                        .WithReturnType(LanguageConstants.SecureString)
-                        .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
-                        .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
-                        .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")
-                        .WithFlags(FunctionFlags.ModuleSecureParameterOnly)
-                        .Build();
-                    break;
+                yield return new FunctionOverloadBuilder("getSecret")
+                    .WithReturnType(LanguageConstants.SecureString)
+                    .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
+                    .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
+                    .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")
+                    .WithFlags(FunctionFlags.ModuleSecureParameterOnly)
+                    .Build();
             }
         }
 
@@ -404,8 +413,15 @@ namespace Bicep.Core.TypeSystem.Az
             return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
         }
 
-        public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
+            if (typeReference.ApiVersion is null ||
+                !ResourceTypePattern.IsMatch(typeReference.FormatType()) ||
+                !ApiVersionPattern.IsMatch(typeReference.ApiVersion))
+            {
+                return null;
+            }
+
             // It's important to cache this result because generating the resource type is an expensive operation
             var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
             {

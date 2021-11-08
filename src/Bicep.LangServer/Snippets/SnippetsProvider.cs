@@ -478,20 +478,16 @@ namespace Bicep.LanguageServer.Snippets
 
             if (resourceTypeReferenceToChildTypeSymbolsMap.TryGetValue(resourceTypeReference, out var nestedResourceTypeReferences))
             {
-                foreach (ResourceTypeReference nestedResourceTypeReference in nestedResourceTypeReferences)
+                foreach (var nestedResourceTypeReference in nestedResourceTypeReferences)
                 {
-                    // Nested resources must specify a single type segment, and optionally can specify an api version using the format "<type>@<apiVersion>"
-                    string? nestedType = $"{nestedResourceTypeReference.Types.Last()}@{nestedResourceTypeReference.ApiVersion}";
+                    var nestedTypeReference = new ResourceTypeReference(ImmutableArray.Create<string>(nestedResourceTypeReference.TypeSegments.Last()), nestedResourceTypeReference.ApiVersion);
 
-                    if (nestedType is not null)
-                    {
-                        resourceTypeReferenceInfoMap.TryGetValue(nestedResourceTypeReference, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
-                        // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet 
-                        string bodyText = ParentPropertyPattern.Replace(resourceInfo.bodyText, string.Empty);
-                        string text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + nestedType + "' = " + bodyText;
+                    resourceTypeReferenceInfoMap.TryGetValue(nestedResourceTypeReference, out (string prefix, string identifier, string bodyText, string description) resourceInfo);
+                    // The property "parent" is not allowed in nested resource. We'll remove the property before creating the snippet 
+                    var bodyText = ParentPropertyPattern.Replace(resourceInfo.bodyText, string.Empty);
+                    var text = LanguageConstants.ResourceKeyword + " " + resourceInfo.identifier + " '" + nestedTypeReference.FormatName() + "' = " + bodyText;
 
-                        yield return new Snippet(text, prefix: resourceInfo.prefix, detail: resourceInfo.description);
-                    }
+                    yield return new Snippet(text, prefix: resourceInfo.prefix, detail: resourceInfo.description);
                 }
             }
         }

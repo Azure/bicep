@@ -242,12 +242,15 @@ namespace Bicep.Core.TypeSystem
                     return singleDeclaredType;
                 }
 
-                if (singleDeclaredType is ResourceType resourceType && !binder.NamespaceResolver.HasResourceType(resourceType.TypeReference))
+                if (singleDeclaredType is ResourceType resourceType && 
+                    !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
-                    var typeSegments = resourceType.TypeReference.Types;
+                    // TODO move into Az extension
+                    var typeSegments = resourceType.TypeReference.TypeSegments;
 
-                    if (typeSegments.Length > 2 &&
-                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                    if (resourceType.DeclaringNamespace.ProviderName == AzNamespaceType.BuiltInName &&
+                        typeSegments.Length > 2 &&
+                        typeSegments.Where((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
                     {
                         // Special check for (<type>/)+providers(/<type>)+
                         // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
@@ -369,7 +372,8 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (namespaceType.ConfigurationType is not null)
+                    if (namespaceType.ConfigurationType is not null &&
+                        namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
                         diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));
                     }

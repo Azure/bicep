@@ -1,32 +1,32 @@
-// $1 = 'accountName/gremlin/databaseName'
+// $1 = 'accountName/databaseName'
 // $2 = 'id'
-// $3 = 'throughput'
+// $3 = 1000
 // $4 = cosmosDBGremlinGraph
 // $5 = 'name'
 // $6 = 'id'
 // $7 = 'paths'
 // $8 = Hash
-// $9 = Consistent
+// $9 = consistent
 // $10 = 'path'
 // $11 = Hash
 // $12 = String
 // $13 = -1
 // $14 = 'path'
-// $15 = 'throughput'
+// $15 = 1000
 
-resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
-  name: 'accountName/gremlin/databaseName'
+resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {
+  name: 'accountName/databaseName'
   properties: {
     resource: {
       id: 'id'
     }
     options: {
-      throughput: 'throughput'
+      throughput: 1000
     }
   }
 }
 
-resource cosmosDBGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {
+resource cosmosDBGremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {
   parent: gremlinDb
   name: 'name'
   properties: {
@@ -39,7 +39,7 @@ resource cosmosDBGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databa
         kind: 'Hash'
       }
       indexingPolicy: {
-        indexingMode: 'Consistent'
+        indexingMode: 'consistent'
         includedPaths: [
           {
             path: 'path'
@@ -60,7 +60,7 @@ resource cosmosDBGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databa
       }
     }
     options: {
-      throughput: 'throughput'
+      throughput: 1000
     }
   }
 }

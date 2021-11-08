@@ -92,7 +92,7 @@ namespace Bicep.Core.Registry
         public RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference)
         {
             var registry = this.GetRegistry(moduleReference);
-            return registry.Capabilities;
+            return registry.GetCapabilities(moduleReference);
         }
 
         public ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)

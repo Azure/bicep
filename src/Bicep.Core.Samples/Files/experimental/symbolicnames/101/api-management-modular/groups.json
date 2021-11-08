@@ -33,10 +33,10 @@
   },
   "resources": {
     "parentAPIM": {
+      "existing": true,
       "type": "Microsoft.ApiManagement/service",
       "apiVersion": "2019-01-01",
-      "name": "[parameters('apimInstanceName')]",
-      "existing": true
+      "name": "[parameters('apimInstanceName')]"
     },
     "apimGroup": {
       "copy": {

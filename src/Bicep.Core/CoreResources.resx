@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
+	<!-- 
     Microsoft ResX Schema 
     
     Version 2.0
@@ -59,118 +59,131 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
-    <xsd:element name="root" msdata:IsDataSet="true">
-      <xsd:complexType>
-        <xsd:choice maxOccurs="unbounded">
-          <xsd:element name="metadata">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
-              </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="assembly">
-            <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="data">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
-            </xsd:complexType>
-          </xsd:element>
-          <xsd:element name="resheader">
-            <xsd:complexType>
-              <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-              </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
-            </xsd:complexType>
-          </xsd:element>
-        </xsd:choice>
-      </xsd:complexType>
-    </xsd:element>
-  </xsd:schema>
-  <resheader name="resmimetype">
-    <value>text/microsoft-resx</value>
-  </resheader>
-  <resheader name="version">
-    <value>2.0</value>
-  </resheader>
-  <resheader name="reader">
-    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <resheader name="writer">
-    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </resheader>
-  <data name="BicepConfigCustomSettingsFoundFormatMessage" xml:space="preserve">
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+		<xsd:element name="root" msdata:IsDataSet="true">
+			<xsd:complexType>
+				<xsd:choice maxOccurs="unbounded">
+					<xsd:element name="metadata">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" />
+							</xsd:sequence>
+							<xsd:attribute name="name" use="required" type="xsd:string" />
+							<xsd:attribute name="type" type="xsd:string" />
+							<xsd:attribute name="mimetype" type="xsd:string" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="assembly">
+						<xsd:complexType>
+							<xsd:attribute name="alias" type="xsd:string" />
+							<xsd:attribute name="name" type="xsd:string" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="data">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+								<xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+							<xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+							<xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+							<xsd:attribute ref="xml:space" />
+						</xsd:complexType>
+					</xsd:element>
+					<xsd:element name="resheader">
+						<xsd:complexType>
+							<xsd:sequence>
+								<xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+							</xsd:sequence>
+							<xsd:attribute name="name" type="xsd:string" use="required" />
+						</xsd:complexType>
+					</xsd:element>
+				</xsd:choice>
+			</xsd:complexType>
+		</xsd:element>
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<data name="BicepConfigCustomSettingsFoundFormatMessage" xml:space="preserve">
     <value>Custom bicepconfig.json file found ({0}).</value>
     <comment>message to indicate that a custom settings file was found {0} is the file location</comment>
   </data>
-  <data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
+	<data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
     <value>No bicepconfig.json found for configuration override.</value>
   </data>
-  <data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
+	<data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
     <value>When setting an adminUserName property, don't use a literal value.</value>
   </data>
-  <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
+	<data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
   </data>
-  <data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
+	<data name="InterpolateNotConcatFixTitle" xml:space="preserve">
+    <value>Use string interpolation: {0}.</value>
+    <comment>{0} is a programmatic language expression</comment>
+  </data>
+	<data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
     <value>Use string interpolation instead of the concat function.</value>
   </data>
-  <data name="LinterDisabledFormatMessage" xml:space="preserve">
+	<data name="LinterDisabledFormatMessage" xml:space="preserve">
     <value>Linter is disabled in settings file located at {0} </value>
     <comment>{0} is the location of the settings file</comment>
   </data>
-  <data name="LinterRuleExceptionMessageFormat" xml:space="preserve">
+	<data name="LinterRuleExceptionMessageFormat" xml:space="preserve">
     <value>Analyzer '{0}' encountered an unexpected exception. {1}</value>
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
-  <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
+	<data name="LocationSetByParameterRuleDescription" xml:space="preserve">
     <value>Resource location should be specified by a parameter with no default value or one that defaults to 'global' or resourceGroup().location.</value>
   </data>
-  <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
-    <value>Parameter is declared but never used.</value>
+  <data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
+    <value>No unnecessary dependsOn.</value>
   </data>
-  <data name="ParameterMustBeUsedRuleMessageFormat" xml:space="preserve">
+  <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
+    <value>Remove unnecessary dependsOn entry '{0}'.</value>
+    <comment>Text for linter rule error. {0} is a programmatic expression</comment>
+  </data>
+	<data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
+    <value>No unused parameters.</value>
+  </data>
+	<data name="ParameterMustBeUsedRuleMessageFormat" xml:space="preserve">
     <value>Parameter "{0}" is declared but never used.</value>
     <comment>{0} is the paramenter name</comment>
   </data>
-  <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
+	<data name="SecureParameterDefaultFixTitle" xml:space="preserve">
+    <value>Remove insecure default value.</value>
+  </data>
+	<data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters should not have hardcoded defaults (except for empty or newGuid()).</value>
   </data>
-  <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
+	<data name="SimplifyInterpolationFixTitle" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
   </data>
-  <data name="UnnecessaryDependsOnRuleDescription" xml:space="preserve">
-    <value>Remove unnecessary dependsOn.</value>
+	<data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
+    <value>Remove unnecessary string interpolation.</value>
   </data>
-  <data name="UnusedVariableRuleDescription" xml:space="preserve">
-    <value>Variable is declared but never used.</value>
+	<data name="UnusedVariableRuleDescription" xml:space="preserve">
+    <value>No unused variables.</value>
   </data>
-  <data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
+	<data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
     <value>Variable "{0}" is declared but never used.</value>
-    <comment>.</comment>
   </data>
-  <data name="UseStableVMImage" xml:space="preserve">
+	<data name="UseStableVMImage" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images.</value>
   </data>
-  <data name="UseStableVMImageRuleFixMessageFormat" xml:space="preserve">
+	<data name="UseStableVMImageRuleFixMessageFormat" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images. Use stable version in imageReference property "{0}".</value>
   </data>
 </root>

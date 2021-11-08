@@ -82,7 +82,7 @@ namespace Bicep.LanguageServer.Handlers
                 .OrderByDescending(x => x.ApiVersion, ApiVersionComparer.Instance)
                 .FirstOrDefault();
 
-            if (matchedType is null)
+            if (matchedType is null || matchedType.ApiVersion is null)
             {
                 server.Window.ShowError($"Failed to find a Bicep type definition for resource of type \"{resourceId.FullyQualifiedType}\".");
                 telemetryProvider.PostEvent(BicepTelemetryEvent.InsertResourceFailure($"MissingType({resourceId.FullyQualifiedType})"));

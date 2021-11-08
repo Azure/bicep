@@ -47,10 +47,10 @@
   },
   "resources": {
     "containerRegistry": {
+      "existing": true,
       "type": "Microsoft.ContainerRegistry/registries",
       "apiVersion": "2019-05-01",
-      "name": "[parameters('acrName')]",
-      "existing": true
+      "name": "[parameters('acrName')]"
     },
     "site": {
       "type": "Microsoft.Web/sites",

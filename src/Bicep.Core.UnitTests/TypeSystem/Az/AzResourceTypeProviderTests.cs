@@ -33,9 +33,9 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         [DataTestMethod]
         [DataRow(ResourceTypeGenerationFlags.None)]
         [DataRow(ResourceTypeGenerationFlags.ExistingResource)]
-        [DataRow(ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        [DataRow(ResourceTypeGenerationFlags.HasParentDefined)]
         [DataRow(ResourceTypeGenerationFlags.NestedResource)]
-        [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.PermitLiteralNameProperty)]
+        [DataRow(ResourceTypeGenerationFlags.ExistingResource | ResourceTypeGenerationFlags.HasParentDefined)]
         public void AzResourceTypeProvider_can_deserialize_all_types_without_throwing(ResourceTypeGenerationFlags flags)
         {
             var typeProvider = TestTypeHelper.CreateWithAzTypes();
@@ -60,7 +60,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                 }
                 catch (Exception exception)
                 {
-                    throw new InvalidOperationException($"Deserializing type {availableType.FormatName()} failed", exception);
+                    throw new InvalidOperationException($"Deserializing type {availableType} failed", exception);
                 }
 
                 bool IsSymbolicProperty(TypeProperty property)
@@ -79,13 +79,13 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
                     var topLevelProperties = GetTopLevelProperties(resourceType);
                     var symbolicProperties = topLevelProperties.Where(property => IsSymbolicProperty(property));
                     symbolicProperties.Should().NotBeEmpty();
-                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny), $"because all symbolic properties in type '{availableType.FormatType()}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.DisallowAny)} flag.");
+                    symbolicProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.DisallowAny), $"because all symbolic properties in type '{availableType}' should have the {nameof(TypePropertyFlags.DisallowAny)} flag.");
 
                     var loopVariantProperties = topLevelProperties.Where(property =>
                         ExpectedLoopVariantProperties.Contains(property.Name) &&
                         (!string.Equals(property.Name, LanguageConstants.ResourceScopePropertyName, LanguageConstants.IdentifierComparison) || IsSymbolicProperty(property)));
                     loopVariantProperties.Should().NotBeEmpty();
-                    loopVariantProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant), $"because all loop variant properties in type '{availableType.FormatType()}' and api version '{availableType.ApiVersion}' should have the {nameof(TypePropertyFlags.LoopVariant)} flag.");
+                    loopVariantProperties.Should().OnlyContain(property => property.Flags.HasFlag(TypePropertyFlags.LoopVariant), $"because all loop variant properties in type '{availableType}' should have the {nameof(TypePropertyFlags.LoopVariant)} flag.");
 
                     if (flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
                     {

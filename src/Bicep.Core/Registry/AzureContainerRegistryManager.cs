@@ -82,7 +82,8 @@ namespace Bicep.Core.Registry
             Response<DownloadManifestResult> manifestResponse;
             try
             {
-                manifestResponse = await client.DownloadManifestAsync(new DownloadManifestOptions(tag: moduleReference.Tag));
+                // either Tag or Digest is null (enforced by reference parser) and DownloadManifestOptions throws if both or neither are null
+                manifestResponse = await client.DownloadManifestAsync(new DownloadManifestOptions(tag: moduleReference.Tag, digest: moduleReference.Digest));
             }
             catch(RequestFailedException exception) when (exception.Status == 404)
             {

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5736977687628126435"
+      "templateHash": "956540201588906296"
     }
   },
   "parameters": {
@@ -190,10 +190,10 @@
           },
           "resources": {
             "parentAPIM": {
+              "existing": true,
               "type": "Microsoft.ApiManagement/service",
               "apiVersion": "2019-01-01",
-              "name": "[parameters('apimInstanceName')]",
-              "existing": true
+              "name": "[parameters('apimInstanceName')]"
             },
             "apimGroup": {
               "copy": {
@@ -283,10 +283,10 @@
           },
           "resources": {
             "parentAPIM": {
+              "existing": true,
               "type": "Microsoft.ApiManagement/service",
               "apiVersion": "2019-01-01",
-              "name": "[parameters('apimInstanceName')]",
-              "existing": true
+              "name": "[parameters('apimInstanceName')]"
             },
             "apimUser": {
               "copy": {
@@ -368,10 +368,10 @@
           },
           "resources": {
             "parentAPIM": {
+              "existing": true,
               "type": "Microsoft.ApiManagement/service",
               "apiVersion": "2019-01-01",
-              "name": "[parameters('apimInstanceName')]",
-              "existing": true
+              "name": "[parameters('apimInstanceName')]"
             },
             "apiManagementNVPair": {
               "copy": {

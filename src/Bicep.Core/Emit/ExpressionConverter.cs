@@ -146,7 +146,9 @@ namespace Bicep.Core.Emit
                                 // Handle list<method_name>(...) method on resource symbol - e.g. stgAcc.listKeys()
                                 var convertedArgs = instanceFunctionCall.Arguments.SelectArray(a => ConvertExpression(a.Expression));
                                 var resourceIdExpression = converter.GetFullyQualifiedResourceId(resource);
-                                var apiVersionExpression = new JTokenExpression(resource.TypeReference.ApiVersion);
+
+                                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                                var apiVersionExpression = new JTokenExpression(apiVersion);
 
                                 var listArgs = convertedArgs.Length switch
                                 {
@@ -227,9 +229,17 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression? ConvertResourcePropertyAccess(ResourceMetadata resource, SyntaxBase? indexExpression, string propertyName)
         {
+            if (!resource.IsAzResource)
+            {
+                // For an extensible resource, always generate a 'reference' statement.
+                // User-defined properties appear inside "properties", so use a non-full reference.
+                return AppendProperties(
+                    GetReferenceExpression(resource, indexExpression, false),
+                    new JTokenExpression(propertyName));
+            }
+
             // special cases for certain resource property access. if we recurse normally, we'll end up
             // generating statements like reference(resourceId(...)).id which are not accepted by ARM
-
             switch ((propertyName, context.Settings.EnableSymbolicNames))
             {
                 case ("id", true):
@@ -253,7 +263,8 @@ namespace Bicep.Core.Emit
                 case ("type", false):
                     return new JTokenExpression(resource.TypeReference.FormatType());
                 case ("apiVersion", false):
-                    return new JTokenExpression(resource.TypeReference.ApiVersion);
+                    var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
+                    return new JTokenExpression(apiVersion);
                 case ("properties", _):
                     // use the reference() overload without "full" to generate a shorter expression
                     // this is dependent on the name expression which could involve locals in case of a resource collection
@@ -374,14 +385,17 @@ namespace Bicep.Core.Emit
 
         public IEnumerable<LanguageExpression> GetResourceNameSegments(ResourceMetadata resource)
         {
+            // TODO move this into az extension
             var typeReference = resource.TypeReference;
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
             var nameSyntax = resource.NameSyntax;
             var nameExpression = ConvertExpression(nameSyntax);
 
+            var typesAfterProvider = typeReference.TypeSegments.Skip(1).ToImmutableArray();
+
             if (ancestors.Length > 0)
             {
-                var firstAncestorNameLength = typeReference.Types.Length - ancestors.Length;
+                var firstAncestorNameLength = typesAfterProvider.Length - ancestors.Length;
 
                 var resourceName = ConvertExpression(resource.NameSyntax);
 
@@ -405,12 +419,12 @@ namespace Bicep.Core.Emit
                 return parentNames.Concat(resourceName.AsEnumerable());
             }
 
-            if (typeReference.Types.Length == 1)
+            if (typesAfterProvider.Length == 1)
             {
                 return nameExpression.AsEnumerable();
             }
 
-            return typeReference.Types.Select(
+            return typesAfterProvider.Select(
                 (type, i) => AppendProperties(
                     CreateFunction("split", nameExpression, new JTokenExpression("/")),
                     new JTokenExpression(i)));
@@ -511,20 +525,22 @@ namespace Bicep.Core.Emit
             // full gives access to top-level resource properties, but generates a longer statement
             if (full)
             {
+                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                 return CreateFunction(
                     "reference",
                     referenceExpression,
-                    new JTokenExpression(resource.TypeReference.ApiVersion),
+                    new JTokenExpression(apiVersion),
                     new JTokenExpression("full"));
             }
 
+            // we've got a reference to a resource which isn't explicitly defined in this template - we must supply the apiVersion for reference() to work
             if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
             {
-                // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
+                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                 return CreateFunction(
                     "reference",
                     referenceExpression,
-                    new JTokenExpression(resource.TypeReference.ApiVersion));
+                    new JTokenExpression(apiVersion));
             }
 
             return CreateFunction(

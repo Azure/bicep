@@ -48,7 +48,6 @@ namespace Bicep.Core.Emit
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
             LanguageConstants.ResourceDependsOnPropertyName,
-            AzResourceTypeProvider.ResourceNamePropertyName,
         }.ToImmutableHashSet();
 
         private static readonly ImmutableHashSet<string> ModulePropertiesToOmit = new[] {
@@ -463,23 +462,53 @@ namespace Bicep.Core.Emit
                 throw new InvalidOperationException("nested loops are not supported");
             }
 
-            emitter.EmitProperty("type", resource.TypeReference.FormatType());
-            emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
-            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
-            {
-                ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);
-            }
-
-            emitter.EmitProperty("name", emitter.GetFullyQualifiedResourceName(resource));
-
             if (context.Settings.EnableSymbolicNames && resource.IsExistingResource)
             {
                 jsonWriter.WritePropertyName("existing");
                 jsonWriter.WriteValue(true);
             }
-            
-            body = AddDecoratorsToBody(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
-            emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
+
+            var importSymbol = context.SemanticModel.Root.ImportDeclarations.FirstOrDefault(i => resource.Type.DeclaringNamespace.AliasNameEquals(i.Name));
+
+            if (importSymbol is not null)
+            {
+                emitter.EmitProperty("import", importSymbol.Name);
+            }
+
+            if (resource.IsAzResource)
+            {
+                emitter.EmitProperty("type", resource.TypeReference.FormatType());
+                if (resource.TypeReference.ApiVersion is not null)
+                {
+                    emitter.EmitProperty("apiVersion", resource.TypeReference.ApiVersion);
+                }
+            }
+            else
+            {
+                emitter.EmitProperty("type", resource.TypeReference.FormatName());
+            }
+
+            if (context.SemanticModel.EmitLimitationInfo.ResourceScopeData.TryGetValue(resource, out var scopeData))
+            {
+                ScopeHelper.EmitResourceScopeProperties(context.SemanticModel, scopeData, emitter, body);
+            }
+
+            if (resource.IsAzResource)
+            {
+                emitter.EmitProperty(AzResourceTypeProvider.ResourceNamePropertyName, emitter.GetFullyQualifiedResourceName(resource));
+                
+                body = AddDecoratorsToBody(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
+                emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit.Add(AzResourceTypeProvider.ResourceNamePropertyName));
+            }
+            else
+            {
+                jsonWriter.WritePropertyName("properties");
+                jsonWriter.WriteStartObject();
+
+                emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit);
+
+                jsonWriter.WriteEndObject();
+            }
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
 

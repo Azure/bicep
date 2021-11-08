@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Bicep.Core.Resources
 {
@@ -12,16 +13,19 @@ namespace Bicep.Core.Resources
             = new ResourceTypeReferenceComparer();
 
         public bool Equals(ResourceTypeReference? x, ResourceTypeReference? y)
-            => x is not null &&
-            y is not null &&
-            StringComparer.OrdinalIgnoreCase.Equals(x.Namespace, y.Namespace) &&
-            x.Types.Length == y.Types.Length &&
-            Enumerable.SequenceEqual(x.Types, y.Types, StringComparer.OrdinalIgnoreCase) &&
-            StringComparer.OrdinalIgnoreCase.Equals(x.ApiVersion, y.ApiVersion);
+        {
+            if (x is null || y is null)
+            {
+                return x == y;
+            }
+
+            return Enumerable.SequenceEqual(x.TypeSegments, y.TypeSegments, StringComparer.OrdinalIgnoreCase) &&
+                StringComparer.OrdinalIgnoreCase.Equals(x.ApiVersion, y.ApiVersion);
+        }
 
         public int GetHashCode(ResourceTypeReference obj)
-            => StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Namespace) ^
-            Enumerable.Select(obj.Types, x => StringComparer.OrdinalIgnoreCase.GetHashCode(x)).Aggregate((a, b) => a ^ b) ^
-            StringComparer.OrdinalIgnoreCase.GetHashCode(obj.ApiVersion);
+            => HashCode.Combine(
+                Enumerable.Select(obj.TypeSegments, x => StringComparer.OrdinalIgnoreCase.GetHashCode(x)).Aggregate((a, b) => a ^ b),
+                (obj.ApiVersion is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(obj.ApiVersion)));
     }
 }
