@@ -46,7 +46,11 @@ describe("bicep publish", () => {
         "aks" + environment.suffix,
         "main.bicep"
       );
-      const target = builder.getBicepReferenceWithPublishAlias("aks", "v1");
+      const target = builder.getBicepReferenceWithAlias(
+        "publish-alias",
+        "aks",
+        "v1"
+      );
       console.log(`target = ${target}`);
       invokingBicepCommand("publish", exampleFilePath, "--target", target)
         .withEnvironmentOverrides(createEnvironmentOverrides(environment))

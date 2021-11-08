@@ -114,6 +114,18 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
       "passthrough.bicep"
     );
 
+    const passthroughWithRegistryAliasRef = builder.getBicepReferenceWithAlias(
+      "test-registry",
+      "restore/passthrough",
+      "v1"
+    );
+
+    const passthroughWithFullAliasRef = builder.getBicepReferenceWithAlias(
+      "test-modules",
+      "passthrough",
+      "v1"
+    );
+
     const bicep = `
 module passthrough '${passthroughRef}' = {
   name: 'passthrough'
@@ -123,7 +135,7 @@ module passthrough '${passthroughRef}' = {
   }
 }
 
-module passthroughWithRegistryAlias 'br/test-registry:restore/passthrough:v1' = {
+module passthroughWithRegistryAlias '${passthroughWithRegistryAliasRef}' = {
   name: 'passthroughWithRegistryAlias'
   params: {
     text: 'hello'
@@ -131,7 +143,7 @@ module passthroughWithRegistryAlias 'br/test-registry:restore/passthrough:v1' = 
   }
 }
 
-module passthroughWithFullAlias 'br/test-modules:passthrough:v1' = {
+module passthroughWithFullAlias '${passthroughWithFullAliasRef}' = {
   name: 'passthroughWithFullAlias'
   params: {
     text: 'hello'
