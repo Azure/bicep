@@ -59,7 +59,83 @@ export async function importResourceIconInline(
       ).default;
     case "microsoft.network/virtualnetworks/subnets":
       return (await import("./custom/subnets.svg")).default;
-
+    case "Microsoft.Cdn/profiles":
+      return (
+        await import("./networking/00056-icon-service-CDN-Profiles.svg")
+        ).default;
+    case "Microsoft.Network/ipGroups":
+      return (
+        await import("./networking/00701-icon-service-IP-Groups.svg")
+        ).default;
+    case "Microsoft.Network/privateLinkServices":
+      return (
+        await import("./networking/01105-icon-service-Private-Link-Service.svg")
+        ).default;
+    case "Microsoft.Network/trafficmanagerprofiles":
+      return (
+        await import("./networking/10065-icon-service-Traffic-Manager-Profiles.svg")
+        ).default;
+    case "Microsoft.Network/NetworkWatchers":
+      return (
+        await import("./networking/10066-icon-service-Network-Watcher.svg")
+        ).default;
+    case "Microsoft.Network/routeFilters":
+      return (
+        await import("./networking/10071-icon-service-Route-Filters.svg")
+        ).default;
+    case "Microsoft.Network/ddosProtectionPlans":
+      return (
+        await import("./networking/10072-icon-service-DDoS-Protection-Plans.svg")
+        ).default;
+    case "Microsoft.Network/frontdoors":
+      return (
+        await import("./networking/10073-icon-service-Front-Doors.svg")
+        ).default;
+    case "Microsoft.Network/applicationGateways":
+      return (
+        await import("./networking/10076-icon-service-Application-Gateways.svg")
+        ).default;
+    case "Microsoft.Network/localNetworkGateways":
+      return (
+        await import("./networking/10077-icon-service-Local-Network-Gateways.svg")
+        ).default;
+    case "Microsoft.Network/expressRouteCircuits":
+      return (
+        await import("./networking/10079-icon-service-ExpressRoute-Circuits.svg")
+        ).default;
+    case "Microsoft.Network/connections":
+      return (
+        await import("./networking/10081-icon-service-Connections.svg")
+        ).default;
+    case "Microsoft.Network/route-Tables":
+      return (
+        await import("./networking/10082-icon-service-Route-Tables.svg")
+        ).default;
+    case "Microsoft.Network/azureFirewalls":
+      return (
+        await import("./networking/10084-icon-service-Firewalls.svg")
+        ).default;
+    case "Microsoft.Network/serviceEndpointPolicies":
+      return (
+        await import("./networking/10085-icon-service-Service-Endpoint-Policies.svg")
+        ).default;
+    case "Microsoft.Network/natGateways":
+      return (
+        await import("./networking/10310-icon-service-NAT.svg")
+        ).default;
+    case "Microsoft.Network/virtualWans":
+      return (
+        await import("./networking/10353-icon-service-Virtual-WANs.svg")
+        ).default;
+    case "Microsoft.Network/firewallPolicies":
+      return (
+        await import("./networking/10362-icon-service-Web-Application-Firewall-Policies(WAF).svg")
+        ).default;
+    case "Microsoft.Network/publicIPPrefixes":
+      return (
+        await import("./networking/10372-icon-service-Public-IP-Prefixes.svg")
+        ).default;
+               
     // Microsoft.Resources
     case "microsoft.resources/resourcegroups":
       return (await import("./general/10007-icon-service-Resource-Groups.svg"))
