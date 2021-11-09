@@ -4,8 +4,9 @@
 import { v4 as uuidv4 } from "uuid";
 import { expectFileExists, pathToCachedBrModuleFile } from "./fs";
 import path from "path";
-import { invokingBicepCommandWithEnvOverrides } from "./command";
+import { invokingBicepCommand } from "./command";
 import { pathToExampleFile } from "./fs";
+import { EnvironmentOverrides } from "./types";
 
 // The modules published from live tests to our test ACR instances need to be periodically
 // purged. ACR purge tasks support wildcards but only on tags. This means that we have to have
@@ -35,12 +36,13 @@ export class BicepRegistryReferenceBuilder {
     return `br:${this.registry}/${this.getRepository(name)}:${tag}`;
   }
 
-  public getBicepReferenceWithPublishAlias(
+  public getBicepReferenceWithAlias(
+    alias: string,
     name: string,
     tagPrefix: string
   ): string {
     const tag = this.getTag(tagPrefix);
-    return `br/publish-alias:${name}:${tag}`;
+    return `br/${alias}:${name}:${tag}`;
   }
 
   private getTag(tagPrefix: string) {
@@ -59,16 +61,12 @@ export function expectBrModuleStructure(...pathNames: string[]): void {
 }
 
 export function publishModule(
-  envOverrides: { [key: string]: string },
+  environmentOverrides: EnvironmentOverrides,
   moduleReference: string,
   ...examplePathNames: string[]
 ): void {
   const storagePath = pathToExampleFile(...examplePathNames);
-  invokingBicepCommandWithEnvOverrides(
-    envOverrides,
-    "publish",
-    storagePath,
-    "--target",
-    moduleReference
-  ).shouldSucceed();
+  invokingBicepCommand("publish", storagePath, "--target", moduleReference)
+    .withEnvironmentOverrides(environmentOverrides)
+    .shouldSucceed();
 }
