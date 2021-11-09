@@ -1,0 +1,27 @@
+{
+  "cloud": {
+    "currentProfile": "AzureCloud",
+    "credentialPrecedence": [
+      // used by CI
+      "Environment",
+      "AzureCLI"
+    ]
+  },
+  "moduleAliases": {
+    "ts": {
+      "test-specs": {
+        "subscription": "61e0a28a-63ed-4afc-9827-2ed09b7b30f3",
+        "resourceGroup": "bicep-ci"
+      }
+    },
+    "br": {
+      "test-registry": {
+        "registry": "biceptestdf.azurecr.io"
+      },
+      "test-modules": {
+        "registry": "biceptestdf.azurecr.io",
+        "modulePath": "restore"
+      }
+    }
+  }
+}

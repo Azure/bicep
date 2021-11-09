@@ -93,10 +93,10 @@
   },
   "resources": {
     "existingVNET": {
+      "existing": true,
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-04-01",
-      "name": "[parameters('existingVNETName')]",
-      "existing": true
+      "name": "[parameters('existingVNETName')]"
     },
     "containerSubnet": {
       "type": "Microsoft.Network/virtualNetworks/subnets",

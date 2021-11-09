@@ -8,7 +8,7 @@
  */
 
 import { BicepRegistryReferenceBuilder } from "./utils/br";
-import { invokingBicepCommandWithEnvOverrides } from "./utils/command";
+import { invokingBicepCommand } from "./utils/command";
 import { pathToExampleFile } from "./utils/fs";
 import {
   environments,
@@ -29,13 +29,9 @@ describe("bicep publish", () => {
     );
     const target = builder.getBicepReference("aks", "v1");
     console.log(`target = ${target}`);
-    invokingBicepCommandWithEnvOverrides(
-      createEnvironmentOverrides(environment),
-      "publish",
-      exampleFilePath,
-      "--target",
-      target
-    ).shouldSucceed();
+    invokingBicepCommand("publish", exampleFilePath, "--target", target)
+      .withEnvironmentOverrides(createEnvironmentOverrides(environment))
+      .shouldSucceed();
   });
 
   it.each(environments)(
@@ -50,15 +46,15 @@ describe("bicep publish", () => {
         "aks" + environment.suffix,
         "main.bicep"
       );
-      const target = builder.getBicepReferenceWithPublishAlias("aks", "v1");
+      const target = builder.getBicepReferenceWithAlias(
+        "publish-alias",
+        "aks",
+        "v1"
+      );
       console.log(`target = ${target}`);
-      invokingBicepCommandWithEnvOverrides(
-        createEnvironmentOverrides(environment),
-        "publish",
-        exampleFilePath,
-        "--target",
-        target
-      ).shouldSucceed();
+      invokingBicepCommand("publish", exampleFilePath, "--target", target)
+        .withEnvironmentOverrides(createEnvironmentOverrides(environment))
+        .shouldSucceed();
     }
   );
 
@@ -76,13 +72,8 @@ describe("bicep publish", () => {
       );
       const target = builder.getBicepReference("aks-flawed", "v1");
       console.log(`target = ${target}`);
-      invokingBicepCommandWithEnvOverrides(
-        createEnvironmentOverrides(environment),
-        "publish",
-        exampleFilePath,
-        "--target",
-        target
-      )
+      invokingBicepCommand("publish", exampleFilePath, "--target", target)
+        .withEnvironmentOverrides(createEnvironmentOverrides(environment))
         .shouldFail()
         .withNonEmptyStderr();
     }

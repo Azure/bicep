@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+import { EnvironmentOverrides } from "./types";
+
 export type Environment = {
   readonly suffix: string;
   readonly registryUri: string;
@@ -42,7 +44,9 @@ function createEnvironments(): Environment[] {
   return environments;
 }
 
-export function createEnvironmentOverrides(environment: Environment) {
+export function createEnvironmentOverrides(
+  environment: Environment
+): EnvironmentOverrides {
   return {
     AZURE_TENANT_ID: environment.tenantId,
     AZURE_CLIENT_ID: environment.clientId,

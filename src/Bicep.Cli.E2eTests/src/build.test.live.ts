@@ -12,12 +12,10 @@ import {
   expectBrModuleStructure,
   publishModule,
 } from "./utils/br";
-import {
-  invokingBicepCommand,
-  invokingBicepCommandWithEnvOverrides,
-} from "./utils/command";
+import { invokingBicepCommand } from "./utils/command";
 import {
   expectFileExists,
+  pathToCachedTsModuleFile,
   pathToExampleFile,
   pathToTempFile,
   readFileSync,
@@ -57,20 +55,20 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
         testArea
       );
 
-      const envOverrides = createEnvironmentOverrides(environment);
+      const environmentOverrides = createEnvironmentOverrides(environment);
       const storageRef = builder.getBicepReference("storage", "v1");
       publishModule(
-        envOverrides,
+        environmentOverrides,
         storageRef,
-        "local-modules" + environment.suffix,
+        "modules" + environment.suffix,
         "storage.bicep"
       );
 
       const passthroughRef = builder.getBicepReference("passthrough", "v1");
       publishModule(
-        envOverrides,
+        environmentOverrides,
         passthroughRef,
-        "local-modules" + environment.suffix,
+        "modules" + environment.suffix,
         "passthrough.bicep"
       );
 
@@ -90,20 +88,22 @@ module storage '${storageRef}' = {
   }
 }
 
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
+  name: 'webAppModuleV1'
+}
+
 output blobEndpoint string = storage.outputs.blobEndpoint
     `;
 
       const bicepPath = writeTempFile("build", "build-external.bicep", bicep);
 
       const exampleConfig = readFileSync(
-        pathToExampleFile(
-          "local-modules" + environment.suffix,
-          "bicepconfig.json"
-        )
+        pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
       );
       writeTempFile("build", "bicepconfig.json", exampleConfig);
 
-      invokingBicepCommandWithEnvOverrides(envOverrides, "build", bicepPath)
+      invokingBicepCommand("build", bicepPath)
+        .withEnvironmentOverrides(environmentOverrides)
         .shouldSucceed()
         .withEmptyStdout();
 
@@ -119,6 +119,13 @@ output blobEndpoint string = storage.outputs.blobEndpoint
         builder.registry,
         "build$storage",
         `v1_${builder.tagSuffix}$4002000`
+      );
+
+      expectFileExists(
+        pathToCachedTsModuleFile(
+          `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
+          "main.json"
+        )
       );
     }
   );

@@ -18,10 +18,10 @@
   "functions": [],
   "resources": {
     "storageAcc": {
+      "existing": true,
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "[parameters('accountName')]",
-      "existing": true
+      "name": "[parameters('accountName')]"
     },
     "lockResource": {
       "type": "Microsoft.Authorization/locks",

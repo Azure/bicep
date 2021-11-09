@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13196570903141281892"
+      "templateHash": "1738761125357915028"
     }
   },
   "parameters": {
@@ -793,28 +793,28 @@
               ]
             },
             "bastionSubnet": {
+              "existing": true,
               "type": "Microsoft.Network/virtualNetworks/subnets",
               "apiVersion": "2020-08-01",
               "name": "[format('{0}/{1}', parameters('virtualNetworkName'), variables('bastionSubnetName'))]",
-              "existing": true,
               "dependsOn": [
                 "virtualNetwork"
               ]
             },
             "aksSubnet": {
+              "existing": true,
               "type": "Microsoft.Network/virtualNetworks/subnets",
               "apiVersion": "2020-08-01",
               "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('aksSubnetName'))]",
-              "existing": true,
               "dependsOn": [
                 "virtualNetwork"
               ]
             },
             "vmSubnet": {
+              "existing": true,
               "type": "Microsoft.Network/virtualNetworks/subnets",
               "apiVersion": "2020-08-01",
               "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('vmSubnetName'))]",
-              "existing": true,
               "dependsOn": [
                 "virtualNetwork"
               ]
@@ -1284,10 +1284,10 @@
           },
           "resources": {
             "logAnalyticsWorkspace": {
+              "existing": true,
               "type": "Microsoft.OperationalInsights/workspaces",
               "apiVersion": "2020-10-01",
-              "name": "[variables('logAnalyticsWorkspaceName')]",
-              "existing": true
+              "name": "[variables('logAnalyticsWorkspaceName')]"
             },
             "blobStorageAccount": {
               "type": "Microsoft.Storage/storageAccounts",
@@ -1957,16 +1957,16 @@
           },
           "resources": {
             "virtualNetwork": {
+              "existing": true,
               "type": "Microsoft.Network/virtualNetworks",
               "apiVersion": "2020-08-01",
-              "name": "[variables('virtualNetworkName')]",
-              "existing": true
+              "name": "[variables('virtualNetworkName')]"
             },
             "aksSubnet": {
+              "existing": true,
               "type": "Microsoft.Network/virtualNetworks/subnets",
               "apiVersion": "2020-08-01",
-              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
-              "existing": true
+              "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]"
             },
             "aksCluster": {
               "type": "Microsoft.ContainerService/managedClusters",

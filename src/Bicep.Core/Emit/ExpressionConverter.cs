@@ -229,9 +229,17 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression? ConvertResourcePropertyAccess(ResourceMetadata resource, SyntaxBase? indexExpression, string propertyName)
         {
+            if (!resource.IsAzResource)
+            {
+                // For an extensible resource, always generate a 'reference' statement.
+                // User-defined properties appear inside "properties", so use a non-full reference.
+                return AppendProperties(
+                    GetReferenceExpression(resource, indexExpression, false),
+                    new JTokenExpression(propertyName));
+            }
+
             // special cases for certain resource property access. if we recurse normally, we'll end up
             // generating statements like reference(resourceId(...)).id which are not accepted by ARM
-
             switch ((propertyName, context.Settings.EnableSymbolicNames))
             {
                 case ("id", true):
@@ -514,11 +522,10 @@ namespace Bicep.Core.Emit
                 GenerateSymbolicReference(resource.Symbol.Name, indexExpression) :
                 GetFullyQualifiedResourceId(resource);
 
-            var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");    
-
             // full gives access to top-level resource properties, but generates a longer statement
             if (full)
             {
+                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                 return CreateFunction(
                     "reference",
                     referenceExpression,
@@ -526,9 +533,10 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
+            // we've got a reference to a resource which isn't explicitly defined in this template - we must supply the apiVersion for reference() to work
             if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
             {
-                // we must include an API version for an existing resource, because it cannot be inferred from any deployed template resource
+                var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
                 return CreateFunction(
                     "reference",
                     referenceExpression,

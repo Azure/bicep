@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 .Select(line => $"[{line.Position}] {GetDiffMarker(line.Type)} {EscapeWhitespace(line.Text)}")
                 .Take(truncate);
 
-            if (lineLogs.Count() > truncate)
+            if (lineLogs.Count() >= truncate)
             {
                 lineLogs = lineLogs.Concat(new[] { "...truncated..." });
             }
