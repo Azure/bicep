@@ -12,7 +12,7 @@ import {
   expectBrModuleStructure,
   publishModule,
 } from "./utils/br";
-import { invokingBicepCommandWithEnvOverrides } from "./utils/command";
+import { invokingBicepCommand } from "./utils/command";
 import {
   moduleCacheRoot,
   pathToCachedTsModuleFile,
@@ -27,6 +27,8 @@ import {
   createEnvironmentOverrides,
 } from "./utils/liveTestEnvironments";
 
+const testArea = "restore";
+
 async function emptyModuleCacheRoot() {
   await emptyDir(moduleCacheRoot);
 }
@@ -34,19 +36,36 @@ async function emptyModuleCacheRoot() {
 describe("bicep restore", () => {
   beforeEach(emptyModuleCacheRoot);
 
-  const testArea = "restore";
-
-  // TODO: Referenced file has direct module refs
   it.each(environments)("should restore template specs (%p)", (environment) => {
-    const exampleFilePath = pathToExampleFile(
-      "external-modules" + environment.suffix,
-      "main.bicep"
+    const bicep = `
+module storageAccountModuleV1 'ts:${environment.templateSpecSubscriptionId}/bicep-ci/storageAccountSpec-${environment.resourceSuffix}:v1' = {
+  name: 'storageAccountModuleV1'
+  params: {
+    sku: 'Standard_LRS'
+  }
+}
+
+module storageAccountModuleV2 'ts/test-specs:STORAGEACCOUNTSPEC-${environment.resourceSuffix}:V2' = {
+  name: 'storageAccountModuleV2'
+  params: {
+    sku: 'Standard_GRS'
+    location: 'westus'
+  }
+}
+
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
+  name: 'webAppModuleV1'
+}`;
+
+    const bicepPath = writeTempFile("restore-ts", "main.bicep", bicep);
+    const exampleConfig = readFileSync(
+      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
     );
-    invokingBicepCommandWithEnvOverrides(
-      createEnvironmentOverrides(environment),
-      "restore",
-      exampleFilePath
-    )
+
+    writeTempFile("restore-ts", "bicepconfig.json", exampleConfig);
+
+    invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(createEnvironmentOverrides(environment))
       .shouldSucceed()
       .withEmptyStdout();
 
@@ -78,26 +97,54 @@ describe("bicep restore", () => {
       testArea
     );
 
-    const envOverrides = createEnvironmentOverrides(environment);
+    const environmentOverrides = createEnvironmentOverrides(environment);
     const storageRef = builder.getBicepReference("storage", "v1");
     publishModule(
-      envOverrides,
+      environmentOverrides,
       storageRef,
-      "local-modules" + environment.suffix,
+      "modules" + environment.suffix,
       "storage.bicep"
     );
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
     publishModule(
-      envOverrides,
+      environmentOverrides,
       passthroughRef,
-      "local-modules" + environment.suffix,
+      "modules" + environment.suffix,
       "passthrough.bicep"
+    );
+
+    const passthroughWithRegistryAliasRef = builder.getBicepReferenceWithAlias(
+      "test-registry",
+      "restore/passthrough",
+      "v1"
+    );
+
+    const passthroughWithFullAliasRef = builder.getBicepReferenceWithAlias(
+      "test-modules",
+      "passthrough",
+      "v1"
     );
 
     const bicep = `
 module passthrough '${passthroughRef}' = {
   name: 'passthrough'
+  params: {
+    text: 'hello'
+    number: 42
+  }
+}
+
+module passthroughWithRegistryAlias '${passthroughWithRegistryAliasRef}' = {
+  name: 'passthroughWithRegistryAlias'
+  params: {
+    text: 'hello'
+    number: 42
+  }
+}
+
+module passthroughWithFullAlias '${passthroughWithFullAliasRef}' = {
+  name: 'passthroughWithFullAlias'
   params: {
     text: 'hello'
     number: 42
@@ -114,17 +161,15 @@ module storage '${storageRef}' = {
 output blobEndpoint string = storage.outputs.blobEndpoint
     `;
 
-    const bicepPath = writeTempFile("restore", "main.bicep", bicep);
+    const bicepPath = writeTempFile("restore-br", "main.bicep", bicep);
 
     const exampleConfig = readFileSync(
-      pathToExampleFile(
-        "local-modules" + environment.suffix,
-        "bicepconfig.json"
-      )
+      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
     );
-    writeTempFile("restore", "bicepconfig.json", exampleConfig);
+    writeTempFile("restore-br", "bicepconfig.json", exampleConfig);
 
-    invokingBicepCommandWithEnvOverrides(envOverrides, "restore", bicepPath)
+    invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(environmentOverrides)
       .shouldSucceed()
       .withEmptyStdout();
 

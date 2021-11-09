@@ -328,16 +328,16 @@
   },
   "resources": {
     "virtualNetwork": {
+      "existing": true,
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2020-08-01",
-      "name": "[variables('virtualNetworkName')]",
-      "existing": true
+      "name": "[variables('virtualNetworkName')]"
     },
     "aksSubnet": {
+      "existing": true,
       "type": "Microsoft.Network/virtualNetworks/subnets",
       "apiVersion": "2020-08-01",
-      "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]",
-      "existing": true
+      "name": "[format('{0}/{1}', variables('virtualNetworkName'), parameters('aksSubnetName'))]"
     },
     "aksCluster": {
       "type": "Microsoft.ContainerService/managedClusters",

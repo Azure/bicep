@@ -178,10 +178,10 @@
   },
   "resources": {
     "logAnalyticsWorkspace": {
+      "existing": true,
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-10-01",
-      "name": "[variables('logAnalyticsWorkspaceName')]",
-      "existing": true
+      "name": "[variables('logAnalyticsWorkspaceName')]"
     },
     "blobStorageAccount": {
       "type": "Microsoft.Storage/storageAccounts",

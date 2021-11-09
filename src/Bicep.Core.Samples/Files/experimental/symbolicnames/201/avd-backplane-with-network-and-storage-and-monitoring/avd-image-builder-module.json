@@ -56,10 +56,10 @@
   "functions": [],
   "resources": {
     "managedidentity": {
+      "existing": true,
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
-      "name": "[parameters('uamiName')]",
-      "existing": true
+      "name": "[parameters('uamiName')]"
     },
     "imageTemplateName_resource": {
       "type": "Microsoft.VirtualMachineImages/imageTemplates",

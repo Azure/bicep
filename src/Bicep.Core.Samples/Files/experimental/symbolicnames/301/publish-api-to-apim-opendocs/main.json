@@ -74,10 +74,10 @@
   },
   "resources": {
     "apiManagementService": {
+      "existing": true,
       "type": "Microsoft.ApiManagement/service",
       "apiVersion": "2020-12-01",
-      "name": "[parameters('apimInstanceName')]",
-      "existing": true
+      "name": "[parameters('apimInstanceName')]"
     },
     "ProductRecords": {
       "copy": {

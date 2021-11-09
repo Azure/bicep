@@ -254,10 +254,10 @@
         "name": "existingStorageAccounts",
         "count": "[length(parameters('accounts'))]"
       },
+      "existing": true,
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "[format('{0}-existing-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]",
-      "existing": true
+      "name": "[format('{0}-existing-{1}', parameters('name'), parameters('accounts')[copyIndex()].name)]"
     },
     "duplicatedNames": {
       "copy": {

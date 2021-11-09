@@ -35,7 +35,7 @@
   <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;<span class="hljs-subst">${<span class="hljs-variable">parent</span>}</span>/child&#x27;</span>
   <span class="hljs-property">properties</span>: {
     <span class="hljs-property">attributes</span>:  {
-      <span class="hljs-property">enabled</span>: <span class="hljs-literal"><span class="hljs-literal">true</span></span>
+      <span class="hljs-property">enabled</span>: <span class="hljs-literal">true</span>
     }
   }
 }
@@ -51,12 +51,12 @@
 }]
 
 <span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">secrets3</span> <span class="hljs-string">&#x27;Microsoft.KeyVault/vaults/secrets@2018-02-14&#x27;</span> = [<span class="hljs-variable"><span class="hljs-keyword">for</span></span> <span class="hljs-variable">secret</span> <span class="hljs-variable"><span class="hljs-keyword">in</span></span> <span class="hljs-variable">secretsObject</span>.<span class="hljs-variable">secrets</span>: {
-  <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;jk<span class="hljs-subst">${<span class="hljs-literal"><span class="hljs-literal">true</span></span>}</span>asdf<span class="hljs-subst">${<span class="hljs-number">23</span>}</span>.\${SDF<span class="hljs-subst">${<span class="hljs-variable">secretsObject</span>[<span class="hljs-string">&#x27;secrets&#x27;</span>][<span class="hljs-number">1</span>]}</span>&#x27;</span>
+  <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;jk<span class="hljs-subst">${<span class="hljs-literal">true</span>}</span>asdf<span class="hljs-subst">${<span class="hljs-number">23</span>}</span>.\${SDF<span class="hljs-subst">${<span class="hljs-variable">secretsObject</span>[<span class="hljs-string">&#x27;secrets&#x27;</span>][<span class="hljs-number">1</span>]}</span>&#x27;</span>
   <span class="hljs-property">properties</span>: {
   }
 }]
 
-<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">secrets4</span> <span class="hljs-string">&#x27;Microsoft.KeyVault/vaults/secrets@2018-02-14&#x27;</span> = [<span class="hljs-variable"><span class="hljs-keyword">for</span></span> <span class="hljs-variable">secret</span> <span class="hljs-variable"><span class="hljs-keyword">in</span></span> <span class="hljs-variable">secretsObject</span>.<span class="hljs-variable">secrets</span>: <span class="hljs-function"><span class="hljs-keyword">if</span> (<span class="hljs-literal"><span class="hljs-literal">true</span></span>)</span> {
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">secrets4</span> <span class="hljs-string">&#x27;Microsoft.KeyVault/vaults/secrets@2018-02-14&#x27;</span> = [<span class="hljs-variable"><span class="hljs-keyword">for</span></span> <span class="hljs-variable">secret</span> <span class="hljs-variable"><span class="hljs-keyword">in</span></span> <span class="hljs-variable">secretsObject</span>.<span class="hljs-variable">secrets</span>: <span class="hljs-function"><span class="hljs-keyword">if</span> (<span class="hljs-literal">true</span>)</span> {
   <span class="hljs-string">&#x27;name&#x27;</span>: <span class="hljs-string">&#x27;test/child&#x27;</span>
   <span class="hljs-property">properties</span>:{
   }
