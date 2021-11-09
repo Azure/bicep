@@ -183,7 +183,7 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public IEnumerable<IDiagnostic> GetAllDiagnostics()
         {
-            return allDiagnostics.Value;
+            return AssembleDiagnostics();
         }
 
         private IEnumerable<IDiagnostic> AssembleDiagnostics()
