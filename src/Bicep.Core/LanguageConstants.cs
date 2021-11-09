@@ -108,6 +108,7 @@ namespace Bicep.Core
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
 
         public static readonly StringComparer ResourceTypeComparer = StringComparer.OrdinalIgnoreCase;
+        public static readonly StringComparison ResourceTypeComparison = StringComparison.OrdinalIgnoreCase;
 
         public const string StringDelimiter = "'";
         public const string StringHoleOpen = "${";

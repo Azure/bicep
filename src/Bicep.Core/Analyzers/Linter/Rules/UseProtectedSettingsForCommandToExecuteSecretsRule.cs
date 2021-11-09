@@ -24,6 +24,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "use-protectedsettings-for-commandtoexecute-secrets";
 
+        private (string publisher, string type)[] _publisherAndNameList = {
+            // NOTE: This list was obtained by running "az vm extension image list"
+            ("Microsoft.Azure.Extensions", "CustomScript"),
+            ("Microsoft.Compute", "CustomScriptExtension"),
+            ("Microsoft.OSTCExtensions", "CustomScriptForLinux")
+        };
+
+        public (string publisher, string type)[] PublisherAndNameList => _publisherAndNameList;
+
         public UseProtectedSettingsForCommandToExecuteSecretsRule() : base(
             code: Code,
             description: CoreResources.UseProtectedSettingsForCommandToExecuteSecretsRuleDescription,
@@ -42,39 +51,44 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // We're looking for this pattern:
                 //
-                // resource xxx '{Microsoft.Compute/virtualMachines/extensions,Microsoft.HybridCompute/machines/extensions}@xxx' = { // right now, these properties apply to Microsoft.{Hybrid,}Compute/virtualMachines/extensions
+                // resource xxx 'xxx/extensions@yyy' = { // right now, these properties apply to Microsoft.{Hybrid,}Compute/virtualMachines/extensions, but it could be extended
                 //   name: 'xxx'
-                //   properties: { <<== required
-                //     publisher: 'Microsoft.Compute'
-                //     type: 'CustomScriptExtension' <<==  contains "CustomScript"
+                //   properties: {
+                //     publisher: 'Microsoft.Compute'  << === matches entry in PublisherAndNameList
+                //     type: 'CustomScriptExtension' <<=== matches entry in PublisherAndNameList
                 //     autoUpgradeMinorVersion: true
-                //     settings: {  <<== required
+                //     settings: {  <<== commandToExecute under "settings" instead of "protectedSettings"
                 //       fileUris: split(fileUris, ' ')
-                //       commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File ${firstFileName} ${arguments}'  <<== this property under settings
+                //       commandToExecute: 'powershell -ExecutionPolicy Unrestricted -File ${firstFileName} ${arguments}'  <<== required
                 //     }
                 //   }
                 // }
                 //
                 // This will be a test failure if commandToExecute contains possible secrets
 
-                var typeName = resource.TypeReference.FormatType();
-                if (LanguageConstants.ResourceTypeComparer.Equals(typeName, "Microsoft.Compute/virtualMachines/extensions")
-                    || LanguageConstants.ResourceTypeComparer.Equals(typeName, "Microsoft.HybridCompute/machines/extensions"))
+                var resourceTypeName = resource.TypeReference.FormatType();
+                if (resourceTypeName.EndsWith("/extensions", LanguageConstants.ResourceTypeComparison))
                 {
                     ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
                     if (resourceSyntax.TryGetBody()?.SafeGetPropertyByName("properties") is ObjectPropertySyntax propertiesSyntax
                         && propertiesSyntax.Value is ObjectSyntax properties)
                     {
-                        if (properties.SafeGetPropertyByName("type")?.Value is StringSyntax typeSyntax
-                            && typeSyntax.TryGetLiteralValue() is string typePropertyValue)
+                        // Only of interest to us if it contains a "settings" object with "commandToExecute" property
+                        if (properties.SafeGetPropertyByNameRecursive("settings", "commandToExecute") is ObjectPropertySyntax commandToExecuteSyntax)
                         {
-                            if (typePropertyValue.Contains("CustomScript", StringComparison.OrdinalIgnoreCase))
+                            // Check if the publisher/type match an entry in PublisherAndNameList
+                            if (properties.SafeGetPropertyByName("type")?.Value is StringSyntax extensionTypeSyntax
+                                && extensionTypeSyntax.TryGetLiteralValue() is string extensionTypeValue
+                                && properties.SafeGetPropertyByName("publisher")?.Value is StringSyntax publisherSyntax
+                                && publisherSyntax.TryGetLiteralValue() is string publisherValue
+                                )
                             {
-                                if (properties.SafeGetPropertyByNameRecursive("settings", "commandToExecute") is ObjectPropertySyntax commandToExecuteSyntax)
+                                bool matches = PublisherAndNameList.Any(e =>
+                                StringComparer.OrdinalIgnoreCase.Equals(e.publisher, publisherValue)
+                                && StringComparer.OrdinalIgnoreCase.Equals(e.type, extensionTypeValue));
+                                if (matches)
                                 {
-                                    // We found a commandToExecute property under "settings" instead of "protectedSettings"
-
-                                    // Does it contain any secrets?
+                                    // Does it contain any possible secrets?
                                     var secrets = FindPossibleSecretsVisitor.FindPossibleSecrets(semanticModel, commandToExecuteSyntax.Value);
                                     if (secrets.Any())
                                     {
