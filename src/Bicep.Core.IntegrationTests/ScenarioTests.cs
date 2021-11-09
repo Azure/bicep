@@ -2726,5 +2726,20 @@ var otherExp = noValidation
                 ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3934
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue3934()
+        {
+            var result = CompilationHelper.Compile(@"
+output incorrectStringAddition string = 'hello' + 'world'
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"'hello'\" and \"'world'\". Use string interpolation instead.")
+            });
+        }
     }
 }

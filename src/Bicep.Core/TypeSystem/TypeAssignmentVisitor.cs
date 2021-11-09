@@ -696,7 +696,7 @@ namespace Bicep.Core.TypeSystem
                     operandType2.TypeKind is TypeKind.StringLiteral &&
                     syntax.Operator is BinaryOperator.Add)
                 {
-                    additionalInfo = "Use string interpolation instead.";
+                    additionalInfo = DiagnosticBuilder.UseStringInterpolationInsteadClause;
                 }
                 
                 // we do not have a match

@@ -20,12 +20,15 @@ namespace Bicep.Core.Diagnostics
 {
     public static class DiagnosticBuilder
     {
+        public const string UseStringInterpolationInsteadClause = "Use string interpolation instead.";
+        
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
         {
+
             private const string TypeInaccuracyClause = " If this is an inaccuracy in the documentation, please report it to the Bicep Team.";
             private static readonly Uri TypeInaccuracyLink = new("https://aka.ms/bicep-type-issues");
 
@@ -318,7 +321,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2, string? additionalInfo) => new(
                 TextSpan,
                 "BCP045",
-                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".{additionalInfo ?? string.Empty}");
+                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".{(additionalInfo == null ? string.Empty : " " + additionalInfo)}");
 
             public ErrorDiagnostic ValueTypeMismatch(TypeSymbol type) => new(
                 TextSpan,
