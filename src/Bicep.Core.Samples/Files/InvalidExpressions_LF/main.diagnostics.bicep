@@ -155,7 +155,7 @@ var sub = true - false
 var add = 'bad' + 'str'
 //@[4:7) [BCP028 (Error)] Identifier "add" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |add|
 //@[4:7) [no-unused-vars (Warning)] Variable "add" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |add|
-//@[10:23) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'bad'" and "'str'".Use string interpolation instead. (CodeDescription: none) |'bad' + 'str'|
+//@[10:23) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'bad'" and "'str'". Use string interpolation instead. (CodeDescription: none) |'bad' + 'str'|
 
 // equality (== and != can't have a type error because they work on "any" type)
 var eq = true =~ null
@@ -447,7 +447,7 @@ var invalidOperands = 1 + az
 //@[22:28) [BCP045 (Error)] Cannot apply operator "+" to operands of type "int" and "az". (CodeDescription: none) |1 + az|
 var invalidStringAddition = 'hello' + sampleObject.myStr
 //@[4:25) [no-unused-vars (Warning)] Variable "invalidStringAddition" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidStringAddition|
-//@[28:56) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'hello'" and "'s'".Use string interpolation instead. (CodeDescription: none) |'hello' + sampleObject.myStr|
+//@[28:56) [BCP045 (Error)] Cannot apply operator "+" to operands of type "'hello'" and "'s'". Use string interpolation instead. (CodeDescription: none) |'hello' + sampleObject.myStr|
 
 var bannedFunctions = {
 //@[4:19) [no-unused-vars (Warning)] Variable "bannedFunctions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bannedFunctions|
