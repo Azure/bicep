@@ -10,7 +10,7 @@ namespace Bicep.Core.Diagnostics
 {
     public static class DisableDiagnosticsHelper
     {
-        public static SyntaxTrivia? GetDisableNextLineDiagnosticStatementFromPreviousLine(ProgramSyntax programSyntax, ImmutableArray<int> lineStarts, int position, out int previousLine)
+        public static DisableNextLineDiagnosticsSyntaxTrivia? GetDisableNextLineDiagnosticStatementFromPreviousLine(ProgramSyntax programSyntax, ImmutableArray<int> lineStarts, int position, out int previousLine)
         {
             (var line, var character) = TextCoordinateConverter.GetPosition(lineStarts, position);
             previousLine = line - 1;
@@ -27,9 +27,9 @@ namespace Bicep.Core.Diagnostics
             {
                 var syntaxTrivia = programSyntax.TryFindMostSpecificTriviaInclusive(i, current => true);
 
-                if (syntaxTrivia is not null && syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineStatement)
+                if (syntaxTrivia is not null && syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineDirective)
                 {
-                    return syntaxTrivia;
+                    return syntaxTrivia as DisableNextLineDiagnosticsSyntaxTrivia;
                 }
             }
 

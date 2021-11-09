@@ -314,7 +314,7 @@ namespace Bicep.Core.Parsing
                 else if (textWindow.Peek() == '#' && CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword))
                 {
                     yield return ScanDisableDiagnosticsStatement(LanguageConstants.DisableNextLineDiagnosticsKeyword,
-                                                                 SyntaxTriviaType.DisableNextLineStatement);
+                                                                 SyntaxTriviaType.DisableNextLineDirective);
                 }
                 else
                 {
@@ -352,30 +352,86 @@ namespace Bicep.Core.Parsing
             textWindow.Reset();
             textWindow.Advance(text.Length + 1); // Length of disable next statement plus #
 
+            TextNode keyword = new TextNode(textWindow.GetText(), textWindow.GetSpan());
+            textWindow.Reset();
+
+            int start = keyword.Span.Position;
+            int length = keyword.Span.Length;
+
             StringBuilder sb = new StringBuilder();
+            sb.Append(keyword.Text);
+
+            List<TextNode> codes = new();
 
             while (!textWindow.IsAtEnd())
             {
                 var nextChar = textWindow.Peek();
-                sb.Append(nextChar);
 
-                if (IsIdentifierContinuation(nextChar) || nextChar == '-' || nextChar == ' ' || nextChar == '\t')
+                if (IsIdentifierContinuation(nextChar) || nextChar == '-')
+                {
+                    switch (textWindow.Peek(1))
+                    {
+                        case ' ':
+                        case '\t':
+                        case '\n':
+                        case '\r':
+                        case char.MaxValue:
+                            textWindow.Advance();
+
+                            if (GetTextNode() is TextNode textNode)
+                            {
+                                codes.Add(textNode);
+                                (length, sb) = UpdateSpanAndText(length, sb, textNode);
+
+                                continue;
+                            }
+                            break;
+                        default:
+                            textWindow.Advance();
+                            break;
+                    }
+                }
+                else if (nextChar == ' ' || nextChar == '\t')
                 {
                     textWindow.Advance();
+
+                    sb.Append(nextChar);
+                    length = length + 1;
+
+                    textWindow.Reset();
                 }
                 else
                 {
                     break;
                 }
-
             }
 
-            if (string.IsNullOrWhiteSpace(sb.ToString()))
+            if (codes.Count == 0)
             {
                 AddDiagnostic(b => b.MissingDiagnosticCodes());
             }
 
-            return new SyntaxTrivia(syntaxTriviaType, textWindow.GetSpan(), textWindow.GetText());
+            return new DisableNextLineDiagnosticsSyntaxTrivia(syntaxTriviaType,
+                                                              new TextSpan(start, length),
+                                                              sb.ToString(),
+                                                              keyword, codes);
+        }
+
+        private TextNode? GetTextNode()
+        {
+            var text = textWindow.GetText();
+
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                return new TextNode(text, textWindow.GetSpan());
+            }
+
+            return null;
+        }
+
+        private (int, StringBuilder) UpdateSpanAndText(int length, StringBuilder sb, TextNode textNode)
+        {
+            return (length + textNode.Span.Length, sb.Append(textNode.Text));
         }
 
         private void LexToken()

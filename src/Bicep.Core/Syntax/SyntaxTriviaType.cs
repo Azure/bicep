@@ -7,6 +7,6 @@ namespace Bicep.Core.Syntax
         SingleLineComment,
         MultiLineComment,
         Whitespace,
-        DisableNextLineStatement
+        DisableNextLineDirective
     }
 }

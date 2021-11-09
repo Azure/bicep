@@ -121,7 +121,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void ValidDisableNextLineStatement_ShouldLexCorrectly()
+        public void ValidDisableNextLineDirective_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -136,13 +136,61 @@ namespace Bicep.Core.UnitTests.Parsing
             var leadingTrivia = tokens.First().LeadingTrivia;
             leadingTrivia.Count().Should().Be(1);
 
-            var disableNextLineSyntaxTrivia = leadingTrivia.First();
-            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineStatement);
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            disableNextLineSyntaxTrivia.Should().NotBeNull();
+            disableNextLineSyntaxTrivia!.Keyword.Text.Should().Be("#disable-next-line");
+            disableNextLineSyntaxTrivia!.Keyword.Span.Should().Be(new TextSpan(0, 18));
+            disableNextLineSyntaxTrivia.DiagnosticCodes.Count().Should().Be(1);
+
+            var firstCode = disableNextLineSyntaxTrivia.DiagnosticCodes.First();
+
+            firstCode.Text.Should().Be("BCP226");
+            firstCode.Span.Should().Be(new TextSpan(19, 6));
+
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDirective);
             disableNextLineSyntaxTrivia.Text.Should().Be(text);
+            disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 25));
         }
 
         [TestMethod]
-        public void ValidDisableNextLineStatement_FollowedByComment_ShouldLexCorrectly()
+        public void ValidDisableNextLineDirective_WithMultipleCodes_ShouldLexCorrectly()
+        {
+            string text = "#disable-next-line BCP226 BCP227";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(1);
+
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            disableNextLineSyntaxTrivia.Should().NotBeNull();
+            disableNextLineSyntaxTrivia!.Keyword.Text.Should().Be("#disable-next-line");
+            disableNextLineSyntaxTrivia!.Keyword.Span.Should().Be(new TextSpan(0, 18));
+            disableNextLineSyntaxTrivia.DiagnosticCodes.Count().Should().Be(2);
+
+            var firstCode = disableNextLineSyntaxTrivia.DiagnosticCodes.First();
+
+            firstCode.Text.Should().Be("BCP226");
+            firstCode.Span.Should().Be(new TextSpan(19, 6));
+
+            var secondCode = disableNextLineSyntaxTrivia.DiagnosticCodes.ElementAt(1);
+
+            secondCode.Text.Should().Be("BCP227");
+            secondCode.Span.Should().Be(new TextSpan(26, 6));
+
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDirective);
+            disableNextLineSyntaxTrivia.Text.Should().Be(text);
+            disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 32));
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineDirective_FollowedByComment_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226 // test";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -161,7 +209,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 x =>
                 {
                     x.Text.Should().Be("#disable-next-line BCP226 ");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineStatement);
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDirective);
                 },
                 x =>
                 {

@@ -30,7 +30,7 @@ param storageAccount string = 'testStorageAccount'";
 
             syntaxTrivia.Should().NotBeNull();
             syntaxTrivia!.Text.Should().Be("#disable-next-line no-unused-params");
-            syntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineStatement);
+            syntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDirective);
         }
 
         [TestMethod]
