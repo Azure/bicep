@@ -186,7 +186,36 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void ValidDisableNextLineDiagnosticsDirective_FollowedByComment_ShouldLexCorrectly()
+        public void ValidDisableNextLineDiagnosticsDirective_WithLeadingWhiteSpace_ShouldLexCorrectly()
+        {
+            string text = "    #disable-next-line BCP226";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(2);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Text.Should().Be("    ");
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("#disable-next-line BCP226");
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                });
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineDiagnosticsDirective_WithTrailingWhiteSpace_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226   // test";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
