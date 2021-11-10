@@ -392,12 +392,10 @@ namespace Bicep.Core.Parsing
 
         private bool CheckAdjacentText(string text)
         {
-            int i = 0;
-            foreach (char c in text)
+            for (int i = 0; i < text.Length; i++)
             {
-                if (textWindow.Peek(i + 1) == c)
+                if (textWindow.Peek(i + 1) == text[i])
                 {
-                    i++;
                     continue;
                 }
                 else
@@ -406,18 +404,10 @@ namespace Bicep.Core.Parsing
                 }
             }
 
-            if (i != text.Length)
-            {
-                return false;
-            }
-
             return true;
         }
 
-        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<TextNode> codes,
-                                                                                                 int start,
-                                                                                                 int length,
-                                                                                                 string text)
+        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<TextNode> codes, int start, int length, string text)
         {
             if (codes.Any())
             {

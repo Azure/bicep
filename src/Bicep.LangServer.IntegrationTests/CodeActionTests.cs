@@ -16,7 +16,6 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -36,8 +35,6 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CodeActionTests
     {
-        private static readonly INamespaceProvider NamespaceProvider = BicepTestConstants.NamespaceProvider;
-
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -443,6 +440,7 @@ namespace Bicep.LangServer.IntegrationTests
                 x =>
                 {
                     x.CodeAction!.Title.Should().Be("Disable no-unused-params");
+                    x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line no-unused-params\n");
                 });
         }
 
