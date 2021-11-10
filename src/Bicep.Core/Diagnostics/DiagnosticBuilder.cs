@@ -321,7 +321,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2, string? additionalInfo) => new(
                 TextSpan,
                 "BCP045",
-                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".{(additionalInfo == null ? string.Empty : " " + additionalInfo)}");
+                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".{(additionalInfo is null ? string.Empty : " " + additionalInfo)}");
 
             public ErrorDiagnostic ValueTypeMismatch(TypeSymbol type) => new(
                 TextSpan,

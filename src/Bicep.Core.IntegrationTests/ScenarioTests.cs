@@ -2734,10 +2734,18 @@ var otherExp = noValidation
         public void Test_Issue3934()
         {
             var result = CompilationHelper.Compile(@"
-output incorrectStringAddition string = 'hello' + 'world'
+param paramString string
+
+output out1 string = paramString + resourceGroup().location
+output out2 string = paramString + 'world'
+output out3 string = paramString + paramString
+output out4 string = 'hello' + 'world'
 ");
 
             result.Should().HaveDiagnostics(new[] {
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"string\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"'world'\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"string\". Use string interpolation instead."),
                 ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"'hello'\" and \"'world'\". Use string interpolation instead.")
             });
         }
