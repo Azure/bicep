@@ -206,8 +206,8 @@ namespace Bicep.Core.Semantics
                     continue;
                 }
 
-                if (disableNextLineDiagnosticsDirectivesCache.TryGetValue(diagnosticLine - 1, out (int endPosition, ImmutableArray<string> codes) value) &&
-                    value.codes.Contains(diagnostic.Code))
+                if (disableNextLineDiagnosticsDirectivesCache.TryGetValue(diagnosticLine - 1, out var value) &&
+                    value.diagnosticCodes.Contains(diagnostic.Code))
                 {
                     continue;
                 }

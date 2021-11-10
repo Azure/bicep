@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Immutable;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -25,10 +24,10 @@ param storageAccount string = 'testStorageAccount'";
             disableNextLineDiagnosticDirectivesCache.Count.Should().Be(1);
             disableNextLineDiagnosticDirectivesCache.Keys.Should().Contain(0);
 
-            (int position, ImmutableArray<string> codes) actual = disableNextLineDiagnosticDirectivesCache[0];
+            var actual = disableNextLineDiagnosticDirectivesCache[0];
 
-            actual.position.Should().Be(35);
-            actual.codes.Should().Contain("no-unused-params");
+            actual.endPosition.Should().Be(35);
+            actual.diagnosticCodes.Should().Contain("no-unused-params");
         }
 
         [TestMethod]
@@ -76,15 +75,15 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                 c =>
                 {
                     c.Key.Should().Be(0);
-                    c.Value.Item1.Should().Be(35);
-                    c.Value.Item2.Should().Contain("no-unused-params");
+                    c.Value.endPosition.Should().Be(35);
+                    c.Value.diagnosticCodes.Should().Contain("no-unused-params");
                 },
                 c =>
                 {
                     c.Key.Should().Be(15);
-                    c.Value.Item1.Should().Be(396);
-                    c.Value.Item2.Should().Contain("BCP036");
-                    c.Value.Item2.Should().Contain("BCP037");
+                    c.Value.endPosition.Should().Be(396);
+                    c.Value.diagnosticCodes.Should().Contain("BCP036");
+                    c.Value.diagnosticCodes.Should().Contain("BCP037");
                 });
         }
     }

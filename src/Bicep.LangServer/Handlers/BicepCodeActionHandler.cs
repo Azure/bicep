@@ -118,11 +118,11 @@ namespace Bicep.LanguageServer.Handlers
 
             TextEdit? textEdit;
             int previousLine = diagnosticLine - 1;
-            if (disableNextLineDiagnosticDirectivesCache.TryGetValue(previousLine, out (int position, ImmutableArray<string> codes) value))
+            if (disableNextLineDiagnosticDirectivesCache.TryGetValue(previousLine, out var value))
             {
                 textEdit = new TextEdit
                 {
-                    Range = new Range(previousLine, value.position, previousLine, value.position),
+                    Range = new Range(previousLine, value.endPosition, previousLine, value.endPosition),
                     NewText = ' ' + diagnosticCode.String
                 };
             }
