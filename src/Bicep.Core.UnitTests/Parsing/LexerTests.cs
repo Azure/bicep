@@ -103,7 +103,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void MissingCodesInDisableNextLineStatement_ShouldBeRecognizedWithError()
+        public void MissingCodesInDisableNextLineDiagnosticsDirective_ShouldBeRecognizedWithError()
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var lexer = new Lexer(new SlidingTextWindow("#disable-next-line"), diagnosticWriter);
@@ -121,7 +121,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void ValidDisableNextLineDirective_ShouldLexCorrectly()
+        public void ValidDisableNextLineDiagnosticsDirective_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -138,9 +138,7 @@ namespace Bicep.Core.UnitTests.Parsing
 
             var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
             disableNextLineSyntaxTrivia.Should().NotBeNull();
-            disableNextLineSyntaxTrivia!.Keyword.Text.Should().Be("#disable-next-line");
-            disableNextLineSyntaxTrivia!.Keyword.Span.Should().Be(new TextSpan(0, 18));
-            disableNextLineSyntaxTrivia.DiagnosticCodes.Count().Should().Be(1);
+            disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(1);
 
             var firstCode = disableNextLineSyntaxTrivia.DiagnosticCodes.First();
 
@@ -153,7 +151,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void ValidDisableNextLineDirective_WithMultipleCodes_ShouldLexCorrectly()
+        public void ValidDisableNextLineDiagnosticsDirective_WithMultipleCodes_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226 BCP227";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -170,9 +168,7 @@ namespace Bicep.Core.UnitTests.Parsing
 
             var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
             disableNextLineSyntaxTrivia.Should().NotBeNull();
-            disableNextLineSyntaxTrivia!.Keyword.Text.Should().Be("#disable-next-line");
-            disableNextLineSyntaxTrivia!.Keyword.Span.Should().Be(new TextSpan(0, 18));
-            disableNextLineSyntaxTrivia.DiagnosticCodes.Count().Should().Be(2);
+            disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(2);
 
             var firstCode = disableNextLineSyntaxTrivia.DiagnosticCodes.First();
 
@@ -190,7 +186,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void ValidDisableNextLineDirective_FollowedByComment_ShouldLexCorrectly()
+        public void ValidDisableNextLineDiagnosticsDirective_FollowedByComment_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226   // test";
             var diagnosticWriter = ToListDiagnosticWriter.Create();

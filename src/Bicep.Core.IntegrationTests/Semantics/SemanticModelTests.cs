@@ -173,7 +173,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         }
 
         [TestMethod]
-        public void GetAllDiagnostics_WithMultipleDiagnosticCodesInDisableNextLineStatement_ShouldNotReturnAnyDiagnostics()
+        public void GetAllDiagnostics_WithMultipleDiagnosticCodesInDisableNextLineDiagnosticsDirective_ShouldNotReturnAnyDiagnostics()
         {
             var bicepFileContents = @"var vmProperties = {
   diagnosticsProfile: {
@@ -206,7 +206,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         }
 
         [TestMethod]
-        public void GetAllDiagnostics_WithDisableNextLineStatement_ShouldNotReturnDiagnostics()
+        public void GetAllDiagnostics_WithSingleDiagnosticCodeInDisableNextLineDiagnosticsDirective_ShouldNotReturnDiagnostics()
         {
             var bicepFileContents = @"#disable-next-line no-unused-params
 param storageAccount string = 'testStorageAccount'";
@@ -225,7 +225,7 @@ param storageAccount string = 'testStorageAccount'";
         }
 
         [TestMethod]
-        public void GetAllDiagnostics_WithDisableNextLineStatementNotInPreviousLine_ShouldReturnDiagnostics()
+        public void GetAllDiagnostics_WithNoDisableNextLineDiagnosticsDirectiveInPreviousLine_ShouldReturnDiagnostics()
         {
             var bicepFileContents = @"#disable-next-line no-unused-params
 

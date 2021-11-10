@@ -324,44 +324,19 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private bool CheckAdjacentText(string text)
-        {
-            int i = 0;
-            foreach (char c in text)
-            {
-                if (textWindow.Peek(i + 1) == c)
-                {
-                    i++;
-                    continue;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-
-            if (i != text.Length)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
         private SyntaxTrivia ScanDisableNextLineDiagnosticsDirective()
         {
-            List<SyntaxTrivia> syntaxTrivias = new();
             textWindow.Reset();
             textWindow.Advance(LanguageConstants.DisableNextLineDiagnosticsKeyword.Length + 1); // Length of disable next statement plus #
 
-            TextNode keyword = new TextNode(textWindow.GetText(), textWindow.GetSpan());
-            textWindow.Reset();
-
-            int start = keyword.Span.Position;
-            int length = keyword.Span.Length;
+            var span = textWindow.GetSpan();
+            int start = span.Position;
+            int length = span.Length;
 
             StringBuilder sb = new StringBuilder();
-            sb.Append(keyword.Text);
+            sb.Append(textWindow.GetText());
+
+            textWindow.Reset();
 
             List<TextNode> codes = new();
 
@@ -397,10 +372,8 @@ namespace Bicep.Core.Parsing
                 else if (nextChar == ' ' || nextChar == '\t')
                 {
                     textWindow.Advance();
-
                     sb.Append(nextChar);
                     length++;
-
                     textWindow.Reset();
                 }
                 else
@@ -414,11 +387,34 @@ namespace Bicep.Core.Parsing
                 AddDiagnostic(b => b.MissingDiagnosticCodes());
             }
 
-            return GetDisableNextLineDiagnosticsSyntaxTrivia(keyword, codes, start, length, sb.ToString());
+            return GetDisableNextLineDiagnosticsSyntaxTrivia(codes, start, length, sb.ToString());
         }
 
-        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(TextNode keyword,
-                                                                                                 List<TextNode> codes,
+        private bool CheckAdjacentText(string text)
+        {
+            int i = 0;
+            foreach (char c in text)
+            {
+                if (textWindow.Peek(i + 1) == c)
+                {
+                    i++;
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            if (i != text.Length)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<TextNode> codes,
                                                                                                  int start,
                                                                                                  int length,
                                                                                                  string text)
@@ -434,11 +430,11 @@ namespace Bicep.Core.Parsing
                 {
                     textWindow.Rewind(length - lastCodeSpanEnd);
 
-                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd), text.Substring(0, lastCodeSpanEnd), keyword, codes);
+                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd), text.Substring(0, lastCodeSpanEnd), codes);
                 }
             }
 
-            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, length), text, keyword, codes);
+            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, length), text, codes);
         }
 
         private TextNode? GetTextNode()
