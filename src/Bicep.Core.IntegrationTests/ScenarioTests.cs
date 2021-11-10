@@ -2729,7 +2729,7 @@ var otherExp = noValidation
 
         // https://github.com/Azure/bicep/issues/4850
         [TestMethod]
-        public void Test_Issue4850_objects()
+        public void Test_Issue4850()
         {
             // missing new line at the start and end of the object
             var result = CompilationHelper.Compile(@"
