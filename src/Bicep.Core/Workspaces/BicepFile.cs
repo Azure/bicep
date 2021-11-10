@@ -63,7 +63,7 @@ namespace Bicep.Core.Workspaces
 
             public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
             {
-                if (syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineDirective &&
+                if (syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective &&
                     syntaxTrivia is DisableNextLineDiagnosticsSyntaxTrivia disableNextLineDiagnosticsSyntaxTrivia)
                 {
                     var codes = disableNextLineDiagnosticsSyntaxTrivia.DiagnosticCodes.Select(x => x.Text).ToImmutableArray();

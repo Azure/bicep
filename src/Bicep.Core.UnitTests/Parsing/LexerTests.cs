@@ -147,7 +147,7 @@ namespace Bicep.Core.UnitTests.Parsing
             firstCode.Text.Should().Be("BCP226");
             firstCode.Span.Should().Be(new TextSpan(19, 6));
 
-            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDirective);
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
             disableNextLineSyntaxTrivia.Text.Should().Be(text);
             disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 25));
         }
@@ -184,7 +184,7 @@ namespace Bicep.Core.UnitTests.Parsing
             secondCode.Text.Should().Be("BCP227");
             secondCode.Span.Should().Be(new TextSpan(26, 6));
 
-            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDirective);
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
             disableNextLineSyntaxTrivia.Text.Should().Be(text);
             disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 32));
         }
@@ -192,7 +192,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [TestMethod]
         public void ValidDisableNextLineDirective_FollowedByComment_ShouldLexCorrectly()
         {
-            string text = "#disable-next-line BCP226 // test";
+            string text = "#disable-next-line BCP226   // test";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
@@ -203,13 +203,18 @@ namespace Bicep.Core.UnitTests.Parsing
             tokens.Count().Should().Be(1);
 
             var leadingTrivia = tokens.First().LeadingTrivia;
-            leadingTrivia.Count().Should().Be(2);
+            leadingTrivia.Count().Should().Be(3);
 
             leadingTrivia.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.Text.Should().Be("#disable-next-line BCP226 ");
-                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDirective);
+                    x.Text.Should().Be("#disable-next-line BCP226");
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("   ");
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
                 },
                 x =>
                 {

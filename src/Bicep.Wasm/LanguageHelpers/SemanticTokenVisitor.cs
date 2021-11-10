@@ -238,6 +238,9 @@ namespace Bicep.Wasm.LanguageHelpers
                 case SyntaxTriviaType.MultiLineComment:
                     AddTokenType(syntaxTrivia, SemanticTokenType.Comment);
                     break;
+                case SyntaxTriviaType.DisableNextLineDiagnosticsDirective:
+                    AddTokenType(syntaxTrivia, SemanticTokenType.Macro);
+                    break;
             }
         }
 

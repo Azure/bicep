@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -137,7 +138,8 @@ namespace Bicep.Core.Parsing
         /// <param name="stringToken">the string token</param>
         public static string? TryGetStringValue(Token stringToken)
         {
-            var (start, end) = stringToken.Type switch {
+            var (start, end) = stringToken.Type switch
+            {
                 TokenType.StringComplete => (LanguageConstants.StringDelimiter, LanguageConstants.StringDelimiter),
                 TokenType.StringLeftPiece => (LanguageConstants.StringDelimiter, LanguageConstants.StringHoleOpen),
                 TokenType.StringMiddlePiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringHoleOpen),
@@ -193,7 +195,7 @@ namespace Bicep.Core.Parsing
                         }
 
                         var codePointText = ScanHexNumber(window);
-                        if(!TryParseCodePoint(codePointText, out uint codePoint))
+                        if (!TryParseCodePoint(codePointText, out uint codePoint))
                         {
                             // invalid codepoint
                             return null;
@@ -266,7 +268,7 @@ namespace Bicep.Core.Parsing
             if (codePoint < 0x00010000)
             {
                 lowSurrogate = SlidingTextWindow.InvalidCharacter;
-                return (char) codePoint;
+                return (char)codePoint;
             }
 
             Debug.Assert(codePoint > 0x0000FFFF && codePoint <= 0x0010FFFF);
@@ -313,8 +315,7 @@ namespace Bicep.Core.Parsing
                 }
                 else if (textWindow.Peek() == '#' && CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword))
                 {
-                    yield return ScanDisableDiagnosticsStatement(LanguageConstants.DisableNextLineDiagnosticsKeyword,
-                                                                 SyntaxTriviaType.DisableNextLineDirective);
+                    yield return ScanDisableNextLineDiagnosticsDirective();
                 }
                 else
                 {
@@ -347,10 +348,11 @@ namespace Bicep.Core.Parsing
             return true;
         }
 
-        private SyntaxTrivia ScanDisableDiagnosticsStatement(string text, SyntaxTriviaType syntaxTriviaType)
+        private SyntaxTrivia ScanDisableNextLineDiagnosticsDirective()
         {
+            List<SyntaxTrivia> syntaxTrivias = new();
             textWindow.Reset();
-            textWindow.Advance(text.Length + 1); // Length of disable next statement plus #
+            textWindow.Advance(LanguageConstants.DisableNextLineDiagnosticsKeyword.Length + 1); // Length of disable next statement plus #
 
             TextNode keyword = new TextNode(textWindow.GetText(), textWindow.GetSpan());
             textWindow.Reset();
@@ -381,7 +383,8 @@ namespace Bicep.Core.Parsing
                             if (GetTextNode() is TextNode textNode)
                             {
                                 codes.Add(textNode);
-                                (length, sb) = UpdateSpanAndText(length, sb, textNode);
+                                length += textNode.Span.Length;
+                                sb.Append(textNode.Text);
 
                                 continue;
                             }
@@ -396,7 +399,7 @@ namespace Bicep.Core.Parsing
                     textWindow.Advance();
 
                     sb.Append(nextChar);
-                    length = length + 1;
+                    length++;
 
                     textWindow.Reset();
                 }
@@ -411,10 +414,31 @@ namespace Bicep.Core.Parsing
                 AddDiagnostic(b => b.MissingDiagnosticCodes());
             }
 
-            return new DisableNextLineDiagnosticsSyntaxTrivia(syntaxTriviaType,
-                                                              new TextSpan(start, length),
-                                                              sb.ToString(),
-                                                              keyword, codes);
+            return GetDisableNextLineDiagnosticsSyntaxTrivia(keyword, codes, start, length, sb.ToString());
+        }
+
+        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(TextNode keyword,
+                                                                                                 List<TextNode> codes,
+                                                                                                 int start,
+                                                                                                 int length,
+                                                                                                 string text)
+        {
+            if (codes.Any())
+            {
+                var lastCodeSpan = codes.Last().Span;
+                var lastCodeSpanEnd = lastCodeSpan.GetEndPosition();
+
+                // There could be whitespace following #disable-next-line directive, in which case we need to adjust the span and text.
+                // E.g. #disable-next-line BCP226   // test
+                if (length > lastCodeSpanEnd)
+                {
+                    textWindow.Rewind(length - lastCodeSpanEnd);
+
+                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd), text.Substring(0, lastCodeSpanEnd), keyword, codes);
+                }
+            }
+
+            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, length), text, keyword, codes);
         }
 
         private TextNode? GetTextNode()
@@ -427,11 +451,6 @@ namespace Bicep.Core.Parsing
             }
 
             return null;
-        }
-
-        private (int, StringBuilder) UpdateSpanAndText(int length, StringBuilder sb, TextNode textNode)
-        {
-            return (length + textNode.Span.Length, sb.Append(textNode.Text));
         }
 
         private void LexToken()
