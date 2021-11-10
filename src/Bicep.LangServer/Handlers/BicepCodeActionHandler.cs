@@ -11,6 +11,7 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -112,28 +113,26 @@ namespace Bicep.LanguageServer.Handlers
                 return null;
             }
 
-            var syntaxTrivia = DisableDiagnosticsHelper.GetDisableNextLineDiagnosticStatementFromPreviousLine(bicepFile.ProgramSyntax,
-                                                                                                              bicepFile.LineStarts,
-                                                                                                              span.Position,
-                                                                                                              out int previousLine);
-            TextEdit? disableDiagnosticStart;
+            var disableNextLineDiagnosticDirectivesCache = bicepFile.DisableNextLineDiagnosticDirectivesCache;
+            (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, span.Position);
 
-            if (syntaxTrivia is null)
+            TextEdit? textEdit;
+            int previousLine = diagnosticLine - 1;
+            if (disableNextLineDiagnosticDirectivesCache.TryGetValue(previousLine, out (int position, ImmutableArray<string> codes) value))
             {
-                var declarationRange = span.ToRange(lineStarts);
-                disableDiagnosticStart = new TextEdit
+                textEdit = new TextEdit
                 {
-                    Range = new Range(declarationRange.Start.Line, 0, declarationRange.Start.Line, 0),
-                    NewText = "#" + LanguageConstants.DisableNextLineDiagnosticsKeyword + ' ' + diagnosticCode.String + '\n'
+                    Range = new Range(previousLine, value.position, previousLine, value.position),
+                    NewText = ' ' + diagnosticCode.String
                 };
             }
             else
             {
-                int position = syntaxTrivia.GetEndPosition();
-                disableDiagnosticStart = new TextEdit
+                var range = span.ToRange(lineStarts);
+                textEdit = new TextEdit
                 {
-                    Range = new Range(previousLine, position, previousLine, position),
-                    NewText = ' ' + diagnosticCode.String
+                    Range = new Range(range.Start.Line, 0, range.Start.Line, 0),
+                    NewText = "#" + LanguageConstants.DisableNextLineDiagnosticsKeyword + ' ' + diagnosticCode.String + '\n'
                 };
             }
 
@@ -147,7 +146,7 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
                     {
-                        [documentUri] = new List<TextEdit> { disableDiagnosticStart }
+                        [documentUri] = new List<TextEdit> { textEdit }
                     }
                 },
                 Command = telemetryCommand

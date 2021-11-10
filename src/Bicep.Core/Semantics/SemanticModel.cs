@@ -14,6 +14,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -194,21 +195,21 @@ namespace Bicep.Core.Semantics
                 .OrderBy(diag => diag.Span.Position);
             List<IDiagnostic> updatedDiagnostics = new List<IDiagnostic>();
 
+            var disableNextLineDiagnosticsDirectivesCache = SourceFile.DisableNextLineDiagnosticDirectivesCache;
             foreach (IDiagnostic diagnostic in diagnostics)
             {
-                var syntaxTrivia = DisableDiagnosticsHelper.GetDisableNextLineDiagnosticStatementFromPreviousLine(SourceFile.ProgramSyntax,
-                                                                                                                  SourceFile.LineStarts,
-                                                                                                                  diagnostic.Span.Position,
-                                                                                                                  out _);
+                (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
 
-                if (syntaxTrivia is not null)
+                if (diagnosticLine == 0)
                 {
-                    var codes = syntaxTrivia.DiagnosticCodes.Select(x => x.Text);
+                    updatedDiagnostics.Add(diagnostic);
+                    continue;
+                }
 
-                    if (codes.Contains(diagnostic.Code))
-                    {
-                        continue;
-                    }
+                if (disableNextLineDiagnosticsDirectivesCache.TryGetValue(diagnosticLine - 1, out (int endPosition, ImmutableArray<string> codes) value) &&
+                    value.codes.Contains(diagnostic.Code))
+                {
+                    continue;
                 }
 
                 updatedDiagnostics.Add(diagnostic);
