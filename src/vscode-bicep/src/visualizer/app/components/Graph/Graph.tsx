@@ -1,11 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { useEffect, useRef, VFC, memo } from "react";
+import { useRef, VFC, memo, useCallback, useMemo } from "react";
 import cytoscape from "cytoscape";
-import elk from "cytoscape-elk";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 
 import { createStylesheet } from "./style";
+import { createRevealResourceMessage } from "../../../messages";
+import { vscode } from "../../vscode";
+import { useCytoscape } from "../../hooks";
 
 interface GraphProps {
   elements: cytoscape.ElementDefinition[];
@@ -32,6 +34,12 @@ const layoutOptions = {
   },
 };
 
+const zoomOptions = {
+  minLevel: 0.2,
+  maxLevel: 2,
+  sensitivity: 0.1,
+};
+
 const GraphContainer = styled.div`
   position: absolute;
   left: 0px;
@@ -47,42 +55,19 @@ const GraphContainer = styled.div`
 
 const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const cytoscapeRef = useRef<cytoscape.Core>();
-  const layoutRef = useRef<cytoscape.Layouts>();
+  const styleSheet = useMemo(() => createStylesheet(theme), [theme]);
 
-  useEffect(() => {
-    if (!cytoscapeRef.current) {
-      cytoscape.use(elk);
-      const cy = cytoscape({
-        container: containerRef.current,
-        layout: layoutOptions,
-        elements,
-        minZoom: 0.2,
-        maxZoom: 1,
-        wheelSensitivity: 0.1,
-        autounselectify: true,
-        style: createStylesheet(theme),
-      });
-
-      cy.on("layoutstart", () => cy.maxZoom(1));
-      cy.on("layoutstop", () => cy.maxZoom(2));
-
-      cytoscapeRef.current = cy;
-    } else {
-      layoutRef.current?.stop();
-      cytoscapeRef.current.json({ elements });
-      layoutRef.current = cytoscapeRef.current.layout(layoutOptions);
-      layoutRef.current.run();
-    }
-  }, [elements]);
-
-  useEffect(() => {
-    if (cytoscapeRef.current) {
-      cytoscapeRef.current.style(createStylesheet(theme));
-    }
-  }, [theme]);
-
-  useEffect(() => () => cytoscapeRef.current?.destroy(), []);
+  useCytoscape(elements, styleSheet, {
+    containerRef,
+    layoutOptions,
+    zoomOptions,
+    // Node double tap handler.
+    onNodeDoubleTap: useCallback((event: cytoscape.EventObjectNode) => {
+      const filePath = event.target.data("filePath");
+      const range = event.target.data("range");
+      vscode.postMessage(createRevealResourceMessage(filePath, range));
+    }, []),
+  });
 
   return <GraphContainer ref={containerRef} theme={theme} />;
 };
@@ -99,6 +84,11 @@ export const Graph = memo(
       return (
         prevData.id === nextData.id &&
         prevData.hasError === nextData.hasError &&
+        prevData.filePath === nextData.filePath &&
+        prevData.range?.start?.line === nextData.range?.start?.line &&
+        prevData.range?.start?.character === nextData.range?.start?.character &&
+        prevData.range?.end?.line === nextData.range?.end?.line &&
+        prevData.range?.end?.character === nextData.range?.end?.character &&
         prevData.backgroundDataUri === nextData.backgroundDataUri &&
         prevData.source === nextData.source &&
         prevData.target === nextData.target

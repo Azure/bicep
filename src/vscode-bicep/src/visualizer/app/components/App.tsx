@@ -14,15 +14,8 @@ import {
 
 import { DeploymentGraphMessage, Message, READY_MESSAGE } from "../../messages";
 import { DeploymentGraph } from "../../../language";
-import { darkTheme, lightTheme, highContrastTheme } from "./themes";
-
-declare function acquireVsCodeApi(): {
-  postMessage(message: unknown): void;
-  setState(state: unknown): void;
-  getState<T>(): T;
-};
-
-const vscode = acquireVsCodeApi();
+import { darkTheme, lightTheme, highContrastTheme } from "../themes";
+import { vscode } from "../vscode";
 
 async function mapToElements(
   graph: DeploymentGraphMessage["deploymentGraph"],
@@ -31,8 +24,6 @@ async function mapToElements(
   if (!graph) {
     return [];
   }
-
-  console.log(theme.fontFamily);
 
   const nodes = await Promise.all(
     graph.nodes.map(async (node) => {
@@ -45,12 +36,10 @@ async function mapToElements(
           id: node.id,
           parent,
           hasError: node.hasError,
+          filePath: node.filePath,
+          range: node.range,
           backgroundDataUri: node.hasChildren
-            ? createContainerNodeBackgroundUri(
-                symbol,
-                node.isCollection,
-                theme
-              )
+            ? createContainerNodeBackgroundUri(symbol, node.isCollection, theme)
             : await createChildlessNodeBackgroundUri(
                 symbol,
                 node.type,
