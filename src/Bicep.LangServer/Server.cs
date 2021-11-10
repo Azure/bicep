@@ -55,7 +55,7 @@ namespace Bicep.LanguageServer
             : this(creationOptions, options => options.WithInput(input).WithOutput(output))
         {
         }
-        
+
         private Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
             BicepDeploymentsInterop.Initialize();
@@ -83,10 +83,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<InsertResourceHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
-                if (creationOptions.onRegisterServices is not null)
-                {
-                    creationOptions.onRegisterServices(options.Services);
-                }
+                creationOptions.onRegisterServices?.Invoke(options.Services);
 
                 onOptionsFunc(options);
             });

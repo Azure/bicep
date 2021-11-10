@@ -243,7 +243,7 @@ namespace Bicep.LanguageServer.Handlers
                     resourceId.NameHierarchy.Last());
             }
 
-            var rgRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
+            var rgRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant;
             var rgRegex = new Regex(@"^/subscriptions/(?<subId>[^/]+)/resourceGroups/(?<rgName>[^/]+)$", rgRegexOptions);
             var rgRegexMatch = rgRegex.Match(resourceIdString);
             if (rgRegexMatch.Success)
