@@ -2726,5 +2726,34 @@ var otherExp = noValidation
                 ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
             });
         }
+
+        // https://github.com/Azure/bicep/issues/4850
+        [TestMethod]
+        public void Test_Issue4850_objects()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: 'foo'
+  resource eventHubConnectionString 'secrets' existing = {
+    name: 'eh-connectionstring'
+  }
+}
+
+resource ehConn 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' existing = {
+  parent: keyVault
+  name: 'eh-connectionstring'
+}
+
+var settings = [
+  {
+    name: 'ThisFails'
+    value: '@Microsoft.KeyVault(SecretUri=${keyVault::eventHubConnectionString.properties.secretUriWithVersion})'
+  }
+]");
+
+            result.Template.Should().NotHaveValueAtPath("$.variables");
+            result.Should().OnlyContainDiagnostic("no-unused-vars", DiagnosticLevel.Warning, "Variable \"settings\" is declared but never used.");
+        }
     }
 }
