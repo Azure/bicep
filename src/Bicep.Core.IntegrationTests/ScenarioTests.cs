@@ -2754,6 +2754,7 @@ var settings = [
 
             result.Template.Should().NotHaveValueAtPath("$.variables");
             result.Should().OnlyContainDiagnostic("no-unused-vars", DiagnosticLevel.Warning, "Variable \"settings\" is declared but never used.");
+        }
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/3934
