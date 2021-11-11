@@ -79,8 +79,7 @@ namespace Bicep.LanguageServer.Handlers
                     (diagnostic.Level == DiagnosticLevel.Warning || diagnostic.Level == DiagnosticLevel.Info) &&
                     (diagnostic.Span.ContainsInclusive(requestStartOffset) ||
                     diagnostic.Span.ContainsInclusive(requestEndOffset) ||
-                    (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset)))
-                .OfType<IDiagnostic>();
+                    (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset)));
 
             HashSet<string> diagnosticCodesToSuppressInline = new();
 

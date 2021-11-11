@@ -1341,7 +1341,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic MissingDiagnosticCodes() => new(
                 TextSpan,
                 "BCP226",
-                "Expected at least one diagnostic at this location. Valid format is #disable-next-line diagnosticCode1 diagnosticCode2 ..."
+                "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
         }
 

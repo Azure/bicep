@@ -5,6 +5,7 @@ using System;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
+using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 
 namespace Bicep.Core.Workspaces
 {

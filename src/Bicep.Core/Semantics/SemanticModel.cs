@@ -187,13 +187,13 @@ namespace Bicep.Core.Semantics
             return AssembleDiagnostics();
         }
 
-        private IEnumerable<IDiagnostic> AssembleDiagnostics()
+        private IReadOnlyList<IDiagnostic> AssembleDiagnostics()
         {
             var diagnostics = GetParseDiagnostics()
                 .Concat(GetSemanticDiagnostics())
                 .Concat(GetAnalyzerDiagnostics())
                 .OrderBy(diag => diag.Span.Position);
-            List<IDiagnostic> updatedDiagnostics = new List<IDiagnostic>();
+            var filteredDiagnostics = new List<IDiagnostic>();
 
             var disableNextLineDiagnosticsDirectivesCache = SourceFile.DisableNextLineDiagnosticDirectivesCache;
             foreach (IDiagnostic diagnostic in diagnostics)
@@ -202,7 +202,7 @@ namespace Bicep.Core.Semantics
 
                 if (diagnosticLine == 0)
                 {
-                    updatedDiagnostics.Add(diagnostic);
+                    filteredDiagnostics.Add(diagnostic);
                     continue;
                 }
 
@@ -212,10 +212,10 @@ namespace Bicep.Core.Semantics
                     continue;
                 }
 
-                updatedDiagnostics.Add(diagnostic);
+                filteredDiagnostics.Add(diagnostic);
             }
 
-            return updatedDiagnostics;
+            return filteredDiagnostics;
         }
 
         /// <summary>
