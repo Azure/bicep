@@ -136,6 +136,11 @@
         "command": "bicep.build",
         "title": "Build",
         "category": "Bicep"
+      },
+      {
+        "command": "bicep.insertResource",
+        "title": "Insert Resource",
+        "category": "Bicep"
       }
     ],
     "keybindings": [
@@ -213,6 +218,11 @@
       "commandPalette": [
         {
           "command": "bicep.build",
+          "when": "editorLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.insertResource",
           "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },

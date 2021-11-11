@@ -103,3 +103,11 @@ You can change the default settings in the following places (sorted by precedenc
 For small issues like misspelled symbols or incorrect casing, bicep will offer a "Quick fix" to fix it for you.
 
 ![correcting a spelling error with "quick fix"](/docs/images/quick-fix.gif)
+
+## Commands
+
+### Insert Resource
+
+Use the "Insert Resource" command to quickly import a resource from Azure into a Bicep file.
+
+![Insert resource command](/src/vscode-bicep/readme-links/insertresource.gif)
