@@ -62,5 +62,26 @@ namespace Bicep.LanguageServer.Telemetry
                     ["name"] = name
                 },
             };
+
+        public static BicepTelemetryEvent InsertResourceSuccess(string resourceType, string apiVersion)
+            => new BicepTelemetryEvent
+            {
+                EventName = "InsertResource/success",
+                Properties = new()
+                {
+                    ["resourceType"] = resourceType,
+                    ["apiVersion"] = apiVersion,
+                },
+            };
+
+        public static BicepTelemetryEvent InsertResourceFailure(string failureType)
+            => new BicepTelemetryEvent
+            {
+                EventName = "InsertResource/failure",
+                Properties = new()
+                {
+                    ["failureType"] = failureType,
+                },
+            };
     }
 }

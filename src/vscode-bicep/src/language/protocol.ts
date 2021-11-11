@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import {
+  Position,
+  ProtocolNotificationType,
   ProtocolRequestType,
   Range,
   TextDocumentIdentifier,
@@ -55,3 +57,14 @@ export const bicepCacheRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/bicepCache");
+
+export interface InsertResourceParams {
+  textDocument: TextDocumentIdentifier;
+  position: Position;
+  resourceId: string;
+}
+
+export const insertResourceRequestType = new ProtocolNotificationType<
+  InsertResourceParams,
+  void
+>("textDocument/insertResource");
