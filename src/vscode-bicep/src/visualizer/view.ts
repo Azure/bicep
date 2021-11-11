@@ -160,14 +160,14 @@ export class BicepVisualizerView extends Disposable {
         this.render();
 
         return;
-      case "REVEAL_RESOURCE":
-        this.revealResource(message.filePath, message.range);
+      case "REVEAL_FILE_RANGE":
+        this.revealFileRange(message.filePath, message.range);
 
         return;
     }
   }
 
-  private revealResource(filePath: string, range: vscode.Range) {
+  private revealFileRange(filePath: string, range: vscode.Range) {
     for (const visibleEditor of vscode.window.visibleTextEditors) {
       if (visibleEditor.document.uri.fsPath === filePath) {
         vscode.window

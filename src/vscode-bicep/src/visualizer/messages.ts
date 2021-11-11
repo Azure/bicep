@@ -19,8 +19,8 @@ export type DeploymentGraphMessage = MessageWithPayload<
   }
 >;
 
-export type RevealResourceMessage = MessageWithPayload<
-  "REVEAL_RESOURCE",
+export type RevealFileRangeMessage = MessageWithPayload<
+  "REVEAL_FILE_RANGE",
   {
     filePath: string;
     range: vscode.Range;
@@ -30,7 +30,7 @@ export type RevealResourceMessage = MessageWithPayload<
 export type Message =
   | ReadyMessage
   | DeploymentGraphMessage
-  | RevealResourceMessage;
+  | RevealFileRangeMessage;
 
 function createSimpleMessage<T>(kind: T): SimpleMessage<T> {
   return { kind };
@@ -58,11 +58,11 @@ export function createDeploymentGraphMessage(
   });
 }
 
-export function createRevealResourceMessage(
+export function createRevealFileRangeMessage(
   filePath: string,
   range: vscode.Range
-): RevealResourceMessage {
-  return createMessageWithPayload("REVEAL_RESOURCE", {
+): RevealFileRangeMessage {
+  return createMessageWithPayload("REVEAL_FILE_RANGE", {
     filePath,
     range,
   });

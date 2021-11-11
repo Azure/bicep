@@ -5,7 +5,7 @@ import cytoscape from "cytoscape";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 
 import { createStylesheet } from "./style";
-import { createRevealResourceMessage } from "../../../messages";
+import { createRevealFileRangeMessage } from "../../../messages";
 import { vscode } from "../../vscode";
 import { useCytoscape } from "../../hooks";
 
@@ -61,11 +61,11 @@ const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
     containerRef,
     layoutOptions,
     zoomOptions,
-    // Node double tap handler.
+
     onNodeDoubleTap: useCallback((event: cytoscape.EventObjectNode) => {
       const filePath = event.target.data("filePath");
       const range = event.target.data("range");
-      vscode.postMessage(createRevealResourceMessage(filePath, range));
+      vscode.postMessage(createRevealFileRangeMessage(filePath, range));
     }, []),
   });
 
