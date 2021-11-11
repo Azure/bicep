@@ -692,8 +692,8 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 string? additionalInfo = null;
-                if ((operandType1.TypeKind is TypeKind.StringLiteral || (operandType1.TypeKind is TypeKind.Primitive && string.Equals(operandType1.Name, LanguageConstants.TypeNameString))) &&
-                    (operandType2.TypeKind is TypeKind.StringLiteral || (operandType2.TypeKind is TypeKind.Primitive && string.Equals(operandType2.Name, LanguageConstants.TypeNameString))) &&
+                if (TypeValidator.AreTypesAssignable(operandType1, LanguageConstants.String) &&
+                    TypeValidator.AreTypesAssignable(operandType2, LanguageConstants.String) &&
                     syntax.Operator is BinaryOperator.Add)
                 {
                     additionalInfo = DiagnosticBuilder.UseStringInterpolationInsteadClause;
