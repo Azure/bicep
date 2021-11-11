@@ -21,6 +21,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -112,16 +113,16 @@ namespace Bicep.LanguageServer.Handlers
                 return null;
             }
 
-            var disableNextLineDiagnosticDirectivesCache = bicepFile.DisableNextLineDiagnosticDirectivesCache;
+            var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;
             (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, span.Position);
 
             TextEdit? textEdit;
             int previousLine = diagnosticLine - 1;
-            if (disableNextLineDiagnosticDirectivesCache.TryGetValue(previousLine, out var value))
+            if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(previousLine) is DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPositionAndCodes)
             {
                 textEdit = new TextEdit
                 {
-                    Range = new Range(previousLine, value.endPosition, previousLine, value.endPosition),
+                    Range = new Range(previousLine, disableNextLineDirectiveEndPositionAndCodes.endPosition, previousLine, disableNextLineDirectiveEndPositionAndCodes.endPosition),
                     NewText = ' ' + diagnosticCode.String
                 };
             }

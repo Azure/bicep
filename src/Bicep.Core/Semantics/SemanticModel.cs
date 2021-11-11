@@ -17,6 +17,7 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
+using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 
 namespace Bicep.Core.Semantics
 {
@@ -195,7 +196,7 @@ namespace Bicep.Core.Semantics
                 .OrderBy(diag => diag.Span.Position);
             var filteredDiagnostics = new List<IDiagnostic>();
 
-            var disableNextLineDiagnosticsDirectivesCache = SourceFile.DisableNextLineDiagnosticDirectivesCache;
+            var disabledDiagnosticsCache = SourceFile.DisabledDiagnosticsCache;
             foreach (IDiagnostic diagnostic in diagnostics)
             {
                 (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
@@ -206,8 +207,8 @@ namespace Bicep.Core.Semantics
                     continue;
                 }
 
-                if (disableNextLineDiagnosticsDirectivesCache.TryGetValue(diagnosticLine - 1, out var value) &&
-                    value.diagnosticCodes.Contains(diagnostic.Code))
+                if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(diagnosticLine - 1) is DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPositionAndCodes &&
+                    disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Contains(diagnostic.Code))
                 {
                     continue;
                 }

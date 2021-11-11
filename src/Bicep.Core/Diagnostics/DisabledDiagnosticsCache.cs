@@ -24,7 +24,8 @@ namespace Bicep.Core.Diagnostics
             disableNextLineDiagnosticDirectivesCacheLazy = new Lazy<ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes>>(() => GetDisableNextLineDiagnosticDirectivesCache());
         }
 
-        public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> DisableNextLineDiagnosticDirectivesCache => disableNextLineDiagnosticDirectivesCacheLazy.Value;
+        public DisableNextLineDirectiveEndPositionAndCodes? TryGetDisabledNextLineDirective(int lineNumber)
+            => disableNextLineDiagnosticDirectivesCacheLazy.Value.TryGetValue(lineNumber);
 
         public record DisableNextLineDirectiveEndPositionAndCodes(int endPosition, ImmutableArray<string> diagnosticCodes);
 

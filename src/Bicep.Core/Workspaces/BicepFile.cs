@@ -5,7 +5,6 @@ using System;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Syntax;
-using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 
 namespace Bicep.Core.Workspaces
 {
@@ -18,9 +17,7 @@ namespace Bicep.Core.Workspaces
             ProgramSyntax = programSyntax;
             Hierarchy = new SyntaxHierarchy();
             Hierarchy.AddRoot(ProgramSyntax);
-
-            var disabledDiagnosticsCache = new DisabledDiagnosticsCache(ProgramSyntax, lineStarts);
-            DisableNextLineDiagnosticDirectivesCache = disabledDiagnosticsCache.DisableNextLineDiagnosticDirectivesCache;
+            DisabledDiagnosticsCache = new DisabledDiagnosticsCache(ProgramSyntax, lineStarts);
         }
 
         public BicepFile(BicepFile original)
@@ -29,7 +26,7 @@ namespace Bicep.Core.Workspaces
             LineStarts = original.LineStarts;
             ProgramSyntax = original.ProgramSyntax;
             Hierarchy = original.Hierarchy;
-            DisableNextLineDiagnosticDirectivesCache = original.DisableNextLineDiagnosticDirectivesCache;
+            DisabledDiagnosticsCache = original.DisabledDiagnosticsCache;
         }
 
         public Uri FileUri { get; }
@@ -40,6 +37,6 @@ namespace Bicep.Core.Workspaces
 
         public SyntaxHierarchy Hierarchy { get; }
 
-        public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> DisableNextLineDiagnosticDirectivesCache { get; }
+        public DisabledDiagnosticsCache DisabledDiagnosticsCache { get; }
     }
 }

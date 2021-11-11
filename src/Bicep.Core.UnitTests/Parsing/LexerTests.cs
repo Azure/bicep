@@ -116,7 +116,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);
                     x.Code.Should().Be("BCP226");
-                    x.Message.Should().Be("Expected at least one diagnostic at this location. Valid format is #disable-next-line diagnosticCode1 diagnosticCode2 ...");
+                    x.Message.Should().Be("Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\"");
                 });
         }
 

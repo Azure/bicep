@@ -19,15 +19,12 @@ param storageAccount string = 'testStorageAccount'";
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
-            var disableNextLineDiagnosticDirectivesCache = bicepFile.DisableNextLineDiagnosticDirectivesCache;
+            var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;
+            var disableNextLineDirectiveEndPositionAndCodes = disabledDiagnosticsCache.TryGetDisabledNextLineDirective(0);
 
-            disableNextLineDiagnosticDirectivesCache.Count.Should().Be(1);
-            disableNextLineDiagnosticDirectivesCache.Keys.Should().Contain(0);
-
-            var actual = disableNextLineDiagnosticDirectivesCache[0];
-
-            actual.endPosition.Should().Be(35);
-            actual.diagnosticCodes.Should().Contain("no-unused-params");
+            disableNextLineDirectiveEndPositionAndCodes.Should().NotBeNull();
+            disableNextLineDirectiveEndPositionAndCodes!.endPosition.Should().Be(35);
+            disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Should().Contain("no-unused-params");
         }
 
         [TestMethod]
@@ -37,9 +34,10 @@ param storageAccount string = 'testStorageAccount'";
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
-            var disableNextLineDiagnosticDirectivesCache = bicepFile.DisableNextLineDiagnosticDirectivesCache;
+            var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;
+            var disableNextLineDirectiveEndPositionAndCodes = disabledDiagnosticsCache.TryGetDisabledNextLineDirective(0);
 
-            disableNextLineDiagnosticDirectivesCache.Should().BeEmpty();
+            disableNextLineDirectiveEndPositionAndCodes.Should().BeNull();
         }
 
         [TestMethod]
@@ -69,22 +67,20 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
-            var disableNextLineDiagnosticDirectivesCache = bicepFile.DisableNextLineDiagnosticDirectivesCache;
+            var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;
 
-            disableNextLineDiagnosticDirectivesCache.Should().SatisfyRespectively(
-                c =>
-                {
-                    c.Key.Should().Be(0);
-                    c.Value.endPosition.Should().Be(35);
-                    c.Value.diagnosticCodes.Should().Contain("no-unused-params");
-                },
-                c =>
-                {
-                    c.Key.Should().Be(15);
-                    c.Value.endPosition.Should().Be(396);
-                    c.Value.diagnosticCodes.Should().Contain("BCP036");
-                    c.Value.diagnosticCodes.Should().Contain("BCP037");
-                });
+            var disableNextLineDirectiveEndPositionAndCodes = disabledDiagnosticsCache.TryGetDisabledNextLineDirective(0);
+
+            disableNextLineDirectiveEndPositionAndCodes.Should().NotBeNull();
+            disableNextLineDirectiveEndPositionAndCodes!.endPosition.Should().Be(35);
+            disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Should().Contain("no-unused-params");
+
+            disableNextLineDirectiveEndPositionAndCodes = disabledDiagnosticsCache.TryGetDisabledNextLineDirective(15);
+
+            disableNextLineDirectiveEndPositionAndCodes.Should().NotBeNull();
+            disableNextLineDirectiveEndPositionAndCodes!.endPosition.Should().Be(396);
+            disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Should().Contain("BCP036");
+            disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Should().Contain("BCP037");
         }
     }
 }
