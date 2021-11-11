@@ -596,6 +596,7 @@ namespace Bicep.LanguageServer.Completions
                     var currentScope = context.ActiveScopes[depth];
                     AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
                 }
+
                 if (context.Kind.HasFlag(BicepCompletionContextKind.SymbolicName))
                 {
                     return completions.Values;
