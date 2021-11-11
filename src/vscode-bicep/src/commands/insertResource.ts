@@ -22,7 +22,7 @@ export class InsertResourceCommand implements Command {
       // it won't be fixed in VS Code, so we need to handle it on our side.
       // See https://github.com/microsoft/vscode/issues/58869#issuecomment-422322972 for details.
       vscode.window.showInformationMessage(
-        "We are unable to get the Bicep file to build when the output panel is focused. Please focus a text editor first when running the command."
+        "Unable to locate an active Bicep file, as the output panel is focused. Please focus a text editor first when running the command."
       );
 
       return;
