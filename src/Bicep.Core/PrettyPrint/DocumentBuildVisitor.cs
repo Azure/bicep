@@ -300,6 +300,11 @@ namespace Bicep.Core.PrettyPrint
                 this.PushDocument(Text(syntaxTrivia.Text));
                 this.visitingComment = false;
             }
+
+            if (syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective)
+            {
+                this.PushDocument(Text(syntaxTrivia.Text));
+            }
         }
 
         public override void VisitObjectSyntax(ObjectSyntax syntax) =>

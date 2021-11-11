@@ -13,7 +13,9 @@ namespace Bicep.Core.Samples
     {
         public static DataSet AKS_LF => CreateDataSet(); 
 
-        public static DataSet Dependencies_LF => CreateDataSet(); 
+        public static DataSet Dependencies_LF => CreateDataSet();
+
+        public static DataSet DisableNextLineDiagnosticsDirective_CRLF => CreateDataSet();
 
         public static DataSet Empty => CreateDataSet();
 
