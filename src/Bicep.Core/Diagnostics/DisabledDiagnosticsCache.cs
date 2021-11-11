@@ -26,6 +26,8 @@ namespace Bicep.Core.Diagnostics
 
         public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> DisableNextLineDiagnosticDirectivesCache => disableNextLineDiagnosticDirectivesCacheLazy.Value;
 
+        public record DisableNextLineDirectiveEndPositionAndCodes(int endPosition, ImmutableArray<string> diagnosticCodes);
+
         private ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> GetDisableNextLineDiagnosticDirectivesCache()
         {
             var visitor = new SyntaxTriviaVisitor(lineStarts);
@@ -58,6 +60,4 @@ namespace Bicep.Core.Diagnostics
             public ImmutableDictionary<int, DisableNextLineDirectiveEndPositionAndCodes> GetDisableNextLineDiagnosticDirectivesCache() => disableNextLineDiagnosticDirectivesCacheBuilder.ToImmutable();
         }
     }
-
-    public record DisableNextLineDirectiveEndPositionAndCodes(int endPosition, ImmutableArray<string> diagnosticCodes);
 }
