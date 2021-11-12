@@ -8,6 +8,7 @@ import { createStylesheet } from "./style";
 import { createRevealFileRangeMessage } from "../../../messages";
 import { vscode } from "../../vscode";
 import { useCytoscape } from "../../hooks";
+import { CommandBar } from "./CommandBar";
 
 interface GraphProps {
   elements: cytoscape.ElementDefinition[];
@@ -19,8 +20,9 @@ const layoutOptions = {
   padding: 100,
   fit: true,
   animate: true,
-  animationDuration: 1000,
-  animationEasing: "cubic-bezier(0.33, 1, 0.68, 1)",
+  animationDuration: 800,
+  animationEasing:
+    "cubic-bezier(0.33, 1, 0.68, 1)" as cytoscape.Css.TransitionTimingFunction,
   elk: {
     algorithm: "layered",
     "layered.layering.strategy": "INTERACTIVE",
@@ -56,12 +58,10 @@ const GraphContainer = styled.div`
 const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const styleSheet = useMemo(() => createStylesheet(theme), [theme]);
-
-  useCytoscape(elements, styleSheet, {
+  const [cytoscapeRef, layoutRef] = useCytoscape(elements, styleSheet, {
     containerRef,
     layoutOptions,
     zoomOptions,
-
     onNodeDoubleTap: useCallback((event: cytoscape.EventObjectNode) => {
       const filePath = event.target.data("filePath");
       const range = event.target.data("range");
@@ -69,7 +69,44 @@ const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
     }, []),
   });
 
-  return <GraphContainer ref={containerRef} theme={theme} />;
+  const handleZoomIn = useCallback(() => {
+    cytoscapeRef.current?.zoom(cytoscapeRef.current.zoom() + 0.1);
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    cytoscapeRef.current?.zoom(cytoscapeRef.current.zoom() - 0.1);
+  }, []);
+
+  const handleLayout = useCallback(() => {
+    layoutRef.current?.run();
+  }, []);
+
+  const handleFit = useCallback(() => {
+    cytoscapeRef.current?.animate(
+      {
+        fit: {
+          eles: cytoscapeRef.current.elements(),
+          padding: layoutOptions.padding,
+        },
+      },
+      {
+        easing: layoutOptions.animationEasing,
+        duration: layoutOptions.animationDuration,
+      }
+    );
+  }, []);
+
+  return (
+    <>
+      <GraphContainer ref={containerRef} theme={theme} />
+      <CommandBar
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onLayout={handleLayout}
+        onFit={handleFit}
+      />
+    </>
+  );
 };
 
 export const Graph = memo(
