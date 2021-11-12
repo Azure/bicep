@@ -25,7 +25,7 @@ describe("hover", (): void => {
   });
 
   afterAll(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditor");
+    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
   });
 
   it("should reveal type signature when hovering over a parameter name", async () => {
