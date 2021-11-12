@@ -568,6 +568,91 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+        [TestMethod]
+        public async Task VerifyLinterErrorsCanBeSuppressedWithDisableNextLineDiagnosticsDirective()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""error""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"#disable-next-line no-unused-params
+param storageAccountName string = 'test'";
+
+            await VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(bicepConfigFileContents, bicepFileContents);
+        }
+
+        [TestMethod]
+        public async Task VerifyLinterWarningsCanBeSuppressedWithDisableNextLineDiagnosticsDirective()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"#disable-next-line no-unused-params
+param storageAccountName string = 'test'";
+
+            await VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(bicepConfigFileContents, bicepFileContents);
+        }
+
+        [TestMethod]
+        public async Task VerifyLinterInfoCanBeSuppressedWithDisableNextLineDiagnosticsDirective()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"#disable-next-line no-unused-params
+param storageAccountName string = 'test'";
+
+            await VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(bicepConfigFileContents, bicepFileContents);
+        }
+
+        private async Task VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(string bicepConfigContents, string bicepFileContents)
+        {
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
+
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
+            var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigContents, testOutputPath);
+
+            // open the main document and verify diagnostics
+            {
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().BeEmpty();
+            }
+        }
+
         private static async Task VerifyDiagnosticsAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener,
             string message,
             DocumentUri documentUri,

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -17,7 +18,6 @@ using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
-using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 
 namespace Bicep.Core.Semantics
 {
@@ -201,7 +201,7 @@ namespace Bicep.Core.Semantics
             {
                 (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
 
-                if (diagnosticLine == 0)
+                if (diagnosticLine == 0 || (diagnostic.Level == DiagnosticLevel.Error && diagnostic.GetType() != typeof(AnalyzerDiagnostic)))
                 {
                     filteredDiagnostics.Add(diagnostic);
                     continue;

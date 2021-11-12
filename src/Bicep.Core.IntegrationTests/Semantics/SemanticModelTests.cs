@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
@@ -173,7 +174,38 @@ namespace Bicep.Core.IntegrationTests.Semantics
         }
 
         [TestMethod]
-        public void GetAllDiagnostics_WithMultipleDiagnosticCodesInDisableNextLineDiagnosticsDirective_ShouldNotReturnAnyDiagnostics()
+        public void GetAllDiagnostics_VerifyDisableNextLineDiagnosticsDirectiveDoesNotSupportCoreCompilerErrorSuppression()
+        {
+            var bicepFileContents = @"#disable-next-line BCP029 BCP068
+resource test";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var files = new Dictionary<Uri, string>
+            {
+                [uri] = bicepFileContents,
+            };
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            diagnostics.Count().Should().Be(2);
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP068");
+                },
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP029");
+                });
+        }
+
+        [TestMethod]
+        public void GetAllDiagnostics_VerifyDisableNextLineDiagnosticsDirectiveSupportsCoreCompilerWarningSuppression()
         {
             var bicepFileContents = @"var vmProperties = {
   diagnosticsProfile: {
@@ -206,7 +238,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         }
 
         [TestMethod]
-        public void GetAllDiagnostics_WithSingleDiagnosticCodeInDisableNextLineDiagnosticsDirective_ShouldNotReturnDiagnostics()
+        public void GetAllDiagnostics_VerifyDisableNextLineDiagnosticsDirectiveSupportsLinterWarningSuppression()
         {
             var bicepFileContents = @"#disable-next-line no-unused-params
 param storageAccount string = 'testStorageAccount'";

@@ -21,7 +21,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -75,16 +74,20 @@ namespace Bicep.LanguageServer.Handlers
 
             commandOrCodeActions.AddRange(analyzerDiagnostics);
 
-            var diagnosticsOfTypeWarningAndInfo = diagnostics
+            var coreCompilerErrors = diagnostics
                 .Where(diagnostic =>
-                    (diagnostic.Level == DiagnosticLevel.Warning || diagnostic.Level == DiagnosticLevel.Info) &&
-                    (diagnostic.Span.ContainsInclusive(requestStartOffset) ||
-                    diagnostic.Span.ContainsInclusive(requestEndOffset) ||
-                    (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset)));
+                       diagnostic.Level == DiagnosticLevel.Error &&
+                       diagnostic.GetType() != typeof(AnalyzerDiagnostic));
+            var diagnosticsThatCanBeSuppressed = diagnostics
+                .Where(diagnostic =>
+                      (diagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                      diagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                      (requestStartOffset <= diagnostic.Span.Position && diagnostic.GetEndPosition() <= requestEndOffset)))
+                .Except(coreCompilerErrors);
 
             HashSet<string> diagnosticCodesToSuppressInline = new();
 
-            foreach (IDiagnostic diagnostic in diagnosticsOfTypeWarningAndInfo)
+            foreach (IDiagnostic diagnostic in diagnosticsThatCanBeSuppressed)
             {
                 if (!diagnosticCodesToSuppressInline.Contains(diagnostic.Code))
                 {

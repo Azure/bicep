@@ -393,21 +393,79 @@ namespace Bicep.LangServer.IntegrationTests
                                                   expectedBicepConfigFileContents: expectedBicepConfigContents);
         }
 
+        [TestMethod]
+        public async Task VerifyCodeActionIsAvailableToSuppressLinterWarning()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}";
+            await VerifyCodeActionIsAvailableToSuppressLinterDiagnostics(bicepConfigFileContents);
+        }
 
         [TestMethod]
-        public async Task VerifyDisableNextLineDiagnosticsCodeActionInvocation()
+        public async Task VerifyCodeActionIsAvailableToSuppressLinterError()
         {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""error""
+        }
+      }
+    }
+  }
+}";
+            await VerifyCodeActionIsAvailableToSuppressLinterDiagnostics(bicepConfigFileContents);
+        }
+
+        [TestMethod]
+        public async Task VerifyCodeActionIsAvailableToSuppressLinterInfo()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            await VerifyCodeActionIsAvailableToSuppressLinterDiagnostics(bicepConfigFileContents);
+        }
+
+        private async Task VerifyCodeActionIsAvailableToSuppressLinterDiagnostics(string bicepConfigFileContents)
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var uri = documentUri.ToUri();
 
-            var files = new Dictionary<Uri, string>
-            {
-                [uri] = bicepFileContents,
-            };
+            var fileSystemDict = new Dictionary<Uri, string>();
+            fileSystemDict[uri] = bicepFileContents;
 
-            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            string bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
+            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+            fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().HaveCount(1);
@@ -441,6 +499,132 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     x.CodeAction!.Title.Should().Be("Disable no-unused-params");
                     x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line no-unused-params\n");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyCodeActionIsNotAvailableToSuppressCoreCompilerError()
+        {
+            var bicepFileContents = @"#disable-next-line BCP029 BCP068
+resource test";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var files = new Dictionary<Uri, string>
+            {
+                [uri] = bicepFileContents,
+            };
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            diagnostics.Should().HaveCount(2);
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP068");
+                },
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP029");
+                });
+
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                this.TestContext,
+                bicepFileContents,
+                documentUri,
+                creationOptions: new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            ILanguageClient client = helper.Client;
+
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
+
+            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            {
+                TextDocument = new TextDocumentIdentifier(documentUri),
+                Range = diagnostics.First().ToRange(lineStarts)
+            });
+
+            codeActions.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task VerifyCodeActionIsAvailableToSuppressCoreCompilerWarning()
+        {
+            var bicepFileContents = @"var vmProperties = {
+  diagnosticsProfile: {
+    bootDiagnostics: {
+      enabled: 123
+      storageUri: true
+      unknownProp: 'asdf'
+    }
+  }
+  evictionPolicy: 'Deallocate'
+}
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'vm'
+  location: 'West US'
+  properties: vmProperties
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var files = new Dictionary<Uri, string>
+            {
+                [uri] = bicepFileContents,
+            };
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            diagnostics.Should().HaveCount(3);
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Warning);
+                    x.Code.Should().Be("BCP036");
+                },
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Warning);
+                    x.Code.Should().Be("BCP036");
+                },
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Warning);
+                    x.Code.Should().Be("BCP037");
+                });
+
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                this.TestContext,
+                bicepFileContents,
+                documentUri,
+                creationOptions: new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider));
+            ILanguageClient client = helper.Client;
+
+            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
+
+            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            {
+                TextDocument = new TextDocumentIdentifier(documentUri),
+                Range = diagnostics.First().ToRange(lineStarts)
+            });
+
+            codeActions.Count().Should().Be(2);
+
+            codeActions.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.CodeAction!.Title.Should().Be("Disable BCP036");
+                    x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line BCP036\n");
+                },
+                x =>
+                {
+                    x.CodeAction!.Title.Should().Be("Disable BCP037");
+                    x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line BCP037\n");
                 });
         }
 
