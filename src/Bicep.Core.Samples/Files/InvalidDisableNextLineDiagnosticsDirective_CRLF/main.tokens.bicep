@@ -6,7 +6,8 @@ param storageAccount1 string = 'testStorageAccount'
 //@[22:28) Identifier |string|
 //@[29:30) Assignment |=|
 //@[31:51) StringComplete |'testStorageAccount'|
-//@[51:53) NewLine |\r\n|
+//@[51:55) NewLine |\r\n\r\n|
+
 #  disable-next-line  no-unused-params
 //@[0:1) Unrecognized |#|
 //@[3:10) Identifier |disable|
@@ -23,6 +24,87 @@ param storageAccount1 string = 'testStorageAccount'
 param storageAccount2 string = 'testStorageAccount'
 //@[0:5) Identifier |param|
 //@[6:21) Identifier |storageAccount2|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:55) NewLine |\r\n\r\n|
+
+/* comment before */#disable-next-line no-unused-params
+//@[55:57) NewLine |\r\n|
+param storageAccount3 string = 'testStorageAccount'
+//@[0:5) Identifier |param|
+//@[6:21) Identifier |storageAccount3|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:55) NewLine |\r\n\r\n|
+
+#disable-next-line/* comment between */ no-unused-params
+//@[39:40) Unrecognized | |
+//@[40:42) Identifier |no|
+//@[42:43) Minus |-|
+//@[43:49) Identifier |unused|
+//@[49:50) Minus |-|
+//@[50:56) Identifier |params|
+//@[56:58) NewLine |\r\n|
+param storageAccount4 string = 'testStorageAccount'
+//@[0:5) Identifier |param|
+//@[6:21) Identifier |storageAccount4|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:55) NewLine |\r\n\r\n|
+
+//#disable-next-line no-unused-params
+//@[37:39) NewLine |\r\n|
+param storageAccount5 string = 'testStorageAccount'
+//@[0:5) Identifier |param|
+//@[6:21) Identifier |storageAccount5|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:55) NewLine |\r\n\r\n|
+
+#disable-next-line 
+//@[19:21) NewLine |\r\n|
+no-unused-params
+//@[0:2) Identifier |no|
+//@[2:3) Minus |-|
+//@[3:9) Identifier |unused|
+//@[9:10) Minus |-|
+//@[10:16) Identifier |params|
+//@[16:18) NewLine |\r\n|
+param storageAccount6 string = 'testStorageAccount'
+//@[0:5) Identifier |param|
+//@[6:21) Identifier |storageAccount6|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:55) NewLine |\r\n\r\n|
+
+#madeup-directive
+//@[0:1) Unrecognized |#|
+//@[1:7) Identifier |madeup|
+//@[7:8) Minus |-|
+//@[8:17) Identifier |directive|
+//@[17:19) NewLine |\r\n|
+param storageAccount7 string = 'testStorageAccount'
+//@[0:5) Identifier |param|
+//@[6:21) Identifier |storageAccount7|
+//@[22:28) Identifier |string|
+//@[29:30) Assignment |=|
+//@[31:51) StringComplete |'testStorageAccount'|
+//@[51:55) NewLine |\r\n\r\n|
+
+var terminatedWithDirective = 'foo' #disable-next-line no-unused-params
+//@[0:3) Identifier |var|
+//@[4:27) Identifier |terminatedWithDirective|
+//@[28:29) Assignment |=|
+//@[30:35) StringComplete |'foo'|
+//@[71:73) NewLine |\r\n|
+param storageAccount8 string = 'testStorageAccount'
+//@[0:5) Identifier |param|
+//@[6:21) Identifier |storageAccount8|
 //@[22:28) Identifier |string|
 //@[29:30) Assignment |=|
 //@[31:51) StringComplete |'testStorageAccount'|
