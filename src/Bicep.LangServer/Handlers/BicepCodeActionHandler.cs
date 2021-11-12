@@ -75,9 +75,7 @@ namespace Bicep.LanguageServer.Handlers
             commandOrCodeActions.AddRange(analyzerDiagnostics);
 
             var coreCompilerErrors = diagnostics
-                .Where(diagnostic =>
-                       diagnostic.Level == DiagnosticLevel.Error &&
-                       diagnostic.GetType() != typeof(AnalyzerDiagnostic));
+                .Where(diagnostic => !diagnostic.CanBeSuppressed());
             var diagnosticsThatCanBeSuppressed = diagnostics
                 .Where(diagnostic =>
                       (diagnostic.Span.ContainsInclusive(requestStartOffset) ||

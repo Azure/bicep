@@ -201,7 +201,7 @@ namespace Bicep.Core.Semantics
             {
                 (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
 
-                if (diagnosticLine == 0 || (diagnostic.Level == DiagnosticLevel.Error && diagnostic.GetType() != typeof(AnalyzerDiagnostic)))
+                if (diagnosticLine == 0 || !diagnostic.CanBeSuppressed())
                 {
                     filteredDiagnostics.Add(diagnostic);
                     continue;
