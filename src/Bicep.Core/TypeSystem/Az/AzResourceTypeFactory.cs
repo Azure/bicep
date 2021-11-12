@@ -31,19 +31,20 @@ namespace Bicep.Core.TypeSystem.Az
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
         }
 
-        public FunctionOverload GetResourceFunctionType(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
+        public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
         {
-            var builder = new FunctionOverloadBuilder(resourceFunctionType.Name)
-                .WithOptionalParameter("apiVersion", new StringLiteralType(resourceFunctionType.ApiVersion), "The api version");
+            yield return new FunctionOverloadBuilder(resourceFunctionType.Name)
+                .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
+                .Build();
 
             if (resourceFunctionType.Input is not null)
             {
-                builder.WithOptionalParameter("params", GetTypeSymbol(resourceFunctionType.Input.Type, false), $"{resourceFunctionType.Name} parameters");
+                yield return new FunctionOverloadBuilder(resourceFunctionType.Name)
+                    .WithRequiredParameter("apiVersion", new StringLiteralType(resourceFunctionType.ApiVersion), "The api version")
+                    .WithRequiredParameter("params", GetTypeSymbol(resourceFunctionType.Input.Type, false), $"{resourceFunctionType.Name} parameters")
+                    .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
+                    .Build();
             }
-
-            builder.WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false));
-
-            return builder.Build();
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Azure.Bicep.Types.Az;
+using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Az
@@ -14,7 +15,7 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
-        private readonly ImmutableDictionary<string, ImmutableArray<TypeLocation>> availableFunctions;
+        private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
 
         public AzResourceTypeLoader()
         {
@@ -26,7 +27,10 @@ namespace Bicep.Core.TypeSystem.Az
                 ResourceTypeReferenceComparer.Instance);
             this.availableFunctions = typeLoader.GetIndexedTypes().Functions.ToImmutableDictionary(
                 kvp => kvp.Key,
-                kvp => kvp.Value.ToImmutableArray(),
+                kvp => kvp.Value.ToImmutableDictionary(
+                    x => x.Key,
+                    x => x.Value.ToImmutableArray(),
+                    StringComparer.OrdinalIgnoreCase),
                 StringComparer.OrdinalIgnoreCase);
         }
 
@@ -37,11 +41,13 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var typeLocation = availableTypes[reference];
 
-            if (!availableFunctions.TryGetValue(reference.FullyQualifiedType, out var functions))
+            if (!availableFunctions.TryGetValue(reference.FullyQualifiedType, out var apiFunctions) ||
+                !apiFunctions.TryGetValue(reference.ApiVersion, out var functions))
             {
                 functions = ImmutableArray<TypeLocation>.Empty;
             }
-            var functionOverloads = functions.Select(typeLocation => resourceTypeFactory.GetResourceFunctionType(typeLoader.LoadResourceFunctionType(typeLocation)));
+
+            var functionOverloads = functions.SelectMany(typeLocation => resourceTypeFactory.GetResourceFunctionOverloads(typeLoader.LoadResourceFunctionType(typeLocation)));
 
             var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
             return resourceTypeFactory.GetResourceType(serializedResourceType, functionOverloads);
