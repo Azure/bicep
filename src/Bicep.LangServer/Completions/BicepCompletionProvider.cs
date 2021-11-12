@@ -594,9 +594,16 @@ namespace Bicep.LanguageServer.Completions
                 {
                     // add the non-output declarations with valid identifiers at current scope
                     var currentScope = context.ActiveScopes[depth];
-                    AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
-                }
 
+                    if (context.Kind.HasFlag(BicepCompletionContextKind.SymbolicName))
+                    {
+                        AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSyntax.IsValid && (decl is ResourceSymbol || decl is ModuleSymbol)));
+                    }
+                    else 
+                    {
+                        AddSymbolCompletions(completions, currentScope.Declarations.Where(decl => decl.NameSyntax.IsValid && !(decl is OutputSymbol)));
+                    }
+                }
                 if (context.Kind.HasFlag(BicepCompletionContextKind.SymbolicName))
                 {
                     return completions.Values;

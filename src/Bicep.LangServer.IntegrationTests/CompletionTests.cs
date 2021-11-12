@@ -1312,6 +1312,113 @@ resource abc 'Test.Rp/basic|'
             actual.Should().EqualWithJsonDiffOutput(this.TestContext, expected, expectedLocation, actualLocation, "because ");
         }
 
+        [TestMethod]
+        public async Task OnlySymbolicNameItemContextShouldBeAvailable()
+        {
+            var moduleContent = @"
+param input array
+";
+
+
+            var mainContent = @"
+targetScope = 'subscription'
+
+param x string = 'unused param'
+var y = 'unused param'
+
+
+resource rg1 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+  location: 'eastus'
+  name: y
+}
+
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-08-01' = {
+  name: x
+  scope: |
+}
+
+resource aksDefaultPoolSubnet 'Microsoft.Network/virtualNetworks/subnets@2021-03-01' existing = {
+  parent: |
+  name: 'name'
+}
+
+resource rg2 'Microsoft.Resources/resourceGroups@2020-06-01' = {
+    location: 'eastus'
+    name: 'rg2'
+    parent: |
+    dependsOn: [
+      |
+    ]
+}
+
+module vnet './mod.bicep' = {
+    scope: |
+    name: 'mod'
+    dependsOn: [
+        |
+    ]
+}
+";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(mainContent);
+            Uri mainUri = new Uri("file:///main.bicep");
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
+                [new Uri("file:///mod.bicep")] = moduleContent,
+                [mainUri] = file
+            });
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
+            var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
+                this.TestContext, 
+                file, 
+                bicepFile.FileUri,
+                null,
+                creationOptions);
+            var completions = await RequestCompletions(helper.Client, bicepFile, cursors);
+
+            var nonDependsOnValues = new CompletionItemKind[] { CompletionItemKind.Interface, CompletionItemKind.Module };
+            var dependsOnValues = new CompletionItemKind[] { CompletionItemKind.Interface, CompletionItemKind.Module, CompletionItemKind.Value };
+
+            completions.Should().SatisfyRespectively(
+                y => y.Should().SatisfyRespectively(
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues)),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues)),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues)),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues)),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues),
+                    x => x.Kind.Should().BeOneOf(nonDependsOnValues)),
+                y => y.Should().SatisfyRespectively(
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues),
+                    x => x.Kind.Should().BeOneOf(dependsOnValues))
+            );
+        }
+
         private static string GetGlobalCompletionSetPath(string setName) => Path.Combine("src", "Bicep.Core.Samples", "Files", DataSet.TestCompletionsDirectory, GetFullSetName(setName));
 
         private static async Task RunCompletionScenarioTest(TestContext testContext, string fileWithCursors, Action<IEnumerable<CompletionList?>> assertAction, IFeatureProvider? featureProvider = null)

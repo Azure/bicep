@@ -1331,14 +1331,6 @@ resource selfScope 'My.Rp/mockResource@2020-12-01' = {
 //@[9:18) [BCP079 (Error)] This expression is referencing its own declaration, which is not allowed. (CodeDescription: none) |selfScope|
 }
 
-resource scopeCompletion 'My.Rp/mockResource@2020-12-01' = {
-//@[25:56) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
-  name: 'selfScope'
-  // #completionTest(11) -> symbolicNames
-  scope: 
-//@[9:9) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
-}
-
 var notAResource = {
   im: 'not'
   a: 'resource!'
@@ -1826,14 +1818,6 @@ resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
   name: 'child1'
 }
 
-resource p1_child2 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
-//@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
-  // #completionTest(12) -> symbolicNames
-  parent: 
-//@[10:10) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
-  name: 'child1'
-}
-
 // parent property with scope on child resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 //@[17:53) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1@2020-06-01'|
@@ -1949,11 +1933,11 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
   location: resourceGroup().location
   dependsOn: [
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
+//@[4:70) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)|
     's'
+//@[4:7) [BCP034 (Error)] The enclosing array expected an item of type "module[] | (resource | module) | resource[]", but the provided item was of type "'s'". (CodeDescription: none) |'s'|
     any(true)
-    // #completionTest(7) -> symbolicNames
-    a
-//@[4:5) [BCP057 (Error)] The name "a" does not exist in the current context. (CodeDescription: none) |a|
+//@[4:13) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(true)|
   ]
 }
 
@@ -2219,4 +2203,3 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
   identity: issue4668_identity
   properties: issue4668_properties
 }
-

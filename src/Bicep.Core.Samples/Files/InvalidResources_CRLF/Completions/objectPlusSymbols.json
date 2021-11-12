@@ -3886,23 +3886,6 @@
     ]
   },
   {
-    "label": "p1_child2",
-    "kind": "interface",
-    "detail": "p1_child2",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_p1_child2",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "p1_child2"
-    },
-    "commitCharacters": [
-      ":"
-    ]
-  },
-  {
     "label": "p1_res1",
     "kind": "interface",
     "detail": "p1_res1",
@@ -4970,23 +4953,6 @@
       "range": {},
       "newText": "runtimefoo4"
     }
-  },
-  {
-    "label": "scopeCompletion",
-    "kind": "interface",
-    "detail": "scopeCompletion",
-    "deprecated": false,
-    "preselect": false,
-    "sortText": "2_scopeCompletion",
-    "insertTextFormat": "plainText",
-    "insertTextMode": "adjustIndentation",
-    "textEdit": {
-      "range": {},
-      "newText": "scopeCompletion"
-    },
-    "commitCharacters": [
-      ":"
-    ]
   },
   {
     "label": "selfScope",

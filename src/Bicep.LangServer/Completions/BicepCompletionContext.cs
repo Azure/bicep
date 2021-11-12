@@ -128,7 +128,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
-                       ConvertFlag(IsResourceOrModuleItemContext(matchingNodes, offset), BicepCompletionContextKind.SymbolicName);
+                       ConvertFlag(IsSymbolicNameItemContext(matchingNodes, offset), BicepCompletionContextKind.SymbolicName);
                        
             if (featureProvider.ImportsEnabled)
             {
@@ -552,9 +552,11 @@ namespace Bicep.LanguageServer.Completions
             // import foo from f|
             SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
 
-        private static bool IsResourceOrModuleItemContext(List<SyntaxBase> matchingNodes, int offset) => 
+        private static bool IsSymbolicNameItemContext(List<SyntaxBase> matchingNodes, int offset) =>
             // dependsOn on module
             SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax, ArraySyntax, Token>(matchingNodes, (_, _, objPropSyntax, _, _) => string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ResourceDependsOnPropertyName)) ||
+            // module1 = { scope: | }
+            SyntaxMatcher.IsTailMatch<ModuleDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax>(matchingNodes, (_, _, objPropSyntax) => string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ResourceScopePropertyName)) ||
             // dependsOn on resource
             SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax, ObjectSyntax, ObjectPropertySyntax, ArraySyntax, Token>(matchingNodes, (_, _, objPropSyntax, _, _) => string.Equals(objPropSyntax.TryGetKeyText(), LanguageConstants.ResourceDependsOnPropertyName)) ||
             // resource1 = { parent: | }

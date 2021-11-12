@@ -947,12 +947,6 @@ resource selfScope 'My.Rp/mockResource@2020-12-01' = {
   scope: selfScope
 }
 
-resource scopeCompletion 'My.Rp/mockResource@2020-12-01' = {
-  name: 'selfScope'
-  // #completionTest(11) -> symbolicNames
-  scope: 
-}
-
 var notAResource = {
   im: 'not'
   a: 'resource!'
@@ -1312,12 +1306,6 @@ resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
   name: 'child1'
 }
 
-resource p1_child2 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
-  // #completionTest(12) -> symbolicNames
-  parent: 
-  name: 'child1'
-}
-
 // parent property with scope on child resource
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
   name: 'res1'
@@ -1409,8 +1397,6 @@ resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
     's'
     any(true)
-    // #completionTest(7) -> symbolicNames
-    a
   ]
 }
 
