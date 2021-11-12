@@ -9,12 +9,12 @@ namespace Bicep.Core.Syntax
 {
     public class DisableNextLineDiagnosticsSyntaxTrivia : SyntaxTrivia
     {
-        public DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType type, TextSpan span, string text, IEnumerable<TextNode> diagnosticCodes)
+        public DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType type, TextSpan span, string text, IEnumerable<Token> diagnosticCodes)
             :base(type, span, text)
         {
             DiagnosticCodes = diagnosticCodes.ToImmutableArray();
         }
 
-        public ImmutableArray<TextNode> DiagnosticCodes { get; }
+        public ImmutableArray<Token> DiagnosticCodes { get; }
     }
 }

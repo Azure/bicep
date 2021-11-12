@@ -338,7 +338,7 @@ namespace Bicep.Core.Parsing
 
             textWindow.Reset();
 
-            List<TextNode> codes = new();
+            List<Token> codes = new();
 
             while (!textWindow.IsAtEnd())
             {
@@ -355,11 +355,11 @@ namespace Bicep.Core.Parsing
                         case char.MaxValue:
                             textWindow.Advance();
 
-                            if (GetTextNode() is TextNode textNode)
+                            if (GetToken() is { } token)
                             {
-                                codes.Add(textNode);
-                                length += textNode.Span.Length;
-                                sb.Append(textNode.Text);
+                                codes.Add(token);
+                                length += token.Span.Length;
+                                sb.Append(token.Text);
 
                                 continue;
                             }
@@ -407,7 +407,7 @@ namespace Bicep.Core.Parsing
             return true;
         }
 
-        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<TextNode> codes, int start, int length, string text)
+        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<Token> codes, int start, int length, string text)
         {
             if (codes.Any())
             {
@@ -427,13 +427,13 @@ namespace Bicep.Core.Parsing
             return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, length), text, codes);
         }
 
-        private TextNode? GetTextNode()
+        private Token? GetToken()
         {
             var text = textWindow.GetText();
 
             if (!string.IsNullOrWhiteSpace(text))
             {
-                return new TextNode(text, textWindow.GetSpan());
+                return new Token(TokenType.StringComplete, textWindow.GetSpan(), textWindow.GetText(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
             }
 
             return null;
