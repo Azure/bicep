@@ -30,6 +30,17 @@ param storageAccount2 string = 'testStorageAccount'
 //@[51:55) NewLine |\r\n\r\n|
 
 /* comment before */#disable-next-line no-unused-params
+//@[20:21) Unrecognized |#|
+//@[21:28) Identifier |disable|
+//@[28:29) Minus |-|
+//@[29:33) Identifier |next|
+//@[33:34) Minus |-|
+//@[34:38) Identifier |line|
+//@[39:41) Identifier |no|
+//@[41:42) Minus |-|
+//@[42:48) Identifier |unused|
+//@[48:49) Minus |-|
+//@[49:55) Identifier |params|
 //@[55:57) NewLine |\r\n|
 param storageAccount3 string = 'testStorageAccount'
 //@[0:5) Identifier |param|
@@ -101,6 +112,17 @@ var terminatedWithDirective = 'foo' #disable-next-line no-unused-params
 //@[4:27) Identifier |terminatedWithDirective|
 //@[28:29) Assignment |=|
 //@[30:35) StringComplete |'foo'|
+//@[36:37) Unrecognized |#|
+//@[37:44) Identifier |disable|
+//@[44:45) Minus |-|
+//@[45:49) Identifier |next|
+//@[49:50) Minus |-|
+//@[50:54) Identifier |line|
+//@[55:57) Identifier |no|
+//@[57:58) Minus |-|
+//@[58:64) Identifier |unused|
+//@[64:65) Minus |-|
+//@[65:71) Identifier |params|
 //@[71:73) NewLine |\r\n|
 param storageAccount8 string = 'testStorageAccount'
 //@[0:5) Identifier |param|

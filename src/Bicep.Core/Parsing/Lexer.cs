@@ -313,7 +313,9 @@ namespace Bicep.Core.Parsing
                     yield return ScanMultiLineComment();
                     yield break;
                 }
-                else if (textWindow.Peek() == '#' && CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword))
+                else if (textWindow.Peek() == '#' &&
+                    CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
+                    string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
                 {
                     yield return ScanDisableNextLineDiagnosticsDirective();
                 }

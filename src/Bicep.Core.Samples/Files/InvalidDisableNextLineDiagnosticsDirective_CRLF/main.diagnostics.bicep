@@ -10,7 +10,10 @@ param storageAccount2 string = 'testStorageAccount'
 //@[6:21) [no-unused-params (Warning)] Parameter "storageAccount2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageAccount2|
 
 /* comment before */#disable-next-line no-unused-params
+//@[20:21) [BCP001 (Error)] The following token is not recognized: "#". (CodeDescription: none) |#|
+//@[20:21) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |#|
 param storageAccount3 string = 'testStorageAccount'
+//@[6:21) [no-unused-params (Warning)] Parameter "storageAccount3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageAccount3|
 
 #disable-next-line/* comment between */ no-unused-params
 //@[18:18) [BCP226 (Error)] Expected at least one diagnostic code at this location. Valid format is "#disable-next-line diagnosticCode1 diagnosticCode2 ..." (CodeDescription: none) ||
@@ -38,4 +41,7 @@ param storageAccount7 string = 'testStorageAccount'
 
 var terminatedWithDirective = 'foo' #disable-next-line no-unused-params
 //@[4:27) [no-unused-vars (Warning)] Variable "terminatedWithDirective" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |terminatedWithDirective|
+//@[36:37) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |#|
+//@[36:37) [BCP001 (Error)] The following token is not recognized: "#". (CodeDescription: none) |#|
 param storageAccount8 string = 'testStorageAccount'
+//@[6:21) [no-unused-params (Warning)] Parameter "storageAccount8" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |storageAccount8|

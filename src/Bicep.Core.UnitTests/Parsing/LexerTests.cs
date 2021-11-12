@@ -121,6 +121,56 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
+        public void DisableNextLineDiagnosticsDirectiveWithLeadingText_ShouldBeRecognizedWithError()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("var terminatedWithDirective = 'foo' #disable-next-line no-unused-params"), diagnosticWriter);
+            lexer.Lex();
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP001");
+                    x.Message.Should().Be("The following token is not recognized: \"#\".");
+                });
+
+            var endOfFileToken = lexer.GetTokens().First(x => x.Type == TokenType.EndOfFile);
+
+            endOfFileToken.Should().NotBeNull();
+            endOfFileToken.LeadingTrivia.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void DisableNextLineDiagnosticsDirectiveWithLeadingWhiteSpace_ShouldLexCorrectly()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("   #disable-next-line no-unused-params"), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var endOfFileToken = lexer.GetTokens().First(x => x.Type == TokenType.EndOfFile);
+
+            endOfFileToken.Should().NotBeNull();
+
+            var leadingTrivia = endOfFileToken.LeadingTrivia;
+            leadingTrivia.Count().Should().Be(2);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
+                },
+                x =>
+                {
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                });
+        }
+
+        [TestMethod]
         public void ValidDisableNextLineDiagnosticsDirective_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226";
