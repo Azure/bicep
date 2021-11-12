@@ -1044,6 +1044,11 @@ namespace Bicep.Core.Parsing
 
             var itemsOrTokens = new List<SyntaxBase>();
 
+            if (!Check(TokenType.NewLine))
+            {
+                itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
+            }
+
             while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightSquare)
             {
                 // this produces an item node, skipped tokens node, or just a newline token
@@ -1063,6 +1068,16 @@ namespace Bicep.Core.Parsing
                             DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         itemsOrTokens.Add(skippedSyntax);
+                    }
+
+                    // we've got a ']' immediately after a property.
+                    // consume it and exit early with an error to avoid assuming we're still inside the object
+                    if (Check(TokenType.RightSquare))
+                    {
+                        itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
+                        var earlyCloseBracket = this.reader.Read();
+
+                        return new ArraySyntax(openBracket, itemsOrTokens, earlyCloseBracket);
                     }
 
                     // items must be followed by newlines
@@ -1107,6 +1122,12 @@ namespace Bicep.Core.Parsing
             }
 
             var propertiesOrResourcesTokens = new List<SyntaxBase>();
+
+            if (!Check(TokenType.NewLine))
+            {
+                propertiesOrResourcesTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
+            }
+
             while (!this.IsAtEnd() && this.reader.Peek().Type != TokenType.RightBrace)
             {
                 // this produces a property node, skipped tokens node, or just a newline token
@@ -1126,6 +1147,16 @@ namespace Bicep.Core.Parsing
                             DiagnosticBuilder.ForPosition(token.Span).UnexpectedCommaSeparator().AsEnumerable()
                         );
                         propertiesOrResourcesTokens.Add(skippedSyntax);
+                    }
+
+                    // we've got a '}' immediately after a property.
+                    // consume it and exit early with an error to avoid assuming we're still inside the object
+                    if (Check(TokenType.RightBrace))
+                    {
+                        propertiesOrResourcesTokens.Add(SkipEmpty(x => x.ExpectedNewLine()));
+                        var earlyCloseBrace = this.reader.Read();
+
+                        return new ObjectSyntax(openBrace, propertiesOrResourcesTokens, earlyCloseBrace);
                     }
 
                     // properties must be followed by newlines

@@ -41,7 +41,8 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var typeLocation = availableTypes[reference];
 
-            if (!availableFunctions.TryGetValue(reference.FullyQualifiedType, out var apiFunctions) ||
+            if (!availableFunctions.TryGetValue(reference.FormatType(), out var apiFunctions) ||
+                reference.ApiVersion is null ||
                 !apiFunctions.TryGetValue(reference.ApiVersion, out var functions))
             {
                 functions = ImmutableArray<TypeLocation>.Empty;

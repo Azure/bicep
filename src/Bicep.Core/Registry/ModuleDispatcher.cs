@@ -21,7 +21,7 @@ namespace Bicep.Core.Registry
 
         private readonly ImmutableDictionary<string, IModuleRegistry> registries;
 
-        private readonly ConcurrentDictionary<ModuleReference, RestoreFailureInfo> restoreFailures = new();
+        private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
         
         public ModuleDispatcher(IModuleRegistryProvider registryProvider)
         {
@@ -92,15 +92,15 @@ namespace Bicep.Core.Registry
         public RegistryCapabilities GetRegistryCapabilities(ModuleReference moduleReference)
         {
             var registry = this.GetRegistry(moduleReference);
-            return registry.Capabilities;
+            return registry.GetCapabilities(moduleReference);
         }
 
-        public ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public ModuleRestoreStatus GetModuleRestoreStatus(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             var registry = this.GetRegistry(moduleReference);
             
             // have we already failed to restore this module?
-            if (this.HasRestoreFailed(moduleReference, out var restoreFailureBuilder))
+            if (this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
                 return ModuleRestoreStatus.Failed;
@@ -117,10 +117,10 @@ namespace Bicep.Core.Registry
             return ModuleRestoreStatus.Succeeded;
         }
 
-        public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
             // has restore already failed for this module?
-            if(this.HasRestoreFailed(moduleReference, out var restoreFailureBuilder))
+            if(this.HasRestoreFailed(moduleReference, configuration, out var restoreFailureBuilder))
             {
                 failureBuilder = restoreFailureBuilder;
                 return null;
@@ -134,7 +134,7 @@ namespace Bicep.Core.Registry
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (moduleReferences.All(module => this.GetModuleRestoreStatus(module, out _) == ModuleRestoreStatus.Succeeded))
+            if (moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
@@ -154,7 +154,7 @@ namespace Bicep.Core.Registry
                 // update restore status for each failed module restore
                 foreach(var (failedReference, failureBuilder) in restoreStatuses)
                 {
-                    this.SetRestoreFailure(failedReference, failureBuilder);
+                    this.SetRestoreFailure(failedReference, configuration, failureBuilder);
                 }
             }
 
@@ -185,9 +185,9 @@ namespace Bicep.Core.Registry
         private IModuleRegistry GetRegistry(ModuleReference moduleReference) =>
             this.registries.TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected module reference scheme '{moduleReference.Scheme}'.");
 
-        private bool HasRestoreFailed(ModuleReference moduleReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        private bool HasRestoreFailed(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if (this.restoreFailures.TryGetValue(moduleReference, out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
+            if (this.restoreFailures.TryGetValue(new(configuration.Cloud, moduleReference), out var failureInfo) && !IsFailureInfoExpired(failureInfo, DateTime.UtcNow))
             {
                 // the restore operation failed on the module previously
                 // and the record of the failure has not yet expired
@@ -201,7 +201,7 @@ namespace Bicep.Core.Registry
 
         private static bool IsFailureInfoExpired(RestoreFailureInfo failureInfo, DateTime dateTime) => dateTime >= failureInfo.Expiration;
 
-        private void SetRestoreFailure(ModuleReference moduleReference, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
+        private void SetRestoreFailure(ModuleReference moduleReference, RootConfiguration configuration, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
         {
             // as the user is typing, the modules will keep getting recompiled
             // we can't keep retrying syntactically correct references to non-existent modules on every key press
@@ -209,7 +209,27 @@ namespace Bicep.Core.Registry
             // we're not not doing sliding expiration because we want a retry to happen eventually
             // (we may consider adding an ability to immediately retry to the UX in the future as well)
             var expiration = DateTime.UtcNow.Add(FailureExpirationInterval);
-            this.restoreFailures.TryAdd(moduleReference, new RestoreFailureInfo(moduleReference, failureBuilder, expiration));
+            this.restoreFailures.TryAdd(new(configuration.Cloud, moduleReference), new RestoreFailureInfo(moduleReference, failureBuilder, expiration));
+        }
+
+        private class RestoreFailureKey
+        {
+            private readonly CloudConfiguration configuration;
+
+            private readonly ModuleReference moduleReference;
+
+            public RestoreFailureKey(CloudConfiguration configuration, ModuleReference moduleReference)
+            {
+                this.configuration = configuration;
+                this.moduleReference = moduleReference;
+            }
+
+            public override bool Equals(object? obj) =>
+                obj is RestoreFailureKey other &&
+                this.configuration.Equals(other.configuration) &&
+                this.moduleReference.Equals(other.moduleReference);
+
+            public override int GetHashCode() => HashCode.Combine(this.configuration, this.moduleReference);
         }
 
         private class RestoreFailureInfo

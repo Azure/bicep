@@ -47,6 +47,8 @@ namespace Bicep.Core.Analyzers.Linter
 
         public Uri? Uri { get; }
 
+        // If specified, adds the given diagnostic label to every diagnostic created for this rule (such as for unnecessary or obsolete code).
+        // Should be left null for most rules.
         public DiagnosticLabel? DiagnosticLabel { get; }
 
 

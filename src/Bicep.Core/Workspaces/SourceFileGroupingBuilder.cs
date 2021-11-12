@@ -174,7 +174,7 @@ namespace Bicep.Core.Workspaces
 
             foreach (var childModule in GetModuleDeclarations(bicepFile))
             {
-                var childModuleReference = this.moduleDispatcher.TryGetModuleReference(childModule, configuration, out var parseReferenceFailureBuilder);
+                var childModuleReference = this.moduleDispatcher.TryGetModuleReference(childModule, this.configuration, out var parseReferenceFailureBuilder);
                 if(childModuleReference is null)
                 {
                     // module reference is not valid
@@ -182,7 +182,7 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, out var restoreErrorBuilder);
+                var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, this.configuration, out var restoreErrorBuilder);
                 if (restoreStatus != ModuleRestoreStatus.Succeeded)
                 {
                     if(restoreStatus == ModuleRestoreStatus.Unknown)
@@ -197,7 +197,7 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                var childModuleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, childModuleReference, out var moduleGetPathFailureBuilder);
+                var childModuleFileUri = this.moduleDispatcher.TryGetLocalModuleEntryPointUri(fileUri, childModuleReference, this.configuration, out var moduleGetPathFailureBuilder);
                 if (childModuleFileUri is null)
                 {
                     // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:

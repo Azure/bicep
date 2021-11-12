@@ -1,16 +1,16 @@
 // $1 = sqlDb
-// $2 = 'accountName/sql/databaseName'
+// $2 = 'accountName/databaseName'
 // $3 = 'id'
-// $4 = 'throughput'
+// $4 = 1000
 
-resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
-  name: 'accountName/sql/databaseName'
+resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {
+  name: 'accountName/databaseName'
   properties: {
     resource: {
       id: 'id'
     }
     options: {
-      throughput: 'throughput'
+      throughput: 1000
     }
   }
 }

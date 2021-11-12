@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.Tracing
             "two"
         }.AsReadOnly();
 
-        private static readonly ReadOnlyCollection<object> SampleValuesWithHeaders = new List<object>
+        private static readonly ReadOnlyCollection<object?> SampleValuesWithHeaders = new List<object?>
         {
             1,
             "one: two\r\nthree: four",
@@ -33,7 +33,7 @@ namespace Bicep.Core.UnitTests.Tracing
             "two"
         }.AsReadOnly();
 
-        private static readonly ReadOnlyCollection<object> SampleValuesWithoutHeaders = new List<object>
+        private static readonly ReadOnlyCollection<object?> SampleValuesWithoutHeaders = new List<object?>
         {
             1,
             "something",

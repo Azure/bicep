@@ -5,6 +5,7 @@
 import spawn from "cross-spawn";
 
 import { bicepCli } from "./fs";
+import { EnvironmentOverrides } from "./types";
 
 class StdoutAssertionBuilder {
   constructor(private readonly stdout: string) {}
@@ -43,7 +44,16 @@ class StderrAssertionBuilder {
 }
 
 class BicepCommandTestRunner {
+  private environmentOverrides: EnvironmentOverrides = {};
+
   constructor(private readonly args: string[]) {}
+
+  withEnvironmentOverrides(
+    environmentOverrides: EnvironmentOverrides
+  ): BicepCommandTestRunner {
+    this.environmentOverrides = environmentOverrides;
+    return this;
+  }
 
   shouldSucceed(): StdoutAssertionBuilder {
     const result = this.runCommand();
@@ -65,11 +75,21 @@ class BicepCommandTestRunner {
   }
 
   private runCommand() {
-    return spawn.sync(bicepCli, this.args, {
+    const result = spawn.sync(bicepCli, this.args, {
       stdio: "pipe",
       encoding: "utf-8",
-      env: { ...process.env },
+      // overrides take precedence over inherited env vars
+      env: { ...process.env, ...this.environmentOverrides },
     });
+
+    expect(result).toBeTruthy();
+    if (result.status == null) {
+      throw new Error(
+        `Process terminated prematurely. result = ${JSON.stringify(result)}`
+      );
+    }
+
+    return result;
   }
 }
 

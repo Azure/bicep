@@ -7,7 +7,7 @@
   "version": "0.0.0-placeholder",
   "publisher": "ms-azuretools",
   "icon": "icons/bicep-logo-256.png",
-  "preview": true,
+  "preview": false,
   "aiKey": "AIF-d9b70cd4-b9f9-4d70-929b-a071c400b217",
   "engines": {
     "vscode": "^1.52.0"
@@ -136,6 +136,11 @@
         "command": "bicep.build",
         "title": "Build",
         "category": "Bicep"
+      },
+      {
+        "command": "bicep.insertResource",
+        "title": "Insert Resource",
+        "category": "Bicep"
       }
     ],
     "keybindings": [
@@ -143,6 +148,11 @@
         "command": "bicep.build",
         "key": "ctrl+shift+b",
         "when": "resourceLangId == bicep"
+      },
+      {
+        "command": "bicep.showVisualizerToSide",
+        "key": "ctrl+k v",
+        "when": "resourceLangId == bicep && commandsRegistered"
       }
     ],
     "menus": {
@@ -166,6 +176,11 @@
           "group": "navigation"
         },
         {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
@@ -178,14 +193,36 @@
           "group": "1_open"
         },
         {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_open"
+        },
+        {
           "command": "bicep.build",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_build"
         }
       ],
+      "editor/context": [
+        {
+          "command": "bicep.showVisualizer",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_open"
+        },
+        {
+          "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_open"
+        }
+      ],
       "commandPalette": [
         {
           "command": "bicep.build",
+          "when": "editorLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.insertResource",
           "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
@@ -239,7 +276,7 @@
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.31.0",
     "copy-webpack-plugin": "^9.0.1",
-    "esbuild-loader": "^2.15.1",
+    "esbuild-loader": "^2.16.0",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-header": "^3.1.1",
@@ -250,7 +287,7 @@
     "jest": "^26.6.2",
     "jest-styled-components": "^7.0.5",
     "ncp": "^2.0.0",
-    "nerdbank-gitversioning": "^3.4.231",
+    "nerdbank-gitversioning": "^3.4.244",
     "prettier": "^2.4.1",
     "react-test-renderer": "^17.0.2",
     "rimraf": "^3.0.2",

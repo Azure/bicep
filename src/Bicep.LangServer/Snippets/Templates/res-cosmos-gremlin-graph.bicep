@@ -1,6 +1,6 @@
 ﻿// Cosmos DB Gremlin Graph
-resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03-31' = {
-  name: /*${1:'name'}*/'account-name/gremlin/database-name'
+resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {
+  name: /*${1:'name'}*/'account-name/database-name'
   properties: {
     resource: {
       id: /*${2:'id'}*/'id'
@@ -11,7 +11,7 @@ resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/apis/databases@2016-03
   }
 }
 
-resource /*${4:cosmosDbGremlinGraph}*/cosmosDbGremlinGraph 'Microsoft.DocumentDb/databaseAccounts/apis/databases/graphs@2016-03-31' = {
+resource /*${4:cosmosDbGremlinGraph}*/cosmosDbGremlinGraph 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {
   parent: gremlinDb
   name: /*${5:'name'}*/'name'
   properties: {
@@ -24,7 +24,7 @@ resource /*${4:cosmosDbGremlinGraph}*/cosmosDbGremlinGraph 'Microsoft.DocumentDb
         kind: /*'${8|Hash,Range|}'*/'Hash'
       }
       indexingPolicy: {
-        indexingMode: /*'${9|Consistent,Lazy,None|}'*/'Consistent'
+        indexingMode: /*'${9|consistent,lazy,none|}'*/'consistent'
         includedPaths: [
           {
             path: /*${10:'path'}*/'path'

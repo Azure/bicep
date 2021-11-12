@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
+		<TargetFramework>net5.0</TargetFramework>
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -12,8 +12,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.3" />
 		<PackageReference Include="Azure.Identity" Version="1.5.0" />
-		<PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.2" />
+		<PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.3" />
 		<PackageReference Include="JetBrains.Annotations" Version="2021.2.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
@@ -28,10 +29,6 @@
 		<ProjectReference Include="../../../bicep-types-az/src/Bicep.Types/Bicep.Types.csproj" />
 		<ProjectReference Include="../../../bicep-types-az/src/Bicep.Types.Az/Bicep.Types.Az.csproj" />
 		<PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Bicep.Core.RegistryClient\Bicep.Core.RegistryClient.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">

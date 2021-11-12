@@ -7,20 +7,28 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System;
-using System.IO.Abstractions;
 using System.Threading.Tasks;
+using System.IO.Abstractions;
+using System.IO.Abstractions.TestingHelpers;
+using System.Collections.Generic;
 
 namespace Bicep.LangServer.UnitTests
 {
     [TestClass]
     public class BicepRegistryCacheRequestHandlerTests
     {
-        private static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new FileSystem());
+        private static readonly IFileSystem MockFileSystem = new MockFileSystem(new Dictionary<string, MockFileData>()
+        {
+            ["/foo/bar/bicepconfig.json"] = BicepTestConstants.BuiltInConfiguration.ToUtf8Json(),
+        });
+
+        private static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(MockFileSystem);
 
         [TestMethod]
         public async Task InvalidModuleReferenceShouldThrow()
@@ -35,7 +43,7 @@ namespace Bicep.LangServer.UnitTests
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, ConfigurationManager);
             
-            var @params = new BicepRegistryCacheParams(ModuleRefStr);
+            var @params = new BicepRegistryCacheParams("/main.bicep", ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
@@ -48,6 +56,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+
             const string ModuleRefStr = "./hello.bicep";
             var localRef = LocalModuleReference.TryParse(ModuleRefStr, out _);
             localRef.Should().NotBeNull();
@@ -58,7 +67,7 @@ namespace Bicep.LangServer.UnitTests
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, ConfigurationManager);
 
-            var @params = new BicepRegistryCacheParams(ModuleRefStr);
+            var @params = new BicepRegistryCacheParams("/foo/bar/main.bicep", ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
@@ -71,20 +80,22 @@ namespace Bicep.LangServer.UnitTests
         {
             var dispatcher = StrictMock.Of<IModuleDispatcher>();
             DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder = null;
+
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
             
-            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var configuration = ConfigurationManager.GetBuiltInConfiguration();
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, out _)!;
             moduleReference.Should().NotBeNull();
 
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<RootConfiguration>(), out failureBuilder)).Returns(moduleReference);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, out failureBuilder)).Returns(ModuleRestoreStatus.Unknown);
+            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, configuration, out failureBuilder)).Returns(ModuleRestoreStatus.Unknown);
 
             var resolver = StrictMock.Of<IFileResolver>();
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, ConfigurationManager);
 
-            var @params = new BicepRegistryCacheParams(ModuleRefStr);
+            var @params = new BicepRegistryCacheParams("/foo/main.bicep", ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
@@ -100,18 +111,19 @@ namespace Bicep.LangServer.UnitTests
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var configuration = ConfigurationManager.GetBuiltInConfiguration();
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, out _)!;
             moduleReference.Should().NotBeNull();
 
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<RootConfiguration>(), out failureBuilder)).Returns(moduleReference);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, out failureBuilder)).Returns(ModuleRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(null, moduleReference, out failureBuilder)).Returns<Uri?>(null);
+            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, configuration, out failureBuilder)).Returns(ModuleRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(null, moduleReference, configuration, out failureBuilder)).Returns<Uri?>(null);
 
             var resolver = StrictMock.Of<IFileResolver>();
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, ConfigurationManager);
 
-            var @params = new BicepRegistryCacheParams(ModuleRefStr);
+            var @params = new BicepRegistryCacheParams("/main.bicep", ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
@@ -132,21 +144,22 @@ namespace Bicep.LangServer.UnitTests
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var configuration = ConfigurationManager.GetBuiltInConfiguration();
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, out _)!;
             moduleReference.Should().NotBeNull();
 
             var fileUri = new Uri("file:///main.bicep");
 
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<RootConfiguration>(), out nullBuilder)).Returns(moduleReference);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, out nullBuilder)).Returns(ModuleRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(null, moduleReference, out nullBuilder)).Returns(fileUri);
+            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, configuration, out nullBuilder)).Returns(ModuleRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(null, moduleReference, configuration, out nullBuilder)).Returns(fileUri);
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri, out fileContents, out readFailureBuilder)).Returns(false);
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, ConfigurationManager);
 
-            var @params = new BicepRegistryCacheParams(ModuleRefStr);
+            var @params = new BicepRegistryCacheParams(fileUri.AbsolutePath, ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
                 .Should()
@@ -167,21 +180,22 @@ namespace Bicep.LangServer.UnitTests
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
 
-            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, ConfigurationManager.GetBuiltInConfiguration(), out _)!;
+            var fileUri = new Uri("file:///foo/bar/main.bicep");
+            var configuration = ConfigurationManager.GetConfiguration(fileUri);
+
+            var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, out _)!;
             moduleReference.Should().NotBeNull();
 
-            var fileUri = new Uri("file:///main.bicep");
-
             dispatcher.Setup(m => m.TryGetModuleReference(ModuleRefStr, It.IsAny<RootConfiguration>(), out nullBuilder)).Returns(moduleReference);
-            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, out nullBuilder)).Returns(ModuleRestoreStatus.Succeeded);
-            dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(null, moduleReference, out nullBuilder)).Returns(fileUri);
+            dispatcher.Setup(m => m.GetModuleRestoreStatus(moduleReference, It.IsAny<RootConfiguration>(), out nullBuilder)).Returns(ModuleRestoreStatus.Succeeded);
+            dispatcher.Setup(m => m.TryGetLocalModuleEntryPointUri(null, moduleReference, It.IsAny<RootConfiguration>(), out nullBuilder)).Returns(fileUri);
 
             var resolver = StrictMock.Of<IFileResolver>();
             resolver.Setup(m => m.TryRead(fileUri, out fileContents, out nullBuilder)).Returns(true);
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, ConfigurationManager);
 
-            var @params = new BicepRegistryCacheParams(ModuleRefStr);
+            var @params = new BicepRegistryCacheParams(fileUri.AbsolutePath, ModuleRefStr);
             var response = await handler.Handle(@params, default);
 
             response.Should().NotBeNull();

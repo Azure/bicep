@@ -63,7 +63,6 @@ function withComments(input: Mode[]): Mode[] {
 }
 
 const expression: Mode = {
-  keywords: KEYWORDS,
   variants: [
     /* placeholder filled later due to cycle*/
   ],
@@ -110,6 +109,7 @@ const namedLiteral: Mode = {
 const identifierExpression: Mode = {
   className: "variable",
   match: `${identifier}${notBefore(`${ws}\\(`)}`,
+  keywords: KEYWORDS,
 };
 
 const objectPropertyKeyIdentifier: Mode = {
@@ -148,6 +148,7 @@ const functionCall: Mode = {
   begin: `(${identifier})${ws}\\(`,
   end: `\\)`,
   contains: withComments([expression]),
+  keywords: KEYWORDS,
 };
 
 const decorator: Mode = {

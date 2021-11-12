@@ -265,7 +265,7 @@ output outputa string = '${inputa}-${inputb}'
 
             var compilation = new Compilation(BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateForFiles(files, mainUri, BicepTestConstants.FileResolver, Configuration), Configuration);
 
-            compilation.Should().HaveDiagnostics(new[] {                
+            compilation.Should().HaveDiagnostics(new[] {
                 ("BCP037", DiagnosticLevel.Error, $"The property \"{property}\" from source declaration \"inputs\" is not allowed on objects of type \"params\". Permissible properties include \"inputc\"."),
                 ("BCP183", DiagnosticLevel.Error, "The value of the module \"params\" property must be an object literal."),
             });

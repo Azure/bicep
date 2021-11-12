@@ -7621,6 +7621,96 @@ resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-
 //@[3:5) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
+@description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:82) StringComplete |'The language of the Deployment Script. AzurePowerShell or AzureCLI.'|
+//@[82:83) RightParen |)|
+//@[83:85) NewLine |\r\n|
+@allowed([
+//@[0:1) At |@|
+//@[1:8) Identifier |allowed|
+//@[8:9) LeftParen |(|
+//@[9:10) LeftSquare |[|
+//@[10:12) NewLine |\r\n|
+  'AzureCLI'
+//@[2:12) StringComplete |'AzureCLI'|
+//@[12:14) NewLine |\r\n|
+  'AzurePowerShell'
+//@[2:19) StringComplete |'AzurePowerShell'|
+//@[19:21) NewLine |\r\n|
+])
+//@[0:1) RightSquare |]|
+//@[1:2) RightParen |)|
+//@[2:4) NewLine |\r\n|
+param issue4668_kind string = 'AzureCLI'
+//@[0:5) Identifier |param|
+//@[6:20) Identifier |issue4668_kind|
+//@[21:27) Identifier |string|
+//@[28:29) Assignment |=|
+//@[30:40) StringComplete |'AzureCLI'|
+//@[40:42) NewLine |\r\n|
+@description('The identity that will be used to execute the Deployment Script.')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:79) StringComplete |'The identity that will be used to execute the Deployment Script.'|
+//@[79:80) RightParen |)|
+//@[80:82) NewLine |\r\n|
+param issue4668_identity object
+//@[0:5) Identifier |param|
+//@[6:24) Identifier |issue4668_identity|
+//@[25:31) Identifier |object|
+//@[31:33) NewLine |\r\n|
+@description('The properties of the Deployment Script.')
+//@[0:1) At |@|
+//@[1:12) Identifier |description|
+//@[12:13) LeftParen |(|
+//@[13:55) StringComplete |'The properties of the Deployment Script.'|
+//@[55:56) RightParen |)|
+//@[56:58) NewLine |\r\n|
+param issue4668_properties object
+//@[0:5) Identifier |param|
+//@[6:26) Identifier |issue4668_properties|
+//@[27:33) Identifier |object|
+//@[33:35) NewLine |\r\n|
+resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
+//@[0:8) Identifier |resource|
+//@[9:31) Identifier |issue4668_mainResource|
+//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[83:84) Assignment |=|
+//@[85:86) LeftBrace |{|
+//@[86:88) NewLine |\r\n|
+  name: 'testscript'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:20) StringComplete |'testscript'|
+//@[20:22) NewLine |\r\n|
+  location: 'westeurope'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:24) StringComplete |'westeurope'|
+//@[24:26) NewLine |\r\n|
+  kind: issue4668_kind
+//@[2:6) Identifier |kind|
+//@[6:7) Colon |:|
+//@[8:22) Identifier |issue4668_kind|
+//@[22:24) NewLine |\r\n|
+  identity: issue4668_identity
+//@[2:10) Identifier |identity|
+//@[10:11) Colon |:|
+//@[12:30) Identifier |issue4668_identity|
+//@[30:32) NewLine |\r\n|
+  properties: issue4668_properties
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:34) Identifier |issue4668_properties|
+//@[34:36) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
 //@[1:3) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||
