@@ -118,7 +118,7 @@ namespace Bicep.LanguageServer.Handlers
 
             TextEdit? textEdit;
             int previousLine = diagnosticLine - 1;
-            if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(previousLine) is DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPositionAndCodes)
+            if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(previousLine) is { } disableNextLineDirectiveEndPositionAndCodes)
             {
                 textEdit = new TextEdit
                 {

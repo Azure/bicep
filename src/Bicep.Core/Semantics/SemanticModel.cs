@@ -207,7 +207,7 @@ namespace Bicep.Core.Semantics
                     continue;
                 }
 
-                if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(diagnosticLine - 1) is DisableNextLineDirectiveEndPositionAndCodes disableNextLineDirectiveEndPositionAndCodes &&
+                if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(diagnosticLine - 1) is { } disableNextLineDirectiveEndPositionAndCodes &&
                     disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Contains(diagnostic.Code))
                 {
                     continue;
