@@ -2024,3 +2024,4 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
   identity: issue4668_identity
   properties: issue4668_properties
 }
+

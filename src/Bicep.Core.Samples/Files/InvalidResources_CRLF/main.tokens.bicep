@@ -7711,4 +7711,6 @@ resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-0
 //@[34:36) NewLine |\r\n|
 }
 //@[0:1) RightBrace |}|
-//@[1:1) EndOfFile ||
+//@[1:3) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||
