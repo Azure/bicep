@@ -336,49 +336,49 @@ module moduleWithDuplicateName2 './empty.bicep' = {
   name: 'moduleWithDuplicateName'
 }
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionB ''
 //@[7:18) Module completionB. Type: error. Declaration start char: 0, length: 21
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionC '' =
 //@[7:18) Module completionC. Type: error. Declaration start char: 0, length: 23
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionD '' = {}
 //@[7:18) Module completionD. Type: error. Declaration start char: 0, length: 26
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionE '' = {
 //@[7:18) Module completionE. Type: error. Declaration start char: 0, length: 43
   name: 'hello'
 }
 
-// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
-module cwdFileCompletionA '.'
-//@[7:25) Module cwdFileCompletionA. Type: error. Declaration start char: 0, length: 29
+// #completionTest(29) -> cwdDotFileCompletions
+module cwdFileCompletionA './m'
+//@[7:25) Module cwdFileCompletionA. Type: error. Declaration start char: 0, length: 31
 
-// #completionTest(26, 27) -> cwdMCompletions
+// #completionTest(26, 27) -> cwdFileCompletions
 module cwdFileCompletionB m
 //@[7:25) Module cwdFileCompletionB. Type: error. Declaration start char: 0, length: 27
 
-// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
 module cwdFileCompletionC 'm'
 //@[7:25) Module cwdFileCompletionC. Type: error. Declaration start char: 0, length: 29
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childFileCompletions
 module childCompletionA 'ChildModules/'
 //@[7:23) Module childCompletionA. Type: error. Declaration start char: 0, length: 39
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotFileCompletions
 module childCompletionB './ChildModules/'
 //@[7:23) Module childCompletionB. Type: error. Declaration start char: 0, length: 41
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childDotFileCompletions
 module childCompletionC './ChildModules/m'
 //@[7:23) Module childCompletionC. Type: error. Declaration start char: 0, length: 42
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childFileCompletions
 module childCompletionD 'ChildModules/e'
 //@[7:23) Module childCompletionD. Type: error. Declaration start char: 0, length: 40
 

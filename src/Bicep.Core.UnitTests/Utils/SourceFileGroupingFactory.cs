@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Configuration;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -16,10 +17,10 @@ namespace Bicep.Core.UnitTests.Utils
         {
             var entryFileUri = new Uri("file:///main.bicep");
 
-            return CreateForFiles(new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri, fileResolver);
+            return CreateForFiles(new Dictionary<Uri, string> { [entryFileUri] = text }, entryFileUri, fileResolver, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled);
         }
 
-        public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, IFeatureProvider? features = null)
+        public static SourceFileGrouping CreateForFiles(IReadOnlyDictionary<Uri, string> fileContentsByUri, Uri entryFileUri, IFileResolver fileResolver, RootConfiguration configuration, IFeatureProvider? features = null)
         {
             features ??= BicepTestConstants.Features;
             var workspace = new Workspace();
@@ -35,7 +36,8 @@ namespace Bicep.Core.UnitTests.Utils
                         BicepTestConstants.TemplateSpecRepositoryFactory,
                         features)),
                 workspace,
-                entryFileUri);
+                entryFileUri,
+                configuration);
         }
     }
 }

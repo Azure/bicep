@@ -2,10 +2,10 @@
 // Licensed under the MIT License.
 
 using Azure;
-using Azure.Core;
+using Azure.Containers.ContainerRegistry;
+using Azure.Containers.ContainerRegistry.Specialized;
 using Bicep.Core.Registry.Oci;
-using Bicep.Core.RegistryClient;
-using Moq;
+using Bicep.Core.UnitTests.Mock;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.IO;
@@ -18,10 +18,8 @@ namespace Bicep.Core.UnitTests.Registry
     /// <summary>
     /// Mock OCI registry blob client. This client is intended to represent a single repository within a specific registry Uri.
     /// </summary>
-    public class MockRegistryBlobClient: BicepRegistryBlobClient
+    public class MockRegistryBlobClient: ContainerRegistryBlobClient
     {
-        private static MockRepository Repository = new(MockBehavior.Strict);
-
         public MockRegistryBlobClient() : base()
         {
             // ensure we call the base parameterless constructor to prevent outgoing calls
@@ -36,7 +34,7 @@ namespace Bicep.Core.UnitTests.Registry
         // maps tag to manifest digest
         public ConcurrentDictionary<string, string> ManifestTags { get; } = new();
 
-        public override async Task<Response<DownloadBlobResult>> DownloadBlobAsync(string digest, DownloadBlobOptions? options = default, CancellationToken cancellationToken = default)
+        public override async Task<Response<DownloadBlobResult>> DownloadBlobAsync(string digest, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
@@ -45,26 +43,40 @@ namespace Bicep.Core.UnitTests.Registry
                 throw new RequestFailedException(404, "Mock blob does not exist.");
             }
 
-            return CreateResult(new DownloadBlobResult(digest, WriteStream(bytes)));
+            return CreateResult(ContainerRegistryModelFactory.DownloadBlobResult(digest, WriteStream(bytes)));
         }
 
-        public override async Task<Response<DownloadManifestResult>> DownloadManifestAsync(string reference, DownloadManifestOptions? options = default, CancellationToken cancellationToken = default)
+        public override async Task<Response<DownloadManifestResult>> DownloadManifestAsync(DownloadManifestOptions? options = default, CancellationToken cancellationToken = default)
         {
             await Task.Yield();
 
-            string? digest;
-            if (reference.StartsWith(DigestHelper.AlgorithmIdentifierSha256 + ':'))
+            if(options is null)
             {
-                // digest ref
-                digest = reference;
+                throw new RequestFailedException("Downloading a manifest requires 'options' to be specified.");
             }
-            else
+
+            string? digest;
+            switch(options.Digest, options.Tag)
             {
-                // tag ref
-                if (!this.ManifestTags.TryGetValue(reference, out digest))
-                {
-                    throw new RequestFailedException(404, "Mock manifest tag does not exist.");
-                }
+                case (not null, not null):
+                    throw new RequestFailedException("Both digest and tag cannot be specified when downloading a manifest.");
+
+                case (not null, null):
+                    // digest ref
+                    digest = options.Digest;
+                    break;
+
+                case (null, not null):
+                    // tag ref
+                    if (!this.ManifestTags.TryGetValue(options.Tag, out digest))
+                    {
+                        throw new RequestFailedException(404, "Mock manifest tag does not exist.");
+                    }
+
+                    break;
+
+                default:
+                    throw new RequestFailedException("Either a digest or tag must be specified when downloading a manifest.");
             }
 
             if(!this.Manifests.TryGetValue(digest, out var bytes))
@@ -72,7 +84,7 @@ namespace Bicep.Core.UnitTests.Registry
                 throw new RequestFailedException(404, "Mock manifest does not exist.");
             }
 
-            return CreateResult(new DownloadManifestResult(digest, WriteStream(bytes)));
+            return CreateResult(ContainerRegistryModelFactory.DownloadManifestResult(digest: digest, manifestStream: WriteStream(bytes)));
         }
 
         public override async Task<Response<UploadBlobResult>> UploadBlobAsync(Stream stream, CancellationToken cancellationToken = default)
@@ -82,16 +94,12 @@ namespace Bicep.Core.UnitTests.Registry
             var (copy, digest) = ReadStream(stream);
             Blobs.TryAdd(digest, copy);
 
-            return CreateResult(new UploadBlobResult());
+            return CreateResult(ContainerRegistryModelFactory.UploadBlobResult());
         }
 
         public override async Task<Response<UploadManifestResult>> UploadManifestAsync(Stream stream, UploadManifestOptions? options = default, CancellationToken cancellationToken = default)
         {
             options ??= new UploadManifestOptions();
-            if(options.MediaType != RegistryClient.Models.ContentType.ApplicationVndOciImageManifestV1Json)
-            {
-                throw new RequestFailedException(500, "This mock client supports only OCI artifacts.");
-            }
 
             await Task.Yield();
 
@@ -104,13 +112,13 @@ namespace Bicep.Core.UnitTests.Registry
                 this.ManifestTags[options.Tag] = digest;
             }
 
-            return CreateResult(new UploadManifestResult());
+            return CreateResult(ContainerRegistryModelFactory.UploadManifestResult());
         }
 
         public static (ImmutableArray<byte> bytes, string digest) ReadStream(Stream stream)
         {
             stream.Position = 0;
-            string digest = DigestHelper.ComputeDigest(DigestHelper.AlgorithmIdentifierSha256, stream);
+            string digest = DescriptorFactory.ComputeDigest(DescriptorFactory.AlgorithmIdentifierSha256, stream);
 
             stream.Position = 0;
             using var reader = new BinaryReader(stream, new UTF8Encoding(false), true);
@@ -136,9 +144,9 @@ namespace Bicep.Core.UnitTests.Registry
 
         private static Response<T> CreateResult<T>(T value)
         {
-            var response = Repository.Create<Response>();
+            var response = StrictMock.Of<Response>();
             
-            var result = Repository.Create<Response<T>>();
+            var result = StrictMock.Of<Response<T>>();
             result.SetupGet(m => m.Value).Returns(value);
             result.Setup(m => m.GetRawResponse()).Returns(response.Object);
 

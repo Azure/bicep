@@ -35,12 +35,13 @@ namespace Bicep.LangServer.IntegrationTests
                 TestContext,
                 assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
             
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
                     NamespaceProvider: BuiltInTestTypes.Create(),
                     Features: features));
+            var client = helper.Client;
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,
@@ -73,12 +74,13 @@ namespace Bicep.LangServer.IntegrationTests
                 symbolicNameCodegenEnabled: true,
                 assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion);
             
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 this.TestContext,
                 options => options.OnPublishDiagnostics(diagnosticsParams => diagnosticsListener.AddMessage(diagnosticsParams)),
                 new LanguageServer.Server.CreationOptions(
                     NamespaceProvider: BuiltInTestTypes.Create(),
                     Features: features));
+            var client = helper.Client;
 
             var outputDirectory = FileHelper.SaveEmbeddedResourcesWithPathPrefix(
                 TestContext,

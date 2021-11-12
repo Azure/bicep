@@ -29,12 +29,15 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [DataTestMethod]
+        [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
-        [DataRow(PreferInterpolationRule.Code)]
+        [DataRow(NoUnnecessaryDependsOnRule.Code)]
         [DataRow(NoUnusedParametersRule.Code)]
+        [DataRow(NoUnusedVariablesRule.Code)]
+        [DataRow(PreferInterpolationRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(NoUnusedVariablesRule.Code)]
+        [DataRow(UseStableVMImageRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
             var linter = new LinterAnalyzer(configuration);

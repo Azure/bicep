@@ -518,6 +518,25 @@
     ]
   },
   {
+    "name": "items",
+    "description": "Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.",
+    "fixedParameters": [
+      {
+        "name": "object",
+        "description": "The object to return keys and values for",
+        "type": "object",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "(object: object): object[]",
+    "parameterTypeSignatures": [
+      "object: object"
+    ]
+  },
+  {
     "name": "json",
     "description": "Converts a valid JSON string into a JSON data type.",
     "fixedParameters": [

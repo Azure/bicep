@@ -5,7 +5,9 @@ using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -17,13 +19,16 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class TypeValidationTests
     {
-        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceType> definedTypes)
+        private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
-            var typeProvider = TestTypeHelper.CreateProviderWithTypes(definedTypes);
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var compilation = new Compilation(typeProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration);
+            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration);
+
             return compilation.GetEntrypointSemanticModel();
         }
+
+        private static SemanticModel GetSemanticModelForTest(string programText, IEnumerable<ResourceTypeComponents> definedTypes)
+            => GetSemanticModelForTest(programText, TestTypeHelper.CreateProviderWithTypes(definedTypes));
 
         [DataTestMethod]
         [DataRow(TypeSymbolValidationFlags.Default, DiagnosticLevel.Error)]
@@ -124,16 +129,16 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
         {
             var customTypes = new[] {
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
-                    new TypeProperty("stringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("unspecifiedStringOrInt", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDef", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("unspecifiedAbcOrDef", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
+                    new TypeProperty("stringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("unspecifiedStringOrInt", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("abcOrDef", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("unspecifiedAbcOrDef", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def")), TypePropertyFlags.AllowImplicitNull)),
                 TestTypeHelper.CreateCustomResourceType("My.Rp/myDependentType", "2020-01-01", validationFlags,
                     new TypeProperty("stringOnly", LanguageConstants.String, TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("abcOnly", new StringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("abcOnlyUnNarrowed", new StringLiteralType("abc"), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("stringOrIntUnNarrowed", UnionType.Create(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
-                    new TypeProperty("abcOrDefUnNarrowed", UnionType.Create(new StringLiteralType("abc"), new StringLiteralType("def"), new StringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
+                    new TypeProperty("stringOrIntUnNarrowed", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int), TypePropertyFlags.AllowImplicitNull),
+                    new TypeProperty("abcOrDefUnNarrowed", TypeHelper.CreateTypeUnion(new StringLiteralType("abc"), new StringLiteralType("def"), new StringLiteralType("ghi")), TypePropertyFlags.AllowImplicitNull)),
             };
             var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
@@ -368,7 +373,7 @@ var commentsPropAccess = jsonWithComments.key
 var invalidPropAccess = objectJson.invalidProp
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
 
             GetTypeForNamedSymbol(model, "objectJson").Name.Should().Be("object");
             GetTypeForNamedSymbol(model, "propAccess").Name.Should().Be("'validValue'");
@@ -393,13 +398,77 @@ var invalidPropAccess = objectJson.invalidProp
 var invalidJson = json('{""prop"": ""value')
 ";
 
-            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceType>());
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
 
             GetTypeForNamedSymbol(model, "invalidJson").Name.Should().Be("error");
 
             model.GetAllDiagnostics().Should().SatisfyRespectively(
                 x => x.Should().HaveCodeAndSeverity("BCP186", DiagnosticLevel.Error).And.HaveMessage("Unable to parse literal JSON value. Please ensure that it is well-formed.")
             );
+        }
+
+        [TestMethod]
+        public void Items_function_builds_type_definition_from_source_type()
+        {
+            var program = @"
+var basicObject = {
+  abc: 'string'
+  DEF: true
+  '123': {
+    abc: 'test'
+  }
+  'arr': [
+    1
+    2
+    3
+  ]
+}
+var itemsOutput = items(basicObject)
+var singleItemKey = itemsOutput[0].key
+var singleItemValue = itemsOutput[0].value
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
+            
+            GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
+            GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
+            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
+        }
+
+        [TestMethod]
+        public void Items_function_permits_any_and_returns_generic_type()
+        {
+            var program = @"
+var itemsOutput = items(any('hello!'))
+var singleItemKey = itemsOutput[0].key
+var singleItemValue = itemsOutput[0].value
+";
+
+            var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
+            
+            GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
+            GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("string");
+            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
+        }
+
+        [TestMethod]
+        public void Items_function_works_for_resources()
+        {
+            var program = @"
+resource testRes 'Test.Rp/readWriteTests@2020-01-01' existing = {
+  name: 'testRes'
+}
+
+var itemsOutput = items(testRes.properties)
+var singleItemKey = itemsOutput[0].key
+var singleItemValue = itemsOutput[0].value
+";
+
+            var model = GetSemanticModelForTest(program, BuiltInTestTypes.Create());
+            
+            GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
+            GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'readonly' | 'readwrite' | 'required'");
+            GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("string");
         }
 
         private static TypeSymbol GetTypeForNamedSymbol(SemanticModel model, string symbolName)

@@ -105,7 +105,7 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 
 If you'd like to contribute to the collection of snippets:  
 
-* A snippet should either be a single, generic resource or follow [parent-child syntax](https://github.com/Azure/bicep/blob/a22b9c80ba4f8b977f5d948f8bd8c54155ff6870/docs/spec/resource-scopes.md#parent-child-syntax). Ensure your snippet meets this criteria.
+* A snippet should either be a single, generic resource or follow [parent-child syntax](https://docs.microsoft.com/azure/azure-resource-manager/bicep/child-resource-name-type). Ensure your snippet meets this criteria.
 * Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep
   * The file name without extension will be used as the label.
   * A single line comment at the top of the file will be used as the description.

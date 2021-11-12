@@ -21,7 +21,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public PreferInterpolationRule() : base(
             code: Code,
             description: CoreResources.InterpolateNotConcatRuleDescription,
-            docUri: new Uri("https://aka.ms/bicep/linter/prefer-interpolation"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
@@ -74,7 +74,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (GetCodeReplacement(functionCallSyntax) is CodeReplacement cr)
                 {
-                    return new CodeFix($"Use string interpolation: {cr.Text}", true, cr); // TODO: localize
+                    string title = string.Format(CoreResources.InterpolateNotConcatFixTitle, cr.Text);
+                    return new CodeFix(title, true, cr);
                 }
                 return null;
             }

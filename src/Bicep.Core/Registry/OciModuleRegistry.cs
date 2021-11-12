@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Azure.Identity;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -37,9 +38,14 @@ namespace Bicep.Core.Registry
 
         public override string Scheme => ModuleReferenceSchemes.Oci;
 
-        public override RegistryCapabilities Capabilities => RegistryCapabilities.Publish;
+        public override RegistryCapabilities GetCapabilities(OciArtifactModuleReference reference)
+        {
+            // cannot publish without tag
+            return reference.Tag is null ? RegistryCapabilities.Default : RegistryCapabilities.Publish;
+        }
 
-        public override ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => OciArtifactModuleReference.TryParse(reference, out failureBuilder);
+        public override ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+            OciArtifactModuleReference.TryParse(aliasName, reference, configuration, out failureBuilder);
 
         public override bool IsModuleRestoreRequired(OciArtifactModuleReference reference)
         {
@@ -64,14 +70,14 @@ namespace Bicep.Core.Registry
             return this.GetModuleFileUri(reference, ModuleFileType.ModuleMain);
         }
 
-        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<OciArtifactModuleReference> references)
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<OciArtifactModuleReference> references)
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
             foreach(var reference in references)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
-                var (result, errorMessage) = await this.TryPullArtifactAsync(reference);
+                var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference);
 
                 if(result is null)
                 {
@@ -91,19 +97,19 @@ namespace Bicep.Core.Registry
             return statuses;
         }
 
-        public override async Task PublishModule(OciArtifactModuleReference moduleReference, Stream compiled)
+        public override async Task PublishModule(RootConfiguration configuration, OciArtifactModuleReference moduleReference, Stream compiled)
         {
             var config = new StreamDescriptor(Stream.Null, BicepMediaTypes.BicepModuleConfigV1);
             var layer = new StreamDescriptor(compiled, BicepMediaTypes.BicepModuleLayerV1Json);
 
-            await this.client.PushArtifactAsync(moduleReference, config, layer);
+            await this.client.PushArtifactAsync(configuration, moduleReference, config, layer);
         }
 
-        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(OciArtifactModuleReference reference)
+        private async Task<(OciArtifactResult?, string? errorMessage)> TryPullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference reference)
         {
             try
             {
-                var result = await this.client.PullArtifactAsync(reference);
+                var result = await this.client.PullArtifactAsync(configuration, reference);
 
                 await this.TryWriteModuleContentAsync(reference, result);
 
@@ -247,11 +253,27 @@ namespace Bicep.Core.Registry
             // the replacement char must one that is not valid in a repository string but is valid in common type systems
             var repository = reference.Repository.Replace('/', '$');
 
-            // tags are case-sensitive with length up to 128
-            var tag = TagEncoder.Encode(reference.Tag);
+            string? tagOrDigest;
+            if (reference.Tag is not null)
+            {
+                // tags are case-sensitive with length up to 128
+                tagOrDigest = TagEncoder.Encode(reference.Tag);
+            }
+            else if(reference.Digest is not null)
+            {
+                // digests are strings like "sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
+                // and are already guaranteed to be lowercase
+                // the only problematic character is the : which we will replace with a #
+                // however the encoding we choose must not be ambiguous with the tag encoding
+                tagOrDigest = reference.Digest.Replace(':', '#');
+            }
+            else
+            {
+                throw new InvalidOperationException("Module reference is missing both tag and digest.");
+            }
 
             //var packageDir = WebUtility.UrlEncode(reference.UnqualifiedReference);
-            return Path.Combine(this.cachePath, registry, repository, tag);
+            return Path.Combine(this.cachePath, registry, repository, tagOrDigest);
         }
 
         private enum ModuleFileType

@@ -149,13 +149,14 @@ namespace Bicep.LangServer.IntegrationTests
             var fileSystemDict = new Dictionary<Uri, string>();
             var telemetryReceived = new TaskCompletionSource<BicepTelemetryEvent>();
 
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
                     options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryReceived.SetResult(telemetry));
                 },
                 new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
             fileSystemDict[mainUri.ToUri()] = text;

@@ -1,0 +1,205 @@
+
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
+  </head>
+  <body>
+    <pre class="hljs">
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;The location into which your Azure resources should be deployed.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">location</span> <span class="hljs-variable">string</span> = <span class="hljs-function">resourceGroup()</span>.<span class="hljs-variable">location</span>
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;Select the type of environment you want to provision. Allowed values are Production and Test.&#x27;</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">allowed([
+  <span class="hljs-string">&#x27;Production&#x27;</span>
+  <span class="hljs-string">&#x27;Test&#x27;</span>
+])</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">environmentType</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;A unique suffix to add to resource names that need to be globally unique.&#x27;</span>)</span></span>
+<span class="hljs-meta">@<span class="hljs-function">maxLength(<span class="hljs-number">13</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">resourceNameSuffix</span> <span class="hljs-variable">string</span> = <span class="hljs-function">uniqueString(<span class="hljs-function">resourceGroup()</span>.<span class="hljs-variable">id</span>)</span>
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;The administrator login username for the SQL server.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">sqlServerAdministratorLogin</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-meta">@<span class="hljs-function">secure()</span></span>
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;The administrator login password for the SQL server.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">sqlServerAdministratorLoginPassword</span> <span class="hljs-variable">string</span>
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;The tags to apply to each resource.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">param</span></span> <span class="hljs-variable">tags</span> <span class="hljs-variable">object</span> = {
+  <span class="hljs-property">CostCenter</span>: <span class="hljs-string">&#x27;Marketing&#x27;</span>
+  <span class="hljs-property">DataClassification</span>: <span class="hljs-string">&#x27;Public&#x27;</span>
+  <span class="hljs-property">Owner</span>: <span class="hljs-string">&#x27;WebsiteTeam&#x27;</span>
+  <span class="hljs-property">Environment</span>: <span class="hljs-string">&#x27;Production&#x27;</span>
+}
+
+<span class="hljs-comment">// Define the names for resources.</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">appServiceAppName</span> = <span class="hljs-string">&#x27;webSite<span class="hljs-subst">${<span class="hljs-variable">resourceNameSuffix</span>}</span>&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">appServicePlanName</span> = <span class="hljs-string">&#x27;AppServicePLan&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">sqlServerName</span> = <span class="hljs-string">&#x27;sqlserver<span class="hljs-subst">${<span class="hljs-variable">resourceNameSuffix</span>}</span>&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">sqlDatabaseName</span> = <span class="hljs-string">&#x27;ToyCompanyWebsite&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">managedIdentityName</span> = <span class="hljs-string">&#x27;WebSite&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">applicationInsightsName</span> = <span class="hljs-string">&#x27;AppInsights&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">storageAccountName</span> = <span class="hljs-string">&#x27;toywebsite<span class="hljs-subst">${<span class="hljs-variable">resourceNameSuffix</span>}</span>&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">blobContainerNames</span> = [
+  <span class="hljs-string">&#x27;productspecs&#x27;</span>
+  <span class="hljs-string">&#x27;productmanuals&#x27;</span>
+]
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;Define the SKUs for each component based on the environment type.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">environmentConfigurationMap</span> = {
+  <span class="hljs-property">Production</span>: {
+    <span class="hljs-property">appServicePlan</span>: {
+      <span class="hljs-property">sku</span>: {
+        <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;S1&#x27;</span>
+        <span class="hljs-property">capacity</span>: <span class="hljs-number">2</span>
+      }
+    }
+    <span class="hljs-property">storageAccount</span>: {
+      <span class="hljs-property">sku</span>: {
+        <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;Standard_GRS&#x27;</span>
+      }
+    }
+    <span class="hljs-property">sqlDatabase</span>: {
+      <span class="hljs-property">sku</span>: {
+        <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;S1&#x27;</span>
+        <span class="hljs-property">tier</span>: <span class="hljs-string">&#x27;Standard&#x27;</span>
+      }
+    }
+  }
+  <span class="hljs-property">Test</span>: {
+    <span class="hljs-property">appServicePlan</span>: {
+      <span class="hljs-property">sku</span>: {
+        <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;F1&#x27;</span>
+        <span class="hljs-property">capacity</span>: <span class="hljs-number">1</span>
+      }
+    }
+    <span class="hljs-property">storageAccount</span>: {
+      <span class="hljs-property">sku</span>: {
+        <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;Standard_LRS&#x27;</span>
+      }
+    }
+    <span class="hljs-property">sqlDatabase</span>: {
+      <span class="hljs-property">sku</span>: {
+        <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;Basic&#x27;</span>
+      }
+    }
+  }
+}
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;The role definition ID of the built-in Azure \&#x27;Contributor\&#x27; role.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">contributorRoleDefinitionId</span> = <span class="hljs-string">&#x27;b24988ac-6180-42a0-ab88-20f7382dd24c&#x27;</span>
+<span class="hljs-variable"><span class="hljs-keyword">var</span></span> <span class="hljs-variable">storageAccountConnectionString</span> = <span class="hljs-string">&#x27;DefaultEndpointsProtocol=https;AccountName=<span class="hljs-subst">${<span class="hljs-variable">storageAccount</span>.<span class="hljs-variable">name</span>}</span>;EndpointSuffix=<span class="hljs-subst">${<span class="hljs-function">environment()</span>.<span class="hljs-variable">suffixes</span>.<span class="hljs-variable">storage</span>}</span>;AccountKey=<span class="hljs-subst">${<span class="hljs-function">listKeys(<span class="hljs-variable">storageAccount</span>.<span class="hljs-variable">id</span>, <span class="hljs-variable">storageAccount</span>.<span class="hljs-variable">apiVersion</span>)</span>.<span class="hljs-variable">keys</span>[<span class="hljs-number">0</span>].<span class="hljs-variable">value</span>}</span>&#x27;</span>
+
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">sqlServer</span> <span class="hljs-string">&#x27;Microsoft.Sql/servers@2019-06-01-preview&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-variable">sqlServerName</span>
+  <span class="hljs-property">location</span>: <span class="hljs-variable">location</span>
+  <span class="hljs-property">tags</span>: <span class="hljs-variable">tags</span>
+  <span class="hljs-property">properties</span>: {
+    <span class="hljs-property">administratorLogin</span>: <span class="hljs-variable">sqlServerAdministratorLogin</span>
+    <span class="hljs-property">administratorLoginPassword</span>: <span class="hljs-variable">sqlServerAdministratorLoginPassword</span>
+    <span class="hljs-property">version</span>: <span class="hljs-string">&#x27;12.0&#x27;</span>
+  }
+}
+
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">sqlDatabase</span> <span class="hljs-string">&#x27;Microsoft.Sql/servers/databases@2020-08-01-preview&#x27;</span> = {
+  <span class="hljs-property">parent</span>: <span class="hljs-variable">sqlServer</span>
+  <span class="hljs-property">name</span>: <span class="hljs-variable">sqlDatabaseName</span>
+  <span class="hljs-property">location</span>: <span class="hljs-variable">location</span>
+  <span class="hljs-property">sku</span>: <span class="hljs-variable">environmentConfigurationMap</span>[<span class="hljs-variable">environmentType</span>].<span class="hljs-variable">sqlDatabase</span>.<span class="hljs-variable">sku</span>
+  <span class="hljs-property">tags</span>: <span class="hljs-variable">tags</span>
+}
+
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">sqlFirewallRuleAllowAllAzureIPs</span> <span class="hljs-string">&#x27;Microsoft.Sql/servers/firewallRules@2014-04-01&#x27;</span> = {
+  <span class="hljs-property">parent</span>: <span class="hljs-variable">sqlServer</span>
+  <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;AllowAllAzureIPs&#x27;</span>
+  <span class="hljs-property">properties</span>: {
+    <span class="hljs-property">endIpAddress</span>: <span class="hljs-string">&#x27;0.0.0.0&#x27;</span>
+    <span class="hljs-property">startIpAddress</span>: <span class="hljs-string">&#x27;0.0.0.0&#x27;</span>
+  }
+}
+
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">appServicePlan</span> <span class="hljs-string">&#x27;Microsoft.Web/serverfarms@2020-06-01&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-variable">appServicePlanName</span>
+  <span class="hljs-property">location</span>: <span class="hljs-variable">location</span>
+  <span class="hljs-property">sku</span>: <span class="hljs-variable">environmentConfigurationMap</span>[<span class="hljs-variable">environmentType</span>].<span class="hljs-variable">appServicePlan</span>.<span class="hljs-variable">sku</span>
+  <span class="hljs-property">tags</span>: <span class="hljs-variable">tags</span>
+}
+
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">appServiceApp</span> <span class="hljs-string">&#x27;Microsoft.Web/sites@2020-06-01&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-variable">appServiceAppName</span>
+  <span class="hljs-property">location</span>: <span class="hljs-variable">location</span>
+  <span class="hljs-property">tags</span>: <span class="hljs-variable">tags</span>
+  <span class="hljs-property">properties</span>: {
+    <span class="hljs-property">serverFarmId</span>: <span class="hljs-variable">appServicePlan</span>.<span class="hljs-variable">id</span>
+    <span class="hljs-property">siteConfig</span>: {
+      <span class="hljs-property">appSettings</span>: [
+        {
+          <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;APPINSIGHTS_INSTRUMENTATIONKEY&#x27;</span>
+          <span class="hljs-property">value</span>: <span class="hljs-variable">applicationInsights</span>.<span class="hljs-variable">properties</span>.<span class="hljs-variable">InstrumentationKey</span>
+        }
+        {
+          <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;StorageAccountConnectionString&#x27;</span>
+          <span class="hljs-property">value</span>: <span class="hljs-variable">storageAccountConnectionString</span>
+        }
+      ]
+    }
+  }
+  <span class="hljs-property">identity</span>: {
+    <span class="hljs-property">type</span>: <span class="hljs-string">&#x27;UserAssigned&#x27;</span>
+    <span class="hljs-property">userAssignedIdentities</span>: {
+      <span class="hljs-string">&#x27;<span class="hljs-subst">${<span class="hljs-variable">managedIdentity</span>.<span class="hljs-variable">id</span>}</span>&#x27;</span>: {} <span class="hljs-comment">// This format is required when working with user-assigned managed identities.</span>
+    }
+  }
+}
+
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">storageAccount</span> <span class="hljs-string">&#x27;Microsoft.Storage/storageAccounts@2019-06-01&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-variable">storageAccountName</span>
+  <span class="hljs-property">location</span>: <span class="hljs-variable">location</span>
+  <span class="hljs-property">sku</span>: <span class="hljs-variable">environmentConfigurationMap</span>[<span class="hljs-variable">environmentType</span>].<span class="hljs-variable">storageAccount</span>.<span class="hljs-variable">sku</span>
+  <span class="hljs-property">kind</span>: <span class="hljs-string">&#x27;StorageV2&#x27;</span>
+  <span class="hljs-property">properties</span>: {
+    <span class="hljs-property">accessTier</span>: <span class="hljs-string">&#x27;Hot&#x27;</span>
+  }
+
+  <span class="hljs-property">resource</span> <span class="hljs-property">blobServices</span> <span class="hljs-string">&#x27;blobServices&#x27;</span> <span class="hljs-property">existing</span> = {
+    <span class="hljs-property">name</span>: <span class="hljs-string">&#x27;default&#x27;</span>
+
+    <span class="hljs-property">resource</span> <span class="hljs-property">containers</span> <span class="hljs-string">&#x27;containers&#x27;</span> = [<span class="hljs-property">for</span> <span class="hljs-property">blobContainerName</span> <span class="hljs-property">in</span> <span class="hljs-property">blobContainerNames</span>: {
+      <span class="hljs-property">name</span>: <span class="hljs-variable">blobContainerName</span>
+    }]
+  }
+}
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;A user-assigned managed identity that is used by the App Service app to communicate with a storage account.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">managedIdentity</span> <span class="hljs-string">&#x27;Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-variable">managedIdentityName</span>
+  <span class="hljs-property">location</span>: <span class="hljs-variable">location</span>
+  <span class="hljs-property">tags</span>: <span class="hljs-variable">tags</span>
+}
+
+<span class="hljs-meta">@<span class="hljs-function">description(<span class="hljs-string">&#x27;Grant the \&#x27;Contributor\&#x27; role to the user-assigned managed identity, at the scope of the resource group.&#x27;</span>)</span></span>
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">roleAssignment</span> <span class="hljs-string">&#x27;Microsoft.Authorization/roleAssignments@2020-04-01-preview&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-function">guid(<span class="hljs-variable">contributorRoleDefinitionId</span>, <span class="hljs-function">resourceGroup()</span>.<span class="hljs-variable">id</span>)</span> <span class="hljs-comment">// Create a GUID based on the role definition ID and scope (resource group ID). This will return the same GUID every time the template is deployed to the same resource group.</span>
+  <span class="hljs-property">properties</span>: {
+    <span class="hljs-property">principalType</span>: <span class="hljs-string">&#x27;ServicePrincipal&#x27;</span>
+    <span class="hljs-property">roleDefinitionId</span>: <span class="hljs-function">subscriptionResourceId(<span class="hljs-string">&#x27;Microsoft.Authorization/roleDefinitions&#x27;</span>, <span class="hljs-variable">contributorRoleDefinitionId</span>)</span>
+    <span class="hljs-property">principalId</span>: <span class="hljs-variable">managedIdentity</span>.<span class="hljs-variable">properties</span>.<span class="hljs-variable">principalId</span>
+    <span class="hljs-property">description</span>: <span class="hljs-string">&#x27;Grant the &quot;Contributor&quot; role to the user-assigned managed identity so it can access the storage account.&#x27;</span>
+  }
+}
+
+<span class="hljs-variable"><span class="hljs-keyword">resource</span></span> <span class="hljs-variable">applicationInsights</span> <span class="hljs-string">&#x27;Microsoft.Insights/components@2018-05-01-preview&#x27;</span> = {
+  <span class="hljs-property">name</span>: <span class="hljs-variable">applicationInsightsName</span>
+  <span class="hljs-property">location</span>: <span class="hljs-variable">location</span>
+  <span class="hljs-property">kind</span>: <span class="hljs-string">&#x27;web&#x27;</span>
+  <span class="hljs-property">tags</span>: <span class="hljs-variable">tags</span>
+  <span class="hljs-property">properties</span>: {
+    <span class="hljs-property">Application_Type</span>: <span class="hljs-string">&#x27;web&#x27;</span>
+  }
+}
+
+    </pre>
+  </body>
+</html>

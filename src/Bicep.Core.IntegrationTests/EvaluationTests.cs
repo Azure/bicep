@@ -258,5 +258,60 @@ output abcVal string = testRes.properties.abc
                 evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
             }
         }
+
+        [TestMethod]
+        public void Items_function_evaluation_works()
+        {
+            var (template, _, _) = CompilationHelper.Compile(@"
+param inputObj object
+
+output inputObjKeys array = [for item in items(inputObj): item.key]
+output inputObjValues array = [for item in items(inputObj): item.value]
+");
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
+                    Parameters = new()
+                    {
+                        ["inputObj"] = new JObject
+                        {
+                            ["ghiKey"] = "ghiValue",
+                            ["defKey"] = "defValue",
+                            ["abcKey"] = "abcValue",
+                            ["123Key"] = "123Value",
+                            ["GHIKey"] = "GHIValue",
+                            ["DEFKey"] = "DEFValue",
+                            ["ABCKey"] = "ABCValue",
+                            ["456Key"] = "456Value",
+                        }
+                    }
+                });
+
+                evaluated.Should().HaveValueAtPath("$.outputs['inputObjKeys'].value", new JArray
+                {
+                    "123Key",
+                    "456Key",
+                    "abcKey",
+                    "ABCKey",
+                    "defKey",
+                    "DEFKey",
+                    "ghiKey",
+                    "GHIKey",
+                });
+
+                evaluated.Should().HaveValueAtPath("$.outputs['inputObjValues'].value", new JArray
+                {
+                    "123Value",
+                    "456Value",
+                    "abcValue",
+                    "ABCValue",
+                    "defValue",
+                    "DEFValue",
+                    "ghiValue",
+                    "GHIValue",
+                });
+            }
+        }
     }
 }

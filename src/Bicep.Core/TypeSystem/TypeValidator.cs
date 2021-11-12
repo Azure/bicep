@@ -214,7 +214,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         var narrowedBody = NarrowType(config, expression, targetResourceType.Body.Type);
 
-                        return new ResourceType(targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
+                        return new ResourceType(targetResourceType.DeclaringNamespace, targetResourceType.TypeReference, targetResourceType.ValidParentScopes, narrowedBody);
                     }
                 case ModuleType targetModuleType:
                     {
@@ -288,7 +288,7 @@ namespace Bicep.Core.TypeSystem
             {
                 // we need to narrow each union member so diagnostics get collected correctly
                 // until we get union type simplification logic, this could generate duplicate diagnostics
-                return UnionType.Create(targetUnionType.Members
+                return TypeHelper.CreateTypeUnion(targetUnionType.Members
                     .Where(x => AreTypesAssignable(expressionType, x.Type))
                     .Select(x => NarrowType(config, expression, x.Type)));
             }
@@ -321,7 +321,7 @@ namespace Bicep.Core.TypeSystem
                 arrayProperties.Add(narrowedType);
             }
 
-            return new TypedArrayType(UnionType.Create(arrayProperties), targetType.ValidationFlags);
+            return new TypedArrayType(TypeHelper.CreateTypeUnion(arrayProperties), targetType.ValidationFlags);
         }
 
         private TypeSymbol NarrowVariableAccessType(TypeValidatorConfig config, VariableAccessSyntax variableAccess, TypeSymbol targetType)
@@ -381,7 +381,7 @@ namespace Bicep.Core.TypeSystem
             // Let's not do this just yet, and see if a use-case arises.
 
             var discriminatorType = typeManager.GetTypeInfo(discriminatorProperty.Value);
-            switch(discriminatorType)
+            switch (discriminatorType)
             {
                 case AnyType:
                     return LanguageConstants.Any;
@@ -401,8 +401,8 @@ namespace Bicep.Core.TypeSystem
 
                                 if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(stringLiteralDiscriminator.Name, discriminatorCandidates) is { } suggestion)
                                 {
-                            // only look up suggestions if we're not sourcing this type from another declaration.
-                            return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
+                                    // only look up suggestions if we're not sourcing this type from another declaration.
+                                    return x.PropertyStringLiteralMismatchWithSuggestion(shouldWarn, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, stringLiteralDiscriminator.Name, suggestion);
                                 }
 
                                 return x.PropertyTypeMismatch(shouldWarn, sourceDeclaration, targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType);
@@ -419,9 +419,17 @@ namespace Bicep.Core.TypeSystem
                     // we have a match!
                     return NarrowObjectType(config, expression, selectedObjectType);
 
+                // ReSharper disable once ConvertTypeCheckPatternToNullCheck - using null pattern check causes compiler to think that discriminatorType might be null in the default clause.
+                case TypeSymbol when AreTypesAssignable(discriminatorType, targetType.DiscriminatorKeysUnionType):
+                    //check if discriminatorType is a subset of targetType.DiscriminatorKeysUnionType.
+                    //If match - then warn with message that using property is not recommended and type validation is suspended and return generic object type
+                    diagnosticWriter.Write(discriminatorProperty.Value, x => x.AmbiguousDiscriminatorPropertyValue(targetType.DiscriminatorKey));
+                    //TODO: make a deep merge of the discriminator types to return combined object for type checking. Additionally, we need to cover hints.
+                    return LanguageConstants.Any;
+
                 default:
                     diagnosticWriter.Write(
-                        config.OriginSyntax ?? expression,
+                        config.OriginSyntax ?? discriminatorProperty.Value,
                         x => x.PropertyTypeMismatch(ShouldWarn(targetType), TryGetSourceDeclaration(config), targetType.DiscriminatorKey, targetType.DiscriminatorKeysUnionType, discriminatorType));
                     return LanguageConstants.Any;
             }
@@ -432,14 +440,14 @@ namespace Bicep.Core.TypeSystem
             static (TypeSymbol type, bool typeWasPreserved) AddImplicitNull(TypeSymbol propertyType, TypePropertyFlags propertyFlags)
             {
                 bool preserveType = propertyFlags.HasFlag(TypePropertyFlags.Required) || !propertyFlags.HasFlag(TypePropertyFlags.AllowImplicitNull);
-                return (preserveType ? propertyType : UnionType.Create(propertyType, LanguageConstants.Null), preserveType);
+                return (preserveType ? propertyType : TypeHelper.CreateTypeUnion(propertyType, LanguageConstants.Null), preserveType);
             }
 
             static TypeSymbol RemoveImplicitNull(TypeSymbol type, bool typeWasPreserved)
             {
                 return typeWasPreserved || type is not UnionType unionType
                     ? type
-                    : UnionType.Create(unionType.Members.Where(m => m != LanguageConstants.Null));
+                    : TypeHelper.CreateTypeUnion(unionType.Members.Where(m => m != LanguageConstants.Null));
             }
 
             // TODO: Short-circuit on any object to avoid unnecessary processing?
@@ -557,8 +565,8 @@ namespace Bicep.Core.TypeSystem
 
                         if (sourceDeclaration is null && SpellChecker.GetSpellingSuggestion(keyName, validUnspecifiedProperties) is { } suggestedKeyName)
                         {
-                                // only look up suggestions if we're not sourcing this type from another declaration.
-                                return x.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName);
+                            // only look up suggestions if we're not sourcing this type from another declaration.
+                            return x.DisallowedPropertyWithSuggestion(shouldWarn, keyName, targetType, suggestedKeyName);
                         }
 
                         return x.DisallowedProperty(shouldWarn, sourceDeclaration, keyName, targetType, validUnspecifiedProperties, config.IsResourceDeclaration);

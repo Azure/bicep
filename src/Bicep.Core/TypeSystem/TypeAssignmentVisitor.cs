@@ -242,12 +242,15 @@ namespace Bicep.Core.TypeSystem
                     return singleDeclaredType;
                 }
 
-                if (singleDeclaredType is ResourceType resourceType && !binder.NamespaceResolver.HasResourceType(resourceType.TypeReference))
+                if (singleDeclaredType is ResourceType resourceType && 
+                    !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
-                    var typeSegments = resourceType.TypeReference.Types;
+                    // TODO move into Az extension
+                    var typeSegments = resourceType.TypeReference.TypeSegments;
 
-                    if (typeSegments.Length > 2 &&
-                        typeSegments.Where((type, i) => i > 0 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
+                    if (resourceType.DeclaringNamespace.ProviderName == AzNamespaceType.BuiltInName &&
+                        typeSegments.Length > 2 &&
+                        typeSegments.Where((type, i) => i > 1 && i < (typeSegments.Length - 1) && StringComparer.OrdinalIgnoreCase.Equals(type, "providers")).Any())
                     {
                         // Special check for (<type>/)+providers(/<type>)+
                         // This indicates someone is trying to deploy an extension resource without using the 'scope' property.
@@ -369,7 +372,8 @@ namespace Bicep.Core.TypeSystem
                 }
                 else
                 {
-                    if (namespaceType.ConfigurationType is not null)
+                    if (namespaceType.ConfigurationType is not null &&
+                        namespaceType.ConfigurationType.Properties.Values.Any(x => x.Flags.HasFlag(TypePropertyFlags.Required)))
                     {
                         diagnostics.Write(syntax, x => x.ImportProviderRequiresConfiguration(namespaceType.ProviderName));
                     }
@@ -548,7 +552,7 @@ namespace Bicep.Core.TypeSystem
                     .GroupByExcludingNull(p => p.TryGetKeyText(), LanguageConstants.IdentifierComparer)
                     .Select(group =>
                     {
-                        var resolvedType = UnionType.Create(group.Select(p => typeManager.GetTypeInfo(p)));
+                        var resolvedType = TypeHelper.CreateTypeUnion(group.Select(p => typeManager.GetTypeInfo(p)));
 
                         if (declaredType is ObjectType objectType && objectType.Properties.TryGetValue(group.Key, out var property))
                         {
@@ -566,7 +570,7 @@ namespace Bicep.Core.TypeSystem
                     .Where(p => p.TryGetKeyText() is null)
                     .Select(p => typeManager.GetTypeInfo(p));
 
-                var additionalPropertiesType = additionalProperties.Any() ? UnionType.Create(additionalProperties) : null;
+                var additionalPropertiesType = additionalProperties.Any() ? TypeHelper.CreateTypeUnion(additionalProperties) : null;
 
                 // TODO: Add structural naming?
                 return new ObjectType(LanguageConstants.Object.Name, TypeSymbolValidationFlags.Default, namedProperties, additionalPropertiesType);
@@ -624,15 +628,12 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                var aggregatedItemType = UnionType.Create(itemTypes);
-                if (aggregatedItemType.TypeKind == TypeKind.Union || aggregatedItemType.TypeKind == TypeKind.Never || aggregatedItemType.TypeKind == TypeKind.Any)
+                if (TypeHelper.TryCollapseTypes(itemTypes) is not {} collapsedItemType)
                 {
-                    // array contains a mix of item types or is empty
-                    // assume array of any for now
                     return LanguageConstants.Array;
                 }
 
-                return new TypedArrayType(aggregatedItemType, TypeSymbolValidationFlags.Default);
+                return new TypedArrayType(collapsedItemType, TypeSymbolValidationFlags.Default);
             });
 
         public override void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax)
@@ -662,7 +663,7 @@ namespace Bicep.Core.TypeSystem
                 }
 
                 // the return type is the union of true and false expression types
-                return UnionType.Create(trueType, falseType);
+                return TypeHelper.CreateTypeUnion(trueType, falseType);
             });
 
         public override void VisitBinaryOperationSyntax(BinaryOperationSyntax syntax)
@@ -690,9 +691,17 @@ namespace Bicep.Core.TypeSystem
                     return operatorInfo.ReturnType;
                 }
 
+                string? additionalInfo = null;
+                if (TypeValidator.AreTypesAssignable(operandType1, LanguageConstants.String) &&
+                    TypeValidator.AreTypesAssignable(operandType2, LanguageConstants.String) &&
+                    syntax.Operator is BinaryOperator.Add)
+                {
+                    additionalInfo = DiagnosticBuilder.UseStringInterpolationInsteadClause;
+                }
+                
                 // we do not have a match
                 // operand types didn't match available operators
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2, additionalInfo: additionalInfo));
             });
 
         public override void VisitUnaryOperationSyntax(UnaryOperationSyntax syntax)
@@ -842,7 +851,7 @@ namespace Bicep.Core.TypeSystem
                         }
 
                         // all of the union members are assignable - create the resulting item type
-                        return UnionType.Create(arrayItemTypes);
+                        return TypeHelper.CreateTypeUnion(arrayItemTypes);
                     }
 
                 default:

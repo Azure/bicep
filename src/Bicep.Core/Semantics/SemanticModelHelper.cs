@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -34,6 +35,23 @@ namespace Bicep.Core.Semantics
                 return LanguageConstants.IdentifierComparer.Equals(namespaceType.ProviderName, @namespace) &&
                     LanguageConstants.IdentifierComparer.Equals(functionSymbol.Name, decoratorName);
             });
+        }
+
+        public static string? TryGetDescription(SemanticModel semanticModel, StatementSyntax statement)
+        {
+            var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(semanticModel,
+                statement,
+                SystemNamespaceType.BuiltInName,
+                LanguageConstants.MetadataDescriptionPropertyName);
+
+            if (decorator is not null &&
+                decorator.Arguments.FirstOrDefault()?.Expression is StringSyntax stringSyntax
+                && stringSyntax.TryGetLiteralValue() is string description)
+            {
+                return description;
+            }
+
+            return null;
         }
     }
 }

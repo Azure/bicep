@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Threading.Tasks;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
@@ -23,9 +24,10 @@ namespace Bicep.Core.Registry
 
         public override string Scheme => ModuleReferenceSchemes.Local;
 
-        public override RegistryCapabilities Capabilities => RegistryCapabilities.Default;
+        public override RegistryCapabilities GetCapabilities(LocalModuleReference reference) => RegistryCapabilities.Default;
 
-        public override ModuleReference? TryParseModuleReference(string reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) => LocalModuleReference.TryParse(reference, out failureBuilder);
+        public override ModuleReference? TryParseModuleReference(string? alias, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
+            LocalModuleReference.TryParse(reference, out failureBuilder);
 
         public override Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, LocalModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
@@ -41,7 +43,7 @@ namespace Bicep.Core.Registry
             return null;
         }
 
-        public override Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(IEnumerable<LocalModuleReference> references)
+        public override Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<LocalModuleReference> references)
         {
             // local modules are already present on the file system
             // and do not require init
@@ -50,6 +52,6 @@ namespace Bicep.Core.Registry
 
         public override bool IsModuleRestoreRequired(LocalModuleReference reference) => false;
 
-        public override Task PublishModule(LocalModuleReference moduleReference, Stream compiled) => throw new NotSupportedException("Local modules cannot be published.");
+        public override Task PublishModule(RootConfiguration configuration, LocalModuleReference moduleReference, Stream compiled) => throw new NotSupportedException("Local modules cannot be published.");
     }
 }

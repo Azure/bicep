@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Security.Cryptography;
-using System.Xml.Linq;
 using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
@@ -15,7 +13,6 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -43,7 +40,7 @@ namespace Bicep.Core.IntegrationTests
             {
                 const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
                 return new string(Enumerable.Repeat(chars, generateRandomInt())
-                  .Select(s => s[generateRandomInt(0, s.Length-1)]).ToArray());
+                  .Select(s => s[generateRandomInt(0, s.Length - 1)]).ToArray());
             }
 
             var file = "param adminuser string\nvar adminstring = 'xyx ${adminuser} 123'\n";
@@ -1076,193 +1073,6 @@ resource eventGridSubscription 'Microsoft.EventGrid/eventSubscriptions@2020-06-0
         }
 
         [TestMethod]
-        // https://github.com/azure/bicep/issues/657
-        public void Test_Issue657_discriminators()
-        {
-            var customTypes = new[] {
-                new ResourceType(
-                    ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
-                    ResourceScope.ResourceGroup,
-                    TestTypeHelper.CreateObjectType(
-                        "Rp.A/parent@2020-10-01",
-                        ("name", LanguageConstants.String))),
-                new ResourceType(
-                    ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
-                    ResourceScope.ResourceGroup,
-                    TestTypeHelper.CreateDiscriminatedObjectType(
-                        "Rp.A/parent/child@2020-10-01",
-                        "name",
-                        TestTypeHelper.CreateObjectType(
-                            "Val1Type",
-                            ("name", new StringLiteralType("val1")),
-                            ("properties", TestTypeHelper.CreateObjectType(
-                                "properties",
-                                ("onlyOnVal1", LanguageConstants.Bool)))),
-                        TestTypeHelper.CreateObjectType(
-                            "Val2Type",
-                            ("name", new StringLiteralType("val2")),
-                            ("properties", TestTypeHelper.CreateObjectType(
-                                "properties",
-                                ("onlyOnVal2", LanguageConstants.Bool)))))),
-            };
-
-            var result = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
-                ("main.bicep", @"
-resource test 'Rp.A/parent@2020-10-01' = {
-  name: 'test'
-}
-
-// top-level resource
-resource test2 'Rp.A/parent/child@2020-10-01' = {
-  name: 'test/test2'
-  properties: {
-    anythingGoesHere: true
-  }
-}
-
-// 'existing' top-level resource
-resource test3 'Rp.A/parent/child@2020-10-01' existing = {
-  name: 'test/test3'
-}
-
-// parent-property child resource
-resource test4 'Rp.A/parent/child@2020-10-01' = {
-  parent: test
-  name: 'val1'
-  properties: {
-    onlyOnVal1: true
-  }
-}
-
-// 'existing' parent-property child resource
-resource test5 'Rp.A/parent/child@2020-10-01' existing = {
-  parent: test
-  name: 'val2'
-}
-"));
-
-            result.Should().NotHaveAnyDiagnostics();
-
-            var failedResult = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
-                ("main.bicep", @"
-resource test 'Rp.A/parent@2020-10-01' = {
-  name: 'test'
-}
-
-// parent-property child resource
-resource test4 'Rp.A/parent/child@2020-10-01' = {
-  parent: test
-  name: 'notAValidVal'
-  properties: {
-    onlyOnEnum: true
-  }
-}
-
-// 'existing' parent-property child resource
-resource test5 'Rp.A/parent/child@2020-10-01' existing = {
-  parent: test
-  name: 'notAValidVal'
-}
-"));
-
-            failedResult.Should().HaveDiagnostics(new[] {
-                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
-            });
-        }
-
-        [TestMethod]
-        // https://github.com/azure/bicep/issues/657
-        public void Test_Issue657_enum()
-        {
-            var customTypes = new[] {
-                new ResourceType(
-                    ResourceTypeReference.Parse("Rp.A/parent@2020-10-01"),
-                    ResourceScope.ResourceGroup,
-                    TestTypeHelper.CreateObjectType(
-                        "Rp.A/parent@2020-10-01",
-                        ("name", LanguageConstants.String))),
-                new ResourceType(
-                    ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
-                    ResourceScope.ResourceGroup,
-                    TestTypeHelper.CreateObjectType(
-                        "Rp.A/parent/child@2020-10-01",
-                        ("name", UnionType.Create(new StringLiteralType("val1"), new StringLiteralType("val2"))),
-                            ("properties", TestTypeHelper.CreateObjectType(
-                                "properties",
-                                ("onlyOnEnum", LanguageConstants.Bool))))),
-            };
-
-            var result = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
-                ("main.bicep", @"
-resource test 'Rp.A/parent@2020-10-01' = {
-  name: 'test'
-}
-
-// top-level resource
-resource test2 'Rp.A/parent/child@2020-10-01' = {
-  name: 'test/test2'
-  properties: {
-    onlyOnEnum: true
-  }
-}
-
-// 'existing' top-level resource
-resource test3 'Rp.A/parent/child@2020-10-01' existing = {
-  name: 'test/test3'
-}
-
-// parent-property child resource
-resource test4 'Rp.A/parent/child@2020-10-01' = {
-  parent: test
-  name: 'val1'
-  properties: {
-    onlyOnEnum: true
-  }
-}
-
-// 'existing' parent-property child resource
-resource test5 'Rp.A/parent/child@2020-10-01' existing = {
-  parent: test
-  name: 'val2'
-}
-"));
-
-            result.Should().NotHaveAnyDiagnostics();
-
-            var failedResult = CompilationHelper.Compile(
-                TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
-                ("main.bicep", @"
-resource test 'Rp.A/parent@2020-10-01' = {
-  name: 'test'
-}
-
-// parent-property child resource
-resource test4 'Rp.A/parent/child@2020-10-01' = {
-  parent: test
-  name: 'notAValidVal'
-  properties: {
-    onlyOnEnum: true
-  }
-}
-
-// 'existing' parent-property child resource
-resource test5 'Rp.A/parent/child@2020-10-01' existing = {
-  parent: test
-  name: 'notAValidVal'
-}
-"));
-
-            failedResult.Should().HaveDiagnostics(new[] {
-                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
-                ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
-            });
-        }
-
-        [TestMethod]
         // https://github.com/azure/bicep/issues/1985
         public void Test_Issue1985()
         {
@@ -1288,7 +1098,7 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-prev
 
             result.Should().NotGenerateATemplate();
             result.Should().HaveDiagnostics(new[] {
-                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<provider>/<types>@<apiVersion>\"."),
+                ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"aksDefaultPoolSubnet\" is not valid."),
                 ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"aksDefaultPoolSubnet\" is not valid."),
                 ("BCP057", DiagnosticLevel.Error, "The name \"aksServicePrincipalObjectId\" does not exist in the current context."),
@@ -1652,6 +1462,32 @@ resource vmNotWorking 'Microsoft.Compute/virtualMachines@2020-06-01' = {
         }
 
         [TestMethod]
+        // https://github.com/azure/bicep/issues/2535
+        public void Test_Issue2535()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+resource mg 'Microsoft.Management/managementGroups@2020-05-01' = {
+  name: 'MyChildMG'
+  scope: tenant()
+  properties: {
+    displayName: 'This should be a child of MyParentMG'
+    details: {
+      parent: managementGroup()
+    }
+  }
+}
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[0].properties.details.parent", "[managementGroup()]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.resources[0].properties.details.parent.id", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f");
+        }
+
+        [TestMethod]
         // https://github.com/azure/bicep/issues/1988
         public void Test_Issue1988()
         {
@@ -1928,40 +1764,6 @@ resource rg3 'Microsoft.Resources/resourceGroups@2020-10-01' = if (rg2[0].tags.f
                 ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. You are referencing a variable which cannot be calculated at the start (\"test\" -> \"rg\"). Properties of rg which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP177", DiagnosticLevel.Error, "This expression is being used in the if-condition expression, which requires a value that can be calculated at the start of the deployment. Properties of rg2 which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\".")
             });
-        }
-
-        [TestMethod]
-        // https://github.com/Azure/bicep/issues/2262
-        public void Test_Issue2262()
-        {
-            // Wrong discriminated key: PartitionScheme.
-            var result = CompilationHelper.Compile(@"
-resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12-01-preview' = {
-  name: 'myCluster/myApp/myService'
-  properties: {
-    serviceKind: 'Stateful'
-    partitionDescription: {
-      PartitionScheme: 'Named'
-      names: [
-        'foo'
-      ]
-      count: 1
-    }
-  }
-}
-");
-
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP078", DiagnosticLevel.Warning, "The property \"partitionScheme\" requires a value of type \"'Named' | 'Singleton' | 'UniformInt64Range'\", but none was supplied."),
-                ("BCP089", DiagnosticLevel.Warning, "The property \"PartitionScheme\" is not allowed on objects of type \"'Named' | 'Singleton' | 'UniformInt64Range'\". Did you mean \"partitionScheme\"?"),
-            });
-
-            var diagnosticWithCodeFix = result.Diagnostics.OfType<FixableDiagnostic>().Single();
-            var codeFix = diagnosticWithCodeFix.Fixes.Single();
-            var codeReplacement = codeFix.Replacements.Single();
-
-            codeReplacement.Span.Should().Be(new TextSpan(212, 15));
-            codeReplacement.Text.Should().Be("partitionScheme");
         }
 
         [TestMethod]
@@ -2590,7 +2392,7 @@ output test string = res.id
                 ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Network/virtualNetworks\" but the provided value is of type \"tenant\"."),
             });
         }
-        
+
         // https://github.com/Azure/bicep/issues/4542
         [TestMethod]
         public void Test_Issue4542()
@@ -2722,6 +2524,259 @@ output test string = '${port}'
 
             var evaluated = TemplateEvaluator.Evaluate(result.Template);
             evaluated.Should().HaveValueAtPath("$.outputs['test'].value", "1234", "the evaluated output should be of type string");
+        }
+
+        // https://github.com/Azure/bicep/issues/1228
+        [TestMethod]
+        public void Test_Issue1228()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'managementGroup'
+
+resource policy01 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
+  name: 'Allowed locations'
+  properties: {
+    policyType: 'Custom'
+    mode: 'All'
+    policyRule: {
+      if: {
+         field: 'location'
+         notIn: [
+           'westeurope'
+        ]
+      }
+      then: {
+         effect: 'Deny'
+      }
+   }
+  }
+}
+
+resource initiative 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {
+  name: 'Default initiative'
+  properties: {
+    policyDefinitions: [
+      {
+        policyDefinitionId: policy01.id
+//        policyDefinitionId: '/providers/Microsoft.Management/managementGroups/MYMANAGEMENTGROUP/providers/${policy01.id}'
+      }
+    ]
+  }
+}
+");
+
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', 'Allowed locations')]");
+
+            var evaluated = TemplateEvaluator.Evaluate(result.Template);
+            evaluated.Should().HaveValueAtPath("$.resources[?(@.name == 'Default initiative')].properties.policyDefinitions[0].policyDefinitionId", "/providers/Microsoft.Management/managementGroups/3fc9f36e-8699-43af-b038-1c103980942f/providers/Microsoft.Authorization/policyDefinitions/Allowed locations");
+        }
+
+        // https://github.com/Azure/bicep/issues/4955
+        [TestMethod]
+        public void Test_Issue4955()
+        {
+            // missing new line at the start and end of the array
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': ['hi']
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                // diagnostics for both the start and end of the array missing new lines
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the start of the array
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': ['hi'
+    ]
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the end of the array
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': [
+      'hi']
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+        }
+
+        // https://github.com/Azure/bicep/issues/4955
+        [TestMethod]
+        public void Test_Issue4955_objects()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': {foo: 'bar'}
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                // diagnostics for both the start and end of the object missing new lines
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the start of the object
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': {foo: 'bar'
+    }
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+
+            // missing new line at the end of the object
+            result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource myRg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
+  name: 'asdf'
+  location: 'asdf'
+  tags: {
+    'abc': {
+      foo: 'bar'}
+  }
+}
+
+var otherExp = noValidation
+");
+
+            result.Template.Should().NotHaveValue();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP019", DiagnosticLevel.Error, "Expected a new line character at this location."),
+                // Ensure we see these two diagnostics as it means that parsing the rest of the document has succeeded
+                ("no-unused-vars", DiagnosticLevel.Warning, "Variable \"otherExp\" is declared but never used."),
+                ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
+            });
+        }
+
+        // https://github.com/Azure/bicep/issues/4850
+        [TestMethod]
+        public void Test_Issue4850()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: 'foo'
+  resource eventHubConnectionString 'secrets' existing = {
+    name: 'eh-connectionstring'
+  }
+}
+
+resource ehConn 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' existing = {
+  parent: keyVault
+  name: 'eh-connectionstring'
+}
+
+var settings = [
+  {
+    name: 'ThisFails'
+    value: '@Microsoft.KeyVault(SecretUri=${keyVault::eventHubConnectionString.properties.secretUriWithVersion})'
+  }
+]");
+
+            result.Template.Should().NotHaveValueAtPath("$.variables");
+            result.Should().OnlyContainDiagnostic("no-unused-vars", DiagnosticLevel.Warning, "Variable \"settings\" is declared but never used.");
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3934
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue3934()
+        {
+            var result = CompilationHelper.Compile(@"
+param paramString string
+
+output out1 string = paramString + resourceGroup().location
+output out2 string = paramString + 'world'
+output out3 string = paramString + paramString
+output out4 string = 'hello' + 'world'
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"string\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"'world'\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"string\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"'hello'\" and \"'world'\". Use string interpolation instead.")
+            });
         }
     }
 }

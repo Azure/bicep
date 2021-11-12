@@ -67,17 +67,86 @@ import stg from storage {
   connectionString: 'asdf'
 }
 
-resource container 'AzureStorage/containers@2020-01-01' = {
+resource container 'container' = {
   name: 'myblob'
 }
 
-resource blob 'AzureStorage/blobs@2020-01-01' = {
+resource blob 'blob' = {
   name: 'myblob'
   containerName: container.name
   base64Content: base64('sadfasdfd')
 }
 ");
             result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Storage_import_basic_test_with_qualified_type()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import stg from storage {
+  connectionString: 'asdf'
+}
+
+resource container 'stg:container' = {
+  name: 'myblob'
+}
+
+resource blob 'stg:blob' = {
+  name: 'myblob'
+  containerName: container.name
+  base64Content: base64('sadfasdfd')
+}
+");
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Invalid_namespace_qualifier_returns_error()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import stg from storage {
+  connectionString: 'asdf'
+}
+
+resource container 'foo:container' = {
+  name: 'myblob'
+}
+
+resource blob 'bar:blob' = {
+  name: 'myblob'
+  containerName: container.name
+  base64Content: base64('sadfasdfd')
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP208", DiagnosticLevel.Error, "The specified namespace \"foo\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
+                ("BCP208", DiagnosticLevel.Error, "The specified namespace \"bar\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
+            });
+        }
+
+        [TestMethod]
+        public void Child_resource_with_parent_namespace_mismatch_returns_error()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import stg from storage {
+  connectionString: 'asdf'
+}
+
+resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
+  name: 'stgParent'
+
+  resource container 'stg:container' = {
+    name: 'myblob'
+  }
+}
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
+                ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
+            });
         }
 
         [TestMethod]
@@ -113,11 +182,11 @@ import stg from storage {
   connectionString: connectionString
 }
 
-resource container 'AzureStorage/containers@2020-01-01' = {
+resource container 'container' = {
   name: 'bicep'
 }
 
-resource blob 'AzureStorage/blobs@2020-01-01' = {
+resource blob 'blob' = {
   name: 'blob.txt'
   containerName: container.name
   base64Content: base64(loadTextContent('blob.txt'))
@@ -136,7 +205,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""16492559867717304205""
+      ""templateHash"": ""9158779975087827920""
     }
   },
   ""parameters"": {
@@ -179,7 +248,7 @@ Hello from Bicep!"));
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""9407188780587710254""
+              ""templateHash"": ""16326706520666172134""
             }
           },
           ""parameters"": {
@@ -199,16 +268,20 @@ Hello from Bicep!"));
           },
           ""resources"": {
             ""container"": {
-              ""type"": ""AzureStorage/containers"",
-              ""apiVersion"": ""2020-01-01"",
-              ""name"": ""bicep""
+              ""import"": ""stg"",
+              ""type"": ""container"",
+              ""properties"": {
+                ""name"": ""bicep""
+              }
             },
             ""blob"": {
-              ""type"": ""AzureStorage/blobs"",
-              ""apiVersion"": ""2020-01-01"",
-              ""name"": ""blob.txt"",
-              ""containerName"": ""[resourceInfo('container').name]"",
-              ""base64Content"": ""[base64('\nHello from Bicep!')]"",
+              ""import"": ""stg"",
+              ""type"": ""blob"",
+              ""properties"": {
+                ""name"": ""blob.txt"",
+                ""containerName"": ""[reference('container').name]"",
+                ""base64Content"": ""[base64('\nHello from Bicep!')]""
+              },
               ""dependsOn"": [
                 ""container""
               ]

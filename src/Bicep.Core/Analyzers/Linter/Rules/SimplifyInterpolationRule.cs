@@ -7,6 +7,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -19,7 +20,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public SimplifyInterpolationRule() : base(
             code: Code,
             description: CoreResources.SimplifyInterpolationRuleDescription,
-            docUri: new System.Uri("https://aka.ms/bicep/linter/simplify-interpolation"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
@@ -73,10 +74,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private VariableAccessSyntax? AddCodeFixIfSingleInterpolatedString(SyntaxBase valueSyntax)
             {
+                // We're looking for code with this pattern:
+                //
+                // resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                //   name: '${AutomationAccountName}'   <<= a string literal with a single interpolated value
+
                 if (valueSyntax is StringSyntax strSyntax
                     && strSyntax.Expressions.Length == 1
                     && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
-                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // AariableAccessSyntax applies to params and vars
+                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // VariableAccessSyntax applies to params and vars and modules
                 {
                     // We only want to trigger if the var or param is of type string (because interpolation
                     // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')
@@ -92,7 +98,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private void AddCodeFix(TextSpan span, string name)
             {
                 var codeReplacement = new CodeReplacement(span, name);
-                var fix = new CodeFix($"Remove unnecessary string interpolation", true, codeReplacement); // TODO: localize
+                var fix = new CodeFix(CoreResources.SimplifyInterpolationFixTitle, true, codeReplacement);
                 spanFixes[span] = fix;
             }
 

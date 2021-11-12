@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Web;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Emit;
@@ -201,22 +202,22 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is SyntaxBase &&
                 model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(context.EnclosingDeclaration) is ResourceDeclarationSyntax parentSyntax &&
                 model.GetSymbolInfo(parentSyntax) is ResourceSymbol parentSymbol &&
-                parentSymbol.TryGetResourceTypeReference() is ResourceTypeReference parentTypeReference)
+                parentSymbol.TryGetResourceType() is {} parentResourceType)
             {
                 // This is more complex because we allow the API version to be omitted, so we want to make a list of unique values
                 // for the FQT, and then create a "no version" completion + a completion for each version.
-                var filtered = model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                    .Where(rt => parentTypeReference.IsParentOf(rt))
-                    .ToLookup(rt => rt.FullyQualifiedType);
+                var filtered = parentResourceType.DeclaringNamespace.ResourceTypeProvider.GetAvailableTypes()
+                    .Where(rt => parentResourceType.TypeReference.IsParentOf(rt))
+                    .ToLookup(rt => rt.FormatType());
 
                 var index = 0;
                 var items = new List<CompletionItem>();
                 foreach (var group in filtered.OrderBy(group => group.Key, StringComparer.OrdinalIgnoreCase))
                 {
                     // Doesn't matter which one of the group we take, we're leaving out the version.
-                    items.Add(CreateResourceTypeSegmentCompletion(group.First(), index++, context.ReplacementRange, includeApiVersion: false, displayApiVersion: parentTypeReference.ApiVersion));
+                    items.Add(CreateResourceTypeSegmentCompletion(group.First(), index++, context.ReplacementRange, includeApiVersion: false, displayApiVersion: parentResourceType.TypeReference.ApiVersion));
 
-                    foreach (var resourceType in group.OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance))
+                    foreach (var resourceType in group.Where(rt => rt.ApiVersion is not null).OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance))
                     {
                         items.Add(CreateResourceTypeSegmentCompletion(resourceType, index++, context.ReplacementRange, includeApiVersion: true, displayApiVersion: resourceType.ApiVersion));
                     }
@@ -230,13 +231,13 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is ResourceDeclarationSyntax declarationSyntax
                 && declarationSyntax.Type is StringSyntax stringSyntax
                 && stringSyntax.TryGetLiteralValue() is string entered
-                && ResourceTypeReference.IsNamespaceAndTypeSegment(entered))
+                && ResourceTypeReference.HasResourceTypePrefix(entered))
             {
                 // newest api versions should be shown first
                 // strict filtering on type so that we show api versions for only the selected type
                 return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FullyQualifiedType))
-                    .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FormatType()))
+                    .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
                     .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
                     .ToList();
@@ -247,9 +248,9 @@ namespace Bicep.LanguageServer.Completions
             // we still order by apiVersion first to have consistent indexes
             return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
                 .OrderByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
-                .GroupBy(rt => rt.FullyQualifiedType)
+                .GroupBy(rt => rt.FormatType())
                 .Select(rt => rt.First())
-                .OrderBy(rt => rt.FullyQualifiedType, StringComparer.OrdinalIgnoreCase)
+                .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
                 .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: false))
                 .ToList();
         }
@@ -1011,23 +1012,23 @@ namespace Bicep.LanguageServer.Completions
         private static CompletionItem CreateResourceTypeCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool showApiVersion)
         {
             // Splitting ResourceType Completion in to two pieces, one for the 'Namespace/type', the second for '@<api-version>'
-            if (showApiVersion)
+            if (showApiVersion && resourceType.ApiVersion is not null)
             {
-                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}@{resourceType.ApiVersion}");
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}@{resourceType.ApiVersion}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, resourceType.ApiVersion)
                     .WithFilterText(insertText)
                     .WithPlainTextEdit(replacementRange, insertText)
-                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
+                    .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}API Version: `{resourceType.ApiVersion}`")
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
             }
             else
             {
-                var insertText = StringUtils.EscapeBicepString($"{resourceType.FullyQualifiedType}");
+                var insertText = StringUtils.EscapeBicepString($"{resourceType.FormatType()}");
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
-                    .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}`")
+                    .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
                     .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
@@ -1035,15 +1036,18 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
-        private static CompletionItem CreateResourceTypeSegmentCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool includeApiVersion, string displayApiVersion)
+        private static CompletionItem CreateResourceTypeSegmentCompletion(ResourceTypeReference resourceType, int index, Range replacementRange, bool includeApiVersion, string? displayApiVersion)
         {
             // We create one completion with and without the API version.
-            var insertText = includeApiVersion ?
-                StringUtils.EscapeBicepString($"{resourceType.Types[^1]}@{resourceType.ApiVersion}") :
-                StringUtils.EscapeBicepString($"{resourceType.Types[^1]}");
+            var insertText = includeApiVersion && (resourceType.ApiVersion is not null) ?
+                StringUtils.EscapeBicepString($"{resourceType.TypeSegments[^1]}@{resourceType.ApiVersion}") :
+                StringUtils.EscapeBicepString($"{resourceType.TypeSegments[^1]}");
+
+            var apiVersionMarkdown = displayApiVersion is not null ? $"{MarkdownNewLine}API Version: `{displayApiVersion}`" : "";
+
             return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                 .WithPlainTextEdit(replacementRange, insertText)
-                .WithDocumentation($"Namespace: `{resourceType.Namespace}`{MarkdownNewLine}Type: `{resourceType.TypesString}`{MarkdownNewLine}API Version: `{displayApiVersion}`")
+                .WithDocumentation($"Type: `{resourceType.FormatType()}`{apiVersionMarkdown}")
                 // 8 hex digits is probably overkill :)
                 .WithSortText(index.ToString("x8"))
                 .Build();
@@ -1051,8 +1055,9 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItemBuilder CreateModulePathCompletionBuilder(string name, string path, Range replacementRange, CompletionItemKind completionItemKind, CompletionPriority priority)
         {
-            path = StringUtils.EscapeBicepString(path);
-            var item = CompletionItemBuilder.Create(completionItemKind, name)
+            // unescape string according to https://stackoverflow.com/questions/575440/url-encoding-using-c-sharp
+            path = StringUtils.EscapeBicepString(Uri.UnescapeDataString(path));
+            var item = CompletionItemBuilder.Create(completionItemKind, Uri.UnescapeDataString(name))
                 .WithFilterText(path)
                 .WithSortText(GetSortText(name, priority));
             // Folder completions should keep us within the completion string

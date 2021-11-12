@@ -1,6 +1,6 @@
 ﻿// Cosmos DB Cassandra Namespace
-resource /*${1:cassandraKeyspace}*/cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {
-  name: /*${2:'name'}*/'account-name/cassandra/database-name'
+resource /*${1:cassandraKeyspace}*/cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {
+  name: /*${2:'name'}*/'account-name/database-name'
   properties: {
     resource: {
       id: /*${3:'id'}*/'id'

@@ -1,0 +1,61 @@
+[
+  {
+    "label": "empty.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_empty.bicep",
+    "filterText": "'ChildModules/empty.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'ChildModules/empty.bicep'"
+    }
+  },
+  {
+    "label": "folder with space/",
+    "kind": "folder",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_folder%20with%20space/",
+    "filterText": "'ChildModules/folder with space/'",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'ChildModules/folder with space/$0'"
+    },
+    "command": {
+      "command": "editor.action.triggerSuggest"
+    }
+  },
+  {
+    "label": "main.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_main.bicep",
+    "filterText": "'ChildModules/main.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'ChildModules/main.bicep'"
+    }
+  },
+  {
+    "label": "modulea.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_modulea.bicep",
+    "filterText": "'ChildModules/modulea.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'ChildModules/modulea.bicep'"
+    }
+  }
+]

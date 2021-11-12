@@ -518,31 +518,35 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[36:37)  Assignment |=|
 //@[38:68)  IfConditionSyntax
 //@[38:40)   Identifier |if|
-//@[41:68)   ParenthesizedExpressionSyntax
+//@[41:63)   ParenthesizedExpressionSyntax
 //@[41:42)    LeftParen |(|
-//@[42:68)    ObjectSyntax
-//@[42:43)     LeftBrace |{|
-//@[44:50)     ObjectPropertySyntax
-//@[44:47)      StringSyntax
-//@[44:47)       StringComplete |'a'|
-//@[47:48)      Colon |:|
-//@[49:50)      VariableAccessSyntax
-//@[49:50)       IdentifierSyntax
-//@[49:50)        Identifier |b|
-//@[51:67)     SkippedTriviaSyntax
-//@[51:52)      RightBrace |}|
+//@[42:62)    BinaryOperationSyntax
+//@[42:54)     PropertyAccessSyntax
+//@[42:52)      ObjectSyntax
+//@[42:43)       LeftBrace |{|
+//@[44:44)       SkippedTriviaSyntax
+//@[44:50)       ObjectPropertySyntax
+//@[44:47)        StringSyntax
+//@[44:47)         StringComplete |'a'|
+//@[47:48)        Colon |:|
+//@[49:50)        VariableAccessSyntax
+//@[49:50)         IdentifierSyntax
+//@[49:50)          Identifier |b|
+//@[51:51)       SkippedTriviaSyntax
+//@[51:52)       RightBrace |}|
 //@[52:53)      Dot |.|
-//@[53:54)      Identifier |a|
-//@[55:57)      Equals |==|
+//@[53:54)      IdentifierSyntax
+//@[53:54)       Identifier |a|
+//@[55:57)     Equals |==|
+//@[58:62)     BooleanLiteralSyntax
 //@[58:62)      TrueKeyword |true|
-//@[62:63)      RightParen |)|
-//@[64:65)      LeftBrace |{|
-//@[65:67)      NewLine |\n\n|
+//@[62:63)    RightParen |)|
+//@[64:68)   ObjectSyntax
+//@[64:65)    LeftBrace |{|
+//@[65:67)    NewLine |\n\n|
 
 }
-//@[0:1)     RightBrace |}|
-//@[1:1)    SkippedTriviaSyntax
-//@[1:1)   SkippedTriviaSyntax
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modANoInputs './modulea.bicep' = {
@@ -1776,8 +1780,8 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionB ''
 //@[0:21) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1789,8 +1793,8 @@ module completionB ''
 //@[21:21)  SkippedTriviaSyntax
 //@[21:23) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionC '' =
 //@[0:23) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1802,8 +1806,8 @@ module completionC '' =
 //@[23:23)  SkippedTriviaSyntax
 //@[23:25) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionD '' = {}
 //@[0:26) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1817,8 +1821,8 @@ module completionD '' = {}
 //@[25:26)   RightBrace |}|
 //@[26:28) NewLine |\n\n|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
-//@[48:49) NewLine |\n|
+// #completionTest(19, 20, 21) -> cwdFileCompletions
+//@[52:53) NewLine |\n|
 module completionE '' = {
 //@[0:43) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1842,21 +1846,21 @@ module completionE '' = {
 //@[0:1)   RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
-// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
-//@[56:57) NewLine |\n|
-module cwdFileCompletionA '.'
-//@[0:29) ModuleDeclarationSyntax
+// #completionTest(29) -> cwdDotFileCompletions
+//@[47:48) NewLine |\n|
+module cwdFileCompletionA './m'
+//@[0:31) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
 //@[7:25)  IdentifierSyntax
 //@[7:25)   Identifier |cwdFileCompletionA|
-//@[26:29)  StringSyntax
-//@[26:29)   StringComplete |'.'|
-//@[29:29)  SkippedTriviaSyntax
-//@[29:29)  SkippedTriviaSyntax
-//@[29:31) NewLine |\n\n|
+//@[26:31)  StringSyntax
+//@[26:31)   StringComplete |'./m'|
+//@[31:31)  SkippedTriviaSyntax
+//@[31:31)  SkippedTriviaSyntax
+//@[31:33) NewLine |\n\n|
 
-// #completionTest(26, 27) -> cwdMCompletions
-//@[45:46) NewLine |\n|
+// #completionTest(26, 27) -> cwdFileCompletions
+//@[48:49) NewLine |\n|
 module cwdFileCompletionB m
 //@[0:27) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1868,8 +1872,8 @@ module cwdFileCompletionB m
 //@[27:27)  SkippedTriviaSyntax
 //@[27:29) NewLine |\n\n|
 
-// #completionTest(26, 27, 28, 29) -> cwdMCompletions
-//@[53:54) NewLine |\n|
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
+//@[56:57) NewLine |\n|
 module cwdFileCompletionC 'm'
 //@[0:29) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1881,8 +1885,8 @@ module cwdFileCompletionC 'm'
 //@[29:29)  SkippedTriviaSyntax
 //@[29:31) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
-//@[102:103) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childFileCompletions
+//@[106:107) NewLine |\n|
 module childCompletionA 'ChildModules/'
 //@[0:39) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1894,8 +1898,8 @@ module childCompletionA 'ChildModules/'
 //@[39:39)  SkippedTriviaSyntax
 //@[39:41) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
-//@[105:106) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotFileCompletions
+//@[109:110) NewLine |\n|
 module childCompletionB './ChildModules/'
 //@[0:41) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1907,8 +1911,8 @@ module childCompletionB './ChildModules/'
 //@[41:41)  SkippedTriviaSyntax
 //@[41:43) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
-//@[107:108) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childDotFileCompletions
+//@[113:114) NewLine |\n|
 module childCompletionC './ChildModules/m'
 //@[0:42) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|
@@ -1920,8 +1924,8 @@ module childCompletionC './ChildModules/m'
 //@[42:42)  SkippedTriviaSyntax
 //@[42:44) NewLine |\n\n|
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
-//@[107:108) NewLine |\n|
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childFileCompletions
+//@[110:111) NewLine |\n|
 module childCompletionD 'ChildModules/e'
 //@[0:40) ModuleDeclarationSyntax
 //@[0:6)  Identifier |module|

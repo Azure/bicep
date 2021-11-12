@@ -356,8 +356,10 @@ namespace Bicep.Core.Semantics
             var foundSymbols = namespaceResolver.ResolveUnqualifiedFunction(identifierSyntax, includeDecorators: allowedFlags.HasAnyDecoratorFlag());
             if (foundSymbols.Count() > 1)
             {
+                var ambiguousNamespaces = foundSymbols.OfType<FunctionSymbol>().Select(x => x.DeclaringObject.Name);
+
                 // ambiguous symbol
-                return new ErrorSymbol(DiagnosticBuilder.ForPosition(identifierSyntax).AmbiguousSymbolReference(identifierSyntax.IdentifierName, namespaceResolver.GetNamespaceNames().ToImmutableSortedSet(StringComparer.Ordinal)));
+                return new ErrorSymbol(DiagnosticBuilder.ForPosition(identifierSyntax).AmbiguousSymbolReference(identifierSyntax.IdentifierName, ambiguousNamespaces.ToImmutableSortedSet(StringComparer.Ordinal)));
             }
 
             var foundSymbol = foundSymbols.FirstOrDefault();

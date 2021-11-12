@@ -325,11 +325,11 @@
       ]
     },
     "existing1": {
+      "existing": true,
       "type": "Mock.Rp/existingExtensionResource",
       "apiVersion": "2020-01-01",
       "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
       "name": "existing1",
-      "existing": true,
       "metadata": {
         "description": "this is existing1"
       },
@@ -338,11 +338,11 @@
       ]
     },
     "existing2": {
+      "existing": true,
       "type": "Mock.Rp/existingExtensionResource",
       "apiVersion": "2020-01-01",
       "scope": "[extensionResourceId(extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'Mock.Rp/existingExtensionResource', 'existing1')]",
       "name": "existing2",
-      "existing": true,
       "dependsOn": [
         "extension1"
       ]
@@ -594,10 +594,10 @@
       ]
     },
     "p3_res1": {
+      "existing": true,
       "type": "Microsoft.Rp1/resource1",
       "apiVersion": "2020-06-01",
-      "name": "res1",
-      "existing": true
+      "name": "res1"
     },
     "p3_child1": {
       "type": "Microsoft.Rp1/resource1/child1",
@@ -605,18 +605,18 @@
       "name": "[format('{0}/{1}', 'res1', 'child1')]"
     },
     "p4_res1": {
+      "existing": true,
       "type": "Microsoft.Rp1/resource1",
       "apiVersion": "2020-06-01",
       "scope": "/",
-      "name": "res1",
-      "existing": true
+      "name": "res1"
     },
     "p4_child1": {
+      "existing": true,
       "type": "Microsoft.Rp1/resource1/child1",
       "apiVersion": "2020-06-01",
       "scope": "/",
-      "name": "[format('{0}/{1}', 'res1', 'child1')]",
-      "existing": true
+      "name": "[format('{0}/{1}', 'res1', 'child1')]"
     }
   },
   "outputs": {

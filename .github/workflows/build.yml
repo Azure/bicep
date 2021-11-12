@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Update Baselines"]
-    types:
-      - completed
 
 jobs:
   build-bicep:
@@ -22,6 +18,8 @@ jobs:
 
       # disable telemetry (reduces dotnet tool output in logs)
       DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+      CI: true
 
     strategy:
       # let us get failures from other jobs even if one fails
@@ -51,7 +49,7 @@ jobs:
           publishPackages: 'false'
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -89,7 +87,6 @@ jobs:
         run: npm ci && npm test
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
-          BICEP_REGISTRY_ENABLED_EXPERIMENTAL: true
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
@@ -100,7 +97,6 @@ jobs:
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
-          BICEP_REGISTRY_ENABLED_EXPERIMENTAL: true
       
       - name: Upload Language Server
         uses: actions/upload-artifact@v2
@@ -130,13 +126,85 @@ jobs:
         with:
           flags: dotnet
 
+  test-cli-live:
+    name: 'Test CLI (live) (${{ matrix.rid }})'
+    runs-on: ${{ matrix.os }}
+    needs: build-bicep
+
+    env:
+      CI: true
+      BICEP_SPN_PASSWORD: ${{ secrets.BICEP_SPN_PASSWORD }}
+      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        include:
+        - os: 'windows-latest'
+          rid: 'win-x64'
+          configuration: 'release'
+        - os: 'ubuntu-latest'
+          rid: 'linux-x64'
+          configuration: 'release'
+        - os: 'ubuntu-latest'
+          rid: 'linux-musl-x64'
+          configuration: 'release'
+        - os: 'macos-latest'
+          rid: 'osx-x64'
+          configuration: 'release'
+    
+    steps:
+      - uses: actions/checkout@v2.3.5
+        with:
+          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
+          submodules: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2.4.1
+        with:
+          node-version: 14.x
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v2
+        with:
+          name: bicep-release-${{ matrix.rid }}
+          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+
+      - name: Make Bicep CLI executable
+        if: ${{ matrix.rid != 'win-x64' }}
+        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+      - name: Run Bicep E2E Tests
+        if: ${{ matrix.rid != 'linux-musl-x64' }}
+        run: npm ci && npm test
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: Run Bicep Live E2E Tests
+        if: ${{ matrix.rid != 'linux-musl-x64' }}
+        run: npm ci && npm run test:live
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+      - name: Run Bicep Live E2E Tests (linux-musl-x64)
+        if: ${{ matrix.rid == 'linux-musl-x64' }}
+        uses: docker://mcr.microsoft.com/azure-cli:latest
+        with:
+          entrypoint: sh
+          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm run test:live --prefix ./src/Bicep.Cli.E2eTests"
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
   build-windows-setup:
     name: 'Build Windows Setup'
     runs-on: 'windows-latest'
     needs: build-bicep
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -182,7 +250,7 @@ jobs:
           rid: 'osx-x64'
     
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -260,7 +328,7 @@ jobs:
           rid: 'osx-x64'
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -340,7 +408,7 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
@@ -377,7 +445,7 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true

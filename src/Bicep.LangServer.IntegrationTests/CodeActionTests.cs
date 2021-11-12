@@ -46,7 +46,8 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
 
             // start language server
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
+            var client = helper.Client;
 
             // construct a parallel compilation
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -65,7 +66,7 @@ namespace Bicep.LangServer.IntegrationTests
                     // Assert.
                     quickFixes.Should().NotBeNull();
 
-                    var quickFixList = quickFixes.Where(x => x.CodeAction.Kind == CodeActionKind.QuickFix).ToList();
+                    var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
                     var bicepFixList = fixable.Fixes.ToList();
 
                     quickFixList.Should().HaveSameCount(bicepFixList);
@@ -105,15 +106,22 @@ namespace Bicep.LangServer.IntegrationTests
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},
@@ -321,15 +329,22 @@ namespace Bicep.LangServer.IntegrationTests
     ""currentProfile"": ""AzureCloud"",
     ""profiles"": {
       ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com""
+        ""resourceManagerEndpoint"": ""https://management.azure.com"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
       },
       ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn""
+        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
+        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
       },
       ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net""
+        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
+        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
       }
-    }
+    },
+    ""credentialPrecedence"": [
+      ""AzureCLI"",
+      ""AzurePowerShell""
+    ]
   },
   ""moduleAliases"": {
     ""ts"": {},
@@ -408,10 +423,11 @@ namespace Bicep.LangServer.IntegrationTests
             var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
 
             // Start language server
-            var client = await IntegrationTestHelper.StartServerWithTextAsync(TestContext,
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext,
                 bicepFileContents,
                 documentUri,
                 creationOptions: serverOptions);
+            var client = helper.Client;
 
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
@@ -450,7 +466,7 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var moduleRegistryProvider = new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features);
             var dispatcher = new ModuleDispatcher(moduleRegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath));
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.BuiltInConfiguration);
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(new Uri(bicepFilePath));
 
             return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration);

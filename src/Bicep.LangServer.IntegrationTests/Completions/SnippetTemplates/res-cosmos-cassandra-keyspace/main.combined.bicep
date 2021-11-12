@@ -1,16 +1,16 @@
 // $1 = cassandraKeyspace
-// $2 = 'accountName/cassandra/databaseName'
+// $2 = 'accountName/databaseName'
 // $3 = 'id'
-// $4 = 'throughput'
+// $4 = 1000
 
-resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/apis/keyspaces@2016-03-31' = {
-  name: 'accountName/cassandra/databaseName'
+resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {
+  name: 'accountName/databaseName'
   properties: {
     resource: {
       id: 'id'
     }
     options: {
-      throughput: 'throughput'
+      throughput: 1000
     }
   }
 }

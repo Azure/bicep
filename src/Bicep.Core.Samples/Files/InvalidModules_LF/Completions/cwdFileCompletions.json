@@ -146,6 +146,20 @@
     }
   },
   {
+    "label": "module with space.bicep",
+    "kind": "file",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_module%20with%20space.bicep",
+    "filterText": "'module with space.bicep'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'module with space.bicep'"
+    }
+  },
+  {
     "label": "modulea.bicep",
     "kind": "file",
     "deprecated": false,

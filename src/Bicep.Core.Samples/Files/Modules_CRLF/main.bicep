@@ -345,3 +345,11 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 
 
 // END: Key Vault Secret Reference
+
+module withSpace 'module with space.bicep' = {
+  name: 'withSpace'
+}
+
+module folderWithSpace 'child/folder with space/child with space.bicep' = {
+  name: 'childWithSpace'
+}

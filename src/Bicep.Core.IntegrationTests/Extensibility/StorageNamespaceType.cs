@@ -6,6 +6,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.IntegrationTests.Extensibility
 {
@@ -30,9 +31,9 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
         private class StorageTypeProvider : IResourceTypeProvider
         {
-            private readonly ImmutableDictionary<ResourceTypeReference, ResourceType> resourceTypes = new [] {
-                new ResourceType(
-                    ResourceTypeReference.Parse("AzureStorage/service@2020-01-01"),
+            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new [] {
+                new ResourceTypeComponents(
+                    ResourceTypeReference.Parse("service"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                     new ObjectType("Service properties", TypeSymbolValidationFlags.Default, new[]
                     {
@@ -40,15 +41,15 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                         new TypeProperty("staticWebsiteIndexDocument", LanguageConstants.String),
                         new TypeProperty("staticWebsiteErrorDocument404Path", LanguageConstants.String),
                     }, null)),
-                new ResourceType(
-                    ResourceTypeReference.Parse("AzureStorage/containers@2020-01-01"),
+                new ResourceTypeComponents(
+                    ResourceTypeReference.Parse("container"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                     new ObjectType("Container properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null)),
-                new ResourceType(
-                    ResourceTypeReference.Parse("AzureStorage/blobs@2020-01-01"),
+                new ResourceTypeComponents(
+                    ResourceTypeReference.Parse("blob"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                     new ObjectType("Blob properties", TypeSymbolValidationFlags.Default, new[]
                     {
@@ -58,12 +59,17 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                     }, null)),
             }.ToImmutableDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
 
-            public ResourceType? TryGenerateDefaultType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+            public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
                 => null;
 
-            public ResourceType? TryGetDefinedType(ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+            public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             {
-                return resourceTypes.TryGetValue(reference);
+                if (resourceTypes.TryGetValue(reference) is not {} resourceType)
+                {
+                    return null;
+                }
+
+                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
             }
 
             public bool HasDefinedType(ResourceTypeReference typeReference)

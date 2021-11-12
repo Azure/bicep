@@ -2,35 +2,35 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Uri;
+using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 
 namespace Bicep.Core.Modules
 {
     public class TemplateSpecModuleReference : ModuleReference
     {
-        private static readonly UriTemplate FullyQualifiedTemplateSpecUriTemplate = new("/{endpoint}/{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
+        private const int ResourceNameMaximumLength = 90;
 
-        private static readonly UriTemplate DefaultTemplateSpecUriTemplate = new("/{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
+        private static readonly UriTemplate TemplateSpecUriTemplate = new("{subscriptionId}/{resourceGroupName}/{templateSpecName}:{version}");
 
-        private static readonly Regex ResourceNameRegex = new(@"^[-\w\._\(\)]{0,89}[-\w_\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly HashSet<char> ResourceGroupNameAllowedCharacterSet = new(new[] { '-', '_', '.', '(', ')' });
 
-        private TemplateSpecModuleReference(string? endpoint, string subscriptionId, string resourceGroupName, string templateSpecName, string version)
+        private static readonly Regex ResourceNameRegex = new(@"^[-\w\.\(\)]{0,89}[-\w\(\)]$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        private TemplateSpecModuleReference(string subscriptionId, string resourceGroupName, string templateSpecName, string version)
             : base(ModuleReferenceSchemes.TemplateSpecs)
         {
-            this.Endpoint = endpoint;
             this.SubscriptionId = subscriptionId;
             this.ResourceGroupName = resourceGroupName;
             this.TemplateSpecName = templateSpecName;
             this.Version = version;
         }
 
-        public override string UnqualifiedReference => this.Endpoint is not null
-            ? $"{this.Endpoint}/{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}"
-            : $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
-
-        public string? Endpoint { get; }
+        public override string UnqualifiedReference => $"{this.SubscriptionId}/{this.ResourceGroupName}/{this.TemplateSpecName}:{this.Version}";
 
         public string SubscriptionId { get; }
 
@@ -40,15 +40,12 @@ namespace Bicep.Core.Modules
 
         public string Version { get; }
 
-        public Uri? EndpointUri => this.Endpoint is not null ? new Uri($"https://{this.Endpoint}") : null;
-
         public string TemplateSpecResourceId => $"/subscriptions/{this.SubscriptionId}/resourceGroups/{this.ResourceGroupName}/providers/Microsoft.Resources/templateSpecs/{this.TemplateSpecName}/versions/{this.Version}";
 
         public override bool IsExternal => true;
 
         public override bool Equals(object? obj) =>
             obj is TemplateSpecModuleReference other &&
-            StringComparer.OrdinalIgnoreCase.Equals(this.Endpoint, other.Endpoint) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.SubscriptionId, other.SubscriptionId) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.ResourceGroupName, other.ResourceGroupName) &&
             StringComparer.OrdinalIgnoreCase.Equals(this.TemplateSpecName, other.TemplateSpecName) &&
@@ -58,7 +55,6 @@ namespace Bicep.Core.Modules
         {
             var hash = new HashCode();
 
-            hash.Add(this.Endpoint, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.SubscriptionId, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.ResourceGroupName, StringComparer.OrdinalIgnoreCase);
             hash.Add(this.TemplateSpecName, StringComparer.OrdinalIgnoreCase);
@@ -67,50 +63,83 @@ namespace Bicep.Core.Modules
             return hash.ToHashCode();
         }
 
-        public static TemplateSpecModuleReference? TryParse(string value, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
+        public static TemplateSpecModuleReference? TryParse(string? aliasName, string referenceValue, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? errorBuilder)
         {
-            static DiagnosticBuilder.ErrorBuilderDelegate CreateErrorFunc(string rawValue) => x => x.InvalidTemplateSpecReference($"ts:{rawValue}");
+            if (aliasName is not null)
+            {
+                if (configuration.ModuleAliases.TryGetTemplateSpecModuleAlias(aliasName, out errorBuilder) is not { } alias)
+                {
+                    return null;
+                }
 
-            string? endpoint = null;
-            string subscriptionId = "";
-            string resourceGroupName = "";
-            string templateSpecName = "";
-            string templateSpecVersion = "";
+                referenceValue = $"{alias}/{referenceValue}";
+            }
 
-            // Parse the template spec URI and validate each part.
-            if (DefaultTemplateSpecUriTemplate.GetTemplateMatch(value) is { } defaultMatch)
+            if (TemplateSpecUriTemplate.GetTemplateMatch(referenceValue) is not { } match)
             {
-                subscriptionId = defaultMatch.BoundVariables["subscriptionId"];
-                resourceGroupName = defaultMatch.BoundVariables["resourceGroupName"];
-                templateSpecName = defaultMatch.BoundVariables["templateSpecName"];
-                templateSpecVersion = defaultMatch.BoundVariables["version"];
-            }
-            else if (FullyQualifiedTemplateSpecUriTemplate.GetTemplateMatch(value) is { } fullyQualifiedMatch)
-            {
-                endpoint = fullyQualifiedMatch.BoundVariables["endpoint"];
-                subscriptionId = fullyQualifiedMatch.BoundVariables["subscriptionId"];
-                resourceGroupName = fullyQualifiedMatch.BoundVariables["resourceGroupName"];
-                templateSpecName = fullyQualifiedMatch.BoundVariables["templateSpecName"];
-                templateSpecVersion = fullyQualifiedMatch.BoundVariables["version"];
-            }
-            else
-            {
-                failureBuilder = CreateErrorFunc(value);
+                errorBuilder = x => x.InvalidTemplateSpecReference(aliasName, FullyQualify(referenceValue));
                 return null;
             }
 
-            if ((endpoint is not null && !Uri.TryCreate($"https://{endpoint}", UriKind.Absolute, out _)) ||
-                !Guid.TryParse(subscriptionId, out _) ||
-                !ResourceNameRegex.IsMatch(resourceGroupName) ||
-                !ResourceNameRegex.IsMatch(templateSpecName) ||
-                !ResourceNameRegex.IsMatch(templateSpecVersion))
+            string subscriptionId = GetBoundVariable(match, nameof(subscriptionId));
+            string resourceGroupName = GetBoundVariable(match, nameof(resourceGroupName));
+            string templateSpecName = GetBoundVariable(match, nameof(templateSpecName));
+            string version = GetBoundVariable(match, nameof(version));
+
+            // Validate subscription ID.
+            if (!Guid.TryParse(subscriptionId, out _))
             {
-                failureBuilder = CreateErrorFunc(value);
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidSubscirptionId(aliasName, subscriptionId, FullyQualify(referenceValue));
                 return null;
             }
 
-            failureBuilder = null;
-            return new(endpoint, subscriptionId, resourceGroupName, templateSpecName, templateSpecVersion);
+            // Validate resource group name.
+            if (resourceGroupName.Length > ResourceNameMaximumLength)
+            {
+                errorBuilder = x => x.InvalidTemplateSpecReferenceResourceGroupNameTooLong(aliasName, resourceGroupName, FullyQualify(referenceValue), ResourceNameMaximumLength);
+                return null;
+            }
+
+            if (resourceGroupName.Length == 0 ||
+                resourceGroupName[^1] == '.' ||
+                resourceGroupName.Where(c => !char.IsLetterOrDigit(c) && !ResourceGroupNameAllowedCharacterSet.Contains(c)).Any())
+            {
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidResourceGroupName(aliasName, resourceGroupName, FullyQualify(referenceValue));
+                return null;
+            }
+
+            // Validate template spec name.
+            if (templateSpecName.Length > ResourceNameMaximumLength)
+            {
+                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecNameTooLong(aliasName, templateSpecName, FullyQualify(referenceValue), ResourceNameMaximumLength);
+                return null;
+            }
+
+            if (!ResourceNameRegex.IsMatch(templateSpecName))
+            {
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecName(aliasName, templateSpecName, FullyQualify(referenceValue));
+                return null;
+            }
+
+            // Validate template spec version.
+            if (version.Length > ResourceNameMaximumLength)
+            {
+                errorBuilder = x => x.InvalidTemplateSpecReferenceTemplateSpecVersionTooLong(aliasName, version, FullyQualify(referenceValue), ResourceNameMaximumLength);
+                return null;
+            }
+
+            if (!ResourceNameRegex.IsMatch(version))
+            {
+                errorBuilder = x => x.InvalidTemplateSpecReferenceInvalidTemplateSpecVersion(aliasName, version, FullyQualify(referenceValue));
+                return null;
+            }
+
+            errorBuilder = null;
+            return new(subscriptionId, resourceGroupName, templateSpecName, version);
         }
+        private static string FullyQualify(string referenceValue) => $"{ModuleReferenceSchemes.TemplateSpecs}:{referenceValue}";
+
+        private static string GetBoundVariable(UriTemplateMatch match, string variableName) =>
+            match.BoundVariables[variableName] ?? throw new InvalidOperationException($"Could not get bound variable \"{variableName}\".");
     }
 }

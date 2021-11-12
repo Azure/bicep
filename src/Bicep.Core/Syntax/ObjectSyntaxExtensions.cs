@@ -72,15 +72,20 @@ namespace Bicep.Core.Syntax
             return result;
         }
 
-        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, IList<string> propertyAccesses)
+        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, IList<IdentifierSyntax> propertyAccesses)
+        {
+            return syntax.SafeGetPropertyByNameRecursive(propertyAccesses.Select(pa => pa.IdentifierName).ToArray());
+        }
+
+        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, params string[] propertyAccesses)
         {
             var currentSyntax = syntax;
-            for (int i = 0; i < propertyAccesses.Count; i++)
+            for (int i = 0; i < propertyAccesses.Length; i++)
             {
                 if (currentSyntax.SafeGetPropertyByName(propertyAccesses[i]) is ObjectPropertySyntax propertySyntax)
                 {
                     // we have found our last property access
-                    if (i == propertyAccesses.Count-1)
+                    if (i == propertyAccesses.Length - 1)
                     {
                         return propertySyntax;
                     }
@@ -98,7 +103,7 @@ namespace Bicep.Core.Syntax
                 // we couldn't even find this property on the object
                 else
                 {
-                   break;
+                    break;
                 }
             }
             return null;

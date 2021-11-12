@@ -86,7 +86,7 @@ namespace Bicep.LanguageServer.Handlers
 
                     if (symbol is ResourceSymbol resourceSymbol)
                     {
-                        var resourceType = resourceSymbol.TryGetResourceTypeReference()?.FullyQualifiedType ?? "<unknown>";
+                        var resourceType = resourceSymbol.TryGetResourceTypeReference()?.FormatType() ?? "<unknown>";
                         var isCollection = resourceSymbol.IsCollection;
                         var resourceSpan = resourceSymbol.DeclaringResource.Span;
                         var range = resourceSpan.ToRange(context.LineStarts);

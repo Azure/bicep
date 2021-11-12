@@ -127,10 +127,10 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |modANoName|
-//@[51:52) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |}|
+//@[44:44) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
+//@[51:51) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
 
 }
-//@[1:1) [BCP018 (Error)] Expected the ")" character at this location. (CodeDescription: none) ||
 
 module modANoInputs './modulea.bicep' = {
 //@[7:19) [BCP035 (Error)] The specified "module" declaration is missing the following required properties: "params". (CodeDescription: none) |modANoInputs|
@@ -360,58 +360,58 @@ module moduleWithDuplicateName2 './empty.bicep' = {
 //@[8:33) [BCP122 (Error)] Modules: "moduleWithDuplicateName1", "moduleWithDuplicateName2" are defined with this same name and this same scope in a file. Rename them or split into different modules. (CodeDescription: none) |'moduleWithDuplicateName'|
 }
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionB ''
 //@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[21:21) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionC '' =
 //@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 //@[23:23) [BCP118 (Error)] Expected the "{" character, the "[" character, or the "if" keyword at this location. (CodeDescription: none) ||
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionD '' = {}
 //@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
 
-// #completionTest(19, 20, 21) -> cwdCompletions
+// #completionTest(19, 20, 21) -> cwdFileCompletions
 module completionE '' = {
 //@[19:21) [BCP050 (Error)] The specified path is empty. (CodeDescription: none) |''|
   name: 'hello'
 }
 
-// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
-module cwdFileCompletionA '.'
-//@[26:29) [BCP086 (Error)] The specified file path ends with an invalid character. The following are not permitted: " ", ".". (CodeDescription: none) |'.'|
-//@[29:29) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
+// #completionTest(29) -> cwdDotFileCompletions
+module cwdFileCompletionA './m'
+//@[26:31) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/m'. (CodeDescription: none) |'./m'|
+//@[31:31) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(26, 27) -> cwdMCompletions
+// #completionTest(26, 27) -> cwdFileCompletions
 module cwdFileCompletionB m
 //@[26:27) [BCP097 (Error)] Expected a module path string. This should be a relative path to another bicep file, e.g. 'myModule.bicep' or '../parent/myModule.bicep' (CodeDescription: none) |m|
 //@[26:27) [BCP090 (Error)] This module declaration is missing a file path reference. (CodeDescription: none) |m|
 //@[27:27) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(26, 27, 28, 29) -> cwdMCompletions
+// #completionTest(26, 27, 28, 29) -> cwdFileCompletions
 module cwdFileCompletionC 'm'
 //@[26:29) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/m'. (CodeDescription: none) |'m'|
 //@[29:29) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childFileCompletions
 module childCompletionA 'ChildModules/'
 //@[24:39) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules/' is denied. (CodeDescription: none) |'ChildModules/'|
 //@[39:39) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39) -> childDotFileCompletions
 module childCompletionB './ChildModules/'
 //@[24:41) [BCP091 (Error)] An error occurred reading file. Access to the path '${TEST_OUTPUT_DIR}/ChildModules/' is denied. (CodeDescription: none) |'./ChildModules/'|
 //@[41:41) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childMCompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childDotFileCompletions
 module childCompletionC './ChildModules/m'
 //@[24:42) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/ChildModules/m'. (CodeDescription: none) |'./ChildModules/m'|
 //@[42:42) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
-// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childECompletions
+// #completionTest(24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40) -> childFileCompletions
 module childCompletionD 'ChildModules/e'
 //@[24:40) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/ChildModules/e'. (CodeDescription: none) |'ChildModules/e'|
 //@[40:40) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||

@@ -20,7 +20,14 @@ import {
   emptyDir,
   expectFileExists,
   writeTempFile,
+  readFileSync,
 } from "./utils/fs";
+import {
+  environments,
+  createEnvironmentOverrides,
+} from "./utils/liveTestEnvironments";
+
+const testArea = "restore";
 
 async function emptyModuleCacheRoot() {
   await emptyDir(moduleCacheRoot);
@@ -29,49 +36,115 @@ async function emptyModuleCacheRoot() {
 describe("bicep restore", () => {
   beforeEach(emptyModuleCacheRoot);
 
-  //afterAll(emptyModuleCacheRoot);
+  it.each(environments)("should restore template specs (%p)", (environment) => {
+    const bicep = `
+module storageAccountModuleV1 'ts:${environment.templateSpecSubscriptionId}/bicep-ci/storageAccountSpec-${environment.resourceSuffix}:v1' = {
+  name: 'storageAccountModuleV1'
+  params: {
+    sku: 'Standard_LRS'
+  }
+}
 
-  it("should restore template specs", () => {
-    const exampleFilePath = pathToExampleFile("external-modules", "main.bicep");
-    invokingBicepCommand("restore", exampleFilePath)
+module storageAccountModuleV2 'ts/test-specs:STORAGEACCOUNTSPEC-${environment.resourceSuffix}:V2' = {
+  name: 'storageAccountModuleV2'
+  params: {
+    sku: 'Standard_GRS'
+    location: 'westus'
+  }
+}
+
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
+  name: 'webAppModuleV1'
+}`;
+
+    const bicepPath = writeTempFile("restore-ts", "main.bicep", bicep);
+    const exampleConfig = readFileSync(
+      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
+    );
+
+    writeTempFile("restore-ts", "bicepconfig.json", exampleConfig);
+
+    invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(createEnvironmentOverrides(environment))
       .shouldSucceed()
       .withEmptyStdout();
 
     expectFileExists(
       pathToCachedTsModuleFile(
-        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/storageaccountspec-df/v1",
+        `${environment.templateSpecSubscriptionId}/bicep-ci/storageaccountspec-${environment.resourceSuffix}/v1`,
         "main.json"
       )
     );
 
     expectFileExists(
       pathToCachedTsModuleFile(
-        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/storageaccountspec-df/v2",
+        `${environment.templateSpecSubscriptionId}/bicep-ci/storageaccountspec-${environment.resourceSuffix}/v2`,
         "main.json"
       )
     );
 
     expectFileExists(
       pathToCachedTsModuleFile(
-        "61e0a28a-63ed-4afc-9827-2ed09b7b30f3/bicep-ci/webappspec-df/1.0.0",
+        `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
         "main.json"
       )
     );
   });
 
-  it("should restore OCI artifacts", () => {
-    const registry = "biceptestdf.azurecr.io";
-    const builder = new BicepRegistryReferenceBuilder(registry, "restore");
+  it.each(environments)("should restore OCI artifacts (%p)", (environment) => {
+    const builder = new BicepRegistryReferenceBuilder(
+      environment.registryUri,
+      testArea
+    );
 
+    const environmentOverrides = createEnvironmentOverrides(environment);
     const storageRef = builder.getBicepReference("storage", "v1");
-    publishModule(storageRef, "local-modules", "storage.bicep");
+    publishModule(
+      environmentOverrides,
+      storageRef,
+      "modules" + environment.suffix,
+      "storage.bicep"
+    );
 
     const passthroughRef = builder.getBicepReference("passthrough", "v1");
-    publishModule(passthroughRef, "local-modules", "passthrough.bicep");
+    publishModule(
+      environmentOverrides,
+      passthroughRef,
+      "modules" + environment.suffix,
+      "passthrough.bicep"
+    );
+
+    const passthroughWithRegistryAliasRef = builder.getBicepReferenceWithAlias(
+      "test-registry",
+      "restore/passthrough",
+      "v1"
+    );
+
+    const passthroughWithFullAliasRef = builder.getBicepReferenceWithAlias(
+      "test-modules",
+      "passthrough",
+      "v1"
+    );
 
     const bicep = `
 module passthrough '${passthroughRef}' = {
   name: 'passthrough'
+  params: {
+    text: 'hello'
+    number: 42
+  }
+}
+
+module passthroughWithRegistryAlias '${passthroughWithRegistryAliasRef}' = {
+  name: 'passthroughWithRegistryAlias'
+  params: {
+    text: 'hello'
+    number: 42
+  }
+}
+
+module passthroughWithFullAlias '${passthroughWithFullAliasRef}' = {
+  name: 'passthroughWithFullAlias'
   params: {
     text: 'hello'
     number: 42
@@ -88,8 +161,15 @@ module storage '${storageRef}' = {
 output blobEndpoint string = storage.outputs.blobEndpoint
     `;
 
-    const bicepPath = writeTempFile("restore", "main.bicep", bicep);
+    const bicepPath = writeTempFile("restore-br", "main.bicep", bicep);
+
+    const exampleConfig = readFileSync(
+      pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
+    );
+    writeTempFile("restore-br", "bicepconfig.json", exampleConfig);
+
     invokingBicepCommand("restore", bicepPath)
+      .withEnvironmentOverrides(environmentOverrides)
       .shouldSucceed()
       .withEmptyStdout();
 

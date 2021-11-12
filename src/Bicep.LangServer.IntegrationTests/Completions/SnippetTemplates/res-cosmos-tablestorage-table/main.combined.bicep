@@ -1,16 +1,16 @@
 // $1 = cosmosTable
-// $2 = 'accountName/table/databaseName'
+// $2 = 'accountName/databaseName'
 // $3 = 'id'
-// $4 = 'throughput'
+// $4 = 100
 
-resource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/apis/tables@2016-03-31' = {
-  name: 'accountName/table/databaseName'
+resource cosmosTable 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {
+  name: 'accountName/databaseName'
   properties: {
     resource: {
       id: 'id'
     }
     options: {
-      throughput: 'throughput'
+      throughput: 100
     }
   }
 }

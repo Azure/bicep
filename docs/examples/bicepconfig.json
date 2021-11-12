@@ -2,6 +2,9 @@
   "analyzers": {
     "core": {
       "rules": {
+        "adminusername-should-not-be-literal": {
+          "level": "warning"
+        },
         "no-hardcoded-env-urls": {
           "level": "warning"
         },
