@@ -2778,5 +2778,54 @@ output out4 string = 'hello' + 'world'
                 ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"'hello'\" and \"'world'\". Use string interpolation instead.")
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5099
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5099()
+        {
+            var result = CompilationHelper.Compile(("foo.bicep", @"param input array
+output out array = input"), ("main.bicep", @"targetScope = 'subscription'
+
+@description('rgNames param')
+param rgNames array = [
+  'hello'
+  'world'
+]
+
+@description('resource group in for loop')
+resource rgs 'Microsoft.Resources/resourceGroups@2019-10-01' = [for rgName in rgNames: {
+  name: rgName
+  location: deployment().location
+}]
+
+@description('module loop')
+module m 'foo.bicep' = [for (rgName, i) in rgNames: {
+  name: 'foo${rgName}'
+  scope: rgs[i]
+  params: {
+    input: rgName
+  }
+}]
+
+@description('resource group in for loop')
+resource rgs2 'Microsoft.Resources/resourceGroups@2019-10-01' = [for (rgName, i) in rgNames: {
+  name: rgName
+  location: m[i].name
+}]
+
+@description('The Resources Ids of the API management service product groups')
+output productGroupsResourceIds array = [for rgName in rgNames: resourceId('Microsoft.Resources/resourceGroups', rgName)]
+"));
+          result.Template.Should().NotBeNull();
+          var templateContent = result.Template!.ToString();
+
+          templateContent.Should().Contain("rgNames param");
+          templateContent.Should().Contain("resource group in for loop");
+          templateContent.Should().Contain("module loop");
+          templateContent.Should().Contain("resource group in for loop");
+          templateContent.Should().Contain("resource group in for loop");
+        }
     }
 }

@@ -496,8 +496,6 @@ namespace Bicep.Core.Emit
             if (resource.IsAzResource)
             {
                 emitter.EmitProperty(AzResourceTypeProvider.ResourceNamePropertyName, emitter.GetFullyQualifiedResourceName(resource));
-                
-                body = AddDecoratorsToBody(resource.Symbol.DeclaringResource, (ObjectSyntax)body, resource.Type);
                 emitter.EmitObjectProperties((ObjectSyntax)body, ResourcePropertiesToOmit.Add(AzResourceTypeProvider.ResourceNamePropertyName));
             }
             else
@@ -511,6 +509,14 @@ namespace Bicep.Core.Emit
             }
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
+
+            foreach (var (property, val) in AddDecoratorsToBody(
+                resource.Symbol.DeclaringResource, 
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                resource.Symbol.Type).ToNamedPropertyValueDictionary())
+            {
+                emitter.EmitProperty(property, val);
+            }
 
             jsonWriter.WriteEndObject();
         }
@@ -594,7 +600,6 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("type", NestedDeploymentResourceType);
             emitter.EmitProperty("apiVersion", NestedDeploymentResourceApiVersion);
 
-            body = AddDecoratorsToBody(moduleSymbol.DeclaringModule, (ObjectSyntax)body, moduleSymbol.Type);
             // emit all properties apart from 'params'. In practice, this currrently only allows 'name', but we may choose to allow other top-level resource properties in future.
             // params requires special handling (see below).
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
@@ -650,6 +655,14 @@ namespace Bicep.Core.Emit
             }
 
             this.EmitDependsOn(jsonWriter, moduleSymbol, emitter, body);
+
+            foreach (var (property, val) in AddDecoratorsToBody(
+                moduleSymbol.DeclaringModule, 
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                moduleSymbol.Type).ToNamedPropertyValueDictionary())
+            {
+                emitter.EmitProperty(property, val);
+            }
 
             jsonWriter.WriteEndObject();
         }
@@ -801,16 +814,17 @@ namespace Bicep.Core.Emit
             else
             {
                 emitter.EmitProperty("value", outputSymbol.Value);
-                // emit any decorators on this output
-                var body = AddDecoratorsToBody(
+            }
+
+            // emit any decorators on this output
+            foreach (var (property, val) in AddDecoratorsToBody(
                 outputSymbol.DeclaringOutput, 
                 SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
-                outputSymbol.Type);
-                foreach (var (property, val) in body.ToNamedPropertyValueDictionary())
-                {
-                    emitter.EmitProperty(property, val);
-                }
+                outputSymbol.Type).ToNamedPropertyValueDictionary())
+            {
+                emitter.EmitProperty(property, val);
             }
+
             jsonWriter.WriteEndObject();
         }
 
