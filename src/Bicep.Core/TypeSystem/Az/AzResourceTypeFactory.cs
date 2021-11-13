@@ -35,6 +35,7 @@ namespace Bicep.Core.TypeSystem.Az
         {
             yield return new FunctionOverloadBuilder(resourceFunctionType.Name)
                 .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
+                .WithFlags(FunctionFlags.RequiresInlining)
                 .Build();
 
             if (resourceFunctionType.Input is not null)
@@ -43,6 +44,7 @@ namespace Bicep.Core.TypeSystem.Az
                     .WithRequiredParameter("apiVersion", new StringLiteralType(resourceFunctionType.ApiVersion), "The api version")
                     .WithRequiredParameter("params", GetTypeSymbol(resourceFunctionType.Input.Type, false), $"{resourceFunctionType.Name} parameters")
                     .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
+                    .WithFlags(FunctionFlags.RequiresInlining)
                     .Build();
             }
         }

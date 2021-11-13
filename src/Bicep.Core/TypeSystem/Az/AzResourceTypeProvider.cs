@@ -8,6 +8,7 @@ using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
 using Bicep.Core.Emit;
+using Bicep.Core.Semantics.Namespaces;
 using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.Az
@@ -356,7 +357,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static IEnumerable<FunctionOverload> GetBicepMethods(ResourceTypeReference resourceType)
         {
-            yield return new FunctionWildcardOverloadBuilder("list*", new Regex("^list[a-zA-Z]*"))
+            yield return new FunctionWildcardOverloadBuilder("list*", AzConstants.ListWildcardFunctionRegex)
                 .WithReturnType(LanguageConstants.Any)
                 .WithDescription("The syntax for this function varies by name of the list operations. Each implementation returns values for the resource type that supports a list operation. The operation name must start with list. Some common usages are `listKeys`, `listKeyValue`, and `listSecrets`.")
                 .WithOptionalParameter("apiVersion", LanguageConstants.String, "API version of resource runtime state. Typically, in the format, yyyy-mm-dd.")

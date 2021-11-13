@@ -71,7 +71,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetTargetScopeCompletions(model, context))
-                .Concat(GetImportCompletions(model, context));
+                .Concat(GetImportCompletions(model, context))
+                .Concat(GetFunctionParamCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
@@ -811,6 +812,30 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return GetValueCompletionsForType(arrayType.Item.Type, context.ReplacementRange, loopsAllowed: false);
+        }
+
+        private IEnumerable<CompletionItem> GetFunctionParamCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument) ||
+                context.FunctionCall is not {} functionCall ||
+                model.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var argIndex = context.FunctionArgument is null ? 0 : functionCall.Arguments.IndexOf(context.FunctionArgument);
+
+            // if we have a mix of wildcard and non-wildcard overloads, prioritize the non-wildcard overloads.
+            // the wildcards have super generic type definitions, so don't result in helpful completions.
+            var overloads = functionSymbol.Overloads.Any(x => x is not FunctionWildcardOverload) ?
+                functionSymbol.Overloads.Where(x => x is not FunctionWildcardOverload) :
+                functionSymbol.Overloads;
+
+            var argTypes = overloads
+                .Where(x => x.MaximumArgumentCount is null || argIndex < x.MaximumArgumentCount)
+                .Select(x => argIndex < x.FixedParameters.Length ? x.FixedParameters[argIndex].Type : (x.VariableParameter?.Type ?? LanguageConstants.Never));
+
+            return GetValueCompletionsForType(TypeHelper.CreateTypeUnion(argTypes), context.ReplacementRange, loopsAllowed: false);
         }
 
         private IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? type, Range replacementRange, bool loopsAllowed)
