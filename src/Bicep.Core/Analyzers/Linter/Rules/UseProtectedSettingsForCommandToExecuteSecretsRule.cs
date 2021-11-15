@@ -31,7 +31,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             ("Microsoft.OSTCExtensions", "CustomScriptForLinux")
         );
 
-        public static readonly ImmutableArray<(string publisher, string type)> PublisherAndNameList => _publisherAndNameList;
+        public static ImmutableArray<(string publisher, string type)> PublisherAndNameList => _publisherAndNameList;
 
         public UseProtectedSettingsForCommandToExecuteSecretsRule() : base(
             code: Code,
