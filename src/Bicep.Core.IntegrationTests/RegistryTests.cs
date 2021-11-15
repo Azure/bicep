@@ -11,11 +11,9 @@ using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Modules;
 using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
@@ -25,7 +23,7 @@ using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using static Bicep.Core.Samples.DataSet;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -204,8 +202,9 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        [TestMethod]
-        public async Task ModuleRestoreWithStuckFileLockShouldFailAfterTimeout()
+        [DataTestMethod]
+        [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
+        public async Task ModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount)
         {
             var dataSet = DataSets.Registry_LF;
 
@@ -225,12 +224,12 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var moduleReferences = dataSet.RegistryModules.Values
+            var moduleReferences = moduleInfos
                 .OrderBy(m => m.Metadata.Target)
                 .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, configuration, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
                 .ToImmutableList();
 
-            moduleReferences.Should().HaveCount(7);
+            moduleReferences.Should().HaveCount(moduleCount);
 
             // initially the cache should be empty
             foreach (var moduleReference in moduleReferences)
@@ -270,6 +269,12 @@ namespace Bicep.Core.IntegrationTests
             {
                 dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Succeeded);
             }
+        }
+
+        public static IEnumerable<object []> GetModuleInfoData()
+        {
+            yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7 };
+            yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2 };
         }
     }
 }
