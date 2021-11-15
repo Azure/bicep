@@ -5,14 +5,14 @@ using System;
 
 namespace Bicep.Core.Registry
 {
-    public class TemplateSpecException : ExternalModuleException
+    public class ExternalModuleException : Exception
     {
-        public TemplateSpecException(string message)
+        public ExternalModuleException(string message)
             : base(message)
         {
         }
 
-        public TemplateSpecException(string message, Exception innerException)
+        public ExternalModuleException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
