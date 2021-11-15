@@ -24,14 +24,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         public new const string Code = "use-protectedsettings-for-commandtoexecute-secrets";
 
-        private (string publisher, string type)[] _publisherAndNameList = {
+        private static readonly ImmutableArray<(string publisher, string type)> _publisherAndNameList = ImmutableArray.Create<(string publisher, string type)>(
             // NOTE: This list was obtained by running "az vm extension image list"
             ("Microsoft.Azure.Extensions", "CustomScript"),
             ("Microsoft.Compute", "CustomScriptExtension"),
             ("Microsoft.OSTCExtensions", "CustomScriptForLinux")
-        };
+        );
 
-        public (string publisher, string type)[] PublisherAndNameList => _publisherAndNameList;
+        public static readonly ImmutableArray<(string publisher, string type)> PublisherAndNameList => _publisherAndNameList;
 
         public UseProtectedSettingsForCommandToExecuteSecretsRule() : base(
             code: Code,
@@ -47,7 +47,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             List<IDiagnostic> diagnostics = new List<IDiagnostic>();
 
-            foreach (ResourceMetadata resource in semanticModel.AllResources)
+            foreach (ResourceMetadata resource in semanticModel.AllResources.Where(r => r.IsAzResource))
             {
                 // We're looking for this pattern:
                 //

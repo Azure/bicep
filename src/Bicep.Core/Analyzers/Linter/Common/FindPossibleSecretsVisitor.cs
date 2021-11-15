@@ -28,9 +28,9 @@ namespace Bicep.Core.Analyzers.Linter.Common
         }
 
         private const string ListFunctionPrefix = "list";
-        private SemanticModel semanticModel;
-        private SyntaxBase syntax;
-        private List<PossibleSecret> possibleSecrets = new List<PossibleSecret>();
+        private readonly SemanticModel semanticModel;
+        private readonly SyntaxBase syntax;
+        private readonly List<PossibleSecret> possibleSecrets = new List<PossibleSecret>();
 
         /// <summary>
         /// Searches in an expression for possible references to sensitive data, such as secure parameters or list* functions (may but
