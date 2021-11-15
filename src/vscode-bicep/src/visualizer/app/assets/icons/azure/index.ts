@@ -6,8 +6,9 @@ export async function importResourceIconInline(
   switch (resourceType.toLowerCase()) {
     // Microsoft.Compute
     case "microsoft.compute/availabilitysets":
-      return (await import("./compute/10034-icon-service-VM-Scale-Sets.svg"))
-        .default;
+      return (
+        await import("./compute/10025-icon-service-Availability-Sets.svg")
+      ).default;
     case "microsoft.compute/disks":
       return (await import("./compute/10032-icon-service-Disks.svg")).default;
     case "microsoft.compute/virtualmachines":
@@ -16,6 +17,32 @@ export async function importResourceIconInline(
     case "microsoft.compute/virtualmachinescalesets":
       return (await import("./compute/10034-icon-service-VM-Scale-Sets.svg"))
         .default;
+    case "microsoft.compute/proximityplacementgroups":
+      return (
+        await import(
+          "./compute/10365-icon-service-Proximity-Placement-Groups.svg"
+        )
+      ).default;
+    case "microsoft.compute/diskencryptionsets":
+      return (
+        await import("./compute/00398-icon-service-Disk-Encryption-Sets.svg")
+      ).default;
+    case "microsoft.containerservice/managedclusters":
+      return (
+        await import("./compute/10023-icon-service-Kubernetes-Services.svg")
+      ).default;
+    case "microsoft.compute/snapshots":
+      return (await import("./compute/10026-icon-service-Disks-Snapshots.svg"))
+        .default;
+    case "microsoft.batch/batchaccounts":
+      return (await import("./compute/10031-icon-service-Batch-Accounts.svg"))
+        .default;
+    case "microsoft.compute/images":
+      return (await import("./compute/10033-icon-service-Images.svg")).default;
+    case "microsoft.compute/galleries":
+      return (
+        await import("./compute/10039-icon-service-Shared-Image-Galleries.svg")
+      ).default;
 
     // Microsoft.SQL
     case "microsoft.sql/servers":
@@ -163,6 +190,18 @@ export async function importResourceIconInline(
     case "microsoft.web/sites":
       return (await import("./appServices/10035-icon-service-App-Services.svg"))
         .default;
+    case "microsoft.web/certificates":
+      return (
+        await import(
+          "./appServices/00049-icon-service-App-Service-Certificates.svg"
+        )
+      ).default;
+    case "microsoft.web/hostingenvironments":
+      return (
+        await import(
+          "./appServices/10047-icon-service-App-Service-Environments.svg"
+        )
+      ).default;
 
     // Microsoft.ApiManagement
     case "microsoft.apimanagement/service":
