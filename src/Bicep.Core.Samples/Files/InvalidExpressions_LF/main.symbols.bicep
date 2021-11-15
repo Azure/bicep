@@ -89,6 +89,8 @@ var add = null + 's'
 //@[4:7) Variable add. Type: error. Declaration start char: 0, length: 20
 var sub = true - false
 //@[4:7) Variable sub. Type: error. Declaration start char: 0, length: 22
+var add = 'bad' + 'str'
+//@[4:7) Variable add. Type: error. Declaration start char: 0, length: 23
 
 // equality (== and != can't have a type error because they work on "any" type)
 var eq = true =~ null
@@ -291,6 +293,8 @@ var invalidPropertyAccessOnSysNamespace = sys.az
 //@[4:39) Variable invalidPropertyAccessOnSysNamespace. Type: error. Declaration start char: 0, length: 48
 var invalidOperands = 1 + az
 //@[4:19) Variable invalidOperands. Type: error. Declaration start char: 0, length: 28
+var invalidStringAddition = 'hello' + sampleObject.myStr
+//@[4:25) Variable invalidStringAddition. Type: error. Declaration start char: 0, length: 56
 
 var bannedFunctions = {
 //@[4:19) Variable bannedFunctions. Type: error. Declaration start char: 0, length: 393

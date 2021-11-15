@@ -7,6 +7,7 @@ const fontFamily = getComputedStyle(document.body)
   .replace(/"/g, "");
 
 export const darkTheme: DefaultTheme = {
+  name: "dark",
   fontFamily,
   common: {
     foregroundColor: "#ffffff",
@@ -39,9 +40,13 @@ export const darkTheme: DefaultTheme = {
       color: "#c1c1c1",
     },
   },
+  commandBarButton: {
+    backgroundColor: "#333333",
+  },
 };
 
 export const lightTheme: DefaultTheme = {
+  name: "light",
   fontFamily,
   common: {
     foregroundColor: "#323130",
@@ -74,9 +79,13 @@ export const lightTheme: DefaultTheme = {
       color: "#484644",
     },
   },
+  commandBarButton: {
+    backgroundColor: "white",
+  },
 };
 
 export const highContrastTheme: DefaultTheme = {
+  name: "high-contrast",
   fontFamily,
   common: {
     foregroundColor: "White",
@@ -107,5 +116,8 @@ export const highContrastTheme: DefaultTheme = {
       opacity: 1,
       color: "Yellow",
     },
+  },
+  commandBarButton: {
+    backgroundColor: "black",
   },
 };

@@ -1,11 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { useEffect, useRef, VFC, memo } from "react";
+import { useRef, VFC, memo, useCallback, useMemo } from "react";
 import cytoscape from "cytoscape";
-import elk from "cytoscape-elk";
 import styled, { DefaultTheme, withTheme } from "styled-components";
 
 import { createStylesheet } from "./style";
+import { createRevealFileRangeMessage } from "../../../messages";
+import { vscode } from "../../vscode";
+import { useCytoscape } from "../../hooks";
+import { CommandBar } from "./CommandBar";
 
 interface GraphProps {
   elements: cytoscape.ElementDefinition[];
@@ -17,8 +20,9 @@ const layoutOptions = {
   padding: 100,
   fit: true,
   animate: true,
-  animationDuration: 1000,
-  animationEasing: "cubic-bezier(0.33, 1, 0.68, 1)",
+  animationDuration: 800,
+  animationEasing:
+    "cubic-bezier(0.33, 1, 0.68, 1)" as cytoscape.Css.TransitionTimingFunction,
   elk: {
     algorithm: "layered",
     "layered.layering.strategy": "INTERACTIVE",
@@ -30,6 +34,12 @@ const layoutOptions = {
     "spacing.baseValue": 120,
     "spacing.componentComponent": 100,
   },
+};
+
+const zoomOptions = {
+  minLevel: 0.2,
+  maxLevel: 2,
+  sensitivity: 0.1,
 };
 
 const GraphContainer = styled.div`
@@ -47,44 +57,56 @@ const GraphContainer = styled.div`
 
 const GraphComponent: VFC<GraphProps> = ({ elements, theme }) => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const cytoscapeRef = useRef<cytoscape.Core>();
-  const layoutRef = useRef<cytoscape.Layouts>();
+  const styleSheet = useMemo(() => createStylesheet(theme), [theme]);
+  const [cytoscapeRef, layoutRef] = useCytoscape(elements, styleSheet, {
+    containerRef,
+    layoutOptions,
+    zoomOptions,
+    onNodeDoubleTap: useCallback((event: cytoscape.EventObjectNode) => {
+      const filePath = event.target.data("filePath");
+      const range = event.target.data("range");
+      vscode.postMessage(createRevealFileRangeMessage(filePath, range));
+    }, []),
+  });
 
-  useEffect(() => {
-    if (!cytoscapeRef.current) {
-      cytoscape.use(elk);
-      const cy = cytoscape({
-        container: containerRef.current,
-        layout: layoutOptions,
-        elements,
-        minZoom: 0.2,
-        maxZoom: 1,
-        wheelSensitivity: 0.1,
-        autounselectify: true,
-        style: createStylesheet(theme),
-      });
+  const handleZoomIn = useCallback(() => {
+    cytoscapeRef.current?.zoom(cytoscapeRef.current.zoom() + 0.1);
+  }, []);
 
-      cy.on("layoutstart", () => cy.maxZoom(1));
-      cy.on("layoutstop", () => cy.maxZoom(2));
+  const handleZoomOut = useCallback(() => {
+    cytoscapeRef.current?.zoom(cytoscapeRef.current.zoom() - 0.1);
+  }, []);
 
-      cytoscapeRef.current = cy;
-    } else {
-      layoutRef.current?.stop();
-      cytoscapeRef.current.json({ elements });
-      layoutRef.current = cytoscapeRef.current.layout(layoutOptions);
-      layoutRef.current.run();
-    }
-  }, [elements]);
+  const handleLayout = useCallback(() => {
+    layoutRef.current?.run();
+  }, []);
 
-  useEffect(() => {
-    if (cytoscapeRef.current) {
-      cytoscapeRef.current.style(createStylesheet(theme));
-    }
-  }, [theme]);
+  const handleFit = useCallback(() => {
+    cytoscapeRef.current?.animate(
+      {
+        fit: {
+          eles: cytoscapeRef.current.elements(),
+          padding: layoutOptions.padding,
+        },
+      },
+      {
+        easing: layoutOptions.animationEasing,
+        duration: layoutOptions.animationDuration,
+      }
+    );
+  }, []);
 
-  useEffect(() => () => cytoscapeRef.current?.destroy(), []);
-
-  return <GraphContainer ref={containerRef} theme={theme} />;
+  return (
+    <>
+      <GraphContainer ref={containerRef} theme={theme} />
+      <CommandBar
+        onZoomIn={handleZoomIn}
+        onZoomOut={handleZoomOut}
+        onLayout={handleLayout}
+        onFit={handleFit}
+      />
+    </>
+  );
 };
 
 export const Graph = memo(
@@ -99,6 +121,11 @@ export const Graph = memo(
       return (
         prevData.id === nextData.id &&
         prevData.hasError === nextData.hasError &&
+        prevData.filePath === nextData.filePath &&
+        prevData.range?.start?.line === nextData.range?.start?.line &&
+        prevData.range?.start?.character === nextData.range?.start?.character &&
+        prevData.range?.end?.line === nextData.range?.end?.line &&
+        prevData.range?.end?.character === nextData.range?.end?.character &&
         prevData.backgroundDataUri === nextData.backgroundDataUri &&
         prevData.source === nextData.source &&
         prevData.target === nextData.target

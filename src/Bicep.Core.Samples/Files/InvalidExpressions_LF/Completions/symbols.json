@@ -1074,6 +1074,20 @@
     }
   },
   {
+    "label": "invalidStringAddition",
+    "kind": "variable",
+    "detail": "invalidStringAddition",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_invalidStringAddition",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "invalidStringAddition"
+    }
+  },
+  {
     "label": "items",
     "kind": "function",
     "detail": "items()",

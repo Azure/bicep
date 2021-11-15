@@ -2726,5 +2726,57 @@ var otherExp = noValidation
                 ("BCP057", DiagnosticLevel.Error, "The name \"noValidation\" does not exist in the current context."),
             });
         }
+
+        // https://github.com/Azure/bicep/issues/4850
+        [TestMethod]
+        public void Test_Issue4850()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+resource keyVault 'Microsoft.KeyVault/vaults@2021-06-01-preview' existing = {
+  name: 'foo'
+  resource eventHubConnectionString 'secrets' existing = {
+    name: 'eh-connectionstring'
+  }
+}
+
+resource ehConn 'Microsoft.KeyVault/vaults/secrets@2021-06-01-preview' existing = {
+  parent: keyVault
+  name: 'eh-connectionstring'
+}
+
+var settings = [
+  {
+    name: 'ThisFails'
+    value: '@Microsoft.KeyVault(SecretUri=${keyVault::eventHubConnectionString.properties.secretUriWithVersion})'
+  }
+]");
+
+            result.Template.Should().NotHaveValueAtPath("$.variables");
+            result.Should().OnlyContainDiagnostic("no-unused-vars", DiagnosticLevel.Warning, "Variable \"settings\" is declared but never used.");
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3934
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue3934()
+        {
+            var result = CompilationHelper.Compile(@"
+param paramString string
+
+output out1 string = paramString + resourceGroup().location
+output out2 string = paramString + 'world'
+output out3 string = paramString + paramString
+output out4 string = 'hello' + 'world'
+");
+
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"string\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"'world'\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"string\". Use string interpolation instead."),
+                ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"'hello'\" and \"'world'\". Use string interpolation instead.")
+            });
+        }
     }
 }

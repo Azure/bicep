@@ -89,7 +89,7 @@ namespace Bicep.LanguageServer.Handlers
                         var resourceType = resourceSymbol.TryGetResourceTypeReference()?.FormatType() ?? "<unknown>";
                         var isCollection = resourceSymbol.IsCollection;
                         var resourceSpan = resourceSymbol.DeclaringResource.Span;
-                        var range = resourceSpan.ToRange(context.LineStarts);
+                        var range = resourceSpan.ToRange(semanticModel.SourceFile.LineStarts);
                         var resourceHasError = errors.Any(error => TextSpan.AreOverlapping(resourceSpan, error.Span));
 
                         nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, resourceType, isCollection, range, false, resourceHasError, filePath);
@@ -105,7 +105,7 @@ namespace Bicep.LanguageServer.Handlers
 
                         var isCollection = moduleSymbol.IsCollection;
                         var moduleSpan = moduleSymbol.DeclaringModule.Span;
-                        var range = moduleSpan.ToRange(context.LineStarts);
+                        var range = moduleSpan.ToRange(semanticModel.SourceFile.LineStarts);
                         var moduleHasError = errors.Any(error => TextSpan.AreOverlapping(moduleSpan, error.Span));
 
                         var hasChildren = false;
@@ -119,7 +119,7 @@ namespace Bicep.LanguageServer.Handlers
                             queue.Enqueue((bicepModel, moduleFilePath, id));
                         }
 
-                        nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, "<module>", isCollection, range, hasChildren, moduleHasError, moduleFilePath);
+                        nodesBySymbol[symbol] = new BicepDeploymentGraphNode(id, "<module>", isCollection, range, hasChildren, moduleHasError, filePath);
                     }
                 }
 
@@ -145,10 +145,12 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            return new BicepDeploymentGraph(
+            var graph = new BicepDeploymentGraph(
                 nodes.OrderBy(node => node.Id),
                 edges.OrderBy(edge => $"{edge.SourceId}>{edge.TargetId}"),
                 entrySemanticModel.GetAllDiagnostics().Count(x => x.Level == DiagnosticLevel.Error));
+
+            return graph;
         }
     }
 }
