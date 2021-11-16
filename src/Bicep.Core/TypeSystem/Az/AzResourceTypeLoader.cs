@@ -21,7 +21,7 @@ namespace Bicep.Core.TypeSystem.Az
         {
             this.typeLoader = new TypeLoader();
             this.resourceTypeFactory = new AzResourceTypeFactory();
-            this.availableTypes = typeLoader.GetIndexedTypes().Types.ToImmutableDictionary(
+            this.availableTypes = typeLoader.GetIndexedTypes().Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value,
                 ResourceTypeReferenceComparer.Instance);
