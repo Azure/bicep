@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
@@ -171,6 +172,52 @@ namespace Bicep.Core.UnitTests.Utils
                 ), null));
         }
 
+        private static ResourceTypeComponents ListFunctionsType()
+        {
+            var resourceType = ResourceTypeReference.Parse("Test.Rp/listFuncTests@2020-01-01");
+
+            var noInputOutput = new ObjectType("NoInputOutput", TypeSymbolValidationFlags.Default,
+                new [] {
+                    new TypeProperty("noInputOutputVal", LanguageConstants.String, TypePropertyFlags.ReadOnly, "Foo description"),
+                }, null);
+
+            var withInputInput = new ObjectType("WithInputInput", TypeSymbolValidationFlags.Default,
+                new [] {
+                    new TypeProperty("withInputInputVal", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.Required, "Foo description"),
+                }, null);
+            var withInputOutput = new ObjectType("WithInputOutput", TypeSymbolValidationFlags.Default,
+                new [] {
+                    new TypeProperty("withInputOutputVal", LanguageConstants.String, TypePropertyFlags.ReadOnly, "Foo description"),
+                }, null);
+
+            var overloads = new []
+            {
+                new FunctionOverloadBuilder("listNoInput")
+                    .WithReturnType(noInputOutput)
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build(),
+                new FunctionOverloadBuilder("listWithInput")
+                    .WithReturnType(withInputOutput)
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build(),
+                new FunctionOverloadBuilder("listWithInput")
+                    .WithRequiredParameter("apiVersion", new StringLiteralType(resourceType.ApiVersion!), "The api version")
+                    .WithRequiredParameter("params", withInputInput, "listWithInput parameters")
+                    .WithReturnType(withInputOutput)
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build(),
+            };
+
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, 
+                new ObjectType(
+                    resourceType.FormatName(),
+                    TypeSymbolValidationFlags.Default,
+                    AzResourceTypeProvider.GetCommonResourceProperties(resourceType),
+                    null,
+                    TypePropertyFlags.None,
+                    overloads));
+        }
+
         public static INamespaceProvider Create()
             => TestTypeHelper.CreateProviderWithTypes(new[] {
                 BasicTestsType(),
@@ -179,6 +226,7 @@ namespace Bicep.Core.UnitTests.Utils
                 DiscriminatedPropertiesTestsType(),
                 DiscriminatedPropertiesTestsType2(),
                 FallbackPropertyTestsType(),
+                ListFunctionsType(),
             });
     }
 }
