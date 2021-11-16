@@ -8,7 +8,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Parsing
@@ -101,6 +100,202 @@ namespace Bicep.Core.UnitTests.Parsing
                 "BCP002",
                 expectedTokenText: expectedTokenText,
                 expectedStartPosition: expectedTokenText.Length);
+        }
+
+        [TestMethod]
+        public void MissingCodesInDisableNextLineDiagnosticsDirective_ShouldBeRecognizedWithError()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("#disable-next-line"), diagnosticWriter);
+            lexer.Lex();
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP226");
+                    x.Message.Should().Be("Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\"");
+                });
+        }
+
+        [TestMethod]
+        public void DisableNextLineDiagnosticsDirectiveWithLeadingText_ShouldBeRecognizedWithError()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("var terminatedWithDirective = 'foo' #disable-next-line no-unused-params"), diagnosticWriter);
+            lexer.Lex();
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP001");
+                    x.Message.Should().Be("The following token is not recognized: \"#\".");
+                });
+
+            var endOfFileToken = lexer.GetTokens().First(x => x.Type == TokenType.EndOfFile);
+
+            endOfFileToken.Should().NotBeNull();
+            endOfFileToken.LeadingTrivia.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void DisableNextLineDiagnosticsDirectiveWithLeadingWhiteSpace_ShouldLexCorrectly()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("   #disable-next-line no-unused-params"), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var endOfFileToken = lexer.GetTokens().First(x => x.Type == TokenType.EndOfFile);
+
+            endOfFileToken.Should().NotBeNull();
+
+            var leadingTrivia = endOfFileToken.LeadingTrivia;
+            leadingTrivia.Count().Should().Be(2);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
+                },
+                x =>
+                {
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                });
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineDiagnosticsDirective_ShouldLexCorrectly()
+        {
+            string text = "#disable-next-line BCP226";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(1);
+
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            disableNextLineSyntaxTrivia.Should().NotBeNull();
+            disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(1);
+
+            var firstCode = disableNextLineSyntaxTrivia.DiagnosticCodes.First();
+
+            firstCode.Text.Should().Be("BCP226");
+            firstCode.Span.Should().Be(new TextSpan(19, 6));
+
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+            disableNextLineSyntaxTrivia.Text.Should().Be(text);
+            disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 25));
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineDiagnosticsDirective_WithMultipleCodes_ShouldLexCorrectly()
+        {
+            string text = "#disable-next-line BCP226 BCP227";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(1);
+
+            var disableNextLineSyntaxTrivia = leadingTrivia.First() as DisableNextLineDiagnosticsSyntaxTrivia;
+            disableNextLineSyntaxTrivia.Should().NotBeNull();
+            disableNextLineSyntaxTrivia!.DiagnosticCodes.Count().Should().Be(2);
+
+            var firstCode = disableNextLineSyntaxTrivia.DiagnosticCodes.First();
+
+            firstCode.Text.Should().Be("BCP226");
+            firstCode.Span.Should().Be(new TextSpan(19, 6));
+
+            var secondCode = disableNextLineSyntaxTrivia.DiagnosticCodes.ElementAt(1);
+
+            secondCode.Text.Should().Be("BCP227");
+            secondCode.Span.Should().Be(new TextSpan(26, 6));
+
+            disableNextLineSyntaxTrivia.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+            disableNextLineSyntaxTrivia.Text.Should().Be(text);
+            disableNextLineSyntaxTrivia.Span.Should().Be(new TextSpan(0, 32));
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineDiagnosticsDirective_WithLeadingWhiteSpace_ShouldLexCorrectly()
+        {
+            string text = "    #disable-next-line BCP226";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(2);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Text.Should().Be("    ");
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("#disable-next-line BCP226");
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                });
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineDiagnosticsDirective_WithTrailingWhiteSpace_ShouldLexCorrectly()
+        {
+            string text = "#disable-next-line BCP226   // test";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(1);
+
+            var leadingTrivia = tokens.First().LeadingTrivia;
+            leadingTrivia.Count().Should().Be(3);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Text.Should().Be("#disable-next-line BCP226");
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("   ");
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("// test");
+                    x.Type.Should().Be(SyntaxTriviaType.SingleLineComment);
+                });
         }
 
         [TestMethod]
@@ -244,7 +439,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataTestMethod]
         public void Multiline_strings_should_lex_correctly(string text, string expectedValue)
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create(); 
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 
@@ -260,7 +455,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataTestMethod]
         public void Unterminated_multiline_strings_should_attach_a_diagnostic(string text)
         {
-            var diagnosticWriter = ToListDiagnosticWriter.Create(); 
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
             var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
             lexer.Lex();
 

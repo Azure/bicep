@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
@@ -8,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Parsing
@@ -138,7 +138,8 @@ namespace Bicep.Core.Parsing
         /// <param name="stringToken">the string token</param>
         public static string? TryGetStringValue(Token stringToken)
         {
-            var (start, end) = stringToken.Type switch {
+            var (start, end) = stringToken.Type switch
+            {
                 TokenType.StringComplete => (LanguageConstants.StringDelimiter, LanguageConstants.StringDelimiter),
                 TokenType.StringLeftPiece => (LanguageConstants.StringDelimiter, LanguageConstants.StringHoleOpen),
                 TokenType.StringMiddlePiece => (LanguageConstants.StringHoleClose, LanguageConstants.StringHoleOpen),
@@ -194,7 +195,7 @@ namespace Bicep.Core.Parsing
                         }
 
                         var codePointText = ScanHexNumber(window);
-                        if(!TryParseCodePoint(codePointText, out uint codePoint))
+                        if (!TryParseCodePoint(codePointText, out uint codePoint))
                         {
                             // invalid codepoint
                             return null;
@@ -267,7 +268,7 @@ namespace Bicep.Core.Parsing
             if (codePoint < 0x00010000)
             {
                 lowSurrogate = SlidingTextWindow.InvalidCharacter;
-                return (char) codePoint;
+                return (char)codePoint;
             }
 
             Debug.Assert(codePoint > 0x0000FFFF && codePoint <= 0x0010FFFF);
@@ -312,11 +313,132 @@ namespace Bicep.Core.Parsing
                     yield return ScanMultiLineComment();
                     yield break;
                 }
+                else if (textWindow.Peek() == '#' &&
+                    CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
+                    string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
+                {
+                    yield return ScanDisableNextLineDiagnosticsDirective();
+                }
                 else
                 {
                     yield break;
                 }
             }
+        }
+
+        private SyntaxTrivia ScanDisableNextLineDiagnosticsDirective()
+        {
+            textWindow.Reset();
+            textWindow.Advance(LanguageConstants.DisableNextLineDiagnosticsKeyword.Length + 1); // Length of disable next statement plus #
+
+            var span = textWindow.GetSpan();
+            int start = span.Position;
+            int length = span.Length;
+
+            StringBuilder sb = new StringBuilder();
+            sb.Append(textWindow.GetText());
+
+            textWindow.Reset();
+
+            List<Token> codes = new();
+
+            while (!textWindow.IsAtEnd())
+            {
+                var nextChar = textWindow.Peek();
+
+                if (IsIdentifierContinuation(nextChar) || nextChar == '-')
+                {
+                    switch (textWindow.Peek(1))
+                    {
+                        case ' ':
+                        case '\t':
+                        case '\n':
+                        case '\r':
+                        case char.MaxValue:
+                            textWindow.Advance();
+
+                            if (GetToken() is { } token)
+                            {
+                                codes.Add(token);
+                                length += token.Span.Length;
+                                sb.Append(token.Text);
+
+                                continue;
+                            }
+                            break;
+                        default:
+                            textWindow.Advance();
+                            break;
+                    }
+                }
+                else if (nextChar == ' ' || nextChar == '\t')
+                {
+                    textWindow.Advance();
+                    sb.Append(nextChar);
+                    length++;
+                    textWindow.Reset();
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            if (codes.Count == 0)
+            {
+                AddDiagnostic(b => b.MissingDiagnosticCodes());
+            }
+
+            return GetDisableNextLineDiagnosticsSyntaxTrivia(codes, start, length, sb.ToString());
+        }
+
+        private bool CheckAdjacentText(string text)
+        {
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (textWindow.Peek(i + 1) == text[i])
+                {
+                    continue;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<Token> codes, int start, int length, string text)
+        {
+            if (codes.Any())
+            {
+                var lastCodeSpan = codes.Last().Span;
+                var lastCodeSpanEnd = lastCodeSpan.GetEndPosition();
+
+                // There could be whitespace following #disable-next-line directive, in which case we need to adjust the span and text.
+                // E.g. #disable-next-line BCP226   // test
+                if (length > lastCodeSpanEnd)
+                {
+                    textWindow.Rewind(length - lastCodeSpanEnd);
+
+                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd), text.Substring(0, lastCodeSpanEnd), codes);
+                }
+            }
+
+            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, length), text, codes);
+        }
+
+        private Token? GetToken()
+        {
+            var text = textWindow.GetText();
+
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                return new Token(TokenType.StringComplete, textWindow.GetSpan(), textWindow.GetText(), Enumerable.Empty<SyntaxTrivia>(), Enumerable.Empty<SyntaxTrivia>());
+            }
+
+            return null;
         }
 
         private void LexToken()
