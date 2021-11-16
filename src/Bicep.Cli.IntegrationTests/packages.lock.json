@@ -59,6 +59,22 @@
         "resolved": "3.4.231",
         "contentHash": "ifpSbv0sySgIVymTQQz0pjI6O7o/JxnIQMlj28JF5Ybr1LoUTcMfoKnAKwteRlhpQM9qJmONGy9M8BgrEcOteg=="
       },
+      "Azure.Bicep.Types": {
+        "type": "Transitive",
+        "resolved": "0.1.330",
+        "contentHash": "1wfYLsdPrURRxgI0BpXeJE9ELmexof3jnPe2MGX7Kyv74rEbDBd6uinxuTPZxVHzYNA/dJK9cybeM3WOBlwsRQ==",
+        "dependencies": {
+          "System.Text.Json": "5.0.2"
+        }
+      },
+      "Azure.Bicep.Types.Az": {
+        "type": "Transitive",
+        "resolved": "0.1.330",
+        "contentHash": "lD8iLYikdv3smbqpUZ4nmUO80TuxoPuLvEN4OPa03SJ8I4sGlO+JiXD/FU9wZwn1hkOwQ1F3f/BOVrKJMHOdXQ==",
+        "dependencies": {
+          "Azure.Bicep.Types": "0.1.330"
+        }
+      },
       "Azure.Containers.ContainerRegistry": {
         "type": "Transitive",
         "resolved": "1.1.0-beta.3",
@@ -2241,18 +2257,6 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "Azure.Bicep.Types": {
-        "type": "Project",
-        "dependencies": {
-          "System.Text.Json": "5.0.2"
-        }
-      },
-      "Azure.Bicep.Types.Az": {
-        "type": "Project",
-        "dependencies": {
-          "Azure.Bicep.Types": "1.0.0"
-        }
-      },
       "bicep": {
         "type": "Project",
         "dependencies": {
@@ -2275,8 +2279,8 @@
       "bicep.core": {
         "type": "Project",
         "dependencies": {
-          "Azure.Bicep.Types": "1.0.0",
-          "Azure.Bicep.Types.Az": "1.0.0",
+          "Azure.Bicep.Types": "0.1.330",
+          "Azure.Bicep.Types.Az": "0.1.330",
           "Azure.Containers.ContainerRegistry": "1.1.0-beta.3",
           "Azure.Deployments.Core": "1.0.253",
           "Azure.Deployments.Expression": "1.0.253",
