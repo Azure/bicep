@@ -82,12 +82,17 @@ namespace Bicep.Core.Workspaces
                 builder.errorBuildersByModuleDeclaration.Remove(module);
             }
 
-            return builder.Build(current.EntryPoint.FileUri);
+            // Rebuild source files that contains external module references restored during the inital build.
+            var sourceFilesToRebuild = current.SourceFiles
+                .Where(sourceFile => GetModuleDeclarations(sourceFile).Any(moduleDeclaration => current.ModulesToRestore.Contains(moduleDeclaration)))
+                .ToImmutableHashSet();
+
+            return builder.Build(current.EntryPoint.FileUri, sourceFilesToRebuild);
         }
 
-        private SourceFileGrouping Build(Uri entryFileUri)
+        private SourceFileGrouping Build(Uri entryFileUri, ImmutableHashSet<ISourceFile>? sourceFilesToRebuild = null)
         {
-            var sourceFile = this.PopulateRecursive(entryFileUri, null, out var entryPointLoadFailureBuilder);
+            var sourceFile = this.PopulateRecursive(entryFileUri, null, sourceFilesToRebuild, out var entryPointLoadFailureBuilder);
 
             if (sourceFile is null)
             {
@@ -155,7 +160,7 @@ namespace Bicep.Core.Workspaces
             return sourceFile;
         }
 
-        private ISourceFile? PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, out ErrorBuilderDelegate? failureBuilder)
+        private ISourceFile? PopulateRecursive(Uri fileUri, ModuleReference? moduleReference, ImmutableHashSet<ISourceFile>? sourceFileToRebuild, out ErrorBuilderDelegate? failureBuilder)
         {
             var sourceFile = this.TryGetSourceFile(fileUri, moduleReference, out var getSourceFileFailureBuilder);
 
@@ -206,11 +211,12 @@ namespace Bicep.Core.Workspaces
                     continue;
                 }
 
-                // only recurse if we've not seen this module before - to avoid infinite loops
-                if (!sourceFilesByUri.TryGetValue(childModuleFileUri, out var childModuleFile))
+                // only recurse if we've not seen this module before - to avoid infinite loops, unless the module needs to be rebuilt
+                if (!sourceFilesByUri.TryGetValue(childModuleFileUri, out var childModuleFile) ||
+                    (sourceFileToRebuild is not null && sourceFileToRebuild.Contains(childModuleFile)))
                 {
-                    childModuleFile = PopulateRecursive(childModuleFileUri, childModuleReference, out var modulePopulateFailureBuilder);
-                    
+                    childModuleFile = PopulateRecursive(childModuleFileUri, childModuleReference, sourceFileToRebuild, out var modulePopulateFailureBuilder);
+
                     if (childModuleFile is null)
                     {
                         // TODO: If we upgrade to netstandard2.1, we should be able to use the following to hint to the compiler that failureBuilder is non-null:
