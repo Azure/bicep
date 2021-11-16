@@ -1336,7 +1336,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 }
 
 var outTest = abc.listWithInput('2020-01-01', {
-        withInputInputVal: foo
+  withInputInputVal: foo
 }|)
 ");
         }
@@ -1622,6 +1622,9 @@ var testF = stg.listAccountSas('2021-06-01', {}).|
             var start = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.Start);
             var end = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.End);
             var textToInsert = completion.TextEdit!.TextEdit!.NewText;
+            
+            // the completion handler returns tabs. convert to double space to simplify printing.
+            textToInsert = textToInsert.Replace("\t", "  ");
 
             // always expect this mode for now
             completion.InsertTextMode.Should().Be(InsertTextMode.AdjustIndentation);
