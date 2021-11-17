@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17038988552482683858"
+      "templateHash": "2127873313917417280"
     }
   },
   "parameters": {
@@ -67,7 +67,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "bastionSubnetName": "AzureBastionSubnet",
     "bastionSubnetNsgName": "[format('{0}Nsg', variables('bastionSubnetName'))]",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16512295221089606821"
+      "templateHash": "13274476665266675087"
     }
   },
   "parameters": {
@@ -26,7 +26,6 @@
       "defaultValue": "10.0.0.0/15"
     }
   },
-  "functions": [],
   "variables": {
     "vnetName": "[format('vnet-{0}', parameters('suffix'))]"
   },

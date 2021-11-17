@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14244910561863265451"
+      "templateHash": "2760206701276618716"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "defaultValue": "westeurope"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/resourceGroups",
@@ -65,7 +64,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3715870865053330009"
+              "templateHash": "15495507930110483956"
             }
           },
           "parameters": {
@@ -79,7 +78,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/virtualNetworks",
@@ -151,7 +149,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3715870865053330009"
+              "templateHash": "15495507930110483956"
             }
           },
           "parameters": {
@@ -165,7 +163,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/virtualNetworks",
@@ -222,7 +219,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11918431151627110969"
+              "templateHash": "13311839235455797530"
             }
           },
           "parameters": {
@@ -233,7 +230,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",
@@ -314,7 +310,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5614441752281108595"
+              "templateHash": "15531165796545459208"
             }
           },
           "parameters": {
@@ -328,7 +324,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
@@ -381,7 +376,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5614441752281108595"
+              "templateHash": "15531165796545459208"
             }
           },
           "parameters": {
@@ -395,7 +390,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",
@@ -445,7 +439,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12110720187620775770"
+              "templateHash": "16189283045692667809"
             }
           },
           "parameters": {
@@ -456,7 +450,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/routeTables",

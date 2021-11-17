@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11096605491391377587"
+      "templateHash": "8287095659103081792"
     }
   },
   "parameters": {
@@ -18,7 +18,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "frontEndEndpointName": "frontEndEndpoint",
     "loadBalancingSettingsName": "loadBalancingSettings",

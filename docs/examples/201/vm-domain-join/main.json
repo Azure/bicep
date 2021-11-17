@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5652906742106607423"
+      "templateHash": "4920029699139795418"
     }
   },
   "parameters": {
@@ -54,7 +54,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "storageAccountName": "[uniqueString(resourceGroup().id, deployment().name)]",
     "imagePublisher": "MicrosoftWindowsServer",

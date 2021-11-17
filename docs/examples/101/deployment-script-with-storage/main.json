@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2397731199273610691"
+      "templateHash": "12599727556925904881"
     }
   },
   "parameters": {
@@ -34,7 +34,6 @@
       "defaultValue": "[utcNow()]"
     }
   },
-  "functions": [],
   "variables": {
     "uamiId": "[resourceId(parameters('subId'), parameters('rgName'), 'Microsoft.ManagedIdentity/userAssignedIdentities', parameters('uamiName'))]"
   },

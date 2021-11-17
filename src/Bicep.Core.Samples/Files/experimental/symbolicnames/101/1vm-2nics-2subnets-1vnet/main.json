@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13828106448534538485"
+      "templateHash": "8152388388227616061"
     }
   },
   "parameters": {
@@ -49,7 +49,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "virtualMachineName": "VM-MultiNic",
     "nic1Name": "nic-1",

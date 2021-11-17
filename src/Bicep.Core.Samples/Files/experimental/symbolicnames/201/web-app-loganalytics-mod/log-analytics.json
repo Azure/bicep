@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6920818832844712742"
+      "templateHash": "1509661387361677849"
     }
   },
   "parameters": {
@@ -19,7 +19,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"
   },

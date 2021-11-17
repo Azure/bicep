@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2605189513208279262"
+      "templateHash": "8842163985142754986"
     }
   },
   "parameters": {
@@ -24,7 +24,6 @@
       ]
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Authorization/policyDefinitions",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17696463296650700918"
+      "templateHash": "17491111130964775226"
     }
   },
   "parameters": {
@@ -76,7 +76,6 @@
       }
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Search/searchServices",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14302662418538179888"
+      "templateHash": "365740299004534431"
     }
   },
   "parameters": {
@@ -30,7 +30,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "vnet1cfg": {
       "name": "[format('vnet1-{0}', parameters('location'))]",

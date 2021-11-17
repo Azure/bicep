@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7762388379069236663"
+      "templateHash": "7661581430833195871"
     }
   },
   "parameters": {
@@ -94,7 +94,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "lockName": "[format('{0}-lck', parameters('name'))]",
     "diagnosticsName": "[format('{0}-dgs', parameters('name'))]"

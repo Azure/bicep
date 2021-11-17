@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "861346519223189514"
+      "templateHash": "3242320020932357364"
     }
   },
   "parameters": {
@@ -24,7 +24,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "appServicePlanName": "[format('{0}{1}', parameters('appName'), uniqueString(subscription().subscriptionId))]",
     "vnetName": "[format('{0}vnet', parameters('appName'))]",

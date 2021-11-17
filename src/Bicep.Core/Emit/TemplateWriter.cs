@@ -141,9 +141,9 @@ namespace Bicep.Core.Emit
 
             this.EmitParametersIfPresent(jsonWriter, emitter);
 
-            jsonWriter.WritePropertyName("functions");
-            jsonWriter.WriteStartArray();
-            jsonWriter.WriteEndArray();
+            // jsonWriter.WritePropertyName("functions");
+            // jsonWriter.WriteStartArray();
+            // jsonWriter.WriteEndArray();
 
             this.EmitVariablesIfPresent(jsonWriter, emitter);
 

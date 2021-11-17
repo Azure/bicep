@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14809252553564219752"
+      "templateHash": "2254377562618197384"
     }
   },
   "parameters": {
@@ -271,7 +271,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "emptyArray": [],
     "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -521,7 +520,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9768223943364163858"
+              "templateHash": "8777864661194051401"
             }
           },
           "parameters": {
@@ -541,7 +540,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "condition": "[parameters('createNetworkSecurityGroup')]",

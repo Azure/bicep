@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8105070701854868101"
+      "templateHash": "15576315323975893183"
     }
   },
   "parameters": {
@@ -20,7 +20,6 @@
       "type": "secureString"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.KeyVault/vaults/secrets",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4176017426826292338"
+      "templateHash": "12874224626936891094"
     }
   },
   "parameters": {
@@ -68,7 +68,6 @@
       "minValue": 32
     }
   },
-  "functions": [],
   "variables": {
     "networkSecurityGroupName": "[format('{0}-nsg', parameters('managedInstanceName'))]",
     "routeTableName": "[format('{0}-routetable', parameters('managedInstanceName'))]"

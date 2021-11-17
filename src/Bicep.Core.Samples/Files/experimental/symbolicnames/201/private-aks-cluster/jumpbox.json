@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "220947672133229591"
+      "templateHash": "2606259165118348826"
     }
   },
   "parameters": {
@@ -152,7 +152,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
     "vmNicId": "[resourceInfo('vmNic').id]",

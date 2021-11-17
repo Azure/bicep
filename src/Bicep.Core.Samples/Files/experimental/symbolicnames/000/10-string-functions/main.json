@@ -7,10 +7,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15805764205732976860"
+      "templateHash": "17332191513775852648"
     }
   },
-  "functions": [],
   "variables": {
     "list": "a,b,c,d",
     "arrayFromString": "[split(variables('list'), ',')]",
