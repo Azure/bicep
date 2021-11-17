@@ -474,7 +474,7 @@ namespace Bicep.Core.Diagnostics
 
                 if (!maximumArgumentCount.HasValue)
                 {
-                    expected = $"as least {mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                    expected = $"at least {mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
                 }
                 else if (mininumArgumentCount == maximumArgumentCount.Value)
                 {
