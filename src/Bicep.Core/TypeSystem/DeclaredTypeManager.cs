@@ -101,6 +101,9 @@ namespace Bicep.Core.TypeSystem
 
                 case StringSyntax @string:
                     return GetStringType(@string);
+
+                case FunctionArgumentSyntax functionArgument:
+                    return GetFunctionArgumentType(functionArgument);
             }
 
             return null;
@@ -272,14 +275,17 @@ namespace Bicep.Core.TypeSystem
             // we are only handling paths in the AST that are going to produce a declared type
             // arrays can exist under a variable declaration, but variables don't have declared types,
             // so we don't need to check that case
-            if (parent is ObjectPropertySyntax)
+            switch (parent)
             {
-                // this array is a value of the property
-                // the declared type should be the same as the array and we should propagate the flags
-                return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case ObjectPropertySyntax:
+                    // this array is a value of the property
+                    // the declared type should be the same as the array and we should propagate the flags
+                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case FunctionArgumentSyntax:
+                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                default:
+                    return null;
             }
-
-            return null;
         }
 
         private DeclaredTypeAssignment? GetStringType(StringSyntax syntax)
@@ -289,14 +295,33 @@ namespace Bicep.Core.TypeSystem
             // we are only handling paths in the AST that are going to produce a declared type
             // strings can exist under a variable declaration, but variables don't have declared types,
             // so we don't need to check that case
-            if (parent is ObjectPropertySyntax || parent is ArrayItemSyntax)
+            switch (parent)
             {
-                // this string is a value of the property
-                // the declared type should be the same as the string and we should propagate the flags
-                return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case ObjectPropertySyntax:
+                case ArrayItemSyntax:
+                    // this string is a value of the property
+                    // the declared type should be the same as the string and we should propagate the flags
+                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                case FunctionArgumentSyntax:
+                    return GetDeclaredTypeAssignment(parent)?.ReplaceDeclaringSyntax(syntax);
+                default:
+                    return null;
             }
+        }
 
-            return null;
+        private DeclaredTypeAssignment? GetFunctionArgumentType(FunctionArgumentSyntax syntax)
+        {
+            var parent = this.binder.GetParent(syntax);
+            if (parent is not FunctionCallSyntaxBase parentFunction ||
+                SymbolHelper.TryGetSymbolInfo(this.binder, this.GetDeclaredType, parent) is not FunctionSymbol functionSymbol)
+            {
+                return null;
+            }
+ 
+            var argIndex = parentFunction.Arguments.IndexOf(syntax);
+            var declaredType = functionSymbol.GetDeclaredArgumentType(argIndex);
+
+            return new DeclaredTypeAssignment(declaredType, declaringSyntax: null);
         }
 
         private DeclaredTypeAssignment? GetArrayItemType(ArrayItemSyntax syntax)
@@ -515,6 +540,13 @@ namespace Bicep.Core.TypeSystem
                     // the object is an item in an array
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, importAssignment.Flags);
+                case FunctionArgumentSyntax:
+                    if (GetDeclaredTypeAssignment(parent) is not {} parentAssignment)
+                    {
+                        return null;
+                    }
+
+                    return TryCreateAssignment(ResolveDiscriminatedObjects(parentAssignment.Reference.Type, syntax), syntax, parentAssignment.Flags);
             }
 
             return null;

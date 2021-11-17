@@ -184,6 +184,8 @@ namespace Bicep.Core.UnitTests.Utils
             var withInputInput = new ObjectType("WithInputInput", TypeSymbolValidationFlags.Default,
                 new [] {
                     new TypeProperty("withInputInputVal", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.Required, "Foo description"),
+                    new TypeProperty("optionalVal", LanguageConstants.String, TypePropertyFlags.WriteOnly, "optionalVal description"),
+                    new TypeProperty("optionalLiteralVal", TypeHelper.CreateTypeUnion(new StringLiteralType("either"), new StringLiteralType("or")), TypePropertyFlags.WriteOnly, "optionalLiteralVal description"),
                 }, null);
             var withInputOutput = new ObjectType("WithInputOutput", TypeSymbolValidationFlags.Default,
                 new [] {
