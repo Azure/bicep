@@ -1342,6 +1342,75 @@ var outTest = abc.listWithInput('2020-01-01', {
         }
 
         [TestMethod]
+        public async Task List_functions_accepting_inputs_permit_object_key_completions()
+        {
+            var fileWithCursors = @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  |
+})
+";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            var client = helper.Client;
+            var completions = await RequestCompletion(client, bicepFile, cursors.Single());
+            completions.Should().Contain(x => x.Label == "optionalVal");
+
+            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "optionalVal"));
+            updatedFile.Should().HaveSourceText(@"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalVal:|
+})
+");
+        }
+
+        [TestMethod]
+        public async Task List_functions_accepting_inputs_permit_object_value_completions()
+        {
+            var fileWithCursors = @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: |
+})
+";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            var client = helper.Client;
+            var completions = await RequestCompletion(client, bicepFile, cursors.Single());
+            completions.Should().Contain(x => x.Label == "'either'");
+            completions.Should().Contain(x => x.Label == "'or'");
+
+            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "'either'"));
+            updatedFile.Should().HaveSourceText(@"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: 'either'|
+})
+");
+        }
+
+        [TestMethod]
         public async Task List_functions_return_property_completions()
         {
             var fileWithCursors = @"
@@ -1640,6 +1709,7 @@ var testF = stg.listAccountSas('2021-06-01', {}).|
                     }
                     break;
                 case InsertTextFormat.PlainText:
+                    textToInsert = textToInsert + "|";
                     break;
                 default:
                     throw new InvalidOperationException();
