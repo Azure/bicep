@@ -1307,7 +1307,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
 
-var outTest = abc.listWithInput('2020-01-01')
+var outTest = abc.listWithInput('2020-01-01'|)
 ");
         }
 
@@ -1434,7 +1434,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
 
-var outTest = abc.listWithInput().withInputOutputVal
+var outTest = abc.listWithInput().withInputOutputVal|
 ");
         }
 
