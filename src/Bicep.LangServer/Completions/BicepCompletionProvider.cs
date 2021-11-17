@@ -824,18 +824,9 @@ namespace Bicep.LanguageServer.Completions
             }
 
             var argIndex = context.FunctionArgument is null ? 0 : functionCall.Arguments.IndexOf(context.FunctionArgument);
+            var argType = functionSymbol.GetDeclaredArgumentType(argIndex);
 
-            // if we have a mix of wildcard and non-wildcard overloads, prioritize the non-wildcard overloads.
-            // the wildcards have super generic type definitions, so don't result in helpful completions.
-            var overloads = functionSymbol.Overloads.Any(x => x is not FunctionWildcardOverload) ?
-                functionSymbol.Overloads.Where(x => x is not FunctionWildcardOverload) :
-                functionSymbol.Overloads;
-
-            var argTypes = overloads
-                .Where(x => x.MaximumArgumentCount is null || argIndex < x.MaximumArgumentCount)
-                .Select(x => argIndex < x.FixedParameters.Length ? x.FixedParameters[argIndex].Type : (x.VariableParameter?.Type ?? LanguageConstants.Never));
-
-            return GetValueCompletionsForType(TypeHelper.CreateTypeUnion(argTypes), context.ReplacementRange, loopsAllowed: false);
+            return GetValueCompletionsForType(argType, context.ReplacementRange, loopsAllowed: false);
         }
 
         private IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? type, Range replacementRange, bool loopsAllowed)
