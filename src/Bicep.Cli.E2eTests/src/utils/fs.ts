@@ -11,7 +11,7 @@ const rimrafAsync = promisify(rimraf);
 export const bicepCli = path.resolve(
   __dirname,
   process.env.BICEP_CLI_EXECUTABLE ||
-    "../../../Bicep.Cli/bin/Debug/net5.0/bicep"
+    "../../../Bicep.Cli/bin/Debug/net6.0/bicep"
 );
 
 export const moduleCacheRoot = path.resolve(homedir(), ".bicep");

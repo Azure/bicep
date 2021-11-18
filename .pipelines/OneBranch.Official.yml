@@ -28,7 +28,7 @@ variables:
 
   BuildSolution: $(Build.SourcesDirectory)/Bicep.sln
   BuildConfiguration: Release
-  TargetFramework: net5.0
+  TargetFramework: net6.0
 
   # Docker images which are used to build the project https://aka.ms/obpipelines/containers
   WindowsContainerImage: 'cdpxwin1809.azurecr.io/global/vse2019:latest'

@@ -36,7 +36,7 @@ const config: Configuration = {
     new CopyPlugin({
       patterns: [
         // copy across the Blazor code for the compiler
-        { from: '../Bicep.Wasm/bin/Release/net5.0/wwwroot/_framework', to: './_framework/' },
+        { from: '../Bicep.Wasm/bin/Release/net6.0/wwwroot/_framework', to: './_framework/' },
         // copy all the examples so that they can be loaded by the frontend
         ...exampleIndex.map(({ filePath }) => ({ from: `../../docs/examples/${filePath}`, to: `./examples/${filePath}`})),
       ],
