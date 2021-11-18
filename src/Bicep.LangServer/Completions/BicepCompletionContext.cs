@@ -95,10 +95,34 @@ namespace Bicep.LanguageServer.Completions
             var triviaMatchingOffset = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, offset);
             switch (triviaMatchingOffset?.Type)
             {
+                case SyntaxTriviaType.Whitespace:
+                    var position = triviaMatchingOffset.Span.Position;
+                    if (position > 0)
+                    {
+                        var previousTrivia = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, position - 1);
+
+                        if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
+                        {
+                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                        }
+                    }
+                    break;
+                case SyntaxTriviaType.DisableNextLineDiagnosticsDirective:
+                    // This will handle following case: #disable-next-line |
+                    if (triviaMatchingOffset.Text.EndsWith(' '))
+                    {
+                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                    }
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     //we're in a comment, no hints here
                     return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+            }
+
+            if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
+            {
+                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
@@ -111,49 +135,36 @@ namespace Bicep.LanguageServer.Completions
             var targetScopeInfo = SyntaxMatcher.FindLastNodeOfType<TargetScopeSyntax, TargetScopeSyntax>(matchingNodes);
             var activeScopes = ActiveScopesVisitor.GetActiveScopes(compilation.GetEntrypointSemanticModel().Root, offset);
 
-            BicepCompletionContextKind kind;
+            var kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
+                ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
+                GetDeclarationTypeFlags(matchingNodes, offset) |
+                ConvertFlag(IsResourceTypeFollowerContext(matchingNodes, offset), BicepCompletionContextKind.ResourceTypeFollower) |
+                GetObjectPropertyNameFlags(matchingNodes, objectInfo, offset) |
+                ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
+                ConvertFlag(IsResourceAccessContext(matchingNodes, resourceAccessInfo, offset), BicepCompletionContextKind.ResourceAccess) |
+                ConvertFlag(IsArrayIndexContext(matchingNodes, arrayAccessInfo), BicepCompletionContextKind.ArrayIndex | BicepCompletionContextKind.Expression) |
+                GetPropertyValueFlags(matchingNodes, propertyInfo, offset) |
+                ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo, offset), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
+                ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
+                ConvertFlag(IsModuleBodyContext(matchingNodes, offset), BicepCompletionContextKind.ModuleBody) |
+                ConvertFlag(IsParameterDefaultValueContext(matchingNodes, offset), BicepCompletionContextKind.ParameterDefaultValue | BicepCompletionContextKind.Expression) |
+                ConvertFlag(IsVariableValueContext(matchingNodes, offset), BicepCompletionContextKind.VariableValue | BicepCompletionContextKind.Expression) |
+                ConvertFlag(IsOutputValueContext(matchingNodes, offset), BicepCompletionContextKind.OutputValue | BicepCompletionContextKind.Expression) |
+                ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
+                ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
+                ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName);
 
-            if (triviaMatchingOffset is DisableNextLineDiagnosticsSyntaxTrivia)
+            if (featureProvider.ImportsEnabled)
             {
-                kind = BicepCompletionContextKind.DisableNextLineDiagnosticsCodes;
+                kind |= ConvertFlag(IsImportSymbolFollower(matchingNodes, offset), BicepCompletionContextKind.ImportSymbolFollower) |
+                    ConvertFlag(IsImportFromFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFromFollower);
             }
-            else if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
-            {
-                kind = BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart;
-            }
-            else
-            {
-                kind = ConvertFlag(IsTopLevelDeclarationStartContext(matchingNodes, offset), BicepCompletionContextKind.TopLevelDeclarationStart) |
-                    ConvertFlag(IsNestedResourceStartContext(matchingNodes, topLevelDeclarationInfo, objectInfo, offset), BicepCompletionContextKind.NestedResourceDeclarationStart) |
-                    GetDeclarationTypeFlags(matchingNodes, offset) |
-                    ConvertFlag(IsResourceTypeFollowerContext(matchingNodes, offset), BicepCompletionContextKind.ResourceTypeFollower) |
-                    GetObjectPropertyNameFlags(matchingNodes, objectInfo, offset) |
-                    ConvertFlag(IsMemberAccessContext(matchingNodes, propertyAccessInfo, offset), BicepCompletionContextKind.MemberAccess) |
-                    ConvertFlag(IsResourceAccessContext(matchingNodes, resourceAccessInfo, offset), BicepCompletionContextKind.ResourceAccess) |
-                    ConvertFlag(IsArrayIndexContext(matchingNodes, arrayAccessInfo), BicepCompletionContextKind.ArrayIndex | BicepCompletionContextKind.Expression) |
-                    GetPropertyValueFlags(matchingNodes, propertyInfo, offset) |
-                    ConvertFlag(IsArrayItemContext(matchingNodes, arrayInfo, offset), BicepCompletionContextKind.ArrayItem | BicepCompletionContextKind.Expression) |
-                    ConvertFlag(IsResourceBodyContext(matchingNodes, offset), BicepCompletionContextKind.ResourceBody) |
-                    ConvertFlag(IsModuleBodyContext(matchingNodes, offset), BicepCompletionContextKind.ModuleBody) |
-                    ConvertFlag(IsParameterDefaultValueContext(matchingNodes, offset), BicepCompletionContextKind.ParameterDefaultValue | BicepCompletionContextKind.Expression) |
-                    ConvertFlag(IsVariableValueContext(matchingNodes, offset), BicepCompletionContextKind.VariableValue | BicepCompletionContextKind.Expression) |
-                    ConvertFlag(IsOutputValueContext(matchingNodes, offset), BicepCompletionContextKind.OutputValue | BicepCompletionContextKind.Expression) |
-                    ConvertFlag(IsOuterExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression) |
-                    ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
-                    ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName);
 
-                if (featureProvider.ImportsEnabled)
-                {
-                    kind |= ConvertFlag(IsImportSymbolFollower(matchingNodes, offset), BicepCompletionContextKind.ImportSymbolFollower) |
-                        ConvertFlag(IsImportFromFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFromFollower);
-                }
-
-                if (kind == BicepCompletionContextKind.None)
-                {
-                    // previous processing hasn't identified a completion context kind
-                    // check if we're inside an expression
-                    kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
-                }
+            if (kind == BicepCompletionContextKind.None)
+            {
+                // previous processing hasn't identified a completion context kind
+                // check if we're inside an expression
+                kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
             }
 
             return new BicepCompletionContext(
@@ -172,25 +183,12 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsDisableNextLineDiagnosticsDirectiveStartContext(BicepFile bicepFile, int offset, List<SyntaxBase> matchingNodes)
         {
-
             var tokens = matchingNodes.Where(x => x is Token token &&
                                              token.Text == "#" &&
                                              token.Span.GetEndPosition() == offset &&
                                              !TextBetweenLineStartAndTokenContainsNonWhiteSpaceCharacter(bicepFile, token));
 
             return tokens.Count() == 1;
-        }
-
-        private static bool IsDisableNextLineDiagnosticsCodesContext(BicepFile bicepFile, int offset)
-        {
-            var triviaMatchingOffset = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, offset);
-
-            if (triviaMatchingOffset is DisableNextLineDiagnosticsSyntaxTrivia)
-            {
-                return true;
-            }
-
-            return false;
         }
 
         private static bool TextBetweenLineStartAndTokenContainsNonWhiteSpaceCharacter(BicepFile bicepFile, Token token)
@@ -308,7 +306,7 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            if (matchingNodes.Count >=2 && matchingNodes[^1] is Token token)
+            if (matchingNodes.Count >= 2 && matchingNodes[^1] is Token token)
             {
                 // we have at least 2 matching nodes in the "stack" and the last one is a token
                 var node = matchingNodes[^2];
@@ -464,7 +462,7 @@ namespace Bicep.LanguageServer.Completions
                     // if that's the case, the offset should match the end of the property span exactly
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => property.Colon is not SkippedTriviaSyntax && offset >= property.Colon.GetEndPosition() && property.Value is SkippedTriviaSyntax) ||
                     // the cursor position is after the colon that follows the property name
-                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset>= token.GetEndPosition()) ||
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset >= token.GetEndPosition()) ||
                     // the cursor is inside a string value of the property that is not interpolated
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax) && !stringSyntax.Expressions.Any()) ||
                     // the cursor could is a partial or full identifier
@@ -639,7 +637,7 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >=2 && offset == token.GetEndPosition():
+                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
                     // cursor is after the = token
                     // check if parent is of the right type
                     var parent = matchingNodes[^2];
@@ -682,7 +680,7 @@ namespace Bicep.LanguageServer.Completions
             var isInStringSegment = SyntaxMatcher.IsTailMatch<StringSyntax, Token>(matchingNodes, (_, token) => token.Type switch
             {
                 // The cursor is immediately after the { character: '...${|...}...'.
-                TokenType.StringLeftPiece when IsOffsetImmediatlyAfterNode(offset, token)=> false,
+                TokenType.StringLeftPiece when IsOffsetImmediatlyAfterNode(offset, token) => false,
                 TokenType.StringMiddlePiece when IsOffsetImmediatlyAfterNode(offset, token) => false,
                 // In other cases, we are in a string segment.
                 TokenType.StringComplete => true,
@@ -699,7 +697,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // It does not make sense to insert expressions at the cursor positions shown in the comments below.
-            return  !(
+            return !(
                 //║{              ║{             ║|{|           ║{            ║{
                 //║  foo: true |  ║ | foo: true  ║  foo: true   ║  foo: true  ║  |
                 //║}              ║}             ║}             ║|}|          ║}

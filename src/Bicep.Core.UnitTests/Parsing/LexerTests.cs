@@ -265,7 +265,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void ValidDisableNextLineDiagnosticsDirective_WithTrailingWhiteSpace_ShouldLexCorrectly()
+        public void ValidDisableNextLineDiagnosticsDirective_WithTrailingWhiteSpaceFollowedByComment_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226   // test";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -295,6 +295,38 @@ namespace Bicep.Core.UnitTests.Parsing
                 {
                     x.Text.Should().Be("// test");
                     x.Type.Should().Be(SyntaxTriviaType.SingleLineComment);
+                });
+        }
+
+        [TestMethod]
+        public void ValidDisableNextLineDiagnosticsDirective_WithinResourceAndWithTrailingWhiteSpace_ShouldLexCorrectly()
+        {
+            string text = @"resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+#disable-next-line BCP226   
+  properties: vmProperties
+}";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(13);
+
+            var leadingTrivia = tokens.ElementAt(6).LeadingTrivia;
+            leadingTrivia.Count().Should().Be(2);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Text.Should().Be("#disable-next-line BCP226");
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("   ");
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
                 });
         }
 
