@@ -1475,7 +1475,7 @@ var testF = stg.listAccountSas('2021-06-01', {}).|
         public async Task VerifyCompletionRequestAfterPoundSign_ShouldReturnCompletionItem()
         {
             var fileWithCursors = @"#|
-param storageAccount1 string = 'testAccount";
+param storageAccount string = 'testAccount";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
