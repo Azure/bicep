@@ -9,6 +9,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Extensions;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -300,6 +301,184 @@ var test2 = /|* block c|omment *|/
                 c =>
                 {
                     c.Label.Should().Be("for-filtered");
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyDisableNextLineDirectiveCompletionAfterTypingPoundSign()
+        {
+            string text = "#";
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+            var client = helper.Client;
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, text.Length),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(LanguageConstants.DisableNextLineDiagnosticsKeyword);
+                });
+        }
+
+        [TestMethod]
+        public async Task TypingPoundSignInsideCommentShouldNotReturnCompletionItem()
+        {
+            string text = "// This is a comment #";
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+            var client = helper.Client;
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, text.Length),
+            });
+
+            completions.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task WithTextBeforePoundSign_ShouldNotReturnCompletionItem()
+        {
+            string text = "var terminatedWithDirective = 'foo' #";
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), text);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, text, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+            var client = helper.Client;
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, text.Length),
+            });
+
+            completions.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task WithWhiteSpaceBeforePoundSign_ShouldReturnCompletionItem()
+        {
+            string fileWithCursors = "    #|";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+            var client = helper.Client;
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursors[0]),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(LanguageConstants.DisableNextLineDiagnosticsKeyword);
+                });
+        }
+
+
+        [TestMethod]
+        public async Task WithPoundSignInsideResource_ShouldReturnCompletionItem()
+        {
+            string fileWithCursors = @"var vmProperties = {
+  diagnosticsProfile: {
+    bootDiagnostics: {
+      enabled: 123
+      storageUri: true
+      unknownProp: 'asdf'
+    }
+  }
+  evictionPolicy: 'Deallocate'
+}
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'vm'
+  location: 'West US'
+#|
+  properties: vmProperties
+}";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+            var client = helper.Client;
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursors[0]),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be(LanguageConstants.DisableNextLineDiagnosticsKeyword);
+                });
+        }
+
+        [TestMethod]
+        public async Task VerifyCompletionRequestAfterDisableNextLineReturnsDiagnosticsCodes()
+        {
+            string fileWithCursors = @"#disable-next-line |
+param storageAccount string = 'testAccount'
+var vmProperties = {
+  diagnosticsProfile: {
+    bootDiagnostics: {
+      enabled: 123
+      storageUri: true
+      unknownProp: 'asdf'
+    }
+  }
+  evictionPolicy: 'Deallocate'
+}
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'vm'
+  location: 'West US'
+#disable-next-line |
+  properties: vmProperties
+}";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+            var client = helper.Client;
+
+            var completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursors[0]),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("no-unused-params");
+                });
+
+            completions = await client.RequestCompletion(new CompletionParams
+            {
+                TextDocument = new TextDocumentIdentifier(bicepFile.FileUri),
+                Position = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, cursors[1]),
+            });
+
+            completions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("BCP036");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("BCP037");
                 });
         }
 
@@ -1211,8 +1390,8 @@ var modOut = m.outputs.inputTi|
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
             var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(
-                this.TestContext, 
-                file, 
+                this.TestContext,
+                file,
                 bicepFile.FileUri,
                 null,
                 creationOptions);
@@ -1233,7 +1412,7 @@ var modOut = m.outputs.inputTi|
 resource abc 'Test.Rp/basicTests@|'
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
                 completions.Should().SatisfyRespectively(
                     c => c.Should().SatisfyRespectively(
                         x => x.Label.Should().Be("2020-01-01"))));
@@ -1246,7 +1425,7 @@ resource abc 'Test.Rp/basicTests@|'
 resource abc 'Test.Rp/basic|'
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
                 completions.Should().SatisfyRespectively(
                     c => c.Should().Contain(
                         x => x.Label == "'Test.Rp/basicTests'")));

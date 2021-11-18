@@ -138,5 +138,15 @@ namespace Bicep.LanguageServer.Completions
         /// We're at this place in an import statement: 'import foo from |'
         /// </summary>
         ImportFromFollower = 1 << 24,
+
+        /// <summary>
+        /// The current location is after # sign.
+        /// </summary>
+        DisableNextLineDiagnosticsDirectiveStart = 1 << 25,
+
+        /// <summary>
+        /// The current location is after '#disable-next-line |'.
+        /// </summary>
+        DisableNextLineDiagnosticsCodes = 1 << 26
     }
 }

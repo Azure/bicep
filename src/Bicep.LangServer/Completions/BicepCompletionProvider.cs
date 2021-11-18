@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using System.Web;
 using Azure.Deployments.Core.Comparers;
 using Bicep.Core;
 using Bicep.Core.Emit;
@@ -17,6 +16,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
@@ -71,7 +71,76 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetTargetScopeCompletions(model, context))
-                .Concat(GetImportCompletions(model, context));
+                .Concat(GetImportCompletions(model, context))
+                .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
+                .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
+        }
+
+        private IEnumerable<CompletionItem> GetDisableNextLineDiagnosticsDirectiveCompletion(BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart))
+            {
+                yield return CreateKeywordCompletion(LanguageConstants.DisableNextLineDiagnosticsKeyword, "Disable next line diagnostics directive keyword", context.ReplacementRange);
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetDisableNextLineDiagnosticsDirectiveCodesCompletion(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes))
+            {
+                foreach (var code in GetDiagnosticCodes(context.ReplacementRange, model))
+                {
+                    yield return CreateKeywordCompletion(code, "Disable next line diagnostics directive keyword", context.ReplacementRange);
+                }
+            }
+        }
+
+        private IEnumerable<string> GetDiagnosticCodes(Range range, SemanticModel model)
+        {
+            var lineStarts = model.SourceFile.LineStarts;
+            var position = GetPosition(range, lineStarts);
+            (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, position);
+            var nextLineSpan = GetNextLineSpan(lineStarts, line, model.SourceFile.ProgramSyntax);
+
+            if (nextLineSpan is null)
+            {
+                return Enumerable.Empty<string>();
+            }
+
+            return model.GetAllDiagnostics()
+                .Where(diagnostic => nextLineSpan.ContainsInclusive(diagnostic.Span.Position) && nextLineSpan.ContainsInclusive(diagnostic.Span.GetEndPosition()))
+                .Select(diagnostics => diagnostics.Code)
+                .Distinct();
+        }
+
+        private int GetPosition(Range range, ImmutableArray<int> lineStarts)
+        {
+            var rangeStart = range.Start;
+            return lineStarts[rangeStart.Line] + rangeStart.Character;
+        }
+
+        private TextSpan? GetNextLineSpan(ImmutableArray<int> lineStarts, int line, ProgramSyntax programSyntax)
+        {
+            var nextLine = line + 1;
+            if (lineStarts.Length > nextLine)
+            {
+                var nextLineStart = lineStarts[nextLine];
+
+                int nextLineEnd;
+
+                if (lineStarts.Length > nextLine + 1)
+                {
+                    nextLineEnd = lineStarts[nextLine + 1] - 1;
+                }
+                else
+                {
+                    nextLineEnd = programSyntax.GetEndPosition();
+                }
+
+                return new TextSpan(nextLineStart, nextLineEnd - nextLineStart);
+            }
+
+            return null;
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
@@ -202,7 +271,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is SyntaxBase &&
                 model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(context.EnclosingDeclaration) is ResourceDeclarationSyntax parentSyntax &&
                 model.GetSymbolInfo(parentSyntax) is ResourceSymbol parentSymbol &&
-                parentSymbol.TryGetResourceType() is {} parentResourceType)
+                parentSymbol.TryGetResourceType() is { } parentResourceType)
             {
                 // This is more complex because we allow the API version to be omitted, so we want to make a list of unique values
                 // for the FQT, and then create a "no version" completion + a completion for each version.
@@ -260,7 +329,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
             {
                 // Only when there is no existing assignment sign
-                if (context.EnclosingDeclaration is ResourceDeclarationSyntax { Assignment: SkippedTriviaSyntax { Elements: { IsDefaultOrEmpty: true }} })
+                if (context.EnclosingDeclaration is ResourceDeclarationSyntax { Assignment: SkippedTriviaSyntax { Elements: { IsDefaultOrEmpty: true } } })
                 {
                     const string equals = "=";
                     yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
@@ -464,7 +533,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (model.GetDeclaredType(resourceDeclarationSyntax)?.UnwrapArrayType() is ResourceType resourceType)
             {
-                var isResourceNested = model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(resourceDeclarationSyntax) is {};
+                var isResourceNested = model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(resourceDeclarationSyntax) is { };
                 var snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)
