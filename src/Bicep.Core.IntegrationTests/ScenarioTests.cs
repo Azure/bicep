@@ -29,12 +29,10 @@ namespace Bicep.Core.IntegrationTests
             int generateRandomInt(int minVal = 0, int maxVal = 50)
             {
                 var rnd = new byte[4];
-                using var rng = new RNGCryptoServiceProvider();
-                rng.GetBytes(rnd);
+                RandomNumberGenerator.Fill(rnd);
                 var i = Math.Abs(BitConverter.ToInt32(rnd, 0));
                 return Convert.ToInt32(i % (maxVal - minVal + 1) + minVal);
             }
-            Random random = new Random();
 
             string randomString()
             {

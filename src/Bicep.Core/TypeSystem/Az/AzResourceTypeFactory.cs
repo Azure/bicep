@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 
 namespace Bicep.Core.TypeSystem.Az
 {
@@ -17,12 +18,35 @@ namespace Bicep.Core.TypeSystem.Az
             typeCache = new();
         }
 
-        public ResourceTypeComponents GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType)
+        public ResourceTypeComponents GetResourceType(Azure.Bicep.Types.Concrete.ResourceType resourceType, IEnumerable<FunctionOverload> resourceFunctions)
         {
             var resourceTypeReference = ResourceTypeReference.Parse(resourceType.Name);
             var bodyType = GetTypeSymbol(resourceType.Body.Type, true);
 
+            if (bodyType is ObjectType objectType && resourceFunctions.Any())
+            {
+                bodyType = new ObjectType(bodyType.Name, bodyType.ValidationFlags, objectType.Properties.Values, objectType.AdditionalPropertiesType, objectType.AdditionalPropertiesFlags, resourceFunctions);
+            }
+
             return new ResourceTypeComponents(resourceTypeReference, ToResourceScope(resourceType.ScopeType), bodyType);
+        }
+
+        public IEnumerable<FunctionOverload> GetResourceFunctionOverloads(Azure.Bicep.Types.Concrete.ResourceFunctionType resourceFunctionType)
+        {
+            yield return new FunctionOverloadBuilder(resourceFunctionType.Name)
+                .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
+                .WithFlags(FunctionFlags.RequiresInlining)
+                .Build();
+
+            if (resourceFunctionType.Input is not null)
+            {
+                yield return new FunctionOverloadBuilder(resourceFunctionType.Name)
+                    .WithRequiredParameter("apiVersion", new StringLiteralType(resourceFunctionType.ApiVersion), "The api version")
+                    .WithRequiredParameter("params", GetTypeSymbol(resourceFunctionType.Input.Type, false), $"{resourceFunctionType.Name} parameters")
+                    .WithReturnType(GetTypeSymbol(resourceFunctionType.Output.Type, false))
+                    .WithFlags(FunctionFlags.RequiresInlining)
+                    .Build();
+            }
         }
 
         private TypeSymbol GetTypeSymbol(Azure.Bicep.Types.Concrete.TypeBase serializedType, bool isResourceBodyType)

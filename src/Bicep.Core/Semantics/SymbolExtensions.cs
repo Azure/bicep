@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics
 {
@@ -37,6 +38,26 @@ namespace Bicep.Core.Semantics
                 return paramDeclaration.Decorators.Any(d => isSecure(d));
             }
             return false;
+        }
+
+        /// <summary>
+        /// Returns the expected argument type for a particular argument position, using function overload information.
+        /// </summary>
+        /// <param name="functionSymbol">The function symbol to inspect</param>
+        /// <param name="argIndex">The index of the function argument</param>
+        public static TypeSymbol GetDeclaredArgumentType(this FunctionSymbol functionSymbol, int argIndex)
+        {
+            // if we have a mix of wildcard and non-wildcard overloads, prioritize the non-wildcard overloads.
+            // the wildcards have super generic type definitions, so don't result in helpful completions.
+            var overloads = functionSymbol.Overloads.Any(x => x is not FunctionWildcardOverload) ?
+                functionSymbol.Overloads.Where(x => x is not FunctionWildcardOverload) :
+                functionSymbol.Overloads;
+
+            var argTypes = overloads
+                .Where(x => x.MaximumArgumentCount is null || argIndex < x.MaximumArgumentCount)
+                .Select(x => argIndex < x.FixedParameters.Length ? x.FixedParameters[argIndex].Type : (x.VariableParameter?.Type ?? LanguageConstants.Never));
+
+            return TypeHelper.CreateTypeUnion(argTypes);
         }
     }
 }

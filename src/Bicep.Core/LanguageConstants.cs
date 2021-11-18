@@ -57,6 +57,8 @@ namespace Bicep.Core
 
         public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
 
+        public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
+
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 
         public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);

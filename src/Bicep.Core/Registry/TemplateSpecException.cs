@@ -5,7 +5,7 @@ using System;
 
 namespace Bicep.Core.Registry
 {
-    public class TemplateSpecException : Exception
+    public class TemplateSpecException : ExternalModuleException
     {
         public TemplateSpecException(string message)
             : base(message)

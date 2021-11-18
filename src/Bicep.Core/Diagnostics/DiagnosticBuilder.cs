@@ -468,21 +468,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP070",
                 $"Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterType}\".");
 
-            public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int mininumArgumentCount, int? maximumArgumentCount)
+            public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
             {
                 string expected;
 
                 if (!maximumArgumentCount.HasValue)
                 {
-                    expected = $"as least {mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                    expected = $"at least {minimumArgumentCount} {(minimumArgumentCount == 1 ? "argument" : "arguments")}";
                 }
-                else if (mininumArgumentCount == maximumArgumentCount.Value)
+                else if (minimumArgumentCount == maximumArgumentCount.Value)
                 {
-                    expected = $"{mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                    expected = $"{minimumArgumentCount} {(minimumArgumentCount == 1 ? "argument" : "arguments")}";
                 }
                 else
                 {
-                    expected = $"{mininumArgumentCount} to {maximumArgumentCount} arguments";
+                    expected = $"{minimumArgumentCount} to {maximumArgumentCount} arguments";
                 }
 
                 return new ErrorDiagnostic(
@@ -1337,7 +1337,12 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP225",
                 $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this object is disabled.");
-            
+
+            public ErrorDiagnostic MissingDiagnosticCodes() => new(
+                TextSpan,
+                "BCP226",
+                "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

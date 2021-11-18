@@ -1,8 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -29,5 +27,4 @@
     <EmbeddedResource Include="./Completions/SnippetTemplates/**/*.json" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
     <EmbeddedResource Include="./Completions/SnippetTemplates/**/*.bicep" LogicalName="$([System.String]::new('Completions/SnippetTemplates/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
-
 </Project>

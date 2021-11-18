@@ -314,7 +314,7 @@ var fakeVar = concat(totallyFakeVar, 's')
 // bad functions arguments
 var concatNotEnough = concat()
 //@[4:19) [no-unused-vars (Warning)] Variable "concatNotEnough" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |concatNotEnough|
-//@[28:30) [BCP071 (Error)] Expected as least 1 argument, but got 0. (CodeDescription: none) |()|
+//@[28:30) [BCP071 (Error)] Expected at least 1 argument, but got 0. (CodeDescription: none) |()|
 var padLeftNotEnough = padLeft('s')
 //@[4:20) [no-unused-vars (Warning)] Variable "padLeftNotEnough" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |padLeftNotEnough|
 //@[30:35) [BCP071 (Error)] Expected 2 to 3 arguments, but got 1. (CodeDescription: none) |('s')|

@@ -72,7 +72,7 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
         "passthrough.bicep"
       );
 
-      const bicep = `
+      const mainContent = `
 module passthrough '${passthroughRef}' = {
   name: 'passthrough'
   params: {
@@ -81,10 +81,10 @@ module passthrough '${passthroughRef}' = {
   }
 }
 
-module storage '${storageRef}' = {
-  name: 'storage'
+module localModule 'build-external-local-module.bicep' = {
+  name: 'localModule'
   params: {
-    name: passthrough.outputs.result
+    passthroughResult: passthrough.outputs.result
   }
 }
 
@@ -92,10 +92,46 @@ module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.
   name: 'webAppModuleV1'
 }
 
-output blobEndpoint string = storage.outputs.blobEndpoint
-    `;
+output blobEndpoint string = localModule.outputs.blobEndpoint`;
 
-      const bicepPath = writeTempFile("build", "build-external.bicep", bicep);
+      const localModuleContent = `
+param passthroughResult string
+
+module storage '${storageRef}' = {
+  name: 'storage'
+  params: {
+    name: passthroughResult
+  }
+}
+
+module nestedLocalModule 'build-external-nested-local-module.bicep' = {
+  name: 'nestedLocalModule'
+}
+
+output blobEndpoint string = storage.outputs.blobEndpoint`;
+
+      const nestedLocalModuleContent = `
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
+  name: 'webAppModuleV1'
+}`;
+
+      const bicepPath = writeTempFile(
+        "build",
+        "build-external.bicep",
+        mainContent
+      );
+
+      writeTempFile(
+        "build",
+        "build-external-local-module.bicep",
+        localModuleContent
+      );
+
+      writeTempFile(
+        "build",
+        "build-external-nested-local-module.bicep",
+        nestedLocalModuleContent
+      );
 
       const exampleConfig = readFileSync(
         pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
