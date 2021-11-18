@@ -8,7 +8,7 @@
     "@types/plist": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
     "@typescript-eslint/parser": "^4.33.0",
-    "eslint": "^7.32.0",
+    "eslint": "^8.2.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^25.2.2",
     "highlight.js": "^11.3.1",
