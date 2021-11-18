@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6480195888241511838"
+      "templateHash": "3850583703916111889"
     }
   },
   "parameters": {
@@ -20,7 +20,6 @@
       "defaultValue": "1.1.1.1"
     }
   },
-  "functions": [],
   "resources": {
     "nsg": {
       "type": "Microsoft.Network/networkSecurityGroups",

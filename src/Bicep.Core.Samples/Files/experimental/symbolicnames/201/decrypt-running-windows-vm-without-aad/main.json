@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12117825778412917129"
+      "templateHash": "4348512865043834733"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "resources": {
     "vmExt": {
       "type": "Microsoft.Compute/virtualMachines/extensions",

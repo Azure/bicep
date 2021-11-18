@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9087559349354084645"
+      "templateHash": "9780166229571418326"
     }
   },
   "parameters": {
@@ -492,7 +492,6 @@
       }
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
@@ -536,7 +535,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4573629760399744599"
+              "templateHash": "16544072065088913224"
             }
           },
           "parameters": {
@@ -596,7 +595,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "bastionSubnetName": "AzureBastionSubnet",
             "bastionSubnetNsgName": "[format('{0}Nsg', variables('bastionSubnetName'))]",
@@ -837,7 +835,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9608724785177199123"
+              "templateHash": "17746964786378268703"
             }
           },
           "parameters": {
@@ -861,7 +859,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "bastionPublicIpAddressName": "[format('{0}PublicIp', parameters('bastionHostName'))]"
           },
@@ -939,7 +936,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "957041648486849486"
+              "templateHash": "14176816021127228926"
             }
           },
           "parameters": {
@@ -977,7 +974,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.OperationalInsights/workspaces",
@@ -1076,7 +1072,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7111355816980958501"
+              "templateHash": "12829523487718671926"
             }
           },
           "parameters": {
@@ -1221,7 +1217,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
             "vmNicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]",
@@ -1591,7 +1586,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5882575949678654988"
+              "templateHash": "8669984809251085106"
             }
           },
           "parameters": {
@@ -1900,7 +1895,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "aadProfileConfiguration": {
               "managed": "[parameters('aadProfileManaged')]",

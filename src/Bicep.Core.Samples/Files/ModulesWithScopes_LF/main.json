@@ -5,10 +5,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2781207168497950503"
+      "templateHash": "9953290088275834912"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
@@ -28,10 +27,9 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "9877962590465051990"
+              "templateHash": "14837156659711607947"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
@@ -51,10 +49,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7186981207559950852"
+                      "templateHash": "15729984543815100695"
                     }
                   },
-                  "functions": [],
                   "resources": [],
                   "outputs": {
                     "myOutput": {
@@ -83,10 +80,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "14461866382005670926"
+                      "templateHash": "2139830058681583241"
                     }
                   },
-                  "functions": [],
                   "resources": []
                 }
               }
@@ -109,10 +105,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "17449021711969342669"
+                      "templateHash": "1395382333336833730"
                     }
                   },
-                  "functions": [],
                   "resources": []
                 }
               }
@@ -145,10 +140,9 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14461866382005670926"
+              "templateHash": "2139830058681583241"
             }
           },
-          "functions": [],
           "resources": []
         }
       }
@@ -171,10 +165,9 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18061624106415456848"
+              "templateHash": "7511971768810580074"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
@@ -193,10 +186,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10147675461470298011"
+                      "templateHash": "12489028739876509792"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -216,10 +208,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7186981207559950852"
+                              "templateHash": "15729984543815100695"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -248,10 +239,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17592458934032508201"
+                              "templateHash": "7469434526073292388"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -280,10 +270,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -306,10 +295,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -345,10 +333,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10147675461470298011"
+                      "templateHash": "12489028739876509792"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -368,10 +355,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7186981207559950852"
+                              "templateHash": "15729984543815100695"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -400,10 +386,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17592458934032508201"
+                              "templateHash": "7469434526073292388"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -432,10 +417,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -458,10 +442,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -498,10 +481,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10147675461470298011"
+                      "templateHash": "12489028739876509792"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -521,10 +503,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7186981207559950852"
+                              "templateHash": "15729984543815100695"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -553,10 +534,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17592458934032508201"
+                              "templateHash": "7469434526073292388"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -585,10 +565,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -611,10 +590,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -651,10 +629,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7186981207559950852"
+                      "templateHash": "15729984543815100695"
                     }
                   },
-                  "functions": [],
                   "resources": [],
                   "outputs": {
                     "myOutput": {
@@ -702,10 +679,9 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18061624106415456848"
+              "templateHash": "7511971768810580074"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deployments",
@@ -724,10 +700,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10147675461470298011"
+                      "templateHash": "12489028739876509792"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -747,10 +722,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7186981207559950852"
+                              "templateHash": "15729984543815100695"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -779,10 +753,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17592458934032508201"
+                              "templateHash": "7469434526073292388"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -811,10 +784,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -837,10 +809,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -876,10 +847,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10147675461470298011"
+                      "templateHash": "12489028739876509792"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -899,10 +869,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7186981207559950852"
+                              "templateHash": "15729984543815100695"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -931,10 +900,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17592458934032508201"
+                              "templateHash": "7469434526073292388"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -963,10 +931,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -989,10 +956,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -1029,10 +995,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10147675461470298011"
+                      "templateHash": "12489028739876509792"
                     }
                   },
-                  "functions": [],
                   "resources": [
                     {
                       "type": "Microsoft.Resources/deployments",
@@ -1052,10 +1017,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7186981207559950852"
+                              "templateHash": "15729984543815100695"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -1084,10 +1048,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17592458934032508201"
+                              "templateHash": "7469434526073292388"
                             }
                           },
-                          "functions": [],
                           "resources": [],
                           "outputs": {
                             "myOutput": {
@@ -1116,10 +1079,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -1142,10 +1104,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17449021711969342669"
+                              "templateHash": "1395382333336833730"
                             }
                           },
-                          "functions": [],
                           "resources": []
                         }
                       }
@@ -1182,10 +1143,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7186981207559950852"
+                      "templateHash": "15729984543815100695"
                     }
                   },
-                  "functions": [],
                   "resources": [],
                   "outputs": {
                     "myOutput": {
@@ -1232,10 +1192,9 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17449021711969342669"
+              "templateHash": "1395382333336833730"
             }
           },
-          "functions": [],
           "resources": []
         }
       }

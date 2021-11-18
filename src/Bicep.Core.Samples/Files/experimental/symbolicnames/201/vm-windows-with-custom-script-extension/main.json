@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1052641397051283830"
+      "templateHash": "5698201711636336924"
     }
   },
   "parameters": {
@@ -78,7 +78,6 @@
       "defaultValue": "https://raw.githubusercontent.com/Azure/bicep/main/docs/examples/201/vm-windows-with-custom-script-extension/install.ps1"
     }
   },
-  "functions": [],
   "variables": {
     "metadata": {
       "longName": "[format('{{0}}-{0}-{1}', parameters('name'), if(equals(coalesce(parameters('suffix'), ''), ''), '', concat('-', parameters('suffix'))))]",

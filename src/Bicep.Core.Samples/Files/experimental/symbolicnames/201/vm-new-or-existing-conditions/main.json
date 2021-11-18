@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11623202059400725024"
+      "templateHash": "6759233609306016340"
     }
   },
   "parameters": {
@@ -156,7 +156,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "storageAccountId": "[if(parameters('createNewStorageAccount'), resourceInfo('storageAccount').id, resourceId(parameters('storageAccountResourceGroupName'), 'Microsoft.Storage/storageAccounts/', parameters('storageAccountName')))]",
     "subnetId": "[if(parameters('createNewVnet'), resourceInfo('subnet').id, resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks/subnets', parameters('vnetName'), parameters('subnetName')))]",

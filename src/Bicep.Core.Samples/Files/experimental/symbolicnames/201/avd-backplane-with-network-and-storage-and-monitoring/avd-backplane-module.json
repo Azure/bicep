@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15297506896368941142"
+      "templateHash": "5292768385938170215"
     }
   },
   "parameters": {
@@ -66,7 +66,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "hp": {
       "type": "Microsoft.DesktopVirtualization/hostPools",
@@ -148,7 +147,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15952827541288753365"
+              "templateHash": "15289507394833495128"
             }
           },
           "parameters": {
@@ -173,7 +172,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "avdla": {
               "type": "Microsoft.OperationalInsights/workspaces",
@@ -216,7 +214,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "10996175173856467619"
+                      "templateHash": "1620512394627203274"
                     }
                   },
                   "parameters": {
@@ -230,7 +228,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "hostPool": {
                       "existing": true,

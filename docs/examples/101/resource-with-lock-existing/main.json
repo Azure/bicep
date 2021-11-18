@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6251836513852075781"
+      "templateHash": "819688779765671306"
     }
   },
   "parameters": {
@@ -13,7 +13,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Authorization/locks",

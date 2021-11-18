@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5787402335250242721"
+      "templateHash": "13675653132844872894"
     }
   },
   "parameters": {
@@ -36,7 +36,6 @@
       "defaultValue": "privatelink.file.core.windows.net"
     }
   },
-  "functions": [],
   "resources": {
     "privateDNSZoneGroup": {
       "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",

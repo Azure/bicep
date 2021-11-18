@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11111261162854596376"
+      "templateHash": "6304729299566766267"
     }
   },
   "parameters": {
@@ -50,7 +50,6 @@
       "defaultValue": "b24988ac-6180-42a0-ab88-20f7382dd24c"
     }
   },
-  "functions": [],
   "variables": {
     "hostingPlanName": "[format('hostingplan{0}', uniqueString(resourceGroup().id))]",
     "webSiteName": "[format('webSite{0}', uniqueString(resourceGroup().id))]",

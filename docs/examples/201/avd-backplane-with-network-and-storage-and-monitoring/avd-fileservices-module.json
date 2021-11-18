@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4546637334796479546"
+      "templateHash": "13719396606305828840"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       "defaultValue": "profilecontainers"
     }
   },
-  "functions": [],
   "variables": {
     "filesharelocation": "[format('{0}/default/{1}', parameters('storageaccountName'), parameters('fileshareFolderName'))]"
   },

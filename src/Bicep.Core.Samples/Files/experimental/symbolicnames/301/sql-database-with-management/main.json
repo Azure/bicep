@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10158489108051984801"
+      "templateHash": "7491262926286587512"
     }
   },
   "parameters": {
@@ -18,7 +18,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "defaultResourceGroupProperties": {
       "tags": {},
@@ -62,7 +61,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7180613424274878486"
+              "templateHash": "10151444125157645848"
             }
           },
           "parameters": {
@@ -76,7 +75,6 @@
               "type": "object"
             }
           },
-          "functions": [],
           "variables": {
             "defaultSqlLogicalServerProperties": {
               "name": "",
@@ -175,7 +173,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "4197243106892100471"
+                      "templateHash": "18041704691098361149"
                     }
                   },
                   "parameters": {
@@ -195,7 +193,6 @@
                       "type": "object"
                     }
                   },
-                  "functions": [],
                   "variables": {
                     "defaultAuditActionsAndGroups": [
                       "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",
@@ -471,7 +468,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7781780579480662923"
+                              "templateHash": "5996395024764564816"
                             }
                           },
                           "parameters": {
@@ -488,7 +485,6 @@
                               }
                             }
                           },
-                          "functions": [],
                           "resources": {
                             "firewallRule": {
                               "type": "Microsoft.Sql/servers/firewallRules",
@@ -539,7 +535,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "9049887160000022040"
+                              "templateHash": "17743984119146916557"
                             }
                           },
                           "parameters": {
@@ -559,7 +555,6 @@
                               "type": "object"
                             }
                           },
-                          "functions": [],
                           "resources": {
                             "sqlDb": {
                               "type": "Microsoft.Sql/servers/databases",
@@ -724,7 +719,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "dev",
-                                      "templateHash": "14166469428508227928"
+                                      "templateHash": "7769801267302127981"
                                     }
                                   },
                                   "parameters": {
@@ -735,7 +730,6 @@
                                       "type": "string"
                                     }
                                   },
-                                  "functions": [],
                                   "resources": {
                                     "shortTermBackup": {
                                       "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
@@ -779,7 +773,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "dev",
-                                      "templateHash": "16469354957335675288"
+                                      "templateHash": "12445030355610766196"
                                     }
                                   },
                                   "parameters": {
@@ -790,7 +784,6 @@
                                       "type": "string"
                                     }
                                   },
-                                  "functions": [],
                                   "resources": {
                                     "azureDefender": {
                                       "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
@@ -837,7 +830,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "dev",
-                                      "templateHash": "14799405862876158303"
+                                      "templateHash": "12633891391246310751"
                                     }
                                   },
                                   "parameters": {
@@ -848,7 +841,6 @@
                                       "type": "string"
                                     }
                                   },
-                                  "functions": [],
                                   "variables": {
                                     "defaultAuditActionsAndGroups": [
                                       "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",

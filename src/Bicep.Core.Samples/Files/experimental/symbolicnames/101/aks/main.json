@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5662310637241185269"
+      "templateHash": "6502817401635233985"
     }
   },
   "parameters": {
@@ -51,7 +51,6 @@
       "defaultValue": "Standard_DS2_v2"
     }
   },
-  "functions": [],
   "resources": {
     "aks": {
       "type": "Microsoft.ContainerService/managedClusters",

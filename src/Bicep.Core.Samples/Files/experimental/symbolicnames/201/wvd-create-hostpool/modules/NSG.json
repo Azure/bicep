@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11062318330053370487"
+      "templateHash": "18233818777227830375"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       "type": "array"
     }
   },
-  "functions": [],
   "resources": {
     "newNsg": {
       "condition": "[parameters('createNetworkSecurityGroup')]",

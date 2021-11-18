@@ -5,10 +5,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11590423349714353104"
+      "templateHash": "14957212358466844811"
     }
   },
-  "functions": [],
   "variables": {
     "emojis": "💪😊😈🍕☕",
     "ninjaCat": "🐱‍👤",

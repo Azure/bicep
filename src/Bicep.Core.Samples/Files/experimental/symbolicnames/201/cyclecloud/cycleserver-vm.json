@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6849390527810909284"
+      "templateHash": "11894316390754474367"
     }
   },
   "parameters": {
@@ -29,7 +29,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "pip": {
       "type": "Microsoft.Network/publicIPAddresses",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16493228908903635516"
+      "templateHash": "10102360753725595070"
     }
   },
   "parameters": {
@@ -22,7 +22,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "policy": {
       "type": "Microsoft.Resources/deployments",
@@ -48,7 +47,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2900571262339678012"
+              "templateHash": "2457970379301751180"
             }
           },
           "parameters": {
@@ -56,7 +55,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "policyDefCategory": "Custom",
             "policySource": "Bicep",
@@ -420,7 +418,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3057911705389341300"
+              "templateHash": "3313635155036670047"
             }
           },
           "parameters": {
@@ -434,7 +432,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "monitoringGovernanceAssignment": {
               "type": "Microsoft.Authorization/policyAssignments",
