@@ -12,7 +12,7 @@
     "eslint": "^8.1.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^25.2.2",
+    "eslint-plugin-jest": "^25.2.4",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "^27.3.1",
     "jest-runner-groups": "^2.1.0",
