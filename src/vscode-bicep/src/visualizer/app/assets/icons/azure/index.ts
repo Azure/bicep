@@ -51,6 +51,64 @@ export async function importResourceIconInline(
     case "microsoft.sql/servers/databases":
       return (await import("./databases/10130-icon-service-SQL-Database.svg"))
         .default;
+    case "microsoft.synapse/workspaces":
+      return (
+        await import(
+          "./databases/00606-icon-service-Azure-Synapse-Analytics.svg"
+        )
+      ).default;
+    case "microsoft.documentdb/databaseaccounts":
+      return (
+        await import("./databases/10121-icon-service-Azure-Cosmos-DB.svg")
+      ).default;
+    case "microsoft.dbformysql/servers":
+      return (
+        await import(
+          "./databases/10122-icon-service-Azure-Database-MySQL-Server.svg"
+        )
+      ).default;
+    case "microsoft.dbformariadb/servers":
+      return (
+        await import(
+          "./databases/10123-icon-service-Azure-Database-MariaDB-Server.svg"
+        )
+      ).default;
+    case "microsoft.sqlvirtualmachine/sqlvirtualmachines":
+      return (await import("./databases/10124-icon-service-Azure-SQL-VM.svg"))
+        .default;
+    case "microsoft.datafactory/factories":
+      return (await import("./databases/10126-icon-service-Data-Factory.svg"))
+        .default;
+    case "microsoft.dbforpostgressql/servers":
+      return (
+        await import(
+          "./databases/10131-icon-service-Azure-Database-PostgreSQL-Server.svg"
+        )
+      ).default;
+    case "microsoft.datamigration/services":
+      return (
+        await import(
+          "./databases/10133-icon-service-Azure-Database-Migration-Services.svg"
+        )
+      ).default;
+    case "microsoft.sql/servers/elasticpools":
+      return (
+        await import("./databases/10134-icon-service-SQL-Elastic-Pools.svg")
+      ).default;
+    case "microsoft.sql/managedinstances":
+      return (
+        await import("./databases/10136-icon-service-SQL-Managed-Instance.svg")
+      ).default;
+    case "microsoft.sql/managedinstances/databases":
+      return (
+        await import("./databases/10135-icon-service-Managed-Database.svg")
+      ).default;
+    case "microsoft.cache/redis":
+      return (await import("./databases/10137-icon-service-Cache-Redis.svg"))
+        .default;
+    case "microsoft.sql/instancepools":
+      return (await import("./databases/10139-icon-service-Instance-Pools.svg"))
+        .default;
 
     // microsoft.network
     case "microsoft.network/dnszones":
@@ -161,6 +219,12 @@ export async function importResourceIconInline(
       return (
         await import("./networking/10372-icon-service-Public-IP-Prefixes.svg")
       ).default;
+    case "microsoft.network/applicationsecuritygroups":
+      return (
+        await import(
+          "./security/10244-icon-service-Application-Security-Groups.svg"
+        )
+      ).default;
 
     // Microsoft.Resources
     case "microsoft.resources/resourcegroups":
@@ -180,6 +244,29 @@ export async function importResourceIconInline(
     // Microsoft.Storage
     case "microsoft.storage/storageaccounts":
       return (await import("./storage/10086-icon-service-Storage-Accounts.svg"))
+        .default;
+    case "microsoft.recoveryservices/vaults":
+      return (
+        await import(
+          "./storage/00017-icon-service-Recovery-Services-Vaults.svg"
+        )
+      ).default;
+    case "microsoft.storagesync/storagesyncservices":
+      return (
+        await import("./storage/10093-icon-service-Storage-Sync-Services.svg")
+      ).default;
+    case "microsoft.databox/jobs":
+      return (await import("./storage/10094-icon-service-Data-Box.svg"))
+        .default;
+    case "microsoft.databoxedge/databoxedgedevices":
+      return (await import("./storage/10095-icon-service-Data-Box-Edge.svg"))
+        .default;
+    case "microsoft.netapp/netappaccounts":
+      return (
+        await import("./storage/10096-icon-service-Azure-NetApp-Files.svg")
+      ).default;
+    case "microsoft.datashare/accounts":
+      return (await import("./storage/10098-icon-service-Data-Shares.svg"))
         .default;
 
     // Microsoft.Web
