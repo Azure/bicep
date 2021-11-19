@@ -8,6 +8,9 @@ charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
 
+[*.Designer.cs]
+csharp_new_line_before_open_brace = false
+
 [*.{ts,tsx,js}]
 indent_style = space
 end_of_line = lf
