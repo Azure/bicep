@@ -127,26 +127,26 @@
 	<data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
     <value>When setting an adminUserName property, don't use a literal value.</value>
   </data>
-  <data name="OutputsShouldNotContainSecretsRuleDescription" xml:space="preserve">
+	<data name="OutputsShouldNotContainSecretsRuleDescription" xml:space="preserve">
     <value>Don't include secrets in an output.</value>
   </data>
-  <data name="OutputsShouldNotContainSecretsMessageFormat" xml:space="preserve">
+	<data name="OutputsShouldNotContainSecretsMessageFormat" xml:space="preserve">
     <value>{0} Found possible secret: {1}</value>
     <comment>{0} is the rule description as a sentence ending with a period, {1} is the name of what was found, e.g. 'myParameter'</comment>
   </data>
-  <data name="OutputsShouldNotContainSecretsOutputName" xml:space="preserve">
+	<data name="OutputsShouldNotContainSecretsOutputName" xml:space="preserve">
     <value>output name '{0}' suggests a secret</value>
     <comment>{0} name of a programmatic output</comment>
   </data>
-  <data name="OutputsShouldNotContainSecretsSecureParam" xml:space="preserve">
+	<data name="OutputsShouldNotContainSecretsSecureParam" xml:space="preserve">
     <value>secure parameter '{0}'</value>
     <comment>{0} name of a programmatic parameter</comment>
   </data>
-  <data name="OutputsShouldNotContainSecretsFunction" xml:space="preserve">
+	<data name="OutputsShouldNotContainSecretsFunction" xml:space="preserve">
     <value>function '{0}'</value>
     <comment>{0} name of a programmatic function</comment>
   </data>
-  <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
+	<data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
   </data>
 	<data name="InterpolateNotConcatFixTitle" xml:space="preserve">
@@ -167,10 +167,10 @@
 	<data name="LocationSetByParameterRuleDescription" xml:space="preserve">
     <value>Resource location should be specified by a parameter with no default value or one that defaults to 'global' or resourceGroup().location.</value>
   </data>
-  <data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
+	<data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
     <value>No unnecessary dependsOn.</value>
   </data>
-  <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
+	<data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
     <value>Remove unnecessary dependsOn entry '{0}'.</value>
     <comment>Text for linter rule error. {0} is a programmatic expression</comment>
   </data>
@@ -181,11 +181,11 @@
     <value>Parameter "{0}" is declared but never used.</value>
     <comment>{0} is the paramenter name</comment>
   </data>
-  <data name="PossibleSecretMessageFunction" xml:space="preserve">
+	<data name="PossibleSecretMessageFunction" xml:space="preserve">
     <value>function '{0}'</value>
     <comment>{0} is the function name</comment>
   </data>
-  <data name="PossibleSecretMessageSecureParam" xml:space="preserve">
+	<data name="PossibleSecretMessageSecureParam" xml:space="preserve">
     <value>secure parameter '{0}'</value>
     <comment>{0} is the parameter name</comment>
   </data>
@@ -208,10 +208,10 @@
     <value>Variable "{0}" is declared but never used.</value>
     <comment>{0} is the variable name</comment>
   </data>
-  <data name="UseProtectedSettingsForCommandToExecuteSecretsRuleDescription" xml:space="preserve">
+	<data name="UseProtectedSettingsForCommandToExecuteSecretsRuleDescription" xml:space="preserve">
     <value>Use protectedSettings for commandToExecute secrets</value>
   </data>
-  <data name="UseProtectedSettingsForCommandToExecuteSecretsRuleMessage" xml:space="preserve">
+	<data name="UseProtectedSettingsForCommandToExecuteSecretsRuleMessage" xml:space="preserve">
     <value>Use protectedSettings for commandToExecute secrets. Found possible secret: {0}</value>
     <comment>{0} is the description of what was found</comment>
   </data>
