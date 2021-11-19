@@ -75,7 +75,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
-                .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context)); ;
+                .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
