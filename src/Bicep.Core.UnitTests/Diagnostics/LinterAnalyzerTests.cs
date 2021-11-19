@@ -38,6 +38,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(PreferInterpolationRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
+        [DataRow(UseProtectedSettingsForCommandToExecuteSecretsRule.Code)]
         [DataRow(UseStableVMImageRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {
