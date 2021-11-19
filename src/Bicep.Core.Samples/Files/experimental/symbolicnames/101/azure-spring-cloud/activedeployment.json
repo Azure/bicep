@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18205414248542328208"
+      "templateHash": "13068796727206317896"
     }
   },
   "parameters": {
@@ -21,7 +21,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "app1": {
       "type": "Microsoft.AppPlatform/Spring/apps",

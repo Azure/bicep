@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Collections.Generic;
 using Bicep.Core.UnitTests.Assertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using FluentAssertions;
 using Bicep.Core.UnitTests.Utils;
-using Newtonsoft.Json.Linq;
 using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.TypeSystem;
@@ -25,7 +23,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("tenant", "managementGroup('abc')", "managementGroup", ExpectedTenantSchema, "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod'), '2020-06-01').outputs.hello.value]", "[extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("tenant", "subscription('abc')", "subscription", ExpectedTenantSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2020-06-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("tenant", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedTenantSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2020-06-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("managementGroup", "managementGroup()", "managementGroup", ExpectedMgSchema, "[reference(format('Microsoft.Resources/deployments/{0}', 'myMod'), '2020-06-01').outputs.hello.value]", "[format('Microsoft.Resources/deployments/{0}', 'myMod')]")]
+        [DataRow("managementGroup", "managementGroup()", "managementGroup", ExpectedMgSchema, "[reference(extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod'), '2020-06-01').outputs.hello.value]", "[extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("managementGroup", "subscription('abc')", "subscription", ExpectedMgSchema, "[reference(subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod'), '2020-06-01').outputs.hello.value]", "[subscriptionResourceId('abc', 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("managementGroup", "resourceGroup('abc', 'def')", "resourceGroup", ExpectedMgSchema, "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod'), '2020-06-01').outputs.hello.value]", "[extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', 'abc', 'def'), 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("subscription", "subscription()", "subscription", ExpectedSubSchema, "[reference(subscriptionResourceId('Microsoft.Resources/deployments', 'myMod'), '2020-06-01').outputs.hello.value]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
@@ -74,7 +72,7 @@ output hello string = 'hello!'
         }
 
         [DataRow("tenant", "[tenantResourceId('My.Rp/myResource', 'resourceA')]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
-        [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[format('Microsoft.Resources/deployments/{0}', 'myMod')]")]
+        [DataRow("managementGroup", "[extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA')]", "[extensionResourceId(managementGroup().id, 'Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("subscription", "[subscriptionResourceId('My.Rp/myResource', 'resourceA')]", "[subscriptionResourceId('Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("resourceGroup", "[resourceId('My.Rp/myResource', 'resourceA')]", "[resourceId('Microsoft.Resources/deployments', 'myMod')]")]
         [DataTestMethod]
@@ -145,7 +143,7 @@ resource resourceC 'My.Rp/myResource@2020-01-01' = {
         }
 
         [DataRow("tenant", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(tenantResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
-        [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(format('My.Rp/myResource/{0}', 'resourceA'), '2020-01-01').myProp]")]
+        [DataRow("managementGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(extensionResourceId(managementGroup().id, 'My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataRow("subscription", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(subscriptionResourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataRow("resourceGroup", "[format('My.Rp/myResource/{0}', 'resourceA')]", "[reference(resourceId('My.Rp/myResource', 'resourceA'), '2020-01-01').myProp]")]
         [DataTestMethod]

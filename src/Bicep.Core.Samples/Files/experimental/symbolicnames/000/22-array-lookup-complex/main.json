@@ -7,10 +7,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6641120866000338650"
+      "templateHash": "1422062392290462110"
     }
   },
-  "functions": [],
   "variables": {
     "subnetArray": [
       "GatewaySubnet",

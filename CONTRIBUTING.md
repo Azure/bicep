@@ -70,7 +70,7 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 * On the first run, you'll need to ensure you have installed all the npm packages required by the Bicep VSCode extension with the following:
   * `cd src/vscode-bicep`
   * `npm i`
-* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, create a symbolic link in `src/vscode-bicep` named `bicepLanguageServer` to `../Bicep.LangServer/bin/Debug/net5.0`.
+* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, create a symbolic link in `src/vscode-bicep` named `bicepLanguageServer` to `../Bicep.LangServer/bin/Debug/net6.0`.
 * If you want the ability to put breakpoints and step through the C# code, you can also use the "Attach" run configuration once the extension host has launched, and select the Bicep LanguageServer process by searching for "bicep".
 
 ### Running the Bicep CLI
@@ -105,7 +105,7 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 
 If you'd like to contribute to the collection of snippets:  
 
-* A snippet should either be a single, generic resource or follow [parent-child syntax](https://github.com/Azure/bicep/blob/a22b9c80ba4f8b977f5d948f8bd8c54155ff6870/docs/spec/resource-scopes.md#parent-child-syntax). Ensure your snippet meets this criteria.
+* A snippet should either be a single, generic resource or follow [parent-child syntax](https://docs.microsoft.com/azure/azure-resource-manager/bicep/child-resource-name-type). Ensure your snippet meets this criteria.
 * Add a Bicep file to [`./src/Bicep.LangServer/Snippets/Templates`](./src/Bicep.LangServer/Snippets/Templates) using the naming convention res-RESOURCENAME.bicep
   * The file name without extension will be used as the label.
   * A single line comment at the top of the file will be used as the description.

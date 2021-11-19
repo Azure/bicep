@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3831278900086936670"
+      "templateHash": "3017085690141632969"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "defaultValue": "[uniqueString(resourceGroup().id)]"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
@@ -37,7 +36,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10741606016888264590"
+              "templateHash": "6377278430554620476"
             }
           },
           "parameters": {
@@ -57,7 +56,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "appServicePlanName": "[toLower(format('asp-{0}', parameters('appName')))]"
           },
@@ -113,7 +111,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11917327337287752626"
+              "templateHash": "18103039888546629598"
             }
           },
           "parameters": {
@@ -131,7 +129,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "webSiteName": "[toLower(format('wapp-{0}', parameters('appName')))]"
           },
@@ -234,7 +231,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15097235235814757526"
+              "templateHash": "13415136452678460192"
             }
           },
           "parameters": {
@@ -249,7 +246,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]"
           },
@@ -303,7 +299,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10127040548662503532"
+              "templateHash": "5504464194433425799"
             }
           },
           "parameters": {
@@ -315,7 +311,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"
           },

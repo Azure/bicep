@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3750381001111368245"
+      "templateHash": "97755062618535923"
     }
   },
   "parameters": {
@@ -40,17 +40,16 @@
       "defaultValue": "[subscription().subscriptionId]"
     }
   },
-  "functions": [],
   "variables": {
     "websiteName": "[format('{0}-site', parameters('name'))]",
     "farmName": "[format('{0}-farm', parameters('name'))]"
   },
   "resources": {
     "containerRegistry": {
+      "existing": true,
       "type": "Microsoft.ContainerRegistry/registries",
       "apiVersion": "2019-05-01",
-      "name": "[parameters('acrName')]",
-      "existing": true
+      "name": "[parameters('acrName')]"
     },
     "site": {
       "type": "Microsoft.Web/sites",

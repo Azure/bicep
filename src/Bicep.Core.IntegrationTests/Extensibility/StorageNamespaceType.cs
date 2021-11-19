@@ -6,6 +6,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.IntegrationTests.Extensibility
 {
@@ -32,7 +33,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
         {
             private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new [] {
                 new ResourceTypeComponents(
-                    ResourceTypeReference.Parse("AzureStorage/service@2020-01-01"),
+                    ResourceTypeReference.Parse("service"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                     new ObjectType("Service properties", TypeSymbolValidationFlags.Default, new[]
                     {
@@ -41,14 +42,14 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                         new TypeProperty("staticWebsiteErrorDocument404Path", LanguageConstants.String),
                     }, null)),
                 new ResourceTypeComponents(
-                    ResourceTypeReference.Parse("AzureStorage/containers@2020-01-01"),
+                    ResourceTypeReference.Parse("container"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                     new ObjectType("Container properties", TypeSymbolValidationFlags.Default, new[]
                     {
                         new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.Required),
                     }, null)),
                 new ResourceTypeComponents(
-                    ResourceTypeReference.Parse("AzureStorage/blobs@2020-01-01"),
+                    ResourceTypeReference.Parse("blob"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                     new ObjectType("Blob properties", TypeSymbolValidationFlags.Default, new[]
                     {
@@ -58,7 +59,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                     }, null)),
             }.ToImmutableDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);
 
-            public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
+            public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
                 => null;
 
             public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)

@@ -325,7 +325,7 @@ resource res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP171", DiagnosticLevel.Error, "Resource type \"Microsoft.Rp2/resource2/child2\" is not a valid child resource of parent \"Microsoft.Rp1/resource1\"."),
+                  ("BCP036", DiagnosticLevel.Error, "The property \"parent\" expected a value of type \"Microsoft.Rp2/resource2\" but the provided value is of type \"Microsoft.Rp1/resource1@2020-06-01\"."),
                 });
             }
         }
@@ -349,7 +349,7 @@ resource res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
                 template.Should().NotHaveValue();
                 diags.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                   ("BCP047", DiagnosticLevel.Error, "String interpolation is unsupported for specifying the resource type."),
-                  ("BCP172", DiagnosticLevel.Error, "The resource type cannot be validated due to an error in parent resource \"res1\"."),
+                  ("BCP062", DiagnosticLevel.Error, "The referenced declaration with name \"res1\" is not valid."),
                 });
             }
         }

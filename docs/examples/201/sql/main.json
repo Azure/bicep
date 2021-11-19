@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16046128587010768920"
+      "templateHash": "11609579889945901205"
     }
   },
   "parameters": {
@@ -28,7 +28,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "databaseName": "sample-db-with-tde",
     "databaseEdition": "Basic",

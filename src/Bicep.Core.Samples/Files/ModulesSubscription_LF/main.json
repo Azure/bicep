@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11255138175414255618"
+      "templateHash": "12683322013974962530"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "defaultValue": "majastrz"
     }
   },
-  "functions": [],
   "variables": {
     "groups": [
       "bicep1",
@@ -61,7 +60,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6131559399212667737"
+              "templateHash": "9518912405470532169"
             }
           },
           "parameters": {
@@ -69,7 +68,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deploymentScripts",
@@ -122,7 +120,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6131559399212667737"
+              "templateHash": "9518912405470532169"
             }
           },
           "parameters": {
@@ -130,7 +128,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Resources/deploymentScripts",

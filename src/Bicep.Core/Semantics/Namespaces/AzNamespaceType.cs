@@ -95,7 +95,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("type", LanguageConstants.String),
                 new TypeProperty("location", LanguageConstants.String),
                 new TypeProperty("managedBy", LanguageConstants.String),
-                new TypeProperty("tags", LanguageConstants.Tags),
+                new TypeProperty("tags", AzResourceTypeProvider.Tags),
                 new TypeProperty("properties", properties),
             });
         }
@@ -394,7 +394,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build();
 
             // TODO: Doc parameters need an update
-            yield return new FunctionWildcardOverloadBuilder("list*", new Regex("^list[a-zA-Z]*"))
+            yield return new FunctionWildcardOverloadBuilder("list*", AzConstants.ListWildcardFunctionRegex)
                 .WithReturnType(LanguageConstants.Any)
                 .WithDescription("The syntax for this function varies by name of the list operations. Each implementation returns values for the resource type that supports a list operation. The operation name must start with list. Some common usages are `listKeys`, `listKeyValue`, and `listSecrets`.")
                 .WithRequiredParameter("resourceNameOrIdentifier", LanguageConstants.String, "Name or unique identifier of a resource. When referencing a resource in the current template, provide only the resource name as a parameter. When referencing a previously deployed resource or when the name of the resource is ambiguous, provide the resource ID.")

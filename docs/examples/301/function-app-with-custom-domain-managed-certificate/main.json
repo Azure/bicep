@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5515000954184944254"
+      "templateHash": "14611854507760837110"
     }
   },
   "parameters": {
@@ -19,7 +19,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "location": "[resourceGroup().location]",
     "componentBase": "[format('{0}-{1}', substring(uniqueString(resourceGroup().id), 4), parameters('applicationName'))]"
@@ -207,7 +206,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11275464343508829008"
+              "templateHash": "5111727942093536492"
             }
           },
           "parameters": {
@@ -221,7 +220,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/sites/hostNameBindings",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17652745218955888516"
+      "templateHash": "16347670609787336159"
     }
   },
   "parameters": {
@@ -74,7 +74,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "domainServicesNSGName": "[format('{0}-nsg', parameters('domainServicesSubnetName'))]",
     "PSRemotingSlicePIPAddresses": [

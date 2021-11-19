@@ -518,31 +518,35 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[36:37)  Assignment |=|
 //@[38:68)  IfConditionSyntax
 //@[38:40)   Identifier |if|
-//@[41:68)   ParenthesizedExpressionSyntax
+//@[41:63)   ParenthesizedExpressionSyntax
 //@[41:42)    LeftParen |(|
-//@[42:68)    ObjectSyntax
-//@[42:43)     LeftBrace |{|
-//@[44:50)     ObjectPropertySyntax
-//@[44:47)      StringSyntax
-//@[44:47)       StringComplete |'a'|
-//@[47:48)      Colon |:|
-//@[49:50)      VariableAccessSyntax
-//@[49:50)       IdentifierSyntax
-//@[49:50)        Identifier |b|
-//@[51:67)     SkippedTriviaSyntax
-//@[51:52)      RightBrace |}|
+//@[42:62)    BinaryOperationSyntax
+//@[42:54)     PropertyAccessSyntax
+//@[42:52)      ObjectSyntax
+//@[42:43)       LeftBrace |{|
+//@[44:44)       SkippedTriviaSyntax
+//@[44:50)       ObjectPropertySyntax
+//@[44:47)        StringSyntax
+//@[44:47)         StringComplete |'a'|
+//@[47:48)        Colon |:|
+//@[49:50)        VariableAccessSyntax
+//@[49:50)         IdentifierSyntax
+//@[49:50)          Identifier |b|
+//@[51:51)       SkippedTriviaSyntax
+//@[51:52)       RightBrace |}|
 //@[52:53)      Dot |.|
-//@[53:54)      Identifier |a|
-//@[55:57)      Equals |==|
+//@[53:54)      IdentifierSyntax
+//@[53:54)       Identifier |a|
+//@[55:57)     Equals |==|
+//@[58:62)     BooleanLiteralSyntax
 //@[58:62)      TrueKeyword |true|
-//@[62:63)      RightParen |)|
-//@[64:65)      LeftBrace |{|
-//@[65:67)      NewLine |\n\n|
+//@[62:63)    RightParen |)|
+//@[64:68)   ObjectSyntax
+//@[64:65)    LeftBrace |{|
+//@[65:67)    NewLine |\n\n|
 
 }
-//@[0:1)     RightBrace |}|
-//@[1:1)    SkippedTriviaSyntax
-//@[1:1)   SkippedTriviaSyntax
+//@[0:1)    RightBrace |}|
 //@[1:3) NewLine |\n\n|
 
 module modANoInputs './modulea.bicep' = {

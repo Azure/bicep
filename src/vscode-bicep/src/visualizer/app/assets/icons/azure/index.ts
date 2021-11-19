@@ -6,8 +6,9 @@ export async function importResourceIconInline(
   switch (resourceType.toLowerCase()) {
     // Microsoft.Compute
     case "microsoft.compute/availabilitysets":
-      return (await import("./compute/10034-icon-service-VM-Scale-Sets.svg"))
-        .default;
+      return (
+        await import("./compute/10025-icon-service-Availability-Sets.svg")
+      ).default;
     case "microsoft.compute/disks":
       return (await import("./compute/10032-icon-service-Disks.svg")).default;
     case "microsoft.compute/virtualmachines":
@@ -16,6 +17,32 @@ export async function importResourceIconInline(
     case "microsoft.compute/virtualmachinescalesets":
       return (await import("./compute/10034-icon-service-VM-Scale-Sets.svg"))
         .default;
+    case "microsoft.compute/proximityplacementgroups":
+      return (
+        await import(
+          "./compute/10365-icon-service-Proximity-Placement-Groups.svg"
+        )
+      ).default;
+    case "microsoft.compute/diskencryptionsets":
+      return (
+        await import("./compute/00398-icon-service-Disk-Encryption-Sets.svg")
+      ).default;
+    case "microsoft.containerservice/managedclusters":
+      return (
+        await import("./compute/10023-icon-service-Kubernetes-Services.svg")
+      ).default;
+    case "microsoft.compute/snapshots":
+      return (await import("./compute/10026-icon-service-Disks-Snapshots.svg"))
+        .default;
+    case "microsoft.batch/batchaccounts":
+      return (await import("./compute/10031-icon-service-Batch-Accounts.svg"))
+        .default;
+    case "microsoft.compute/images":
+      return (await import("./compute/10033-icon-service-Images.svg")).default;
+    case "microsoft.compute/galleries":
+      return (
+        await import("./compute/10039-icon-service-Shared-Image-Galleries.svg")
+      ).default;
 
     // Microsoft.SQL
     case "microsoft.sql/servers":
@@ -25,7 +52,7 @@ export async function importResourceIconInline(
       return (await import("./databases/10130-icon-service-SQL-Database.svg"))
         .default;
 
-    // Microsoft.Network
+    // microsoft.network
     case "microsoft.network/dnszones":
       return (await import("./networking/10064-icon-service-DNS-Zones.svg"))
         .default;
@@ -59,6 +86,81 @@ export async function importResourceIconInline(
       ).default;
     case "microsoft.network/virtualnetworks/subnets":
       return (await import("./custom/subnets.svg")).default;
+    case "microsoft.network/ipgroups":
+      return (await import("./networking/00701-icon-service-IP-Groups.svg"))
+        .default;
+    case "microsoft.network/privatelinkservices":
+      return (
+        await import("./networking/01105-icon-service-Private-Link-Service.svg")
+      ).default;
+    case "microsoft.network/trafficmanagerprofiles":
+      return (
+        await import(
+          "./networking/10065-icon-service-Traffic-Manager-Profiles.svg"
+        )
+      ).default;
+    case "microsoft.network/networkwatchers":
+      return (
+        await import("./networking/10066-icon-service-Network-Watcher.svg")
+      ).default;
+    case "microsoft.network/routefilters":
+      return (await import("./networking/10071-icon-service-Route-Filters.svg"))
+        .default;
+    case "microsoft.network/ddosprotectionplans":
+      return (
+        await import(
+          "./networking/10072-icon-service-DDoS-Protection-Plans.svg"
+        )
+      ).default;
+    case "microsoft.network/frontdoors":
+      return (await import("./networking/10073-icon-service-Front-Doors.svg"))
+        .default;
+    case "microsoft.network/applicationgateways":
+      return (
+        await import("./networking/10076-icon-service-Application-Gateways.svg")
+      ).default;
+    case "microsoft.network/localnetworkgateways":
+      return (
+        await import(
+          "./networking/10077-icon-service-Local-Network-Gateways.svg"
+        )
+      ).default;
+    case "microsoft.network/expressroutecircuits":
+      return (
+        await import(
+          "./networking/10079-icon-service-ExpressRoute-Circuits.svg"
+        )
+      ).default;
+    case "microsoft.network/connections":
+      return (await import("./networking/10081-icon-service-Connections.svg"))
+        .default;
+    case "microsoft.network/routetables":
+      return (await import("./networking/10082-icon-service-Route-Tables.svg"))
+        .default;
+    case "microsoft.network/azurefirewalls":
+      return (await import("./networking/10084-icon-service-Firewalls.svg"))
+        .default;
+    case "microsoft.network/serviceendpointpolicies":
+      return (
+        await import(
+          "./networking/10085-icon-service-Service-Endpoint-Policies.svg"
+        )
+      ).default;
+    case "microsoft.network/natgateways":
+      return (await import("./networking/10310-icon-service-NAT.svg")).default;
+    case "microsoft.network/virtualwans":
+      return (await import("./networking/10353-icon-service-Virtual-WANs.svg"))
+        .default;
+    case "microsoft.network/firewallpolicies":
+      return (
+        await import(
+          "./networking/10362-icon-service-Web-Application-Firewall-Policies(WAF).svg"
+        )
+      ).default;
+    case "microsoft.network/publicipprefixes":
+      return (
+        await import("./networking/10372-icon-service-Public-IP-Prefixes.svg")
+      ).default;
 
     // Microsoft.Resources
     case "microsoft.resources/resourcegroups":
@@ -88,6 +190,18 @@ export async function importResourceIconInline(
     case "microsoft.web/sites":
       return (await import("./appServices/10035-icon-service-App-Services.svg"))
         .default;
+    case "microsoft.web/certificates":
+      return (
+        await import(
+          "./appServices/00049-icon-service-App-Service-Certificates.svg"
+        )
+      ).default;
+    case "microsoft.web/hostingenvironments":
+      return (
+        await import(
+          "./appServices/10047-icon-service-App-Service-Environments.svg"
+        )
+      ).default;
 
     // Microsoft.ApiManagement
     case "microsoft.apimanagement/service":

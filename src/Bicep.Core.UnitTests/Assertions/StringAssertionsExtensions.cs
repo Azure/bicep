@@ -39,7 +39,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 .Select(line => $"[{line.Position}] {GetDiffMarker(line.Type)} {EscapeWhitespace(line.Text)}")
                 .Take(truncate);
 
-            if (lineLogs.Count() > truncate)
+            if (lineLogs.Count() >= truncate)
             {
                 lineLogs = lineLogs.Concat(new[] { "...truncated..." });
             }
@@ -69,6 +69,16 @@ namespace Bicep.Core.UnitTests.Assertions
             var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
 
             normalizedActual.Should().BeEquivalentTo(normalizedExpected, because, becauseArgs);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
+
+        public static AndConstraint<StringAssertions> EqualIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
+            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
+
+            normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
 
             return new AndConstraint<StringAssertions>(instance);
         }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5706061224615216925"
+      "templateHash": "17895804241305860710"
     }
   },
   "parameters": {
@@ -25,7 +25,6 @@
       ]
     }
   },
-  "functions": [],
   "variables": {
     "regionToTimezone": {
       "eastus": "Eastern Standard Time",

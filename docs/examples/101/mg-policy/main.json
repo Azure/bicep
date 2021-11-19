@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2022767932279852077"
+      "templateHash": "12630195116226956816"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "mgScope": "[tenantResourceId('Microsoft.Management/managementGroups', parameters('targetMG'))]",
     "policyDefinitionName": "LocationRestriction"
@@ -63,7 +62,7 @@
         "policyDefinitionId": "[extensionResourceId(variables('mgScope'), 'Microsoft.Authorization/policyDefinitions', variables('policyDefinitionName'))]"
       },
       "dependsOn": [
-        "[format('Microsoft.Authorization/policyDefinitions/{0}', variables('policyDefinitionName'))]"
+        "[extensionResourceId(managementGroup().id, 'Microsoft.Authorization/policyDefinitions', variables('policyDefinitionName'))]"
       ]
     }
   ]

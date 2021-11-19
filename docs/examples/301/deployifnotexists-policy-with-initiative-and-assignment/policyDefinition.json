@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8518948478731971920"
+      "templateHash": "7507947354320390204"
     }
   },
   "parameters": {
@@ -64,7 +64,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "policyDefCategory": "Custom",
     "policySource": "Bicep"

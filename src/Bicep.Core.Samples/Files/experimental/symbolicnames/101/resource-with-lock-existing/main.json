@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2003869932911986521"
+      "templateHash": "7778014452728540746"
     }
   },
   "parameters": {
@@ -15,13 +15,12 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "storageAcc": {
+      "existing": true,
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2019-06-01",
-      "name": "[parameters('accountName')]",
-      "existing": true
+      "name": "[parameters('accountName')]"
     },
     "lockResource": {
       "type": "Microsoft.Authorization/locks",

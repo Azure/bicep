@@ -4,7 +4,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2015-05-01-preview`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2015-05-01-preview`"
     },
     "deprecated": false,
     "preselect": false,
@@ -22,7 +22,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2015-06-15`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2015-06-15`"
     },
     "deprecated": false,
     "preselect": false,
@@ -40,7 +40,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2016-01-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2016-01-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -58,7 +58,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2016-05-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2016-05-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -76,7 +76,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2016-12-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2016-12-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -94,7 +94,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2017-06-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2017-06-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -112,7 +112,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2017-10-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2017-10-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -130,7 +130,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2018-02-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2018-02-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -148,7 +148,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2018-03-01-preview`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2018-03-01-preview`"
     },
     "deprecated": false,
     "preselect": false,
@@ -166,7 +166,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2018-07-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2018-07-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -184,7 +184,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2018-11-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2018-11-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -202,7 +202,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2019-04-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2019-04-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -220,7 +220,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2019-06-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2019-06-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -238,7 +238,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2020-08-01-preview`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2020-08-01-preview`"
     },
     "deprecated": false,
     "preselect": false,
@@ -256,7 +256,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2021-01-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2021-01-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -274,7 +274,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2021-02-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2021-02-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -292,7 +292,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2021-04-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2021-04-01`"
     },
     "deprecated": false,
     "preselect": false,
@@ -310,7 +310,7 @@
     "kind": "class",
     "documentation": {
       "kind": "markdown",
-      "value": "Namespace: `Microsoft.Storage`  \nType: `storageAccounts`  \nAPI Version: `2021-06-01`"
+      "value": "Type: `Microsoft.Storage/storageAccounts`  \nAPI Version: `2021-06-01`"
     },
     "deprecated": false,
     "preselect": false,

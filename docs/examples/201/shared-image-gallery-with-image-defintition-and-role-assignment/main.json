@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6061572376334368051"
+      "templateHash": "7412961710344620480"
     }
   },
   "parameters": {
@@ -43,7 +43,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "templateImageResourceGroupId": "[format('/subscriptions/{0}/resourcegroups/{1}', parameters('azureSubscriptionID'), parameters('templateImageResourceGroup'))]"
   },

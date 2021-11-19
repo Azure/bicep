@@ -1,8 +1,4 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFramework>netstandard2.1</TargetFramework>
-	</PropertyGroup>
-
 	<ItemGroup>
 		<None Remove="bicepconfig.json" />
 	</ItemGroup>
@@ -12,26 +8,23 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Azure.Identity" Version="1.4.1" />
-		<PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.2" />
+		<PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.3" />
+		<PackageReference Include="Azure.Identity" Version="1.5.0" />
+		<PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.3" />
 		<PackageReference Include="JetBrains.Annotations" Version="2021.2.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="5.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-		<PackageReference Include="System.Collections.Immutable" Version="5.0.0" />
+		<PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
 		<PackageReference Include="Azure.Deployments.Core" Version="1.0.253" />
 		<PackageReference Include="Azure.Deployments.Templates" Version="1.0.253" />
 		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.253" />
-		<PackageReference Include="Azure.Bicep.Types" Version="0.1.304" />
-		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.304" />
+		<PackageReference Include="Azure.Bicep.Types" Version="0.1.330" />
+		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.330" />
 		<PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\Bicep.Core.RegistryClient\Bicep.Core.RegistryClient.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Compile Update="CoreResources.Designer.cs">

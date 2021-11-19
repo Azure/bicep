@@ -1,0 +1,297 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`component App should render 1`] = `
+Array [
+  .c0 {
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  overflow: hidden;
+  background-color: #111111;
+  background-image: radial-gradient(circle at 1px 1px,#3f3f3f 1px,transparent 0);
+  background-size: 24px 24px;
+  background-position: 12px 12px;
+}
+
+<div
+    className="c0"
+  />,
+  .c1 {
+  display: relative;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.c2 {
+  position: absolute;
+  color: white;
+  background: black;
+  border-radius: 4px;
+  padding: 4px 8px;
+  margin-top: 2px;
+  right: 44px;
+  width: -webkit-max-content;
+  width: -moz-max-content;
+  width: max-content;
+  display: none;
+}
+
+.c0 {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 99999;
+  -webkit-filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.25));
+  filter: drop-shadow(0px 0px 4px rgba(0,0,0,0.25));
+}
+
+.c3 {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 6px;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -webkit-justify-content: center;
+  -ms-flex-pack: center;
+  justify-content: center;
+  background-color: #333333;
+}
+
+.c3:hover {
+  -webkit-filter: brightness(125%);
+  filter: brightness(125%);
+}
+
+.c3:active {
+  -webkit-filter: brightness(85%);
+  filter: brightness(85%);
+}
+
+<div
+    className="c0"
+  >
+    <div
+      className="c1"
+    >
+      <div
+        className="c2"
+      >
+        Zoom in
+      </div>
+      <div
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+      >
+        <div
+          className="c3"
+          onClick={[Function]}
+        >
+          <svg
+            color="#c1c1c1"
+            fill="none"
+            height={20}
+            stroke="currentColor"
+            strokeWidth="0"
+            style={
+              Object {
+                "color": "#c1c1c1",
+              }
+            }
+            viewBox="0 0 24 24"
+            width={20}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clipRule="evenodd"
+              d="M15.3431 15.2426C17.6863 12.8995 17.6863 9.1005 15.3431 6.75736C13 4.41421 9.20101 4.41421 6.85786 6.75736C4.51472 9.1005 4.51472 12.8995 6.85786 15.2426C9.20101 17.5858 13 17.5858 15.3431 15.2426ZM16.7574 5.34315C19.6425 8.22833 19.8633 12.769 17.4195 15.9075C17.4348 15.921 17.4498 15.9351 17.4645 15.9497L21.7071 20.1924C22.0976 20.5829 22.0976 21.2161 21.7071 21.6066C21.3166 21.9971 20.6834 21.9971 20.2929 21.6066L16.0503 17.364C16.0356 17.3493 16.0215 17.3343 16.008 17.319C12.8695 19.7628 8.32883 19.542 5.44365 16.6569C2.31946 13.5327 2.31946 8.46734 5.44365 5.34315C8.56785 2.21895 13.6332 2.21895 16.7574 5.34315ZM10.1005 7H12.1005V10H15.1005V12H12.1005V15H10.1005V12H7.10052V10H10.1005V7Z"
+              fill="currentColor"
+              fillRule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div
+      className="c1"
+    >
+      <div
+        className="c2"
+      >
+        Zoom out
+      </div>
+      <div
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+      >
+        <div
+          className="c3"
+          onClick={[Function]}
+        >
+          <svg
+            color="#c1c1c1"
+            fill="none"
+            height={20}
+            stroke="currentColor"
+            strokeWidth="0"
+            style={
+              Object {
+                "color": "#c1c1c1",
+              }
+            }
+            viewBox="0 0 24 24"
+            width={20}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              clipRule="evenodd"
+              d="M15.3431 15.2426C17.6863 12.8995 17.6863 9.1005 15.3431 6.75736C13 4.41421 9.20101 4.41421 6.85786 6.75736C4.51472 9.1005 4.51472 12.8995 6.85786 15.2426C9.20101 17.5858 13 17.5858 15.3431 15.2426ZM16.7574 5.34315C19.6425 8.22833 19.8633 12.769 17.4195 15.9075C17.4348 15.921 17.4498 15.9351 17.4645 15.9497L21.7071 20.1924C22.0976 20.5829 22.0976 21.2161 21.7071 21.6066C21.3166 21.9971 20.6834 21.9971 20.2929 21.6066L16.0503 17.364C16.0356 17.3493 16.0215 17.3343 16.008 17.319C12.8695 19.7628 8.32883 19.542 5.44365 16.6569C2.31946 13.5327 2.31946 8.46734 5.44365 5.34315C8.56785 2.21895 13.6332 2.21895 16.7574 5.34315ZM7.10052 10V12H15.1005V10L7.10052 10Z"
+              fill="currentColor"
+              fillRule="evenodd"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div
+      className="c1"
+    >
+      <div
+        className="c2"
+      >
+        Layout
+      </div>
+      <div
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+      >
+        <div
+          className="c3"
+          onClick={[Function]}
+        >
+          <svg
+            color="#c1c1c1"
+            fill="currentColor"
+            height={20}
+            stroke="currentColor"
+            strokeWidth="0"
+            style={
+              Object {
+                "color": "#c1c1c1",
+              }
+            }
+            viewBox="0 0 16 16"
+            width={20}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M4.38 5h1V4h1V3h-1V2h-1v1h-1v1h1v1zm8 4h-1v1h-1v1h1v1h1v-1h1v-1h-1V9zM14 2V1h-1v1h-1v1h1v1h1V3h1V2h-1zm-2.947 2.442a1.49 1.49 0 0 0-2.12 0l-7.49 7.49a1.49 1.49 0 0 0 0 2.12c.59.59 1.54.59 2.12 0l7.49-7.49c.58-.58.58-1.53 0-2.12zm-8.2 8.9c-.2.2-.51.2-.71 0-.2-.2-.2-.51 0-.71l6.46-6.46.71.71-6.46 6.46zm7.49-7.49l-.32.32-.71-.71.32-.32c.2-.2.51-.2.71 0 .19.2.19.52 0 .71z"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div
+      className="c1"
+    >
+      <div
+        className="c2"
+      >
+        Fit
+      </div>
+      <div
+        onMouseDown={[Function]}
+        onMouseEnter={[Function]}
+        onMouseLeave={[Function]}
+      >
+        <div
+          className="c3"
+          onClick={[Function]}
+        >
+          <svg
+            color="#c1c1c1"
+            fill="none"
+            height={20}
+            stroke="currentColor"
+            strokeWidth="0"
+            style={
+              Object {
+                "color": "#c1c1c1",
+              }
+            }
+            viewBox="0 0 24 24"
+            width={20}
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M3 3H9V5H5V9H3V3Z"
+              fill="currentColor"
+            />
+            <path
+              d="M3 21H9V19H5V15H3V21Z"
+              fill="currentColor"
+            />
+            <path
+              d="M15 21H21V15H19V19H15V21Z"
+              fill="currentColor"
+            />
+            <path
+              d="M21 3H15V5H19V9H21V3Z"
+              fill="currentColor"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>,
+  .c0 {
+  position: absolute;
+  height: 32px;
+  left: 20px;
+  bottom: 20px;
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-flex-direction: row;
+  -ms-flex-direction: row;
+  flex-direction: row;
+  -webkit-align-items: center;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+}
+
+.c1 {
+  width: 8px;
+  height: 8px;
+  background-color: Green;
+  border-radius: 50%;
+  color: white;
+  margin-top: 2px;
+  margin-right: 8px;
+}
+
+<div
+    className="c0"
+  >
+    <div
+      className="c1"
+    />
+    <div>
+      There is no resources or modules in the file. Nothing to render.
+    </div>
+  </div>,
+]
+`;

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4433596017581258264"
+      "templateHash": "16823296441565760379"
     }
   },
   "parameters": {
@@ -15,7 +15,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "storageAcc": {
       "type": "Microsoft.Storage/storageAccounts",

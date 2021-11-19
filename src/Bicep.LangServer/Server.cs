@@ -34,13 +34,15 @@ using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.Langu
 
 namespace Bicep.LanguageServer
 {
-    public class Server
+    public class Server : IDisposable
     {
         public record CreationOptions(
             ISnippetsProvider? SnippetsProvider = null,
             INamespaceProvider? NamespaceProvider = null,
             IFileResolver? FileResolver = null,
-            IFeatureProvider? Features = null);
+            IFeatureProvider? Features = null,
+            IModuleRestoreScheduler? ModuleRestoreScheduler = null,
+            Action<IServiceCollection>? onRegisterServices = null);
 
         private readonly OmnisharpLanguageServer server;
 
@@ -53,7 +55,7 @@ namespace Bicep.LanguageServer
             : this(creationOptions, options => options.WithInput(input).WithOutput(output))
         {
         }
-        
+
         private Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
             BicepDeploymentsInterop.Initialize();
@@ -78,7 +80,10 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
+                    .WithHandler<InsertResourceHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
+
+                creationOptions.onRegisterServices?.Invoke(options.Services);
 
                 onOptionsFunc(options);
             });
@@ -127,7 +132,13 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompilationProvider, BicepCompilationProvider>();
             services.AddSingleton<ISymbolResolver, BicepSymbolResolver>();
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
-            services.AddSingleton<IModuleRestoreScheduler, ModuleRestoreScheduler>();
+            services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
+            services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
+        }
+
+        public void Dispose()
+        {
+            server.Dispose();
         }
     }
 }

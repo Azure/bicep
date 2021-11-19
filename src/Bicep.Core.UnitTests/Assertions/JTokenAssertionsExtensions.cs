@@ -18,22 +18,31 @@ namespace Bicep.Core.UnitTests.Assertions
             return new JTokenAssertions(instance);
         }
 
-        public static AndConstraint<JTokenAssertions> EqualWithJsonDiffOutput(this JTokenAssertions instance, TestContext testContext, JToken expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        private static string? GetJsonDiff(JToken? first, JToken? second)
         {
             const int truncate = 100;
-            var diff = new JsonDiffPatch(new Options { TextDiff = TextDiffMode.Simple }).Diff(instance.Subject, expected);
+            var diff = new JsonDiffPatch(new Options { TextDiff = TextDiffMode.Simple }).Diff(first, second);
+            if (diff is null)
+            {
+                return null;
+            }
 
             // JsonDiffPatch.Diff returns null if there are no diffs
-            var lineLogs = (diff?.ToString() ?? string.Empty)
-                .Split('\n')
-                .Take(truncate);
+            var lineLogs = diff.ToString().Split('\n').Take(truncate);
 
-            if (lineLogs.Count() > truncate)
+            if (lineLogs.Count() >= truncate)
             {
                 lineLogs = lineLogs.Concat(new[] { "...truncated..." });
             }
 
-            var testPassed = diff is null;
+            return string.Join('\n', lineLogs);
+        }
+
+        public static AndConstraint<JTokenAssertions> EqualWithJsonDiffOutput(this JTokenAssertions instance, TestContext testContext, JToken expected, string expectedLocation, string actualLocation, string because = "", params object[] becauseArgs)
+        {
+            var jsonDiff = GetJsonDiff(instance.Subject, expected);
+
+            var testPassed = jsonDiff is null;
             var isBaselineUpdate = !testPassed && BaselineHelper.ShouldSetBaseline(testContext);
             if (isBaselineUpdate)
             {
@@ -45,7 +54,7 @@ namespace Bicep.Core.UnitTests.Assertions
                 .ForCondition(testPassed)
                 .FailWith(
                     BaselineHelper.GetAssertionFormatString(isBaselineUpdate),
-                    string.Join('\n', lineLogs),
+                    jsonDiff,
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(actualLocation),
                     BaselineHelper.GetAbsolutePathRelativeToRepoRoot(expectedLocation));
 
@@ -57,7 +66,7 @@ namespace Bicep.Core.UnitTests.Assertions
             Execute.Assertion
                 .BecauseOf(because, becauseArgs)
                 .ForCondition(JToken.DeepEquals(instance.Subject, expected))
-                .FailWith("Expected {0} but got {1}", expected.ToString(), instance.Subject?.ToString());
+                .FailWith("Expected {0} but got {1}. Differences: {2}", expected.ToString(), instance.Subject?.ToString(), GetJsonDiff(instance.Subject, expected));
 
             return new AndConstraint<JTokenAssertions>(instance);
         }

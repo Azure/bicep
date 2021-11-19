@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12371818426879841991"
+      "templateHash": "13928214381687450227"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "vwan_cfg": {
       "name": "vwan",

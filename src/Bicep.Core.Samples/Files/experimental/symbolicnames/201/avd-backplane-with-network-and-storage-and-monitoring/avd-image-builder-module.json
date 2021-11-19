@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17023233329059124249"
+      "templateHash": "7366460419688481408"
     }
   },
   "parameters": {
@@ -53,13 +53,12 @@
       "defaultValue": "[resourceGroup().name]"
     }
   },
-  "functions": [],
   "resources": {
     "managedidentity": {
+      "existing": true,
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
       "apiVersion": "2018-11-30",
-      "name": "[parameters('uamiName')]",
-      "existing": true
+      "name": "[parameters('uamiName')]"
     },
     "imageTemplateName_resource": {
       "type": "Microsoft.VirtualMachineImages/imageTemplates",

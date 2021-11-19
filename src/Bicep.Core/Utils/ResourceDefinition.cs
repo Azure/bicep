@@ -30,8 +30,12 @@ namespace Bicep.Core.Utils
         private class ResourceComparer : IEqualityComparer<ResourceDefinition>
         {
 
-            public bool Equals(ResourceDefinition x, ResourceDefinition y)
+            public bool Equals(ResourceDefinition? x, ResourceDefinition? y)
             {
+                if (x is null || y is null)
+                {
+                    return false;
+                }
 
                 if (!string.Equals(x.FullyQualifiedResourceType, y.FullyQualifiedResourceType, StringComparison.OrdinalIgnoreCase))
                 {

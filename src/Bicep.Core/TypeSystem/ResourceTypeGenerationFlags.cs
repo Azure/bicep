@@ -21,10 +21,9 @@ namespace Bicep.Core.TypeSystem
         ExistingResource = 1 << 0,
 
         /// <summary>
-        /// Generating a definition for a resource which permits literal-valued names (e.g. enums, or discriminated objects with 'name' key).
-        /// This is used for root-level resources, and nested/parent-property child resources.
+        /// This resource type definition has a parent resource defined.
         /// </summary>
-        PermitLiteralNameProperty = 1 << 1,
+        HasParentDefined = 1 << 1,
 
         /// <summary>
         /// Generating a definition for a syntactically nested resource. Do not use this flag for resources that need the "parent" property.

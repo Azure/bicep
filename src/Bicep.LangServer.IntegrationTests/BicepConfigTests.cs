@@ -31,7 +31,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepConfigFileModification_ShouldNotRefreshCompilation()
         {
-            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -87,7 +89,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepConfigFileDeletion_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -147,7 +151,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepConfigFileCreation_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var bicepFileContents = @"param storageAccountName string = 'test'";
             var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
@@ -204,7 +210,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task SavingBicepConfigFile_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var bicepFileContents = @"param storageAccountName string = 'test'";
             var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
@@ -262,7 +270,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task WithBicepConfigInParentDirectory_WhenNewBicepConfigFileIsAddedToCurrentDirectory_ShouldUseNewlyAddedConfigSettings()
         {
-            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, parentDirectoryPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -337,7 +347,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task WithBicepConfigInCurrentDirectory_WhenNewBicepConfigFileIsAddedToParentDirectory_ShouldUseOldConfigSettings()
         {
-            (ILanguageClient client,  MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, parentDirectoryPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var childDirectoryPath = Path.Combine(parentDirectoryPath, "child");
             var bicepFileContents = @"param storageAccountName string = 'test'";
@@ -410,7 +422,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task FixingErrorsInInvalidBicepConfigFileAndSaving_ShouldRefreshCompilation()
         {
-            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -475,7 +489,9 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task WithMultipleConfigFiles_ShouldUseConfigSettingsFromRelevantDirectory()
         {
-            (ILanguageClient client, MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string parentDirectoryPath) = await StartServerWithClientConnectionAsync();
+            var (diagsListener, parentDirectoryPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
 
             var childDirectoryPath = Path.Combine(parentDirectoryPath, "child");
 
@@ -552,6 +568,91 @@ namespace Bicep.LangServer.IntegrationTests
             }
         }
 
+        [TestMethod]
+        public async Task VerifyLinterErrorsCanBeSuppressedWithDisableNextLineDiagnosticsDirective()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""error""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"#disable-next-line no-unused-params
+param storageAccountName string = 'test'";
+
+            await VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(bicepConfigFileContents, bicepFileContents);
+        }
+
+        [TestMethod]
+        public async Task VerifyLinterWarningsCanBeSuppressedWithDisableNextLineDiagnosticsDirective()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"#disable-next-line no-unused-params
+param storageAccountName string = 'test'";
+
+            await VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(bicepConfigFileContents, bicepFileContents);
+        }
+
+        [TestMethod]
+        public async Task VerifyLinterInfoCanBeSuppressedWithDisableNextLineDiagnosticsDirective()
+        {
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"#disable-next-line no-unused-params
+param storageAccountName string = 'test'";
+
+            await VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(bicepConfigFileContents, bicepFileContents);
+        }
+
+        private async Task VerifyLinterDiagnosticsCanBeSuppressedWithDisableNextLineDiagnosticsDirective(string bicepConfigContents, string bicepFileContents)
+        {
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
+
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
+            var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigContents, testOutputPath);
+
+            // open the main document and verify diagnostics
+            {
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
+
+                var diagsParams = await diagsListener.WaitNext();
+                diagsParams.Uri.Should().Be(mainUri);
+                diagsParams.Diagnostics.Should().BeEmpty();
+            }
+        }
+
         private static async Task VerifyDiagnosticsAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener,
             string message,
             DocumentUri documentUri,
@@ -576,23 +677,26 @@ namespace Bicep.LangServer.IntegrationTests
                 });
         }
 
-        private async Task<(ILanguageClient, MultipleMessageListener<PublishDiagnosticsParams>, string testOutputPath)> StartServerWithClientConnectionAsync()
+        private (MultipleMessageListener<PublishDiagnosticsParams> diagsListener, string testOutputPath) GetTestConfig()
+        {
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            return (diagsListener, testOutputPath);
+        }
+
+        private async Task<LanguageServerHelper> StartServerWithClientConnectionAsync(MultipleMessageListener<PublishDiagnosticsParams> diagsListener)
         {
             var fileSystemDict = new Dictionary<Uri, string>();
             var fileResolver = new InMemoryFileResolver(fileSystemDict);
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
             var serverOptions = new Server.CreationOptions(FileResolver: fileResolver);
-            var client = await IntegrationTestHelper.StartServerWithClientConnectionAsync(
+            return await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                 },
                 serverOptions);
-
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
-
-            return (client, diagsListener, testOutputPath);
         }
 
         private DocumentUri SaveFile(string fileName, string fileContents, string testOutputPath)

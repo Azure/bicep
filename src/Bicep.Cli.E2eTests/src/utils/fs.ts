@@ -11,7 +11,7 @@ const rimrafAsync = promisify(rimraf);
 export const bicepCli = path.resolve(
   __dirname,
   process.env.BICEP_CLI_EXECUTABLE ||
-    "../../../Bicep.Cli/bin/Debug/net5.0/bicep"
+    "../../../Bicep.Cli/bin/Debug/net6.0/bicep"
 );
 
 export const moduleCacheRoot = path.resolve(homedir(), ".bicep");
@@ -35,6 +35,27 @@ export function pathToCachedBrModuleFile(...pathNames: string[]): string {
 
 export function readFileSync(filePath: string): string {
   return fs.readFileSync(filePath, { encoding: "utf-8" });
+}
+
+export function logFiles(dirPath: string) {
+  const files: string[] = [];
+  logFilesInternal(files, dirPath);
+  console.log(`File count ${files.length}\n${files.join("\n")}`);
+}
+
+function logFilesInternal(files: string[], dirPath: string) {
+  const items = fs.readdirSync(dirPath);
+  items.forEach((name) => {
+    const itemPath = path.join(dirPath, name);
+    const stat = fs.statSync(itemPath);
+    if (stat.isFile()) {
+      files.push(itemPath);
+    }
+
+    if (stat.isDirectory()) {
+      logFiles(itemPath);
+    }
+  });
 }
 
 export async function emptyDir(dirPath: string): Promise<void> {

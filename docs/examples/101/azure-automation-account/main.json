@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11943737649630419837"
+      "templateHash": "4229699038022914740"
     }
   },
   "parameters": {
@@ -26,7 +26,6 @@
       "defaultValue": "[uniqueString(resourceGroup().id)]"
     }
   },
-  "functions": [],
   "variables": {
     "workspaceName": "[toLower(format('la-{0}', parameters('appName')))]",
     "automationaccountName": "[toLower(format('aa{0}', parameters('appName')))]",

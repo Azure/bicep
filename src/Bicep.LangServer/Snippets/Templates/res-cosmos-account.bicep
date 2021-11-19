@@ -1,7 +1,7 @@
 ﻿// Cosmos DB Database Account
 resource /*${1:cosmosDbAccount}*/cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: /*${7:'location'}*/'location'
   kind: /*${3|'GlobalDocumentDB','MongoDB','Parse'|}*/'GlobalDocumentDB'
   properties: {
     consistencyPolicy: {

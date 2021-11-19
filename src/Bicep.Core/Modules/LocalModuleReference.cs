@@ -28,7 +28,7 @@ namespace Bicep.Core.Modules
         /// </summary>
         public string Path { get; }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if(obj is not LocalModuleReference other)
             {

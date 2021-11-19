@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6405035342659563535"
+      "templateHash": "14722846075836206922"
     }
   },
   "parameters": {
@@ -70,7 +70,6 @@
       "defaultValue": ".azurewebsites.net"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks",

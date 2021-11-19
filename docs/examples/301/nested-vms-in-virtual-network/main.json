@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6697841974774740985"
+      "templateHash": "10531657942066035492"
     }
   },
   "parameters": {
@@ -115,7 +115,6 @@
       "type": "secureString"
     }
   },
-  "functions": [],
   "variables": {
     "NATSubnetNSGName": "[format('{0}NSG', parameters('NATSubnetName'))]",
     "hyperVSubnetNSGName": "[format('{0}NSG', parameters('hyperVSubnetName'))]",
@@ -367,7 +366,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5886354623703578688"
             }
           },
           "parameters": {
@@ -402,7 +401,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",
@@ -472,7 +470,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5886354623703578688"
             }
           },
           "parameters": {
@@ -507,7 +505,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",
@@ -582,7 +579,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5886354623703578688"
             }
           },
           "parameters": {
@@ -617,7 +614,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",
@@ -694,7 +690,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17428818831523905567"
+              "templateHash": "5886354623703578688"
             }
           },
           "parameters": {
@@ -729,7 +725,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",
@@ -793,7 +788,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13461864852699596542"
+              "templateHash": "13192308342682473598"
             }
           },
           "parameters": {
@@ -813,7 +808,6 @@
               "defaultValue": ""
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/routeTables",
@@ -861,7 +855,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13461864852699596542"
+              "templateHash": "13192308342682473598"
             }
           },
           "parameters": {
@@ -881,7 +875,6 @@
               "defaultValue": ""
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/routeTables",

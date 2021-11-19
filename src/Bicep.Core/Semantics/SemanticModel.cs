@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
+using Bicep.Core.Analyzers;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -14,6 +15,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -86,7 +88,8 @@ namespace Bicep.Core.Semantics
                         typePropertyFlags |= TypePropertyFlags.Required;
                     }
 
-                    paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags));
+                    var description = SemanticModelHelper.TryGetDescription(this, param.DeclaringParameter);
+                    paramTypeProperties.Add(new TypeProperty(param.Name, param.Type, typePropertyFlags, description));
                 }
 
                 return paramTypeProperties.ToImmutableArray();
@@ -98,7 +101,8 @@ namespace Bicep.Core.Semantics
 
                 foreach (var output in this.Root.OutputDeclarations.DistinctBy(o => o.Name))
                 {
-                    outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly));
+                    var description = SemanticModelHelper.TryGetDescription(this, output.DeclaringOutput);
+                    outputTypeProperties.Add(new TypeProperty(output.Name, output.Type, TypePropertyFlags.ReadOnly, description));
                 }
 
                 return outputTypeProperties.ToImmutableArray();
@@ -184,12 +188,35 @@ namespace Bicep.Core.Semantics
             return AssembleDiagnostics();
         }
 
-        private IEnumerable<IDiagnostic> AssembleDiagnostics()
+        private IReadOnlyList<IDiagnostic> AssembleDiagnostics()
         {
-            return GetParseDiagnostics()
-            .Concat(GetSemanticDiagnostics())
-            .Concat(GetAnalyzerDiagnostics())
-            .OrderBy(diag => diag.Span.Position);
+            var diagnostics = GetParseDiagnostics()
+                .Concat(GetSemanticDiagnostics())
+                .Concat(GetAnalyzerDiagnostics())
+                .OrderBy(diag => diag.Span.Position);
+            var filteredDiagnostics = new List<IDiagnostic>();
+
+            var disabledDiagnosticsCache = SourceFile.DisabledDiagnosticsCache;
+            foreach (IDiagnostic diagnostic in diagnostics)
+            {
+                (int diagnosticLine, _) = TextCoordinateConverter.GetPosition(SourceFile.LineStarts, diagnostic.Span.Position);
+
+                if (diagnosticLine == 0 || !diagnostic.CanBeSuppressed())
+                {
+                    filteredDiagnostics.Add(diagnostic);
+                    continue;
+                }
+
+                if (disabledDiagnosticsCache.TryGetDisabledNextLineDirective(diagnosticLine - 1) is { } disableNextLineDirectiveEndPositionAndCodes &&
+                    disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes.Contains(diagnostic.Code))
+                {
+                    continue;
+                }
+
+                filteredDiagnostics.Add(diagnostic);
+            }
+
+            return filteredDiagnostics;
         }
 
         /// <summary>

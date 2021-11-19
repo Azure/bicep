@@ -16,7 +16,7 @@ namespace Bicep.Core.Registry
     {
         public abstract string Scheme { get; }
 
-        public abstract RegistryCapabilities Capabilities { get; }
+        public RegistryCapabilities GetCapabilities(ModuleReference reference) => this.GetCapabilities(ConvertReference(reference));
 
         public abstract bool IsModuleRestoreRequired(T reference);
 
@@ -37,6 +37,8 @@ namespace Bicep.Core.Registry
 
         public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             this.TryGetLocalModuleEntryPointUri(parentModuleUri, ConvertReference(reference), out failureBuilder);
+
+        public abstract RegistryCapabilities GetCapabilities(T reference);
 
         private static T ConvertReference(ModuleReference reference) => reference switch
         {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10433069750951100331"
+      "templateHash": "10469250134169586077"
     }
   },
   "parameters": {
@@ -29,7 +29,6 @@
       }
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Network/vpnGateways",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18155317466407965240"
+      "templateHash": "3646938118059409476"
     }
   },
   "parameters": {
@@ -29,7 +29,6 @@
       "defaultValue": "profilecontainers"
     }
   },
-  "functions": [],
   "variables": {
     "filesharelocation": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('fileshareFolderName'))]"
   },

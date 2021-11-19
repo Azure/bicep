@@ -9,7 +9,7 @@ namespace Bicep.Core.TypeSystem
     public record NamespaceSettings(
         bool IsSingleton,
         string BicepProviderName,
-        ITypeReference? ConfigurationType,
+        ObjectType? ConfigurationType,
         string ArmTemplateProviderName,
         string ArmTemplateProviderVersion);
 
@@ -40,6 +40,6 @@ namespace Bicep.Core.TypeSystem
 
         public string ProviderName => Settings.BicepProviderName;
 
-        public ITypeReference? ConfigurationType => Settings.ConfigurationType;
+        public ObjectType? ConfigurationType => Settings.ConfigurationType;
     }
 }

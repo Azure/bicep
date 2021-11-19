@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2021474326145495883"
+      "templateHash": "16734801473738910113"
     }
   },
   "parameters": {
@@ -132,7 +132,6 @@
       "defaultValue": false
     }
   },
-  "functions": [],
   "resources": {
     "rgavd": {
       "type": "Microsoft.Resources/resourceGroups",
@@ -230,7 +229,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3151175958798169873"
+              "templateHash": "5292768385938170215"
             }
           },
           "parameters": {
@@ -289,7 +288,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "hp": {
               "type": "Microsoft.DesktopVirtualization/hostPools",
@@ -371,7 +369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "2497063281393301459"
+                      "templateHash": "15289507394833495128"
                     }
                   },
                   "parameters": {
@@ -396,7 +394,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "avdla": {
                       "type": "Microsoft.OperationalInsights/workspaces",
@@ -439,7 +436,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "10996175173856467619"
+                              "templateHash": "1620512394627203274"
                             }
                           },
                           "parameters": {
@@ -453,19 +450,18 @@
                               "type": "string"
                             }
                           },
-                          "functions": [],
                           "resources": {
                             "hostPool": {
+                              "existing": true,
                               "type": "Microsoft.DesktopVirtualization/hostPools",
                               "apiVersion": "2020-11-02-preview",
-                              "name": "[parameters('hostpoolName')]",
-                              "existing": true
+                              "name": "[parameters('hostpoolName')]"
                             },
                             "workspace": {
+                              "existing": true,
                               "type": "Microsoft.DesktopVirtualization/workspaces",
                               "apiVersion": "2020-11-02-preview",
-                              "name": "[parameters('workspaceName')]",
-                              "existing": true
+                              "name": "[parameters('workspaceName')]"
                             },
                             "avdhpds": {
                               "type": "Microsoft.Insights/diagnosticSettings",
@@ -584,7 +580,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14998095338942063206"
+              "templateHash": "14440187448325350653"
             }
           },
           "parameters": {
@@ -606,7 +602,6 @@
               "defaultValue": "AVD"
             }
           },
-          "functions": [],
           "resources": {
             "vnet": {
               "type": "Microsoft.Network/virtualNetworks",
@@ -683,7 +678,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18155317466407965240"
+              "templateHash": "3646938118059409476"
             }
           },
           "parameters": {
@@ -705,7 +700,6 @@
               "defaultValue": "profilecontainers"
             }
           },
-          "functions": [],
           "variables": {
             "filesharelocation": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('fileshareFolderName'))]"
           },
@@ -777,7 +771,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5787402335250242721"
+              "templateHash": "13675653132844872894"
             }
           },
           "parameters": {
@@ -806,7 +800,6 @@
               "defaultValue": "privatelink.file.core.windows.net"
             }
           },
-          "functions": [],
           "resources": {
             "privateDNSZoneGroup": {
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
@@ -924,7 +917,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1899033175673285632"
+              "templateHash": "10796674423451692405"
             }
           },
           "parameters": {
@@ -953,7 +946,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "avdsig": {
               "type": "Microsoft.Compute/galleries",
@@ -1098,7 +1090,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17023233329059124249"
+              "templateHash": "7366460419688481408"
             }
           },
           "parameters": {
@@ -1144,13 +1136,12 @@
               "defaultValue": "[resourceGroup().name]"
             }
           },
-          "functions": [],
           "resources": {
             "managedidentity": {
+              "existing": true,
               "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
               "apiVersion": "2018-11-30",
-              "name": "[parameters('uamiName')]",
-              "existing": true
+              "name": "[parameters('uamiName')]"
             },
             "imageTemplateName_resource": {
               "type": "Microsoft.VirtualMachineImages/imageTemplates",

@@ -1,10 +1,10 @@
 # Contributing a Pull Request
 
-If you haven't already, read the full [contribution guide](../CONTRIBUTING.md). The guide may have changed since the last time you read it, so please double-check. Once you are done and ready to submit your PR, run through the relevant checklist below.
+If you haven't already, read the full [contribution guide](https://github.com/Azure/bicep/blob/main/CONTRIBUTING.md). The guide may have changed since the last time you read it, so please double-check. Once you are done and ready to submit your PR, run through the relevant checklist below.
 
 ## Contributing to documentation
 
-* [ ] The contribution does not exist in any of the docs in either the root of the [docs](../docs) directory or the [specs](../docs/spec)
+* [ ] All documentation contributions should be made directly in the [Bicep documentation on Microsoft Docs](https://docs.microsoft.com/azure/azure-resource-manager/bicep/).
 
 ## Contributing an example
 
@@ -23,7 +23,7 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 
 ## Contributing a snippet
 
-* [ ] I have a snippet that is either a single, generic resource or multi resource that uses [parent-child syntax](https://github.com/Azure/bicep/blob/a22b9c80ba4f8b977f5d948f8bd8c54155ff6870/docs/spec/resource-scopes.md#parent-child-syntax)
+* [ ] I have a snippet that is either a single, generic resource or multi resource that uses [parent-child syntax](https://docs.microsoft.com/azure/azure-resource-manager/bicep/child-resource-name-type)
 * [ ] I have checked that there is not an equivalent snippet already submitted
 * [ ] I have used camelCasing unless I have a justification to use another casing style
 * [ ] I have placeholders values that correspond to their property names (e.g. `dnsPrefix: 'dnsPrefix'`), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, I use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)

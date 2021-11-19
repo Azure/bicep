@@ -8,11 +8,11 @@ using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
 using Bicep.Core.Emit;
+using Bicep.Core.Semantics.Namespaces;
 using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.Az
 {
-
     public class AzResourceTypeProvider : IResourceTypeProvider
     {
         private class ResourceTypeCache
@@ -42,9 +42,58 @@ namespace Bicep.Core.TypeSystem.Az
             }
         }
 
+        private static readonly RegexOptions PatternRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.Compiled | RegexOptions.CultureInvariant;
+        private static readonly Regex ResourceTypePattern = new Regex(@"^(?<namespace>[a-z0-9][a-z0-9\.]*)(/(?<type>[a-z0-9\-]+))+$", PatternRegexOptions);
+        private static readonly Regex ApiVersionPattern = new Regex(@"^\d{4}-\d{2}-\d{2}(|-(preview|alpha|beta|rc|privatepreview))$", PatternRegexOptions);
+
+        public const string ResourceIdPropertyName = "id";
+        public const string ResourceLocationPropertyName = "location";
+        public const string ResourceNamePropertyName = "name";
+        public const string ResourceTypePropertyName = "type";
+        public const string ResourceApiVersionPropertyName = "apiVersion";
+
         public const string ResourceTypeDeployments = "Microsoft.Resources/deployments";
         public const string ResourceTypeResourceGroup = "Microsoft.Resources/resourceGroups";
         public const string ResourceTypeManagementGroup = "Microsoft.Management/managementGroups";
+        public const string ResourceTypeKeyVault = "Microsoft.KeyVault/vaults";
+
+        /*
+         * The following top-level properties must be set deploy-time constant values,
+         * and it is safe to read them at deploy-time because their values cannot be changed.
+         */
+        public static readonly string[] ReadWriteDeployTimeConstantPropertyNames = new[]
+        {
+            ResourceIdPropertyName,
+            ResourceNamePropertyName,
+            ResourceTypePropertyName,
+            ResourceApiVersionPropertyName,
+        };
+
+        /*
+         * The following top-level properties must be set deploy-time constant values
+         * when declared in resource bodies. However, it is not safe to read their values
+         * at deploy-time due to the fact that:
+         *   - They can be changed by Policy Modify effect (e.g. tags, sku)
+         *   - Their values may be normalized by RPs
+         *   - Some RPs are doing Put-as-Patch
+         */
+        public static readonly string[] WriteOnlyDeployTimeConstantPropertyNames = new[]
+        {
+            "location",
+            "kind",
+            "subscriptionId",
+            "resourceGroup",
+            "managedBy",
+            "extendedLocation",
+            "zones",
+            "plan",
+            "sku",
+            "identity",
+            "managedByExtended",
+            "tags",
+        };
+
+        public static readonly TypeSymbol Tags = new ObjectType(nameof(Tags), TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.String, TypePropertyFlags.None);
 
         private readonly IAzResourceTypeLoader resourceTypeLoader;
         private readonly ImmutableHashSet<ResourceTypeReference> availableResourceTypes;
@@ -53,10 +102,75 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new[]
         {
-            LanguageConstants.ResourceNamePropertyName,
+            ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
         }.ToImmutableHashSet();
+
+        public static IEnumerable<TypeProperty> GetCommonResourceProperties(ResourceTypeReference reference)
+        {
+            // We don't expect any Az resource types without an API version
+            var apiVersion = reference.ApiVersion ?? throw new ArgumentException($"Resource reference {reference.FormatName()} contains null API Version", nameof(reference));
+
+            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource id");
+            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "The resource name");
+            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource type");
+            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource api version");
+        }
+
+        public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
+        {
+            /*
+             * The following properties are intentionally excluded from this model:
+             * - SystemData - this is a read-only property that doesn't belong on PUTs
+             * - id - that is not allowed in templates
+             * - type - included in resource type on resource declarations
+             * - apiVersion - included in resource type on resource declarations
+             */
+
+            foreach (var prop in GetCommonResourceProperties(resourceTypeReference))
+            {
+                yield return prop;
+            }
+
+            foreach (var prop in KnownTopLevelResourceProperties())
+            {
+                yield return prop;
+            }
+        }
+
+        public static IEnumerable<TypeProperty> KnownTopLevelResourceProperties()
+        {
+            yield return new TypeProperty("location", LanguageConstants.String);
+
+            yield return new TypeProperty("tags", Tags);
+
+            yield return new TypeProperty("properties", LanguageConstants.Object);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("sku", LanguageConstants.Object);
+
+            yield return new TypeProperty("kind", LanguageConstants.String);
+            yield return new TypeProperty("managedBy", LanguageConstants.String);
+
+            var stringArray = new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default);
+            yield return new TypeProperty("managedByExtended", stringArray);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("extendedLocation", LanguageConstants.Object);
+
+            yield return new TypeProperty("zones", stringArray);
+
+            yield return new TypeProperty("plan", LanguageConstants.Object);
+
+            yield return new TypeProperty("eTag", LanguageConstants.String);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("scale", LanguageConstants.Object);
+
+            // TODO: Model type fully
+            yield return new TypeProperty("identity", LanguageConstants.Object);
+        }
 
         public AzResourceTypeProvider(IAzResourceTypeLoader resourceTypeLoader)
         {
@@ -68,10 +182,14 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static ObjectType CreateGenericResourceBody(ResourceTypeReference typeReference, Func<string, bool> propertyFilter)
         {
-            var properties = LanguageConstants.CreateResourceProperties(typeReference).Where(p => propertyFilter(p.Name));
+            var properties = CreateResourceProperties(typeReference).Where(p => propertyFilter(p.Name));
 
             return new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, properties, null);
         }
+
+        private static bool SupportsLiteralNames(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
+            => resourceType.TypeReference.TypeSegments.Length == 2 ||
+            flags.HasFlag(ResourceTypeGenerationFlags.HasParentDefined);
 
         private static ResourceTypeComponents SetBicepResourceProperties(ResourceTypeComponents resourceType, ResourceTypeGenerationFlags flags)
         {
@@ -80,9 +198,9 @@ namespace Bicep.Core.TypeSystem.Az
             switch (bodyType)
             {
                 case ObjectType bodyObjectType:
-                    if (bodyObjectType.Properties.TryGetValue(LanguageConstants.ResourceNamePropertyName, out var nameProperty) &&
+                    if (bodyObjectType.Properties.TryGetValue(ResourceNamePropertyName, out var nameProperty) &&
                         nameProperty.TypeReference.Type is not PrimitiveType { Name: LanguageConstants.TypeNameString } &&
-                        !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
+                        !SupportsLiteralNames(resourceType, flags))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // Best we can do is return a regular 'string' field for it as we have no good way to reliably evaluate complex expressions (e.g. to check whether it terminates with '/<constantType>').
@@ -90,7 +208,7 @@ namespace Bicep.Core.TypeSystem.Az
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(LanguageConstants.ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
+                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
                             bodyObjectType.MethodResolver.CopyToObject);
@@ -104,8 +222,8 @@ namespace Bicep.Core.TypeSystem.Az
 
                 case DiscriminatedObjectType bodyDiscriminatedType:
 
-                    if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is not null &&
-                        !flags.HasFlag(ResourceTypeGenerationFlags.PermitLiteralNameProperty))
+                    if (bodyDiscriminatedType.TryGetDiscriminatorProperty(ResourceNamePropertyName) is not null &&
+                        !SupportsLiteralNames(resourceType, flags))
                     {
                         // The 'name' property doesn't support fixed value names (e.g. we're in a top-level child resource declaration).
                         // If needed, we should be able to flatten the discriminated object and provide slightly better type validation here.
@@ -114,7 +232,7 @@ namespace Bicep.Core.TypeSystem.Az
 
                         bodyType = SetBicepResourceProperties(bodyObjectType, resourceType.ValidParentScopes, resourceType.TypeReference, flags);
                     }
-                    else if (bodyDiscriminatedType.TryGetDiscriminatorProperty(LanguageConstants.ResourceNamePropertyName) is null &&
+                    else if (bodyDiscriminatedType.TryGetDiscriminatorProperty(ResourceNamePropertyName) is null &&
                              flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource))
                     {
                         // This reference to existing resource and discriminator is not a name.
@@ -176,7 +294,7 @@ namespace Bicep.Core.TypeSystem.Az
                 }
 
                 // TODO: move this to the type library.
-                foreach (var propertyName in LanguageConstants.WriteOnlyDeployTimeConstantPropertyNames)
+                foreach (var propertyName in WriteOnlyDeployTimeConstantPropertyNames)
                 {
                     if (properties.TryGetValue(propertyName, out var typeProperty))
                     {
@@ -187,7 +305,7 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // TODO: move this to the type library.
-            foreach (var propertyName in LanguageConstants.ReadWriteDeployTimeConstantPropertyNames)
+            foreach (var propertyName in ReadWriteDeployTimeConstantPropertyNames)
             {
                 if (properties.TryGetValue(propertyName, out var typeProperty))
                 {
@@ -197,13 +315,13 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // add the loop variant flag to the name property (if it exists)
-            if (properties.TryGetValue(LanguageConstants.ResourceNamePropertyName, out var nameProperty))
+            if (properties.TryGetValue(ResourceNamePropertyName, out var nameProperty))
             {
-                properties = properties.SetItem(LanguageConstants.ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
+                properties = properties.SetItem(ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
             }
 
             // add the 'parent' property for child resource types that are not nested inside a parent resource
-            if (!typeReference.IsRootType && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
+            if (typeReference.TypeSegments.Length > 2 && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
                 var parentType = new ResourceParentType(typeReference);
                 var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
@@ -212,15 +330,15 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // Deployments RP
-            if (StringComparer.OrdinalIgnoreCase.Equals(typeReference.FullyQualifiedType, ResourceTypeDeployments))
+            if (StringComparer.OrdinalIgnoreCase.Equals(typeReference.FormatType(), ResourceTypeDeployments))
             {
                 properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
                 properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
             }
 
-            var functions = GetBicepMethods(typeReference);
+            var functions = objectType.MethodResolver.functionOverloads.AddRange(GetBicepMethods(typeReference));
 
-            foreach (var item in LanguageConstants.KnownTopLevelResourceProperties())
+            foreach (var item in KnownTopLevelResourceProperties())
             {
                 if (!properties.ContainsKey(item.Name))
                 {
@@ -239,7 +357,7 @@ namespace Bicep.Core.TypeSystem.Az
 
         private static IEnumerable<FunctionOverload> GetBicepMethods(ResourceTypeReference resourceType)
         {
-            yield return new FunctionWildcardOverloadBuilder("list*", new Regex("^list[a-zA-Z]*"))
+            yield return new FunctionWildcardOverloadBuilder("list*", AzConstants.ListWildcardFunctionRegex)
                 .WithReturnType(LanguageConstants.Any)
                 .WithDescription("The syntax for this function varies by name of the list operations. Each implementation returns values for the resource type that supports a list operation. The operation name must start with list. Some common usages are `listKeys`, `listKeyValue`, and `listSecrets`.")
                 .WithOptionalParameter("apiVersion", LanguageConstants.String, "API version of resource runtime state. Typically, in the format, yyyy-mm-dd.")
@@ -247,17 +365,15 @@ namespace Bicep.Core.TypeSystem.Az
                 .WithFlags(FunctionFlags.RequiresInlining)
                 .Build();
 
-            switch (resourceType.FullyQualifiedType.ToLowerInvariant())
+            if (StringComparer.OrdinalIgnoreCase.Equals(resourceType.FormatType(), ResourceTypeKeyVault))
             {
-                case "microsoft.keyvault/vaults":
-                    yield return new FunctionOverloadBuilder("getSecret")
-                        .WithReturnType(LanguageConstants.SecureString)
-                        .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
-                        .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
-                        .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")
-                        .WithFlags(FunctionFlags.ModuleSecureParameterOnly)
-                        .Build();
-                    break;
+                yield return new FunctionOverloadBuilder("getSecret")
+                    .WithReturnType(LanguageConstants.SecureString)
+                    .WithDescription("Gets a reference to a key vault secret, which can be provided to a secure string module parameter")
+                    .WithRequiredParameter("secretName", LanguageConstants.String, "Secret Name")
+                    .WithOptionalParameter("secretVersion", LanguageConstants.String, "Secret Version")
+                    .WithFlags(FunctionFlags.ModuleSecureParameterOnly)
+                    .Build();
             }
         }
 
@@ -298,8 +414,15 @@ namespace Bicep.Core.TypeSystem.Az
             return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
         }
 
-        public ResourceType? TryGenerateDefaultType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
+        public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
         {
+            if (typeReference.ApiVersion is null ||
+                !ResourceTypePattern.IsMatch(typeReference.FormatType()) ||
+                !ApiVersionPattern.IsMatch(typeReference.ApiVersion))
+            {
+                return null;
+            }
+
             // It's important to cache this result because generating the resource type is an expensive operation
             var resourceType = generatedTypeCache.GetOrAdd(flags, typeReference, () =>
             {

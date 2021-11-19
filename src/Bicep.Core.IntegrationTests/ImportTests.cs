@@ -1,8 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
@@ -19,6 +22,31 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ImportTests
     {
+        private class TestNamespaceProvider : INamespaceProvider
+        {
+            private readonly ImmutableDictionary<string, Func<string, NamespaceType>> builderDict;
+
+            public TestNamespaceProvider(Dictionary<string, Func<string, NamespaceType>> builderDict)
+            {
+                this.builderDict = builderDict.ToImmutableDictionary();
+            }
+
+            public bool AllowImportStatements => true;
+
+            public NamespaceType? TryGetNamespace(string providerName, string aliasName, ResourceScope resourceScope)
+            {
+                switch (providerName)
+                {
+                    case SystemNamespaceType.BuiltInName:
+                        return SystemNamespaceType.Create(aliasName);
+                    case {} _ when builderDict.TryGetValue(providerName) is {} builderFunc:
+                        return builderFunc(aliasName);
+                }
+
+                return null;
+            }
+        }
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -154,54 +182,45 @@ import sys2 from sys
         [TestMethod]
         public void Ambiguous_function_references_must_be_qualified()
         {
-            var nsProviderMock = new Mock<INamespaceProvider>(MockBehavior.Strict);
-            nsProviderMock.SetupGet(x => x.AllowImportStatements).Returns(true);
-            nsProviderMock.Setup(x => x.TryGetNamespace(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ResourceScope>()))
-                .Returns<string, string, ResourceScope>((providerName, aliasName, resourceScope) => {
-                    switch (providerName)
-                    {
-                        case "ns1":
-                            return new NamespaceType(
-                                aliasName,
-                                new NamespaceSettings(
-                                    IsSingleton: true,
-                                    BicepProviderName: "ns1",
-                                    ConfigurationType: null,
-                                    ArmTemplateProviderName: "Ns1-Unused",
-                                    ArmTemplateProviderVersion: "1.0"),
-                                ImmutableArray<TypeProperty>.Empty,
-                                new [] { 
-                                    new FunctionOverloadBuilder("ns1Func").Build(),
-                                    new FunctionOverloadBuilder("dupeFunc").Build(),
-                                },
-                                ImmutableArray<BannedFunction>.Empty,
-                                ImmutableArray<Decorator>.Empty,
-                                new EmptyResourceTypeProvider());
-                        case "ns2":
-                            return new NamespaceType(
-                                aliasName,
-                                new NamespaceSettings(
-                                    IsSingleton: true,
-                                    BicepProviderName: "ns2",
-                                    ConfigurationType: null,
-                                    ArmTemplateProviderName: "Ns2-Unused",
-                                    ArmTemplateProviderVersion: "1.0"),
-                                ImmutableArray<TypeProperty>.Empty,
-                                new [] { 
-                                    new FunctionOverloadBuilder("ns2Func").Build(),
-                                    new FunctionOverloadBuilder("dupeFunc").Build(),
-                                },
-                                ImmutableArray<BannedFunction>.Empty,
-                                ImmutableArray<Decorator>.Empty,
-                                new EmptyResourceTypeProvider());
-                        default:
-                            return null;
-                    }
-                });
+            var nsProvider = new TestNamespaceProvider(new()
+            {
+                ["ns1"] = aliasName => new NamespaceType(
+                    aliasName,
+                    new NamespaceSettings(
+                        IsSingleton: true,
+                        BicepProviderName: "ns1",
+                        ConfigurationType: null,
+                        ArmTemplateProviderName: "Ns1-Unused",
+                        ArmTemplateProviderVersion: "1.0"),
+                    ImmutableArray<TypeProperty>.Empty,
+                    new [] { 
+                        new FunctionOverloadBuilder("ns1Func").Build(),
+                        new FunctionOverloadBuilder("dupeFunc").Build(),
+                    },
+                    ImmutableArray<BannedFunction>.Empty,
+                    ImmutableArray<Decorator>.Empty,
+                    new EmptyResourceTypeProvider()),
+                ["ns2"] = aliasName => new NamespaceType(
+                    aliasName,
+                    new NamespaceSettings(
+                        IsSingleton: true,
+                        BicepProviderName: "ns2",
+                        ConfigurationType: null,
+                        ArmTemplateProviderName: "Ns2-Unused",
+                        ArmTemplateProviderVersion: "1.0"),
+                    ImmutableArray<TypeProperty>.Empty,
+                    new [] { 
+                        new FunctionOverloadBuilder("ns2Func").Build(),
+                        new FunctionOverloadBuilder("dupeFunc").Build(),
+                    },
+                    ImmutableArray<BannedFunction>.Empty,
+                    ImmutableArray<Decorator>.Empty,
+                    new EmptyResourceTypeProvider()),
+            });
 
             var context = new CompilationHelper.CompilationHelperContext(
                 Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
-                NamespaceProvider: nsProviderMock.Object);
+                NamespaceProvider: nsProvider);
 
             var result = CompilationHelper.Compile(context, @"
 import ns1 from ns1
@@ -224,6 +243,47 @@ import ns2 from ns2
 output ambiguousResult string = ns1.dupeFunc()
 output ns1Result string = ns1Func()
 output ns2Result string = ns2Func()
+");
+
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Config_with_optional_properties_can_be_skipped()
+        {
+            var nsProvider = new TestNamespaceProvider(new()
+            {
+                ["mockNs"] = aliasName => new NamespaceType(
+                    aliasName,
+                    new(
+                        IsSingleton: false,
+                        BicepProviderName: "mockNs",
+                        ConfigurationType: new ObjectType(
+                            "mockNs",
+                            TypeSymbolValidationFlags.Default,
+                            new[]
+                            {
+                                new TypeProperty("optionalConfig", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant),
+                            },
+                            null),
+                        ArmTemplateProviderName: "Unused",
+                        ArmTemplateProviderVersion: "1.0"),
+                    ImmutableArray<TypeProperty>.Empty,
+                    ImmutableArray<FunctionOverload>.Empty,
+                    ImmutableArray<BannedFunction>.Empty,
+                    ImmutableArray<Decorator>.Empty,
+                    new EmptyResourceTypeProvider()),
+            });
+
+            var context = new CompilationHelper.CompilationHelperContext(
+                Features: BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true),
+                NamespaceProvider: nsProvider);
+
+            var result = CompilationHelper.Compile(context, @"
+import ns1 from mockNs {
+  optionalConfig: 'blah blah'
+}
+import ns2 from mockNs
 ");
 
             result.Should().NotHaveAnyDiagnostics();
