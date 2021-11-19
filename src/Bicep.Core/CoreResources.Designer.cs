@@ -191,7 +191,7 @@ namespace Bicep.Core {
             }
         }
 
-        internal static string UnusedVariableRuleDescriptioni {
+        internal static string UnusedVariableRuleDescription {
             get {
                 return ResourceManager.GetString("UnusedVariableRuleDescription", resourceCulture);
             }
