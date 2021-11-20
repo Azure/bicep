@@ -1727,6 +1727,34 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         }
 
         [TestMethod]
+        public async Task VerifyCompletionRequestAfterDisableNextLineDirective_WithDiagnosticsSpanningMultipleLines_ShouldReturnCompletionItems()
+        {
+            string fileWithCursors = @"#disable-next-line |
+var foo = concat('abc'/*
+  */, 'asd')";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+
+            var completions = await RequestCompletion(helper.Client, bicepFile, cursors.Single());
+
+            completions.Should().Contain(x => x.Label == "no-unused-vars");
+            completions.Should().Contain(x => x.Label == "prefer-interpolation");
+
+            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "no-unused-vars"));
+            updatedFile.Should().HaveSourceText(@"#disable-next-line no-unused-vars|
+var foo = concat('abc'/*
+  */, 'asd')");
+
+            updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "prefer-interpolation"));
+            updatedFile.Should().HaveSourceText(@"#disable-next-line prefer-interpolation|
+var foo = concat('abc'/*
+  */, 'asd')");
+        }
+
+        [TestMethod]
         public async Task VerifyCompletionRequestAfterDiagnosticCodeInDisableNextLineDirectiveWithoutWhiteSpace_ShouldDoNothing()
         {
             string fileWithCursors = @"var vmProperties = {
