@@ -346,7 +346,11 @@ namespace Bicep.Core.Parsing
             {
                 var nextChar = textWindow.Peek();
 
-                if (IsIdentifierContinuation(nextChar) || nextChar == '-')
+                if (IsNewLine(nextChar))
+                {
+                    break;
+                }
+                else if (IsIdentifierContinuation(nextChar) || nextChar == '-')
                 {
                     switch (textWindow.Peek(1))
                     {
@@ -380,6 +384,15 @@ namespace Bicep.Core.Parsing
                 }
                 else
                 {
+                    // Handle scenario where nextChar is not one of the following: identifier, '-', space, tab
+                    // Eg: '|' in #disable-next-line BCP037|
+                    if (GetToken() is { } token)
+                    {
+                        codes.Add(token);
+                        end += token.Span.Length;
+                        sb.Append(token.Text);
+                    }
+
                     break;
                 }
             }
