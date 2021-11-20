@@ -944,7 +944,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return model.GetAllDiagnostics()
-                .Where(diagnostic => nextLineSpan.ContainsInclusive(diagnostic.Span.Position) && nextLineSpan.ContainsInclusive(diagnostic.Span.GetEndPosition()))
+                .Where(diagnostic => nextLineSpan.ContainsInclusive(diagnostic.Span.Position))
                 .DistinctBy(x => x.Code);
         }
 
