@@ -121,6 +121,36 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
+        public void DisableNextLineDiagnosticsDirectiveWithInvalidTrailingCharacter_ShouldLexCorrectly()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("#disable-next-line BCP037|"), diagnosticWriter);
+            lexer.Lex();
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP001");
+                    x.Message.Should().Be("The following token is not recognized: \"|\".");
+                });
+
+            var tokens = lexer.GetTokens();
+
+            var leadingTrivia = tokens[0].LeadingTrivia;
+            leadingTrivia.Count().Should().Be(1);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Text.Should().Be("#disable-next-line BCP037");
+                });
+        }
+
+        [TestMethod]
         public void DisableNextLineDiagnosticsDirectiveWithLeadingText_ShouldBeRecognizedWithError()
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
