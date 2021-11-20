@@ -196,12 +196,10 @@ namespace Bicep.LanguageServer.Completions
 
         private static bool IsDisableNextLineDiagnosticsDirectiveStartContext(BicepFile bicepFile, int offset, List<SyntaxBase> matchingNodes)
         {
-            var tokens = matchingNodes.Where(x => x is Token token &&
-                                             token.Text == "#" &&
-                                             token.Span.GetEndPosition() == offset &&
-                                             !TextBetweenLineStartAndTokenContainsNonWhiteSpaceCharacter(bicepFile, token));
-
-            return tokens.Count() == 1;
+            return matchingNodes[^1] is Token token &&
+                token.Text == "#" &&
+                token.Span.GetEndPosition() == offset &&
+                !TextBetweenLineStartAndTokenContainsNonWhiteSpaceCharacter(bicepFile, token);
         }
 
         private static bool TextBetweenLineStartAndTokenContainsNonWhiteSpaceCharacter(BicepFile bicepFile, Token token)
