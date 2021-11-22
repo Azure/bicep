@@ -79,13 +79,13 @@ namespace Bicep.Core.Emit
                     //module has invalid scope provided, ignoring from duplicate check
                     continue;
                 }
-                if (module.SafeGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) is not StringSyntax propertyNameValue)
+                if (module.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) is not StringSyntax propertyNameValue)
                 {
                     //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
                     continue;
                 }
 
-                var propertyScopeValue = (module.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName) as FunctionCallSyntax)?.Arguments.Select(x => x.Expression as StringSyntax).ToImmutableArray();
+                var propertyScopeValue = (module.TryGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName) as FunctionCallSyntax)?.Arguments.Select(x => x.Expression as StringSyntax).ToImmutableArray();
 
                 yield return new ModuleDefinition(module.Name, scopeData.RequestedScope, propertyScopeValue, propertyNameValue);
             }
@@ -103,7 +103,7 @@ namespace Bicep.Core.Emit
 
                 // Determine the scope - this is either something like a resource group/subscription or another resource
                 ResourceMetadata? resourceScope;
-                if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScope is {} scopeMetadata)
+                if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScope is { } scopeMetadata)
                 {
                     resourceScope = scopeMetadata;
                 }
@@ -164,7 +164,7 @@ namespace Bicep.Core.Emit
                         // This is best-effort for interpolated strings, as variables may pull in additional '/' characters.
                         // So we can only accurately show a diagnostic if there are TOO MANY '/' characters.
                         if (slashCount > expectedSlashCount)
-                        {   
+                        {
                             diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
@@ -213,12 +213,12 @@ namespace Bicep.Core.Emit
                     .OrderBy(property => property.Name, LanguageConstants.IdentifierComparer);
 
                 var propertyMap = expectedVariantPropertiesForType
-                    .Select(property => (property, value: resource.Symbol.SafeGetBodyPropertyValue(property.Name)))
+                    .Select(property => (property, value: resource.Symbol.TryGetBodyPropertyValue(property.Name)))
                     // exclude missing or malformed property values
                     .Where(pair => pair.value is not null and not SkippedTriviaSyntax)
                     .ToImmutableDictionary(pair => pair.property, pair => pair.value!);
 
-                if (!propertyMap.Any(pair=>pair.Key.Flags.HasFlag(TypePropertyFlags.Required)))
+                if (!propertyMap.Any(pair => pair.Key.Flags.HasFlag(TypePropertyFlags.Required)))
                 {
                     // required loop-variant properties have not been set yet
                     // do not overwarn the user because they have other errors to deal with
@@ -257,7 +257,7 @@ namespace Bicep.Core.Emit
                     .OrderBy(property => property.Name, LanguageConstants.IdentifierComparer);
 
                 var propertyMap = expectedVariantPropertiesForType
-                    .Select(property => (property, value: module.SafeGetBodyPropertyValue(property.Name)))
+                    .Select(property => (property, value: module.TryGetBodyPropertyValue(property.Name)))
                     // exclude missing or malformed property values
                     .Where(pair => pair.value is not null && pair.value is not SkippedTriviaSyntax)
                     .ToImmutableDictionary(pair => pair.property, pair => pair.value!);
@@ -280,16 +280,16 @@ namespace Bicep.Core.Emit
 
         public static void DetectUnsupportedModuleParameterAssignments(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            foreach(var moduleSymbol in semanticModel.Root.ModuleDeclarations)
+            foreach (var moduleSymbol in semanticModel.Root.ModuleDeclarations)
             {
-                if(moduleSymbol.DeclaringModule.TryGetBody() is not ObjectSyntax body)
+                if (moduleSymbol.DeclaringModule.TryGetBody() is not ObjectSyntax body)
                 {
                     // skip modules with malformed bodies
                     continue;
                 }
 
-                var paramsValue = body.SafeGetPropertyByName(LanguageConstants.ModuleParamsPropertyName)?.Value;
-                switch(paramsValue)
+                var paramsValue = body.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName)?.Value;
+                switch (paramsValue)
                 {
                     case null:
                     case ObjectSyntax:

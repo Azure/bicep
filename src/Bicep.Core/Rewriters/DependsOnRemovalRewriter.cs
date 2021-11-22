@@ -53,7 +53,7 @@ namespace Bicep.Core.Rewriters
 
         private ObjectSyntax? TryGetReplacementBody(ObjectSyntax @object)
         {
-            var dependsOnProperty = @object.SafeGetPropertyByName("dependsOn");
+            var dependsOnProperty = @object.TryGetPropertyByName("dependsOn");
             if (dependsOnProperty is null)
             {
                 return null;

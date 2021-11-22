@@ -120,7 +120,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private Uri GetDocumentLinkUri(ISourceFile sourceFile, ModuleReference moduleReference)
         {
-            if(!this.CanSendRegistryContent() || !moduleReference.IsExternal)
+            if (!this.CanSendRegistryContent() || !moduleReference.IsExternal)
             {
                 // the client doesn't support the bicep-cache scheme or we're dealing with a local module
                 // just use the file URI
@@ -164,15 +164,15 @@ namespace Bicep.LanguageServer.Handlers
                 var propertyAccesses = matchingNodes.OfType<ObjectPropertySyntax>().ToList();
                 // only two level of traversals: mod { params: { <outputName1>: ...}}
                 if (propertyAccesses.Count == 2 &&
-                    propertyAccesses[0].TryGetKeyText() is {} propertyType &&
-                    propertyAccesses[1].TryGetKeyText() is {} propertyName)
+                    propertyAccesses[0].TryGetKeyText() is { } propertyType &&
+                    propertyAccesses[1].TryGetKeyText() is { } propertyName)
                 {
                     // underline only the key of the object property access
                     return GetModuleSymbolLocationAsync(
-                        propertyAccesses.Last().Key, 
-                        context, 
+                        propertyAccesses.Last().Key,
+                        context,
                         moduleDeclarationSyntax,
-                        propertyType, 
+                        propertyType,
                         propertyName);
                 }
             }
@@ -204,16 +204,16 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     // underline only the last property access
                     return GetModuleSymbolLocationAsync(
-                        propertyAccesses.Last(), 
+                        propertyAccesses.Last(),
                         context,
-                        moduleDeclarationSyntax, 
-                        propertyAccesses[0].IdentifierName, 
+                        moduleDeclarationSyntax,
+                        propertyAccesses[0].IdentifierName,
                         propertyAccesses[1].IdentifierName);
                 }
 
                 // Otherwise, we redirect user to the specified module, variable, or resource declaration
                 if (GetObjectSyntaxFromDeclaration(ancestorSymbol.DeclaringSyntax) is ObjectSyntax objectSyntax
-                    && ObjectSyntaxExtensions.SafeGetPropertyByNameRecursive(objectSyntax, propertyAccesses) is ObjectPropertySyntax resultingSyntax)
+                    && ObjectSyntaxExtensions.TryGetPropertyByNameRecursive(objectSyntax, propertyAccesses) is ObjectPropertySyntax resultingSyntax)
                 {
                     // underline only the last property access
                     return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
@@ -295,7 +295,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private bool CanSendRegistryContent()
         {
-            if(this.languageServer.ClientSettings.InitializationOptions is not JObject obj ||
+            if (this.languageServer.ClientSettings.InitializationOptions is not JObject obj ||
                 obj.Property("enableRegistryContent") is not { } property ||
                 property.Value.Type != JTokenType.Boolean)
             {
