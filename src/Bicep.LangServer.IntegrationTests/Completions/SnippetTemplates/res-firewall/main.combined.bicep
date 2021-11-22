@@ -1,41 +1,44 @@
 // $1 = firewall
 // $2 = 'name'
-// $3 = 'name'
-// $4 = 100
-// $5 = Allow
-// $6 = 'name'
-// $7 = 'description'
-// $8 = 'sourceAddress'
-// $9 = Http
-// $10 = 80
-// $11 = 'www.microsoft.com'
-// $12 = 'name'
-// $13 = 100
-// $14 = Dnat
-// $15 = 'name'
-// $16 = 'description'
-// $17 = 'sourceAddress'
-// $18 = 'destinationAddress'
-// $19 = '80'
-// $20 = TCP
-// $21 = 'translatedAddress'
-// $22 = '80'
-// $23 = 'name'
-// $24 = 100
-// $25 = Deny
-// $26 = 'name'
-// $27 = 'description'
-// $28 = 'sourceAddress'
-// $29 = 'destinationAddress'
-// $30 = '80'
-// $31 = TCP
-// $32 = 'name'
-// $33 = 'id'
+// $3 = location
+// $4 = 'name'
+// $5 = 100
+// $6 = Allow
+// $7 = 'name'
+// $8 = 'description'
+// $9 = 'sourceAddress'
+// $10 = Http
+// $11 = 80
+// $12 = 'www.microsoft.com'
+// $13 = 'name'
+// $14 = 100
+// $15 = Dnat
+// $16 = 'name'
+// $17 = 'description'
+// $18 = 'sourceAddress'
+// $19 = 'destinationAddress'
+// $20 = '80'
+// $21 = TCP
+// $22 = 'translatedAddress'
+// $23 = '80'
+// $24 = 'name'
+// $25 = 100
+// $26 = Deny
+// $27 = 'name'
+// $28 = 'description'
+// $29 = 'sourceAddress'
+// $30 = 'destinationAddress'
+// $31 = '80'
+// $32 = TCP
+// $33 = 'name'
 // $34 = 'id'
+// $35 = 'id'
+
+param location string
 
 resource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     applicationRuleCollections: [
       {
@@ -99,27 +102,29 @@ resource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
     ]
     networkRuleCollections: [
       {
-        name: 'name'
+        name: '80'
         properties: {
-          priority: 100
+          priority: 'name'
           action: {
-            type: 'Deny'
+            type: '100'
           }
           rules: [
             {
-              name: 'name'
-              description: 'description'
+              name: Deny
+//@[20:24) [BCP057 (Error)] The name "Deny" does not exist in the current context. (CodeDescription: none) |Deny|
+              description: 'name'
               sourceAddresses: [
-                'sourceAddress'
+                'description'
               ]
               destinationAddresses: [
-                'destinationAddress'
+                'sourceAddress'
               ]
               destinationPorts: [
-                '80'
+                'destinationAddress'
               ]
               protocols: [
-                'TCP'
+                ''80''
+//@[18:20) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |80|
               ]
             }
           ]
@@ -128,10 +133,11 @@ resource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
     ]
     ipConfigurations: [
       {
-        name: 'name'
+        name: TCP
+//@[14:17) [BCP057 (Error)] The name "TCP" does not exist in the current context. (CodeDescription: none) |TCP|
         properties: {
           subnet: {
-            id: 'id'
+            id: 'name'
           }
           publicIPAddress: {
             id: 'id'

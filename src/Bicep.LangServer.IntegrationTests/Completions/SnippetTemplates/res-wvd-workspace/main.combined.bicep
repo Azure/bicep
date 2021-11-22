@@ -1,10 +1,13 @@
 // $1 = workSpace
 // $2 = 'name'
-// $3 = 'friendlyName'
+// $3 = location
+// $4 = 'friendlyName'
+
+param location string
 
 resource workSpace 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     friendlyName: 'friendlyName'
   }

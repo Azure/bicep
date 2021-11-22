@@ -1,116 +1,129 @@
 // $1 = policyDefinition
 // $2 = 'name'
-// $3 = 'displayName'
-// $4 = 'Custom'
-// $5 = 'All'
-// $6 = 'description'
-// $7 = '0.1.0'
-// $8 = 'category'
-// $9 = 'source'
-// $10 = parameterName
-// $11 = 'String'
-// $12 = 'defaultValue'
-// $13 = 'displayName'
-// $14 = 'description'
-// $15 = allOf
-// $16 = 'field'
-// $17 = equals
-// $18 = 'conditionValue'
-// $19 = 'deployIfNotExists'
-// $20 = '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
-// $21 = 'type'
-// $22 = 'field'
-// $23 = equals
-// $24 = 'conditionValue'
-// $25 = 'incremental'
-// $26 = 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
-// $27 = '1.0.0.0'
-// $28 = parameterName
-// $29 = 'String'
-// $30 = 'displayName'
-// $31 = 'description'
-// $32 = 'name'
-// $33 = 'type'
-// $34 = 'apiVersion'
-// $35 = 'location'
+// $4 = 'displayName'
+// $5 = 'Custom'
+// $6 = 'All'
+// $7 = 'description'
+// $8 = '0.1.0'
+// $9 = 'category'
+// $10 = 'source'
+// $11 = parameterName
+// $12 = 'String'
+// $13 = 'defaultValue'
+// $14 = 'displayName'
+// $15 = 'description'
+// $16 = allOf
+// $17 = 'field'
+// $18 = equals
+// $19 = 'conditionValue'
+// $20 = 'deployIfNotExists'
+// $21 = '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+// $22 = 'type'
+// $23 = 'field'
+// $24 = equals
+// $25 = 'conditionValue'
+// $26 = 'incremental'
+// $27 = 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
+// $28 = '1.0.0.0'
+// $29 = parameterName
+// $30 = 'String'
+// $31 = 'displayName'
+// $32 = 'description'
+// $33 = 'name'
+// $34 = 'type'
+// $35 = 'apiVersion'
 // $36 = parameterName
 // $37 = 'value'
+
 targetScope = 'subscription'
+
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: 'name'
   properties: {
-    displayName: 'displayName'
-    policyType: 'Custom'
-    mode: 'All'
-    description: 'description'
+    displayName: 
+//@[17:17) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
+    policyType: 'displayName'
+    mode: 'Custom'
+    description: 'All'
     metadata: {
-      version: '0.1.0'
-      category: 'category'
-      source: 'source'
+      version: 'description'
+      category: '0.1.0'
+      source: 'category'
     }
     parameters: {
-      parameterName: {
-        type: 'String'
-        defaultValue: 'defaultValue'
+      'source': {
+        type: parameterName
+//@[14:27) [BCP057 (Error)] The name "parameterName" does not exist in the current context. (CodeDescription: none) |parameterName|
+        defaultValue: 'String'
         metadata: {
-          displayName: 'displayName'
-          description: 'description'
+          displayName: 'defaultValue'
+          description: 'displayName'
         }
       }
     }
     policyRule: {
       if: {
-        allOf: [
+        'description': [
           {
-            field: 'field'
-            equals: 'conditionValue'
+            field: allOf
+//@[12:17) [BCP025 (Error)] The property "field" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |field|
+//@[19:24) [BCP057 (Error)] The name "allOf" does not exist in the current context. (CodeDescription: none) |allOf|
+            'field': equals
+//@[12:19) [BCP025 (Error)] The property "field" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'field'|
+//@[21:27) [BCP069 (Error)] The function "equals" is not supported. Use the "==" operator instead. (CodeDescription: none) |equals|
           }
         ]
       }
       then: {
-        effect: 'deployIfNotExists'
+        effect: 'conditionValue'
         details: {
           roleDefinitionIds: [
-            '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
+            'deployIfNotExists'
           ]
-          type: 'type'
+          type: '/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c'
           existenceCondition: {
             allOf: [
               {
-                field: 'field'
-                equals: 'conditionValue'
+                field: 'type'
+//@[16:21) [BCP025 (Error)] The property "field" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |field|
+                'field': equals 'conditionValue'
+//@[16:23) [BCP025 (Error)] The property "field" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'field'|
+//@[25:31) [BCP069 (Error)] The function "equals" is not supported. Use the "==" operator instead. (CodeDescription: none) |equals|
+//@[32:48) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |'conditionValue'|
               }
             ]
           }
           deployment: {
             properties: {
-              mode: 'incremental'
+              mode: 'conditionValue'
               template: {
-                '$schema': 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
-                contentVersion: '1.0.0.0'
+                '$schema': 'incremental'
+                contentVersion: 'https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#'
                 parameters: {
-                  parameterName: {
-                    type: 'String'
+                  '1.0.0.0': {
+                    type: parameterName
+//@[26:39) [BCP057 (Error)] The name "parameterName" does not exist in the current context. (CodeDescription: none) |parameterName|
                     metadata: {
-                      displayName: 'displayName'
-                      description: 'description'
+                      displayName: 'String'
+                      description: 'displayName'
                     }
                   }
                 }
                 variables: {}
                 resources: [
                   {
-                    name: 'name'
-                    type: 'type'
-                    apiVersion: 'apiVersion'
-                    location: 'location'
+                    name: 'description'
+                    type: 'name'
+                    apiVersion: 'type'
+                    location: 'apiVersion'
                     properties: {}
                   }
                 ]
               }
               parameters: {
                 parameterName: {
-                  value: 'value'
+                  value: 
+//@[25:25) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
                 }
               }
             }
