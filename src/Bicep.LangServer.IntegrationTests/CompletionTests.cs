@@ -1814,6 +1814,59 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             completions.Should().BeEmpty();
         }
 
+        [TestMethod]
+        public async Task VerifyDiagnosticsAreClearedAfterDisableNextLineDiagnosticsCompletionIsResolved()
+        {
+            string fileWithCursors = @"#disable-next-line |
+param storageAccount string = 'testAccount'";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", file);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var uri = documentUri.ToUri();
+
+            var fileSystemDict = new Dictionary<Uri, string>();
+            fileSystemDict[uri] = file;
+
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Code.Should().Be("BCP226");
+                },
+                x =>
+                {
+                    x.Code.Should().Be("no-unused-params");
+                });
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+            var client = helper.Client;
+
+            var completions = await RequestCompletion(client, bicepFile, cursors[0]);
+            completions.Should().Contain(x => x.Label == "no-unused-params");
+
+            var replaced = ApplyCompletion(completions.First(), bicepFile);
+
+            fileSystemDict[uri] = replaced;
+
+            compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+        }
+
+        private string ApplyCompletion(CompletionItem completionItem, BicepFile bicepFile)
+        {
+            var start = PositionHelper.GetOffset(bicepFile.LineStarts, completionItem.TextEdit!.TextEdit!.Range.Start);
+            var end = PositionHelper.GetOffset(bicepFile.LineStarts, completionItem.TextEdit!.TextEdit!.Range.End);
+            var textToInsert = completionItem.TextEdit!.TextEdit!.NewText;
+
+            var originalFile = bicepFile.ProgramSyntax.ToTextPreserveFormatting();
+            return originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
+        }
+
         private static void AssertAllCompletionsNonEmpty(IEnumerable<CompletionList?> completionLists)
         {
             foreach (var completionList in completionLists)
