@@ -199,22 +199,19 @@ namespace Bicep.LanguageServer.Completions
             return matchingNodes[^1] is Token token &&
                 token.Text == "#" &&
                 token.Span.GetEndPosition() == offset &&
-                !TextBetweenLineStartAndTokenContainsNonWhiteSpaceCharacter(bicepFile, token);
+                IsPositionAtLineStart(bicepFile, token);
         }
 
-        private static bool TextBetweenLineStartAndTokenContainsNonWhiteSpaceCharacter(BicepFile bicepFile, Token token)
+        private static bool IsPositionAtLineStart(BicepFile bicepFile, Token token)
         {
             var lineStarts = bicepFile.LineStarts;
             var position = token.GetPosition();
             (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, position);
             var lineStart = lineStarts[line];
 
-            for (int i = lineStart; i < position; i++)
+            if (position == lineStart)
             {
-                if (bicepFile.ProgramSyntax.TryFindMostSpecificNodeInclusive(i, current => true) is Token)
-                {
-                    return true;
-                }
+                return true;
             }
 
             return false;
