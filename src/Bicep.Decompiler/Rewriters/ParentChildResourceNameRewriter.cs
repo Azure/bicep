@@ -38,33 +38,33 @@ namespace Bicep.Core.Decompiler.Rewriters
             switch (parentName)
             {
                 case VariableAccessSyntax parentVarAccess:
-                {
-                    if (childName.Expressions.FirstOrDefault() is not VariableAccessSyntax childVarAccess ||
-                        semanticModel.GetSymbolInfo(parentVarAccess) != semanticModel.GetSymbolInfo(childVarAccess))
                     {
-                        return null;
+                        if (childName.Expressions.FirstOrDefault() is not VariableAccessSyntax childVarAccess ||
+                            semanticModel.GetSymbolInfo(parentVarAccess) != semanticModel.GetSymbolInfo(childVarAccess))
+                        {
+                            return null;
+                        }
+
+                        if (!childName.SegmentValues[1].StartsWith("/"))
+                        {
+                            return null;
+                        }
+
+                        var newName = SyntaxFactory.CreateString(
+                            new[] { childName.SegmentValues[1].Substring(1) }.Concat(childName.SegmentValues.Skip(2)),
+                            childName.Expressions.Skip(1));
+
+                        return newName;
                     }
-
-                    if (!childName.SegmentValues[1].StartsWith("/"))
-                    {
-                        return null;
-                    }
-
-                    var newName = SyntaxFactory.CreateString(
-                        new [] { childName.SegmentValues[1].Substring(1) }.Concat(childName.SegmentValues.Skip(2)),
-                        childName.Expressions.Skip(1));
-
-                    return newName;
-                }
                 case StringSyntax parentString:
-                {
-                    if (TryGetReplacementStringSyntax(parentString, childName, parentResourceSymbol) is not {} newName)
                     {
-                        return null;
-                    }
+                        if (TryGetReplacementStringSyntax(parentString, childName, parentResourceSymbol) is not { } newName)
+                        {
+                            return null;
+                        }
 
-                    return newName;
-                }
+                        return newName;
+                    }
             }
 
             return null;
@@ -73,7 +73,7 @@ namespace Bicep.Core.Decompiler.Rewriters
         protected override SyntaxBase ReplaceResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             if (syntax.TryGetBody() is not ObjectSyntax resourceBody ||
-                resourceBody.SafeGetPropertyByName("name") is not ObjectPropertySyntax resourceNameProp ||
+                resourceBody.TryGetPropertyByName("name") is not ObjectPropertySyntax resourceNameProp ||
                 resourceNameProp.Value is not StringSyntax resourceName)
             {
                 return syntax;
@@ -104,12 +104,12 @@ namespace Bicep.Core.Decompiler.Rewriters
 
                 // The other resource is a parent type to this one. check if we can refactor the name.
                 if (otherResourceSymbol.DeclaringResource.TryGetBody() is not ObjectSyntax otherResourceBody ||
-                    otherResourceBody.SafeGetPropertyByName("name") is not ObjectPropertySyntax otherResourceNameProp)
+                    otherResourceBody.TryGetPropertyByName("name") is not ObjectPropertySyntax otherResourceNameProp)
                 {
                     continue;
                 }
 
-                if (TryGetReplacementChildName(resourceName, otherResourceNameProp.Value, otherResourceSymbol) is not {} newName)
+                if (TryGetReplacementChildName(resourceName, otherResourceNameProp.Value, otherResourceSymbol) is not { } newName)
                 {
                     continue;
                 }
@@ -189,7 +189,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return null;
             }
 
-            var newNameValues = new [] { finalSegmentSuffix.Substring(1) }.Concat(child.SegmentValues.Skip(finalIndex + 1)).ToArray();
+            var newNameValues = new[] { finalSegmentSuffix.Substring(1) }.Concat(child.SegmentValues.Skip(finalIndex + 1)).ToArray();
             var newExpressions = child.Expressions.Skip(finalIndex).ToArray();
 
             if (newNameValues.Length == 2 && newNameValues[0] == "" && newNameValues[1] == "")

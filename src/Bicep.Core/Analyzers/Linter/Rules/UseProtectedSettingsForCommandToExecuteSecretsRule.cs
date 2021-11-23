@@ -70,16 +70,16 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (resourceTypeName.EndsWith("/extensions", LanguageConstants.ResourceTypeComparison))
                 {
                     ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
-                    if (resourceSyntax.TryGetBody()?.SafeGetPropertyByName("properties") is ObjectPropertySyntax propertiesSyntax
+                    if (resourceSyntax.TryGetBody()?.TryGetPropertyByName("properties") is ObjectPropertySyntax propertiesSyntax
                         && propertiesSyntax.Value is ObjectSyntax properties)
                     {
                         // Only of interest to us if it contains a "settings" object with "commandToExecute" property
-                        if (properties.SafeGetPropertyByNameRecursive("settings", "commandToExecute") is ObjectPropertySyntax commandToExecuteSyntax)
+                        if (properties.TryGetPropertyByNameRecursive("settings", "commandToExecute") is ObjectPropertySyntax commandToExecuteSyntax)
                         {
                             // Check if the publisher/type match an entry in PublisherAndNameList
-                            if (properties.SafeGetPropertyByName("type")?.Value is StringSyntax extensionTypeSyntax
+                            if (properties.TryGetPropertyByName("type")?.Value is StringSyntax extensionTypeSyntax
                                 && extensionTypeSyntax.TryGetLiteralValue() is string extensionTypeValue
-                                && properties.SafeGetPropertyByName("publisher")?.Value is StringSyntax publisherSyntax
+                                && properties.TryGetPropertyByName("publisher")?.Value is StringSyntax publisherSyntax
                                 && publisherSyntax.TryGetLiteralValue() is string publisherValue
                                 )
                             {
