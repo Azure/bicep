@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3548758362621322445"
+      "templateHash": "9697433238765311144"
     }
   },
   "parameters": {
@@ -316,7 +316,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "aadProfileConfiguration": {
       "managed": "[parameters('aadProfileManaged')]",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11092524824015723457"
+      "templateHash": "12477514229007498846"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "defaultValue": "aaddscontoso.com"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.AAD/domainServices",

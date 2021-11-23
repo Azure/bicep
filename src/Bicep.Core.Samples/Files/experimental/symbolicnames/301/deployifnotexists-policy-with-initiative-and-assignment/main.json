@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8501058184574018125"
+      "templateHash": "7914120834673898986"
     }
   },
   "parameters": {
@@ -108,7 +108,6 @@
       "defaultValue": "Default"
     }
   },
-  "functions": [],
   "resources": {
     "rg": {
       "type": "Microsoft.Resources/resourceGroups",
@@ -155,7 +154,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15375990374214365506"
+              "templateHash": "7523823652853157466"
             }
           },
           "parameters": {
@@ -178,7 +177,6 @@
               "type": "bool"
             }
           },
-          "functions": [],
           "resources": {
             "actionGroup": {
               "type": "microsoft.insights/actionGroups",
@@ -289,7 +287,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3257616718067046466"
+              "templateHash": "3124856912890673547"
             }
           },
           "parameters": {
@@ -348,7 +346,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "policyDefCategory": "Custom",
             "policySource": "Bicep"
@@ -620,7 +617,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1688877772395552209"
+              "templateHash": "4504663721558284015"
             }
           },
           "parameters": {
@@ -634,7 +631,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "bicepExampleAssignment": {
               "type": "Microsoft.Authorization/policyAssignments",

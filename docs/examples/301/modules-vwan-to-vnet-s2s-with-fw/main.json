@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "42812146254330995"
+      "templateHash": "2565114148790334711"
     }
   },
   "parameters": {
@@ -38,7 +38,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "vnetname": "[format('{0}-vnet', parameters('nameprefix'))]",
     "vpngwname": "[format('{0}-vpn-gw', variables('vnetname'))]",
@@ -108,7 +107,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17593228818037020755"
+              "templateHash": "6169687425211550359"
             }
           },
           "parameters": {
@@ -155,7 +154,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "servernsgname": "[format('{0}-snet-servers-nsg', parameters('vnetname'))]",
             "bastionnsgname": "[format('{0}-AzureBastionSubnet-nsg', parameters('vnetname'))]",
@@ -365,7 +363,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "668994565981920361"
+              "templateHash": "7888079620585144668"
             }
           },
           "parameters": {
@@ -392,7 +390,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",
@@ -494,7 +491,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3995320789217660109"
+              "templateHash": "11491474669810947162"
             }
           },
           "parameters": {
@@ -515,7 +512,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/firewallPolicies",
@@ -669,7 +665,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8402162185499815973"
+              "templateHash": "15270029119568726075"
             }
           },
           "parameters": {
@@ -699,7 +695,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/publicIPPrefixes",
@@ -783,7 +778,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8852671976007191851"
+              "templateHash": "13061494399356137884"
             }
           },
           "parameters": {
@@ -839,7 +834,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "hubfwproperties": {
               "properties": {
@@ -931,7 +925,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2750460495032513094"
+              "templateHash": "280056674023652647"
             }
           },
           "parameters": {
@@ -954,7 +948,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/virtualWans",
@@ -1012,7 +1005,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6471938911786706761"
+              "templateHash": "6267441064966571983"
             }
           },
           "parameters": {
@@ -1037,7 +1030,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/virtualHubs",
@@ -1098,7 +1090,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3995320789217660109"
+              "templateHash": "11491474669810947162"
             }
           },
           "parameters": {
@@ -1119,7 +1111,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/firewallPolicies",
@@ -1279,7 +1270,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8852671976007191851"
+              "templateHash": "13061494399356137884"
             }
           },
           "parameters": {
@@ -1335,7 +1326,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "hubfwproperties": {
               "properties": {
@@ -1429,7 +1419,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10433069750951100331"
+              "templateHash": "10469250134169586077"
             }
           },
           "parameters": {
@@ -1453,7 +1443,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/vpnGateways",
@@ -1539,7 +1528,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4413852781831650034"
+              "templateHash": "8505973820543281231"
             }
           },
           "parameters": {
@@ -1581,7 +1570,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/vpnSites",
@@ -1652,7 +1640,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7703400377581823349"
+              "templateHash": "5178333219212442667"
             }
           },
           "parameters": {
@@ -1672,7 +1660,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/vpnGateways/vpnConnections",
@@ -1744,7 +1731,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12528836535334827814"
+              "templateHash": "14339240566669068445"
             }
           },
           "parameters": {
@@ -1796,7 +1783,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/localNetworkGateways",

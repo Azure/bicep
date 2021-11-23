@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16930629051351428013"
+      "templateHash": "11741697022736338181"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "appServicePlanName": "[toLower(format('asp-{0}', parameters('appName')))]",
     "webSiteName": "[toLower(format('wapp-{0}', parameters('appName')))]"

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17352922436081701374"
+      "templateHash": "7002792351289027529"
     }
   },
   "parameters": {
@@ -107,7 +107,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "appGwPublicIpName": "[format('{0}-pip', parameters('applicationGatewayName'))]",
     "appGwSize": "Standard_v2"

@@ -19,13 +19,13 @@ namespace Bicep.Core.Resources
                 return x == y;
             }
 
-            return Enumerable.SequenceEqual(x.TypeSegments, y.TypeSegments, StringComparer.OrdinalIgnoreCase) &&
-                StringComparer.OrdinalIgnoreCase.Equals(x.ApiVersion, y.ApiVersion);
+            return Enumerable.SequenceEqual(x.TypeSegments, y.TypeSegments, LanguageConstants.ResourceTypeComparer) &&
+                LanguageConstants.ResourceTypeComparer.Equals(x.ApiVersion, y.ApiVersion);
         }
 
         public int GetHashCode(ResourceTypeReference obj)
             => HashCode.Combine(
-                Enumerable.Select(obj.TypeSegments, x => StringComparer.OrdinalIgnoreCase.GetHashCode(x)).Aggregate((a, b) => a ^ b),
-                (obj.ApiVersion is null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(obj.ApiVersion)));
+                Enumerable.Select(obj.TypeSegments, x => LanguageConstants.ResourceTypeComparer.GetHashCode(x)).Aggregate((a, b) => a ^ b),
+                (obj.ApiVersion is null ? 0 : LanguageConstants.ResourceTypeComparer.GetHashCode(obj.ApiVersion)));
     }
 }

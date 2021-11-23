@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8144897288233525089"
+      "templateHash": "12215355446540140927"
     }
   },
   "parameters": {
@@ -25,7 +25,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "managedResourceGroupName": "[format('databricks-rg-{0}-{1}', parameters('workspaceName'), uniqueString(parameters('workspaceName'), resourceGroup().id))]"
   },

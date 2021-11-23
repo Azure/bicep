@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3750381001111368245"
+      "templateHash": "97755062618535923"
     }
   },
   "parameters": {
@@ -40,7 +40,6 @@
       "defaultValue": "[subscription().subscriptionId]"
     }
   },
-  "functions": [],
   "variables": {
     "websiteName": "[format('{0}-site', parameters('name'))]",
     "farmName": "[format('{0}-farm', parameters('name'))]"

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6346475403779900689"
+      "templateHash": "5873570432888469584"
     }
   },
   "parameters": {
@@ -22,7 +22,6 @@
       "defaultValue": "S0"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.CognitiveServices/accounts",

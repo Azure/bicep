@@ -205,7 +205,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""9158779975087827920""
+      ""templateHash"": ""16730399226644616469""
     }
   },
   ""parameters"": {
@@ -213,7 +213,6 @@ Hello from Bicep!"));
       ""type"": ""string""
     }
   },
-  ""functions"": [],
   ""resources"": {
     ""stgAccount"": {
       ""type"": ""Microsoft.Storage/storageAccounts"",
@@ -248,7 +247,7 @@ Hello from Bicep!"));
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""16326706520666172134""
+              ""templateHash"": ""10447496472055117853""
             }
           },
           ""parameters"": {
@@ -256,7 +255,6 @@ Hello from Bicep!"));
               ""type"": ""secureString""
             }
           },
-          ""functions"": [],
           ""imports"": {
             ""stg"": {
               ""provider"": ""AzureStorage"",

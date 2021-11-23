@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7678246143339351059"
+      "templateHash": "9584729251604657934"
     }
   },
   "parameters": {
@@ -81,7 +81,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "networkProfileName": "[format('aci-networkProfile-{0}', parameters('location'))]",
     "contributorRoleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",

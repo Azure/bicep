@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3485675834858320580"
+      "templateHash": "13083441436053994862"
     }
   },
   "parameters": {
@@ -31,7 +31,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "vnet1Config": {
       "addressSpacePrefix": "10.0.0.0/24",

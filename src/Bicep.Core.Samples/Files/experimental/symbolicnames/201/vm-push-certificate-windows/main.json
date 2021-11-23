@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9371882081892643852"
+      "templateHash": "9763081476321444683"
     }
   },
   "parameters": {
@@ -44,7 +44,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "kvId": "[resourceId(parameters('subId'), parameters('rgName'), 'Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
     "subnet1Name": "subnet-1",

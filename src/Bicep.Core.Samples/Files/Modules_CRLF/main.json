@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18326271388556339005"
+      "templateHash": "12079244958605727878"
     }
   },
   "parameters": {
@@ -17,7 +17,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "myModules": [
       {
@@ -121,7 +120,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -139,7 +138,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -202,7 +200,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2690166781482293239"
+              "templateHash": "13693869390953445824"
             }
           },
           "parameters": {
@@ -210,7 +208,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -253,7 +250,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2690166781482293239"
+              "templateHash": "13693869390953445824"
             }
           },
           "parameters": {
@@ -261,7 +258,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -302,7 +298,6 @@
             }
           },
           "variables": {},
-          "functions": [],
           "resources": [
             {
               "name": "myResource",
@@ -344,7 +339,6 @@
             }
           },
           "variables": {},
-          "functions": [],
           "resources": [
             {
               "name": "myResource",
@@ -378,7 +372,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10738077103160673326"
+              "templateHash": "4191259681487754679"
             }
           },
           "parameters": {
@@ -405,7 +399,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -438,7 +431,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10738077103160673326"
+              "templateHash": "4191259681487754679"
             }
           },
           "parameters": {
@@ -465,7 +458,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -511,7 +503,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10738077103160673326"
+              "templateHash": "4191259681487754679"
             }
           },
           "parameters": {
@@ -538,7 +530,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -584,7 +575,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10738077103160673326"
+              "templateHash": "4191259681487754679"
             }
           },
           "parameters": {
@@ -611,7 +602,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -661,7 +651,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10738077103160673326"
+              "templateHash": "4191259681487754679"
             }
           },
           "parameters": {
@@ -688,7 +678,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -738,7 +727,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10738077103160673326"
+              "templateHash": "4191259681487754679"
             }
           },
           "parameters": {
@@ -765,7 +754,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "outputObj": {
@@ -816,7 +804,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -834,7 +822,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -909,7 +896,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -927,7 +914,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1003,7 +989,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -1021,7 +1007,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1100,7 +1085,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -1118,7 +1103,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1197,7 +1181,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -1215,7 +1199,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1291,7 +1274,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -1309,7 +1292,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1414,7 +1396,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -1432,7 +1414,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1538,7 +1519,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -1556,7 +1537,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1665,7 +1645,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13267921988990488399"
+              "templateHash": "454017335624971246"
             }
           },
           "parameters": {
@@ -1683,7 +1663,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Mock.Rp/mockResource",
@@ -1757,7 +1736,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8835955120763275123"
+              "templateHash": "15522334618541518671"
             }
           },
           "parameters": {
@@ -1769,7 +1748,6 @@
               "defaultValue": ""
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "exposedSecureString": {
@@ -1815,7 +1793,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8835955120763275123"
+              "templateHash": "15522334618541518671"
             }
           },
           "parameters": {
@@ -1827,7 +1805,6 @@
               "defaultValue": ""
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "exposedSecureString": {
@@ -1877,7 +1854,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "8835955120763275123"
+              "templateHash": "15522334618541518671"
             }
           },
           "parameters": {
@@ -1889,7 +1866,6 @@
               "defaultValue": ""
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "exposedSecureString": {
@@ -1916,7 +1892,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7552407620176760980"
+              "templateHash": "1347091426241151379"
             }
           },
           "parameters": {
@@ -1925,7 +1901,6 @@
               "defaultValue": "westus"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "loc": {
@@ -1952,7 +1927,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7552407620176760980"
+              "templateHash": "1347091426241151379"
             }
           },
           "parameters": {
@@ -1961,7 +1936,6 @@
               "defaultValue": "westus"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "loc": {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2526357515241197461"
+      "templateHash": "9520805362169562150"
     }
   },
   "parameters": {
@@ -26,7 +26,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "appServicePlanName": "[toLower(format('AppServicePlan-{0}', parameters('webAppName')))]",
     "webSiteName": "[toLower(format('wapp-{0}', parameters('webAppName')))]"

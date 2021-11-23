@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3818240346884159269"
+      "templateHash": "7382529889681118350"
     }
   },
   "parameters": {
@@ -105,7 +105,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "storageAccountName": "[format('bootdiags{0}', uniqueString(resourceGroup().id))]",
     "nicName": "myVMNic",

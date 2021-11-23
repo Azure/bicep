@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11788224146297537649"
+      "templateHash": "14522253761761664829"
     }
   },
   "parameters": {
@@ -68,7 +68,6 @@
       }
     }
   },
-  "functions": [],
   "resources": {
     "budget": {
       "type": "Microsoft.Consumption/budgets",

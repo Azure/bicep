@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4464042552642153847"
+      "templateHash": "3145735088227289128"
     }
   },
   "parameters": {
@@ -30,7 +30,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.OperationalInsights/workspaces",
@@ -71,7 +70,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1455955442339016099"
+              "templateHash": "4134091672904132879"
             }
           },
           "parameters": {
@@ -85,7 +84,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Insights/diagnosticSettings",

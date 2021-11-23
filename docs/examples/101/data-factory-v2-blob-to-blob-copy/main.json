@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16215686198522466676"
+      "templateHash": "8431332347365725334"
     }
   },
   "parameters": {
@@ -38,7 +38,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "dataFactoryLinkedServiceName": "ArmtemplateStorageLinkedService",
     "dataFactoryDataSetInName": "ArmtemplateTestDatasetIn",

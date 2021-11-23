@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5915215774680937096"
+      "templateHash": "12714539326532824331"
     }
   },
   "parameters": {
@@ -502,7 +502,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "copy": [
       {
@@ -603,7 +602,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7312403041374597157"
+              "templateHash": "5180923156111509853"
             }
           },
           "parameters": {
@@ -617,7 +616,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": {
             "workSpace": {
               "type": "Microsoft.DesktopVirtualization/workspaces",
@@ -672,7 +670,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1310292062566099270"
+              "templateHash": "13597904005241275944"
             }
           },
           "parameters": {
@@ -695,7 +693,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "availabilitySet": {
               "type": "Microsoft.Compute/availabilitySets",
@@ -848,7 +845,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12803195105479768873"
+              "templateHash": "8896621598340419959"
             }
           },
           "parameters": {
@@ -1114,7 +1111,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -1366,7 +1362,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -1386,7 +1382,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
@@ -1540,7 +1535,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10221138661537585248"
+              "templateHash": "16517357188773793233"
             }
           },
           "parameters": {
@@ -1806,7 +1801,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -2043,7 +2037,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -2063,7 +2057,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
@@ -2217,7 +2210,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17353466569456978138"
+              "templateHash": "218031779920447603"
             }
           },
           "parameters": {
@@ -2483,7 +2476,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -2716,7 +2708,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -2736,7 +2728,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
@@ -2890,7 +2881,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4418196960236946836"
+              "templateHash": "11216553347585315765"
             }
           },
           "parameters": {
@@ -3156,7 +3147,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -3392,7 +3382,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -3412,7 +3402,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",

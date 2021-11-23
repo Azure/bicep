@@ -254,7 +254,7 @@ namespace Bicep.Core.Emit
                     {
                         mgScope = converter.GenerateManagementGroupResourceId(scopeData.ManagementGroupNameProperty, true);
                     }
-                    else 
+                    else
                     {
                         // use managementGroup().id to format the scope. This will only work at management group scope,
                         // but we only permit referencing a parameter-less management group function at this scope.
@@ -584,7 +584,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var scopeValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
+                var scopeValue = moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
                 var scopeData = ScopeHelper.ValidateScope(semanticModel, LogInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Value, scopeValue);
 
                 if (scopeData is null)

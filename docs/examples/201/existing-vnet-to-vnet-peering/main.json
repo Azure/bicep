@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1214696560148845297"
+      "templateHash": "13268380835426105532"
     }
   },
   "parameters": {
@@ -19,7 +19,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Network/virtualNetworks/virtualNetworkPeerings",

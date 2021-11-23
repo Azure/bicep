@@ -2776,5 +2776,21 @@ output out4 string = 'hello' + 'world'
                 ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"'hello'\" and \"'world'\". Use string interpolation instead.")
             });
         }
+
+        // https://github.com/Azure/bicep/issues/3749
+        [TestMethod]
+        public void Test_Issue3749()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+param foo string
+param bar string
+
+output out1 string = foo
+");
+
+            result.Template.Should().NotHaveValueAtPath("$.functions");
+            result.Should().OnlyContainDiagnostic("no-unused-params", DiagnosticLevel.Warning, "Parameter \"bar\" is declared but never used.");
+        }
     }
 }
