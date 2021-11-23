@@ -1825,10 +1825,10 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
         }
 
         [TestMethod]
-        public async Task VerifyDiagnosticsAreClearedAfterDisableNextLineDiagnosticsCompletionIsResolved()
+        public async Task VerifyDisableNextLineDiagnosticsDirectiveCompletionIsNotAvailableToSuppressCoreCompilerErrors()
         {
             string fileWithCursors = @"#disable-next-line |
-param storageAccount string = 'testAccount'";
+resource test";
 
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
 
@@ -1849,7 +1849,11 @@ param storageAccount string = 'testAccount'";
                 },
                 x =>
                 {
-                    x.Code.Should().Be("no-unused-params");
+                    x.Code.Should().Be("BCP068");
+                },
+                x =>
+                {
+                    x.Code.Should().Be("BCP029");
                 });
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
@@ -1857,14 +1861,7 @@ param storageAccount string = 'testAccount'";
             var client = helper.Client;
 
             var completions = await RequestCompletion(client, bicepFile, cursors[0]);
-            completions.Should().Contain(x => x.Label == "no-unused-params");
-
-            var replaced = ApplyCompletion(completions.First(), bicepFile);
-
-            fileSystemDict[uri] = replaced;
-
-            compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
-            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
+            completions.Should().BeEmpty();
         }
 
         private string ApplyCompletion(CompletionItem completionItem, BicepFile bicepFile)
