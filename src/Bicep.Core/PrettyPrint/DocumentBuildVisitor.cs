@@ -45,6 +45,8 @@ namespace Bicep.Core.PrettyPrint
 
         private bool visitingComment;
 
+        private bool visitingDisableNextLineDiagnosticsDirective;
+
         public ILinkedDocument BuildDocument(SyntaxBase syntax)
         {
             this.Visit(syntax);
@@ -178,17 +180,17 @@ namespace Bicep.Core.PrettyPrint
 
         public override void VisitForVariableBlockSyntax(ForVariableBlockSyntax syntax) =>
             this.Build(() => base.VisitForVariableBlockSyntax(syntax), children =>
-             {
-                 Debug.Assert(children.Length == 5);
+            {
+                Debug.Assert(children.Length == 5);
 
-                 ILinkedDocument openParen = children[0];
-                 ILinkedDocument itemVariable = children[1];
-                 ILinkedDocument comma = children[2];
-                 ILinkedDocument indexVariable = children[3];
-                 ILinkedDocument closeParen = children[4];
+                ILinkedDocument openParen = children[0];
+                ILinkedDocument itemVariable = children[1];
+                ILinkedDocument comma = children[2];
+                ILinkedDocument indexVariable = children[3];
+                ILinkedDocument closeParen = children[4];
 
-                 return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
-             });
+                return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
+            });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
             this.Build(() => base.VisitFunctionCallSyntax(syntax), children =>
@@ -303,7 +305,9 @@ namespace Bicep.Core.PrettyPrint
 
             if (syntaxTrivia.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective)
             {
+                this.visitingDisableNextLineDiagnosticsDirective = true;
                 this.PushDocument(Text(syntaxTrivia.Text));
+                this.visitingDisableNextLineDiagnosticsDirective = false;
             }
         }
 
@@ -490,6 +494,10 @@ namespace Bicep.Core.PrettyPrint
 
                 // Combine the comment and the document at the top of the stack. This is the key to simplify VisitToken.
                 this.documentStack.Push(Concat(this.documentStack.Pop(), gap, document));
+            }
+            else if (visitingDisableNextLineDiagnosticsDirective)
+            {
+                this.documentStack.Push(Concat(this.documentStack.Pop(), document));
             }
             else
             {

@@ -612,5 +612,52 @@ where */
 }
 /* I can be anywhere */");
         }
+
+        [TestMethod]
+        public void PrintProgram_DisableNextLineDiagnosticsDirectiveFollowedByMultiLineComment_ShouldFormatCorrectly()
+        {
+            var text = @"var test = 'abc'
+param string xyz = '123'";
+            this.TestPrintProgram(text, text);
+        }
+
+        [TestMethod]
+        public void PrintProgram_WithDisableNextLineDiagnosticsDirective_ShouldFormatCorrectly()
+        {
+            var input = @"/* asdfasdf */
+
+
+
+var test = 'adfsdf'
+
+
+
+#disable-next-line BCP036       /*
+
+test
+
+
+*/
+#disable-next-line BCP036
+param string storageAccount = 'testAccount'
+   #disable-next-line BCP036  // test
+param string location = 'testLocation'";
+
+            var output = @"/* asdfasdf */
+
+var test = 'adfsdf'
+
+#disable-next-line BCP036 /*
+
+test
+
+
+*/
+#disable-next-line BCP036
+param string storageAccount = 'testAccount'
+#disable-next-line BCP036 // test
+param string location = 'testLocation'";
+            this.TestPrintProgram(input, output);
+        }
     }
 }
