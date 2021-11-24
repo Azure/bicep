@@ -3,9 +3,7 @@
 -->
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <!-- Ensure the package supports multi-targeting -->
-    <TargetFrameworks>net5;net472</TargetFrameworks>
-    <BicepOutputPath>bin\$(Configuration)\templates</BicepOutputPath>
+    <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
   <!-- 
@@ -17,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Bicep Include="passthrough.bicep"/>
-    <Bicep Include="empty.bicep"/>
-    <Bicep Include="subdir\theAnswer.bicep">
-      <OutputFile>$(BicepOutputPath)\special\special.arm</OutputFile>
-    </Bicep>
+    <!-- Do not set any Bicep item: this ensures the package correctly does not error on projects without Bicep items -->
   </ItemGroup>
 </Project>
