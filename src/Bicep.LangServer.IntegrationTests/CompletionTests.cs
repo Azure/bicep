@@ -289,7 +289,7 @@ var test2 = /|* block c|omment *|/
                 },
                 c =>
                 {
-                    c.Label.Should().Be("if");
+                    c.Label.Should().Be("if-else");
                 },
                 c =>
                 {
@@ -339,7 +339,7 @@ var test2 = /|* block c|omment *|/
                 },
                 c =>
                 {
-                    c.Label.Should().Be("if");
+                    c.Label.Should().Be("if-else");
                 },
                 c =>
                 {
@@ -457,7 +457,7 @@ var test2 = /|* block c|omment *|/
                 },
                 c =>
                 {
-                    c.Label.Should().Be("if");
+                    c.Label.Should().Be("if-else");
                 },
                 c =>
                 {
@@ -524,7 +524,7 @@ var test2 = /|* block c|omment *|/
                 },
                 c =>
                 {
-                    c.Label.Should().Be("if");
+                    c.Label.Should().Be("if-else");
                 },
                 c =>
                 {
@@ -917,16 +917,16 @@ module bar2 'test.bicep' = [for item in list: |  ]
                 y => y.Should().SatisfyRespectively(
                     x => x.Label.Should().Be("{}"),
                     x => x.Label.Should().Be("required-properties"),
-                    x => x.Label.Should().Be("if")),
+                    x => x.Label.Should().Be("if-else")),
                 y => y.Should().SatisfyRespectively(
                     x => x.Label.Should().Be("{}"),
                     // no required-properties because the module doesn't exist
-                    x => x.Label.Should().Be("if")),
+                    x => x.Label.Should().Be("if-else")),
                 y => y.Should().SatisfyRespectively(
                     x => x.Label.Should().Be("{}"),
                     // valid module with a parameter, so we should have required-properties
                     x => x.Label.Should().Be("required-properties"),
-                    x => x.Label.Should().Be("if")));
+                    x => x.Label.Should().Be("if-else")));
         }
 
         [TestMethod]

@@ -54,17 +54,17 @@
     }
   },
   {
-    "label": "if",
+    "label": "if-else",
     "kind": "snippet",
-    "detail": "if",
+    "detail": "if-else",
     "deprecated": false,
     "preselect": false,
-    "sortText": "1_if",
+    "sortText": "1_if-else",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "if (${1:condition}) {\n\t$0\n}"
+      "newText": "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}"
     }
   },
   {
