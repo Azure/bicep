@@ -996,6 +996,24 @@
     }
   },
   {
+    "label": "res-service-bus",
+    "kind": "snippet",
+    "detail": "Service Bus Namespace",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource serviceBusNamespace 'Microsoft.ServiceBus/namespaces@2021-06-01-preview' = {\n  name: 'name'\n  location: resourceGroup().location\n  sku: {\n    name: 'Basic'\n    capacity: 1\n    tier: 'Basic'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-service-bus",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:serviceBusNamespace} 'Microsoft.ServiceBus/namespaces@2021-06-01-preview' = {\n  name: ${2:'name'}\n  location: resourceGroup().location\n  sku: {\n    name: ${3|'Basic','Standard','Premium'|}\n    capacity: ${4:1}\n    tier: ${5|'Basic','Standard','Premium'|}\n  }\n}\n"
+    }
+  },
+  {
     "label": "res-shared-image-gallery",
     "kind": "snippet",
     "detail": "Create Image Gallery",
