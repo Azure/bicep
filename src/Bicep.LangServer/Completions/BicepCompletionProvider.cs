@@ -911,9 +911,9 @@ namespace Bicep.LanguageServer.Completions
 
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)
         {
-            const string conditionLabel = "if-else";
+            const string conditionLabel = "if";
             return CompletionItemBuilder.Create(CompletionItemKind.Snippet, conditionLabel)
-                .WithSnippetEdit(replacementRange, "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}")
+                .WithSnippetEdit(replacementRange, "if (${1:condition}) {\n\t$0\n}")
                 .WithDetail(conditionLabel)
                 .WithSortText(GetSortText(conditionLabel, CompletionPriority.High))
                 .Build();
