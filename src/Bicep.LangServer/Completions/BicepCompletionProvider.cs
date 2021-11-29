@@ -418,13 +418,16 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetVariableValueCompletions(BicepCompletionContext context)
         {
-            if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
             {
-                return Enumerable.Empty<CompletionItem>();
-            }
+                yield return CreateConditionCompletion(context.ReplacementRange);
 
-            // we don't know what the variable type is, so assume "any"
-            return CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Any, filtersAllowed: false);
+                // we don't know what the variable type is, so assume "any"
+                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Any, filtersAllowed: false))
+                {
+                    yield return completion;
+                }
+            }
         }
 
         private IEnumerable<CompletionItem> GetOutputValueCompletions(SemanticModel model, BicepCompletionContext context)
@@ -914,6 +917,16 @@ namespace Bicep.LanguageServer.Completions
             const string conditionLabel = "if";
             return CompletionItemBuilder.Create(CompletionItemKind.Snippet, conditionLabel)
                 .WithSnippetEdit(replacementRange, "if (${1:condition}) {\n\t$0\n}")
+                .WithDetail(conditionLabel)
+                .WithSortText(GetSortText(conditionLabel, CompletionPriority.High))
+                .Build();
+        }
+
+        private static CompletionItem CreateConditionCompletion(Range replacementRange)
+        {
+            const string conditionLabel = "if-else";
+            return CompletionItemBuilder.Create(CompletionItemKind.Snippet, conditionLabel)
+                .WithSnippetEdit(replacementRange, "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}")
                 .WithDetail(conditionLabel)
                 .WithSortText(GetSortText(conditionLabel, CompletionPriority.High))
                 .Build();
