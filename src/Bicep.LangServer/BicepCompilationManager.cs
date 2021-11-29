@@ -218,6 +218,11 @@ namespace Bicep.LanguageServer
                             }
                         }
 
+                        if (reloadBicepConfig)
+                        {
+
+                        }
+
                         var configuration = reloadBicepConfig
                             ? this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic)
                             : prevContext.Compilation.Configuration;
@@ -271,6 +276,11 @@ namespace Bicep.LanguageServer
 
                 return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
             }
+        }
+
+        private void SendTelemetryifLinterRuleWasDisabledInBicepConfig()
+        {
+
         }
 
         private RootConfiguration GetConfigurationSafely(DocumentUri documentUri, out Diagnostic? diagnostic)
