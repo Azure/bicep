@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3810820475161539061"
+      "templateHash": "8024929790370605115"
     }
   },
   "parameters": {
@@ -23,7 +23,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "resources": {
     "sa": {
       "type": "Microsoft.Storage/storageAccounts",

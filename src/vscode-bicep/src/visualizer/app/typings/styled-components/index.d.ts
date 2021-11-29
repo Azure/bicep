@@ -4,6 +4,7 @@ import "styled-components";
 
 declare module "styled-components" {
   export interface DefaultTheme {
+    name: "dark" | "light" | "high-contrast";
     fontFamily: string;
     common: {
       foregroundColor: string;
@@ -34,6 +35,9 @@ declare module "styled-components" {
         opacity: number;
         width: number;
       };
+    };
+    commandBarButton: {
+      backgroundColor: string;
     };
   }
 }

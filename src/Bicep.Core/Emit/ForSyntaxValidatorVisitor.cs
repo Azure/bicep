@@ -250,7 +250,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.SafeGetPropertyByName("dependsOn");
+        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.TryGetPropertyByName("dependsOn");
 
         private bool? IsLoopAllowedHere(ForSyntax syntax)
         {

@@ -1,8 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -29,5 +27,4 @@
     <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
     <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
   </ItemGroup>
-
 </Project>

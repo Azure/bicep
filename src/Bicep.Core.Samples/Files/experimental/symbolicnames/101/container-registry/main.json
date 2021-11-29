@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4615087513664892522"
+      "templateHash": "12642938373302011166"
     }
   },
   "parameters": {
@@ -46,7 +46,6 @@
       ]
     }
   },
-  "functions": [],
   "resources": {
     "acr": {
       "type": "Microsoft.ContainerRegistry/registries",

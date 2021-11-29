@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5417997377814644790"
+      "templateHash": "5243812580579835537"
     }
   },
   "parameters": {
@@ -24,7 +24,6 @@
       "defaultValue": "Standard"
     }
   },
-  "functions": [],
   "variables": {
     "eventHubNamespaceName": "[format('{0}ns', parameters('projectName'))]",
     "eventHubName": "[parameters('projectName')]"

@@ -7,7 +7,6 @@
     }
   },
   "variables": {},
-  "functions": [],
   "resources": [
     {
       "name": "myResource",

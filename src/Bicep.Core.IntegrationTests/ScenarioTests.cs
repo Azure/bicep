@@ -29,12 +29,10 @@ namespace Bicep.Core.IntegrationTests
             int generateRandomInt(int minVal = 0, int maxVal = 50)
             {
                 var rnd = new byte[4];
-                using var rng = new RNGCryptoServiceProvider();
-                rng.GetBytes(rnd);
+                RandomNumberGenerator.Fill(rnd);
                 var i = Math.Abs(BitConverter.ToInt32(rnd, 0));
                 return Convert.ToInt32(i % (maxVal - minVal + 1) + minVal);
             }
-            Random random = new Random();
 
             string randomString()
             {
@@ -2779,6 +2777,22 @@ output out4 string = 'hello' + 'world'
             });
         }
 
+        // https://github.com/Azure/bicep/issues/3749
+        [TestMethod]
+        public void Test_Issue3749()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+param foo string
+param bar string
+
+output out1 string = foo
+");
+
+            result.Template.Should().NotHaveValueAtPath("$.functions");
+            result.Should().OnlyContainDiagnostic("no-unused-params", DiagnosticLevel.Warning, "Parameter \"bar\" is declared but never used.");
+        }
+
         /// <summary>
         /// https://github.com/Azure/bicep/issues/5099
         /// </summary>
@@ -2821,7 +2835,7 @@ output productGroupsResourceIds array = [for rgName in rgNames: resourceId('Micr
           result.Template.Should().NotBeNull();
           var templateContent = result.Template!.ToString();
 
-          templateContent.Should().Contain("rgNames param");
+          templateContent.Should().HaveValueAtPath("rgNames param");
           templateContent.Should().Contain("resource group in for loop");
           templateContent.Should().Contain("module loop");
           templateContent.Should().Contain("resource group in for loop");

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15876327905859377550"
+      "templateHash": "10937767574163985036"
     }
   },
   "parameters": {
@@ -18,7 +18,6 @@
       "defaultValue": false
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
@@ -41,7 +40,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1240988414714428155"
+              "templateHash": "7041487136027912103"
             }
           },
           "parameters": {
@@ -61,7 +60,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "appServicePlanName": "[toLower(format('asp-{0}', parameters('appName')))]",
             "webSiteName": "[toLower(format('wapp-{0}', parameters('appName')))]"
@@ -163,7 +161,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13009186405517622186"
+              "templateHash": "16717574754976290273"
             }
           },
           "parameters": {
@@ -175,7 +173,6 @@
               "defaultValue": "[resourceGroup().location]"
             }
           },
-          "functions": [],
           "variables": {
             "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]",
             "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"

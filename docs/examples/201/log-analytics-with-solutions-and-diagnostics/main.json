@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "606685342937214454"
+      "templateHash": "3252090373674473917"
     }
   },
   "parameters": {
@@ -18,7 +18,6 @@
       "defaultValue": "[format('la-{0}', uniqueString(resourceGroup().id))]"
     }
   },
-  "functions": [],
   "variables": {
     "vmInsights": {
       "name": "[format('VMInsights({0})', parameters('logAnalyticsWorkspaceName'))]",

@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Azure.Bicep.Types.Az;
+using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 
 namespace Bicep.Core.TypeSystem.Az
@@ -13,15 +15,23 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ITypeLoader typeLoader;
         private readonly AzResourceTypeFactory resourceTypeFactory;
         private readonly ImmutableDictionary<ResourceTypeReference, TypeLocation> availableTypes;
+        private readonly ImmutableDictionary<string, ImmutableDictionary<string, ImmutableArray<TypeLocation>>> availableFunctions;
 
         public AzResourceTypeLoader()
         {
             this.typeLoader = new TypeLoader();
             this.resourceTypeFactory = new AzResourceTypeFactory();
-            this.availableTypes = typeLoader.GetIndexedTypes().Types.ToImmutableDictionary(
+            this.availableTypes = typeLoader.GetIndexedTypes().Resources.ToImmutableDictionary(
                 kvp => ResourceTypeReference.Parse(kvp.Key),
                 kvp => kvp.Value,
                 ResourceTypeReferenceComparer.Instance);
+            this.availableFunctions = typeLoader.GetIndexedTypes().Functions.ToImmutableDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value.ToImmutableDictionary(
+                    x => x.Key,
+                    x => x.Value.ToImmutableArray(),
+                    StringComparer.OrdinalIgnoreCase),
+                StringComparer.OrdinalIgnoreCase);
         }
 
         public IEnumerable<ResourceTypeReference> GetAvailableTypes()
@@ -31,8 +41,17 @@ namespace Bicep.Core.TypeSystem.Az
         {
             var typeLocation = availableTypes[reference];
 
+            if (!availableFunctions.TryGetValue(reference.FormatType(), out var apiFunctions) ||
+                reference.ApiVersion is null ||
+                !apiFunctions.TryGetValue(reference.ApiVersion, out var functions))
+            {
+                functions = ImmutableArray<TypeLocation>.Empty;
+            }
+
+            var functionOverloads = functions.SelectMany(typeLocation => resourceTypeFactory.GetResourceFunctionOverloads(typeLoader.LoadResourceFunctionType(typeLocation)));
+
             var serializedResourceType = typeLoader.LoadResourceType(typeLocation);
-            return resourceTypeFactory.GetResourceType(serializedResourceType);
+            return resourceTypeFactory.GetResourceType(serializedResourceType, functionOverloads);
         }
     }
 }

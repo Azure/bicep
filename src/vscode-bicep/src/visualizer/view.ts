@@ -150,12 +150,52 @@ export class BicepVisualizerView extends Disposable {
   }
 
   private handleDidReceiveMessage(message: Message): void {
-    if (message.kind === "READY") {
-      getLogger().debug(`Visualizer for ${this.documentUri.fsPath} is ready.`);
+    switch (message.kind) {
+      case "READY":
+        getLogger().debug(
+          `Visualizer for ${this.documentUri.fsPath} is ready.`
+        );
 
-      this.readyToRender = true;
-      this.render();
+        this.readyToRender = true;
+        this.render();
+
+        return;
+      case "REVEAL_FILE_RANGE":
+        this.revealFileRange(message.filePath, message.range);
+
+        return;
     }
+  }
+
+  private revealFileRange(filePath: string, range: vscode.Range) {
+    for (const visibleEditor of vscode.window.visibleTextEditors) {
+      if (visibleEditor.document.uri.fsPath === filePath) {
+        vscode.window
+          .showTextDocument(visibleEditor.document, visibleEditor.viewColumn)
+          .then((editor) => this.revealEditorRange(editor, range));
+
+        return;
+      }
+    }
+
+    vscode.workspace
+      .openTextDocument(filePath)
+      .then(vscode.window.showTextDocument)
+      .then(
+        (editor) => this.revealEditorRange(editor, range),
+        () => vscode.window.showErrorMessage(`Could not open "${filePath}".`)
+      );
+  }
+
+  private revealEditorRange(editor: vscode.TextEditor, range: vscode.Range) {
+    // editor.selection.active is the current cursor position which is immutable.
+    const cursorPosition = editor.selection.active.with(
+      range.start.line,
+      range.start.character
+    );
+    // Move cursor to the beginning of the resource/module and reveal the source code.
+    editor.selection = new vscode.Selection(cursorPosition, cursorPosition);
+    editor.revealRange(range, vscode.TextEditorRevealType.InCenter);
   }
 
   private createWebviewHtml() {

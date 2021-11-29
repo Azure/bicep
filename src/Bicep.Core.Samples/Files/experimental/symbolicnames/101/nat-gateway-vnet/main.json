@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4928263490538882609"
+      "templateHash": "1239573909043118015"
     }
   },
   "parameters": {
@@ -61,7 +61,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "publicIpName": "[format('{0}-ip', parameters('natGatewayName'))]",
     "publicIpAddresses": [

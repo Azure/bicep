@@ -67,7 +67,7 @@ steps:
     command: 'publish'
     publishWebProjects: false
     projects: ./src/Bicep.Cli/Bicep.Cli.csproj
-    arguments: '--configuration $(BuildConfiguration) --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ parameters.rid }} /p:PublicRelease=${{ parameters.official }}'
+    arguments: '--configuration $(BuildConfiguration) --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ parameters.rid }} /p:PublicRelease=${{ parameters.official }}'
     zipAfterPublish: false
 
 - ${{ if eq(parameters.rid, 'win-x64') }}:

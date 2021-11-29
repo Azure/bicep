@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16198543403995158819"
+      "templateHash": "17950968957848901349"
     }
   },
   "parameters": {
@@ -22,7 +22,6 @@
       "defaultValue": "b24988ac-6180-42a0-ab88-20f7382dd24c"
     }
   },
-  "functions": [],
   "resources": {
     "msi": {
       "type": "Microsoft.ManagedIdentity/userAssignedIdentities",

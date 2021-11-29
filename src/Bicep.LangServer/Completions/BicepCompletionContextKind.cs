@@ -138,5 +138,10 @@ namespace Bicep.LanguageServer.Completions
         /// We're at this place in an import statement: 'import foo from |'
         /// </summary>
         ImportFromFollower = 1 << 24,
+
+        /// <summary>
+        /// We're inside a function parentheses: 'someFunc(|)'
+        /// </summary>
+        FunctionArgument = 1 << 25,
     }
 }

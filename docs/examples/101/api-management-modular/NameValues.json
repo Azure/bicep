@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2914496037611283856"
+      "templateHash": "5498141100152018886"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "minLength": 1
     }
   },
-  "functions": [],
   "variables": {
     "apimNameValueSet": [
       {

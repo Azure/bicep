@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11540454296860165981"
+      "templateHash": "9378525231230447099"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       "defaultValue": "20.49.199.4"
     }
   },
-  "functions": [],
   "variables": {
     "roleDefinitions": {
       "owner": "8e3af657-a8ff-443c-a75c-2fe8c4bcb635",
@@ -90,7 +89,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18242259942357983107"
+              "templateHash": "8834221979714337166"
             }
           },
           "parameters": {
@@ -103,7 +102,6 @@
               "defaultValue": "1.1.1.1"
             }
           },
-          "functions": [],
           "resources": {
             "nsg": {
               "type": "Microsoft.Network/networkSecurityGroups",
@@ -223,7 +221,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6849390527810909284"
+              "templateHash": "11894316390754474367"
             }
           },
           "parameters": {
@@ -245,7 +243,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "pip": {
               "type": "Microsoft.Network/publicIPAddresses",

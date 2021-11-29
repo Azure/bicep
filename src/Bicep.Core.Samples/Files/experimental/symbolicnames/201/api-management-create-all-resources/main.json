@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3161486998798141348"
+      "templateHash": "554096486254860362"
     }
   },
   "parameters": {
@@ -62,7 +62,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "apiManagementServiceName": "[format('apiservice{0}', uniqueString(resourceGroup().id))]"
   },

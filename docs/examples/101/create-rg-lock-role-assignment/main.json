@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13175341687267981437"
+      "templateHash": "5222639659355267707"
     }
   },
   "parameters": {
@@ -42,7 +42,6 @@
       }
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/resourceGroups",
@@ -82,7 +81,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15567308115178212258"
+              "templateHash": "6218015697076008944"
             }
           },
           "parameters": {
@@ -105,7 +104,6 @@
               }
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Authorization/locks",

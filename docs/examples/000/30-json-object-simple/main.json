@@ -5,10 +5,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "517951156189212798"
+      "templateHash": "3992377844835363830"
     }
   },
-  "functions": [],
   "variables": {
     "jsonString": "[\n  \"one\",\n  \"two\",\n  \"three\"\n]\n",
     "jsonArray": "[json(variables('jsonString'))]",

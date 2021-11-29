@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4815438706054484684"
+      "templateHash": "3178426058418424488"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "redisCacheName": "[format('{0}{1}', parameters('environmentName'), uniqueString(resourceGroup().id))]"
   },

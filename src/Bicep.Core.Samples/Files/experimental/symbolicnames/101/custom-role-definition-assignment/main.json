@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14389371298408625041"
+      "templateHash": "13195608625247533346"
     }
   },
   "parameters": {
@@ -15,7 +15,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "roleName": "Bicep Custom Role demo"
   },

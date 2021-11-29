@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14653990625764897327"
+      "templateHash": "2493220218069259213"
     }
   },
   "parameters": {
@@ -26,7 +26,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "nic1Name": "nic-1",
     "nic2Name": "nic-2",
@@ -212,7 +211,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13125082143369532135"
+              "templateHash": "14259845034974441060"
             }
           },
           "parameters": {
@@ -242,7 +241,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Compute/virtualMachines",

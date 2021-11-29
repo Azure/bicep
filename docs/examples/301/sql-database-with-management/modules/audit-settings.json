@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5447449594683998530"
+      "templateHash": "336987510423517988"
     }
   },
   "parameters": {
@@ -16,7 +16,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "defaultAuditActionsAndGroups": [
       "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",

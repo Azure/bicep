@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7905015631986025863"
+      "templateHash": "13099933352562359027"
     }
   },
   "parameters": {
@@ -30,7 +30,6 @@
       }
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.DocumentDB/databaseAccounts",

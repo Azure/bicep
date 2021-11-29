@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11769852566665193630"
+      "templateHash": "16725308854916544444"
     }
   },
   "parameters": {
@@ -33,7 +33,6 @@
       ]
     }
   },
-  "functions": [],
   "variables": {
     "initiativeDefinitionName": "BICEP Example Initiative"
   },

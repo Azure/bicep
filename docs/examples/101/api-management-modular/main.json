@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2628096472336873538"
+      "templateHash": "8241693336761189748"
     }
   },
   "parameters": {
@@ -71,7 +71,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "deployGroups": true,
     "deployUsers": true,
@@ -160,7 +159,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14706570379215138555"
+              "templateHash": "16874817407208375046"
             }
           },
           "parameters": {
@@ -169,7 +168,6 @@
               "minLength": 1
             }
           },
-          "functions": [],
           "variables": {
             "groupsSet": [
               {
@@ -239,7 +237,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17785568548409074386"
+              "templateHash": "5207859696763036868"
             }
           },
           "parameters": {
@@ -248,7 +246,6 @@
               "minLength": 1
             }
           },
-          "functions": [],
           "variables": {
             "usersSet": [
               {
@@ -315,7 +312,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2914496037611283856"
+              "templateHash": "5498141100152018886"
             }
           },
           "parameters": {
@@ -324,7 +321,6 @@
               "minLength": 1
             }
           },
-          "functions": [],
           "variables": {
             "apimNameValueSet": [
               {

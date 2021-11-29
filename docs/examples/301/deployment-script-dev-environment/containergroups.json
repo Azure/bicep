@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6673808017610235563"
+      "templateHash": "12360193174347893668"
     }
   },
   "parameters": {
@@ -58,7 +58,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "version": "[if(and(equals(parameters('type'), 'AzureCLI'), equals(parameters('toolVersion'), '')), 'latest', if(and(equals(parameters('type'), 'AzurePowerShell'), equals(parameters('toolVersion'), '')), '5.6', parameters('toolVersion')))]",
     "azcliImage": "[format('mcr.microsoft.com/azure-cli:{0}', variables('version'))]",

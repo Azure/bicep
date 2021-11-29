@@ -30,7 +30,7 @@ namespace Bicep.Core.Emit
     {
         public const string GeneratorMetadataPath = "metadata._generator";
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
-        
+
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2020-06-01";
 
@@ -136,14 +136,10 @@ namespace Bicep.Core.Emit
             }
 
             emitter.EmitProperty("contentVersion", "1.0.0.0");
-            
+
             this.EmitMetadata(jsonWriter, emitter);
 
             this.EmitParametersIfPresent(jsonWriter, emitter);
-
-            jsonWriter.WritePropertyName("functions");
-            jsonWriter.WriteStartArray();
-            jsonWriter.WriteEndArray();
 
             this.EmitVariablesIfPresent(jsonWriter, emitter);
 
@@ -255,14 +251,14 @@ namespace Bicep.Core.Emit
             IEnumerable<VariableSymbol> GetNonInlinedVariables(bool valueIsLoop) =>
                 variableLookup[valueIsLoop].Where(symbol => !this.context.VariablesToInline.Contains(symbol));
 
-            if(GetNonInlinedVariables(valueIsLoop: true).Any())
+            if (GetNonInlinedVariables(valueIsLoop: true).Any())
             {
                 // we have variables whose values are loops
                 emitter.EmitProperty("copy", () =>
                 {
                     jsonWriter.WriteStartArray();
 
-                    foreach(var variableSymbol in GetNonInlinedVariables(valueIsLoop: true))
+                    foreach (var variableSymbol in GetNonInlinedVariables(valueIsLoop: true))
                     {
                         // enforced by the lookup predicate above
                         var @for = (ForSyntax)variableSymbol.Value;
@@ -296,7 +292,7 @@ namespace Bicep.Core.Emit
 
             foreach (var import in this.context.SemanticModel.Root.ImportDeclarations)
             {
-                var namespaceType = context.SemanticModel.GetTypeInfo(import.DeclaringSyntax) as NamespaceType  
+                var namespaceType = context.SemanticModel.GetTypeInfo(import.DeclaringSyntax) as NamespaceType
                     ?? throw new ArgumentException("Imported namespace does not have namespace type");
 
                 jsonWriter.WritePropertyName(import.DeclaringImport.AliasName.IdentifierName);
@@ -304,7 +300,7 @@ namespace Bicep.Core.Emit
 
                 emitter.EmitProperty("provider", namespaceType.Settings.ArmTemplateProviderName);
                 emitter.EmitProperty("version", namespaceType.Settings.ArmTemplateProviderVersion);
-                if (import.DeclaringImport.Config is {} config)
+                if (import.DeclaringImport.Config is { } config)
                 {
                     emitter.EmitProperty("config", config);
                 }
@@ -523,8 +519,8 @@ namespace Bicep.Core.Emit
 
         private static void EmitModuleParameters(JsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
         {
-            var paramsValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ModuleParamsPropertyName);
-            if(paramsValue is not ObjectSyntax paramsObjectSyntax)
+            var paramsValue = moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleParamsPropertyName);
+            if (paramsValue is not ObjectSyntax paramsObjectSyntax)
             {
                 // 'params' is optional if the module has no required params
                 return;
@@ -582,7 +578,7 @@ namespace Bicep.Core.Emit
                     break;
 
                 case ForSyntax @for:
-                    if(@for.Body is IfConditionSyntax loopFilter)
+                    if (@for.Body is IfConditionSyntax loopFilter)
                     {
                         body = loopFilter.Body;
                         emitter.EmitProperty("condition", loopFilter.ConditionExpression);
@@ -591,7 +587,7 @@ namespace Bicep.Core.Emit
                     {
                         body = @for.Body;
                     }
-                    
+
                     var batchSize = GetBatchSize(moduleSymbol.DeclaringModule);
                     emitter.EmitProperty("copy", () => emitter.EmitCopyObject(moduleSymbol.Name, @for, input: null, batchSize: batchSize));
                     break;
@@ -692,7 +688,7 @@ namespace Bicep.Core.Emit
                         case (true, null):
                             jsonWriter.WriteValue(resourceDependency.Name);
                             break;
-                        case (true, {} indexExpression):
+                        case (true, { } indexExpression):
                             emitter.EmitIndexedSymbolReference(resource, indexExpression, newContext);
                             break;
                     }
@@ -709,14 +705,14 @@ namespace Bicep.Core.Emit
                         case (true, null):
                             jsonWriter.WriteValue(moduleDependency.Name);
                             break;
-                        case (true, {} indexExpression):
+                        case (true, { } indexExpression):
                             emitter.EmitIndexedSymbolReference(moduleDependency, indexExpression, newContext);
                             break;
                     }
                     break;
                 default:
                     throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}");
-            }            
+            }
         }
 
         private void EmitClassicDependsOnEntry(JsonTextWriter jsonWriter, ExpressionEmitter emitter, SyntaxBase newContext, ResourceDependency dependency)

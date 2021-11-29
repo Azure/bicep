@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9608724785177199123"
+      "templateHash": "17746964786378268703"
     }
   },
   "parameters": {
@@ -29,7 +29,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "bastionPublicIpAddressName": "[format('{0}PublicIp', parameters('bastionHostName'))]"
   },

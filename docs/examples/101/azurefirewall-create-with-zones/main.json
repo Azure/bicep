@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1241648137071561964"
+      "templateHash": "9707219038654328345"
     }
   },
   "parameters": {
@@ -38,7 +38,6 @@
       ]
     }
   },
-  "functions": [],
   "variables": {
     "azureFirewallSubnetName": "AzureFirewallSubnet"
   },

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9228875185578849999"
+      "templateHash": "4403720800122513563"
     }
   },
   "parameters": {
@@ -96,7 +96,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "lockName": "[format('{0}-lck', resourceInfo('logAnalyticsWorkspace').name)]",
     "diagnosticsName": "[format('{0}-dgs', resourceInfo('logAnalyticsWorkspace').name)]"

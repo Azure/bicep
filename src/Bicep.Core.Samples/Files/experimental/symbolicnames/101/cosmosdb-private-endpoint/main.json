@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1770039253502711402"
+      "templateHash": "9614498971262374103"
     }
   },
   "parameters": {
@@ -34,7 +34,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "virtualNetwork": {
       "type": "Microsoft.Network/virtualNetworks",

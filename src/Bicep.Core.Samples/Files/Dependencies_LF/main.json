@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14200432294566499835"
+      "templateHash": "7668963420318347864"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "defaultValue": "steve"
     }
   },
-  "functions": [],
   "variables": {
     "deployTimeVar": "nigel",
     "dependentVar": {

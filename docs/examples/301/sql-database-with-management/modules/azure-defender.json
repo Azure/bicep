@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2829092679645401993"
+      "templateHash": "12798430629813662906"
     }
   },
   "parameters": {
@@ -16,7 +16,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",

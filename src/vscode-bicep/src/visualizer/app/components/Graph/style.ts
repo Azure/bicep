@@ -55,8 +55,6 @@ export async function createChildlessNodeBackgroundUri(
   const icon =
     type !== "<module>" ? await importResourceIconInline(type) : moduleIcon;
 
-  console.log(icon);
-
   type = type.split("/").pop() ?? type;
   type += isCollection ? "[]" : "";
 

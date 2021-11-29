@@ -7,10 +7,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4634281030914945145"
+      "templateHash": "14709297534671903997"
     }
   },
-  "functions": [],
   "resources": {
     "rg": {
       "type": "Microsoft.Resources/resourceGroups",

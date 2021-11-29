@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16280521018377216764"
+      "templateHash": "16490443389180409510"
     }
   },
   "parameters": {
@@ -28,7 +28,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "as": {
       "type": "Microsoft.Compute/availabilitySets",
