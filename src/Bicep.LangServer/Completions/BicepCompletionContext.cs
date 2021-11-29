@@ -199,10 +199,10 @@ namespace Bicep.LanguageServer.Completions
             return matchingNodes[^1] is Token token &&
                 token.Text == "#" &&
                 token.Span.GetEndPosition() == offset &&
-                IsPositionAtLineStart(bicepFile, token);
+                ShouldAllowCompletionAfterPoundSign(bicepFile, token);
         }
 
-        private static bool IsPositionAtLineStart(BicepFile bicepFile, Token token)
+        private static bool ShouldAllowCompletionAfterPoundSign(BicepFile bicepFile, Token token)
         {
             var lineStarts = bicepFile.LineStarts;
             var position = token.GetPosition();
@@ -210,6 +210,14 @@ namespace Bicep.LanguageServer.Completions
             var lineStart = lineStarts[line];
 
             if (position == lineStart)
+            {
+                return true;
+            }
+
+            var leadingTrivia = token.LeadingTrivia;
+
+            if (leadingTrivia.Count() == 1 &&
+                leadingTrivia.First().Type == SyntaxTriviaType.Whitespace)
             {
                 return true;
             }

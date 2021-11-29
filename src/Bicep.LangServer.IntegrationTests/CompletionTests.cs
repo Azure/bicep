@@ -1530,6 +1530,20 @@ param storageAccount string = 'testAccount");
         }
 
         [TestMethod]
+        public async Task VerifyCompletionRequestAfterPoundSign_WithWhiteSpaceAndCommentBeforePoundSign_ShouldDoNothing()
+        {
+            var fileWithCursors = @"   /* test */  #|";
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
+
+            var completions = await RequestCompletion(helper.Client, bicepFile, cursors.Single());
+
+            completions.Should().BeEmpty();
+        }
+
+        [TestMethod]
         public async Task VerifyCompletionRequestAfterPoundSign_WithWhiteSpaceBeforePoundSign_ShouldReturnCompletionItem()
         {
             var fileWithCursors = @"    #|
@@ -1541,7 +1555,11 @@ param storageAccount string = 'testAccount";
 
             var completions = await RequestCompletion(helper.Client, bicepFile, cursors.Single());
 
-            completions.Should().BeEmpty();
+            completions.Should().Contain(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword);
+
+            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword));
+            updatedFile.Should().HaveSourceText(@"    #disable-next-line|
+param storageAccount string = 'testAccount");
         }
 
         [TestMethod]
