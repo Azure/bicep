@@ -290,33 +290,39 @@ namespace Bicep.LanguageServer
                 JObject? prevRulesObject = JsonConvert.DeserializeObject<JObject>(prevRules.GetRawText());
                 JObject? curRulesObject = JsonConvert.DeserializeObject<JObject>(curRules.GetRawText());
 
-                if (prevRulesObject is not null &&
-                    curRulesObject is not null &&
-                    !JToken.DeepEquals(prevRulesObject, curRulesObject))
+                if (prevRulesObject is null || curRulesObject is null || JToken.DeepEquals(prevRulesObject, curRulesObject))
                 {
-                    foreach (JToken prevToken in prevRulesObject.Children())
+                    return;
+                }
+
+                var rules = curRulesObject.Children().Select(x => x.Path);
+
+                foreach (string rule in rules)
+                {
+                    var curToken = curRulesObject.SelectToken(rule);
+
+                    if (curToken is null)
                     {
-                        var rule = prevToken.Path;
-                        var curToken = curRulesObject.SelectToken(rule);
+                        continue;
+                    }
 
-                        if (curToken is null)
-                        {
-                            continue;
-                        }
+                    var curDiagnosticLevel = GetDiagnosticLevel(curToken);
+                    if (curDiagnosticLevel is null || curDiagnosticLevel != "off")
+                    {
+                        continue;
+                    }
 
-                        var curDiagnosticLevel = GetDiagnosticLevel(curToken);
-                        if (curDiagnosticLevel is null ||
-                            !curDiagnosticLevel.Equals("off", StringComparison.OrdinalIgnoreCase))
-                        {
-                            continue;
-                        }
+                    var prevToken = prevRulesObject.SelectToken(rule);
 
-                        if (GetDiagnosticLevel(prevToken) is string prevDiagnosticLevel &&
-                            prevDiagnosticLevel != "off"&&
-                            curDiagnosticLevel == "off")
-                        {
-                            server.SendNotification("telemetry/event", BicepTelemetryEvent.CreateDisableRuleInBicepConfig(rule));
-                        }
+                    if (prevToken is null)
+                    {
+                        continue;
+                    }
+
+                    var prevDiagnosticLevel = GetDiagnosticLevel(prevToken);
+                    if (prevDiagnosticLevel != "off" && curDiagnosticLevel == "off")
+                    {
+                        server.SendNotification("telemetry/event", BicepTelemetryEvent.CreateDisableRuleInBicepConfig(rule));
                     }
                 }
             }
