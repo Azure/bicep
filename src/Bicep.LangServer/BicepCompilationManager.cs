@@ -17,6 +17,7 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
+using Bicep.LanguageServer.Telemetry;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -295,19 +296,40 @@ namespace Bicep.LanguageServer
                 {
                     foreach (JToken prevToken in prevRulesObject.Children())
                     {
-                        var curToken = curRulesObject.SelectToken(prevToken.Path);
+                        var rule = prevToken.Path;
+                        var curToken = curRulesObject.SelectToken(rule);
 
-                        if (curToken is not null &&
-                            prevToken is JProperty prevProperty &&
-                            curToken is JProperty curProperty)
+                        if (curToken is null)
                         {
-                            var prevLevel = prevProperty.Value["level"];
-                            var curLevel = curProperty.Value["level"];
+                            continue;
+                        }
 
+                        var curDiagnosticLevel = GetDiagnosticLevel(curToken);
+                        if (curDiagnosticLevel is null ||
+                            !curDiagnosticLevel.Equals("off", StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        if (GetDiagnosticLevel(prevToken) is string prevDiagnosticLevel &&
+                            prevDiagnosticLevel != "off"&&
+                            curDiagnosticLevel == "off")
+                        {
+                            server.SendNotification("telemetry/event", BicepTelemetryEvent.CreateDisableRuleInBicepConfig(rule));
                         }
                     }
                 }
             }
+        }
+
+        private string? GetDiagnosticLevel(JToken jToken)
+        {
+            if (jToken["level"] is JToken diagnosticLevelToken)
+            {
+                return diagnosticLevelToken.Value<string>();
+            }
+
+            return null;
         }
 
         private RootConfiguration GetConfigurationSafely(DocumentUri documentUri, out Diagnostic? diagnostic)

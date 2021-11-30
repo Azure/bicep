@@ -93,5 +93,15 @@ namespace Bicep.LanguageServer.Telemetry
                     ["code"] = code,
                 },
             };
+
+        public static BicepTelemetryEvent CreateDisableRuleInBicepConfig(string rule)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.DisableRuleInBicepConfig,
+                Properties = new()
+                {
+                    ["rule"] = rule,
+                }
+            };
     }
 }

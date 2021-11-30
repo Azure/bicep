@@ -16,6 +16,7 @@ namespace Bicep.LanguageServer.Telemetry
             public const string ObjectBodySnippetInsertion = nameof(ObjectBodySnippetInsertion);
 
             public const string DisableNextLineDiagnostics = nameof(DisableNextLineDiagnostics);
+            public const string DisableRuleInBicepConfig = nameof(DisableRuleInBicepConfig);
         }
     }
 }
