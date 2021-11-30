@@ -144,7 +144,8 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("NonWorking/symbolic-names.json", "[27:16]: Decompilation of symbolic name templates is not currently supported")]
         public void Decompiler_raises_errors_for_unsupported_features(string resourcePath, string expectedMessage)
         {
-            Action onDecompile = () => {
+            Action onDecompile = () =>
+            {
                 var fileResolver = ReadResourceFile(resourcePath);
                 var decompiler = new TemplateDecompiler(TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features), BicepTestConstants.ConfigurationManager);
                 decompiler.DecompileFileWithModules(new Uri($"file:///{resourcePath}"), new Uri("file:///unused.bicep"));
@@ -178,7 +179,7 @@ namespace Bicep.Core.IntegrationTests
             var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
             {
                 [fileUri] = template,
-            });;
+            }); ;
 
             var decompiler = new TemplateDecompiler(TestTypeHelper.CreateEmptyProvider(), fileResolver, new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features), BicepTestConstants.ConfigurationManager);
             var (entryPointUri, filesToSave) = decompiler.DecompileFileWithModules(fileUri, PathHelper.ChangeToBicepExtension(fileUri));
@@ -203,7 +204,7 @@ namespace Bicep.Core.IntegrationTests
         [DataRow("greaterOrEquals(variables('a'), variables('b'))", "boolean", "a >= b")]
         [DataRow("equals(variables('a'), variables('b'))", "boolean", "a == b")]
         [DataRow("equals(toLower(variables('a')),toLower(variables('b')))", "boolean", "a =~ b")]
-        [DataRow("not(equals(variables('a'),variables('b')))","boolean", "a != b")]
+        [DataRow("not(equals(variables('a'),variables('b')))", "boolean", "a != b")]
         [DataRow("not(equals(toLower(variables('a')),toLower(variables('b'))))", "boolean", "a !~ b")]
         public void Decompiler_handles_banned_function_replacement(string expression, string type, string expectedValue)
         {

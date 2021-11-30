@@ -76,7 +76,7 @@ namespace Bicep.Cli.Logging
             return new NullDisposable();
         }
 
-        private class NullDisposable: IDisposable
+        private class NullDisposable : IDisposable
         {
             public void Dispose()
             {

@@ -39,7 +39,7 @@ namespace Bicep.Core.IntegrationTests
                 {
                     case SystemNamespaceType.BuiltInName:
                         return SystemNamespaceType.Create(aliasName);
-                    case {} _ when builderDict.TryGetValue(providerName) is {} builderFunc:
+                    case { } _ when builderDict.TryGetValue(providerName) is { } builderFunc:
                         return builderFunc(aliasName);
                 }
 
@@ -193,7 +193,7 @@ import sys2 from sys
                         ArmTemplateProviderName: "Ns1-Unused",
                         ArmTemplateProviderVersion: "1.0"),
                     ImmutableArray<TypeProperty>.Empty,
-                    new [] { 
+                    new[] {
                         new FunctionOverloadBuilder("ns1Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
                     },
@@ -209,7 +209,7 @@ import sys2 from sys
                         ArmTemplateProviderName: "Ns2-Unused",
                         ArmTemplateProviderVersion: "1.0"),
                     ImmutableArray<TypeProperty>.Empty,
-                    new [] { 
+                    new[] {
                         new FunctionOverloadBuilder("ns2Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
                     },

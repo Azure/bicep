@@ -177,22 +177,22 @@ namespace Bicep.Core.UnitTests.Utils
             var resourceType = ResourceTypeReference.Parse("Test.Rp/listFuncTests@2020-01-01");
 
             var noInputOutput = new ObjectType("NoInputOutput", TypeSymbolValidationFlags.Default,
-                new [] {
+                new[] {
                     new TypeProperty("noInputOutputVal", LanguageConstants.String, TypePropertyFlags.ReadOnly, "Foo description"),
                 }, null);
 
             var withInputInput = new ObjectType("WithInputInput", TypeSymbolValidationFlags.Default,
-                new [] {
+                new[] {
                     new TypeProperty("withInputInputVal", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.Required, "Foo description"),
                     new TypeProperty("optionalVal", LanguageConstants.String, TypePropertyFlags.WriteOnly, "optionalVal description"),
                     new TypeProperty("optionalLiteralVal", TypeHelper.CreateTypeUnion(new StringLiteralType("either"), new StringLiteralType("or")), TypePropertyFlags.WriteOnly, "optionalLiteralVal description"),
                 }, null);
             var withInputOutput = new ObjectType("WithInputOutput", TypeSymbolValidationFlags.Default,
-                new [] {
+                new[] {
                     new TypeProperty("withInputOutputVal", LanguageConstants.String, TypePropertyFlags.ReadOnly, "Foo description"),
                 }, null);
 
-            var overloads = new []
+            var overloads = new[]
             {
                 new FunctionOverloadBuilder("listNoInput")
                     .WithReturnType(noInputOutput)
@@ -210,7 +210,7 @@ namespace Bicep.Core.UnitTests.Utils
                     .Build(),
             };
 
-            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup, 
+            return new ResourceTypeComponents(resourceType, ResourceScope.ResourceGroup,
                 new ObjectType(
                     resourceType.FormatName(),
                     TypeSymbolValidationFlags.Default,

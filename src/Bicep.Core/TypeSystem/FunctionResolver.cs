@@ -25,12 +25,13 @@ namespace Bicep.Core.TypeSystem
             this.bannedFunctions = bannedFunctions?.ToImmutableArray() ?? ImmutableArray<BannedFunction>.Empty;
 
             var wildcardOverloads = this.functionOverloads.OfType<FunctionWildcardOverload>();
-            
+
             // prepopulate cache with all known (non-wildcard) symbols
             // TODO: make cache building logic lazy
             this.FunctionCache = this.functionOverloads
                 .Where(fo => fo is not FunctionWildcardOverload)
-                .GroupBy(fo => fo.Name, (name, overloads) => {
+                .GroupBy(fo => fo.Name, (name, overloads) =>
+                {
                     var matchingWildcards = wildcardOverloads.Where(x => x.WildcardRegex.IsMatch(name));
 
                     return new FunctionSymbol(declaringObject, name, overloads.Concat(matchingWildcards));
@@ -81,7 +82,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             // wildcard match (e.g. list*)
-            var wildcardOverloads =  FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
+            var wildcardOverloads = FunctionWildcardOverloads.Where(fo => fo.WildcardRegex.IsMatch(name));
 
             // create a new symbol for each unique name that matches the wildcard
             return wildcardOverloads.Any() ? new FunctionSymbol(declaringObject, name, wildcardOverloads) : null;
@@ -109,7 +110,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     case FunctionMatchResult.Match:
                         // for full match, just return the first one
-                        return new [] { overload };
+                        return new[] { overload };
 
                     case FunctionMatchResult.PotentialMatch:
                         potentialMatchOverloads.Add(overload);

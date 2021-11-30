@@ -9,11 +9,11 @@ using FluentAssertions.Collections;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class IDiagnosticCollectionExtensions 
+    public static class IDiagnosticCollectionExtensions
     {
         public static IDiagnosticCollectionAssertions Should(this IEnumerable<IDiagnostic> diagnostics)
         {
-            return new IDiagnosticCollectionAssertions(diagnostics); 
+            return new IDiagnosticCollectionAssertions(diagnostics);
         }
     }
 

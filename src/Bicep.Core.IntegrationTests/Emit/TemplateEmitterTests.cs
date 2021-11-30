@@ -122,7 +122,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             var bytes = File.ReadAllBytes(compiledFilePath);
             // No BOM at the start of the file
-            bytes.Take(3).Should().NotBeEquivalentTo(new [] { 0xEF, 0xBB, 0xBF }, "BOM should not be present");
+            bytes.Take(3).Should().NotBeEquivalentTo(new[] { 0xEF, 0xBB, 0xBF }, "BOM should not be present");
             bytes.First().Should().Be(0x7B, "template should always begin with a UTF-8 encoded open curly");
             bytes.Last().Should().Be(0x7D, "template should always end with a UTF-8 encoded close curly");
         }
@@ -199,7 +199,7 @@ this
 
             var (template, _, _) = CompilationHelper.Compile(StringUtils.ReplaceNewlines(inputFile, newlineSequence));
 
-            var expected = string.Join(newlineSequence, new [] { "this", "  is", "    a", "      multiline", "        string", "" });
+            var expected = string.Join(newlineSequence, new[] { "this", "  is", "    a", "      multiline", "        string", "" });
             template.Should().HaveValueAtPath("$.variables.multiline", expected);
         }
 

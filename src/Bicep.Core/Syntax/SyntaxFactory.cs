@@ -154,7 +154,7 @@ namespace Bicep.Core.Syntax
         {
             var valuesArray = values.ToArray();
             var expressionsArray = expressions.ToArray();
-            
+
             if (valuesArray.Length != expressionsArray.Length + 1)
             {
                 throw new ArgumentException($"The number of values must be 1 greater than the number of expressions");
@@ -198,7 +198,8 @@ namespace Bicep.Core.Syntax
 
         public static Token CreateStringInterpolationToken(bool isStart, bool isEnd, string value)
         {
-            return (isStart, isEnd) switch {
+            return (isStart, isEnd) switch
+            {
                 (true, true) => CreateToken(TokenType.StringComplete, $"'{EscapeBicepString(value)}'"),
                 (true, false) => CreateToken(TokenType.StringLeftPiece, $"'{EscapeBicepString(value)}${{"),
                 (false, false) => CreateToken(TokenType.StringMiddlePiece, $"}}{EscapeBicepString(value)}${{"),

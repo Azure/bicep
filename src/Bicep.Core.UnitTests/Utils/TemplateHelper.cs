@@ -13,7 +13,8 @@ namespace Bicep.Core.UnitTests.Utils
     public static class TemplateHelper
     {
         public static TemplateDeploymentScope GetDeploymentScope(string templateSchema)
-            => templateSchema switch {
+            => templateSchema switch
+            {
                 "https://schema.management.azure.com/schemas/2019-08-01/tenantDeploymentTemplate.json#" => TemplateDeploymentScope.Tenant,
                 "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#" => TemplateDeploymentScope.ManagementGroup,
                 "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#" => TemplateDeploymentScope.Subscription,

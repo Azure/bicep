@@ -177,7 +177,7 @@ output resourceARef string = resourceA.properties.myProp
         public void Existing_resources_can_be_referenced_at_other_scopes()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                     new TypeProperty("kind", LanguageConstants.String, TypePropertyFlags.ReadOnly, "kind property"),
@@ -220,7 +220,7 @@ output resourceARef string = resourceA.kind
         public void Errors_are_raised_for_existing_resources_at_invalid_scopes()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
@@ -256,7 +256,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' existing = {
         public void Errors_are_raised_for_extensions_of_existing_resources_at_invalid_scopes()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
@@ -284,7 +284,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
         public void Extensions_of_existing_resources_are_permitted()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
-            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new [] {
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
                 new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup | ResourceScope.Resource, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
                     new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
                 }, null))
@@ -340,7 +340,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
                 const string path = "$.resources[?(@.name == 'resourceA')].scope";
                 if (tenantScopeExpected)
                 {
-                    
+
                     template.Should().HaveValueAtPath(path, "/");
                 }
                 else

@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Semantics;
@@ -30,7 +30,7 @@ namespace Bicep.Core.DataFlow
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
         {
             var symbol = this.semanticModel.GetSymbolInfo(syntax);
-            if(symbol is LocalVariableSymbol local)
+            if (symbol is LocalVariableSymbol local)
             {
                 this.SymbolDependencies.Add(local);
             }

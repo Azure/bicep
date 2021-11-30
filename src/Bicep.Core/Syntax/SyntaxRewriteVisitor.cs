@@ -75,7 +75,7 @@ namespace Bicep.Core.Syntax
 
         private bool TryRewriteStrict<TSyntax, TOut>(TSyntax? syntax, [NotNullIfNotNull("syntax")] out TOut? newSyntax)
             where TSyntax : SyntaxBase
-            where TOut: SyntaxBase
+            where TOut : SyntaxBase
         {
             if (syntax is null)
             {

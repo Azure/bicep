@@ -120,11 +120,11 @@ output o int = 42
 ", BicepTestConstants.FileResolver);
             var offset = grouping.EntryPoint.ProgramSyntax.Declarations.OfType<VariableDeclarationSyntax>().Single().Value.Span.Position;
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping, BicepTestConstants.BuiltInConfiguration);
-            
+
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
-            
+
             AssertExpectedFunctions(completions, expectParamDefaultFunctions: false);
 
             // outputs can't be referenced so they should not show up in completions
@@ -139,7 +139,7 @@ output o int = 42
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[]{ ":", });
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[] { ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "p";
@@ -158,7 +158,7 @@ output o int = 42
             var grouping = SourceFileGroupingFactory.CreateFromText(@"param p string = ", BicepTestConstants.FileResolver);
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping, BicepTestConstants.BuiltInConfiguration);
 
-            var offset = ((ParameterDefaultValueSyntax) grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
+            var offset = ((ParameterDefaultValueSyntax)grouping.EntryPoint.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>().Single().Modifier!).DefaultValue.Span.Position;
 
             var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
             var completions = provider.GetFilteredCompletions(
@@ -197,7 +197,7 @@ output length int =
             var context = BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset);
             var completions = provider.GetFilteredCompletions(compilation, context).ToList();
 
-            AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] {"sys.concat", "az.resourceGroup", "sys.base64"});
+            AssertExpectedFunctions(completions, expectParamDefaultFunctions: false, new[] { "sys.concat", "az.resourceGroup", "sys.base64" });
 
             // outputs can't be referenced so they should not show up in completions
             completions.Where(c => c.Kind == SymbolKind.Output.ToCompletionItemKind()).Should().BeEmpty();
@@ -217,7 +217,7 @@ output length int =
             resourceCompletion.Kind.Should().Be(CompletionItemKind.Interface);
             resourceCompletion.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
             resourceCompletion.TextEdit!.TextEdit!.NewText.Should().Be(expectedResource);
-            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new []{ ":", });
+            resourceCompletion.CommitCharacters.Should().BeEquivalentTo(new[] { ":", });
             resourceCompletion.Detail.Should().Be(expectedResource);
 
             const string expectedParam = "concat";
@@ -355,15 +355,15 @@ output length int =
 */")]
         public void CommentShouldNotGiveAnyCompletions(string codeFragment)
         {
-        var grouping = SourceFileGroupingFactory.CreateFromText(codeFragment, BicepTestConstants.FileResolver);
-        var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping, BicepTestConstants.BuiltInConfiguration);
-        var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
+            var grouping = SourceFileGroupingFactory.CreateFromText(codeFragment, BicepTestConstants.FileResolver);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), grouping, BicepTestConstants.BuiltInConfiguration);
+            var provider = new BicepCompletionProvider(BicepTestConstants.FileResolver, snippetsProvider, new TelemetryProvider(Server), BicepTestConstants.Features);
 
-        var offset = codeFragment.IndexOf('|');
+            var offset = codeFragment.IndexOf('|');
 
-        var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
+            var completions = provider.GetFilteredCompletions(compilation, BicepCompletionContext.Create(BicepTestConstants.Features, compilation, offset));
 
-        completions.Should().BeEmpty();
+            completions.Should().BeEmpty();
         }
 
         private static void AssertExpectedDeclarationTypeCompletions(List<CompletionItem> completions)
@@ -429,7 +429,7 @@ output length int =
             var functionCompletions = completions.Where(c => c.Kind == CompletionItemKind.Function).OrderBy(c => c.Label).ToList();
 
             var namespaceProvider = BicepTestConstants.NamespaceProvider;
-            var namespaces = new [] {
+            var namespaces = new[] {
                 namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!,
                 namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup)!,
             };

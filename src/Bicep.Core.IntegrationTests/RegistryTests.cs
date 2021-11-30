@@ -271,7 +271,7 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
-        public static IEnumerable<object []> GetModuleInfoData()
+        public static IEnumerable<object[]> GetModuleInfoData()
         {
             yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7 };
             yield return new object[] { DataSets.Registry_LF.TemplateSpecs.Values, 2 };

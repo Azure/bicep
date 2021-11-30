@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics
             this.Value = value;
         }
 
-        public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax) this.DeclaringSyntax;
+        public OutputDeclarationSyntax DeclaringOutput => (OutputDeclarationSyntax)this.DeclaringSyntax;
 
         public SyntaxBase Value { get; }
 

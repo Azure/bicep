@@ -164,7 +164,7 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
                        ConvertFlag(IsFunctionArgumentContext(matchingNodes, offset), BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
-                       
+
             if (featureProvider.ImportsEnabled)
             {
                 kind |= ConvertFlag(IsImportSymbolFollower(matchingNodes, offset), BicepCompletionContextKind.ImportSymbolFollower) |
@@ -322,13 +322,13 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            if (matchingNodes.Count >=2 && matchingNodes[^1] is Token token)
+            if (matchingNodes.Count >= 2 && matchingNodes[^1] is Token token)
             {
                 // we have at least 2 matching nodes in the "stack" and the last one is a token
                 var node = matchingNodes[^2];
 
                 switch (node)
-            {
+                {
                     case ProgramSyntax programSyntax:
                         // the token at current position is inside a program node
                         // we're in a declaration if one of the following conditions is met:
@@ -478,7 +478,7 @@ namespace Bicep.LanguageServer.Completions
                     // if that's the case, the offset should match the end of the property span exactly
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => property.Colon is not SkippedTriviaSyntax && offset >= property.Colon.GetEndPosition() && property.Value is SkippedTriviaSyntax) ||
                     // the cursor position is after the colon that follows the property name
-                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset>= token.GetEndPosition()) ||
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset >= token.GetEndPosition()) ||
                     // the cursor is inside a string value of the property that is not interpolated
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax) && !stringSyntax.Expressions.Any()) ||
                     // the cursor could is a partial or full identifier
@@ -664,7 +664,7 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >=2 && offset == token.GetEndPosition():
+                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
                     // cursor is after the = token
                     // check if parent is of the right type
                     var parent = matchingNodes[^2];
@@ -707,7 +707,7 @@ namespace Bicep.LanguageServer.Completions
             var isInStringSegment = SyntaxMatcher.IsTailMatch<StringSyntax, Token>(matchingNodes, (_, token) => token.Type switch
             {
                 // The cursor is immediately after the { character: '...${|...}...'.
-                TokenType.StringLeftPiece when IsOffsetImmediatlyAfterNode(offset, token)=> false,
+                TokenType.StringLeftPiece when IsOffsetImmediatlyAfterNode(offset, token) => false,
                 TokenType.StringMiddlePiece when IsOffsetImmediatlyAfterNode(offset, token) => false,
                 // In other cases, we are in a string segment.
                 TokenType.StringComplete => true,
@@ -724,7 +724,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // It does not make sense to insert expressions at the cursor positions shown in the comments below.
-            return  !(
+            return !(
                 //║{              ║{             ║|{|           ║{            ║{
                 //║  foo: true |  ║ | foo: true  ║  foo: true   ║  foo: true  ║  |
                 //║}              ║}             ║}             ║|}|          ║}
@@ -791,7 +791,7 @@ namespace Bicep.LanguageServer.Completions
                         (operatorToken.Type == TokenType.Colon && operatorToken.GetPosition() == offset && ternaryOperation.TrueExpression is not SkippedTriviaSyntax) ||
                         (operatorToken.Type == TokenType.Colon && operatorToken.GetEndPosition() == offset && ternaryOperation.FalseExpression is not SkippedTriviaSyntax)));
         }
-        
+
         static bool IsOffsetImmediatlyAfterNode(int offset, SyntaxBase node) => node.Span.Position + node.Span.Length == offset;
 
         private static Range GetReplacementRange(BicepFile bicepFile, SyntaxBase innermostMatchingNode, int offset)

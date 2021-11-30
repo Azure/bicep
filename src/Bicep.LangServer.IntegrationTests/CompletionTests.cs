@@ -1214,8 +1214,8 @@ var modOut = m.outputs.inputTi|
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, file);
             var creationOptions = new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create(), FileResolver: fileResolver);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(
-                this.TestContext, 
-                file, 
+                this.TestContext,
+                file,
                 bicepFile.FileUri,
                 null,
                 creationOptions);
@@ -1236,7 +1236,7 @@ var modOut = m.outputs.inputTi|
 resource abc 'Test.Rp/basicTests@|'
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
                 completions.Should().SatisfyRespectively(
                     c => c.Should().SatisfyRespectively(
                         x => x.Label.Should().Be("2020-01-01"))));
@@ -1249,7 +1249,7 @@ resource abc 'Test.Rp/basicTests@|'
 resource abc 'Test.Rp/basic|'
 ";
 
-            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => 
+            await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions =>
                 completions.Should().SatisfyRespectively(
                     c => c.Should().Contain(
                         x => x.Label == "'Test.Rp/basicTests'")));
@@ -2125,7 +2125,7 @@ resource test";
             var start = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.Start);
             var end = PositionHelper.GetOffset(bicepFile.LineStarts, completion.TextEdit!.TextEdit!.Range.End);
             var textToInsert = completion.TextEdit!.TextEdit!.NewText;
-            
+
             // the completion handler returns tabs. convert to double space to simplify printing.
             textToInsert = textToInsert.Replace("\t", "  ");
 

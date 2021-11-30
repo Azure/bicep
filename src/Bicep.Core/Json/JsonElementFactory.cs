@@ -56,6 +56,6 @@ namespace Bicep.Core.Json
         }
 
         public static JsonElement? CreateNullableElement<T>(T? value, JsonSerializerOptions? options = null) =>
-            value is not null ?  CreateElement(value, options) : null;
+            value is not null ? CreateElement(value, options) : null;
     }
 }

@@ -51,7 +51,7 @@ namespace Bicep.LangServer.IntegrationTests
                                && pair.Value.Kind != SymbolKind.Namespace
                                // symbols whose identifiers have parse errors will have a name like <error> or <missing>
                                && pair.Value.Name.Contains("<") == false);
-            
+
             const string expectedNewText = "NewIdentifier";
             foreach (var (syntax, symbol) in validVariableAccessPairs)
             {
@@ -91,7 +91,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             var validFunctionCallPairs = symbolTable
                 .Where(pair => pair.Value.Kind == SymbolKind.Function)
-                .Select(pair=>pair.Key);
+                .Select(pair => pair.Key);
 
             foreach (var syntax in validFunctionCallPairs)
             {

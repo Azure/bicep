@@ -27,7 +27,7 @@ namespace Bicep.Core.Syntax
             AssertTokenType(colon as Token, nameof(colon), TokenType.Colon);
             AssertSyntaxType(closeSquare, nameof(closeSquare), typeof(Token), typeof(SkippedTriviaSyntax));
             AssertTokenType(closeSquare as Token, nameof(closeSquare), TokenType.RightSquare);
-            
+
             this.OpenSquare = openSquare;
             this.ForKeyword = forKeyword;
             this.VariableSection = variableSection;

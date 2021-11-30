@@ -206,7 +206,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.EnclosingDeclaration is SyntaxBase &&
                 model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(context.EnclosingDeclaration) is ResourceDeclarationSyntax parentSyntax &&
                 model.GetSymbolInfo(parentSyntax) is ResourceSymbol parentSymbol &&
-                parentSymbol.TryGetResourceType() is {} parentResourceType)
+                parentSymbol.TryGetResourceType() is { } parentResourceType)
             {
                 // This is more complex because we allow the API version to be omitted, so we want to make a list of unique values
                 // for the FQT, and then create a "no version" completion + a completion for each version.
@@ -264,7 +264,7 @@ namespace Bicep.LanguageServer.Completions
             if (context.Kind.HasFlag(BicepCompletionContextKind.ResourceTypeFollower))
             {
                 // Only when there is no existing assignment sign
-                if (context.EnclosingDeclaration is ResourceDeclarationSyntax { Assignment: SkippedTriviaSyntax { Elements: { IsDefaultOrEmpty: true }} })
+                if (context.EnclosingDeclaration is ResourceDeclarationSyntax { Assignment: SkippedTriviaSyntax { Elements: { IsDefaultOrEmpty: true } } })
                 {
                     const string equals = "=";
                     yield return CreateOperatorCompletion(equals, context.ReplacementRange, preselect: true);
@@ -468,7 +468,7 @@ namespace Bicep.LanguageServer.Completions
         {
             if (model.GetDeclaredType(resourceDeclarationSyntax)?.UnwrapArrayType() is ResourceType resourceType)
             {
-                var isResourceNested = model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(resourceDeclarationSyntax) is {};
+                var isResourceNested = model.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(resourceDeclarationSyntax) is { };
                 var snippets = SnippetsProvider.GetResourceBodyCompletionSnippets(resourceType, resourceDeclarationSyntax.IsExistingResource(), isResourceNested);
 
                 foreach (Snippet snippet in snippets)
@@ -820,7 +820,7 @@ namespace Bicep.LanguageServer.Completions
         private IEnumerable<CompletionItem> GetFunctionParamCompletions(SemanticModel model, BicepCompletionContext context)
         {
             if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument) ||
-                context.FunctionCall is not {} functionCall ||
+                context.FunctionCall is not { } functionCall ||
                 model.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
             {
                 return Enumerable.Empty<CompletionItem>();

@@ -115,7 +115,7 @@ namespace Bicep.Core.Semantics
             if (resourceBody == null)
             {
                 // If we have no body then there will be nothing to reference.
-                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames: new []{ "(none)", }));
+                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames: new[] { "(none)", }));
                 this.bindings.Add(syntax, error);
                 return;
             }
@@ -134,7 +134,7 @@ namespace Bicep.Core.Semantics
                 this.bindings.Add(syntax, error);
                 return;
             }
-            
+
             // This is valid.
             this.bindings.Add(syntax, referencedResource);
         }
@@ -287,12 +287,12 @@ namespace Bicep.Core.Semantics
         {
             // we must have a scope in the map for the loop body - otherwise binding won't work
             Debug.Assert(this.allLocalScopes.ContainsKey(syntax.Body), "this.allLocalScopes.ContainsKey(syntax.Body)");
-            
+
             // visit all the children
             base.VisitForSyntax(syntax);
         }
 
-        private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) => 
+        private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) =>
             this.LookupLocalSymbolByName(identifierSyntax, isFunctionCall) ?? LookupGlobalSymbolByName(identifierSyntax, isFunctionCall);
 
         private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
@@ -320,7 +320,7 @@ namespace Bicep.Core.Semantics
             return null;
         }
 
-        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax) => 
+        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax) =>
             // bind to first symbol matching the specified identifier
             // (errors about duplicate identifiers are emitted elsewhere)
             // loops currently are the only source of local symbols
@@ -367,8 +367,8 @@ namespace Bicep.Core.Semantics
                 SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaceResolver) :
                 SymbolValidator.ResolveUnqualifiedSymbol(foundSymbol, identifierSyntax, namespaceResolver, declarations.Keys);
         }
-        
-        private class ScopeCollectorVisitor: SymbolVisitor
+
+        private class ScopeCollectorVisitor : SymbolVisitor
         {
             private IDictionary<SyntaxBase, LocalScope> ScopeMap { get; } = new Dictionary<SyntaxBase, LocalScope>();
 

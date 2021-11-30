@@ -198,7 +198,7 @@ var dep2 = az.deploy|ment()
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
             var client = helper.Client;
             var references = await RequestReferences(client, bicepFile, cursors);
-            
+
             references.Should().SatisfyRespectively(
                 r => r.Should().HaveCount(3),
                 r => r.Should().HaveCount(3),

@@ -36,7 +36,7 @@ namespace Bicep.Core.Extensions
         public static ImmutableHashSet<TSource> ToImmutableHashSetExcludingNull<TSource>(this IEnumerable<TSource?> source, IEqualityComparer<TSource> comparer)
             where TSource : class
             => source.WhereNotNull().ToImmutableHashSet(comparer);
-            
+
         public static IEnumerable<T> AsEnumerable<T>(this T single)
         {
             yield return single;
