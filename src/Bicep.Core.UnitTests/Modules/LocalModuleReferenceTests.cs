@@ -10,7 +10,7 @@ namespace Bicep.Core.UnitTests.Modules
     [TestClass]
     public class LocalModuleReferenceTests
     {
-        [DataRow("test.bicep","test.bicep")]
+        [DataRow("test.bicep", "test.bicep")]
         [DataRow("../bar/foo.bicep", "../bar/foo.bicep")]
         [DataRow("./t.json", "./t.json")]
         [DataTestMethod]

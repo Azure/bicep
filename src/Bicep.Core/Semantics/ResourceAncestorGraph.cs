@@ -76,7 +76,7 @@ namespace Bicep.Core.Semantics
                 .ToImmutableDictionary(
                     child => child,
                     child => GetAncestorsYoungestToOldest(visitor.Ancestry, child).Reverse().ToImmutableArray());
-            
+
             return new ResourceAncestorGraph(ancestry);
         }
     }

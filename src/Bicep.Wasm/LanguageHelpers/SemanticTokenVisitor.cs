@@ -139,7 +139,7 @@ namespace Bicep.Wasm.LanguageHelpers
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
             AddTokenType(syntax.Name, SemanticTokenType.Variable);
-            AddTokenType(syntax.ExistingKeyword, SemanticTokenType.Keyword);            
+            AddTokenType(syntax.ExistingKeyword, SemanticTokenType.Keyword);
             base.VisitResourceDeclarationSyntax(syntax);
         }
 
@@ -172,13 +172,15 @@ namespace Bicep.Wasm.LanguageHelpers
 
         private void AddStringToken(Token token)
         {
-            var endInterp = token.Type switch {
+            var endInterp = token.Type switch
+            {
                 TokenType.StringLeftPiece => LanguageConstants.StringHoleOpen,
                 TokenType.StringMiddlePiece => LanguageConstants.StringHoleOpen,
                 _ => "",
             };
 
-            var startInterp = token.Type switch {
+            var startInterp = token.Type switch
+            {
                 TokenType.StringMiddlePiece => LanguageConstants.StringHoleClose,
                 TokenType.StringRightPiece => LanguageConstants.StringHoleClose,
                 _ => "",

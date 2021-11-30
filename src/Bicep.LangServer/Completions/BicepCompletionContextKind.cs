@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is accessing a nested resource.
         /// </summary>
         ResourceAccess = 1 << 12,
-        
+
         /// <summary>
         /// The current location needs target scope value.
         /// </summary>

@@ -147,7 +147,7 @@ namespace Bicep.LangServer.UnitTests
             // get again
             var actual = manager.GetCompilation(uri);
             actual.Should().NotBeNull();
-            
+
             // should be the same object
             actual.Should().BeSameAs(upserted);
 
@@ -410,7 +410,7 @@ namespace Bicep.LangServer.UnitTests
 
             const int version = 74;
             var uri = DocumentUri.File(this.TestContext.TestName);
-            
+
             // start by failing
             bool failUpsert = true;
             provider
@@ -470,7 +470,7 @@ namespace Bicep.LangServer.UnitTests
                 .All(message => string.Equals(message, expectedMessage) == false)
                 .Should().BeTrue();
         }
-        
+
 
         [TestMethod]
         public void SemanticModels_should_only_be_reloaded_on_sourcefile_or_dependent_sourcefile_changes()

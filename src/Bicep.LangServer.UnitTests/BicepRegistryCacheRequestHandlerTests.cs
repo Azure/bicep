@@ -42,7 +42,7 @@ namespace Bicep.LangServer.UnitTests
             var resolver = StrictMock.Of<IFileResolver>();
 
             var handler = new BicepRegistryCacheRequestHandler(dispatcher.Object, resolver.Object, ConfigurationManager);
-            
+
             var @params = new BicepRegistryCacheParams("/main.bicep", ModuleRefStr);
             (await FluentActions
                 .Awaiting(() => handler.Handle(@params, default))
@@ -83,7 +83,7 @@ namespace Bicep.LangServer.UnitTests
 
             const string UnqualifiedModuleRefStr = "example.azurecr.invalid/foo/bar:v3";
             const string ModuleRefStr = "br:" + UnqualifiedModuleRefStr;
-            
+
             var configuration = ConfigurationManager.GetBuiltInConfiguration();
             var moduleReference = OciArtifactModuleReference.TryParse(null, UnqualifiedModuleRefStr, configuration, out _)!;
             moduleReference.Should().NotBeNull();

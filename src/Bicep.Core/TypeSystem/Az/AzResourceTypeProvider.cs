@@ -404,12 +404,12 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // It's important to cache this result because generating the resource type is an expensive operation
-            var resourceType =  definedTypeCache.GetOrAdd(flags, typeReference, () =>
-            {
-                var resourceType = this.resourceTypeLoader.LoadType(typeReference);
+            var resourceType = definedTypeCache.GetOrAdd(flags, typeReference, () =>
+           {
+               var resourceType = this.resourceTypeLoader.LoadType(typeReference);
 
-                return SetBicepResourceProperties(resourceType, flags);
-            });
+               return SetBicepResourceProperties(resourceType, flags);
+           });
 
             return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
         }

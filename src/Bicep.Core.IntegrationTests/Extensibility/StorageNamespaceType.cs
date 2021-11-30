@@ -31,7 +31,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
         private class StorageTypeProvider : IResourceTypeProvider
         {
-            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new [] {
+            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new[] {
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("service"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
@@ -64,7 +64,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
             public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             {
-                if (resourceTypes.TryGetValue(reference) is not {} resourceType)
+                if (resourceTypes.TryGetValue(reference) is not { } resourceType)
                 {
                     return null;
                 }

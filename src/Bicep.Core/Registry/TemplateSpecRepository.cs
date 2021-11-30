@@ -15,7 +15,7 @@ namespace Bicep.Core.Registry
 
         public TemplateSpecRepository(ArmClient client)
         {
-            this.client =client;
+            this.client = client;
         }
 
         public async Task<TemplateSpecEntity> FindTemplateSpecByIdAsync(string templateSpecId, CancellationToken cancellationToken = default)

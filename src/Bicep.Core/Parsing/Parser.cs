@@ -1013,7 +1013,7 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
         {
-            if(!isResourceOrModuleContext)
+            if (!isResourceOrModuleContext)
             {
                 // we're not parsing a resource or module body, which means we can have any expression at this point
                 return this.Expression(WithExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals));
@@ -1339,7 +1339,7 @@ namespace Bicep.Core.Parsing
 
         private Token ExpectKeyword(string expectedKeyword)
         {
-            return GetOptionalKeyword(expectedKeyword) ?? 
+            return GetOptionalKeyword(expectedKeyword) ??
                 throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
         }
 

@@ -24,7 +24,7 @@ namespace Bicep.Core.Samples
         {
             dataSet.Name.Should().NotBeNullOrWhiteSpace();
             dataSet.DisplayName.Should().NotBeNullOrWhiteSpace();
-            
+
             // Bicep files may be empty
             dataSet.Bicep.Should().NotBeNull();
             dataSet.Tokens.Should().NotBeNull();

@@ -34,7 +34,7 @@ namespace Bicep.Core.Rewriters
             {
                 if (child is ObjectPropertySyntax objectProperty &&
                     objectProperty.TryGetKeyText() is string propertyKey &&
-                    objectType.Properties.TryGetValue(propertyKey) is {} propertyValue &&
+                    objectType.Properties.TryGetValue(propertyKey) is { } propertyValue &&
                     propertyValue.Flags.HasFlag(TypePropertyFlags.ReadOnly))
                 {
                     continue;

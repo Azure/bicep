@@ -41,7 +41,7 @@ namespace Bicep.Wasm
         public object CompileAndEmitDiagnostics(string content)
         {
             var (output, diagnostics) = CompileInternal(content);
-            
+
             return new
             {
                 template = output,
@@ -56,7 +56,8 @@ namespace Bicep.Wasm
         {
             var jsonUri = new Uri("inmemory:///main.json");
 
-            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string> {
+            var fileResolver = new InMemoryFileResolver(new Dictionary<Uri, string>
+            {
                 [jsonUri] = jsonContent,
             });
 
@@ -80,7 +81,8 @@ namespace Bicep.Wasm
             var tokenTypes = Enum.GetValues(typeof(SemanticTokenType)).Cast<SemanticTokenType>();
             var tokenStrings = tokenTypes.OrderBy(t => (int)t).Select(t => t.ToString().ToLowerInvariant());
 
-            return new {
+            return new
+            {
                 tokenModifiers = new string[] { },
                 tokenTypes = tokenStrings.ToArray(),
             };
@@ -94,16 +96,22 @@ namespace Bicep.Wasm
 
             var data = new List<int>();
             SemanticToken? prevToken = null;
-            foreach (var token in tokens) {
-                if (prevToken == null) {
+            foreach (var token in tokens)
+            {
+                if (prevToken == null)
+                {
                     data.Add(token.Line);
                     data.Add(token.Character);
                     data.Add(token.Length);
-                } else if (prevToken.Line != token.Line) {
+                }
+                else if (prevToken.Line != token.Line)
+                {
                     data.Add(token.Line - prevToken.Line);
                     data.Add(token.Character);
                     data.Add(token.Length);
-                } else {
+                }
+                else
+                {
                     data.Add(0);
                     data.Add(token.Character - prevToken.Character);
                     data.Add(token.Length);
@@ -115,7 +123,8 @@ namespace Bicep.Wasm
                 prevToken = token;
             }
 
-            return new {
+            return new
+            {
                 data = data.ToArray(),
             };
         }
@@ -176,7 +185,8 @@ namespace Bicep.Wasm
             var (startLine, startChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
             var (endLine, endChar) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.GetEndPosition());
 
-            return new {
+            return new
+            {
                 code = diagnostic.Code,
                 message = diagnostic.Message,
                 severity = ToMonacoSeverity(diagnostic.Level),
@@ -188,7 +198,8 @@ namespace Bicep.Wasm
         }
 
         private static int ToMonacoSeverity(DiagnosticLevel level)
-            => level switch {
+            => level switch
+            {
                 DiagnosticLevel.Info => 2,
                 DiagnosticLevel.Warning => 4,
                 DiagnosticLevel.Error => 8,

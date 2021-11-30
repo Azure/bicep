@@ -80,7 +80,7 @@ namespace Bicep.LanguageServer.Registry
                     // signal cancellation first
                     this.cancellationTokenSource.Cancel();
 
-                    lock(this.queue)
+                    lock (this.queue)
                     {
                         // unblock the background task
                         // this MUST happen after cancellation is signaled so the task immediately cancels
@@ -124,7 +124,7 @@ namespace Bicep.LanguageServer.Registry
 
                 // this blocks until restore is completed
                 // the dispatcher stores the results internally and manages their lifecycle
-                foreach(var item in items)
+                foreach (var item in items)
                 {
                     token.ThrowIfCancellationRequested();
                     if (!await this.moduleDispatcher.RestoreModules(item.Configuration, item.ModuleReferences))
@@ -146,7 +146,7 @@ namespace Bicep.LanguageServer.Registry
 
         private void UnsafeCollectQueueItems(List<QueueItem> items)
         {
-            while(this.queue.TryDequeue(out var item))
+            while (this.queue.TryDequeue(out var item))
             {
                 items.Add(item);
             }
@@ -154,7 +154,7 @@ namespace Bicep.LanguageServer.Registry
 
         private void CheckDisposed()
         {
-            if(this.disposed)
+            if (this.disposed)
             {
                 throw new ObjectDisposedException($"The {nameof(ModuleRestoreScheduler)} has already been disposed.", innerException: null);
             }

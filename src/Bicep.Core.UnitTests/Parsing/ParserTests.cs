@@ -53,7 +53,7 @@ namespace Bicep.Core.UnitTests.Parsing
                 program.Declarations.Should().AllBeOfType(expectedType, becauseFileValid);
             }
 
-            var invalidFiles = new []
+            var invalidFiles = new[]
             {
                 $"{text} {text}", // newline should be enforced between statements
             };
@@ -143,12 +143,12 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("test(2 + 3*4, true || false && null)", "test((2+(3*4)),(true||(false&&null)))", 2)]
         public void FunctionsShouldParseCorrectly(string text, string expected, int expectedArgumentCount)
         {
-            var expression = (FunctionCallSyntax) RunExpressionTest(text, expected, typeof(FunctionCallSyntax));
+            var expression = (FunctionCallSyntax)RunExpressionTest(text, expected, typeof(FunctionCallSyntax));
             expression.Arguments.Length.Should().Be(expectedArgumentCount);
         }
 
         [DataTestMethod]
-        [DataRow("foo","foo")]
+        [DataRow("foo", "foo")]
         [DataRow("bar", "bar")]
         public void VariablesShouldParseCorrectly(string text, string expected)
         {
@@ -156,7 +156,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("-10","(-10)")]
+        [DataRow("-10", "(-10)")]
         [DataRow("!x", "(!x)")]
         public void UnaryOperationsShouldParseCorrectly(string text, string expected)
         {
@@ -178,8 +178,8 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow("2 + 3 * 4", "(2+(3*4))")]
         [DataRow("3 * 4 + 7", "((3*4)+7)")]
         [DataRow("2 + 3 * 4 - 10 % 2 - 1", "(((2+(3*4))-(10%2))-1)")]
-        [DataRow("true || false && null","(true||(false&&null))")]
-        [DataRow("false && true =~ 'aaa' || null !~ 1","((false&&(true=~'aaa'))||(null!~1))")]
+        [DataRow("true || false && null", "(true||(false&&null))")]
+        [DataRow("false && true =~ 'aaa' || null !~ 1", "((false&&(true=~'aaa'))||(null!~1))")]
         public void BinaryOperationsShouldHaveCorrectPrecedence(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(BinaryOperationSyntax));
@@ -188,10 +188,10 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataTestMethod]
         [DataRow("2 + 3 + 4 -10", "(((2+3)+4)-10)")]
         [DataRow("2 * 3 / 5 % 100", "(((2*3)/5)%100)")]
-        [DataRow("2 && 3 && 4 && 5","(((2&&3)&&4)&&5)")]
-        [DataRow("true || null || 'a' || 'b'","(((true||null)||'a')||'b')")]
-        [DataRow("true == false != null == 4 != 'a'","((((true==false)!=null)==4)!='a')")]
-        [DataRow("x < y >= z > a","(((x<y)>=z)>a)")]
+        [DataRow("2 && 3 && 4 && 5", "(((2&&3)&&4)&&5)")]
+        [DataRow("true || null || 'a' || 'b'", "(((true||null)||'a')||'b')")]
+        [DataRow("true == false != null == 4 != 'a'", "((((true==false)!=null)==4)!='a')")]
+        [DataRow("x < y >= z > a", "(((x<y)>=z)>a)")]
         [DataRow("a == b !~ c =~ d != e", "((((a==b)!~c)=~d)!=e)")]
         public void BinaryOperationsWithEqualPrecedenceShouldBeLeftToRightAssociative(string text, string expected)
         {
@@ -199,7 +199,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("2 + !null * 4","(2+((!null)*4))")]
+        [DataRow("2 + !null * 4", "(2+((!null)*4))")]
         [DataRow("-2 +-3 + -4 -10", "((((-2)+(-3))+(-4))-10)")]
         [DataRow("2 + 3 * !4 - 10 % 2 - -1", "(((2+(3*(!4)))-(10%2))-(-1))")]
         [DataRow("-2 && 3 && !4 && 5", "((((-2)&&3)&&(!4))&&5)")]
@@ -209,14 +209,14 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("null ? 4: false","(null?4:false)")]
+        [DataRow("null ? 4: false", "(null?4:false)")]
         public void TernaryOperatorShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
         }
 
         [DataTestMethod]
-        [DataRow("null && !false ? 2+3*-8 : !13 < 10","((null&&(!false))?(2+(3*(-8))):((!13)<10))")]
+        [DataRow("null && !false ? 2+3*-8 : !13 < 10", "((null&&(!false))?(2+(3*(-8))):((!13)<10))")]
         [DataRow("true == false != null == 4 != 'a' ? -2 && 3 && !4 && 5 : true || false && null", "(((((true==false)!=null)==4)!='a')?((((-2)&&3)&&(!4))&&5):(true||(false&&null)))")]
         [DataRow("null ? 1 : 2 + 3", "(null?1:(2+3))")]
         public void TernaryOperatorShouldHaveLowestPrecedence(string text, string expected)
@@ -236,7 +236,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("(2+3)*4","(((2+3))*4)")]
+        [DataRow("(2+3)*4", "(((2+3))*4)")]
         [DataRow("true && (false || null)", "(true&&((false||null)))")]
         [DataRow("(null ? 1 : 2) + 3", "(((null?1:2))+3)")]
         [DataRow("null ?? (b ?? c) ?? a", "((null??((b??c)))??a)")]
@@ -253,9 +253,9 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("a.b","(a.b)")]
+        [DataRow("a.b", "(a.b)")]
         [DataRow("null.fail", "(null.fail)")]
-        [DataRow("foo().bar","(foo().bar)")]
+        [DataRow("foo().bar", "(foo().bar)")]
         [DataRow("a.b.c.foo().bar", "(((a.b).c).foo().bar)")]
         public void PropertyAccessShouldParseSuccessfully(string text, string expected)
         {
@@ -263,18 +263,18 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("a::b","(a::b)")]
+        [DataRow("a::b", "(a::b)")]
         [DataRow("null::fail", "(null::fail)")]
-        [DataRow("foo()::bar","(foo()::bar)")]
+        [DataRow("foo()::bar", "(foo()::bar)")]
         public void ResourceAccessShouldParseSuccessfully(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(ResourceAccessSyntax));
         }
 
         [DataTestMethod]
-        [DataRow("foo?bar:baz::biz","(foo?bar:(baz::biz))")]
-        [DataRow("foo?bar::biz.prop1:baz::boo","(foo?((bar::biz).prop1):(baz::boo))")]
-        [DataRow("foo::boo?bar:baz","((foo::boo)?bar:baz)")]
+        [DataRow("foo?bar:baz::biz", "(foo?bar:(baz::biz))")]
+        [DataRow("foo?bar::biz.prop1:baz::boo", "(foo?((bar::biz).prop1):(baz::boo))")]
+        [DataRow("foo::boo?bar:baz", "((foo::boo)?bar:baz)")]
         public void ResourceAccessShouldParseSuccessfullyWithTernaries(string text, string expected)
         {
             RunExpressionTest(text, expected, typeof(TernaryOperationSyntax));
@@ -290,7 +290,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("a.b.c + 0","(((a.b).c)+0)")]
+        [DataRow("a.b.c + 0", "(((a.b).c)+0)")]
         [DataRow("(a.b[c]).c[d]+q()", "((((((a.b)[c])).c)[d])+q())")]
         public void MemberAccessShouldBeLeftToRightAssociative(string text, string expected)
         {
@@ -299,7 +299,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("a::b::c + 0","(((a::b)::c)+0)")]
+        [DataRow("a::b::c + 0", "(((a::b)::c)+0)")]
         [DataRow("(a::b[c])::c[d]+q()", "((((((a::b)[c]))::c)[d])+q())")]
         public void ResourceAccessShouldBeLeftToRightAssociative(string text, string expected)
         {
@@ -322,7 +322,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [DataTestMethod]
-        [DataRow("a[b]","(a[b])")]
+        [DataRow("a[b]", "(a[b])")]
         [DataRow("1[b]", "(1[b])")]
         [DataRow("a[12]", "(a[12])")]
         [DataRow("null[foo()]", "(null[foo()])")]
@@ -343,7 +343,7 @@ namespace Bicep.Core.UnitTests.Parsing
         [DataRow(@"'Hello\u{20}World! ☕'", @"'Hello\u{20}World! ☕'", @"Hello World! ☕")]
         public void UnicodeEscapesShouldProduceExpectedCharacters(string text, string expectedSerialized, string expectedLiteralValue)
         {
-            var syntax = (StringSyntax) RunExpressionTest(text, expectedSerialized, typeof(StringSyntax));
+            var syntax = (StringSyntax)RunExpressionTest(text, expectedSerialized, typeof(StringSyntax));
             var value = syntax.TryGetLiteralValue();
             value.Should().NotBeNull();
             value.Should().Be(expectedLiteralValue);
