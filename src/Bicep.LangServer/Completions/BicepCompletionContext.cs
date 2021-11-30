@@ -12,6 +12,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -102,10 +103,34 @@ namespace Bicep.LanguageServer.Completions
             var triviaMatchingOffset = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, offset);
             switch (triviaMatchingOffset?.Type)
             {
+                case SyntaxTriviaType.Whitespace:
+                    var position = triviaMatchingOffset.Span.Position;
+                    if (position > 0)
+                    {
+                        var previousTrivia = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, position - 1);
+
+                        if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
+                        {
+                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                        }
+                    }
+                    break;
+                case SyntaxTriviaType.DisableNextLineDiagnosticsDirective:
+                    // This will handle the following case: #disable-next-line |
+                    if (triviaMatchingOffset.Text.EndsWith(' '))
+                    {
+                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                    }
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     //we're in a comment, no hints here
                     return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+            }
+
+            if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
+            {
+                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
@@ -167,6 +192,37 @@ namespace Bicep.LanguageServer.Completions
                 functionCallInfo.node,
                 functionArgumentInfo.node,
                 activeScopes);
+        }
+
+        private static bool IsDisableNextLineDiagnosticsDirectiveStartContext(BicepFile bicepFile, int offset, List<SyntaxBase> matchingNodes)
+        {
+            return matchingNodes[^1] is Token token &&
+                token.Text == "#" &&
+                token.Span.GetEndPosition() == offset &&
+                ShouldAllowCompletionAfterPoundSign(bicepFile, token);
+        }
+
+        private static bool ShouldAllowCompletionAfterPoundSign(BicepFile bicepFile, Token token)
+        {
+            var lineStarts = bicepFile.LineStarts;
+            var position = token.GetPosition();
+            (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, position);
+            var lineStart = lineStarts[line];
+
+            if (position == lineStart)
+            {
+                return true;
+            }
+
+            var triviaMatchingLineStart = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, lineStart);
+
+            if (triviaMatchingLineStart?.Type == SyntaxTriviaType.Whitespace &&
+                triviaMatchingLineStart.GetEndPosition() == position)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

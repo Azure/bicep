@@ -143,5 +143,15 @@ namespace Bicep.LanguageServer.Completions
         /// We're inside a function parentheses: 'someFunc(|)'
         /// </summary>
         FunctionArgument = 1 << 25,
+
+        /// <summary>
+        /// The current location is after # sign.
+        /// </summary>
+        DisableNextLineDiagnosticsDirectiveStart = 1 << 25,
+
+        /// <summary>
+        /// The current location is after '#disable-next-line |'.
+        /// </summary>
+        DisableNextLineDiagnosticsCodes = 1 << 26
     }
 }
