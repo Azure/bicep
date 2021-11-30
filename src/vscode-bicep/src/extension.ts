@@ -71,7 +71,7 @@ export async function activate(
 
     // Register commands.
     await extension
-      .register(new CommandManager())
+      .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient),
         new InsertResourceCommand(languageClient),
