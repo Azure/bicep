@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3183603680113590113"
+      "templateHash": "16488040895619523397"
     }
   },
   "parameters": {
@@ -39,7 +39,6 @@
       "defaultValue": "bicep-demo-vm"
     }
   },
-  "functions": [],
   "variables": {
     "defaultLocation": "[resourceGroup().location]",
     "defaultVmNicName": "[format('{0}-nic', parameters('vmName'))]",

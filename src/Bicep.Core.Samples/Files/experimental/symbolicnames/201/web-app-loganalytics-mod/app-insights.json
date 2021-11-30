@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16931680506919734641"
+      "templateHash": "17786095178266411096"
     }
   },
   "parameters": {
@@ -22,7 +22,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]"
   },

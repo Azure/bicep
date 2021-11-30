@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15833754718106880235"
+      "templateHash": "12818580016231391461"
     }
   },
   "parameters": {
@@ -30,7 +30,6 @@
       "type": "secureString"
     }
   },
-  "functions": [],
   "resources": {
     "server": {
       "type": "Microsoft.Sql/servers",

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2670077569169270536"
+      "templateHash": "4183069466382039979"
     }
   },
   "parameters": {
@@ -130,7 +130,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "webapp_dns_name": ".azurewebsites.net",
     "privateDNSZoneName": "privatelink.azurewebsites.net",

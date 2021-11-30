@@ -57,6 +57,8 @@ namespace Bicep.Core
 
         public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
 
+        public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
+
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");
 
         public static readonly ImmutableSortedSet<string> DeclarationKeywords = new[] { ParameterKeyword, VariableKeyword, ResourceKeyword, OutputKeyword, ModuleKeyword }.ToImmutableSortedSet(StringComparer.Ordinal);
@@ -98,6 +100,7 @@ namespace Bicep.Core
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
+        public const string ResourcePropertiesPropertyName = "properties";
 
         // types
         public const string TypeNameString = "string";
@@ -105,6 +108,9 @@ namespace Bicep.Core
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
+
+        public static readonly StringComparer ResourceTypeComparer = StringComparer.OrdinalIgnoreCase;
+        public static readonly StringComparison ResourceTypeComparison = StringComparison.OrdinalIgnoreCase;
 
         public const string StringDelimiter = "'";
         public const string StringHoleOpen = "${";

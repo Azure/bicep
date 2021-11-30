@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12072048631897717900"
+      "templateHash": "2831520916330363176"
     }
   },
   "parameters": {
@@ -51,7 +51,6 @@
       ]
     }
   },
-  "functions": [],
   "variables": {
     "firewallname": "[format('{0}-fw', parameters('vnetname'))]",
     "publicipname": "[format('{0}-pip', parameters('vnetname'))]",

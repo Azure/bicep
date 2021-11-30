@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <Deterministic>true</Deterministic>
-    <LangVersion>9.0</LangVersion>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -15,8 +15,13 @@
     <RuntimeIdentifiers>win-x64;linux-x64;linux-musl-x64;osx-x64</RuntimeIdentifiers>
   </PropertyGroup>
 
+  <!-- set default framework - each project can still override -->
+  <PropertyGroup Condition=" '$(MSBuildProjectExtension)' == '.csproj' ">
+    <TargetFramework>net6.0</TargetFramework>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.2" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.3"  PrivateAssets="All" />
   </ItemGroup>
 </Project>

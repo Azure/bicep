@@ -71,7 +71,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetVariableValueCompletions(context))
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetTargetScopeCompletions(model, context))
-                .Concat(GetImportCompletions(model, context));
+                .Concat(GetImportCompletions(model, context))
+                .Concat(GetFunctionParamCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
@@ -811,6 +812,21 @@ namespace Bicep.LanguageServer.Completions
             }
 
             return GetValueCompletionsForType(arrayType.Item.Type, context.ReplacementRange, loopsAllowed: false);
+        }
+
+        private IEnumerable<CompletionItem> GetFunctionParamCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.FunctionArgument) ||
+                context.FunctionCall is not {} functionCall ||
+                model.GetSymbolInfo(functionCall) is not FunctionSymbol functionSymbol)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var argIndex = context.FunctionArgument is null ? 0 : functionCall.Arguments.IndexOf(context.FunctionArgument);
+            var argType = functionSymbol.GetDeclaredArgumentType(argIndex);
+
+            return GetValueCompletionsForType(argType, context.ReplacementRange, loopsAllowed: false);
         }
 
         private IEnumerable<CompletionItem> GetValueCompletionsForType(TypeSymbol? type, Range replacementRange, bool loopsAllowed)

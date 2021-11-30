@@ -4,7 +4,7 @@ We are very happy to accept community contributions to Bicep, whether those are 
 
 ## Getting Started
 
-* If you haven't already, you will need [dotnet](https://dotnet.microsoft.com/download) core sdk 5.0.100 and [node + npm](https://nodejs.org/en/download/) 10 (or later) installed locally to build and run this project.
+* If you haven't already, you will need [dotnet](https://dotnet.microsoft.com/download) core sdk 6.0.100 and [node + npm](https://nodejs.org/en/download/) 10 (or later) installed locally to build and run this project.
 * You are free to work on Bicep on any platform using any editor, but you may find it quickest to get started using [VSCode](https://code.visualstudio.com/Download) with the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp).
 * Fork this repo (see [this forking guide](https://guides.github.com/activities/forking/) for more information).
 * Checkout the repo locally with `git clone git@github.com:{your_username}/bicep.git`.
@@ -70,7 +70,7 @@ If you have an active branch pushed to your GitHub fork, you can use the "Update
 * On the first run, you'll need to ensure you have installed all the npm packages required by the Bicep VSCode extension with the following:
   * `cd src/vscode-bicep`
   * `npm i`
-* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, create a symbolic link in `src/vscode-bicep` named `bicepLanguageServer` to `../Bicep.LangServer/bin/Debug/net5.0`.
+* In the [VSCode Run View](https://code.visualstudio.com/Docs/editor/debugging), select the "Bicep VSCode Extension" task, and press the "Start" button. This will launch a new VSCode window with the Bicep extension and LanguageServer containing your changes. When running on WSL, create a symbolic link in `src/vscode-bicep` named `bicepLanguageServer` to `../Bicep.LangServer/bin/Debug/net6.0`.
 * If you want the ability to put breakpoints and step through the C# code, you can also use the "Attach" run configuration once the extension host has launched, and select the Bicep LanguageServer process by searching for "bicep".
 
 ### Running the Bicep CLI

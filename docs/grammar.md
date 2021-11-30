@@ -31,6 +31,8 @@ NL -> ("\n" | "\r")+
 
 decorator -> "@" decoratorExpression NL
 
+disableNextLineDiagnosticsDirective-> #disable-next-line diagnosticCode1 diagnosticCode2 diagnosticCode3 NL
+
 expression -> 
   binaryExpression |
   binaryExpression "?" expression ":" expression

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2539878779386005088"
+      "templateHash": "11268939364565345832"
     }
   },
   "parameters": {
@@ -36,7 +36,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "cpuCores": "0.5",
     "memoryInGb": "0.7",

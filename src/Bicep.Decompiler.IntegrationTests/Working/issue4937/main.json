@@ -1,0 +1,43 @@
+﻿{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dataFactoryName": {
+      "type": "string"
+    },
+    "backupIntervalInHours": {
+      "type": "int"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "name": "[concat(parameters('dataFactoryName'), '/Backup Trigger')]",
+      "type": "Microsoft.DataFactory/factories/triggers",
+      "apiVersion": "2018-06-01",
+      "properties": {
+        "annotations": [],
+        "runtimeState": "Started",
+        "pipelines": [
+          {
+            "pipelineReference": {
+              "referenceName": "Backup Database",
+              "type": "PipelineReference"
+            },
+            "parameters": {}
+          }
+        ],
+        "type": "ScheduleTrigger",
+        "typeProperties": {
+          "recurrence": {
+            "frequency": "Hour",
+            "interval": "[parameters('backupIntervalInHours')]",
+            "startTime": "2020-05-13T08:00:00Z", // The timestamp should not be changed by the decompiler.
+            "timeZone": "UTC"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

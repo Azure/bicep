@@ -80,7 +80,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             private void VisitResourceOrModuleDeclaration(SyntaxBase declaringSyntax, ObjectSyntax body)
             {
-                var dependsOnProperty = body.SafeGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
+                var dependsOnProperty = body.TryGetPropertyByName(LanguageConstants.ResourceDependsOnPropertyName);
                 if (dependsOnProperty?.Value is ArraySyntax declaredDependencies)
                 {
                     if (model.GetSymbolInfo(declaringSyntax) is DeclaredSymbol thisResource)

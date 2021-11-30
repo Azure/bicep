@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11777732354347161703"
+      "templateHash": "2127362373278027992"
     }
   },
   "parameters": {
@@ -22,7 +22,6 @@
       "defaultValue": "20.49.199.4"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Compute/proximityPlacementGroups",
@@ -73,7 +72,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6221020817843547137"
+              "templateHash": "10154278416046209142"
             }
           },
           "parameters": {
@@ -86,7 +85,6 @@
               "defaultValue": "1.1.1.1"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkSecurityGroups",
@@ -207,7 +205,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12368116353023022869"
+              "templateHash": "3088228858602383667"
             }
           },
           "parameters": {
@@ -236,7 +234,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",
@@ -373,7 +370,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7325281056093512278"
+              "templateHash": "902766231246252587"
             }
           },
           "parameters": {
@@ -394,7 +391,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",
@@ -507,7 +503,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7325281056093512278"
+              "templateHash": "902766231246252587"
             }
           },
           "parameters": {
@@ -528,7 +524,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkInterfaces",

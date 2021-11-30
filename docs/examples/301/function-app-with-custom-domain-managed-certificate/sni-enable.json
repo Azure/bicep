@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11275464343508829008"
+      "templateHash": "5111727942093536492"
     }
   },
   "parameters": {
@@ -19,7 +19,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Web/sites/hostNameBindings",

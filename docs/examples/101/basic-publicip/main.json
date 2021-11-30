@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3949719055369974346"
+      "templateHash": "16554428201548314630"
     }
   },
   "parameters": {
@@ -14,7 +14,6 @@
       "defaultValue": "mypublicip"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
@@ -40,7 +39,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17282422556248381741"
+              "templateHash": "7368437974421050543"
             }
           },
           "parameters": {
@@ -59,7 +58,6 @@
               "type": "bool"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",

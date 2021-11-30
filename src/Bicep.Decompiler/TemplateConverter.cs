@@ -51,15 +51,22 @@ namespace Bicep.Decompiler
             Uri bicepFileUri,
             string content)
         {
+            JObject templateObject;
+            using (var reader = new JsonTextReader(new StringReader(content)))
+            {
+                reader.DateParseHandling = DateParseHandling.None;
+                templateObject = JObject.Load(reader, new JsonLoadSettings
+                {
+                    CommentHandling = CommentHandling.Ignore,
+                    LineInfoHandling = LineInfoHandling.Load,
+                });
+            }
+
             var instance = new TemplateConverter(
                 workspace,
                 fileResolver,
                 bicepFileUri,
-                JObject.Parse(content, new JsonLoadSettings
-                {
-                    CommentHandling = CommentHandling.Ignore,
-                    LineInfoHandling = LineInfoHandling.Load,
-                }),
+                templateObject,
                 new());
 
             return (instance.Parse(), instance.jsonTemplateUrisByModule);

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16108886032851165637"
+      "templateHash": "164658607170661262"
     }
   },
   "parameters": {
@@ -19,7 +19,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "storageAccountName": "[format('storage{0}', uniqueString(resourceGroup().id))]",
     "endpointName": "[format('endpoint-{0}', uniqueString(resourceGroup().id))]",

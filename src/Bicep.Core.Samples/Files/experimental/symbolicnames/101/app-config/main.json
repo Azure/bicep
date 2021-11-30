@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8961250868775091784"
+      "templateHash": "7212141133516879039"
     }
   },
   "parameters": {
@@ -38,7 +38,6 @@
       "defaultValue": "the-content-type"
     }
   },
-  "functions": [],
   "resources": {
     "config": {
       "type": "Microsoft.AppConfiguration/configurationStores",

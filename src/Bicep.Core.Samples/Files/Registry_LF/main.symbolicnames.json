@@ -7,10 +7,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7694139291897762231"
+      "templateHash": "3495279111630936794"
     }
   },
-  "functions": [],
   "variables": {
     "websites": [
       {
@@ -62,7 +61,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4938872769570543882"
+              "templateHash": "15019246960605065046"
             }
           },
           "parameters": {
@@ -74,7 +73,6 @@
               "defaultValue": "B1"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/serverfarms",
@@ -124,7 +122,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4938872769570543882"
+              "templateHash": "15019246960605065046"
             }
           },
           "parameters": {
@@ -136,7 +134,6 @@
               "defaultValue": "B1"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/serverfarms",
@@ -199,7 +196,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "228337352270462398"
+              "templateHash": "16733674086069502117"
             }
           },
           "parameters": {
@@ -220,7 +217,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/sites",
@@ -301,7 +297,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "228337352270462398"
+              "templateHash": "16733674086069502117"
             }
           },
           "parameters": {
@@ -322,7 +318,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/sites",
@@ -466,7 +461,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11372722735750462419"
+              "templateHash": "2505217721104922110"
             }
           },
           "parameters": {
@@ -474,7 +469,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "port": {
@@ -510,7 +504,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13832203834710666930"
+              "templateHash": "12121705673191614943"
             }
           },
           "parameters": {
@@ -518,7 +512,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv4": {
@@ -554,7 +547,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6585722063237736357"
+              "templateHash": "7823936554124086035"
             }
           },
           "parameters": {
@@ -562,7 +555,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv4port": {
@@ -598,7 +590,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15909077893907372746"
+              "templateHash": "5093140793351809054"
             }
           },
           "parameters": {
@@ -606,7 +598,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv6": {
@@ -642,7 +633,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1421603444460114359"
+              "templateHash": "969477156678070948"
             }
           },
           "parameters": {
@@ -650,7 +641,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv6port": {

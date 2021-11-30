@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12157994041649169535"
+      "templateHash": "9335090027480898711"
     }
   },
   "parameters": {
@@ -24,7 +24,6 @@
       "defaultValue": "Standard"
     }
   },
-  "functions": [],
   "variables": {
     "functionAppName": "[format('fn-{0}', parameters('appNameSuffix'))]",
     "appServicePlanName": "FunctionPlan",

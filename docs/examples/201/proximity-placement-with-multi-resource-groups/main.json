@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7531632338313062776"
+      "templateHash": "1963734572438868460"
     }
   },
   "parameters": {
@@ -26,7 +26,6 @@
       "defaultValue": 1
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/resourceGroups",
@@ -68,7 +67,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6221020817843547137"
+              "templateHash": "10154278416046209142"
             }
           },
           "parameters": {
@@ -81,7 +80,6 @@
               "defaultValue": "1.1.1.1"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkSecurityGroups",
@@ -203,7 +201,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16228755905477314031"
+              "templateHash": "17798777799174646976"
             }
           },
           "parameters": {
@@ -229,7 +227,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Compute/proximityPlacementGroups",
@@ -383,7 +380,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4387499852680388806"
+              "templateHash": "838009304435023175"
             }
           },
           "parameters": {
@@ -404,7 +401,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Compute/availabilitySets",
@@ -536,7 +532,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4387499852680388806"
+              "templateHash": "838009304435023175"
             }
           },
           "parameters": {
@@ -557,7 +553,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Compute/availabilitySets",

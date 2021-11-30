@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "13857232367360321477"
+      "templateHash": "2953203708405635961"
     }
   },
   "parameters": {
@@ -16,7 +16,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",

@@ -20,12 +20,15 @@ namespace Bicep.Core.Diagnostics
 {
     public static class DiagnosticBuilder
     {
+        public const string UseStringInterpolationInsteadClause = "Use string interpolation instead.";
+        
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public class DiagnosticBuilderInternal
         {
+
             private const string TypeInaccuracyClause = " If this is an inaccuracy in the documentation, please report it to the Bicep Team.";
             private static readonly Uri TypeInaccuracyLink = new("https://aka.ms/bicep-type-issues");
 
@@ -315,10 +318,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP044",
                 $"Cannot apply operator \"{operatorName}\" to operand of type \"{type}\".");
 
-            public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2) => new(
+            public ErrorDiagnostic BinaryOperatorInvalidType(string operatorName, TypeSymbol type1, TypeSymbol type2, string? additionalInfo) => new(
                 TextSpan,
                 "BCP045",
-                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".");
+                $"Cannot apply operator \"{operatorName}\" to operands of type \"{type1}\" and \"{type2}\".{(additionalInfo is null ? string.Empty : " " + additionalInfo)}");
 
             public ErrorDiagnostic ValueTypeMismatch(TypeSymbol type) => new(
                 TextSpan,
@@ -465,21 +468,21 @@ namespace Bicep.Core.Diagnostics
                 "BCP070",
                 $"Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterType}\".");
 
-            public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int mininumArgumentCount, int? maximumArgumentCount)
+            public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
             {
                 string expected;
 
                 if (!maximumArgumentCount.HasValue)
                 {
-                    expected = $"as least {mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                    expected = $"at least {minimumArgumentCount} {(minimumArgumentCount == 1 ? "argument" : "arguments")}";
                 }
-                else if (mininumArgumentCount == maximumArgumentCount.Value)
+                else if (minimumArgumentCount == maximumArgumentCount.Value)
                 {
-                    expected = $"{mininumArgumentCount} {(mininumArgumentCount == 1 ? "argument" : "arguments")}";
+                    expected = $"{minimumArgumentCount} {(minimumArgumentCount == 1 ? "argument" : "arguments")}";
                 }
                 else
                 {
-                    expected = $"{mininumArgumentCount} to {maximumArgumentCount} arguments";
+                    expected = $"{minimumArgumentCount} to {maximumArgumentCount} arguments";
                 }
 
                 return new ErrorDiagnostic(
@@ -1335,6 +1338,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP225",
                 $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this object is disabled.");
 
+            public ErrorDiagnostic MissingDiagnosticCodes() => new(
+                TextSpan,
+                "BCP226",
+                "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
+            );
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

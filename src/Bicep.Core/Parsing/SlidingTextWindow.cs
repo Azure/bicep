@@ -107,6 +107,19 @@ namespace Bicep.Core.Parsing
             position += offset;
             offset = 0;
         }
+
+        public string GetTextBetweenLineStartAndCurrentPosition()
+        {
+            var textBeforePosition = text.Substring(0, position);
+            int indexOfPreviousNewLine = textBeforePosition.LastIndexOf('\n');
+
+            if (indexOfPreviousNewLine < 0|| position == 0)
+            {
+                return text.Substring(0, position);
+            }
+
+            var postionAfterNewLine = indexOfPreviousNewLine + 1;
+            return text.Substring(postionAfterNewLine, position - postionAfterNewLine);
+        }
     }
 }
-

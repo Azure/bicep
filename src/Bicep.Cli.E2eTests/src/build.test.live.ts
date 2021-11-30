@@ -12,12 +12,10 @@ import {
   expectBrModuleStructure,
   publishModule,
 } from "./utils/br";
-import {
-  invokingBicepCommand,
-  invokingBicepCommandWithEnvOverrides,
-} from "./utils/command";
+import { invokingBicepCommand } from "./utils/command";
 import {
   expectFileExists,
+  pathToCachedTsModuleFile,
   pathToExampleFile,
   pathToTempFile,
   readFileSync,
@@ -57,24 +55,24 @@ module test 'br:${environment.registryUri}/does-not-exist:v-never' = {
         testArea
       );
 
-      const envOverrides = createEnvironmentOverrides(environment);
+      const environmentOverrides = createEnvironmentOverrides(environment);
       const storageRef = builder.getBicepReference("storage", "v1");
       publishModule(
-        envOverrides,
+        environmentOverrides,
         storageRef,
-        "local-modules" + environment.suffix,
+        "modules" + environment.suffix,
         "storage.bicep"
       );
 
       const passthroughRef = builder.getBicepReference("passthrough", "v1");
       publishModule(
-        envOverrides,
+        environmentOverrides,
         passthroughRef,
-        "local-modules" + environment.suffix,
+        "modules" + environment.suffix,
         "passthrough.bicep"
       );
 
-      const bicep = `
+      const mainContent = `
 module passthrough '${passthroughRef}' = {
   name: 'passthrough'
   params: {
@@ -83,27 +81,65 @@ module passthrough '${passthroughRef}' = {
   }
 }
 
-module storage '${storageRef}' = {
-  name: 'storage'
+module localModule 'build-external-local-module.bicep' = {
+  name: 'localModule'
   params: {
-    name: passthrough.outputs.result
+    passthroughResult: passthrough.outputs.result
   }
 }
 
-output blobEndpoint string = storage.outputs.blobEndpoint
-    `;
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
+  name: 'webAppModuleV1'
+}
 
-      const bicepPath = writeTempFile("build", "build-external.bicep", bicep);
+output blobEndpoint string = localModule.outputs.blobEndpoint`;
+
+      const localModuleContent = `
+param passthroughResult string
+
+module storage '${storageRef}' = {
+  name: 'storage'
+  params: {
+    name: passthroughResult
+  }
+}
+
+module nestedLocalModule 'build-external-nested-local-module.bicep' = {
+  name: 'nestedLocalModule'
+}
+
+output blobEndpoint string = storage.outputs.blobEndpoint`;
+
+      const nestedLocalModuleContent = `
+module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
+  name: 'webAppModuleV1'
+}`;
+
+      const bicepPath = writeTempFile(
+        "build",
+        "build-external.bicep",
+        mainContent
+      );
+
+      writeTempFile(
+        "build",
+        "build-external-local-module.bicep",
+        localModuleContent
+      );
+
+      writeTempFile(
+        "build",
+        "build-external-nested-local-module.bicep",
+        nestedLocalModuleContent
+      );
 
       const exampleConfig = readFileSync(
-        pathToExampleFile(
-          "local-modules" + environment.suffix,
-          "bicepconfig.json"
-        )
+        pathToExampleFile("modules" + environment.suffix, "bicepconfig.json")
       );
       writeTempFile("build", "bicepconfig.json", exampleConfig);
 
-      invokingBicepCommandWithEnvOverrides(envOverrides, "build", bicepPath)
+      invokingBicepCommand("build", bicepPath)
+        .withEnvironmentOverrides(environmentOverrides)
         .shouldSucceed()
         .withEmptyStdout();
 
@@ -119,6 +155,13 @@ output blobEndpoint string = storage.outputs.blobEndpoint
         builder.registry,
         "build$storage",
         `v1_${builder.tagSuffix}$4002000`
+      );
+
+      expectFileExists(
+        pathToCachedTsModuleFile(
+          `${environment.templateSpecSubscriptionId}/bicep-ci/webappspec-${environment.resourceSuffix}/1.0.0`,
+          "main.json"
+        )
       );
     }
   );

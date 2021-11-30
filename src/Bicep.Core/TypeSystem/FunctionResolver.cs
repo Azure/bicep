@@ -15,7 +15,7 @@ namespace Bicep.Core.TypeSystem
 {
     public class FunctionResolver
     {
-        private readonly ImmutableArray<FunctionOverload> functionOverloads;
+        public readonly ImmutableArray<FunctionOverload> functionOverloads;
         private readonly ImmutableArray<BannedFunction> bannedFunctions;
         private readonly ObjectType declaringObject;
 
@@ -23,12 +23,18 @@ namespace Bicep.Core.TypeSystem
         {
             this.functionOverloads = functionOverloads?.ToImmutableArray() ?? ImmutableArray<FunctionOverload>.Empty;
             this.bannedFunctions = bannedFunctions?.ToImmutableArray() ?? ImmutableArray<BannedFunction>.Empty;
+
+            var wildcardOverloads = this.functionOverloads.OfType<FunctionWildcardOverload>();
             
             // prepopulate cache with all known (non-wildcard) symbols
             // TODO: make cache building logic lazy
             this.FunctionCache = this.functionOverloads
                 .Where(fo => fo is not FunctionWildcardOverload)
-                .GroupBy(fo => fo.Name, (name, overloads) => new FunctionSymbol(declaringObject, name, overloads), LanguageConstants.IdentifierComparer)
+                .GroupBy(fo => fo.Name, (name, overloads) => {
+                    var matchingWildcards = wildcardOverloads.Where(x => x.WildcardRegex.IsMatch(name));
+
+                    return new FunctionSymbol(declaringObject, name, overloads.Concat(matchingWildcards));
+                }, LanguageConstants.IdentifierComparer)
                 .ToDictionary<FunctionSymbol, string, FunctionSymbol?>(s => s.Name, s => s, LanguageConstants.IdentifierComparer);
 
             this.BannedFunctions = this.bannedFunctions.ToImmutableDictionary(bf => bf.Name, LanguageConstants.IdentifierComparer);
@@ -124,12 +130,13 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
-            if (potentialMatchOverloads.Any())
+            if (potentialMatchOverloads.Any(x => x is not FunctionWildcardOverload))
             {
-                return potentialMatchOverloads;
+                // if we have an exact match, prioritize it over the wildcard match
+                return potentialMatchOverloads.Where(x => x is not FunctionWildcardOverload);
             }
 
-            return Enumerable.Empty<FunctionOverload>();
+            return potentialMatchOverloads;
         }
     }
 }

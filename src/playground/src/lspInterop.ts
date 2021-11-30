@@ -10,9 +10,9 @@ export function initializeInterop(self: any): Promise<boolean> { /* eslint-disab
       interop = newInterop;
       resolve(true);
     }
-  
+
     // this is necessary to invoke the Blazor startup code - do not remove it!
-    const test = require('../../Bicep.Wasm/bin/Release/net5.0/wwwroot/_framework/blazor.webassembly.js');
+    const test = require('../../Bicep.Wasm/bin/Release/net6.0/wwwroot/_framework/blazor.webassembly.js');
   });
 }
 

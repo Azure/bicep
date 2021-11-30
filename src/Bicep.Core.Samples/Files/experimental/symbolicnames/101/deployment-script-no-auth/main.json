@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3130066377201847090"
+      "templateHash": "16065037464086584474"
     }
   },
   "parameters": {
@@ -24,7 +24,6 @@
       "defaultValue": "[format('ds{0}', uniqueString(resourceGroup().name))]"
     }
   },
-  "functions": [],
   "resources": {
     "script": {
       "type": "Microsoft.Resources/deploymentScripts",

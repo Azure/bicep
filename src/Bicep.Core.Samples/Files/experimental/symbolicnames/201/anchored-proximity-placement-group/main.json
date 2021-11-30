@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12012350860846244396"
+      "templateHash": "8337145022368235691"
     }
   },
   "parameters": {
@@ -24,7 +24,6 @@
       "defaultValue": "20.49.199.4"
     }
   },
-  "functions": [],
   "resources": {
     "ppg1": {
       "type": "Microsoft.Compute/proximityPlacementGroups",
@@ -77,7 +76,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6480195888241511838"
+              "templateHash": "3850583703916111889"
             }
           },
           "parameters": {
@@ -90,7 +89,6 @@
               "defaultValue": "1.1.1.1"
             }
           },
-          "functions": [],
           "resources": {
             "nsg": {
               "type": "Microsoft.Network/networkSecurityGroups",
@@ -213,7 +211,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1520780044416055958"
+              "templateHash": "8118302315487989204"
             }
           },
           "parameters": {
@@ -242,7 +240,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": {
             "pip": {
               "type": "Microsoft.Network/publicIPAddresses",
@@ -381,7 +378,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10716442026835589146"
+              "templateHash": "4276294977590982766"
             }
           },
           "parameters": {
@@ -402,7 +399,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "nic": {
               "type": "Microsoft.Network/networkInterfaces",
@@ -517,7 +513,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10716442026835589146"
+              "templateHash": "4276294977590982766"
             }
           },
           "parameters": {
@@ -538,7 +534,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "nic": {
               "type": "Microsoft.Network/networkInterfaces",

@@ -80,13 +80,13 @@ jobs:
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
       
       - name: Publish Bicep
-        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
+        run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Run Bicep E2E Tests
         if: ${{ matrix.rid != 'linux-musl-x64' }}
         run: npm ci && npm test
         env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
@@ -96,21 +96,21 @@ jobs:
           entrypoint: sh
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/bicep
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
       
       - name: Upload Language Server
         uses: actions/upload-artifact@v2
         if: ${{ matrix.publishLanguageServer == 'true' }}
         with:
           name: Bicep.LangServer
-          path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net5.0/publish/*
+          path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net6.0/publish/*
           if-no-files-found: error
       
       - name: Upload Bicep
         uses: actions/upload-artifact@v2
         with:
           name: bicep-${{ matrix.configuration }}-${{ matrix.rid }}
-          path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/net5.0/${{ matrix.rid }}/publish/*
+          path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Packages

@@ -29,7 +29,7 @@
     "eslint-plugin-jest": "^24.4.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.3.2",
-    "monaco-editor-webpack-plugin": "^4.1.2",
+    "monaco-editor-webpack-plugin": "^4.2.0",
     "nerdbank-gitversioning": "^3.4.231",
     "style-loader": "^3.3.0",
     "ts-loader": "^9.2.6",

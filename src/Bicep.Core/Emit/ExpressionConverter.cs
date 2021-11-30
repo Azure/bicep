@@ -459,7 +459,7 @@ namespace Bicep.Core.Emit
         public static SyntaxBase GetModuleNameSyntax(ModuleSymbol moduleSymbol)
         {
             // this condition should have already been validated by the type checker
-            return moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
+            return moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ModuleNamePropertyName) ?? throw new ArgumentException($"Expected module syntax body to contain property 'name'");
         }
 
         public LanguageExpression GetUnqualifiedResourceId(ResourceMetadata resource)

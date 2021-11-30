@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15829090324176702955"
+      "templateHash": "16360286843581299856"
     }
   },
   "parameters": {
@@ -19,7 +19,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]",
     "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"

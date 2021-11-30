@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3499537664147370062"
+      "templateHash": "3876533941227178498"
     }
   },
   "parameters": {
@@ -107,7 +107,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "lockName": "[format('{0}-lck', resourceInfo('automationAccount').name)]",
     "diagnosticsName": "[format('{0}-dgs', resourceInfo('automationAccount').name)]"

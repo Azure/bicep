@@ -27,7 +27,7 @@ namespace Bicep.Core.Semantics.Metadata
 
         public SyntaxBase? TryGetNameSyntax() => UniqueIdentifiers.TryGetValue(AzResourceTypeProvider.ResourceNamePropertyName);
 
-        public SyntaxBase? ScopeSyntax => UniqueIdentifiers.TryGetValue(LanguageConstants.ResourceScopePropertyName);
+        public SyntaxBase? TryGetScopeSyntax() => UniqueIdentifiers.TryGetValue(LanguageConstants.ResourceScopePropertyName);
 
         public bool IsAzResource => Type.DeclaringNamespace.ProviderNameEquals(AzNamespaceType.BuiltInName);
 

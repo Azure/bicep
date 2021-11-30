@@ -72,5 +72,15 @@ namespace Bicep.Core.UnitTests.Assertions
 
             return new AndConstraint<StringAssertions>(instance);
         }
+
+        public static AndConstraint<StringAssertions> EqualIgnoringNewlines(this StringAssertions instance, string expected, string because = "", params object[] becauseArgs)
+        {
+            var normalizedActual = StringUtils.ReplaceNewlines(instance.Subject, "\n");
+            var normalizedExpected = StringUtils.ReplaceNewlines(expected, "\n");
+
+            normalizedActual.Should().Be(normalizedExpected, because, becauseArgs);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
     }
 }
