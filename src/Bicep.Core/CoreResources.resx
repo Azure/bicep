@@ -156,7 +156,7 @@
     <comment>Text for linter rule error. {0} is a programmatic expression</comment>
   </data>
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
-    <value>No unused parameters.</value>
+    <value>All parameters must be used.</value>
   </data>
   <data name="ParameterMustBeUsedRuleMessageFormat" xml:space="preserve">
     <value>Parameter "{0}" is declared but never used.</value>
