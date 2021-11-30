@@ -48,7 +48,6 @@ export class CommandManager extends Disposable {
         fse.readJsonSync(this._ctx.asAbsolutePath("package.json"))
       );
     }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 
     // activationEvents
     const activationEvents = this._packageJson.activationEvents;
