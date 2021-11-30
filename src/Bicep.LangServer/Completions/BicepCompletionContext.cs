@@ -214,10 +214,10 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            var leadingTrivia = token.LeadingTrivia;
+            var triviaMatchingLineStart = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, lineStart);
 
-            if (leadingTrivia.Count() == 1 &&
-                leadingTrivia.First().Type == SyntaxTriviaType.Whitespace)
+            if (triviaMatchingLineStart?.Type == SyntaxTriviaType.Whitespace &&
+                triviaMatchingLineStart.GetEndPosition() == position)
             {
                 return true;
             }

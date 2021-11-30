@@ -1547,19 +1547,33 @@ param storageAccount string = 'testAccount");
         public async Task VerifyCompletionRequestAfterPoundSign_WithWhiteSpaceBeforePoundSign_ShouldReturnCompletionItem()
         {
             var fileWithCursors = @"    #|
-param storageAccount string = 'testAccount";
+param storageAccount1 string = 'testAccount'
+    #|
+param storageAccount2 string = 'testAccount'";
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
 
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: NamespaceProvider));
 
-            var completions = await RequestCompletion(helper.Client, bicepFile, cursors.Single());
+            var completions = await RequestCompletion(helper.Client, bicepFile, cursors[0]);
 
             completions.Should().Contain(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword);
 
             var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword));
             updatedFile.Should().HaveSourceText(@"    #disable-next-line|
-param storageAccount string = 'testAccount");
+param storageAccount1 string = 'testAccount'
+    #
+param storageAccount2 string = 'testAccount'");
+
+            completions = await RequestCompletion(helper.Client, bicepFile, cursors[1]);
+
+            completions.Should().Contain(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword);
+
+            updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == LanguageConstants.DisableNextLineDiagnosticsKeyword));
+            updatedFile.Should().HaveSourceText(@"    #
+param storageAccount1 string = 'testAccount'
+    #disable-next-line|
+param storageAccount2 string = 'testAccount'");
         }
 
         [TestMethod]
