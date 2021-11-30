@@ -125,7 +125,7 @@
     <value>No bicepconfig.json found for configuration override.</value>
   </data>
   <data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
-    <value>When setting an adminUserName property, don't use a literal value.</value>
+    <value>Property 'adminUserName' should not use a literal value. Recommendation: use a parameter.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
