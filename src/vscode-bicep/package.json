@@ -37,8 +37,11 @@
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
+    "onCommand:bicep.insertResource",
     "onCommand:bicep.openVisualizer",
-    "onCommand:bicep.openVisualizerToSide",
+    "onCommand:bicep.showSource",
+    "onCommand:bicep.showVisualizer",
+    "onCommand:bicep.showVisualizerToSide",
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
@@ -262,6 +265,7 @@
   "devDependencies": {
     "@types/copy-webpack-plugin": "^8.0.1",
     "@types/cytoscape": "^3.14.19",
+    "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.0.0",
     "@types/node": "^16.10.3",
@@ -304,6 +308,7 @@
   "dependencies": {
     "cytoscape": "^3.20.0",
     "cytoscape-elk": "^2.0.2",
+    "fs-extra": "^10.0.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",
