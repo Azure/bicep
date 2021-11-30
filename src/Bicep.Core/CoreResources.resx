@@ -125,7 +125,7 @@
     <value>No bicepconfig.json found for configuration override.</value>
   </data>
   <data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
-    <value>When setting an adminUserName property, don't use a literal value.</value>
+    <value>Property "adminUserName" should not use a literal value. Use a param to pass a value to adminUserName instead.</value>
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
@@ -146,7 +146,7 @@
     <comment>string format to display error exception thrown in Linter Rule</comment>
   </data>
   <data name="LocationSetByParameterRuleDescription" xml:space="preserve">
-    <value>Resource location should be specified by a parameter with no default value or one that defaults to 'global' or resourceGroup().location.</value>
+    <value>Resource location should be specified by a parameter without a default value or one that defaults to 'global' or resourceGroup().location.</value>
   </data>
   <data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
     <value>No unnecessary dependsOn.</value>
@@ -163,11 +163,11 @@
     <comment>{0} is the paramenter name</comment>
   </data>
   <data name="PossibleSecretMessageFunction" xml:space="preserve">
-    <value>function '{0}'</value>
+    <value>Function '{0}'</value>
     <comment>{0} is the function name</comment>
   </data>
   <data name="PossibleSecretMessageSecureParam" xml:space="preserve">
-    <value>secure parameter '{0}'</value>
+    <value>Secure parameter '{0}'</value>
     <comment>{0} is the parameter name</comment>
   </data>
   <data name="SecureParameterDefaultFixTitle" xml:space="preserve">
@@ -183,7 +183,7 @@
     <value>Remove unnecessary string interpolation.</value>
   </data>
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
-    <value>No unused variables.</value>
+    <value>All variables must be used.</value>
   </data>
   <data name="UnusedVariableRuleMessageFormat" xml:space="preserve">
     <value>Variable "{0}" is declared but never used.</value>
