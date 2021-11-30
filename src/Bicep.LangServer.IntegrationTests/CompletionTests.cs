@@ -990,7 +990,7 @@ module mod2 './|' = {}
         }
 
         [TestMethod]
-        public async Task VerifyObjectBodyCompletionReturnsEmptyAndRequiredPropertiesSnippets()
+        public async Task VerifyObjectBodyCompletionReturnsSnippets()
         {
             string fileWithCursors = @"resource cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
   name: 'name'
@@ -1007,6 +1007,10 @@ module mod2 './|' = {}
             var snippetCompletions = completionLists.First()!.Items.Where(x => x.Kind == CompletionItemKind.Snippet);
 
             snippetCompletions.Should().SatisfyRespectively(
+                c =>
+                {
+                    c.Label.Should().Be("if-else");
+                },
                 c =>
                 {
                     c.Label.Should().Be("{}");
