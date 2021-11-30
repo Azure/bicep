@@ -2823,23 +2823,16 @@ module m 'foo.bicep' = [for (rgName, i) in rgNames: {
   }
 }]
 
-@description('resource group in for loop')
-resource rgs2 'Microsoft.Resources/resourceGroups@2019-10-01' = [for (rgName, i) in rgNames: {
-  name: rgName
-  location: m[i].name
-}]
-
 @description('The Resources Ids of the API management service product groups')
 output productGroupsResourceIds array = [for rgName in rgNames: resourceId('Microsoft.Resources/resourceGroups', rgName)]
 "));
           result.Template.Should().NotBeNull();
           var templateContent = result.Template!.ToString();
 
-          templateContent.Should().HaveValueAtPath("rgNames param");
-          templateContent.Should().Contain("resource group in for loop");
-          templateContent.Should().Contain("module loop");
-          templateContent.Should().Contain("resource group in for loop");
-          templateContent.Should().Contain("resource group in for loop");
+          result.Template!.Should().HaveValueAtPath("$.parameters.rgNames.metadata.description", "rgNames param");
+          result.Template!.Should().HaveValueAtPath("$.resources[?(@.name == '[parameters(\\'rgNames\\')[copyIndex()]]')].metadata.description", "resource group in for loop");
+          result.Template!.Should().HaveValueAtPath("$.resources[?(@.name == '[format(\\'foo{0}\\', parameters(\\'rgNames\\')[copyIndex()])]')].metadata.description", "module loop");
+          result.Template!.Should().HaveValueAtPath("$.outputs.productGroupsResourceIds.metadata.description", "The Resources Ids of the API management service product groups");
         }
     }
 }

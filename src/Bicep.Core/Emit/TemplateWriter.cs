@@ -506,6 +506,8 @@ namespace Bicep.Core.Emit
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
 
+            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place  
+            // and emit its properties to merge decorator properties.
             foreach (var (property, val) in AddDecoratorsToBody(
                 resource.Symbol.DeclaringResource, 
                 SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
@@ -652,6 +654,8 @@ namespace Bicep.Core.Emit
 
             this.EmitDependsOn(jsonWriter, moduleSymbol, emitter, body);
 
+            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place  
+            // and emit its properties to merge decorator properties.
             foreach (var (property, val) in AddDecoratorsToBody(
                 moduleSymbol.DeclaringModule, 
                 SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
