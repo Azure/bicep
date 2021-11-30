@@ -12,7 +12,7 @@
             ],
             "env": {
                 "BICEP_TRACING_ENABLED": "true",
-                "DEBUGTELEMETRY": "0", // "0": send telemetry; "1": no telemetry; "verbose": telemetry in console, don't send
+                "DEBUGTELEMETRY": "", // "" or "0" or "false": send telemetry; "1": no telemetry; "verbose": telemetry in console, don't send
             },
             "stopOnEntry": false,
             "sourceMaps": true,
