@@ -361,7 +361,7 @@ jobs:
           path: ./src/vscode-bicep/bicepLanguageServer
 
       - name: Build prod
-        run: npm run build:prod
+        run: npm run build
         working-directory: ./src/vscode-bicep
         
       - name: Build E2E tests
