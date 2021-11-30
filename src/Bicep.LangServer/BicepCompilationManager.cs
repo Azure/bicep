@@ -16,6 +16,8 @@ using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -220,7 +222,7 @@ namespace Bicep.LanguageServer
 
                         if (reloadBicepConfig)
                         {
-
+                            SendTelemetryIfLinterRuleWasDisabledInBicepConfig(prevContext.Compilation.Configuration.Analyzers, this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic).Analyzers);
                         }
 
                         var configuration = reloadBicepConfig
@@ -278,9 +280,17 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void SendTelemetryifLinterRuleWasDisabledInBicepConfig()
+        private void SendTelemetryIfLinterRuleWasDisabledInBicepConfig(AnalyzersConfiguration prevAnalyzersConfiguration, AnalyzersConfiguration curAnalyzersConfiguration)
         {
+            JObject? prevRules = JsonConvert.DeserializeObject<JObject>(prevAnalyzersConfiguration.Rules.GetRawText());
+            JObject? curRules = JsonConvert.DeserializeObject<JObject>(curAnalyzersConfiguration.Rules.GetRawText());
 
+            if (prevRules is not null &&
+                curRules is not null &
+                !JToken.DeepEquals(prevRules, curRules))
+            {
+
+            }
         }
 
         private RootConfiguration GetConfigurationSafely(DocumentUri documentUri, out Diagnostic? diagnostic)

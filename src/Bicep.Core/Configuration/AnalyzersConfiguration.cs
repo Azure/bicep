@@ -9,9 +9,15 @@ namespace Bicep.Core.Configuration
 {
     public class AnalyzersConfiguration : ConfigurationSection<JsonElement>
     {
-        public AnalyzersConfiguration(JsonElement data) : base(data) { }
+        public AnalyzersConfiguration(JsonElement data) : base(data)
+        {
+            var core = data.GetProperty("core");
+            Rules = core.GetProperty("rules");
+        }
 
         public static AnalyzersConfiguration Empty => CreateEmptyAnalyzersConfiguration();
+
+        public JsonElement Rules { get; }
 
         public T GetValue<T>(string path, T defaultValue)
         {
