@@ -59,7 +59,12 @@ namespace Bicep.Core.PrettyPrint
             {
                 this.PushDocument(NoLine);
                 this.VisitNodes(syntax.Children);
-                this.PushDocument(NoLine);
+
+                if (!syntax.EndOfFile.LeadingTrivia.Any(x => x.Type == SyntaxTriviaType.DisableNextLineDiagnosticsDirective))
+                {
+                    this.PushDocument(NoLine);
+                }
+
                 this.Visit(syntax.EndOfFile);
             });
 
