@@ -18,7 +18,8 @@ namespace Bicep.Core.TypeSystem
             if (this.TryExtractResourceOrModuleSymbolAndBodyType(syntax.BaseExpression, false) is ({ } accessedSymbol, { } accessedBodyType) &&
                 syntax.IndexExpression is StringSyntax stringSyntax)
             {
-                if (stringSyntax.TryGetLiteralValue() is { } propertyName) {
+                if (stringSyntax.TryGetLiteralValue() is { } propertyName)
+                {
                     // Validate property access via string literal index (myResource['sku']).
                     this.FlagIfPropertyNotReadableAtDeployTime(syntax, propertyName, accessedSymbol, accessedBodyType);
                 }

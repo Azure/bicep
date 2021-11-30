@@ -130,7 +130,8 @@ namespace Bicep.Core.Samples
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     bicepFile,
                     diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x)),
-                    diagnostics => {
+                    diagnostics =>
+                    {
                         diagnostics.Should().BeEmpty("{0} should not have warnings or errors", bicepFile.FileUri.LocalPath);
                     });
             }
@@ -194,7 +195,8 @@ namespace Bicep.Core.Samples
                 DiagnosticAssertions.DoWithDiagnosticAnnotations(
                     bicepFile,
                     diagnostics.Where(x => !IsPermittedMissingTypeDiagnostic(x)),
-                    diagnostics => {
+                    diagnostics =>
+                    {
                         diagnostics.Should().BeEmpty("{0} should not have warnings or errors", bicepFile.FileUri.LocalPath);
                     });
             }

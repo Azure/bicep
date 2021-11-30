@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.Text;
 using FluentAssertions;
@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Text
         [DataTestMethod]
         public void GetSpellingSuggestion_EmptyCandidate_ReturnsNull()
         {
-            var candidates = new [] { "", "" };
+            var candidates = new[] { "", "" };
 
             string? result = SpellChecker.GetSpellingSuggestion("foo", candidates);
 
@@ -31,7 +31,7 @@ namespace Bicep.Core.UnitTests.Text
         [TestMethod]
         public void GetSpellingSuggestion_CandidateHasLessThanThreeCharacters_ReturnsNull()
         {
-            var candidates = new [] { "o", "oo", "oO", "OO" };
+            var candidates = new[] { "o", "oo", "oO", "OO" };
 
             string? result = SpellChecker.GetSpellingSuggestion("ooo", candidates);
 

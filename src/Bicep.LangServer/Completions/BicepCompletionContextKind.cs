@@ -76,7 +76,7 @@ namespace Bicep.LanguageServer.Completions
         /// The current location is accessing a nested resource.
         /// </summary>
         ResourceAccess = 1 << 12,
-        
+
         /// <summary>
         /// The current location needs target scope value.
         /// </summary>
@@ -143,5 +143,15 @@ namespace Bicep.LanguageServer.Completions
         /// We're inside a function parentheses: 'someFunc(|)'
         /// </summary>
         FunctionArgument = 1 << 25,
+
+        /// <summary>
+        /// The current location is after # sign.
+        /// </summary>
+        DisableNextLineDiagnosticsDirectiveStart = 1 << 25,
+
+        /// <summary>
+        /// The current location is after '#disable-next-line |'.
+        /// </summary>
+        DisableNextLineDiagnosticsCodes = 1 << 26
     }
 }

@@ -52,7 +52,7 @@ namespace Bicep.LangServer.IntegrationTests
             // which makes it impossible to go to definition on a local with invalid identifiers)
             var declaredSymbolBindings = symbolTable
                 .Where(pair => pair.Value is DeclaredSymbol && (pair.Value is not LocalVariableSymbol local || local.NameSyntax.IsValid))
-                .Select(pair => new KeyValuePair<SyntaxBase, DeclaredSymbol>(pair.Key, (DeclaredSymbol) pair.Value));
+                .Select(pair => new KeyValuePair<SyntaxBase, DeclaredSymbol>(pair.Key, (DeclaredSymbol)pair.Value));
 
             foreach (var (syntax, symbol) in declaredSymbolBindings)
             {
@@ -73,7 +73,7 @@ namespace Bicep.LangServer.IntegrationTests
                 // selection range should be the span of the identifier of the symbol
                 link.TargetSelectionRange.Should().Be(symbol.NameSyntax.Span.ToRange(lineStarts));
 
-                if (syntax is ParameterDeclarationSyntax parameterSyntax) 
+                if (syntax is ParameterDeclarationSyntax parameterSyntax)
                 {
                     // we only underline the key of the param declaration syntax
                     link.OriginSelectionRange.Should().Be(parameterSyntax.Name.ToRange(lineStarts));
@@ -82,8 +82,8 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     // Instead of underlining everything, we only underline the resource name
                     link.OriginSelectionRange.Should().Be(namedSyntax.Name.ToRange(lineStarts));
-                } 
-                else 
+                }
+                else
                 {
                     // origin selection range should be the span of the syntax node that references the symbol
                     link.OriginSelectionRange.Should().Be(syntax.ToRange(lineStarts));
@@ -230,8 +230,8 @@ module appPlanDeploy2 'wrong|.bicep' = {
             // Module path
             return index > 1
             && accumulated[index] is StringSyntax
-            && accumulated[index-1] is IdentifierSyntax
-            && accumulated[index-2] is ModuleDeclarationSyntax;
+            && accumulated[index - 1] is IdentifierSyntax
+            && accumulated[index - 2] is ModuleDeclarationSyntax;
         }
 
         private static LocationLink ValidateDefinitionResponse(LocationOrLocationLinks response)

@@ -12,7 +12,7 @@ namespace Bicep.Core.Registry
 {
     public abstract class ExternalModuleRegistry<TModuleReference, TModuleEntity> : ModuleRegistry<TModuleReference>
         where TModuleReference : ModuleReference
-        where TModuleEntity: class
+        where TModuleEntity : class
     {
         // if we're unable to acquire a lock on the module directory in the cache, we will retry until this timeout is reached
         private static readonly TimeSpan ModuleDirectoryContentionTimeout = TimeSpan.FromSeconds(5);
@@ -53,12 +53,12 @@ namespace Bicep.Core.Registry
             var stopwatch = Stopwatch.StartNew();
 
             while (stopwatch.Elapsed < ModuleDirectoryContentionTimeout)
-            {                
+            {
                 using (var @lock = this.FileResolver.TryAcquireFileLock(lockFileUri))
                 {
                     // the placement of "if" inside "using" guarantees that even an exception thrown by the condition results in the lock being released
                     // (current condition can't throw, but this potentially avoids future regression)
-                    if(@lock is not null)
+                    if (@lock is not null)
                     {
                         // we have acquired the lock
                         if (!this.IsModuleRestoreRequired(reference))

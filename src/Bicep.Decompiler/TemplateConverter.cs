@@ -234,7 +234,7 @@ namespace Bicep.Decompiler
                 // if token is = or != check to see if they are insensitive conditions i.e =~ or !~
                 if (binaryTokenType is TokenType.Equals || binaryTokenType is TokenType.NotEquals)
                 {
-                    if(leftParameter is FunctionExpression leftFunctionExpression &&
+                    if (leftParameter is FunctionExpression leftFunctionExpression &&
                         rightParameter is FunctionExpression rightFunctionExpression &&
                         leftFunctionExpression.Function == "toLower" &&
                         rightFunctionExpression.Function == "toLower")
@@ -296,8 +296,10 @@ namespace Bicep.Decompiler
 
                 // Check to see if the inner expression is also a function and if it is equals we can
                 // simplify the expression from (!(a == b)) to (a != b)
-                if (expression.Parameters[0] is FunctionExpression functionExpression){
-                    if (StringComparer.OrdinalIgnoreCase.Equals(functionExpression.Function, "equals")){
+                if (expression.Parameters[0] is FunctionExpression functionExpression)
+                {
+                    if (StringComparer.OrdinalIgnoreCase.Equals(functionExpression.Function, "equals"))
+                    {
                         return TryReplaceBannedFunction(
                             new FunctionExpression("notEquals", functionExpression.Parameters, functionExpression.Properties),
                         out syntax);
@@ -1203,7 +1205,7 @@ namespace Bicep.Decompiler
             var paramProperties = new List<ObjectPropertySyntax>();
             foreach (var param in parameters)
             {
-                if (param.Value["reference"] is {} referenceValue)
+                if (param.Value["reference"] is { } referenceValue)
                 {
                     throw new ConversionFailedException($"Failed to convert parameter \"{param.Name}\": KeyVault secret references are not currently supported by the decompiler.", referenceValue);
                 }

@@ -67,12 +67,12 @@ namespace Bicep.Core.Registry
         {
             var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
 
-            foreach(var reference in references)
+            foreach (var reference in references)
             {
                 using var timer = new ExecutionTimer($"Restore module {reference.FullyQualifiedReference}");
                 var (result, errorMessage) = await this.TryPullArtifactAsync(configuration, reference);
 
-                if(result is null)
+                if (result is null)
                 {
                     if (errorMessage is not null)
                     {
@@ -86,7 +86,7 @@ namespace Bicep.Core.Registry
                     }
                 }
             }
-            
+
             return statuses;
         }
 
@@ -144,7 +144,7 @@ namespace Bicep.Core.Registry
                 // tags are case-sensitive with length up to 128
                 tagOrDigest = TagEncoder.Encode(reference.Tag);
             }
-            else if(reference.Digest is not null)
+            else if (reference.Digest is not null)
             {
                 // digests are strings like "sha256:e207a69d02b3de40d48ede9fd208d80441a9e590a83a0bc915d46244c03310d4"
                 // and are already guaranteed to be lowercase
@@ -205,7 +205,7 @@ namespace Bicep.Core.Registry
                 ModuleFileType.Metadata => "metadata",
                 _ => throw new NotImplementedException($"Unexpected module file type '{fileType}'.")
             };
-               
+
             return Path.Combine(this.GetModuleDirectoryPath(reference), fileName);
         }
 

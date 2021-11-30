@@ -248,7 +248,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [TestMethod]
         public void Storage_import_end_to_end_test()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), 
+            var result = CompilationHelper.Compile(GetCompilationContext(),
                 ("main.bicep", @"
 param accountName string
 

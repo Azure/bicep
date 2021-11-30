@@ -12,7 +12,8 @@ namespace Bicep.Cli.Arguments
         {
             for (var i = 0; i < args.Length; i++)
             {
-                switch (args[i].ToLowerInvariant()) {
+                switch (args[i].ToLowerInvariant())
+                {
                     case "--stdout":
                         OutputToStdOut = true;
                         break;
@@ -86,7 +87,7 @@ namespace Bicep.Cli.Arguments
         }
 
         public bool OutputToStdOut { get; }
-        
+
         public string InputFile { get; }
 
         public string? OutputDir { get; }

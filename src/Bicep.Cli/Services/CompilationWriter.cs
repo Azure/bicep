@@ -14,7 +14,7 @@ namespace Bicep.Cli.Services
     {
         private readonly InvocationContext invocationContext;
 
-        public CompilationWriter(InvocationContext invocationContext) 
+        public CompilationWriter(InvocationContext invocationContext)
         {
             this.invocationContext = invocationContext;
         }

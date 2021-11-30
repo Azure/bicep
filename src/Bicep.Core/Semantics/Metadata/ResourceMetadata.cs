@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics.Metadata
 
         private static ImmutableDictionary<string, SyntaxBase> GetUniqueIdentifiers(ResourceType type, ResourceSymbol symbol)
         {
-            if (symbol.DeclaringResource.TryGetBody() is not {} bodySyntax)
+            if (symbol.DeclaringResource.TryGetBody() is not { } bodySyntax)
             {
                 return ImmutableDictionary<string, SyntaxBase>.Empty;
             }
@@ -41,7 +41,7 @@ namespace Bicep.Core.Semantics.Metadata
             var identifiersBuilder = ImmutableDictionary.CreateBuilder<string, SyntaxBase>(LanguageConstants.IdentifierComparer);
             foreach (var propertySyntax in bodySyntax.Properties)
             {
-                if (propertySyntax.TryGetKeyText() is {} propertyKey &&
+                if (propertySyntax.TryGetKeyText() is { } propertyKey &&
                     type.UniqueIdentifierProperties.Contains(propertyKey))
                 {
                     identifiersBuilder[propertyKey] = propertySyntax.Value;

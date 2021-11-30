@@ -17,7 +17,7 @@ namespace Bicep.Core.UnitTests.Emit
     {
         [DataTestMethod]
         [DataRow("null", "[null()]")]
-        [DataRow("true","[true()]")]
+        [DataRow("true", "[true()]")]
         [DataRow("false", "[false()]")]
         [DataRow("32", "[32]")]
         [DataRow("'hello world'", "hello world")]
@@ -50,10 +50,10 @@ namespace Bicep.Core.UnitTests.Emit
         [DataRow("resourceGroup().location", "[resourceGroup().location]")]
         [DataRow("resourceGroup()['location']", "[resourceGroup().location]")]
         [DataRow("[\n4\n][0]", "[createArray(4)[0]]")]
-        [DataRow("[\n[]\n[\n12\n's'\n][1]\n\n]","[createArray(createArray(), createArray(12, 's')[1])]")]
-        [DataRow("42[33].foo","[int(42)[33].foo]")]
-        [DataRow("'foo'[x()]","[string('foo')[x()]]")]
-        [DataRow("1 ?? 2 ?? 3","[coalesce(coalesce(1, 2), 3)]")]
+        [DataRow("[\n[]\n[\n12\n's'\n][1]\n\n]", "[createArray(createArray(), createArray(12, 's')[1])]")]
+        [DataRow("42[33].foo", "[int(42)[33].foo]")]
+        [DataRow("'foo'[x()]", "[string('foo')[x()]]")]
+        [DataRow("1 ?? 2 ?? 3", "[coalesce(coalesce(1, 2), 3)]")]
         [DataRow("5 ?? 3 + 2 ?? 7", "[coalesce(coalesce(5, add(3, 2)), 7)]")]
         [DataRow("true ?? true && false ?? false || true", "[coalesce(coalesce(true(), and(true(), false())), or(false(), true()))]")]
         [DataRow("null ?? true", "[coalesce(null(), true())]")]
@@ -70,7 +70,8 @@ namespace Bicep.Core.UnitTests.Emit
 
             var serializer = new ExpressionSerializer(new ExpressionSerializerSettings
             {
-                IncludeOuterSquareBrackets = true, SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
+                IncludeOuterSquareBrackets = true,
+                SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
             });
 
             var actual = serializer.SerializeExpression(converted);

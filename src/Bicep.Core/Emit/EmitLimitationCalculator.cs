@@ -109,7 +109,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if (resource.TryGetNameSyntax() is not {} resourceName ||
+                if (resource.TryGetNameSyntax() is not { } resourceName ||
                     resourceName is not StringSyntax resourceNameString)
                 {
                     // the resource doesn't have a name set, or it's not a string and thus difficult to analyze
@@ -141,7 +141,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                if (resource.TryGetNameSyntax() is not {} resourceName ||
+                if (resource.TryGetNameSyntax() is not { } resourceName ||
                     resourceName is not StringSyntax resourceNameString)
                 {
                     // the resource doesn't have a name set, or it's not a string and thus difficult to analyze

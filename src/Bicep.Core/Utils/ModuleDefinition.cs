@@ -76,7 +76,7 @@ namespace Bicep.Core.Utils
                     hc.Add(x, StringSyntaxComparerInstance);
                 }
                 hc.Add(obj.ModulePropertyNameValue?.TryGetLiteralValue(), StringComparer.InvariantCultureIgnoreCase);
-                return hc.ToHashCode();                
+                return hc.ToHashCode();
             }
 
             private static readonly StringSyntaxComparer StringSyntaxComparerInstance = new();

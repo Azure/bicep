@@ -20,7 +20,8 @@ namespace Bicep.Decompiler
         private readonly Dictionary<string, string> assignedResourceNames = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
         private static string GetNamingSuffix(NameType nameType)
-            => nameType switch {
+            => nameType switch
+            {
                 // The naming suffix is just used in case of naming clashes, to pick a unique name for a symbol in the generated bicep file.
                 // These do not need to match the keyword names, but it's probably most understandable to the user if they do.
                 NameType.Output => LanguageConstants.OutputKeyword,
@@ -178,7 +179,7 @@ namespace Bicep.Decompiler
             if (expression is FunctionExpression functionExpression)
             {
                 var subExpressions = functionExpression.Parameters.Concat(functionExpression.Properties);
-                
+
                 return string.Join('_', subExpressions.Select(GetNameRecursive));
             }
 
