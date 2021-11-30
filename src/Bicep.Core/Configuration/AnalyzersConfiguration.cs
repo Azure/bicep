@@ -11,13 +11,16 @@ namespace Bicep.Core.Configuration
     {
         public AnalyzersConfiguration(JsonElement data) : base(data)
         {
-            var core = data.GetProperty("core");
-            Rules = core.GetProperty("rules");
+            if (data.TryGetProperty("core", out JsonElement core) &&
+                core.TryGetProperty("rules", out JsonElement rules))
+            {
+                Rules = rules;
+            }
         }
 
         public static AnalyzersConfiguration Empty => CreateEmptyAnalyzersConfiguration();
 
-        public JsonElement Rules { get; }
+        public JsonElement? Rules { get; }
 
         public T GetValue<T>(string path, T defaultValue)
         {

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -282,14 +283,30 @@ namespace Bicep.LanguageServer
 
         private void SendTelemetryIfLinterRuleWasDisabledInBicepConfig(AnalyzersConfiguration prevAnalyzersConfiguration, AnalyzersConfiguration curAnalyzersConfiguration)
         {
-            JObject? prevRules = JsonConvert.DeserializeObject<JObject>(prevAnalyzersConfiguration.Rules.GetRawText());
-            JObject? curRules = JsonConvert.DeserializeObject<JObject>(curAnalyzersConfiguration.Rules.GetRawText());
-
-            if (prevRules is not null &&
-                curRules is not null &
-                !JToken.DeepEquals(prevRules, curRules))
+            if (prevAnalyzersConfiguration.Rules is JsonElement prevRules &&
+                curAnalyzersConfiguration.Rules is JsonElement curRules)
             {
+                JObject? prevRulesObject = JsonConvert.DeserializeObject<JObject>(prevRules.GetRawText());
+                JObject? curRulesObject = JsonConvert.DeserializeObject<JObject>(curRules.GetRawText());
 
+                if (prevRulesObject is not null &&
+                    curRulesObject is not null &&
+                    !JToken.DeepEquals(prevRulesObject, curRulesObject))
+                {
+                    foreach (JToken prevToken in prevRulesObject.Children())
+                    {
+                        var curToken = curRulesObject.SelectToken(prevToken.Path);
+
+                        if (curToken is not null &&
+                            prevToken is JProperty prevProperty &&
+                            curToken is JProperty curProperty)
+                        {
+                            var prevLevel = prevProperty.Value["level"];
+                            var curLevel = curProperty.Value["level"];
+
+                        }
+                    }
+                }
             }
         }
 
