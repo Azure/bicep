@@ -9,12 +9,12 @@ namespace Bicep.Core.Semantics.Namespaces
 {
     public class DefaultNamespaceProvider : INamespaceProvider
     {
-        private readonly IAzResourceTypeLoader azResourceTypeLoader;
+        private readonly AzResourceTypeProvider azResourceTypeProvider;
         private readonly IFeatureProvider featureProvider;
 
         public DefaultNamespaceProvider(IAzResourceTypeLoader azResourceTypeLoader, IFeatureProvider featureProvider)
         {
-            this.azResourceTypeLoader = azResourceTypeLoader;
+            this.azResourceTypeProvider = new AzResourceTypeProvider(azResourceTypeLoader);
             this.featureProvider = featureProvider;
         }
 
@@ -25,7 +25,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 case SystemNamespaceType.BuiltInName:
                     return SystemNamespaceType.Create(aliasName);
                 case AzNamespaceType.BuiltInName:
-                    return AzNamespaceType.Create(aliasName, resourceScope, new AzResourceTypeProvider(azResourceTypeLoader));
+                    return AzNamespaceType.Create(aliasName, resourceScope, azResourceTypeProvider);
             }
 
             return null;
