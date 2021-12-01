@@ -7,7 +7,6 @@ import { Disposable } from "../utils/disposable";
 import { Command } from "./types";
 import * as azureextensionui from "vscode-azureextensionui";
 import assert from "assert";
-import { stringify } from "querystring";
 
 export class CommandManager extends Disposable {
   private static readonly commandsRegistredContextKey = "commandsRegistered";
