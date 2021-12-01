@@ -163,7 +163,8 @@
     <comment>{0} is the paramenter name</comment>
   </data>
   <data name="PossibleSecretMessageFunction" xml:space="preserve">
-    <value>Function '{0}'</value>
+    <value>function '{0}'</value>
+
     <comment>{0} is the function name</comment>
   </data>
   <data name="PossibleSecretMessageSecureParam" xml:space="preserve">
