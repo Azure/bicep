@@ -36,7 +36,7 @@ export class CommandManager extends Disposable {
     azureextensionui.registerCommand(
       command.id,
       async (context: azureextensionui.IActionContext, ...args: unknown[]) => {
-        await command.execute(context, ...args);
+        return await command.execute(context, ...args);
       }
     );
   }
