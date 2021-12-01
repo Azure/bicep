@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11995169114773616821"
+      "templateHash": "11157779818587006468"
     }
   },
   "parameters": {
@@ -176,7 +176,7 @@
     },
     "vmMod": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-09-01",
       "name": "vmMod",
       "properties": {
         "expressionEvaluationOptions": {

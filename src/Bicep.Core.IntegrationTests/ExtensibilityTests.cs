@@ -226,7 +226,7 @@ Hello from Bicep!"));
     },
     ""website"": {
       ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2020-06-01"",
+      ""apiVersion"": ""2020-09-01"",
       ""name"": ""website"",
       ""properties"": {
         ""expressionEvaluationOptions"": {

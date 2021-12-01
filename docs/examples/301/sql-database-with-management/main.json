@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1680231113171308524"
+      "templateHash": "8240254905239613970"
     }
   },
   "parameters": {
@@ -34,7 +34,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-09-01",
       "name": "sqlLogicalServers",
       "resourceGroup": "[parameters('resourceGroup').name]",
       "properties": {
@@ -57,7 +57,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12921433042511684704"
+              "templateHash": "5310729023842738485"
             }
           },
           "parameters": {
@@ -127,7 +127,7 @@
                 "count": "[length(parameters('sqlLogicalServers'))]"
               },
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-09-01",
               "name": "[format('sqlLogicalServer-{0}', copyIndex())]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -157,7 +157,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "15141668408029376015"
+                      "templateHash": "5382767220353100589"
                     }
                   },
                   "parameters": {
@@ -404,7 +404,7 @@
                         "count": "[length(parameters('sqlLogicalServer').firewallRules)]"
                       },
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-09-01",
                       "name": "[format('sqlFirewallRule-{0}-{1}', uniqueString(parameters('sqlLogicalServer').name), copyIndex())]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -466,7 +466,7 @@
                         "count": "[length(parameters('sqlLogicalServer').databases)]"
                       },
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-09-01",
                       "name": "[format('sqlDb-{0}-{1}', uniqueString(parameters('sqlLogicalServer').name), copyIndex())]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -491,7 +491,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "6379589353022514288"
+                              "templateHash": "14910508122323029555"
                             }
                           },
                           "parameters": {
@@ -637,7 +637,7 @@
                             {
                               "condition": "[not(equals(parameters('sqlDatabase').shortTermBackupRetention, 0))]",
                               "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2020-06-01",
+                              "apiVersion": "2020-09-01",
                               "name": "[format('shortTermBackup-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
                               "properties": {
                                 "expressionEvaluationOptions": {
@@ -689,7 +689,7 @@
                             },
                             {
                               "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2020-06-01",
+                              "apiVersion": "2020-09-01",
                               "name": "[format('azureDefender-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
                               "properties": {
                                 "expressionEvaluationOptions": {
@@ -744,7 +744,7 @@
                             },
                             {
                               "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2020-06-01",
+                              "apiVersion": "2020-09-01",
                               "name": "[format('auditSettings-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
                               "properties": {
                                 "expressionEvaluationOptions": {

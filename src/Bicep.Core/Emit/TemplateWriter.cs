@@ -32,7 +32,7 @@ namespace Bicep.Core.Emit
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2020-06-01";
+        public const string NestedDeploymentResourceApiVersion = "2020-09-01";
 
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
@@ -383,7 +383,7 @@ namespace Bicep.Core.Emit
             //
             // Children inherit the conditions of their parents, etc. This avoids a problem
             // where we emit a dependsOn to something that's not in the template, or not
-            // being evaulated i the template. 
+            // being evaulated i the template.
             var conditions = new List<SyntaxBase>();
             var loops = new List<(string name, ForSyntax @for, SyntaxBase? input)>();
 
@@ -506,11 +506,11 @@ namespace Bicep.Core.Emit
 
             this.EmitDependsOn(jsonWriter, resource.Symbol, emitter, body);
 
-            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place  
+            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
             // and emit its properties to merge decorator properties.
             foreach (var (property, val) in AddDecoratorsToBody(
-                resource.Symbol.DeclaringResource, 
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                resource.Symbol.DeclaringResource,
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
                 resource.Symbol.Type).ToNamedPropertyValueDictionary())
             {
                 emitter.EmitProperty(property, val);
@@ -654,11 +654,11 @@ namespace Bicep.Core.Emit
 
             this.EmitDependsOn(jsonWriter, moduleSymbol, emitter, body);
 
-            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place  
+            // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place
             // and emit its properties to merge decorator properties.
             foreach (var (property, val) in AddDecoratorsToBody(
-                moduleSymbol.DeclaringModule, 
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                moduleSymbol.DeclaringModule,
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
                 moduleSymbol.Type).ToNamedPropertyValueDictionary())
             {
                 emitter.EmitProperty(property, val);
@@ -818,8 +818,8 @@ namespace Bicep.Core.Emit
 
             // emit any decorators on this output
             foreach (var (property, val) in AddDecoratorsToBody(
-                outputSymbol.DeclaringOutput, 
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                outputSymbol.DeclaringOutput,
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
                 outputSymbol.Type).ToNamedPropertyValueDictionary())
             {
                 emitter.EmitProperty(property, val);
