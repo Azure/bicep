@@ -165,7 +165,7 @@
   <data name="PossibleSecretMessageFunction" xml:space="preserve">
     <value>function '{0}'</value>
 
-    <comment>{0} is the function name</comment>
+    <comment>{0} is the function name. This string appears in the middle of a sentence, hence doesn't start with capital letter.  Something similar to: Found: function 'listKeys()'</comment>
   </data>
   <data name="PossibleSecretMessageSecureParam" xml:space="preserve">
     <value>Secure parameter '{0}'</value>
