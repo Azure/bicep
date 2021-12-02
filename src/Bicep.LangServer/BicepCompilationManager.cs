@@ -4,10 +4,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
+using System.Reflection;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -18,8 +18,6 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -36,6 +34,10 @@ namespace Bicep.LanguageServer
         private readonly IFileResolver fileResolver;
         private readonly IModuleRestoreScheduler scheduler;
         private readonly IConfigurationManager configurationManager;
+        private readonly ITelemetryProvider TelemetryProvider;
+
+        private readonly Lazy<ImmutableDictionary<string, string>> linterRulesLazy;
+        private ImmutableDictionary<string, string> LinterRules => linterRulesLazy.Value;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
@@ -46,7 +48,8 @@ namespace Bicep.LanguageServer
             IWorkspace workspace,
             IFileResolver fileResolver,
             IModuleRestoreScheduler scheduler,
-            IConfigurationManager configurationManager)
+            IConfigurationManager configurationManager,
+            ITelemetryProvider telemetryProvider)
         {
             this.server = server;
             this.provider = provider;
@@ -54,6 +57,9 @@ namespace Bicep.LanguageServer
             this.fileResolver = fileResolver;
             this.scheduler = scheduler;
             this.configurationManager = configurationManager;
+            this.TelemetryProvider = telemetryProvider;
+
+            this.linterRulesLazy = new Lazy<ImmutableDictionary<string, string>>(() => GetLinterRules().ToImmutableDictionary());
         }
 
         public void RefreshCompilation(DocumentUri documentUri, bool reloadBicepConfig = false)
@@ -208,6 +214,8 @@ namespace Bicep.LanguageServer
                     (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration),
                     (documentUri, prevContext) =>
                     {
+                        var prevConfiguration = prevContext.Compilation.Configuration;
+
                         var sourceDependencies = removedFiles
                             .SelectMany(x => prevContext.Compilation.SourceFileGrouping.GetFilesDependingOn(x))
                             .ToImmutableHashSet();
@@ -222,14 +230,16 @@ namespace Bicep.LanguageServer
                             }
                         }
 
+                        var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
+
                         if (reloadBicepConfig)
                         {
-                            SendTelemetryIfLinterRuleWasDisabledInBicepConfig(prevContext.Compilation.Configuration.Analyzers, this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic).Analyzers);
+                            SendTelemetryIfLinterRuleWasDisabledInBicepConfig(prevConfiguration, configuration);
                         }
-
-                        var configuration = reloadBicepConfig
-                            ? this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic)
-                            : prevContext.Compilation.Configuration;
+                        else
+                        {
+                            configuration = prevContext.Compilation.Configuration;
+                        }
 
                         return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration);
                     });
@@ -282,60 +292,59 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void SendTelemetryIfLinterRuleWasDisabledInBicepConfig(AnalyzersConfiguration prevAnalyzersConfiguration, AnalyzersConfiguration curAnalyzersConfiguration)
+        private void SendTelemetryIfLinterRuleWasDisabledInBicepConfig(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
         {
-            if (prevAnalyzersConfiguration.Rules is JsonElement prevRules &&
-                curAnalyzersConfiguration.Rules is JsonElement curRules)
+            var linterEnabledSetting = "core.enabled";
+            bool prevLinterEnabledSettingValue = prevConfiguration.Analyzers.GetValue(linterEnabledSetting, true);
+            bool curLinterEnabledSettingValue = curConfiguration.Analyzers.GetValue(linterEnabledSetting, true);
+
+            if (prevLinterEnabledSettingValue != curLinterEnabledSettingValue)
             {
-                JObject? prevRulesObject = JsonConvert.DeserializeObject<JObject>(prevRules.GetRawText());
-                JObject? curRulesObject = JsonConvert.DeserializeObject<JObject>(curRules.GetRawText());
-
-                if (prevRulesObject is null || curRulesObject is null || JToken.DeepEquals(prevRulesObject, curRulesObject))
+                var bicepTelemetryEvent = BicepTelemetryEvent.CreateOverallLinterStateChangeInBicepConfig(prevLinterEnabledSettingValue.ToString().ToLowerInvariant(), curLinterEnabledSettingValue.ToString().ToLowerInvariant());
+                TelemetryProvider.PostEvent(bicepTelemetryEvent);
+            }
+            else
+            {
+                foreach (var kvp in LinterRules)
                 {
-                    return;
-                }
+                    string prevLinterRuleDiagnosticLevelValue = prevConfiguration.Analyzers.GetValue(kvp.Value, "warning");
+                    string curLinterRuleDiagnosticLevelValue = curConfiguration.Analyzers.GetValue(kvp.Value, "warning");
 
-                var rules = curRulesObject.Children().Select(x => x.Path);
-
-                foreach (string rule in rules)
-                {
-                    var curToken = curRulesObject.SelectToken(rule);
-
-                    if (curToken is null)
+                    if (prevLinterRuleDiagnosticLevelValue != curLinterRuleDiagnosticLevelValue)
                     {
-                        continue;
-                    }
-
-                    var curDiagnosticLevel = GetDiagnosticLevel(curToken);
-                    if (curDiagnosticLevel is null || curDiagnosticLevel != "off")
-                    {
-                        continue;
-                    }
-
-                    var prevToken = prevRulesObject.SelectToken(rule);
-
-                    if (prevToken is null)
-                    {
-                        continue;
-                    }
-
-                    var prevDiagnosticLevel = GetDiagnosticLevel(prevToken);
-                    if (prevDiagnosticLevel != "off" && curDiagnosticLevel == "off")
-                    {
-                        server.SendNotification("telemetry/event", BicepTelemetryEvent.CreateDisableRuleInBicepConfig(rule));
+                        var bicepTelemetryEvent = BicepTelemetryEvent.CreateDisableRuleInBicepConfig(kvp.Key, prevLinterRuleDiagnosticLevelValue, curLinterRuleDiagnosticLevelValue);
+                        TelemetryProvider.PostEvent(bicepTelemetryEvent);
                     }
                 }
             }
         }
 
-        private string? GetDiagnosticLevel(JToken jToken)
+        private Dictionary<string, string> GetLinterRules()
         {
-            if (jToken["level"] is JToken diagnosticLevelToken)
+            var linterRuleSetting = $"core.rules";
+            Dictionary<string, string> rules = new Dictionary<string, string>();
+            var ruleTypes = Assembly.GetAssembly(typeof(IBicepAnalyzerRule))?
+                .GetTypes()
+                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
+                            && t.IsClass
+                            && t.IsPublic
+                            && t.GetConstructor(Type.EmptyTypes) != null);
+
+            if (ruleTypes is null)
             {
-                return diagnosticLevelToken.Value<string>();
+                return rules;
             }
 
-            return null;
+            foreach (var ruleType in ruleTypes)
+            {
+                IBicepAnalyzerRule? rule = Activator.CreateInstance(ruleType) as IBicepAnalyzerRule;
+                if (rule is not null)
+                {
+                    rules.Add(rule.Code, $"core.rules.{rule.Code}.level");
+                }
+            }
+
+            return rules;
         }
 
         private RootConfiguration GetConfigurationSafely(DocumentUri documentUri, out Diagnostic? diagnostic)

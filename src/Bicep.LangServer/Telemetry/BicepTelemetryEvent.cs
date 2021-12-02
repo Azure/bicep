@@ -94,13 +94,26 @@ namespace Bicep.LanguageServer.Telemetry
                 },
             };
 
-        public static BicepTelemetryEvent CreateDisableRuleInBicepConfig(string rule)
+        public static BicepTelemetryEvent CreateDisableRuleInBicepConfig(string rule, string oldDiagnosticLevel, string newDiagnosticLevel)
             => new BicepTelemetryEvent
             {
                 EventName = TelemetryConstants.EventNames.DisableRuleInBicepConfig,
                 Properties = new()
                 {
                     ["rule"] = rule,
+                    ["previousDiagnosticLevel"] = oldDiagnosticLevel,
+                    ["currentDiagnosticLevel"] = newDiagnosticLevel
+                }
+            };
+
+        public static BicepTelemetryEvent CreateOverallLinterStateChangeInBicepConfig(string prevState, string curState)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig,
+                Properties = new()
+                {
+                    ["previousState"] = prevState,
+                    ["currentState"] = curState
                 }
             };
     }
