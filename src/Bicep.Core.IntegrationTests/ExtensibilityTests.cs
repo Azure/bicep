@@ -205,7 +205,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""16730399226644616469""
+      ""templateHash"": ""6558609704910513317""
     }
   },
   ""parameters"": {
