@@ -81,7 +81,10 @@ namespace Bicep.LangServer.UnitTests
 
         public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
         {
-            return Repository.Create<ITelemetryProvider>();
+            var telemetryProvider = Repository.Create<ITelemetryProvider>();
+            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
+
+            return telemetryProvider;
         }
 
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()
