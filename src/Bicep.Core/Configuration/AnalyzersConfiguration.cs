@@ -9,9 +9,7 @@ namespace Bicep.Core.Configuration
 {
     public class AnalyzersConfiguration : ConfigurationSection<JsonElement>
     {
-        public AnalyzersConfiguration(JsonElement data) : base(data)
-        {
-        }
+        public AnalyzersConfiguration(JsonElement data) : base(data) { }
 
         public static AnalyzersConfiguration Empty => CreateEmptyAnalyzersConfiguration();
 
