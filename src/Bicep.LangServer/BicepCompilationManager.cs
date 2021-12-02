@@ -294,14 +294,29 @@ namespace Bicep.LanguageServer
 
         private void SendTelemetryIfLinterRuleWasDisabledInBicepConfig(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
         {
+            foreach (var telemetryEvent in GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration))
+            {
+                TelemetryProvider.PostEvent(telemetryEvent);
+            }
+        }
+
+        public IEnumerable<BicepTelemetryEvent> GetTelemetryEventsForBicepConfigChange(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
+        {
             var linterEnabledSetting = "core.enabled";
             bool prevLinterEnabledSettingValue = prevConfiguration.Analyzers.GetValue(linterEnabledSetting, true);
             bool curLinterEnabledSettingValue = curConfiguration.Analyzers.GetValue(linterEnabledSetting, true);
 
+            if (!prevLinterEnabledSettingValue && !curLinterEnabledSettingValue)
+            {
+                return Enumerable.Empty<BicepTelemetryEvent>();
+            }
+
+            List<BicepTelemetryEvent> telemetryEvents = new();
+
             if (prevLinterEnabledSettingValue != curLinterEnabledSettingValue)
             {
-                var bicepTelemetryEvent = BicepTelemetryEvent.CreateOverallLinterStateChangeInBicepConfig(prevLinterEnabledSettingValue.ToString().ToLowerInvariant(), curLinterEnabledSettingValue.ToString().ToLowerInvariant());
-                TelemetryProvider.PostEvent(bicepTelemetryEvent);
+                var telemetryEvent = BicepTelemetryEvent.CreateOverallLinterStateChangeInBicepConfig(prevLinterEnabledSettingValue.ToString().ToLowerInvariant(), curLinterEnabledSettingValue.ToString().ToLowerInvariant());
+                telemetryEvents.Add(telemetryEvent);
             }
             else
             {
@@ -312,11 +327,13 @@ namespace Bicep.LanguageServer
 
                     if (prevLinterRuleDiagnosticLevelValue != curLinterRuleDiagnosticLevelValue)
                     {
-                        var bicepTelemetryEvent = BicepTelemetryEvent.CreateDisableRuleInBicepConfig(kvp.Key, prevLinterRuleDiagnosticLevelValue, curLinterRuleDiagnosticLevelValue);
-                        TelemetryProvider.PostEvent(bicepTelemetryEvent);
+                        var telemetryEvent = BicepTelemetryEvent.CreateDisableRuleInBicepConfig(kvp.Key, prevLinterRuleDiagnosticLevelValue, curLinterRuleDiagnosticLevelValue);
+                        telemetryEvents.Add(telemetryEvent);
                     }
                 }
             }
+
+            return telemetryEvents;
         }
 
         private Dictionary<string, string> GetLinterRules()
