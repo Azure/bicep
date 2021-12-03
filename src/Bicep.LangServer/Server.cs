@@ -74,7 +74,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepCompletionHandler>()
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
-                    .WithHandler<BicepDisableLinterRuleCommandHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
                     .WithHandler<BicepTelemetryHandler>()
