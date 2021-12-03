@@ -23,7 +23,8 @@ namespace Bicep.Core.Semantics.Metadata
 
         public ResourceTypeReference TypeReference => Type.TypeReference;
 
-        public SyntaxBase NameSyntax => UniqueIdentifiers[AzResourceTypeProvider.ResourceNamePropertyName];
+        public SyntaxBase NameSyntax => TryGetNameSyntax() ?? 
+            throw new InvalidOperationException($"Failed to find a 'name' property for resource '{Symbol.Name}'");
 
         public SyntaxBase? TryGetNameSyntax() => UniqueIdentifiers.TryGetValue(AzResourceTypeProvider.ResourceNamePropertyName);
 
