@@ -230,7 +230,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
         {
             var namespaceProvider = new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features);
 
-            var namespaces = new [] {
+            var namespaces = new[] {
                 namespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!,
                 namespaceProvider.TryGetNamespace("sys", "sys", ResourceScope.ResourceGroup)!,
             };

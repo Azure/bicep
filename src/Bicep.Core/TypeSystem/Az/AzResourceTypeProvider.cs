@@ -100,7 +100,7 @@ namespace Bicep.Core.TypeSystem.Az
         private readonly ResourceTypeCache definedTypeCache;
         private readonly ResourceTypeCache generatedTypeCache;
 
-        private static readonly ImmutableHashSet<string> WritableExistingResourceProperties = new[]
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
         {
             ResourceNamePropertyName,
             LanguageConstants.ResourceScopePropertyName,
@@ -382,7 +382,7 @@ namespace Bicep.Core.TypeSystem.Az
             foreach (var property in properties)
             {
                 // "name", "scope" & "parent" can be set for existing resources - everything else should be read-only
-                if (WritableExistingResourceProperties.Contains(property.Name))
+                if (UniqueIdentifierProperties.Contains(property.Name))
                 {
                     yield return property;
                 }
@@ -404,14 +404,14 @@ namespace Bicep.Core.TypeSystem.Az
             }
 
             // It's important to cache this result because generating the resource type is an expensive operation
-            var resourceType =  definedTypeCache.GetOrAdd(flags, typeReference, () =>
-            {
-                var resourceType = this.resourceTypeLoader.LoadType(typeReference);
+            var resourceType = definedTypeCache.GetOrAdd(flags, typeReference, () =>
+           {
+               var resourceType = this.resourceTypeLoader.LoadType(typeReference);
 
-                return SetBicepResourceProperties(resourceType, flags);
-            });
+               return SetBicepResourceProperties(resourceType, flags);
+           });
 
-            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
+            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
         }
 
         public ResourceType? TryGenerateFallbackType(NamespaceType declaringNamespace, ResourceTypeReference typeReference, ResourceTypeGenerationFlags flags)
@@ -434,7 +434,7 @@ namespace Bicep.Core.TypeSystem.Az
                 return SetBicepResourceProperties(resourceType, flags);
             });
 
-            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
+            return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
         }
 
         public bool HasDefinedType(ResourceTypeReference typeReference)

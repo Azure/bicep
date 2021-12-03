@@ -57,7 +57,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     completionSources.Add(new TaskCompletionSource<T>());
                 }
-                
+
                 completionSources[writePosition].SetResult(message);
                 writePosition++;
             }

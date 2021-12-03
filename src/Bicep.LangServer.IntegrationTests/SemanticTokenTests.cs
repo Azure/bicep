@@ -53,7 +53,7 @@ namespace Bicep.LangServer.IntegrationTests
                 if (TextSpan.AreOverlapping(prevSpan, currentSpan))
                 {
                     using (new AssertionScope()
-                        .WithAnnotations(bicepFile, "overlapping tokens", new [] { prevSpan, currentSpan }, _ => "here", x => x.ToRange(bicepFile.LineStarts)))
+                        .WithAnnotations(bicepFile, "overlapping tokens", new[] { prevSpan, currentSpan }, _ => "here", x => x.ToRange(bicepFile.LineStarts)))
                     {
                         TextSpan.AreOverlapping(prevSpan, currentSpan).Should().BeFalse();
                     }

@@ -175,7 +175,7 @@ namespace Bicep.Core.Semantics
                 };
             }
         }
-        
+
         private static string? TryGetMetadataDescription(TemplateGenericProperty<JToken>? metadata)
         {
             if (metadata?.Value?.SelectToken(LanguageConstants.MetadataDescriptionPropertyName) is { } descriptionToken

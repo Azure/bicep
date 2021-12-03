@@ -29,7 +29,7 @@ namespace Bicep.Core.Diagnostics
         }
 
         public string Source { get; protected set; }
-     
+
         public TextSpan Span { get; }
 
         public DiagnosticLevel Level { get; }

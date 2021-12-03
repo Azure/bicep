@@ -104,7 +104,7 @@ output out string = message
             }
         }
 
-        
+
         [DataTestMethod]
         [DataRow("utf-8")]
         [DataRow("utf-16BE")]

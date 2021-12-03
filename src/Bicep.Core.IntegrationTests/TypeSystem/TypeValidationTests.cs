@@ -429,7 +429,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
@@ -445,7 +445,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("string");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
@@ -465,7 +465,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, BuiltInTestTypes.Create());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'readonly' | 'readwrite' | 'required'");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("string");

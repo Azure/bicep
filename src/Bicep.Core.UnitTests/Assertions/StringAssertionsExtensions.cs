@@ -13,7 +13,7 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class StringAssertionsExtensions 
+    public static class StringAssertionsExtensions
     {
         private static string EscapeWhitespace(string input)
             => input
@@ -22,7 +22,8 @@ namespace Bicep.Core.UnitTests.Assertions
             .Replace("\t", "\\t");
 
         private static string GetDiffMarker(ChangeType type)
-            => type switch {
+            => type switch
+            {
                 ChangeType.Inserted => "++",
                 ChangeType.Modified => "//",
                 ChangeType.Deleted => "--",

@@ -91,7 +91,8 @@ namespace Bicep.Core.Text
                 else if (values[mid] < target)
                 {
                     start = mid + 1;
-                } else
+                }
+                else
                 {
                     end = mid - 1;
                 }

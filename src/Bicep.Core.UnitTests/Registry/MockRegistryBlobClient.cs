@@ -18,7 +18,7 @@ namespace Bicep.Core.UnitTests.Registry
     /// <summary>
     /// Mock OCI registry blob client. This client is intended to represent a single repository within a specific registry Uri.
     /// </summary>
-    public class MockRegistryBlobClient: ContainerRegistryBlobClient
+    public class MockRegistryBlobClient : ContainerRegistryBlobClient
     {
         public MockRegistryBlobClient() : base()
         {
@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             await Task.Yield();
 
-            if(!this.Blobs.TryGetValue(digest, out var bytes))
+            if (!this.Blobs.TryGetValue(digest, out var bytes))
             {
                 throw new RequestFailedException(404, "Mock blob does not exist.");
             }
@@ -50,13 +50,13 @@ namespace Bicep.Core.UnitTests.Registry
         {
             await Task.Yield();
 
-            if(options is null)
+            if (options is null)
             {
                 throw new RequestFailedException("Downloading a manifest requires 'options' to be specified.");
             }
 
             string? digest;
-            switch(options.Digest, options.Tag)
+            switch (options.Digest, options.Tag)
             {
                 case (not null, not null):
                     throw new RequestFailedException("Both digest and tag cannot be specified when downloading a manifest.");
@@ -79,7 +79,7 @@ namespace Bicep.Core.UnitTests.Registry
                     throw new RequestFailedException("Either a digest or tag must be specified when downloading a manifest.");
             }
 
-            if(!this.Manifests.TryGetValue(digest, out var bytes))
+            if (!this.Manifests.TryGetValue(digest, out var bytes))
             {
                 throw new RequestFailedException(404, "Mock manifest does not exist.");
             }
@@ -106,7 +106,7 @@ namespace Bicep.Core.UnitTests.Registry
             var (copy, digest) = ReadStream(stream);
             Manifests.TryAdd(digest, copy);
 
-            if(options.Tag is not null)
+            if (options.Tag is not null)
             {
                 // map tag to the digest
                 this.ManifestTags[options.Tag] = digest;
@@ -145,7 +145,7 @@ namespace Bicep.Core.UnitTests.Registry
         private static Response<T> CreateResult<T>(T value)
         {
             var response = StrictMock.Of<Response>();
-            
+
             var result = StrictMock.Of<Response<T>>();
             result.SetupGet(m => m.Value).Returns(value);
             result.Setup(m => m.GetRawResponse()).Returns(response.Object);

@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <!-- do not upgrade these packages - we need to support mesbuild 16 -->
+    <!-- do not upgrade these packages - we need to support msbuild 16 -->
     <PackageReference Include="Microsoft.Build.Framework" Version="16.10.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10.0" PrivateAssets="All" />
   </ItemGroup>

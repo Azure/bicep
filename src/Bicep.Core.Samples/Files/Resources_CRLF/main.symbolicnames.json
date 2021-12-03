@@ -329,12 +329,12 @@
       "apiVersion": "2020-01-01",
       "scope": "[extensionResourceId(format('Microsoft.Compute/virtualMachines/{0}', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
       "name": "existing1",
-      "metadata": {
-        "description": "this is existing1"
-      },
       "dependsOn": [
         "extension1"
-      ]
+      ],
+      "metadata": {
+        "description": "this is existing1"
+      }
     },
     "existing2": {
       "existing": true,

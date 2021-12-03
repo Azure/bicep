@@ -146,10 +146,12 @@ output resource1Type string = existing1.type
             {
                 var testSubscriptionId = "87d64d6d-6d17-4ad7-b507-16d9bc498781";
                 var testRgName = "testRg";
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
                     SubscriptionId = testSubscriptionId,
                     ResourceGroup = testRgName,
-                    Parameters = new() {
+                    Parameters = new()
+                    {
                         ["parentName"] = "myParent",
                         ["childName"] = "myChild",
                     }
@@ -219,10 +221,12 @@ output abcVal string = testRes.properties.abc
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
-                    Parameters = new() {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
+                    Parameters = new()
+                    {
                         ["abcVal"] = "test!!!",
-                    },                    
+                    },
                 });
 
                 evaluated.Should().HaveValueAtPath("$.outputs['abcVal'].value", "test!!!");
@@ -242,15 +246,18 @@ output abcVal string = testRes.properties.abc
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
-                    OnReferenceFunc = (resourceId, apiVersion, fullBody) => {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
+                    OnReferenceFunc = (resourceId, apiVersion, fullBody) =>
+                    {
                         if (resourceId == $"/subscriptions/{config.SubscriptionId}/resourceGroups/{config.ResourceGroup}/providers/My.Rp/res1/testRes" && apiVersion == "2020-01-01" && !fullBody)
                         {
-                            return new JObject {
+                            return new JObject
+                            {
                                 ["abc"] = "test!!!",
                             };
                         }
-                        
+
                         throw new NotImplementedException();
                     },
                 });
@@ -271,7 +278,8 @@ output inputObjValues array = [for item in items(inputObj): item.value]
 
             using (new AssertionScope())
             {
-                var evaluated = TemplateEvaluator.Evaluate(template, config => config with {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
                     Parameters = new()
                     {
                         ["inputObj"] = new JObject
