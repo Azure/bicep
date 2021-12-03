@@ -10,7 +10,9 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Utils;
+using Bicep.Core.Extensions;
 
 namespace Bicep.Core.Emit
 {
@@ -101,6 +103,19 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
+                if (!resource.IsAzResource)
+                {
+                    // comparison checks currently blocked for non-ARM resources
+                    continue;
+                }
+
+                if (resource.TryGetNameSyntax() is not { } resourceName ||
+                    resourceName is not StringSyntax resourceNameString)
+                {
+                    // the resource doesn't have a name set, or it's not a string and thus difficult to analyze
+                    continue;
+                }
+
                 // Determine the scope - this is either something like a resource group/subscription or another resource
                 ResourceMetadata? resourceScope;
                 if (resourceScopeData.TryGetValue(resource, out var scopeData) && scopeData.ResourceScope is { } scopeMetadata)
@@ -112,13 +127,7 @@ namespace Bicep.Core.Emit
                     resourceScope = semanticModel.ResourceAncestors.GetAncestors(resource).LastOrDefault()?.Resource;
                 }
 
-                if (resource.NameSyntax is not StringSyntax namePropertyValue)
-                {
-                    //currently limiting check to 'name' property values that are strings, although it can be references or other syntaxes
-                    continue;
-                }
-
-                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FormatType(), namePropertyValue);
+                yield return new ResourceDefinition(resource.Symbol.Name, resourceScope, resource.TypeReference.FormatType(), resourceNameString);
             }
         }
 
@@ -127,15 +136,15 @@ namespace Bicep.Core.Emit
             // TODO move into Az extension
             foreach (var resource in semanticModel.AllResources)
             {
-                if (resource.Type.DeclaringNamespace.ProviderName != AzNamespaceType.BuiltInName)
+                if (!resource.IsAzResource)
                 {
-                    // non-az resource
                     continue;
                 }
 
-                if (resource.NameSyntax is not StringSyntax resourceNameString)
+                if (resource.TryGetNameSyntax() is not { } resourceName ||
+                    resourceName is not StringSyntax resourceNameString)
                 {
-                    // not easy to do analysis if it's not a string!
+                    // the resource doesn't have a name set, or it's not a string and thus difficult to analyze
                     continue;
                 }
 
@@ -146,7 +155,7 @@ namespace Bicep.Core.Emit
                     // e.g. '{parent.name}/child' or 'parent/child'
                     if (resourceNameString.SegmentValues.Any(v => v.Contains('/')))
                     {
-                        diagnosticWriter.Write(resource.NameSyntax, x => x.ChildResourceNameContainsQualifiers());
+                        diagnosticWriter.Write(resourceNameString, x => x.ChildResourceNameContainsQualifiers());
                     }
                 }
                 else
@@ -165,7 +174,7 @@ namespace Bicep.Core.Emit
                         // So we can only accurately show a diagnostic if there are TOO MANY '/' characters.
                         if (slashCount > expectedSlashCount)
                         {
-                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resourceNameString, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                     else
@@ -173,7 +182,7 @@ namespace Bicep.Core.Emit
                         // We know exactly how many '/' characters must be present, because we have a string literal. So expect an exact match.
                         if (slashCount != expectedSlashCount)
                         {
-                            diagnosticWriter.Write(resource.NameSyntax, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
+                            diagnosticWriter.Write(resourceNameString, x => x.TopLevelChildResourceNameIncorrectQualifierCount(expectedSlashCount));
                         }
                     }
                 }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12993449260695329532"
+      "templateHash": "11841506402998298236"
     }
   },
   "parameters": {
@@ -831,7 +831,7 @@
     },
     "indexedCollectionIdentity": {
       "type": "object",
-      "value": "[reference('storageAccounts', '2019-06-01', 'full').identity]"
+      "value": "[reference(format('storageAccounts[{0}]', parameters('index')), '2019-06-01', 'full').identity]"
     },
     "indexedEndpointPair": {
       "type": "object",
@@ -870,7 +870,7 @@
     },
     "existingIndexedResourceLocation": {
       "type": "string",
-      "value": "[reference('existingStorageAccounts', '2019-06-01', 'full').location]"
+      "value": "[reference(format('existingStorageAccounts[{0}]', div(parameters('index'), 2)), '2019-06-01', 'full').location]"
     },
     "existingIndexedResourceAccessTier": {
       "type": "string",
