@@ -32,7 +32,7 @@ namespace Bicep.Core.Emit
         public const string NestedDeploymentResourceType = AzResourceTypeProvider.ResourceTypeDeployments;
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
-        public const string NestedDeploymentResourceApiVersion = "2020-09-01";
+        public const string NestedDeploymentResourceApiVersion = "2020-10-01";
 
         // these are top-level parameter modifier properties whose values can be emitted without any modifications
         private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
