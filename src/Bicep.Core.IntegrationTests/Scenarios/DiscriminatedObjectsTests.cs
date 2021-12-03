@@ -88,7 +88,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
 }
 "));
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
                 TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
@@ -113,7 +113,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
 }
 "));
 
-            failedResult.Should().HaveDiagnostics(new[] {
+            failedResult.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
             });
@@ -177,7 +177,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
 }
 "));
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
 
             var failedResult = CompilationHelper.Compile(
                 TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(customTypes),
@@ -202,7 +202,7 @@ resource test5 'Rp.A/parent/child@2020-10-01' existing = {
 }
 "));
 
-            failedResult.Should().HaveDiagnostics(new[] {
+            failedResult.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
                 ("BCP036", DiagnosticLevel.Error, "The property \"name\" expected a value of type \"'val1' | 'val2'\" but the provided value is of type \"'notAValidVal'\"."),
             });
@@ -230,7 +230,7 @@ resource service 'Microsoft.ServiceFabric/clusters/applications/services@2020-12
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP078", DiagnosticLevel.Warning, "The property \"partitionScheme\" requires a value of type \"'Named' | 'Singleton' | 'UniformInt64Range'\", but none was supplied."),
                 ("BCP089", DiagnosticLevel.Warning, "The property \"PartitionScheme\" is not allowed on objects of type \"'Named' | 'Singleton' | 'UniformInt64Range'\". Did you mean \"partitionScheme\"?"),
             });
@@ -271,7 +271,7 @@ resource mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
   properties: properties
 }
 ");
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"kind\" value cannot be determined at compilation time. Type checking for this object is disabled.")
             }).And.GenerateATemplate();
@@ -291,7 +291,7 @@ resource mainResource 'Test.Rp/discriminatedPropertiesTests@2020-01-01' = {
   properties: properties
 }
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         /// <summary>
@@ -316,7 +316,7 @@ resource mainResource 'Test.Rp/discriminatedPropertiesTests2@2020-01-01' = {
   }
 }
 ");
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"propType\" value cannot be determined at compilation time. Type checking for this object is disabled.")
             }).And.GenerateATemplate();
@@ -340,7 +340,7 @@ resource mainResource 'Test.Rp/discriminatedPropertiesTests2@2020-01-01' = {
   }
 }
 ");
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP225", DiagnosticLevel.Warning, "The discriminator property \"propType\" value cannot be determined at compilation time. Type checking for this object is disabled.")
             }).And.GenerateATemplate();

@@ -9,4 +9,6 @@
 // $9 = 'windowSize'
 // $10 = Microsoft.Azure.Management.Insights.Models.RuleEmailAction
 
+param location string
+
 // Insert snippet here

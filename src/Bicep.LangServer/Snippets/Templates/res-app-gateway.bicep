@@ -1,7 +1,7 @@
 ﻿// Application Gateway
 resource /*${1:applicationGateway}*/applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     sku: {
       name: /*'${3|Standard_Small,Standard_Medium,Standard_Large,WAF_Medium,WAF_Large,Standard_v2,WAF_v2|}'*/'Standard_Small'

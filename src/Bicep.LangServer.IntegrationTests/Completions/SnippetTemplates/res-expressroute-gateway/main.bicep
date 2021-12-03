@@ -4,4 +4,6 @@
 // $4 = 1
 // $5 = 2
 
+param location string
+
 // Insert snippet here

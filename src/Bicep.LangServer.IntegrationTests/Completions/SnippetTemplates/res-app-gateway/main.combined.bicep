@@ -23,9 +23,11 @@
 // $23 = 'id'
 // $24 = 'id'
 
+param location string
+
 resource applicationGateway 'Microsoft.Network/applicationGateways@2020-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     sku: {
       name: 'Standard_Small'

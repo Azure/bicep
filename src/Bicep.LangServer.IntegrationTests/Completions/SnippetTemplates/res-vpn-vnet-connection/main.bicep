@@ -6,4 +6,6 @@
 // $6 = 0
 // $7 = 'sharedkey'
 
+param location string
+
 // Insert snippet here

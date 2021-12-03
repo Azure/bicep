@@ -11,9 +11,11 @@
 // $11 = 100
 // $12 = 'Inbound'
 
+param location string
+
 resource networkSecurityGroup 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     securityRules: [
       {

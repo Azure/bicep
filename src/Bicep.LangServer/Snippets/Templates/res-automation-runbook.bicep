@@ -6,7 +6,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 resource /*${2:automationRunbook}*/automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {
   parent: automationAccount
   name: /*${3:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     logVerbose: /*${4|true,false|}*/true
     logProgress: /*${5|true,false|}*/true

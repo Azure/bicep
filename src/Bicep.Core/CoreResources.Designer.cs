@@ -113,6 +113,36 @@ namespace Bicep.Core {
             }
         }
         
+        internal static string NoHardcodedLocationRuleDescription {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocationRuleDescription", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_DoNotUseDeploymentOrResourceGroupLocation {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_DoNotUseDeploymentOrResourceGroupLocation", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_LocationDefaultInvalidValue {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_LocationDefaultInvalidValue", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ModuleLocationNeedsExplicitValue {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ModuleLocationNeedsExplicitValue", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal", resourceCulture);
+            }
+        }
+        
         internal static string ParameterMustBeUsedRuleDescription {
             get {
                 return ResourceManager.GetString("ParameterMustBeUsedRuleDescription", resourceCulture);

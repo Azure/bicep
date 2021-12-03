@@ -3,9 +3,11 @@
 // $3 = 'name'
 // $4 = 'subnet.id'
 
+param location string
+
 resource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     sku: 'Standard'
   }

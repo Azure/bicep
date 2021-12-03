@@ -1,7 +1,7 @@
-// Route Server
+﻿// Route Server
 resource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {
   name: /*${1:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     sku: 'Standard'
   }

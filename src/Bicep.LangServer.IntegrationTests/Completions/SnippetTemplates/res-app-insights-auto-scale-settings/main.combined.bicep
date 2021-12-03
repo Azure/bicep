@@ -15,9 +15,11 @@
 // $15 = 'value'
 // $16 = 'metricResourceUri'
 
+param location string
+
 resource appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   tags: {
     Application_Type: 'web'
     'hidden-link:appServiceId': 'Resource'

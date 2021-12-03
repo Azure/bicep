@@ -5,7 +5,8 @@
 
 resource appServicePlan 'Microsoft.Web/serverfarms@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
+//@[12:20) [BCP057 (Error)] The name "location" does not exist in the current context. (CodeDescription: none) |location|
   sku: {
     name: 'name'
     capacity: 1

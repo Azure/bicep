@@ -531,7 +531,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(@"
                 var aksServicePrincipalObjectId = 'aksServicePrincipalObjectId'
-                var aksDefaultPoolSubnetName = 'asdf'
+                var aksDefaultPoolSubnetName = 'adf'
                 var vnets = [
                   'vnet1'
                   'vnet2'
@@ -541,7 +541,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }]
 
                 resource userAssignedIdentities 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-                  name: 'asdfsdf'
+                  name: 'adfsdf'
                   location: 'West US'
                 }
 

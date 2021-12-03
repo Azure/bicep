@@ -6,4 +6,6 @@
 // $6 = 'publisherEmail@contoso.com'
 // $7 = 'publisherName'
 
+param location string
+
 // Insert snippet here

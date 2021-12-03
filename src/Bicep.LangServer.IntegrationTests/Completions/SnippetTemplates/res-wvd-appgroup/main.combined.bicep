@@ -4,9 +4,11 @@
 // $4 = 'Desktop'
 // $5 = 'desktopVirtualizationHostPools.id'
 
+param location string
+
 resource applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     friendlyName: 'friendlyName'
     applicationGroupType: 'Desktop'

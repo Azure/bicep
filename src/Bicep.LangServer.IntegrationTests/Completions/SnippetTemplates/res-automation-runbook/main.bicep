@@ -8,4 +8,6 @@
 // $8 = '1.0.0.0'
 // $9 = 'description'
 
+param location string
+
 // Insert snippet here

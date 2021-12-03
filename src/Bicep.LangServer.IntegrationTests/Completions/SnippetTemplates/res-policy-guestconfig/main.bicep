@@ -5,4 +5,6 @@
 // $5 = 'ApplyAndMonitor'
 // $6 = '1.*'
 
+param location string
+
 // Insert snippet here

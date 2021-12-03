@@ -1,9 +1,11 @@
 // $1 = 'name'
 // $2 = linuxVMGuestConfigExtension
 
+param location string
+
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   identity: {
     type:'SystemAssigned'
   }
@@ -12,7 +14,7 @@ resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 resource linuxVMGuestConfigExtension 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   parent: virtualMachine
   name: 'AzurePolicyforLinux'
-  location: resourceGroup().location
+  location: location
   properties: {
     publisher: 'Microsoft.GuestConfiguration'
     type: 'ConfigurationforLinux'

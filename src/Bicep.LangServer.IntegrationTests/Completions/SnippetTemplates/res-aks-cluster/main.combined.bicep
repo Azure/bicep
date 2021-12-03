@@ -8,10 +8,11 @@
 // $8 = 'REQUIRED'
 
 param adminUsername string
+param location string
 
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2021-03-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   identity: {
     type: 'SystemAssigned'
   }

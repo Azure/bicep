@@ -9,9 +9,11 @@
 // $9 = 'windowSize'
 // $10 = Microsoft.Azure.Management.Insights.Models.RuleEmailAction
 
+param location string
+
 resource appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     name: 'name'
     description: 'description'

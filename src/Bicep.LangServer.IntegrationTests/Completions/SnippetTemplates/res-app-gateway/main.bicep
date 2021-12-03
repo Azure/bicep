@@ -23,4 +23,6 @@
 // $23 = 'id'
 // $24 = 'id'
 
+param location string
+
 // Insert snippet here

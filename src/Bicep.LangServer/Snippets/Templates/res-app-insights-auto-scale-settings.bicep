@@ -1,7 +1,7 @@
 ﻿// Application Insights Auto Scale Settings
 resource /*${1:appInsightsAutoScaleSettings}*/appInsightsAutoScaleSettings 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   tags: {
     Application_Type: /*'${3|web,other|}'*/'web'
     /*'hidden-link:${4:appServiceId}'*/'appServiceId': 'Resource'

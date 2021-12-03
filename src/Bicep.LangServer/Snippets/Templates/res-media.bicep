@@ -1,7 +1,7 @@
 ﻿// Media Services account
 resource /*${1:mediaServices}*/mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     storageAccounts: [
       {

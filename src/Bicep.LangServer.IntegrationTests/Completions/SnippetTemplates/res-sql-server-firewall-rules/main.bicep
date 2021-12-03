@@ -6,4 +6,6 @@
 // $6 = 'startIpAddress'
 // $7 = 'endIpAddress'
 
+param location string
+
 // Insert snippet here

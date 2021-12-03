@@ -11,10 +11,11 @@
 // $11 = 'insightsComponents'
 // $12 = dotnet
 
+param location string
 
 resource azureFunction 'Microsoft.Web/sites@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   kind: 'functionapp'
   properties: {
     serverFarmId: 'serverfarms.id'

@@ -14,6 +14,7 @@ var vmProperties = {
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'vm'
   location: 'West US'
+//@[12:21) [no-hardcoded-location (Warning)] A resource location should be either an expression or the string 'global'. Found 'West US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'West US'|
   properties: vmProperties
 //@[14:26) [BCP036 (Warning)] The property "enabled" expected a value of type "bool | null" but the provided value in source declaration "vmProperties" is of type "int". (CodeDescription: none) |vmProperties|
 //@[14:26) [BCP036 (Warning)] The property "evictionPolicy" expected a value of type "'Deallocate' | 'Delete' | null" but the provided value in source declaration "vmProperties" is of type "bool". (CodeDescription: none) |vmProperties|

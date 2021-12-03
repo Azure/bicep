@@ -8,6 +8,8 @@
 // $8 = '1.0.0.0'
 // $9 = 'description'
 
+param location string
+
 resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {
   name: 'name'
 }
@@ -15,7 +17,7 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' 
 resource automationRunbook 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {
   parent: automationAccount
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     logVerbose: true
     logProgress: true

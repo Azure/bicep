@@ -5,9 +5,11 @@
 // $5 = 'storageAccountKey'
 // $6 = 'storageAccountEndPoint'
 
+param location string
+
 resource windowsVMDiagnostics 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {
   name: 'windowsVM/Diagnostics'
-  location: resourceGroup().location
+  location: location
   properties: {
     publisher: 'Microsoft.Azure.Diagnostics'
     type: 'IaaSDiagnostics'

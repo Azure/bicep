@@ -1,7 +1,7 @@
-// ExpressRoute Gateway
+﻿// ExpressRoute Gateway
 resource /*${1:expressRouteGateways}*/expressRouteGateways 'Microsoft.Network/expressRouteGateways@2021-02-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     virtualHub: {
       id: /*${3:'virtualHub.id'}*/'virtualHub.id'

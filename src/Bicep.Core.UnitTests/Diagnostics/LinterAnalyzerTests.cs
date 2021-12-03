@@ -31,6 +31,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataTestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
+        [DataRow(NoHardcodedLocationRule.Code)]
         [DataRow(NoUnnecessaryDependsOnRule.Code)]
         [DataRow(NoUnusedParametersRule.Code)]
         [DataRow(NoUnusedVariablesRule.Code)]

@@ -55,22 +55,25 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         private void RunWithDiagnosticAnnotations(string bicepText, Func<IDiagnostic, bool> filterFunc, OnCompileErrors onCompileErrors, Action<IEnumerable<IDiagnostic>> assertAction)
         {
             var result = CompilationHelper.Compile(bicepText);
-            result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.FailedRuleCode }, "There should never be linter FailedRuleCode errors");
-
-            if (onCompileErrors == OnCompileErrors.Fail)
+            using (new AssertionScope().WithFullSource(result.BicepFile))
             {
-                var compileErrors = result.Diagnostics.Where(d => d.Level == DiagnosticLevel.Error);
-                DiagnosticAssertions.DoWithDiagnosticAnnotations(
-                result.Compilation.SourceFileGrouping.EntryPoint,
-                compileErrors,
-                diags => diags.Should().HaveCount(0));
-            }
+                result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.FailedRuleCode }, "There should never be linter FailedRuleCode errors");
 
-            IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();
-            DiagnosticAssertions.DoWithDiagnosticAnnotations(
-                result.Compilation.SourceFileGrouping.EntryPoint,
-                result.Diagnostics.Where(filterFunc),
-                assertAction);
+                if (onCompileErrors == OnCompileErrors.Fail)
+                {
+                    var compileErrors = result.Diagnostics.Where(d => d.Level == DiagnosticLevel.Error);
+                    DiagnosticAssertions.DoWithDiagnosticAnnotations(
+                    result.Compilation.SourceFileGrouping.EntryPoint,
+                    compileErrors,
+                    diags => diags.Should().HaveCount(0));
+                }
+
+                IDiagnostic[] diagnosticsMatchingCode = result.Diagnostics.Where(filterFunc).ToArray();
+                DiagnosticAssertions.DoWithDiagnosticAnnotations(
+                    result.Compilation.SourceFileGrouping.EntryPoint,
+                    result.Diagnostics.Where(filterFunc),
+                    assertAction);
+            }
         }
     }
 }

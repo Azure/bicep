@@ -11,4 +11,6 @@
 // $11 = 100
 // $12 = 'Inbound'
 
+param location string
+
 // Insert snippet here

@@ -7,4 +7,6 @@
 // $7 = 'publisher'
 // $8 = 'promotionCode'
 
+param location string
+
 // Insert snippet here

@@ -1,7 +1,7 @@
 ﻿// SQL Server Firewall Rules
 resource sqlServer 'Microsoft.Sql/servers@2020-11-01-preview' = {
   name: /*${1:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     administratorLogin: /*${2:'administratorLogin'}*/'administratorLogin'
     administratorLoginPassword: /*${3:'administratorLoginPassword'}*/'administratorLoginPassword'

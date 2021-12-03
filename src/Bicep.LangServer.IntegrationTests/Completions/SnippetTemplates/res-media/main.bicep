@@ -3,4 +3,6 @@
 // $3 = 'storageAccount.id'
 // $4 = Primary
 
+param location string
+
 // Insert snippet here

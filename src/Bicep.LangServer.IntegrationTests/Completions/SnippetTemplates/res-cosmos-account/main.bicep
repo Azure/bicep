@@ -9,4 +9,6 @@
 // $9 = true
 // $10 = 'EnableTable'
 
+param location string
+
 // Insert snippet here

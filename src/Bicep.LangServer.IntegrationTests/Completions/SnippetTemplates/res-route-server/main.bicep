@@ -3,4 +3,6 @@
 // $3 = 'name'
 // $4 = 'subnet.id'
 
+param location string
+
 // Insert snippet here

@@ -25,6 +25,7 @@ module modB './child/moduleb.bicep' = {
   name: 'modB'
   params: {
     location: 'West US'
+//@[14:23) [no-hardcoded-location (Warning)] A resource location should be either an expression or the string 'global'. Found 'West US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'West US'|
   }
 }
 
@@ -33,6 +34,7 @@ module modBWithCondition './child/moduleb.bicep' = if (1 + 1 == 2) {
   name: 'modBWithCondition'
   params: {
     location: 'East US'
+//@[14:23) [no-hardcoded-location (Warning)] A resource location should be either an expression or the string 'global'. Found 'East US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'East US'|
   }
 }
 
@@ -40,6 +42,7 @@ module modC './child/modulec.json' = {
   name: 'modC'
   params: {
     location: 'West US'
+//@[14:23) [no-hardcoded-location (Warning)] A resource location should be either an expression or the string 'global'. Found 'West US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'West US'|
   }
 }
 
@@ -47,6 +50,7 @@ module modCWithCondition './child/modulec.json' = if (2 - 1 == 1) {
   name: 'modCWithCondition'
   params: {
     location: 'East US'
+//@[14:23) [no-hardcoded-location (Warning)] A resource location should be either an expression or the string 'global'. Found 'East US' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'East US'|
   }
 }
 
@@ -357,10 +361,12 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 // END: Key Vault Secret Reference
 
 module withSpace 'module with space.bicep' = {
+//@[7:16) [no-hardcoded-location (Warning)] The 'location' parameter for module 'withSpace' should be assigned an explicit value. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |withSpace|
   name: 'withSpace'
 }
 
 module folderWithSpace 'child/folder with space/child with space.bicep' = {
+//@[7:22) [no-hardcoded-location (Warning)] The 'location' parameter for module 'folderWithSpace' should be assigned an explicit value. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |folderWithSpace|
   name: 'childWithSpace'
 }
 

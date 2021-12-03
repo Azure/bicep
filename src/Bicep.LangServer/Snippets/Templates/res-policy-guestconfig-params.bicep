@@ -1,13 +1,13 @@
 ﻿// Guest configuration assignment with parameters, for virtual machine
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: /*${1:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
 }
 
 resource /*${2:guestConfigAssignment}*/guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
   name: /*${3:'name'}*/'name'
   scope: virtualMachine
-  location: resourceGroup().location
+  location: location
   properties: {
     guestConfiguration: {
       name: /*${4:'configurationName'}*/'configurationName'

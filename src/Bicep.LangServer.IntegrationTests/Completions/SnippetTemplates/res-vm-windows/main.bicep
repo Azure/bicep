@@ -8,5 +8,6 @@
 // $8 = 'storageUri'
 
 param adminUsername string
+param location string
 
 // Insert snippet here

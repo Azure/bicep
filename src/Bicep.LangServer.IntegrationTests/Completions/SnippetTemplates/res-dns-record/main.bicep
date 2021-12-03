@@ -4,4 +4,6 @@
 // $4 = 'name'
 // $5 = ARecords
 
+param location string
+
 // Insert snippet here

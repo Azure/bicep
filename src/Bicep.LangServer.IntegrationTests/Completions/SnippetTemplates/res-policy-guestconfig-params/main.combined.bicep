@@ -9,15 +9,17 @@
 // $9 = 'parameter2[dscResourceType]dscResourceName;propertyName'
 // $10 = 'parameter2Value'
 
+param location string
+
 resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
 }
 
 resource guestConfigAssignment 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {
   name: 'name'
   scope: virtualMachine
-  location: resourceGroup().location
+  location: location
   properties: {
     guestConfiguration: {
       name: 'configurationName'

@@ -1,7 +1,7 @@
-// Web Deploy for a Web Application
+﻿// Web Deploy for a Web Application
 resource webApplication 'Microsoft.Web/sites@2020-12-01' = {
   name: /*${1:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
 }
 
 resource /*${2:webApplicationExtension}*/webApplicationExtension 'Microsoft.Web/sites/extensions@2020-12-01' = {

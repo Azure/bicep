@@ -1,7 +1,7 @@
 ﻿// Windows Virtual Machine
 resource /*${1:windowsVM}*/windowsVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_A2_v2'

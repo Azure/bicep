@@ -4,4 +4,6 @@
 // $4 = Dynamic
 // $5 = 'subnet.id'
 
+param location string
+
 // Insert snippet here

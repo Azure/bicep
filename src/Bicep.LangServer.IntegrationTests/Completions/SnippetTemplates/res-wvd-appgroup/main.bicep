@@ -4,4 +4,6 @@
 // $4 = 'Desktop'
 // $5 = 'desktopVirtualizationHostPools.id'
 
+param location string
+
 // Insert snippet here

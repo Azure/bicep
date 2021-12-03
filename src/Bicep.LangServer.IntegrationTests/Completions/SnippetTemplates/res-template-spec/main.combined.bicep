@@ -3,9 +3,11 @@
 // $3 = 'description'
 // $4 = 'displayName'
 
+param location string
+
 resource templateSpec 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     description: 'description'
     displayName: 'displayName'

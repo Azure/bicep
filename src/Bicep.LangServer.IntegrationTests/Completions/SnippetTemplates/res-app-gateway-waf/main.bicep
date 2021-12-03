@@ -8,4 +8,6 @@
 // $8 = 'ruleSetType'
 // $9 = 'ruleSetVersion'
 
+param location string
+
 // Insert snippet here

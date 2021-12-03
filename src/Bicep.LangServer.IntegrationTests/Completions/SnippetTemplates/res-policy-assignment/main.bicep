@@ -14,4 +14,6 @@
 // $14 = 'message'
 // $15 = 'policyDefinitionReferenceId'
 
+param location string
+
 // Insert snippet here

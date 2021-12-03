@@ -32,8 +32,10 @@
 // $32 = 'name'
 // $33 = 'type'
 // $34 = 'apiVersion'
-// $35 = 'location'
-// $36 = parameterName
-// $37 = 'value'
+// $35 = parameterName
+// $36 = 'value'
+
 targetScope = 'subscription'
+param location string
+
 // Insert snippet here

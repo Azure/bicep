@@ -1,7 +1,7 @@
 ﻿// Application Insights Alert Rules
 resource /*${1:appInsightsAlertRules}*/appInsightsAlertRules 'Microsoft.Insights/alertrules@2016-03-01' = {
   name: /*${2:'name'}*/'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     name: /*${3:'name'}*/'name'
     description: /*${4:'description'}*/'description'

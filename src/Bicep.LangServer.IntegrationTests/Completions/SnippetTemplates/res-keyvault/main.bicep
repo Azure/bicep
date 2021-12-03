@@ -3,4 +3,6 @@
 // $3 = 'tenantId'
 // $4 = 'objectId'
 
+param location string
+
 // Insert snippet here
