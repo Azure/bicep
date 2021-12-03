@@ -128,7 +128,7 @@
     <value>When setting an adminUserName property, don't use a literal value.</value>
   </data>
   <data name="OutputsShouldNotContainSecretsRuleDescription" xml:space="preserve">
-    <value>Don't include secrets in an output.</value>
+    <value>Outputs should not contain secrets.</value>
   </data>
   <data name="OutputsShouldNotContainSecretsMessageFormat" xml:space="preserve">
     <value>{0} Found possible secret: {1}</value>

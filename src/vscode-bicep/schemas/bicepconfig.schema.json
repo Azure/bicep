@@ -336,7 +336,7 @@
                 "outputs-should-not-contain-secrets": {
                   "allOf": [
                     {
-                      "description": "Don't include secrets in an output. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
+                      "description": "Outputs should not contain secrets. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule"

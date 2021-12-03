@@ -18,13 +18,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             AssertLinterRuleDiagnostics(OutputsShouldNotContainSecretsRule.Code, text, expectedMessages, onCompileErrors);
         }
 
+        const string description = "Outputs should not contain secrets.";
+
         [DataRow(@" // This is a failing example from the docs
             @secure()
             param secureParam string
 
             output badResult string = 'this is the value ${secureParam}'
         ",
-            "Don't include secrets in an output. Found possible secret: secure parameter 'secureParam'"
+            $"{description} Found possible secret: secure parameter 'secureParam'"
         )]
         [DataRow(@"
             @secure()
@@ -36,7 +38,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }
             }
         ",
-            "Don't include secrets in an output. Found possible secret: secure parameter 'secureParam'"
+            $"{description} Found possible secret: secure parameter 'secureParam'"
         )]
         [DataRow(@"
             @secure()
@@ -49,7 +51,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets
             // Output contains secureObject parameter: badResult
-            "Don't include secrets in an output. Found possible secret: secure parameter 'secureParam'"
+            $"{description} Found possible secret: secure parameter 'secureParam'"
         )]
         [DataTestMethod]
         public void If_OutputReferencesSecureParam_ShouldFail(string text, params string[] expectedMessages)
@@ -92,7 +94,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               value: stg.listKeys().keys[0].value
             }
         ",
-            "Don't include secrets in an output. Found possible secret: function 'listKeys'"
+            $"{description} Found possible secret: function 'listKeys'"
         )]
         [DataRow(@"
             param storageName string
@@ -105,7 +107,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               value: stg.listAnything().keys[0].value
             }
         ",
-            "Don't include secrets in an output. Found possible secret: function 'listAnything'"
+            $"{description} Found possible secret: function 'listAnything'"
         )]
         [DataRow(@"
             param storageName string
@@ -137,7 +139,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               value: storage.listAnything().keys[0].value
             }
         ",
-            "Don't include secrets in an output. Found possible secret: function 'listAnything'"
+            $"{description} Found possible secret: function 'listAnything'"
         )]
         [DataTestMethod]
         public void If_ListFunctionInOutput_AsResourceMethod_ThroughVariable_ShouldFail(string text, params string[] expectedMessages)
@@ -157,7 +159,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets(6 ms)
             // Output contains secret: badResult
-            "Don't include secrets in an output. Found possible secret: function 'listKeys'"
+            $"{description} Found possible secret: function 'listKeys'"
         )]
         [DataRow(@"
             param storageName string
@@ -171,7 +173,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets(6 ms)
             // Output contains secret: badResult
-            "Don't include secrets in an output. Found possible secret: function 'listAnything'"
+            $"{description} Found possible secret: function 'listAnything'"
         )]
         [DataTestMethod]
         public void If_ListFunctionInOutput_AsStandaloneFunction_ShouldFail(string text, params string[] expectedMessages)
@@ -191,7 +193,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets(6 ms)
             // Output contains secret: badResult
-            "Don't include secrets in an output. Found possible secret: function 'listAnything'"
+            $"{description} Found possible secret: function 'listAnything'"
         )]
         [DataTestMethod]
         public void If_ListFunctionInOutput_AsAzInstanceFunction_ShouldFail(string text, params string[] expectedMessages)
@@ -205,22 +207,22 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             // TTK output:
             // [-] Outputs Must Not Contain Secrets(6 ms)
             //  Output name suggests secret: badResultPassword
-            "Don't include secrets in an output. Found possible secret: output name 'badResultPassword' suggests a secret"
+            $"{description} Found possible secret: output name 'badResultPassword' suggests a secret"
         )]
         [DataRow(@"
             output possiblepassword string = 'hello'
         ",
-            "Don't include secrets in an output. Found possible secret: output name 'possiblepassword' suggests a secret"
+            $"{description} Found possible secret: output name 'possiblepassword' suggests a secret"
         )]
         [DataRow(@"
             output password string = 'hello'
         ",
-            "Don't include secrets in an output. Found possible secret: output name 'password' suggests a secret"
+            $"{description} Found possible secret: output name 'password' suggests a secret"
         )]
         [DataRow(@"
             output passwordNumber1 string = 'hello'
         ",
-            "Don't include secrets in an output. Found possible secret: output name 'passwordNumber1' suggests a secret"
+            $"{description} Found possible secret: output name 'passwordNumber1' suggests a secret"
         )]
         [DataTestMethod]
         public void If_OutputNameLooksLikePassword_ShouldFail(string text, params string[] expectedMessages)
