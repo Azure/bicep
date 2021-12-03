@@ -81,6 +81,102 @@ resource blob 'blob' = {
         }
 
         [TestMethod]
+        public void Storage_import_basic_test_loops_and_referencing()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import stg from storage {
+  connectionString: 'asdf'
+}
+
+resource container 'container' = {
+  name: 'myblob'
+}
+
+resource blobs 'blob' = [for i in range(0, 10): {
+  name: 'myblob-${i}.txt'
+  containerName: container.name
+  base64Content: base64('Hello blob ${i}!')
+}]
+
+resource blobs2 'blob' = [for i in range(10, 10): {
+  name: blobs[i - 10].name
+  containerName: container.name
+  base64Content: base64('Hello blob ${i}!')
+}]
+
+output sourceContainerName string = container.name
+output sourceContainerNameSquare string = container['name']
+output miscBlobContainerName string = blobs[13 % 10].containerName
+output containerName string = blobs[5].containerName
+output base64Content string = blobs[3]['base64Content']
+");
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerName'].value", "[reference('container').name]");
+            result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerNameSquare'].value", "[reference('container').name]");
+            result.Template.Should().HaveValueAtPath("$.outputs['miscBlobContainerName'].value", "[reference(format('blobs[{0}]', mod(13, 10))).containerName]");
+            result.Template.Should().HaveValueAtPath("$.outputs['containerName'].value", "[reference(format('blobs[{0}]', 5)).containerName]");
+            result.Template.Should().HaveValueAtPath("$.outputs['base64Content'].value", "[reference(format('blobs[{0}]', 3)).base64Content]");
+        }
+
+        [TestMethod]
+        public void Aad_import_basic_test_loops_and_referencing()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import aad from aad
+param numApps int
+
+resource myApp 'application' = {
+  uniqueName: 'foo'
+}
+
+resource myAppsLoop 'application' = [for i in range(0, numApps): {
+  uniqueName: '${myApp.appId}-bar-${i}'
+}]
+
+output myAppId string = myApp.appId
+output myAppId2 string = myApp['appId']
+output myAppsLoopId string = myAppsLoop[13 % numApps].appId
+output myAppsLoopId2 string = myAppsLoop[3]['appId']
+");
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppId'].value", "[reference('myApp').appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppId2'].value", "[reference('myApp').appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId'].value", "[reference(format('myAppsLoop[{0}]', mod(13, parameters('numApps')))).appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId2'].value", "[reference(format('myAppsLoop[{0}]', 3)).appId]");
+        }
+
+        [TestMethod]
+        public void Aad_import_existing_requires_uniqueName()
+        {
+            // we've accidentally used 'name' even though this resource type doesn't support it
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import aad from aad
+
+resource myApp 'application' existing = {
+  name: 'foo'
+}
+");
+
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"uniqueName\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"name\" is not allowed on objects of type \"application\". Permissible properties include \"uniqueName\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            });
+
+            // oops! let's change it to 'uniqueName'
+            result = CompilationHelper.Compile(GetCompilationContext(), @"
+import aad from aad
+
+resource myApp 'application' existing = {
+  uniqueName: 'foo'
+}
+");
+
+            result.Should().GenerateATemplate();
+            result.Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
         public void Storage_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
