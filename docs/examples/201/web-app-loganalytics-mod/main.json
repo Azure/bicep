@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3017085690141632969"
+      "templateHash": "16459957040614519089"
     }
   },
   "parameters": {
@@ -17,7 +17,7 @@
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "appServicePlanDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -86,7 +86,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "appServiceDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -98,10 +98,10 @@
             "value": "[parameters('appName')]"
           },
           "appServicePlanID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appServicePlanDeploy'), '2020-06-01').outputs.appServicePlanID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appServicePlanDeploy'), '2020-10-01').outputs.appServicePlanID.value]"
           },
           "APPINSIGHTS_INSTRUMENTATIONKEY": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appInsightsDeploy'), '2020-06-01').outputs.APPINSIGHTS_INSTRUMENTATIONKEY.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'appInsightsDeploy'), '2020-10-01').outputs.APPINSIGHTS_INSTRUMENTATIONKEY.value]"
           }
         },
         "template": {
@@ -209,7 +209,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "appInsightsDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -221,7 +221,7 @@
             "value": "[parameters('appName')]"
           },
           "logAnalaticsWorkspaceResourceID": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logAnalyticsWorkspaceDeploy'), '2020-06-01').outputs.logAnalaticsWorkspaceResourceID.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'logAnalyticsWorkspaceDeploy'), '2020-10-01').outputs.logAnalaticsWorkspaceResourceID.value]"
           }
         },
         "template": {
@@ -280,7 +280,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "logAnalyticsWorkspaceDeploy",
       "properties": {
         "expressionEvaluationOptions": {

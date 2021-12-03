@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9841562694489357844"
+      "templateHash": "3812945097062088018"
     }
   },
   "parameters": {
@@ -343,7 +343,7 @@
     },
     "createNic1": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "createNic1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -449,7 +449,7 @@
     },
     "createNic2": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "createNic2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -554,7 +554,7 @@
     },
     "updateNic1": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "updateNic1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -667,7 +667,7 @@
     },
     "updateNic2": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "updateNic2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -779,7 +779,7 @@
     },
     "createAzureVmUdr": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "udrDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -842,7 +842,7 @@
     },
     "updateAzureVmUdr": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "udrUpdate",
       "properties": {
         "expressionEvaluationOptions": {
