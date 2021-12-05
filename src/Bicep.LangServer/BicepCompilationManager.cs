@@ -230,8 +230,6 @@ namespace Bicep.LanguageServer
                             }
                         }
 
-                        var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
-
                         if (reloadBicepConfig)
                         {
                             SendTelemetryIfLinterRuleWasDisabledInBicepConfig(prevConfiguration, configuration);
