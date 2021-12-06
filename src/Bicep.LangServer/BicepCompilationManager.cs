@@ -28,6 +28,8 @@ namespace Bicep.LanguageServer
 {
     public class BicepCompilationManager : ICompilationManager
     {
+        public const string LinterEnabledSetting = "core.enabled";
+
         private readonly IWorkspace workspace;
         private readonly ILanguageServerFacade server;
         private readonly ICompilationProvider provider;
@@ -207,6 +209,11 @@ namespace Bicep.LanguageServer
         {
             var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
 
+            if (version == 1)
+            {
+                SendTelemtryOnBicepFileOpen(configuration);
+            }
+
             try
             {
                 var context = this.activeContexts.AddOrUpdate(
@@ -290,6 +297,29 @@ namespace Bicep.LanguageServer
             }
         }
 
+        private void SendTelemtryOnBicepFileOpen(RootConfiguration configuration)
+        {
+            var telemetryEvent = GetTelemtryOnBicepFileOpen(configuration);
+            TelemetryProvider.PostEvent(telemetryEvent);
+        }
+
+        public BicepTelemetryEvent GetTelemtryOnBicepFileOpen(RootConfiguration configuration)
+        {
+            bool linterEnabledSettingValue = configuration.Analyzers.GetValue(LinterEnabledSetting, true);
+            Dictionary<string, string> properties = new();
+
+            properties.Add("enabled", linterEnabledSettingValue.ToString().ToLowerInvariant());
+
+            foreach (var kvp in LinterRules)
+            {
+                string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value, "warning");
+
+                properties.Add(kvp.Key, linterRuleDiagnosticLevelValue);
+            }
+
+            return BicepTelemetryEvent.BicepFileOpen(properties);
+        }
+
         private void SendTelemetryIfLinterRuleWasDisabledInBicepConfig(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
         {
             foreach (var telemetryEvent in GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration))
@@ -300,9 +330,8 @@ namespace Bicep.LanguageServer
 
         public IEnumerable<BicepTelemetryEvent> GetTelemetryEventsForBicepConfigChange(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
         {
-            var linterEnabledSetting = "core.enabled";
-            bool prevLinterEnabledSettingValue = prevConfiguration.Analyzers.GetValue(linterEnabledSetting, true);
-            bool curLinterEnabledSettingValue = curConfiguration.Analyzers.GetValue(linterEnabledSetting, true);
+            bool prevLinterEnabledSettingValue = prevConfiguration.Analyzers.GetValue(LinterEnabledSetting, true);
+            bool curLinterEnabledSettingValue = curConfiguration.Analyzers.GetValue(LinterEnabledSetting, true);
 
             if (!prevLinterEnabledSettingValue && !curLinterEnabledSettingValue)
             {
