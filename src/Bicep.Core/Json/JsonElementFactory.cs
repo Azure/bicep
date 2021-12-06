@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Text.Encodings.Web;
 using System.Text.Json;
 
 namespace Bicep.Core.Json
