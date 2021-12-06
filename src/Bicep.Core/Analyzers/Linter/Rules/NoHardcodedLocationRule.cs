@@ -158,7 +158,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         ObjectPropertySyntax? locationActualValue = null;
                         TextSpan errorSpan = syntax.Name.Span; // span will be the params key if it exists, otherwise the module name
 
-                        if (body.SafeGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) is ObjectPropertySyntax paramsProperty)
+                        if (body.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) is ObjectPropertySyntax paramsProperty)
                         {
                             errorSpan = paramsProperty.Key.Span;
                             if (paramsProperty.Value is ObjectSyntax paramsObject)
@@ -253,7 +253,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // Verify resource's location property is valid
                 SyntaxBase? locationValue = syntax.TryGetBody()
-                    ?.SafeGetPropertyByName(LanguageConstants.ResourceLocationPropertyName)?.Value;
+                    ?.TryGetPropertyByName(LanguageConstants.ResourceLocationPropertyName)?.Value;
                 if (locationValue != null)
                 {
                     VerifyResourceLocation(locationValue);
