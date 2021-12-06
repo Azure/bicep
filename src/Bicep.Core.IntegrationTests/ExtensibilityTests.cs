@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
         public void Storage_import_bad_config_is_blocked()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   madeUpProperty: 'asdf'
 }
 ");
@@ -48,11 +48,11 @@ import stg from storage {
         public void Storage_import_can_be_duplicated()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg1 from storage {
+import storage as stg1 {
   connectionString: 'connectionString1'
 }
 
-import stg2 from storage {
+import storage as stg2 {
   connectionString: 'connectionString2'
 }
 ");
@@ -63,7 +63,7 @@ import stg2 from storage {
         public void Storage_import_basic_test()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -84,7 +84,7 @@ resource blob 'blob' = {
         public void Storage_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -105,7 +105,7 @@ resource blob 'stg:blob' = {
         public void Invalid_namespace_qualifier_returns_error()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -130,7 +130,7 @@ resource blob 'bar:blob' = {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -178,7 +178,7 @@ module website './website.bicep' = {
 @secure()
 param connectionString string
 
-import stg from storage {
+import storage as stg {
   connectionString: connectionString
 }
 

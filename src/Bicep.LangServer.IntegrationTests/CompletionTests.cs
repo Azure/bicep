@@ -1111,23 +1111,17 @@ module mod2 './|' = {}
             var fileWithCursors = @"
 |
 import ns1 |
-import ns2 f|
-import ns3 f|r
-import ns4 from|
-import ns5 from |
-import ns6 from a|
-import ns7 from s|y
-import ns8 from sys|
+import ns2 a|
+import ns3 as|
+import |
+import a|
 ";
             var features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: true);
             await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => completions.Should().SatisfyRespectively(
                 c => c!.Select(x => x.Label).Should().Contain("import"),
-                c => c!.Select(x => x.Label).Should().Equal("from"),
-                c => c!.Select(x => x.Label).Should().Equal("from"),
-                c => c!.Select(x => x.Label).Should().Equal("from"),
+                c => c!.Select(x => x.Label).Should().Equal("as"),
+                c => c!.Select(x => x.Label).Should().Equal("as"),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
-                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
-                c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
                 c => c!.Select(x => x.Label).Should().Equal("az", "sys"),
                 c => c!.Select(x => x.Label).Should().Equal("az", "sys")
             ), features);
@@ -1135,9 +1129,6 @@ import ns8 from sys|
             features = BicepTestConstants.CreateFeaturesProvider(TestContext, importsEnabled: false);
             await RunCompletionScenarioTest(this.TestContext, fileWithCursors, completions => completions.Should().SatisfyRespectively(
                 c => c!.Select(x => x.Label).Should().NotContain("import"),
-                c => c!.Select(x => x.Label).Should().BeEmpty(),
-                c => c!.Select(x => x.Label).Should().BeEmpty(),
-                c => c!.Select(x => x.Label).Should().BeEmpty(),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),
                 c => c!.Select(x => x.Label).Should().BeEmpty(),

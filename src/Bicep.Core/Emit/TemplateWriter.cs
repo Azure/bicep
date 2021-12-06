@@ -509,8 +509,8 @@ namespace Bicep.Core.Emit
             // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place  
             // and emit its properties to merge decorator properties.
             foreach (var (property, val) in AddDecoratorsToBody(
-                resource.Symbol.DeclaringResource, 
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                resource.Symbol.DeclaringResource,
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
                 resource.Symbol.Type).ToNamedPropertyValueDictionary())
             {
                 emitter.EmitProperty(property, val);
@@ -657,8 +657,8 @@ namespace Bicep.Core.Emit
             // Since we don't want to be mutating the body of the original ObjectSyntax, we create an placeholder body in place  
             // and emit its properties to merge decorator properties.
             foreach (var (property, val) in AddDecoratorsToBody(
-                moduleSymbol.DeclaringModule, 
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                moduleSymbol.DeclaringModule,
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
                 moduleSymbol.Type).ToNamedPropertyValueDictionary())
             {
                 emitter.EmitProperty(property, val);
@@ -818,8 +818,8 @@ namespace Bicep.Core.Emit
 
             // emit any decorators on this output
             foreach (var (property, val) in AddDecoratorsToBody(
-                outputSymbol.DeclaringOutput, 
-                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()), 
+                outputSymbol.DeclaringOutput,
+                SyntaxFactory.CreateObject(Enumerable.Empty<ObjectPropertySyntax>()),
                 outputSymbol.Type).ToNamedPropertyValueDictionary())
             {
                 emitter.EmitProperty(property, val);
