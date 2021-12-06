@@ -81,8 +81,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
             allOf: [
               {
                 field: 'field'
-                equals: 'conditionValue' 'conditionValue'
-//@[41:57) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |'conditionValue'|
+                equals: 'conditionValue'
               }
             ]
           }
