@@ -116,5 +116,12 @@ namespace Bicep.LanguageServer.Telemetry
                     ["currentState"] = curState
                 }
             };
+
+        public static BicepTelemetryEvent BicepFileOpen(Dictionary<string, string> properties)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.BicepFileOpen,
+                Properties = properties
+            };
     }
 }
