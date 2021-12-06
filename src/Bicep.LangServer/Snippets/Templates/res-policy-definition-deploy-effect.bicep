@@ -41,7 +41,7 @@ resource /*${1:policyDefinition}*/policyDefinition 'Microsoft.Authorization/poli
             allOf: [
               {
                 field: /*${22:'field'}*/'field'
-                /*${23|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}*/equals: /*${24:'conditionValue'}*/ 'conditionValue'
+                /*${23|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}*/equals: /*${24:'conditionValue'}*/'conditionValue'
               }
             ]
           }
