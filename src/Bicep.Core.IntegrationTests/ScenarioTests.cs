@@ -146,6 +146,7 @@ output vnetstate string = vnet.properties.provisioningState
 param functionApp object
 param serverFarmId string
 
+#disable-next-line outputs-should-not-contain-secrets
 output config object = list(format('{0}/config/appsettings', functionAppResource.id), functionAppResource.apiVersion)
 
 resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
@@ -159,8 +160,7 @@ resource functionAppResource 'Microsoft.Web/sites@2020-06-01' = {
 }
 ");
 
-            // Ignore outputs-should-not-contain-secrets warnings which are expected
-            result.Diagnostics.Where(d => d.Code != "outputs-should-not-contain-secrets").Should().BeEmpty();
+            result.Diagnostics.Should().BeEmpty();
             result.Template.Should().HaveValueAtPath("$.outputs['config'].value", "[list(format('{0}/config/appsettings', resourceId('Microsoft.Web/sites', parameters('functionApp').name)), '2020-06-01')]");
         }
 
