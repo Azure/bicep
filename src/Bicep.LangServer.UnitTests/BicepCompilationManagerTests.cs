@@ -1115,23 +1115,103 @@ module moduleB './moduleB.bicep' = {
             telemetryEvent.Properties.Should().Equal(properties);
         }
 
+        [TestMethod]
+        public void GetTelemetryOnBicepFileOpen_ShouldReturnTelemetryEvent()
+        {
+            var compilationManager = CreateBicepCompilationManager();
+
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        },
+        ""no-unused-vars"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            var configurationManager = new ConfigurationManager(new IOFileSystem());
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+
+            var telemetryEvent = compilationManager.GetTelemetryOnBicepFileOpen(rootConfiguration);
+
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
+
+            IDictionary<string, string> properties = new Dictionary<string, string>
+            {
+                { "enabled", "true" },
+                { "simplify-interpolation", "warning" },
+                { "no-unused-vars", "info" },
+                { "no-hardcoded-env-urls", "warning" },
+                { "no-unused-params", "info" },
+                { "prefer-interpolation", "warning" },
+                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
+                { "no-unnecessary-dependson", "warning" },
+                { "adminusername-should-not-be-literal", "warning" },
+                { "use-stable-vm-image", "warning" },
+                { "secure-parameter-default", "warning" }
+            };
+
+            telemetryEvent.Properties.Should().Equal(properties);
+        }
+
+        [TestMethod]
+        public void GetTelemetryOnBicepFileOpen_WithNoContents_ShouldUseDefaultSettingsAndReturnTelemetryEvent()
+        {
+            var compilationManager = CreateBicepCompilationManager();
+
+            var bicepConfigFileContents = @"{}";
+            var configurationManager = new ConfigurationManager(new IOFileSystem());
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            var rootConfiguration = GetRootConfiguration(testOutputPath, bicepConfigFileContents, configurationManager);
+
+            var telemetryEvent = compilationManager.GetTelemetryOnBicepFileOpen(rootConfiguration);
+
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
+
+            var properties = new Dictionary<string, string>
+            {
+                { "enabled", "true" },
+                { "simplify-interpolation", "warning" },
+                { "no-unused-vars", "warning" },
+                { "no-hardcoded-env-urls", "warning" },
+                { "no-unused-params", "warning" },
+                { "prefer-interpolation", "warning" },
+                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
+                { "no-unnecessary-dependson", "warning" },
+                { "adminusername-should-not-be-literal", "warning" },
+                { "use-stable-vm-image", "warning" },
+                { "secure-parameter-default", "warning" }
+            };
+
+            telemetryEvent.Properties.Should().Equal(properties);
+        }
+
         private (RootConfiguration, RootConfiguration) GetPreviousAndCurrentRootConfiguration(string prevBicepConfigContents, string curBicepConfigContents)
         {
             var configurationManager = new ConfigurationManager(new IOFileSystem());
-
             var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", prevBicepConfigContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-
-            var prevConfiguration = configurationManager.GetConfiguration(bicepConfigUri.ToUri());
-
-            bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigContents, testOutputPath);
-            bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-
-            var curConfiguration = configurationManager.GetConfiguration(bicepConfigUri.ToUri());
+            var prevConfiguration = GetRootConfiguration(testOutputPath, prevBicepConfigContents, configurationManager);
+            var curConfiguration = GetRootConfiguration(testOutputPath, curBicepConfigContents, configurationManager);
 
             return (prevConfiguration, curConfiguration);
+        }
+
+        private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)
+        {
+            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
+            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
+
+            return configurationManager.GetConfiguration(bicepConfigUri.ToUri());
         }
 
         private BicepCompilationManager CreateBicepCompilationManager()

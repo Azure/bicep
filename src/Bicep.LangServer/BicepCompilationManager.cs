@@ -299,11 +299,11 @@ namespace Bicep.LanguageServer
 
         private void SendTelemtryOnBicepFileOpen(RootConfiguration configuration)
         {
-            var telemetryEvent = GetTelemtryOnBicepFileOpen(configuration);
+            var telemetryEvent = GetTelemetryOnBicepFileOpen(configuration);
             TelemetryProvider.PostEvent(telemetryEvent);
         }
 
-        public BicepTelemetryEvent GetTelemtryOnBicepFileOpen(RootConfiguration configuration)
+        public BicepTelemetryEvent GetTelemetryOnBicepFileOpen(RootConfiguration configuration)
         {
             bool linterEnabledSettingValue = configuration.Analyzers.GetValue(LinterEnabledSetting, true);
             Dictionary<string, string> properties = new();
