@@ -6,7 +6,7 @@
     <!-- Ensure the package supports multi-targeting -->
     <TargetFrameworks>net5;net472</TargetFrameworks>
     <LanguageTargets>$(MSBuildThisFileDirectory)\multitarget-mitigation.targets</LanguageTargets> <!-- https://github.com/microsoft/MSBuildSdks/issues/155 -->
-    <BicepOutputPath>bin\$(Configuration)\templates</BicepOutputPath>
+    <BicepOutputPath>bin\$(Configuration)\templates\$(TargetFramework)</BicepOutputPath>
   </PropertyGroup>
 
   <!-- 
