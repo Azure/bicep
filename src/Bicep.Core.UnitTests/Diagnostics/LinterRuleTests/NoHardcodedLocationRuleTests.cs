@@ -151,12 +151,43 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string 'global'. Found: 'westus'")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
             });
         }
 
         [TestMethod]
-        public void If_ResLocationIs_IndirectVariableDefinedAsLiteral_ShouldFail_WithFixToChangeToParam()
+        public void If_ResLocationIs_VariableDefinedAsLiteral_Used2Times_ShouldFailJustOnVariableDef__WithFixToChangeToParam()
+        {
+            var result = CompilationHelper.Compile(@"
+                var location = 'westus'
+
+                resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount2 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name2'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+            ");
+
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
+            });
+        }
+
+        [TestMethod]
+        public void If_ResLocationIs_IndirectVariableDefinedAsLiteral_ShouldFail()
         {
             var result = CompilationHelper.Compile(@"
                 var location = 'westus'
@@ -174,8 +205,110 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string 'global'. Found: 'westus'")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location2' into a parameter.")
             });
+        }
+
+        [TestMethod]
+        public void If_ResLocationIs_IndirectVariableDefinedAsLiteral_UsedIn2Places_ShouldFailJustOnVariableDef_WithFixToChangeToParam()
+        {
+            var result = CompilationHelper.Compile(@"
+                var location = 'westus'
+                var location2 = location
+
+                resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name'
+                  location: location2
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount2 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name2'
+                  location: location2
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+            ");
+
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
+            });
+        }
+
+        [TestMethod]
+        public void If_ResLocationIs_IndirectVariableDefinedAsLiteral_UsedIn2PlacesDifferently_ShouldFailJustOnVariableDefinition_WithFixToChangeToParam()
+        {
+            var result = CompilationHelper.Compile(@"
+                var location = 'westus'
+                var location2 = location
+
+                resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount2 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name2'
+                  location: location2
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+            ");
+
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter."),
+            });
+        }
+
+        [TestMethod]
+        public void If_ResLocationIs_VariableDefinedAsLiteral_UsedMultipleTimes_ThenOneDisableNextLineShouldFixIt()
+        {
+            var result = CompilationHelper.Compile(@"
+                #disable-next-line no-hardcoded-resource-location
+                var location = 'westus'
+
+                resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount2 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name2'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount3 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name3'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+            ");
+
+            result.Diagnostics.Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -198,7 +331,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string 'global'. Found: 'westus'")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
             });
         }
 

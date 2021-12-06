@@ -21,6 +21,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class NoHardcodedLocationRule : LinterRuleBase  //asdfg split
     {
+        //asdfg var->param rule should show on the variable, not the usage
+
         // Sub-rules: asdfg
         //
         // 1) If a location parameter exists, it must be of type string
@@ -37,7 +39,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private const string ResourceGroupFunctionName = "resourceGroup";
         // property of deployment() or resourceGroup() that is disallowed everywhere except location param's default value
         private const string RGOrDeploymentLocationPropertyName = "location";
-        private const string GlobalLocationValue = "global";
+        private const string Global = "global";
 
         public NoHardcodedLocationRule() : base(
             code: Code,
@@ -269,57 +271,72 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 //asdfg test: multi-line strings, interpolated strings, strings with escape chars
                 (string? literalValue, VariableSymbol? definingVariable) = TryGetLiteralText(locationValueSyntax);
 
-                if (literalValue != null)
+                if (literalValue == null)
                 {
-                    // The value is a string literal.  In that case, it must be "global" (case-insensitive)
-                    if (!StringComparer.OrdinalIgnoreCase.Equals(literalValue, GlobalLocationValue))
+                    return;
+                }
+
+                // The value is a string literal.  In that case, it must be "global" (case-insensitive)
+                if (StringComparer.OrdinalIgnoreCase.Equals(literalValue, Global))
+                {
+                    return;
+                }
+
+                if (definingVariable != null)
+                {
+                    // It's using a variable that is defined as a literal string.  Suggest they change it to
+                    // a parameter (the error goes on the variable definition, not the resource location property)
+                    TextSpan errorSpan = definingVariable.NameSyntax.Span;
+
+                    // Is there already a diagnostic for this variable?  Don't repeat
+                    if (diagnostics.Any(d => d.Code == NoHardcodedLocationRule.Code && d.Span.Equals(errorSpan)))
                     {
-                        List<CodeFix> fixes = new List<CodeFix>();
-                        if (definingVariable != null)
-                        {
-                            CodeFix fix = new CodeFix(
-                                $"Change variable '{definingVariable.Name}' into a parameter",
-                                true,
-                                //asdfg do I need to use a syntax tree?
-                                new CodeReplacement(definingVariable.DeclaringSyntax.Span, $"param {definingVariable.Name} string = {definingVariable.Value.ToTextPreserveFormatting()}"));
-                            fixes.Add(fix);
-                        }
-                        else
-                        {
-
-                            //asdfg find candidate parameters
-                            //asdfg fixWithNewParam += " " + $"Change '{literalValue}' into <an existing parameter>."; //asdfg any existing param?
-
-                            string newParamName = "location"; //asdfg
-                            CodeFix fixWithNewParam = new CodeFix(
-                                $"Create new parameter 'location' with default value {literalValue}",
-                                false,
-                                new CodeReplacement(
-                                    // asdfg find best insertion spot
-                                    new TextSpan(0, 0),
-                                    $"@description('Specifies the location for resources.')\n" //asdfg localize  asdfg customize?
-                                    + $"param {newParamName} string = {locationValueSyntax.ToTextPreserveFormatting()}\n\n"
-                                ));
-                            fixes.Add(fixWithNewParam);
-                        }
-
-                        var msg = String.Format(
-                                //asdfg change based on scenario?
-                                //asdff CoreResources.NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal,
-                                //asdfg change to "a resource's location"
-                                "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string '{0}'. Found: '{1}'",
-                                // asdfg + " AUTO-FIXES AVAILABLE: " + (fix ?? "none"),
-                                GlobalLocationValue,
-                                literalValue);
-                        diagnostics.Add(parent.CreateFixableDiagnosticForSpan(
-                            locationValueSyntax.Span,
-                            fixes.ToArray(),
-                            msg));
+                        return;
                     }
+
+                    string msg = String.Format("A resource location should not use a hard-coded string or variable value. Change variable '{0}' into a parameter.", definingVariable.Name);
+                    CodeFix fix = new CodeFix(
+                        $"Change variable '{definingVariable.Name}' into a parameter",
+                        true,
+                        //asdfg do I need to use a syntax tree?
+                        new CodeReplacement(definingVariable.DeclaringSyntax.Span, $"param {definingVariable.Name} string = {definingVariable.Value.ToTextPreserveFormatting()}"));
+                    diagnostics.Add(parent.CreateFixableDiagnosticForSpan(
+                        locationValueSyntax.Span,
+                        fix,
+                        msg));
+
                 }
                 else
                 {
-                    // Any other value or expression is acceptable
+                    List<CodeFix> fixes = new List<CodeFix>();
+
+                    //asdfg find candidate parameters
+                    //asdfg fixWithNewParam += " " + $"Change '{literalValue}' into <an existing parameter>."; //asdfg any existing param?
+
+                    string newParamName = "location"; //asdfg
+                    CodeFix fixWithNewParam = new CodeFix(
+                        $"Create new parameter 'location' with default value {literalValue}",
+                        false,
+                        new CodeReplacement(
+                            // asdfg find best insertion spot
+                            new TextSpan(0, 0),
+                            $"@description('Specifies the location for resources.')\n" //asdfg localize  asdfg customize?
+                            + $"param {newParamName} string = {locationValueSyntax.ToTextPreserveFormatting()}\n\n"
+                        ));
+                    fixes.Add(fixWithNewParam);
+
+                    var msg = String.Format(
+                            //asdfg change based on scenario?
+                            //asdff CoreResources.NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal,
+                            //asdfg change to "a resource's location"
+                            "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string '{0}'. Found: '{1}'",
+                            // asdfg + " AUTO-FIXES AVAILABLE: " + (fix ?? "none"),
+                            Global,
+                            literalValue);
+                    diagnostics.Add(parent.CreateFixableDiagnosticForSpan(
+                        locationValueSyntax.Span,
+                        fixes.ToArray(),
+                        msg));
                 }
             }
 
