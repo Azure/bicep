@@ -7,7 +7,6 @@ using Bicep.RegistryModuleTool.ModuleFileValidators;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
@@ -23,55 +22,57 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private readonly Lazy<IEnumerable<MainArmTemplateParameterInstance>> lazyParameterValues;
 
-        public MainArmTemplateParametersFile(string path, JsonElement rootElement)
+        public MainArmTemplateParametersFile(string path, string content, JsonElement rootElement)
             : base(path)
         {
-            this.RootElement = rootElement;
-
+            this.Content = content;
             this.lazyParameterValues = new(() => !rootElement.TryGetProperty("parameters", out var parametersElement)
                 ? Enumerable.Empty<MainArmTemplateParameterInstance>()
                 : parametersElement.EnumerateObject().Select(ToParameterInstance));
         }
 
-        public JsonElement RootElement { get; }
+        public string Content { get; }
 
         public IEnumerable<MainArmTemplateParameterInstance> ParameterInstances => lazyParameterValues.Value;
 
         public static MainArmTemplateParametersFile Generate(IFileSystem fileSystem, MainArmTemplateFile mainArmTemplateFile)
         {
             var bufferWriter = new ArrayBufferWriter<byte>();
-            using var writer = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = true });
-
-            writer.WriteStartObject();
-
-            writer.WriteString("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
-            writer.WriteString("contentVersion", "1.0.0.0");
-
-            writer.WritePropertyName("parameters");
-            writer.WriteStartObject();
-
-            var parameterInstances = fileSystem.File.Exists(FileName)
-                ? GenerateParameterInstancesWithExistingFile(ReadFromFileSystem(fileSystem), mainArmTemplateFile)
-                : mainArmTemplateFile.Parameters
-                    .Where(x => x.Required)
-                    .Select(GenerateDummyParameterInstance);
-
-            foreach (var parameterInstance in parameterInstances)
+            using (var writer = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = true }))
             {
-                writer.WritePropertyName(parameterInstance.Name);
                 writer.WriteStartObject();
-                JsonElementFactory.CreateElement(parameterInstance.Value).WriteTo(writer);
+
+                writer.WriteString("$schema", "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#");
+                writer.WriteString("contentVersion", "1.0.0.0");
+
+                writer.WritePropertyName("parameters");
+                writer.WriteStartObject();
+
+                var parameterInstances = fileSystem.File.Exists(FileName)
+                    ? GenerateParameterInstancesWithExistingFile(ReadFromFileSystem(fileSystem), mainArmTemplateFile)
+                    : mainArmTemplateFile.Parameters
+                        .Where(x => x.Required)
+                        .Select(GenerateDummyParameterInstance);
+
+                foreach (var parameterInstance in parameterInstances)
+                {
+                    writer.WritePropertyName(parameterInstance.Name);
+                    writer.WriteStartObject();
+                    writer.WritePropertyName("value");
+                    JsonElementFactory.CreateElement(parameterInstance.Value).WriteTo(writer);
+                    writer.WriteEndObject();
+                }
+
+                writer.WriteEndObject();
+
                 writer.WriteEndObject();
             }
 
-            writer.WriteEndObject();
-
-            writer.WriteEndObject();
-
             var path = fileSystem.Path.GetFullPath(FileName);
+            var content = Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
             var rootElement = JsonElementFactory.CreateElement(bufferWriter.WrittenMemory);
 
-            return new(path, rootElement);
+            return new(path, content, rootElement);
         }
 
         public static MainArmTemplateParametersFile ReadFromFileSystem(IFileSystem fileSystem)
@@ -80,10 +81,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             try
             {
-                using var stream = fileSystem.FileStream.Create(FileName, FileMode.Open, FileAccess.Read);
-                var jsonElement = JsonElementFactory.CreateElement(stream);
+                var content = fileSystem.File.ReadAllText(path);
+                var jsonElement = JsonElementFactory.CreateElement(content);
 
-                return new(path, jsonElement);
+                return new(path, content, jsonElement);
             }
             catch (JsonException jsonException)
             {
@@ -91,12 +92,14 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
         }
 
+        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(FileName, this.Content);
+
         protected override void ValidatedBy(IModuleFileValidator validator)
         {
             validator.Validate(this);
         }
 
-        public static IEnumerable<MainArmTemplateParameterInstance> GenerateParameterInstancesWithExistingFile(
+        private static IEnumerable<MainArmTemplateParameterInstance> GenerateParameterInstancesWithExistingFile(
             MainArmTemplateParametersFile existingFile,
             MainArmTemplateFile mainArmTemplateFile)
         {

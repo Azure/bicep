@@ -35,7 +35,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 .Select(p => new
                 {
                     Name = $"`{p.Name}`",
-                    Type = $"`{p.Type}",
+                    Type = $"`{p.Type}`",
                     Required = p.Required ? "Yes" : "No",
                     p.Description,
                 })

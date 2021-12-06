@@ -36,6 +36,20 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
             }
         }
 
+        public void Validate(MainArmTemplateParametersFile file)
+        {
+            this.logger.LogDebug("Validating generated content of \"{MainArmTemplateParametersFile}\"...", file.Path);
+
+            var latestArmTemplateFile = MainBicepFile.ReadFromFileSystem(this.fileSystem).Build(this.fileSystem, this.logger);
+            var latestParametersFile = MainArmTemplateParametersFile.Generate(this.fileSystem, latestArmTemplateFile);
+
+            if (Diff(file.Content, latestParametersFile.Content))
+            {
+                // TODO: better error message.
+                throw new BicepException($"The main ARM template parameters file \"{file.Path}\" is modified or outdated. Please regenerate the file to fix it.");
+            }
+        }
+
         public void Validate(VersionFile file)
         {
             this.logger.LogDebug("Validating generated content of \"{VersionFilePath}\"...", file.Path);

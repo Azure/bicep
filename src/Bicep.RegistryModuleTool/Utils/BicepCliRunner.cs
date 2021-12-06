@@ -64,10 +64,11 @@ namespace Bicep.RegistryModuleTool.Utils
 
             process.Start();
 
-            var standardOutput = process.StandardOutput.ReadToEnd();
             var standardError = process.StandardError.ReadToEnd();
+            var standardOutput = process.StandardOutput.ReadToEnd();
 
             process.WaitForExit();
+
 
             return (process.ExitCode, standardOutput, standardError);
         }

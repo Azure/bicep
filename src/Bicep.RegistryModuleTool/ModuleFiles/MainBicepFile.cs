@@ -42,7 +42,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 using var tempFile = fileSystem.File.CreateTempFile();
                 new BicepCliRunner(fileSystem, logger).BuildBicepFile(this.Path, tempFile.Path);
 
-                var path = fileSystem.Path.GetFullPath(FileName);
+                var path = fileSystem.Path.GetFullPath(MainArmTemplateFile.FileName);
                 var content = fileSystem.File.ReadAllText(tempFile.Path);
 
                 this.cachedMainArmTemplate = new MainArmTemplateFile(path, content);

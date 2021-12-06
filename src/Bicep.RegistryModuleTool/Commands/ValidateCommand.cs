@@ -32,6 +32,7 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 MainBicepFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(descriptionsValidator);
                 MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+                MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator);
                 MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator);
                 VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
                 ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);

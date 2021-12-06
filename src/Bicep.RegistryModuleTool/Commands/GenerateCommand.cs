@@ -33,6 +33,13 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.Logger.LogDebug("Writing main ARM template file to \"{MainArmTemplateFilePath}\"...", mainArmTemplateFile.Path);
                 mainArmTemplateFile.WriteToFileSystem(FileSystem);
 
+                // Generate main ARM template parameters file.
+                this.Logger.LogDebug("Generating main ARM template parameters file...");
+                var mainArmTemplateParametersFile = MainArmTemplateParametersFile.Generate(this.FileSystem, mainArmTemplateFile);
+
+                this.Logger.LogDebug("Writing main ARM template parameters file to \"{MainArmTemplateParametersFilePath}\"...", mainArmTemplateParametersFile.Path);
+                mainArmTemplateParametersFile.WriteToFileSystem(FileSystem);
+
                 // Generate README file.
                 this.Logger.LogDebug("Generating README file...");
                 var metadataFile = MetadataFile.ReadFromFileSystem(this.FileSystem);
