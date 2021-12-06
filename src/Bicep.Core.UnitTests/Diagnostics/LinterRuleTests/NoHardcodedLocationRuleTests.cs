@@ -21,7 +21,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class NoHardcodedLocationRuleTests : LinterRuleTestsBase
     {
-        /*
+        /* asdfg
         no-hardcoded-resource-location
         A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression (but not resourceGroup().location or deployment().location) or the string 'global'.
 
