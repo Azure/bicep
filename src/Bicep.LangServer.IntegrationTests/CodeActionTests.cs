@@ -192,7 +192,7 @@ namespace Bicep.LangServer.IntegrationTests
             codeActions.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.CodeAction!.Title.Should().Be("Disable no-unused-params for this line.");
+                    x.CodeAction!.Title.Should().Be("Disable no-unused-params for this line");
                     x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line no-unused-params\n");
                 });
         }
@@ -313,12 +313,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             codeActions.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.CodeAction!.Title.Should().Be("Disable BCP036 for this line.");
+                    x.CodeAction!.Title.Should().Be("Disable BCP036 for this line");
                     x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line BCP036\n");
                 },
                 x =>
                 {
-                    x.CodeAction!.Title.Should().Be("Disable BCP037 for this line.");
+                    x.CodeAction!.Title.Should().Be("Disable BCP037 for this line");
                     x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line BCP037\n");
                 });
         }

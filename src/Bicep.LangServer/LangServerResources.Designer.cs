@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Disable {0} for this line..
+        ///   Looks up a localized string similar to Disable {0} for this line.
         /// </summary>
         internal static string DisableDiagnosticForThisLine {
             get {

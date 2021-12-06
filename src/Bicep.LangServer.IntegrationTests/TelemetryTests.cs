@@ -183,7 +183,7 @@ namespace Bicep.LangServer.IntegrationTests
                 Range = diagnostics.First().ToRange(lineStarts)
             });
 
-            var disableNextLineCodeAction = codeActions.First(x => x.CodeAction!.Title == "Disable no-unused-params for this line.").CodeAction;
+            var disableNextLineCodeAction = codeActions.First(x => x.CodeAction!.Title == "Disable no-unused-params for this line").CodeAction;
 
             _ = await client!.ResolveCodeAction(disableNextLineCodeAction!);
 
