@@ -22,6 +22,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             Ignore,
         }
 
+        public record ExpectedCodeFix
+        {
+            public string Description;
+            public string ReplacementText;
+
+            public ExpectedCodeFix(string description, string replacementText)
+            {
+                this.Description = description;
+                this.ReplacementText = replacementText;
+            }
+        }
+
         protected void AssertLinterRuleDiagnostics(string ruleCode, string bicepText, string[] expectedMessagesForCode, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
             AssertLinterRuleDiagnostics(ruleCode, bicepText, onCompileErrors, diags =>
@@ -74,6 +86,36 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     result.Diagnostics.Where(filterFunc),
                     assertAction);
             }
+        }
+
+        protected void ExpectPass(string bicepText, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        {
+            AssertLinterRuleDiagnostics(NoHardcodedLocationRule.Code, bicepText, new string[] { }, onCompileErrors);
+        }
+
+        protected void ExpectPass(string bicepText, string module1Text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        {
+            AssertLinterRuleDiagnostics(NoHardcodedLocationRule.Code, bicepText, new string[] { }, onCompileErrors);
+        }
+
+        protected void ExpectFail(string bicepText, string expectedMessage, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        {
+            AssertLinterRuleDiagnostics(NoHardcodedLocationRule.Code, bicepText, new string[] { expectedMessage }, onCompileErrors);
+        }
+
+        protected void ExpectFailWithFix(string bicepText, string expectedMessage, ExpectedCodeFix expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        {
+            AssertLinterRuleDiagnostics(
+              NoHardcodedLocationRule.Code,
+              bicepText,
+              diagnostics =>
+              {
+                  diagnostics.Should().HaveCount(1);
+                  diagnostics.Should().HaveFixableDiagnostics(new[] {
+                    (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, expectedMessage, expectedFix.Description, expectedFix.ReplacementText)
+                  }); ;
+              }
+            );
         }
     }
 }

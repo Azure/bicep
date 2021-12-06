@@ -17,30 +17,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class PreferInterpolationRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
-        {
-            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
-            {
-                diags.Should().HaveCount(0, $"expecting linter rule to pass");
-            });
-        }
+        //asdfg remove
+        //private void ExpectFailWithFix(string text, string expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        //{
+        //    ExpectFailWithFix(text, new string[] { expectedFix }, onCompileErrors);
+        //}
 
-        private void ExpectDiagnosticWithFix(string text, string expectedFix, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
-        {
-            ExpectDiagnosticWithFix(text, new string[] { expectedFix }, onCompileErrors);
-        }
+        //private void ExpectFailWithFix(string text, string[] expectedFixes, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
+        //{
+        //    AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
+        //    {
+        //        diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
 
-        private void ExpectDiagnosticWithFix(string text, string[] expectedFixes, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
-        {
-            AssertLinterRuleDiagnostics(PreferInterpolationRule.Code, text, onCompileErrors, diags =>
-            {
-                diags.Should().HaveCount(expectedFixes.Length, $"expecting one fix per testcase");
-
-                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-                var a = diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
-            });
-        }
+        //        diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
+        //        diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
+        //        var a = diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.SelectMany(f => f.Replacements.SelectMany(r => r.Text));
+        //    });
+        //}
 
         [DataRow(@"
                 param suffix string = '001'
@@ -54,7 +47,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void VariableValue_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(@"
@@ -69,7 +62,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void ParameterValue_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(@"
@@ -84,7 +77,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void ResourceProperty_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(@"
@@ -103,7 +96,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void ResourceDeepProperty_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(
@@ -126,7 +119,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void ConcatDeepInExpression_HasFix(string text, params string[] expectedFixes)
         {
-            ExpectDiagnosticWithFix(text, expectedFixes);
+            //asdfg ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFixes, "asdfg"));
         }
 
         [DataRow(@"
@@ -147,7 +140,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void JustLiterals_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(@"
@@ -195,7 +188,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void MixedLiteralsAndExpressions_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(@"
@@ -259,7 +252,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void StringFolding_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(@"
@@ -278,7 +271,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void NestedComplexExpressions_HasFix(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(
@@ -438,7 +431,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             }
             else
             {
-                ExpectDiagnosticWithFix(text, expectedFix, OnCompileErrors.Ignore);
+                ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"), OnCompileErrors.Ignore);
             }
         }
 

@@ -19,9 +19,9 @@ using System.Linq;
 // asdfg Also worth bearing in mind that LookUpModuleSourceFile can return you an ArmTemplateFile or TemplateSpecFile (with ArmTemplateSemanticModel & TemplateSpecSemanticModel) in cases where the module is referencing a template spec or JSON template
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class NoHardcodedLocationRule : LinterRuleBase
+    public sealed class NoHardcodedLocationRule : LinterRuleBase  //asdfg split
     {
-        // Sub-rules:
+        // Sub-rules: asdfg
         //
         // 1) If a location parameter exists, it must be of type string
         // 2) Parameter location may optionally default to resourceGroup().location or deployment().location or the string 'global'.
@@ -174,7 +174,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         if (locationActualValue == null)
                         {
                             // No value being passed in - this is a failure
-//                            List<CodeFix> fixes = new List<CodeFix>();
+                            //                            List<CodeFix> fixes = new List<CodeFix>();
                             // fixes.Add(new CodeFix(
                             //     `${parameterName}: location`,
                             //     false,

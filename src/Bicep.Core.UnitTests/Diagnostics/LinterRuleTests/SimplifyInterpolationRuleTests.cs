@@ -19,25 +19,18 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
     [TestClass]
     public class SimplifyInterpolationRuleTests : LinterRuleTestsBase
     {
-        private void ExpectPass(string text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
-        {
-            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, onCompileErrors, diags =>
-           {
-               diags.Should().HaveCount(0, $"expecting linter rule to pass");
-           });
-        }
+        //asdfg remove
+        //private void ExpectFailWithFix(string text, string expectedFix)
+        //{
+        //    AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, diags =>
+        //    {
+        //        diags.Should().HaveCount(1, $"expected one fix per testcase");
 
-        private void ExpectDiagnosticWithFix(string text, string expectedFix)
-        {
-            AssertLinterRuleDiagnostics(SimplifyInterpolationRule.Code, text, diags =>
-            {
-                diags.Should().HaveCount(1, $"expected one fix per testcase");
-
-                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
-                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
-                diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be(expectedFix);
-            });
-        }
+        //        diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.Should().HaveCount(1);
+        //        diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.Should().HaveCount(1);
+        //        diags.First().As<IBicepAnalyerFixableDiagnostic>().Fixes.First().Replacements.First().Text.Should().Be(expectedFix);
+        //    });
+        //}
 
         [DataRow(
             @"
@@ -89,7 +82,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void ParameterReference(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(
@@ -116,7 +109,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         [DataTestMethod]
         public void VariableReference(string text, string expectedFix)
         {
-            ExpectDiagnosticWithFix(text, expectedFix);
+            ExpectFailWithFix(text, "asdfg", new ExpectedCodeFix(expectedFix, "asdfg"));
         }
 
         [DataRow(@"
