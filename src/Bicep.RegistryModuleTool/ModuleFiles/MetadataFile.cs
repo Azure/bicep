@@ -13,7 +13,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 {
     internal class MetadataFile : ModuleFile
     {
-        private const string FileName = "metadata.json";
+        public const string FileName = "metadata.json";
 
         public MetadataFile(string path, JsonElement rootElement)
             : base(path)
@@ -24,6 +24,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public JsonElement RootElement { get; }
 
         public string? ItemDisplayName => this.RootElement.TryGetProperty("itemDisplayName", out var element) ? element.GetString() : null;
+
+        public string? Description => this.RootElement.TryGetProperty("description", out var element) ? element.GetString() : null;
 
         public static void CreateInFileSystem(IFileSystem fileSystem)
         {

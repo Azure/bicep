@@ -22,11 +22,16 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string Content { get; }
 
-        public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metdataFile, MainArmTemplateFile mainArmTemplateFile)
+        public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metadataFile, MainArmTemplateFile mainArmTemplateFile)
         {
             var builder = new StringBuilder();
 
-            builder.AppendLine($"# {metdataFile.ItemDisplayName}");
+            // TODO: generate badges.
+
+            builder.AppendLine($"# {metadataFile.ItemDisplayName}");
+            builder.AppendLine();
+
+            builder.AppendLine(metadataFile.Description);
             builder.AppendLine();
 
             builder.AppendLine("## Parameters");

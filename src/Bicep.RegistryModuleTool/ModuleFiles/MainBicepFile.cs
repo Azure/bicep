@@ -12,7 +12,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 {
     internal class MainBicepFile : ModuleFile
     {
-        private const string FileName = "main.bicep";
+        public const string FileName = "main.bicep";
 
         private MainArmTemplateFile? cachedMainArmTemplateFile = null;
 

@@ -14,7 +14,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 {
     internal sealed class VersionFile : ModuleFile
     {
-        private const string FileName = "version.json";
+        public const string FileName = "version.json";
 
         private static readonly Regex VersionRegex = new(@"0|[1-9]\d*\.0|[1-9]\d*", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
