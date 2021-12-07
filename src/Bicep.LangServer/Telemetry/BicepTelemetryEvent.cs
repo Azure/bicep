@@ -116,5 +116,12 @@ namespace Bicep.LanguageServer.Telemetry
                     ["currentState"] = curState
                 }
             };
+
+        public static BicepTelemetryEvent CreateLinterStateOnBicepFileOpen(Dictionary<string, string> properties)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.LinterStateOnBicepFileOpen,
+                Properties = properties
+            };
     }
 }
