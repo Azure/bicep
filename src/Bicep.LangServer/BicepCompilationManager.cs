@@ -209,11 +209,6 @@ namespace Bicep.LanguageServer
         {
             var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
 
-            if (version == 1)
-            {
-                SendTelemtryOnBicepFileOpen(configuration);
-            }
-
             try
             {
                 var context = this.activeContexts.AddOrUpdate(
@@ -258,7 +253,8 @@ namespace Bicep.LanguageServer
                 // this completes immediately
                 this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.ModulesToRestore, configuration);
 
-                var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
+                var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
+                var output = workspace.UpsertSourceFiles(sourceFiles);
 
                 // convert all the diagnostics to LSP diagnostics
                 var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
@@ -266,6 +262,11 @@ namespace Bicep.LanguageServer
                 if (configurationDiagnostic is not null)
                 {
                     diagnostics = diagnostics.Append(configurationDiagnostic);
+                }
+
+                if (version == 1)
+                {
+                    SendTelemtryOnBicepFileOpen(configuration, sourceFiles);
                 }
 
                 // publish all the diagnostics
@@ -297,13 +298,13 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void SendTelemtryOnBicepFileOpen(RootConfiguration configuration)
+        private void SendTelemtryOnBicepFileOpen(RootConfiguration configuration, ImmutableHashSet<ISourceFile> sourceFiles)
         {
-            var telemetryEvent = GetTelemetryOnBicepFileOpen(configuration);
+            var telemetryEvent = GetTelemetryOnBicepFileOpen(configuration, sourceFiles);
             TelemetryProvider.PostEvent(telemetryEvent);
         }
 
-        public BicepTelemetryEvent GetTelemetryOnBicepFileOpen(RootConfiguration configuration)
+        public BicepTelemetryEvent GetTelemetryOnBicepFileOpen(RootConfiguration configuration, ImmutableHashSet<ISourceFile> sourceFiles)
         {
             bool linterEnabledSettingValue = configuration.Analyzers.GetValue(LinterEnabledSetting, true);
             Dictionary<string, string> properties = new();
@@ -315,6 +316,16 @@ namespace Bicep.LanguageServer
                 string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value, "warning");
 
                 properties.Add(kvp.Key, linterRuleDiagnosticLevelValue);
+            }
+
+            foreach (var sourceFile in sourceFiles)
+            {
+                if (sourceFile is BicepFile bicepFile)
+                {
+                    var declarations = bicepFile.ProgramSyntax.Declarations;
+
+
+                }
             }
 
             return BicepTelemetryEvent.BicepFileOpen(properties);
