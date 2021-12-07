@@ -17,22 +17,23 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         private readonly ILogger logger;
 
-        public DescriptionsValidator(IFileSystem fileSystem, ILogger logger)
+        private readonly MainArmTemplateFile latestMainArmTemplateFile;
+
+        public DescriptionsValidator(IFileSystem fileSystem, ILogger logger, MainArmTemplateFile latestMainArmTemplateFile)
         {
             this.fileSystem = fileSystem;
             this.logger = logger;
+            this.latestMainArmTemplateFile = latestMainArmTemplateFile;
         }
 
         public void Validate(MainBicepFile file)
         {
-            this.logger.LogDebug("Validting parameter and output descriptions for \"{MainBicepFilePath}\"...", file.Path);
+            this.logger.LogDebug("Making sure descriptions are defined for all parameters and outputs...");
 
-            var mainArmTemplateFile = file.Build(this.fileSystem, this.logger);
-
-            var noDescriptionParameters = mainArmTemplateFile.Parameters
+            var noDescriptionParameters = latestMainArmTemplateFile.Parameters
                 .Where(parameter => string.IsNullOrEmpty(parameter.Description));
 
-            var noDescriptionOutputs = mainArmTemplateFile.Outputs
+            var noDescriptionOutputs = latestMainArmTemplateFile.Outputs
                 .Where(output => string.IsNullOrEmpty(output.Description));
 
             if (noDescriptionParameters.IsEmpty() && noDescriptionOutputs.IsEmpty())

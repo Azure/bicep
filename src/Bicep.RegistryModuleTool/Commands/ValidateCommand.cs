@@ -44,21 +44,34 @@ namespace Bicep.RegistryModuleTool.Commands
 
             protected override void InvokeInternal(InvocationContext context)
             {
+                this.Logger.LogDebug("Validating that no additional files are in the module folder...");
                 this.EnsureNoAdditionalFiles();
 
+                this.Logger.LogDebug("Validating main Bicep file...");
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
-                var descriptionsValidator = new DescriptionsValidator(this.FileSystem, this.Logger);
+
+                var latestMainArmTemplateFile = mainBicepFile.Build(this.FileSystem, this.Logger);
+                var descriptionsValidator = new DescriptionsValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
 
                 mainBicepFile.ValidatedBy(descriptionsValidator);
 
-                var jsonSchemaValidator = new JsonSchemaValidator();
-                var diffValidator = new DiffValidator(this.FileSystem, this.Logger, mainBicepFile);
+                var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
+                var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
 
+                this.Logger.LogDebug("Validating main ARM template file...");
                 MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+
+                this.Logger.LogDebug("Validating main ARM template parameters file...");
                 MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator);
+
+                this.Logger.LogDebug("Validating metadata file...");
                 MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator);
-                VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+
+                this.Logger.LogDebug("Validating README file...");
                 ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+
+                this.Logger.LogDebug("Validating version file...");
+                VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
             }
 
             private void EnsureNoAdditionalFiles()

@@ -15,74 +15,64 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         private readonly ILogger logger;
 
-        private readonly MainBicepFile mainBicepFile;
+        private readonly MainArmTemplateFile latestMainArmTemplateFile;
 
-        public DiffValidator(IFileSystem fileSystem, ILogger logger, MainBicepFile mainBicepFile)
+        public DiffValidator(IFileSystem fileSystem, ILogger logger, MainArmTemplateFile latestMainArmTemplateFile)
         {
             this.fileSystem = fileSystem;
             this.logger = logger;
-            this.mainBicepFile = mainBicepFile;
+            this.latestMainArmTemplateFile = latestMainArmTemplateFile;
         }
 
-        public void Validate(MainArmTemplateFile file)
-        {
-            this.logger.LogDebug("Validating generated content of \"{MainArmTemplateFilePath}\"...", file.Path);
-
-            var latestArmTemplateFile = this.mainBicepFile.Build(this.fileSystem, this.logger);
-
-            if (DiffLines(file.Content, latestArmTemplateFile.Content))
-            {
-                throw new BicepException($"The main ARM template file \"{file.Path}\" is modified or outdated. Please regenerate the file to fix it.");
-            }
-        }
+        public void Validate(MainArmTemplateFile file) =>
+            this.Validate(file.Path, file.Content, this.latestMainArmTemplateFile.Content);
 
         public void Validate(MainArmTemplateParametersFile file)
         {
-            this.logger.LogDebug("Validating generated content of \"{MainArmTemplateParametersFile}\"...", file.Path);
+            var latestMainArmTemplateParametersFile = MainArmTemplateParametersFile.Generate(this.fileSystem, this.latestMainArmTemplateFile);
 
-            var latestArmTemplateFile = mainBicepFile.Build(this.fileSystem, this.logger);
-            var latestParametersFile = MainArmTemplateParametersFile.Generate(this.fileSystem, latestArmTemplateFile);
-
-            if (DiffLines(file.Content, latestParametersFile.Content))
-            {
-                throw new BicepException($"The main ARM template parameters file \"{file.Path}\" is modified or outdated. Please regenerate the file to fix it.");
-            }
+            this.Validate(file.Path, file.Content, latestMainArmTemplateParametersFile.Content);
         }
 
         public void Validate(VersionFile file)
         {
-            this.logger.LogDebug("Validating generated content of \"{VersionFilePath}\"...", file.Path);
-
             var latestVersionFile = VersionFile.Generate(this.fileSystem);
 
-            if (DiffLines(file.Content, latestVersionFile.Content))
+            this.Validate(file.Path, file.Content, latestVersionFile.Content);
+        }
+
+        private void Validate(string filePath, string newContent, string oldContent)
+        {
+            this.logger.LogDebug("Making sure the content of \"{FilePath}\" is up-to-date...", filePath);
+
+            if (DiffLines(newContent, oldContent))
             {
-                throw new BicepException($"The version file \"{file.Path}\" is modified or outdated. Please regenerate the file to fix it.");
+                throw new BicepException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.");
             }
         }
 
-        private static bool DiffLines(string newText, string oldText)
+        private static bool DiffLines(string newContent, string oldContent)
         {
             // Ignores newline and trailing newline differences in case users
             // have different formatting settings.
-            using var newTextReader = new StringReader(newText);
-            using var oldTextReader = new StringReader(oldText);
+            using var newContentReader = new StringReader(newContent);
+            using var oldContentReader = new StringReader(oldContent);
 
-            var newTextLine = newTextReader.ReadLine();
-            var oldTextLine = oldTextReader.ReadLine();
+            var newContentLine = newContentReader.ReadLine();
+            var oldContentLine = oldContentReader.ReadLine();
 
-            while (newTextLine is not null && oldTextLine is not null)
+            while (newContentLine is not null && oldContentLine is not null)
             {
-                if (newTextLine != oldTextLine)
+                if (newContentLine != oldContentLine)
                 {
                     return true;
                 }
 
-                newTextLine = newTextReader.ReadLine();
-                oldTextLine = oldTextReader.ReadLine();
+                newContentLine = newContentReader.ReadLine();
+                oldContentLine = oldContentReader.ReadLine();
             }
 
-            return newTextLine != oldTextLine;
+            return newContentLine != oldContentLine;
         }
     }
 }

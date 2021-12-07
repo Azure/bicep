@@ -7,6 +7,7 @@ using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Schemas;
 using Json.Schema;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -17,12 +18,23 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
     {
         private const string AdditionalPropertiesSchemaLocationSuffix = "/additionalProperties/$false";
 
+        private const string RegexSchemaLocationSuffix = "/pattern";
+
+        private readonly ILogger logger;
+
+        public JsonSchemaValidator(ILogger logger)
+        {
+            this.logger = logger;
+        }
+
         public void Validate(MetadataFile file) => this.Validate(file.Path, JsonSchemaManager.MetadataSchema, file.RootElement);
 
         public void Validate(MainArmTemplateParametersFile file) => this.Validate(file.Path, JsonSchemaManager.ArmTemplateParametersSchema, file.RootElement);
 
         private void Validate(string filePath, JsonSchema schema, JsonElement element)
         {
+            this.logger.LogDebug($"Validating \"{filePath}\" against JSON schema...");
+
             var results = schema.Validate(element, new ValidationOptions
             {
                 OutputFormat = OutputFormat.Basic, // Indicates that all nodes will be listed as children of the top node.
@@ -58,10 +70,12 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
                     if (IsAdditionalPropertyError(result))
                     {
+                        // The built-in error message is "All values fail against the false schema" which is not very intuitive.
                         errorMessageBuilder.Append("The property is not allowed");
                     }
                     else if (IsRegexError(result))
                     {
+                        // The built-in error message does not include the regex pattern.
                         var schemaElement = JsonElementFactory.CreateElement(JsonSerializer.Serialize(schema));
                         var regex = result.SchemaLocation.Evaluate(schemaElement);
                         errorMessageBuilder.Append($"Value does not match the pattern of \"{regex}\"");
@@ -90,9 +104,9 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
         }
 
         private static bool IsAdditionalPropertyError(ValidationResults results) =>
-            results.SchemaLocation.Source.EndsWith("/additionalProperties/$false");
+            results.SchemaLocation.Source.EndsWith(AdditionalPropertiesSchemaLocationSuffix);
 
         private static bool IsRegexError(ValidationResults results) =>
-            results.SchemaLocation.Source.EndsWith("/pattern");
+            results.SchemaLocation.Source.EndsWith(RegexSchemaLocationSuffix);
     }
 }
