@@ -18,6 +18,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
+    //asdfg test fixes
+
     [TestClass]
     public class NoHardcodedLocationRuleTests : LinterRuleTestsBase
     {
@@ -205,7 +207,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location2' into a parameter.")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
             });
         }
 
@@ -277,7 +279,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void If_ResLocationIs_VariableDefinedAsLiteral_UsedMultipleTimes_ThenOneDisableNextLineShouldFixIt()
         {
             var result = CompilationHelper.Compile(@"
-                #disable-next-line no-hardcoded-resource-location
+                #disable-next-line no-hardcoded-location
                 var location = 'westus'
 
                 resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = {
@@ -455,7 +457,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string 'global'. Found: 'non-global'")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'v1' into a parameter.")
             });
         }
     }
