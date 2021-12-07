@@ -33,7 +33,10 @@ namespace Bicep.RegistryModuleTool.Schemas
                 throw new InvalidOperationException($"Could not get resource stream for {resourceName}.");
             }
 
-            var schema = JsonSerializer.Deserialize<JsonSchema>(stream);
+            var schema = JsonSerializer.Deserialize<JsonSchema>(stream, new JsonSerializerOptions
+            {
+                ReadCommentHandling = JsonCommentHandling.Skip,
+            });
 
             if (schema is null)
             {

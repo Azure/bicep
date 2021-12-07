@@ -26,12 +26,16 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             : base(path)
         {
             this.Content = content;
+            this.RootElement = rootElement;
+
             this.lazyParameterValues = new(() => !rootElement.TryGetProperty("parameters", out var parametersElement)
                 ? Enumerable.Empty<MainArmTemplateParameterInstance>()
                 : parametersElement.EnumerateObject().Select(ToParameterInstance));
         }
 
         public string Content { get; }
+
+        public JsonElement RootElement { get; }
 
         public IEnumerable<MainArmTemplateParameterInstance> ParameterInstances => lazyParameterValues.Value;
 

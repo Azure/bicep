@@ -5,10 +5,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="JsonSchemas\schema.armTemplateParameters.json" />
     <None Remove="JsonSchemas\schema.metadata.json" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="JsonSchemas\schema.armTemplateParameters.json" />
     <EmbeddedResource Include="JsonSchemas\schema.metadata.json" />
   </ItemGroup>
 

@@ -1,8 +1,4 @@
 ﻿{
-  "id": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
-  "title": "Parameters",
-  "description": "An Azure deployment parameter file",
-  "type": "object",
   "properties": {
     "$schema": {
       "type": "string"
@@ -30,62 +26,63 @@
     "parameter": {
       "type": "object",
       "properties": {
-        "type": [
-          "string",
-          "boolean",
-          "integer",
-          "number",
-          "object",
-          "array",
-          "null"
-        ],
-        "description": "Input value to template"
-      },
-      "reference": {
-        "type": "object",
-        "properties": {
-          "keyVault": {
-            "type": "object",
-            "properties": {
-              "id": {
-                "type": "string",
-                "minLength": 1
-              }
-            },
-            "required": [ "id" ],
-            "additionalProperties": false
-          },
-          "secretName": {
-            "type": "string",
-            "minLength": 1
-          },
-          "secretVersion": {
-            "type": "string",
-            "minLength": 1
-          }
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ],
+          "description": "Input value to template"
         },
-        "required": [ "keyVault", "secretName" ],
-        "additionalProperties": false,
-
-        "description": "KeyVault parameter reference"
+        "reference": {
+          "type": "object",
+          "properties": {
+            "keyVault": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [ "id" ],
+              "additionalProperties": false
+            },
+            "secretName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "secretVersion": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [ "keyVault", "secretName" ],
+          "additionalProperties": false,
+          "description": "KeyVault parameter reference"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Client specific metadata"
+        }
       },
-      "metadata": {
-        "type": "object",
-        "description": "Client specific metadata"
-      }
-    },
-    "additionalProperties": false,
-    "oneOf": [
-      {
-        "required": [
-          "value"
-        ]
-      },
-      {
-        "required": [
-          "reference"
-        ]
-      }
-    ]
+      "oneOf": [
+        {
+          "required": [
+            "value"
+          ]
+        },
+        {
+          "required": [
+            "reference"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    }
   }
-} }
+}
