@@ -29,15 +29,20 @@ namespace Bicep.RegistryModuleTool.Commands
             {
                 this.InvokeInternal(context);
             }
-            catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException)
-            {
-                this.Logger.LogError("{message}", exception.Message);
-
-                return Task.FromResult(1);
-            }
             catch (Exception exception)
             {
-                this.Logger.LogError(exception, "Unexpected exception.");
+                switch (exception)
+                {
+                    case BicepException:
+                    case IOException:
+                    case UnauthorizedAccessException:
+                        this.Logger.LogError("{message}", exception.Message);
+                        break;
+
+                    default:
+                        this.Logger.LogError(exception, "Unexpected exception.");
+                        break;
+                }
 
                 return Task.FromResult(1);
             }

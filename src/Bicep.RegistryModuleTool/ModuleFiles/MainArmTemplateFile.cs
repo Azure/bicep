@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
     internal record MainArmTemplateOutput(string Name, string Type, string? Description);
 
-    internal class MainArmTemplateFile : ModuleFile
+    internal sealed class MainArmTemplateFile : ModuleFile
     {
         public const string FileName = "azuredeploy.json";
 
@@ -87,9 +87,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return null;
         }
 
-        protected override void ValidatedBy(IModuleFileValidator validator)
-        {
-            validator.Validate(this);
-        }
+        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }

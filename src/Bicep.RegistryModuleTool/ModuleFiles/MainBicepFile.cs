@@ -10,7 +10,7 @@ using System.IO.Abstractions;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal class MainBicepFile : ModuleFile
+    internal sealed class MainBicepFile : ModuleFile
     {
         public const string FileName = "main.bicep";
 
@@ -51,9 +51,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return cachedMainArmTemplateFile;
         }
 
-        protected override void ValidatedBy(IModuleFileValidator validator)
-        {
-            validator.Validate(this);
-        }
+        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }

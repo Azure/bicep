@@ -16,7 +16,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 {
     internal record MainArmTemplateParameterInstance(string Name, object Value);
 
-    internal class MainArmTemplateParametersFile : ModuleFile
+    internal sealed class MainArmTemplateParametersFile : ModuleFile
     {
         public const string FileName = "azuredeploy.parameters.json";
 
@@ -98,10 +98,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(FileName, this.Content);
 
-        protected override void ValidatedBy(IModuleFileValidator validator)
-        {
-            validator.Validate(this);
-        }
+        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
 
         private static IEnumerable<MainArmTemplateParameterInstance> GenerateParameterInstancesWithExistingFile(
             MainArmTemplateParametersFile existingFile,

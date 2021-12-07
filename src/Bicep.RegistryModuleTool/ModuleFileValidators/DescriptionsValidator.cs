@@ -11,7 +11,7 @@ using System.Text;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    internal class DescriptionsValidator : IModuleFileValidator
+    internal sealed class DescriptionsValidator : IModuleFileValidator
     {
         private readonly IFileSystem fileSystem;
 

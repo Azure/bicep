@@ -10,7 +10,7 @@ using System.Text;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal class ReadmeFile : ModuleFile
+    internal sealed class ReadmeFile : ModuleFile
     {
         public const string FileName = "README.md";
 
@@ -73,9 +73,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(FileName, this.Content);
 
-        protected override void ValidatedBy(IModuleFileValidator validator)
-        {
-            validator.Validate(this);
-        }
+        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }

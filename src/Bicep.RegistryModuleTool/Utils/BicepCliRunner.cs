@@ -4,15 +4,23 @@
 using Bicep.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace Bicep.RegistryModuleTool.Utils
 {
-    internal class BicepCliRunner
+    internal sealed class BicepCliRunner
     {
+        private readonly static Regex BicepBuildWarningRegex = new(
+            @"^([^\s].*)\((\d+)(?:,\d+|,\d+,\d+)?\)\s+:\s+(Warning)\s+([a-zA-Z-\d]+):\s*(.*?)\s+\[(.*?)\]$",
+            RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+        private readonly static string[] LineSeperators = new[] { "\r", "\n", "\r\n" };
+
         private readonly IFileSystem fileSystem;
 
         private readonly ILogger logger;
@@ -31,11 +39,11 @@ namespace Bicep.RegistryModuleTool.Utils
                 ? $"build \"{bicepFilePath}\""
                 : $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
 
-            var (exitCode, standardOutput, standardError) = RunBicepCommand(command);
+            var (exitCode, _, standardError) = RunBicepCommand(command);
 
-            if (exitCode == 0 && !string.IsNullOrEmpty(standardOutput))
+            if (exitCode == 0 && !string.IsNullOrEmpty(standardError))
             {
-                this.logger.LogWarning("{BicepBuildWarnings}", standardOutput);
+                this.logger.LogWarning("{BicepBuildWarnings}", standardError);
 
                 return;
             }
@@ -44,11 +52,31 @@ namespace Bicep.RegistryModuleTool.Utils
             {
                 if (!string.IsNullOrEmpty(standardError))
                 {
-                    // TODO: log warnings separately.
-                    this.logger.LogError("{BicepBuildErrors}", standardError);
+                    var warnings = new List<string>();
+                    var errors = new List<string>();
+
+                    foreach (var line in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        if (BicepBuildWarningRegex.IsMatch(line))
+                        {
+                            warnings.Add(line);
+                        }
+                        else
+                        {
+                            errors.Add(line);
+                        }
+                    }
+
+                    if (warnings.Count > 0)
+                    {
+                        this.logger.LogWarning("{BicepBuildWarnings}", string.Join(Environment.NewLine, warnings));
+                    }
+
+
+                    this.logger.LogError("{BicepBuildErrors}", string.Join(Environment.NewLine, errors));
                 }
 
-                throw new BicepException($"Failed to build \"{bicepFilePath}\"");
+                throw new BicepException($"Failed to build \"{bicepFilePath}\".");
             }
         }
 
@@ -64,8 +92,9 @@ namespace Bicep.RegistryModuleTool.Utils
 
             process.Start();
 
-            var standardError = process.StandardError.ReadToEnd();
+            // TODO: fix deadlock.
             var standardOutput = process.StandardOutput.ReadToEnd();
+            var standardError = process.StandardError.ReadToEnd();
 
             process.WaitForExit();
 

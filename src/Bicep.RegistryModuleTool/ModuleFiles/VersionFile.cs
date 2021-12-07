@@ -66,9 +66,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(this.Path, this.Content);
 
-        protected override void ValidatedBy(IModuleFileValidator validator)
-        {
-            validator.Validate(this);
-        }
+        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }

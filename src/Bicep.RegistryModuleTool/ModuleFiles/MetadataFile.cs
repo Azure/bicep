@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal class MetadataFile : ModuleFile
+    internal sealed class MetadataFile : ModuleFile
     {
         public const string FileName = "metadata.json";
 
@@ -62,9 +62,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
         }
 
-        protected override void ValidatedBy(IModuleFileValidator validator)
-        {
-            validator.Validate(this);
-        }
+        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }

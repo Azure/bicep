@@ -31,7 +31,7 @@ internal class Program
             .AddSubcommand(new ValidateCommand("validate", "Validate files for the Bicep registry module."))
             .AddSubcommand(new GenerateCommand("generate", "Generate files for the Bicep registry module."));
 
-        rootCommand.Handler = System.CommandLine.Invocation.CommandHandler.Create(() => rootCommand.Invoke("-h"));
+        rootCommand.Handler = CommandHandler.Create(() => rootCommand.Invoke("-h"));
 
         return new(rootCommand);
     }
