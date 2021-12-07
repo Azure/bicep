@@ -234,7 +234,7 @@ namespace Bicep.LanguageServer
 
                         if (reloadBicepConfig)
                         {
-                            SendTelemetryForBicepConfigChange(prevConfiguration, configuration);
+                            SendTelemetryOnBicepConfigChange(prevConfiguration, configuration);
                         }
                         else
                         {
@@ -323,7 +323,7 @@ namespace Bicep.LanguageServer
             return BicepTelemetryEvent.CreateLinterStateOnBicepFileOpen(properties);
         }
 
-        private void SendTelemetryForBicepConfigChange(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
+        private void SendTelemetryOnBicepConfigChange(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
         {
             foreach (var telemetryEvent in GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration))
             {
