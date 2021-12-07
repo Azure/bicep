@@ -137,9 +137,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 if (syntax.TryGetBody() is ObjectSyntax body)
                 {
-                    IEnumerable<ParameterDeclarationSyntax> moduleFormalParameters = GetConsumedModuleParameterDefinitionsOrEmpty(syntax);
+                    IEnumerable<ParameterDeclarationSyntax> moduleFormalParameters = TryGetConsumedModuleParameterDefinitions(syntax);
                     List<string> locationFormalParameters = new List<string>();
 
+                    //asdfg extract
                     foreach (var moduleFormalParameter in moduleFormalParameters)
                     {
                         string? defaultValue = (moduleFormalParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue?.ToText();
@@ -149,6 +150,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             || defaultValue.Contains("deployment().location", LanguageConstants.IdentifierComparison)))
                         {
                             locationFormalParameters.Add(moduleFormalParameter.Name.IdentifierName);
+                        }
+                    }
+                    IEnumerable<ParameterSymbol> asdfg = TryGetParametersUsedInResourceLocations(syntax);
+                    foreach (var moduleFormalParameter in asdfg)
+                    {
+                        string? defaultValue = (moduleFormalParameter.DeclaringParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue?.ToText();
+                        if (defaultValue != null)
+                        {
+                            locationFormalParameters.Add(moduleFormalParameter.Name);
                         }
                     }
 
@@ -182,12 +192,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             //     false,
                             //     new CodeReplacement(new TextSpan(0), "TODO")
                             // ));
+                            string moduleName = syntax.Name.IdentifierName;
                             diagnostics.Add(
                                 parent.CreateDiagnosticForSpan(errorSpan,
                                     String.Format(
                                         CoreResources.NoHardcodedLocation_ModuleLocationNeedsExplicitValue,
                                         parameterName,
-                                        syntax.Name.IdentifierName)));
+                                        moduleName)));
                         }
                         else
                         {
@@ -238,7 +249,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         string functionCall = $"{resourceGroupOrDeploymentFunction}().{RGOrDeploymentLocationPropertyName}";
                         string msg = String.Format( //asdfg fixes
                                                     //asdfg CoreResources.NoHardcodedLocation_DoNotUseDeploymentOrResourceGroupLocation,
-                                "'{0}' should only be used as the default value of a parameter.",
+                                "Use a parameter here instead of '{0}'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.",
                                 functionCall
                                 );
                         this.diagnostics.Add(parent.CreateDiagnosticForSpan(syntax.Span, msg));
@@ -308,9 +319,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 else
                 {
                     List<CodeFix> fixes = new List<CodeFix>();
-
-                    //asdfg find candidate parameters
-                    //asdfg fixWithNewParam += " " + $"Change '{literalValue}' into <an existing parameter>."; //asdfg any existing param?
 
                     string newParamName = "location"; //asdfg
                     CodeFix fixWithNewParam = new CodeFix(
@@ -404,6 +412,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return IsBuiltinAzFunctionName(namespaceName, syntax.Name.IdentifierName, expectedFunctionNames);
             }
 
+            // asdfg can this be fooled by "var az = ..."?
             private bool IsBuiltinAzFunctionName(string? namespaceName, string functionName, string[] expectedFunctionNames)
             {
                 if (namespaceName == null || LanguageConstants.IdentifierComparer.Equals(namespaceName, AzNamespaceType.BuiltInName))
@@ -420,33 +429,88 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return false;
             }
 
-            // Given a consumed module, e.g.:
-            //   module m1 'module1.bicep' { ... }
-            //
-            // ... Returns the parameters defined in that module's bicep file (in above example module1.bicep)
-            private IEnumerable<ParameterDeclarationSyntax> GetConsumedModuleParameterDefinitionsOrEmpty(ModuleDeclarationSyntax moduleDeclarationSyntax)
+            /// <summary>
+            /// Returns the parameters defined in a consumed module's bicep file
+            /// E.g. For this consumed module declaration:
+            ///    module m1 'module1.bicep' { ... }
+            /// Retrieves the parameters defined in module1.bicep
+            /// </summary>
+            private IEnumerable<ParameterDeclarationSyntax> TryGetConsumedModuleParameterDefinitions(ModuleDeclarationSyntax moduleDeclarationSyntax)
             {
-                //if (model.GetTypeInfo(moduleDeclarationSyntax).UnwrapArrayType() is ModuleType moduleType) //asdfg remove
-                //{
-                //    if (moduleType.Body is ObjectType objectType)
-                //    {
-                //        if (objectType.Properties.TryGetValue(LanguageConstants.ModuleParamsPropertyName, out TypeProperty? moduleFormalParamsType))
-                //        {
-                //            if (moduleFormalParamsType.TypeReference is ObjectType moduleParamDefinitionsObject)
-                //            {
-                //                //return moduleParamDefinitionsObject.Properties.Values;
-                //            }
-                //        }
-                //    }
-                //}
-
-                if (model.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile)
+                if (model.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile) //asdfg
                 {
                     return bicepFile.ProgramSyntax.Declarations.OfType<ParameterDeclarationSyntax>();
                 }
 
-
                 return Enumerable.Empty<ParameterDeclarationSyntax>();
+            }
+
+            private IEnumerable<ParameterSymbol> TryGetParametersUsedInResourceLocations(ModuleDeclarationSyntax moduleDeclarationSyntax)
+            {
+                //asdfg can this throw?
+                if (model.Compilation.SourceFileGrouping.LookUpModuleSourceFile(moduleDeclarationSyntax) is BicepFile bicepFile
+                    && model.Compilation.GetSemanticModel(bicepFile) is SemanticModel semanticModel)
+                {
+                    return TryGetParametersUsedInResourceLocations(bicepFile, semanticModel);
+                }
+
+                return Enumerable.Empty<ParameterSymbol>();
+            }
+
+            private IEnumerable<ParameterSymbol> TryGetParametersUsedInResourceLocations(BicepFile bicepFile, SemanticModel semanticModel)
+            {
+                GetParametersUsedInResourceLocationsVisitor visitor = new GetParametersUsedInResourceLocationsVisitor(semanticModel);
+                visitor.Visit(bicepFile.ProgramSyntax);
+                return visitor.parameters;
+            }
+
+            private class GetParametersUsedInResourceLocationsVisitor : SyntaxVisitor
+            {
+                private SemanticModel semanticModel;
+
+                public List<ParameterSymbol> parameters = new List<ParameterSymbol>();
+
+                public GetParametersUsedInResourceLocationsVisitor(SemanticModel semanticModel)
+                {
+                    this.semanticModel = semanticModel;
+                }
+
+                public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+                {
+                    if (syntax.TryGetBody() is ObjectSyntax body)
+                    {
+                        if (body.TryGetPropertyByName(LanguageConstants.ResourceLocationPropertyName)?.Value is SyntaxBase locationValueSyntax)
+                        {
+                            var visitor = new GetReferencedParametersVisitor(semanticModel);
+                            visitor.Visit(locationValueSyntax);
+                            parameters.AddRange(visitor.parameters);
+                        }
+                    }
+
+                    base.VisitResourceDeclarationSyntax(syntax);
+                }
+            }
+
+            private class GetReferencedParametersVisitor : SyntaxVisitor
+            {
+                private SemanticModel semanticModel;
+
+                public List<ParameterSymbol> parameters = new List<ParameterSymbol>();
+
+                public GetReferencedParametersVisitor(SemanticModel semanticModel)
+                {
+                    this.semanticModel = semanticModel;
+                }
+
+                public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
+                {
+                    if (semanticModel.GetSymbolInfo(syntax) is ParameterSymbol paramSymbol)
+                    {
+                        this.parameters.Add(paramSymbol);
+                    }
+
+                    base.VisitVariableAccessSyntax(syntax);
+                }
             }
         }
     }

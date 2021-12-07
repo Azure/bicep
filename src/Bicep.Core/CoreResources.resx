@@ -173,8 +173,8 @@
     <comment />
   </data>
 	<data name="NoHardcodedLocation_ModuleLocationNeedsExplicitValue" xml:space="preserve">
-    <value>Parameter '{0}' for module '{1}' should be assigned an explicit value. Recommendation: Assign an explicit value to '{0}'</value>
-    <comment>{0} and {1} are programmatic variable names</comment>
+    <value>Parameter '{0}' of module '{1}' isn't assigned an explicit value, and its default value may not be the intended behavior for a location-related parameter. You should assign an explicit value to the parameter.</value>
+    <comment>{0}, {1} are programmatic variable names</comment>
   </data>
 	<data name="NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal" xml:space="preserve">
     <value>A resource location should be either an expression or the string '{0}'. Found '{1}'</value>

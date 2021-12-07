@@ -120,7 +120,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: deployment().location
                 }
             ",
-            "Use a parameter named `location` here instead of 'deployment().location'. 'deployment().location' should only be used as a default for parameter `location`.")]
+            "Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
     @"
                 targetScope = 'subscription'
@@ -130,7 +130,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: '${deployment().location}'
                 }
             ",
-            "Use a parameter named `location` here instead of 'deployment().location'. 'deployment().location' should only be used as a default for parameter `location`.")]
+            "Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
     @"
             resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
@@ -138,7 +138,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: resourceGroup().location
                 }
             ",
-            "Use a parameter named `location` here instead of 'resourceGroup().location'. 'resourceGroup().location' should only be used as a default for parameter `location`.")]
+            "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
     @"
             resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
@@ -146,7 +146,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: '${resourceGroup().location}'
                 }
             ",
-            "Use a parameter named `location` here instead of 'resourceGroup().location'. 'resourceGroup().location' should only be used as a default for parameter `location`.")]
+            "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataTestMethod]
         public void If_DeploymentLocationOrResourceGroup_OutsideParam_ShouldFail(string text, string expectedMessage)
         {
@@ -162,7 +162,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: az.deployment().location
                 }
             ",
-            "Use a parameter named `location` here instead of 'deployment().location'. 'deployment().location' should only be used as a default for parameter `location`.")]
+            "Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataRow(
             @"
             resource availabilitySet 'Microsoft.Compute/availabilitySets@2020-12-01' = {
@@ -170,11 +170,53 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     location: az.resourceGroup().location
                 }
             ",
-            "Use a parameter named `location` here instead of 'resourceGroup().location'. 'resourceGroup().location' should only be used as a default for parameter `location`.")]
+            "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")]
         [DataTestMethod]
         public void If_DeploymentLocationOrResourceGroup_WithAzNamespace_ShouldFail(string text, string expectedMessage)
         {
             ExpectFail(text, expectedMessage);
         }
+
+        [TestMethod]
+        public void If_ResLocIs_ResourceGroupLocation_ShouldFail()
+        {
+            var result = CompilationHelper.Compile(@"
+                resource appInsightsComponents 'Microsoft.Insights/components@2020-02-02-preview' = {
+                  name: 'name'
+                  location: resourceGroup().location
+                  kind: 'web'
+                  properties: {
+                    Application_Type: 'web'
+                  }
+                }
+                "
+            );
+
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")
+            });
+        }
+
+        [TestMethod]
+        public void ForLoop1_Resource()
+        {
+            var result = CompilationHelper.Compile(@"
+                resource storageaccount 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i in range(0, 10): {
+                  name: 'name${i}'
+                  location: resourceGroup().location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }]                "
+            );
+
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.")
+            });
+        }
+
     }
 }

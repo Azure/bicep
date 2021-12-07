@@ -460,5 +460,55 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'v1' into a parameter.")
             });
         }
+
+
+        [TestMethod]
+        public void ForLoop2_Module()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+                  module m2 'module1.bicep' = [for i in range(0, 10): {
+                    name: 'name${i}'
+                    params: {
+                      location: 'westus'
+                    }
+                  }]
+                    "),
+                ("module1.bicep", @"
+                    param location string = resourceGroup().location
+                    output o string = location
+                   ")
+            );
+
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string 'global'. Found: 'westus'")
+            });
+        }
+
+        [TestMethod] //asdfg make sure this scenario is doc'ed
+        public void ResLoc_If_Module_HasLocationProperty_WithDefault_AndStringLiteralPassedIn_ShouldFail()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+                    module m1 'module1.bicep' = {
+                      name: 'name'
+                      params: {
+                        location: 'westus'
+                      }
+                    }
+                    "),
+                ("module1.bicep", @"
+                    param location string = resourceGroup().location
+                    output o string = location
+                   ")
+            );
+
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. It should use a parameter value, an expression, or the string 'global'. Found: 'westus'") //asdfg?
+            });
+        }
+
     }
 }
