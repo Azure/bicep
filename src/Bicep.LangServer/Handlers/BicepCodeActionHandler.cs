@@ -131,7 +131,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return new CodeAction
             {
-                Title = string.Format(LangServerResources.DisableDiagnostic, diagnosticCode.String),
+                Title = string.Format(LangServerResources.DisableDiagnosticForThisLine, diagnosticCode.String),
                 Edit = new WorkspaceEdit
                 {
                     Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
