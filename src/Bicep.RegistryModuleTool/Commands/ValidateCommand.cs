@@ -26,11 +26,15 @@ namespace Bicep.RegistryModuleTool.Commands
 
             protected override void InvokeInternal(InvocationContext context)
             {
-                var jsonSchemaValidator = new JsonSchemaValidator();
-                var diffValidator = new DiffValidator(this.FileSystem, this.Logger);
+
+                var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
                 var descriptionsValidator = new DescriptionsValidator(this.FileSystem, this.Logger);
 
-                MainBicepFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(descriptionsValidator);
+                mainBicepFile.ValidatedBy(descriptionsValidator);
+
+                var jsonSchemaValidator = new JsonSchemaValidator();
+                var diffValidator = new DiffValidator(this.FileSystem, this.Logger, mainBicepFile);
+
                 MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
                 MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator);
                 MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator);

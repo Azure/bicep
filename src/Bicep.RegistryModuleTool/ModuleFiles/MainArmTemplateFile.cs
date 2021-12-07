@@ -3,10 +3,7 @@
 
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
-using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.Utils;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -21,7 +18,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
     internal class MainArmTemplateFile : ModuleFile
     {
-        public const string FileName = "main.json";
+        public const string FileName = "azuredeploy.json";
 
         private readonly Lazy<JsonElement> lazyRootElement;
 
@@ -52,6 +49,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public static MainArmTemplateFile ReadFromFileSystem(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);
+
             var content = fileSystem.File.ReadAllText(FileName);
 
             return new(path, content);

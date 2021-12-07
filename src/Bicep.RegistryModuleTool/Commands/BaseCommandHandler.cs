@@ -5,6 +5,7 @@ using Bicep.Core.Exceptions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine.Invocation;
+using System.IO;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
 
@@ -28,9 +29,9 @@ namespace Bicep.RegistryModuleTool.Commands
             {
                 this.InvokeInternal(context);
             }
-            catch (BicepException bicepException)
+            catch (Exception exception) when (exception is BicepException or IOException or UnauthorizedAccessException)
             {
-                this.Logger.LogError("{message}", bicepException.Message);
+                this.Logger.LogError("{message}", exception.Message);
 
                 return Task.FromResult(1);
             }

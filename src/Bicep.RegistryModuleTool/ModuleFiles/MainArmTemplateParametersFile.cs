@@ -18,7 +18,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
     internal class MainArmTemplateParametersFile : ModuleFile
     {
-        private const string FileName = "main.parameters.json";
+        private const string FileName = "azuredeploy.parameters.json";
 
         private readonly Lazy<IEnumerable<MainArmTemplateParameterInstance>> lazyParameterValues;
 

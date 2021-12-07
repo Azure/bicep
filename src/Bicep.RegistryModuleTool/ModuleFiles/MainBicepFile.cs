@@ -14,7 +14,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         private const string FileName = "main.bicep";
 
-        private MainArmTemplateFile? cachedMainArmTemplate = null;
+        private MainArmTemplateFile? cachedMainArmTemplateFile = null;
 
         public MainBicepFile(string path)
             : base(path)
@@ -37,7 +37,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public MainArmTemplateFile Build(IFileSystem fileSystem, ILogger logger)
         {
-            if (this.cachedMainArmTemplate is null)
+            if (this.cachedMainArmTemplateFile is null)
             {
                 using var tempFile = fileSystem.File.CreateTempFile();
                 new BicepCliRunner(fileSystem, logger).BuildBicepFile(this.Path, tempFile.Path);
@@ -45,10 +45,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 var path = fileSystem.Path.GetFullPath(MainArmTemplateFile.FileName);
                 var content = fileSystem.File.ReadAllText(tempFile.Path);
 
-                this.cachedMainArmTemplate = new MainArmTemplateFile(path, content);
+                this.cachedMainArmTemplateFile = new MainArmTemplateFile(path, content);
             }
 
-            return cachedMainArmTemplate;
+            return cachedMainArmTemplateFile;
         }
 
         protected override void ValidatedBy(IModuleFileValidator validator)

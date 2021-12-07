@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
-using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.Utils;
 using DiffPlex.DiffBuilder;
 using Microsoft.Extensions.Logging;
 using System.IO.Abstractions;
@@ -17,21 +15,23 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         private readonly ILogger logger;
 
-        public DiffValidator(IFileSystem fileSystem, ILogger logger)
+        private readonly MainBicepFile mainBicepFile;
+
+        public DiffValidator(IFileSystem fileSystem, ILogger logger, MainBicepFile mainBicepFile)
         {
             this.fileSystem = fileSystem;
             this.logger = logger;
+            this.mainBicepFile = mainBicepFile;
         }
 
         public void Validate(MainArmTemplateFile file)
         {
             this.logger.LogDebug("Validating generated content of \"{MainArmTemplateFilePath}\"...", file.Path);
 
-            var latestArmTemplateFile = MainBicepFile.ReadFromFileSystem(this.fileSystem).Build(this.fileSystem, this.logger);
+            var latestArmTemplateFile = this.mainBicepFile.Build(this.fileSystem, this.logger);
 
             if (Diff(file.Content, latestArmTemplateFile.Content))
             {
-                // TODO: better error message.
                 throw new BicepException($"The main ARM template file \"{file.Path}\" is modified or outdated. Please regenerate the file to fix it.");
             }
         }
@@ -40,12 +40,11 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
         {
             this.logger.LogDebug("Validating generated content of \"{MainArmTemplateParametersFile}\"...", file.Path);
 
-            var latestArmTemplateFile = MainBicepFile.ReadFromFileSystem(this.fileSystem).Build(this.fileSystem, this.logger);
+            var latestArmTemplateFile = mainBicepFile.Build(this.fileSystem, this.logger);
             var latestParametersFile = MainArmTemplateParametersFile.Generate(this.fileSystem, latestArmTemplateFile);
 
             if (Diff(file.Content, latestParametersFile.Content))
             {
-                // TODO: better error message.
                 throw new BicepException($"The main ARM template parameters file \"{file.Path}\" is modified or outdated. Please regenerate the file to fix it.");
             }
         }
@@ -58,7 +57,6 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
             if (Diff(file.Content, latestVersionFile.Content))
             {
-                // TODO: better error message.
                 throw new BicepException($"The version file \"{file.Path}\" is modified or outdated. Please regenerate the file to fix it.");
             }
         }
