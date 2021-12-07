@@ -276,7 +276,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     return;
                 }
 
-                // The value is a string literal.  In that case, it must be "global" (case-insensitive)
+                // The value is a string literal.  In that case, it must be the value 'global' (case-insensitive)
                 if (StringComparer.OrdinalIgnoreCase.Equals(literalValue, Global))
                 {
                     return;
@@ -287,23 +287,32 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // It's using a variable that is defined as a literal string.  Suggest they change it to
                     // a parameter (the error goes on the variable definition, not the resource location property)
                     TextSpan errorSpan = definingVariable.NameSyntax.Span;
+#pragma warning disable RS0030 // Keine gesperrten APIs verwenden
+                    Console.WriteLine(errorSpan);
 
                     // Is there already a diagnostic for this variable?  Don't repeat
+                    Console.WriteLine(diagnostics.Count);
+                    if (diagnostics.Count > 0)
+                    {
+                        Console.WriteLine(diagnostics[0]);
+                    }
                     if (diagnostics.Any(d => d.Code == NoHardcodedLocationRule.Code && d.Span.Equals(errorSpan)))
                     {
+                        Console.WriteLine("same");
                         return;
                     }
+                    Console.WriteLine("not same");
+#pragma warning restore RS0030 // Keine gesperrten APIs verwenden
 
                     string msg = String.Format("A resource location should not use a hard-coded string or variable value. Change variable '{0}' into a parameter.", definingVariable.Name);
                     CodeFix fix = new CodeFix(
                         $"Change variable '{definingVariable.Name}' into a parameter",
                         true,
-                        //asdfg do I need to use a syntax tree?
-                        new CodeReplacement(definingVariable.DeclaringSyntax.Span, $"param {definingVariable.Name} string = {definingVariable.Value.ToTextPreserveFormatting()}"));
-                    diagnostics.Add(parent.CreateFixableDiagnosticForSpan(
-                        locationValueSyntax.Span,
-                        fix,
-                        msg));
+                        //asdfg do I need to use a syntax tree?  //asdfg test replacement with @description or other
+                        new CodeReplacement(
+                            definingVariable.DeclaringSyntax.Span,
+                            $"param {definingVariable.Name} string = {definingVariable.Value.ToTextPreserveFormatting()}"));
+                    diagnostics.Add(parent.CreateFixableDiagnosticForSpan(errorSpan, fix, msg));
 
                 }
                 else
