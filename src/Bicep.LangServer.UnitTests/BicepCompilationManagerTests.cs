@@ -1031,7 +1031,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(2);
 
             var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.DisableRuleInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
 
             var properties = new Dictionary<string, string>
             {
@@ -1043,7 +1043,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvent.Properties.Should().Equal(properties);
 
             telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-vars");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.DisableRuleInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
 
             properties = new Dictionary<string, string>
             {
@@ -1091,7 +1091,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(2);
 
             var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.DisableRuleInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
 
             var properties = new Dictionary<string, string>
             {
@@ -1103,7 +1103,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvent.Properties.Should().Equal(properties);
 
             telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-vars");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.DisableRuleInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
 
             properties = new Dictionary<string, string>
             {

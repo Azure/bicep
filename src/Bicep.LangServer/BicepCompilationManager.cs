@@ -327,7 +327,7 @@ namespace Bicep.LanguageServer
 
                     if (prevLinterRuleDiagnosticLevelValue != curLinterRuleDiagnosticLevelValue)
                     {
-                        var telemetryEvent = BicepTelemetryEvent.CreateDisableRuleInBicepConfig(kvp.Key, prevLinterRuleDiagnosticLevelValue, curLinterRuleDiagnosticLevelValue);
+                        var telemetryEvent = BicepTelemetryEvent.CreateLinterRuleStateChangeInBicepConfig(kvp.Key, prevLinterRuleDiagnosticLevelValue, curLinterRuleDiagnosticLevelValue);
                         telemetryEvents.Add(telemetryEvent);
                     }
                 }

@@ -244,7 +244,7 @@ namespace Bicep.LangServer.IntegrationTests
                     { "currentDiagnosticLevel", "off" }
                 };
 
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.DisableRuleInBicepConfig);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
