@@ -193,10 +193,19 @@
             "adminusername-should-not-be-literal": {
               "level": "warning"
             },
+            "explicit-values-for-location-params": {
+              "level": "warning"
+            },
             "no-hardcoded-env-urls": {
               "level": "warning"
             },
+            "no-hardcoded-location": {
+              "level": "warning"
+            },
             "no-unnecessary-dependson": {
+              "level": "warning"
+            },
+            "no-location-expr-outside-params": {
               "level": "warning"
             },
             "no-unused-params": {
@@ -256,6 +265,16 @@
                     }
                   ]
                 },
+                "explicit-values-for-location-params": {
+                  "allOf": [
+                    {
+                      "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. See https://aka.ms/bicep/linter/explicit-values-for-location-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
                 "no-hardcoded-env-urls": {
                   "allOf": [
                     {
@@ -292,6 +311,26 @@
                           }
                         }
                       }
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-hardcoded-location": {
+                  "allOf": [
+                    {
+                      "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. See https://aka.ms/bicep/linter/no-hardcoded-location"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-location-expr-outside-params": {
+                  "allOf": [
+                    {
+                      "description": "resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-location-expr-outside-params"
                     },
                     {
                       "$ref": "#/definitions/rule"
