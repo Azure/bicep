@@ -72,7 +72,8 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetOutputValueCompletions(model, context))
                 .Concat(GetTargetScopeCompletions(model, context))
                 .Concat(GetImportCompletions(model, context))
-                .Concat(GetFunctionParamCompletions(model, context));
+                .Concat(GetFunctionParamCompletions(model, context))
+                .Concat(GetExpressionCompletions(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)
@@ -418,33 +419,25 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetVariableValueCompletions(BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.VariableValue))
             {
-                yield return CreateConditionCompletion(context.ReplacementRange);
-
-                // we don't know what the variable type is, so assume "any"
-                foreach (var completion in CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Any, filtersAllowed: false))
-                {
-                    yield return completion;
-                }
+                return Enumerable.Empty<CompletionItem>();
             }
+
+            // we don't know what the variable type is, so assume "any"
+            return CreateLoopCompletions(context.ReplacementRange, LanguageConstants.Any, filtersAllowed: false);
         }
 
         private IEnumerable<CompletionItem> GetOutputValueCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.OutputValue) && context.EnclosingDeclaration is OutputDeclarationSyntax output)
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.OutputValue) || context.EnclosingDeclaration is not OutputDeclarationSyntax output)
             {
-                yield return CreateConditionCompletion(context.ReplacementRange);
-
-                var declaredType = model.GetDeclaredType(output);
-
-               
-
-                foreach (var completion in GetValueCompletionsForType(declaredType, context.ReplacementRange, loopsAllowed: true))
-                {
-                    yield return completion;
-                }
+                return Enumerable.Empty<CompletionItem>();
             }
+
+            var declaredType = model.GetDeclaredType(output);
+
+            return GetValueCompletionsForType(declaredType, context.ReplacementRange, loopsAllowed: true);
         }
 
         private IEnumerable<CompletionItem> GetResourceBodyCompletions(SemanticModel model, BicepCompletionContext context)
@@ -791,21 +784,19 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetPropertyValueCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.PropertyValue))
+            if (!context.Kind.HasFlag(BicepCompletionContextKind.PropertyValue))
             {
-                yield return CreateConditionCompletion(context.ReplacementRange);
-
-                var declaredTypeAssignment = GetDeclaredTypeAssignment(model, context.Property);
-                if (declaredTypeAssignment != null)
-                {
-                    var loopsAllowed = context.Property is not null && ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(model, context.Property);
-
-                    foreach (var completion in GetValueCompletionsForType(declaredTypeAssignment.Reference.Type, context.ReplacementRange, loopsAllowed: loopsAllowed))
-                    {
-                        yield return completion;
-                    }
-                }
+                return Enumerable.Empty<CompletionItem>();
             }
+
+            var declaredTypeAssignment = GetDeclaredTypeAssignment(model, context.Property);
+            if (declaredTypeAssignment == null)
+            {
+                return Enumerable.Empty<CompletionItem>();
+            }
+
+            var loopsAllowed = context.Property is not null && ForSyntaxValidatorVisitor.IsAddingPropertyLoopAllowed(model, context.Property);
+            return GetValueCompletionsForType(declaredTypeAssignment.Reference.Type, context.ReplacementRange, loopsAllowed);
         }
 
         private IEnumerable<CompletionItem> GetArrayItemCompletions(SemanticModel model, BicepCompletionContext context)
@@ -916,6 +907,14 @@ namespace Bicep.LanguageServer.Completions
                     command: command,
                     snippet.CompletionPriority,
                     preselect: true);
+            }
+        }
+
+        private IEnumerable<CompletionItem> GetExpressionCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.Expression))
+            {
+                yield return CreateConditionCompletion(context.ReplacementRange);
             }
         }
 

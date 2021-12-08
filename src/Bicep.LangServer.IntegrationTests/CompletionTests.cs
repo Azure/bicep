@@ -1009,15 +1009,15 @@ module mod2 './|' = {}
             snippetCompletions.Should().SatisfyRespectively(
                 c =>
                 {
-                    c.Label.Should().Be("if-else");
-                },
-                c =>
-                {
                     c.Label.Should().Be("{}");
                 },
                 c =>
                 {
                     c.Label.Should().Be("required-properties");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if-else");
                 });
         }
 
@@ -1105,6 +1105,10 @@ module mod2 './|' = {}
                 c =>
                 {
                     c.Label.Should().Be("required-properties");
+                },
+                c =>
+                {
+                    c.Label.Should().Be("if-else");
                 });
         }
 
