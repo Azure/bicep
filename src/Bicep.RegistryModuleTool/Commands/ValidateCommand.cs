@@ -38,11 +38,14 @@ namespace Bicep.RegistryModuleTool.Commands
                 "bicepconfig.json"
             };
 
+            private readonly IEnvironmentProxy environmentProxy;
+
             private readonly IProcessProxy processProxy;
 
-            public CommandHandler(IProcessProxy processProxy, IFileSystem fileSystem, ILogger<ValidateCommand> logger)
+            public CommandHandler(IEnvironmentProxy environmentProxy, IProcessProxy processProxy, IFileSystem fileSystem, ILogger<ValidateCommand> logger)
                 : base(fileSystem, logger)
             {
+                this.environmentProxy = environmentProxy;
                 this.processProxy = processProxy;
             }
 
@@ -54,7 +57,7 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 this.Logger.LogDebug("Validating main Bicep file...");
 
-                var bicepCliProxy = new BicepCliProxy(this.processProxy, this.FileSystem, this.Logger);
+                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger);
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
 
                 // This also validates that the main Bicep file can be built.

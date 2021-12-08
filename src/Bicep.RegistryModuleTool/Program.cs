@@ -59,6 +59,7 @@ internal class Program
             }
         })
         .ConfigureServices(services => services
+            .AddSingleton<IEnvironmentProxy, EnvironmentProxy>()
             .AddSingleton<IProcessProxy, ProcessProxy>()
             .AddSingleton<IFileSystem, FileSystem>())
         .UseCommandHandlers();

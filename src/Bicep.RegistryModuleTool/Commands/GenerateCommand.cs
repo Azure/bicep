@@ -20,11 +20,14 @@ namespace Bicep.RegistryModuleTool.Commands
 
         public sealed class CommandHandler : BaseCommandHandler
         {
+            private readonly IEnvironmentProxy environmentProxy;
+
             private readonly IProcessProxy processProxy;
 
-            public CommandHandler(IProcessProxy processProxy, IFileSystem fileSystem, ILogger<GenerateCommand> logger)
+            public CommandHandler(IEnvironmentProxy environmentProxy, IProcessProxy processProxy, IFileSystem fileSystem, ILogger<GenerateCommand> logger)
                 : base(fileSystem, logger)
             {
+                this.environmentProxy = environmentProxy;
                 this.processProxy = processProxy;
             }
 
@@ -32,7 +35,7 @@ namespace Bicep.RegistryModuleTool.Commands
             {
                 // Generate main ARM template file.
                 this.Logger.LogDebug("Generating main ARM template file...");
-                var bicepCliProxy = new BicepCliProxy(this.processProxy, this.FileSystem, this.Logger);
+                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger);
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
                 var mainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
 

@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
-using Bicep.RegistryModuleTool.Extensions;
-using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -22,14 +20,17 @@ namespace Bicep.RegistryModuleTool.Proxies
 
         private readonly static string[] LineSeperators = new[] { "\r", "\n", "\r\n" };
 
+        private readonly IEnvironmentProxy environmentProxy;
+
         private readonly IProcessProxy processProxy;
 
         private readonly IFileSystem fileSystem;
 
         private readonly ILogger logger;
 
-        public BicepCliProxy(IProcessProxy processProxy, IFileSystem fileSystem, ILogger logger)
+        public BicepCliProxy(IEnvironmentProxy environmentProxy, IProcessProxy processProxy, IFileSystem fileSystem, ILogger logger)
         {
+            this.environmentProxy = environmentProxy;
             this.processProxy = processProxy;
             this.fileSystem = fileSystem;
             this.logger = logger;
@@ -90,15 +91,15 @@ namespace Bicep.RegistryModuleTool.Proxies
             var bicepExecutableName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "bicep.exe" : "bicep";
 
             var directoriesToSearch =
-                Environment.GetEnvironmentVariable("PATH")?.Split(this.fileSystem.Path.PathSeparator) ??
+                this.environmentProxy.GetEnvironmentVariable("PATH")?.Split(this.fileSystem.Path.PathSeparator) ??
                 Enumerable.Empty<string>();
 
-            if (Environment.GetEnvironmentVariable("AZURE_CONFIG_DIR") is { } azureConfigurationDirectory)
+            if (this.environmentProxy.GetEnvironmentVariable("AZURE_CONFIG_DIR") is { } azureConfigurationDirectory)
             {
                 directoriesToSearch = directoriesToSearch.Append(this.fileSystem.Path.Combine(azureConfigurationDirectory, "bin"));
             }
 
-            var homeDirectory = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var homeDirectory = this.environmentProxy.GetHomeDirectory();
             directoriesToSearch = directoriesToSearch.Append(this.fileSystem.Path.Combine(homeDirectory, ".azure", "bin"));
 
             foreach (var directory in directoriesToSearch)
@@ -107,6 +108,8 @@ namespace Bicep.RegistryModuleTool.Proxies
 
                 if (this.fileSystem.File.Exists(bicepCliPath))
                 {
+                    this.logger.LogDebug("Found Bicep CLI at \"{BicepCliPath}\".", bicepCliPath);
+
                     return bicepCliPath;
                 }
             }

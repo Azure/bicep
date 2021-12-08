@@ -3,8 +3,8 @@
 
 namespace Bicep.RegistryModuleTool.Proxies
 {
-    internal interface IProcessProxy
+    public interface IProcessProxy
     {
-        (int exitCode, string standardOutput, string standardError) Start(string executablePath, string arguments);
+        public (int exitCode, string standardOutput, string standardError) Start(string executablePath, string arguments);
     }
 }
