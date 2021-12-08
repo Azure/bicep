@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core;
@@ -12,6 +13,8 @@ using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -253,7 +256,8 @@ namespace Bicep.LanguageServer
                 // this completes immediately
                 this.scheduler.RequestModuleRestore(this, documentUri, context.Compilation.SourceFileGrouping.ModulesToRestore, configuration);
 
-                var output = workspace.UpsertSourceFiles(context.Compilation.SourceFileGrouping.SourceFiles);
+                var sourceFiles = context.Compilation.SourceFileGrouping.SourceFiles;
+                var output = workspace.UpsertSourceFiles(sourceFiles);
 
                 // convert all the diagnostics to LSP diagnostics
                 var diagnostics = GetDiagnosticsFromContext(context).ToDiagnostics(context.LineStarts);
@@ -265,7 +269,7 @@ namespace Bicep.LanguageServer
 
                 if (version == 1)
                 {
-                    SendLinterStateTelemetryOnBicepFileOpen(configuration);
+                    SendTelemetryOnBicepFileOpen(documentUri.ToUri(), configuration, sourceFiles, diagnostics);
                 }
 
                 // publish all the diagnostics
@@ -295,6 +299,64 @@ namespace Bicep.LanguageServer
 
                 return (ImmutableArray<ISourceFile>.Empty, ImmutableArray<ISourceFile>.Empty);
             }
+        }
+
+        private void SendTelemetryOnBicepFileOpen(DocumentUri documentUri, RootConfiguration configuration, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        {
+            SendLinterStateTelemetryOnBicepFileOpen(configuration);
+            SendTelemetryAboutBicepFileOnOpen(documentUri.ToUri(), sourceFiles, diagnostics);
+        }
+
+        private void SendTelemetryAboutBicepFileOnOpen(Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        {
+            var telemetryEvent = GetTelemetryAboutBicepFileOnOpen(uri, sourceFiles, diagnostics);
+            TelemetryProvider.PostEvent(telemetryEvent);
+        }
+
+        private BicepTelemetryEvent GetTelemetryAboutBicepFileOnOpen(Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        {
+            Dictionary<string, string> properties = new();
+
+            int numberOfModuleDeclarationsInReferencedFiles = 0;
+            int numberOfParameterDeclarationsInReferencedFiles = 0;
+            int numberOfResourceDeclarationsInReferencedFiles = 0;
+            int numberOfVariableDeclarationsInReferencedFiles = 0;
+
+            foreach (var sourceFile in sourceFiles)
+            {
+                if (sourceFile is BicepFile bicepFile)
+                {
+                    if (sourceFile.FileUri == uri)
+                    {
+                        var declarationsInMainFile = bicepFile.ProgramSyntax.Declarations;
+                        properties.Add("Modules", declarationsInMainFile.Count(x => x is ModuleDeclarationSyntax).ToString());
+                        properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
+                        properties.Add("Resources", declarationsInMainFile.Count(x => x is ResourceDeclarationSyntax).ToString());
+                        properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
+                        properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.AbsolutePath).Length.ToString());
+
+                        var lineStarts = bicepFile.LineStarts;
+                        properties.Add("LineCount", TextCoordinateConverter.GetPosition(lineStarts, lineStarts.Last()).line.ToString());
+                    }
+                    else
+                    {
+                        var declarations = bicepFile.ProgramSyntax.Declarations;
+                        numberOfModuleDeclarationsInReferencedFiles += declarations.Count(x => x is ModuleDeclarationSyntax);
+                        numberOfParameterDeclarationsInReferencedFiles += declarations.Count(x => x is ParameterDeclarationSyntax);
+                        numberOfResourceDeclarationsInReferencedFiles += declarations.Count(x => x is ResourceDeclarationSyntax);
+                        numberOfVariableDeclarationsInReferencedFiles += declarations.Count(x => x is VariableDeclarationSyntax);
+                    }
+                }
+            }
+
+            properties.Add("ResourcesInReferencedFiles", numberOfResourceDeclarationsInReferencedFiles.ToString());
+            properties.Add("ParametersInReferencedFiles", numberOfParameterDeclarationsInReferencedFiles.ToString());
+            properties.Add("VariablesInReferencedFiles", numberOfVariableDeclarationsInReferencedFiles.ToString());
+
+            properties.Add("Errors", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Error).ToString());
+            properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
+
+            return BicepTelemetryEvent.CreateBicepFileOpen(properties);
         }
 
         private void SendLinterStateTelemetryOnBicepFileOpen(RootConfiguration configuration)

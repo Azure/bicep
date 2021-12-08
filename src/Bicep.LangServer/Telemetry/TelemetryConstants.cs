@@ -9,6 +9,7 @@ namespace Bicep.LanguageServer.Telemetry
 
         public static class EventNames
         {
+            public const string BicepFileOpen = "file/bicepopen";
             public const string LinterStateOnBicepFileOpen = nameof(LinterStateOnBicepFileOpen);
 
             public const string NestedResourceDeclarationSnippetInsertion = nameof(NestedResourceDeclarationSnippetInsertion);
