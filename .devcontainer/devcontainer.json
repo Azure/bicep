@@ -1,17 +1,7 @@
 {
   "name": "Bicep Development Environment",
   "dockerFile": "Dockerfile",
-  "runArgs": [
-    "-v",
-    "/var/run/docker.sock:/var/run/docker.sock"
-  ],
-  "settings": {
-    "terminal.integrated.profiles.linux": {
-      "bash": {
-        "path": "/bin/bash"
-      }
-    }
-  },
+  "remoteUser": "codespace",
   "extensions": [
     "msazurermtools.azurerm-vscode-tools",
     "ms-azuretools.vscode-bicep",
@@ -19,9 +9,19 @@
     "ms-azuretools.vscode-docker",
     "ms-vsliveshare.vsliveshare",
     "editorconfig.editorconfig",
-    "github.copilot",
     "github.vscode-pull-request-github",
     "davidanson.vscode-markdownlint"
+  ],
+  "overrideCommand": false,
+  "mounts": [
+    "source=codespaces-linux-var-lib-docker,target=/var/lib/docker,type=volume"
+  ],
+  "runArgs": [
+    "--cap-add=SYS_PTRACE",
+    "--security-opt",
+    "seccomp=unconfined",
+    "--privileged",
+    "--init"
   ],
   "features": {
     "github-cli": "latest",
