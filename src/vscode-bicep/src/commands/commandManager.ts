@@ -12,7 +12,7 @@ export class CommandManager extends Disposable {
   private static readonly commandsRegistredContextKey = "commandsRegistered";
   private _packageJson: IPackageJson | undefined;
 
-  public constructor(private _ctx: ExtensionContext) {
+  public constructor(private readonly _ctx: ExtensionContext) {
     super();
   }
 

@@ -38,7 +38,6 @@
     "onLanguage:bicep",
     "onCommand:bicep.build",
     "onCommand:bicep.insertResource",
-    "onCommand:bicep.openVisualizer",
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
