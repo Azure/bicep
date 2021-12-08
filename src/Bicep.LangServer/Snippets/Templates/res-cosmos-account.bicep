@@ -1,17 +1,17 @@
 ﻿// Cosmos DB Database Account
 resource /*${1:cosmosDbAccount}*/cosmosDbAccount 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {
   name: /*${2:'name'}*/'name'
-  location: /*${7:'location'}*/'location'
-  kind: /*${3|'GlobalDocumentDB','MongoDB','Parse'|}*/'GlobalDocumentDB'
+  location: /*${3:location}*/'location'
+  kind: /*${4|'GlobalDocumentDB','MongoDB','Parse'|}*/'GlobalDocumentDB'
   properties: {
     consistencyPolicy: {
-      defaultConsistencyLevel: /*${4|'Eventual','Session','BoundedStaleness','Strong','ConsistentPrefix'|}*/'Eventual'
-      maxStalenessPrefix: /*${5:1}*/1
-      maxIntervalInSeconds: /*${6:5}*/5
+      defaultConsistencyLevel: /*${5|'Eventual','Session','BoundedStaleness','Strong','ConsistentPrefix'|}*/'Eventual'
+      maxStalenessPrefix: /*${6:1}*/1
+      maxIntervalInSeconds: /*${7:5}*/5
     }
     locations: [
       {
-        locationName: /*${7:'location'}*/'location'
+        locationName: /*${3:location}*/'location'
         failoverPriority: /*${8:0}*/0
       }
     ]

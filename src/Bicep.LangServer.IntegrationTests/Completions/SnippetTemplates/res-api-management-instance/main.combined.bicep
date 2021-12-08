@@ -1,14 +1,17 @@
 // $1 = apiManagementInstance
 // $2 = 'name'
-// $3 = 1
-// $4 = 'Developer'
-// $5 = 'None'
-// $6 = 'publisherEmail@contoso.com'
-// $7 = 'publisherName'
+// $3 = location
+// $4 = 1
+// $5 = 'Developer'
+// $6 = 'None'
+// $7 = 'publisherEmail@contoso.com'
+// $8 = 'publisherName'
+
+param location string
 
 resource apiManagementInstance 'Microsoft.ApiManagement/service@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   sku:{
     capacity: 1
     name: 'Developer'

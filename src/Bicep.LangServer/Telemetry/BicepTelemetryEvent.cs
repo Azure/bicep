@@ -93,5 +93,35 @@ namespace Bicep.LanguageServer.Telemetry
                     ["code"] = code,
                 },
             };
+
+        public static BicepTelemetryEvent CreateLinterRuleStateChangeInBicepConfig(string rule, string prevDiagnosticLevel, string curDiagnosticLevel)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig,
+                Properties = new()
+                {
+                    ["rule"] = rule,
+                    ["previousDiagnosticLevel"] = prevDiagnosticLevel,
+                    ["currentDiagnosticLevel"] = curDiagnosticLevel
+                }
+            };
+
+        public static BicepTelemetryEvent CreateOverallLinterStateChangeInBicepConfig(string prevState, string curState)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig,
+                Properties = new()
+                {
+                    ["previousState"] = prevState,
+                    ["currentState"] = curState
+                }
+            };
+
+        public static BicepTelemetryEvent CreateLinterStateOnBicepFileOpen(Dictionary<string, string> properties)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.LinterStateOnBicepFileOpen,
+                Properties = properties
+            };
     }
 }

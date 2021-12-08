@@ -47,9 +47,12 @@ namespace Bicep.LanguageServer {
             }
         }
         
-        internal static string DisableDiagnostic {
+        /// <summary>
+        ///   Looks up a localized string similar to Disable {0} for this line.
+        /// </summary>
+        internal static string DisableDiagnosticForThisLine {
             get {
-                return ResourceManager.GetString("DisableDiagnostic", resourceCulture);
+                return ResourceManager.GetString("DisableDiagnosticForThisLine", resourceCulture);
             }
         }
     }

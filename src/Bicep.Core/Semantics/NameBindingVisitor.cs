@@ -92,7 +92,7 @@ namespace Bicep.Core.Semantics
         {
             base.VisitResourceAccessSyntax(syntax);
 
-            // we need to resolve which resource delaration the LHS is pointing to - and then 
+            // we need to resolve which resource delaration the LHS is pointing to - and then
             // validate that we can resolve the name.
             this.bindings.TryGetValue(syntax.BaseExpression, out var symbol);
 
@@ -210,9 +210,9 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.ImportDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.AliasName);
-            this.Visit(syntax.FromKeyword);
             this.Visit(syntax.ProviderName);
+            this.Visit(syntax.AsKeyword);
+            this.Visit(syntax.AliasName);
             this.Visit(syntax.Config);
             allowedFlags = FunctionFlags.Default;
         }
@@ -376,7 +376,7 @@ namespace Bicep.Core.Semantics
             protected override void VisitInternal(Symbol node)
             {
                 // We haven't typed checked yet, so don't visit anything that isn't a scope.
-                // 
+                //
                 // Now that resources can appear in a scope, this causes problems if we visit them and try
                 // to get type info.
                 if (node is ILanguageScope)

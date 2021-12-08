@@ -192,14 +192,14 @@ namespace Bicep.Core.IntegrationTests
             {
                 var template = TemplateEngine.ParseTemplate(templateJtoken.ToString());
 
-                TemplateEngine.ValidateTemplate(template, "2020-06-01", deploymentScope);
+                TemplateEngine.ValidateTemplate(template, "2020-10-01", deploymentScope);
                 TemplateEngine.ParameterizeTemplate(template, new InsensitiveDictionary<JToken>(config.Parameters), metadata, new InsensitiveDictionary<JToken>());
 
-                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-06-01");
+                TemplateEngine.ProcessTemplateLanguageExpressions(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template, "2020-10-01");
 
                 ProcessTemplateLanguageExpressions(template, config, deploymentScope);
 
-                TemplateEngine.ValidateProcessedTemplate(template, "2020-06-01", deploymentScope);
+                TemplateEngine.ValidateProcessedTemplate(template, "2020-10-01", deploymentScope);
 
                 return template.ToJToken();
             }
