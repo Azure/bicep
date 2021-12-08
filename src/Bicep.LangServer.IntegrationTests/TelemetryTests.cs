@@ -177,7 +177,7 @@ namespace Bicep.LangServer.IntegrationTests
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, files[uri], 1));
 
             var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
@@ -247,7 +247,7 @@ namespace Bicep.LangServer.IntegrationTests
                     { "currentDiagnosticLevel", "off" }
                 };
 
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
@@ -290,7 +290,7 @@ namespace Bicep.LangServer.IntegrationTests
                     { "currentState", "false" }
                 };
 
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
@@ -357,7 +357,7 @@ namespace Bicep.LangServer.IntegrationTests
                 { "secure-parameter-default", "warning" }
             };
 
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
@@ -386,7 +386,7 @@ namespace Bicep.LangServer.IntegrationTests
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, bicepFileContents, 1));
 
             var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
 
             var diagsParams = await diagsListener.WaitNext();
             diagsParams.Uri.Should().Be(documentUri);
@@ -428,7 +428,7 @@ namespace Bicep.LangServer.IntegrationTests
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
             var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
