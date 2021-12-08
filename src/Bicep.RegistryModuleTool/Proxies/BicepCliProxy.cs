@@ -36,14 +36,12 @@ namespace Bicep.RegistryModuleTool.Proxies
             this.logger = logger;
         }
 
-        public void Build(string bicepFilePath, string? outputFilePath = null)
+        public void Build(string bicepFilePath, string outputFilePath)
         {
             this.logger.LogDebug("Building \"{BicepFilePath}\"...", bicepFilePath);
 
             var bicepCliPath = this.LocateBicepCli();
-            var command = outputFilePath is null
-                ? $"build \"{bicepFilePath}\""
-                : $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
+            var command = $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
 
             var (exitCode, _, standardError) = this.processProxy.Start(bicepCliPath, command);
 
