@@ -297,67 +297,84 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepFileOpen_ShouldFireTelemetryEvent()
         {
-            var bicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        },
-        ""no-unused-vars"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
-
+            var fileSystemDict = new Dictionary<Uri, string>();
             var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
 
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
+var deployGroups = true
+
+resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
+  name: appInsightsName
+  location: resourceGroup().location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+}
+
+module apimGroups 'groups.bicep' = if (deployGroups) {
+  name: 'apimGroups'
+}";
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", mainBicepFileContents, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+            fileSystemDict[mainUri.ToUri()] = mainBicepFileContents;
+
+            var referencedBicepFileContents = @"resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
+  name: 'testApimInstanceName'
+}
+
+resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = {
+  name: 'apiManagement/groups'
+}
+
+param storageAccount string = 'testStorageAccount'
+param location string = 'testLocation'
+
+var useDefaultSettings = true";
+            var referencedBicepFilePath = FileHelper.SaveResultFile(TestContext, "groups.bicep", referencedBicepFileContents, testOutputPath);
+            var moduleUri = DocumentUri.FromFileSystemPath(referencedBicepFilePath);
+            fileSystemDict[moduleUri.ToUri()] = referencedBicepFileContents;
 
             var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
-            var telemetryReceived = new TaskCompletionSource<BicepTelemetryEvent>();
+            var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
 
             using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
                     options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
-                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryReceived.SetResult(telemetry));
-                });
+                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
+                },
+                creationOptions: new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
-            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, bicepFileContents, 1));
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
 
             var diagsParams = await diagsListener.WaitNext();
-            diagsParams.Uri.Should().Be(documentUri);
+            diagsParams.Uri.Should().Be(mainUri);
 
-            var bicepTelemetryEvent = await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
+            var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
 
             IDictionary<string, string> properties = new Dictionary<string, string>
             {
-                { "enabled", "true" },
-                { "simplify-interpolation", "warning" },
-                { "no-unused-vars", "info" },
-                { "no-hardcoded-env-urls", "warning" },
-                { "no-unused-params", "info" },
-                { "prefer-interpolation", "warning" },
-                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
-                { "no-unnecessary-dependson", "warning" },
-                { "adminusername-should-not-be-literal", "warning" },
-                { "use-stable-vm-image", "warning" },
-                { "secure-parameter-default", "warning" }
+                { "modules", "1" },
+                { "parameters", "1" },
+                { "resources", "1" },
+                { "variables", "1" },
+                { "fileSizeInBytes", "358" },
+                { "lineCount", "16" },
+                { "modulesInReferencedFiles", "0" },
+                { "resourcesInReferencedFiles", "2" },
+                { "parametersInReferencedFiles", "2" },
+                { "variablesInReferencedFiles", "1" },
+                { "errors", "0" },
+                { "warnings", "0" }
             };
 
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 

@@ -333,10 +333,8 @@ namespace Bicep.LanguageServer
                         properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
                         properties.Add("Resources", declarationsInMainFile.Count(x => x is ResourceDeclarationSyntax).ToString());
                         properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
-                        properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.AbsolutePath).Length.ToString());
-
-                        var lineStarts = bicepFile.LineStarts;
-                        properties.Add("LineCount", TextCoordinateConverter.GetPosition(lineStarts, lineStarts.Last()).line.ToString());
+                        properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.LocalPath).Length.ToString());
+                        properties.Add("LineCount", GetLineCount(bicepFile).ToString());
                     }
                     else
                     {
@@ -349,6 +347,7 @@ namespace Bicep.LanguageServer
                 }
             }
 
+            properties.Add("ModulesInReferencedFiles", numberOfModuleDeclarationsInReferencedFiles.ToString());
             properties.Add("ResourcesInReferencedFiles", numberOfResourceDeclarationsInReferencedFiles.ToString());
             properties.Add("ParametersInReferencedFiles", numberOfParameterDeclarationsInReferencedFiles.ToString());
             properties.Add("VariablesInReferencedFiles", numberOfVariableDeclarationsInReferencedFiles.ToString());
@@ -363,6 +362,12 @@ namespace Bicep.LanguageServer
         {
             var telemetryEvent = GetLinterStateTelemetryOnBicepFileOpen(configuration);
             TelemetryProvider.PostEvent(telemetryEvent);
+        }
+
+        private int GetLineCount(BicepFile bicepFile)
+        {
+            var lineStarts = bicepFile.LineStarts;
+            return TextCoordinateConverter.GetPosition(lineStarts, lineStarts.Last()).line + 1;
         }
 
         public BicepTelemetryEvent GetLinterStateTelemetryOnBicepFileOpen(RootConfiguration configuration)
