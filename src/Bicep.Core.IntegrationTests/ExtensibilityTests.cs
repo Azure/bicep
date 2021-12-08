@@ -34,7 +34,7 @@ namespace Bicep.Core.IntegrationTests
         public void Storage_import_bad_config_is_blocked()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   madeUpProperty: 'asdf'
 }
 ");
@@ -48,11 +48,11 @@ import stg from storage {
         public void Storage_import_can_be_duplicated()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg1 from storage {
+import storage as stg1 {
   connectionString: 'connectionString1'
 }
 
-import stg2 from storage {
+import storage as stg2 {
   connectionString: 'connectionString2'
 }
 ");
@@ -63,7 +63,7 @@ import stg2 from storage {
         public void Storage_import_basic_test()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -84,7 +84,7 @@ resource blob 'blob' = {
         public void Storage_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -122,7 +122,7 @@ output base64Content string = blobs[3]['base64Content']
         public void Aad_import_basic_test_loops_and_referencing()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import aad from aad
+import aad as aad
 param numApps int
 
 resource myApp 'application' = {
@@ -150,7 +150,7 @@ output myAppsLoopId2 string = myAppsLoop[3]['appId']
         {
             // we've accidentally used 'name' even though this resource type doesn't support it
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import aad from aad
+import aad as aad
 
 resource myApp 'application' existing = {
   name: 'foo'
@@ -165,7 +165,7 @@ resource myApp 'application' existing = {
 
             // oops! let's change it to 'uniqueName'
             result = CompilationHelper.Compile(GetCompilationContext(), @"
-import aad from aad
+import aad as aad
 
 resource myApp 'application' existing = {
   uniqueName: 'foo'
@@ -180,7 +180,7 @@ resource myApp 'application' existing = {
         public void Storage_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -201,7 +201,7 @@ resource blob 'stg:blob' = {
         public void Invalid_namespace_qualifier_returns_error()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -226,7 +226,7 @@ resource blob 'bar:blob' = {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -274,7 +274,7 @@ module website './website.bicep' = {
 @secure()
 param connectionString string
 
-import stg from storage {
+import storage as stg {
   connectionString: connectionString
 }
 

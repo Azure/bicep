@@ -167,8 +167,8 @@ namespace Bicep.LanguageServer.Completions
 
             if (featureProvider.ImportsEnabled)
             {
-                kind |= ConvertFlag(IsImportSymbolFollower(matchingNodes, offset), BicepCompletionContextKind.ImportSymbolFollower) |
-                    ConvertFlag(IsImportFromFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFromFollower);
+                kind |= ConvertFlag(IsImportProviderFollower(matchingNodes, offset), BicepCompletionContextKind.ImportProviderFollower) |
+                    ConvertFlag(IsImportFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFollower);
             }
 
             if (kind == BicepCompletionContextKind.None)
@@ -619,16 +619,16 @@ namespace Bicep.LanguageServer.Completions
             // abc.someFunc(x,|)
             SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, Token>(matchingNodes, (func, _, _) => true);
 
-        private static bool IsImportSymbolFollower(List<SyntaxBase> matchingNodes, int offset) =>
+        private static bool IsImportProviderFollower(List<SyntaxBase> matchingNodes, int offset) =>
             // import foo |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.AliasName.IsValid && offset > import.AliasName.GetEndPosition() && offset <= import.FromKeyword.GetEndPosition()) ||
-            // import foo f|
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, skipped, _) => import.FromKeyword == skipped);
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.IsValid && offset > import.ProviderName.GetEndPosition() && offset <= import.AsKeyword.GetEndPosition()) ||
+            // import foo a|
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, skipped, _) => import.AsKeyword == skipped);
 
-        private static bool IsImportFromFollower(List<SyntaxBase> matchingNodes, int offset) =>
-            // import foo from |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => offset > import.FromKeyword.GetEndPosition() && import.ProviderName.Child is SkippedTriviaSyntax) ||
-            // import foo from f|
+        private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) =>
+            // import |
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.Child is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
+            // import f|
             SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
 
         private static bool IsOuterExpressionContext(List<SyntaxBase> matchingNodes, int offset)

@@ -42,7 +42,7 @@ namespace Bicep.Core
         public const string ModuleKeyword = "module";
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
-        public const string FromKeyword = "from";
+        public const string AsKeyword = "as";
 
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";
