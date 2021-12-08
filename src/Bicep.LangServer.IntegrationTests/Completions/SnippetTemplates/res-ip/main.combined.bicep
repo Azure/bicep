@@ -1,10 +1,13 @@
 // $1 = publicIPAddress
 // $2 = 'name'
-// $3 = 'dnsName'
+// $3 = location
+// $4 = 'dnsName'
+
+param location string
 
 resource publicIPAddress 'Microsoft.Network/publicIPAddresses@2019-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     publicIPAllocationMethod: 'Dynamic'
     dnsSettings: {

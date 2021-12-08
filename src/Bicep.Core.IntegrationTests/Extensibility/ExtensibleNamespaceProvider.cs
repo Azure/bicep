@@ -29,6 +29,8 @@ namespace Bicep.Core.IntegrationTests.Extensibility
             {
                 case StorageNamespaceType.BuiltInName:
                     return StorageNamespaceType.Create(aliasName);
+                case AadNamespaceType.BuiltInName:
+                    return AadNamespaceType.Create(aliasName);
             }
 
             return default;

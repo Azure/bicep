@@ -1,6 +1,6 @@
 // $1 = policyAssignment
 // $2 = 'name'
-// $3 = 'location'
+// $3 = location
 // $4 = 'SystemAssigned'
 // $5 = 'displayName'
 // $6 = 'description'
@@ -14,9 +14,11 @@
 // $14 = 'message'
 // $15 = 'policyDefinitionReferenceId'
 
+param location string
+
 resource policyAssignment 'Microsoft.Authorization/policyAssignments@2020-09-01' = {
   name: 'name'
-  location: 'location'
+  location: location
   identity: {
     type: 'SystemAssigned'
   }

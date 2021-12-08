@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4377935105155693964"
+      "templateHash": "13428383541073816102"
     }
   },
   "parameters": {
@@ -19,7 +19,7 @@
   "resources": {
     "appServicePlanModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "appServicePlanDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -90,7 +90,7 @@
     },
     "appServiceModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "appServiceDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -215,7 +215,7 @@
     },
     "appInsightsModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "appInsightsDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -288,7 +288,7 @@
     },
     "logAnalyticsWorkspace": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "logAnalyticsWorkspaceDeploy",
       "properties": {
         "expressionEvaluationOptions": {

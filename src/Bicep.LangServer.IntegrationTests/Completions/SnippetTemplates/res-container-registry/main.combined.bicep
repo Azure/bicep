@@ -1,11 +1,14 @@
 // $1 = containerRegistry
 // $2 = 'name'
-// $3 = 'Basic'
-// $4 = false
+// $3 = location
+// $4 = 'Basic'
+// $5 = false
+
+param location string
 
 resource containerRegistry 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   sku: {
     name: 'Basic'
   }

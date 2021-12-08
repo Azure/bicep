@@ -15,6 +15,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LangServer.IntegrationTests.Completions;
+using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -79,6 +80,30 @@ namespace Bicep.LangServer.IntegrationTests
                 Assert.Fail("Snippet templates should not contain targetScope. Please remove targetScope from template with prefix {0}.", completionData.Prefix);
             }
         }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        public void VerifySnippetTemplatesDoNotContainResourceGroupLocation(CompletionData completionData)
+        {
+            if (
+                completionData.SnippetText.Contains("resourceGroup().location")
+                || completionData.SnippetText.Contains("deployment().location")
+                )
+            {
+                Assert.Fail("Snippet templates should not contain resourceGroup().location or deployment().location. Snippet: {0}.", completionData.Prefix);
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetSnippetCompletionData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(CompletionData), DynamicDataDisplayName = nameof(CompletionData.GetDisplayName))]
+        public void VerifySnippetTemplatesUseCorrectLocationSyntax(CompletionData completionData)
+        {
+            if (completionData.SnippetText.Contains("location:") && !completionData.SnippetText.Contains("location: 'global'")) // location: 'global' is okay
+            {
+                completionData.SnippetText.Should().MatchRegex("location: \\/\\*\\$\\{[0-9]+:location\\}\\*\\/", "All snippets that include a location property should use this format for it: \"location: /*${xxx:location}*/'location'\". (Snippet: " + completionData.Prefix + ")");
+            }
+        }
+
 
         private static IEnumerable<object[]> GetSnippetCompletionData() => CompletionDataHelper.GetSnippetCompletionData();
     }

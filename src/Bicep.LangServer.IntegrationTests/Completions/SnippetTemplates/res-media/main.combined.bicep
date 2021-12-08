@@ -1,11 +1,14 @@
 // $1 = mediaServices
 // $2 = 'name'
-// $3 = 'storageAccount.id'
-// $4 = Primary
+// $3 = location
+// $4 = 'storageAccount.id'
+// $5 = Primary
+
+param location string
 
 resource mediaServices 'Microsoft.Media/mediaServices@2020-05-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     storageAccounts: [
       {
