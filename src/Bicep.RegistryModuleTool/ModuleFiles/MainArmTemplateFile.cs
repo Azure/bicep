@@ -3,7 +3,9 @@
 
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.Proxies;
 using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
@@ -45,6 +47,17 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public IEnumerable<MainArmTemplateParameter> Parameters => this.lazyParameters.Value;
         
         public IEnumerable<MainArmTemplateOutput> Outputs => this.lazyOutputs.Value;
+
+        public static MainArmTemplateFile Generate(IFileSystem fileSystem, BicepCliProxy bicepCliProxy, MainBicepFile mainBicepFile)
+        {
+            using var tempFile = fileSystem.File.CreateTempFile();
+            bicepCliProxy.Build(mainBicepFile.Path, tempFile.Path);
+
+            var path = fileSystem.Path.GetFullPath(MainArmTemplateFile.FileName);
+            var content = fileSystem.File.ReadAllText(tempFile.Path);
+
+            return new(path, content);
+        }
 
         public static MainArmTemplateFile ReadFromFileSystem(IFileSystem fileSystem)
         {

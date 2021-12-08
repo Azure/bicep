@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-namespace Bicep.RegistryModuleTool.Utils
+namespace Bicep.RegistryModuleTool.Extensions
 {
     internal enum MarkdownTableColumnAlignment
     {

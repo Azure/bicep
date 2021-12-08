@@ -2,18 +2,19 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
+using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 
-namespace Bicep.RegistryModuleTool.Utils
+namespace Bicep.RegistryModuleTool.Proxies
 {
-    internal sealed class BicepCliRunner
+    internal sealed class BicepCliProxy
     {
         private readonly static Regex BicepBuildWarningRegex = new(
             @"^([^\s].*)\((\d+)(?:,\d+|,\d+,\d+)?\)\s+:\s+(Warning)\s+([a-zA-Z-\d]+):\s*(.*?)\s+\[(.*?)\]$",
@@ -21,25 +22,29 @@ namespace Bicep.RegistryModuleTool.Utils
 
         private readonly static string[] LineSeperators = new[] { "\r", "\n", "\r\n" };
 
+        private readonly IProcessProxy processProxy;
+
         private readonly IFileSystem fileSystem;
 
         private readonly ILogger logger;
 
-        public BicepCliRunner(IFileSystem fileSystem, ILogger logger)
+        public BicepCliProxy(IProcessProxy processProxy, IFileSystem fileSystem, ILogger logger)
         {
+            this.processProxy = processProxy;
             this.fileSystem = fileSystem;
             this.logger = logger;
         }
 
-        public void BuildBicepFile(string bicepFilePath, string? outputFilePath = null)
+        public void Build(string bicepFilePath, string? outputFilePath = null)
         {
             this.logger.LogDebug("Building \"{BicepFilePath}\"...", bicepFilePath);
 
+            var bicepCliPath = this.LocateBicepCli();
             var command = outputFilePath is null
                 ? $"build \"{bicepFilePath}\""
                 : $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
 
-            var (exitCode, _, standardError) = RunBicepCommand(command);
+            var (exitCode, _, standardError) = this.processProxy.Start(bicepCliPath, command);
 
             if (exitCode == 0 && !string.IsNullOrEmpty(standardError))
             {
@@ -78,28 +83,6 @@ namespace Bicep.RegistryModuleTool.Utils
 
                 throw new BicepException($"Failed to build \"{bicepFilePath}\".");
             }
-        }
-
-        private (int exitCode, string standardOutput, string standardError) RunBicepCommand(string arguments)
-        {
-            var process = new Process();
-
-            process.StartInfo.FileName = this.LocateBicepCli();
-            process.StartInfo.Arguments = arguments;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.UseShellExecute = false;
-
-            process.Start();
-
-            // TODO: fix deadlock.
-            var standardOutput = process.StandardOutput.ReadToEnd();
-            var standardError = process.StandardError.ReadToEnd();
-
-            process.WaitForExit();
-
-
-            return (process.ExitCode, standardOutput, standardError);
         }
 
         private string LocateBicepCli()

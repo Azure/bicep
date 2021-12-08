@@ -3,6 +3,7 @@
 
 using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
+using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.IO.Abstractions;
@@ -24,8 +25,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
             this.latestMainArmTemplateFile = latestMainArmTemplateFile;
         }
 
-        public void Validate(MainArmTemplateFile file) =>
-            this.Validate(file.Path, file.Content, this.latestMainArmTemplateFile.Content);
+        public void Validate(MainArmTemplateFile file) => this.Validate(file.Path, file.Content, latestMainArmTemplateFile.Content);
 
         public void Validate(MainArmTemplateParametersFile file)
         {

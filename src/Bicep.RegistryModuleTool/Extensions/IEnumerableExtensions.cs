@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.Utils;
+using Bicep.RegistryModuleTool.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Linq;

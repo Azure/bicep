@@ -30,11 +30,8 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
         {
             this.logger.LogDebug("Making sure descriptions are defined for all parameters and outputs...");
 
-            var noDescriptionParameters = latestMainArmTemplateFile.Parameters
-                .Where(parameter => string.IsNullOrEmpty(parameter.Description));
-
-            var noDescriptionOutputs = latestMainArmTemplateFile.Outputs
-                .Where(output => string.IsNullOrEmpty(output.Description));
+            var noDescriptionParameters = latestMainArmTemplateFile.Parameters.Where(parameter => string.IsNullOrEmpty(parameter.Description));
+            var noDescriptionOutputs = latestMainArmTemplateFile.Outputs.Where(output => string.IsNullOrEmpty(output.Description));
 
             if (noDescriptionParameters.IsEmpty() && noDescriptionOutputs.IsEmpty())
             {

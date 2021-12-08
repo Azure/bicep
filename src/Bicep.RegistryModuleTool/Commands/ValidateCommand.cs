@@ -5,6 +5,7 @@ using Bicep.Core;
 using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -37,9 +38,12 @@ namespace Bicep.RegistryModuleTool.Commands
                 "bicepconfig.json"
             };
 
-            public CommandHandler(IFileSystem fileSystem, ILogger<ValidateCommand> logger)
+            private readonly IProcessProxy processProxy;
+
+            public CommandHandler(IProcessProxy processProxy, IFileSystem fileSystem, ILogger<ValidateCommand> logger)
                 : base(fileSystem, logger)
             {
+                this.processProxy = processProxy;
             }
 
             protected override void InvokeInternal(InvocationContext context)
@@ -47,10 +51,14 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.Logger.LogDebug("Validating that no additional files are in the module folder...");
                 this.EnsureNoAdditionalFiles();
 
+
                 this.Logger.LogDebug("Validating main Bicep file...");
+
+                var bicepCliProxy = new BicepCliProxy(this.processProxy, this.FileSystem, this.Logger);
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
 
-                var latestMainArmTemplateFile = mainBicepFile.Build(this.FileSystem, this.Logger);
+                // This also validates that the main Bicep file can be built.
+                var latestMainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
                 var descriptionsValidator = new DescriptionsValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
 
                 mainBicepFile.ValidatedBy(descriptionsValidator);

@@ -3,7 +3,7 @@
 
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.Utils;
+using Bicep.RegistryModuleTool.Proxies;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;

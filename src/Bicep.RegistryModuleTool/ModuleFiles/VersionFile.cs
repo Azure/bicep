@@ -45,7 +45,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
                 writer.WritePropertyName("pathFilters");
                 writer.WriteStartArray();
-                writer.WriteStringValue(".");
+                writer.WriteStringValue("./main.json");
                 writer.WriteEndArray();
 
                 writer.WriteEndObject();

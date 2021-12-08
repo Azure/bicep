@@ -4,6 +4,7 @@
 using Bicep.RegistryModuleTool.Commands;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.Options;
+using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -58,6 +59,7 @@ internal class Program
             }
         })
         .ConfigureServices(services => services
+            .AddSingleton<IProcessProxy, ProcessProxy>()
             .AddSingleton<IFileSystem, FileSystem>())
         .UseCommandHandlers();
 }

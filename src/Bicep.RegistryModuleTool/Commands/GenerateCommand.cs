@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
+using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
 using System.CommandLine;
 using System.CommandLine.Invocation;
@@ -18,17 +20,21 @@ namespace Bicep.RegistryModuleTool.Commands
 
         public sealed class CommandHandler : BaseCommandHandler
         {
-            public CommandHandler(IFileSystem fileSystem, ILogger<GenerateCommand> logger)
+            private readonly IProcessProxy processProxy;
+
+            public CommandHandler(IProcessProxy processProxy, IFileSystem fileSystem, ILogger<GenerateCommand> logger)
                 : base(fileSystem, logger)
             {
+                this.processProxy = processProxy;
             }
 
             protected override void InvokeInternal(InvocationContext context)
             {
                 // Generate main ARM template file.
                 this.Logger.LogDebug("Generating main ARM template file...");
+                var bicepCliProxy = new BicepCliProxy(this.processProxy, this.FileSystem, this.Logger);
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
-                var mainArmTemplateFile = mainBicepFile.Build(this.FileSystem, this.Logger);
+                var mainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
 
                 this.Logger.LogDebug("Writing main ARM template file to \"{MainArmTemplateFilePath}\"...", mainArmTemplateFile.Path);
                 mainArmTemplateFile.WriteToFileSystem(FileSystem);

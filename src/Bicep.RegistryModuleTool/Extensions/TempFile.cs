@@ -4,7 +4,7 @@
 using System;
 using System.IO.Abstractions;
 
-namespace Bicep.RegistryModuleTool.Utils
+namespace Bicep.RegistryModuleTool.Extensions
 {
     internal sealed class TempFile : IDisposable
     {
