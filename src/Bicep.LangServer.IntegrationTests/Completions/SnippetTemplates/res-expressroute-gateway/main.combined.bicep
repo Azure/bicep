@@ -1,12 +1,15 @@
 // $1 = expressRouteGateways
 // $2 = 'name'
-// $3 = 'virtualHub.id'
-// $4 = 1
-// $5 = 2
+// $3 = location
+// $4 = 'virtualHub.id'
+// $5 = 1
+// $6 = 2
+
+param location string
 
 resource expressRouteGateways 'Microsoft.Network/expressRouteGateways@2021-02-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     virtualHub: {
       id: 'virtualHub.id'

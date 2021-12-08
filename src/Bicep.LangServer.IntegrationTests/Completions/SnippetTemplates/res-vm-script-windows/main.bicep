@@ -1,7 +1,10 @@
 ﻿// $1 = 'name'
-// $2 = windowsVMExtensions
-// $3 = 'name'
-// $4 = 'fileUris'
-// $5 = customScript.ps1
+// $2 = location
+// $3 = windowsVMExtensions
+// $4 = 'name'
+// $5 = 'fileUris'
+// $6 = customScript.ps1
+
+param location string
 
 // Insert snippet here

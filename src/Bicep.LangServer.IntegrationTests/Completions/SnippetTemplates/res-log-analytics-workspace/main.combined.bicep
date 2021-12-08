@@ -1,10 +1,13 @@
 // $1 = logAnalyticsWorkspace
 // $2 = 'name'
-// $3 = 'Free'
+// $3 = location
+// $4 = 'Free'
+
+param location string
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     sku: {
       name: 'Free'
