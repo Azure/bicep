@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="DiffPlex" Version="1.7.0" />
+    <PackageReference Include="FluentAssertions" Version="6.2.0" />
     <PackageReference Include="JsonSchema.Net" Version="1.11.5" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
@@ -25,6 +26,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+    <_Parameter1>Bicep.RegistryModuleTool.UnitTests</_Parameter1>
+  </AssemblyAttribute>
   </ItemGroup>
 
 </Project>

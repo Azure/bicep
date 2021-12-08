@@ -58,7 +58,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
             catch (JsonException jsonException)
             {
-                throw new BicepException($"The metadata file \"{path}\" is not valid JSON file. {jsonException.Message}");
+                throw new BicepException($"The metadata file \"{path}\" is not a valid JSON file. {jsonException.Message}");
             }
         }
 
