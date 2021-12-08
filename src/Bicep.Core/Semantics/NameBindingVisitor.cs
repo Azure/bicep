@@ -92,7 +92,7 @@ namespace Bicep.Core.Semantics
         {
             base.VisitResourceAccessSyntax(syntax);
 
-            // we need to resolve which resource delaration the LHS is pointing to - and then 
+            // we need to resolve which resource delaration the LHS is pointing to - and then
             // validate that we can resolve the name.
             this.bindings.TryGetValue(syntax.BaseExpression, out var symbol);
 
@@ -115,7 +115,7 @@ namespace Bicep.Core.Semantics
             if (resourceBody == null)
             {
                 // If we have no body then there will be nothing to reference.
-                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames: new []{ "(none)", }));
+                var error = new ErrorSymbol(DiagnosticBuilder.ForPosition(syntax.ResourceName).NestedResourceNotFound(resourceSymbol.Name, syntax.ResourceName.IdentifierName, nestedResourceNames: new[] { "(none)", }));
                 this.bindings.Add(syntax, error);
                 return;
             }
@@ -134,7 +134,7 @@ namespace Bicep.Core.Semantics
                 this.bindings.Add(syntax, error);
                 return;
             }
-            
+
             // This is valid.
             this.bindings.Add(syntax, referencedResource);
         }
@@ -210,9 +210,9 @@ namespace Bicep.Core.Semantics
             allowedFlags = FunctionFlags.ImportDecorator;
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.AliasName);
-            this.Visit(syntax.FromKeyword);
             this.Visit(syntax.ProviderName);
+            this.Visit(syntax.AsKeyword);
+            this.Visit(syntax.AliasName);
             this.Visit(syntax.Config);
             allowedFlags = FunctionFlags.Default;
         }
@@ -287,12 +287,12 @@ namespace Bicep.Core.Semantics
         {
             // we must have a scope in the map for the loop body - otherwise binding won't work
             Debug.Assert(this.allLocalScopes.ContainsKey(syntax.Body), "this.allLocalScopes.ContainsKey(syntax.Body)");
-            
+
             // visit all the children
             base.VisitForSyntax(syntax);
         }
 
-        private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) => 
+        private Symbol LookupSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall) =>
             this.LookupLocalSymbolByName(identifierSyntax, isFunctionCall) ?? LookupGlobalSymbolByName(identifierSyntax, isFunctionCall);
 
         private Symbol? LookupLocalSymbolByName(IdentifierSyntax identifierSyntax, bool isFunctionCall)
@@ -320,7 +320,7 @@ namespace Bicep.Core.Semantics
             return null;
         }
 
-        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax) => 
+        private static Symbol? LookupLocalSymbolByName(LocalScope scope, IdentifierSyntax identifierSyntax) =>
             // bind to first symbol matching the specified identifier
             // (errors about duplicate identifiers are emitted elsewhere)
             // loops currently are the only source of local symbols
@@ -367,8 +367,8 @@ namespace Bicep.Core.Semantics
                 SymbolValidator.ResolveUnqualifiedFunction(allowedFlags, foundSymbol, identifierSyntax, namespaceResolver) :
                 SymbolValidator.ResolveUnqualifiedSymbol(foundSymbol, identifierSyntax, namespaceResolver, declarations.Keys);
         }
-        
-        private class ScopeCollectorVisitor: SymbolVisitor
+
+        private class ScopeCollectorVisitor : SymbolVisitor
         {
             private IDictionary<SyntaxBase, LocalScope> ScopeMap { get; } = new Dictionary<SyntaxBase, LocalScope>();
 
@@ -376,7 +376,7 @@ namespace Bicep.Core.Semantics
             protected override void VisitInternal(Symbol node)
             {
                 // We haven't typed checked yet, so don't visit anything that isn't a scope.
-                // 
+                //
                 // Now that resources can appear in a scope, this causes problems if we visit them and try
                 // to get type info.
                 if (node is ILanguageScope)

@@ -76,7 +76,7 @@ namespace Bicep.Core.Resources
             return new ResourceTypeReference(
                 baseType.TypeSegments.AddRange(nestedType.TypeSegments),
                 nestedType.ApiVersion ?? baseType.ApiVersion);
-         }
+        }
 
         public static ResourceTypeReference Parse(string resourceType)
             => TryParse(resourceType) ?? throw new ArgumentException($"Unable to parse '{resourceType}'", nameof(resourceType));

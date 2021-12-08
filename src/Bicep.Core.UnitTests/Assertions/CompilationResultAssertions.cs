@@ -12,11 +12,11 @@ using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class CompilationResultExtensions 
+    public static class CompilationResultExtensions
     {
         public static CompilationResultAssertions Should(this CompilationResult result)
         {
-            return new CompilationResultAssertions(result); 
+            return new CompilationResultAssertions(result);
         }
     }
 
@@ -37,17 +37,20 @@ namespace Bicep.Core.UnitTests.Assertions
         }
 
         public AndConstraint<CompilationResultAssertions> ContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
-            => DoWithDiagnosticAnnotations(diags => {
+            => DoWithDiagnosticAnnotations(diags =>
+            {
                 diags.Should().ContainDiagnostic(code, level, message, because, becauseArgs);
             });
 
         public AndConstraint<CompilationResultAssertions> OnlyContainDiagnostic(string code, DiagnosticLevel level, string message, string because = "", params object[] becauseArgs)
-            => DoWithDiagnosticAnnotations(diags => {
+            => DoWithDiagnosticAnnotations(diags =>
+            {
                 diags.Should().ContainSingleDiagnostic(code, level, message, because, becauseArgs);
             });
 
         public AndConstraint<CompilationResultAssertions> HaveDiagnostics(IEnumerable<(string code, DiagnosticLevel level, string message)> expectedDiagnostics, string because = "", params object[] becauseArgs)
-            => DoWithDiagnosticAnnotations(diags => {
+            => DoWithDiagnosticAnnotations(diags =>
+            {
                 diags.Should().HaveDiagnostics(expectedDiagnostics, because, becauseArgs);
             });
 
@@ -61,7 +64,8 @@ namespace Bicep.Core.UnitTests.Assertions
             });
 
         public AndConstraint<CompilationResultAssertions> NotHaveAnyDiagnostics(string because = "", params object[] becauseArgs)
-            => DoWithDiagnosticAnnotations(diags => {
+            => DoWithDiagnosticAnnotations(diags =>
+            {
                 diags.Should().BeEmpty(because, becauseArgs);
             });
 

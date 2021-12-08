@@ -113,7 +113,7 @@ namespace Bicep.Cli.Services
             {
                 foreach (var module in bicepFile.ProgramSyntax.Declarations.OfType<ModuleDeclarationSyntax>())
                 {
-                    if(!originalModulesToRestore.Contains(module))
+                    if (!originalModulesToRestore.Contains(module))
                     {
                         continue;
                     }

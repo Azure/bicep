@@ -14,7 +14,7 @@ statement ->
 
 targetScopeDecl -> "targetScope" "=" expression
 
-importDecl -> decorator* "import" IDENTIFIER(aliasName) "from" IDENTIFIER(providerName) object? NL
+importDecl -> decorator* "import" IDENTIFIER(providerName) "as" IDENTIFIER(aliasName) object? NL
 
 parameterDecl -> decorator* "parameter" IDENTIFIER(name) IDENTIFIER(type) parameterDefaultValue? NL
 parameterDefaultValue -> "=" expression

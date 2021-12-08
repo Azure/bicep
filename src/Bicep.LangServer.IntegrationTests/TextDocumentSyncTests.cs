@@ -26,9 +26,10 @@ namespace Bicep.LangServer.IntegrationTests
             var documentUri = DocumentUri.From("/template.bicep");
             var diagsReceived = new TaskCompletionSource<PublishDiagnosticsParams>();
 
-            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(this.TestContext, options => 
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(this.TestContext, options =>
             {
-                options.OnPublishDiagnostics(diags => {
+                options.OnPublishDiagnostics(diags =>
+                {
                     diagsReceived.SetResult(diags);
                 });
             });
@@ -45,20 +46,24 @@ randomToken
 
             var response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
-                d => {
+                d =>
+                {
                     d.Range.Should().HaveRange((1, 6), (1, 13));
                     // note documentation pretty printing moves Uri to code for output
                     d.Should().HaveCodeAndSeverity(new NoUnusedParametersRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
-                d => {
+                d =>
+                {
                     d.Range.Should().HaveRange((1, 23), (1, 24));
                     d.Should().HaveCodeAndSeverity("BCP027", DiagnosticSeverity.Error);
                 },
-                d => {
+                d =>
+                {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
                     d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);
                 },
-                d => {
+                d =>
+                {
                     d.Range.Should().HaveRange((5, 0), (5, 11));
                     d.Should().HaveCodeAndSeverity("BCP007", DiagnosticSeverity.Error);
                 }
@@ -76,16 +81,19 @@ randomToken
 
             response = await IntegrationTestHelper.WithTimeoutAsync(diagsReceived.Task);
             response.Diagnostics.Should().SatisfyRespectively(
-                d => {
+                d =>
+                {
                     d.Range.Should().HaveRange((1, 6), (1, 13));
                     // documentation provided with linter sets code to uri for pretty link print outs
                     d.Should().HaveCodeAndSeverity(new NoUnusedParametersRule().Uri!.AbsoluteUri, DiagnosticSeverity.Warning);
                 },
-                d => {
+                d =>
+                {
                     d.Range.Should().HaveRange((2, 15), (2, 30));
                     d.Should().HaveCodeAndSeverity("BCP029", DiagnosticSeverity.Error);
                 },
-                d => {
+                d =>
+                {
                     d.Range.Should().HaveRange((5, 0), (5, 11));
                     d.Should().HaveCodeAndSeverity("BCP007", DiagnosticSeverity.Error);
                 }

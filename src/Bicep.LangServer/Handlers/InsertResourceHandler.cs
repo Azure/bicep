@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer.Handlers
                 return Unit.Value;
             }
 
-            if (TryParseResourceId(request.ResourceId) is not {} resourceId)
+            if (TryParseResourceId(request.ResourceId) is not { } resourceId)
             {
                 server.Window.ShowError($"Failed to parse supplied resourceId \"{request.ResourceId}\".");
                 telemetryProvider.PostEvent(BicepTelemetryEvent.InsertResourceFailure("ParseResourceIdFailed"));

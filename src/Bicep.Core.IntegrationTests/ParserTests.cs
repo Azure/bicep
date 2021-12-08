@@ -104,7 +104,7 @@ namespace Bicep.Core.IntegrationTests
             string getLoggingString(SyntaxCollectorVisitor.SyntaxItem data)
             {
                 var depthPrefix = new string(' ', data.Depth);
-                
+
                 if (data.Syntax is Token token)
                 {
                     return $"{depthPrefix}{token.Type} |{OutputHelper.EscapeWhitespace(token.Text)}|";
@@ -119,7 +119,7 @@ namespace Bicep.Core.IntegrationTests
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSyntax), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Syntax,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSyntax),
                 actualLocation: resultsFile);

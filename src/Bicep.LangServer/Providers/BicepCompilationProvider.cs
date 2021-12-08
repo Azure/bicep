@@ -16,7 +16,7 @@ namespace Bicep.LanguageServer.Providers
     /// Creates compilation contexts.
     /// </summary>
     /// <remarks>This class exists only so we can mock fatal exceptions in tests.</remarks>
-    public class BicepCompilationProvider: ICompilationProvider
+    public class BicepCompilationProvider : ICompilationProvider
     {
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;

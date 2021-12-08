@@ -32,7 +32,7 @@ namespace Bicep.Cli
 
         public INamespaceProvider NamespaceProvider { get; }
 
-        public TextWriter OutputWriter { get; } 
+        public TextWriter OutputWriter { get; }
 
         public TextWriter ErrorWriter { get; }
 

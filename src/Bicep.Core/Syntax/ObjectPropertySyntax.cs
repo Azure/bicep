@@ -21,7 +21,8 @@ namespace Bicep.Core.Syntax
         }
 
         public string? TryGetKeyText()
-            => Key switch {
+            => Key switch
+            {
                 IdentifierSyntax identifier => identifier.IdentifierName,
                 StringSyntax @string => @string.TryGetLiteralValue(),
                 SkippedTriviaSyntax _ => null,

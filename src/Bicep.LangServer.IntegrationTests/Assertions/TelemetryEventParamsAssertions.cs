@@ -9,11 +9,11 @@ using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {
-    public static class TelemetryEventParamsExtensions 
+    public static class TelemetryEventParamsExtensions
     {
         public static TelemetryEventParamsAssertions Should(this TelemetryEventParams instance)
         {
-            return new TelemetryEventParamsAssertions(instance); 
+            return new TelemetryEventParamsAssertions(instance);
         }
     }
 

@@ -39,7 +39,7 @@ namespace Bicep.Core.IntegrationTests
                 {
                     case SystemNamespaceType.BuiltInName:
                         return SystemNamespaceType.Create(aliasName);
-                    case {} _ when builderDict.TryGetValue(providerName) is {} builderFunc:
+                    case { } _ when builderDict.TryGetValue(providerName) is { } builderFunc:
                         return builderFunc(aliasName);
                 }
 
@@ -57,7 +57,7 @@ namespace Bicep.Core.IntegrationTests
         public void Imports_are_disabled_unless_feature_is_enabled()
         {
             var result = CompilationHelper.Compile(@"
-import foo from az
+import az as foo
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP203", DiagnosticLevel.Error, "Import statements are currently not supported."),
@@ -68,24 +68,24 @@ import foo from az
         public void Import_statement_parse_diagnostics_are_guiding()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
-import 
-");
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP202", DiagnosticLevel.Error, "Expected an import alias name at this location."),
-            });
-
-            result = CompilationHelper.Compile(EnabledImportsContext, @"
-import ns 
-");
-            result.Should().HaveDiagnostics(new[] {
-                ("BCP012", DiagnosticLevel.Error, "Expected the \"from\" keyword at this location."),
-            });
-
-            result = CompilationHelper.Compile(EnabledImportsContext, @"
-import ns from 
+import
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP201", DiagnosticLevel.Error, "Expected an import provider name at this location."),
+            });
+
+            result = CompilationHelper.Compile(EnabledImportsContext, @"
+import az
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP012", DiagnosticLevel.Error, "Expected the \"as\" keyword at this location."),
+            });
+
+            result = CompilationHelper.Compile(EnabledImportsContext, @"
+import az as
+");
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP202", DiagnosticLevel.Error, "Expected an import alias name at this location."),
             });
         }
 
@@ -93,7 +93,7 @@ import ns from
         public void Imports_return_error_with_unrecognized_namespace()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
-import foo from madeUpNamespace
+import madeUpNamespace as foo
 ");
             result.Should().HaveDiagnostics(new[] {
                 ("BCP204", DiagnosticLevel.Error, "Imported namespace \"madeUpNamespace\" is not recognized."),
@@ -104,7 +104,7 @@ import foo from madeUpNamespace
         public void Import_configuration_is_blocked_by_default()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
-import ns from az {
+import az as ns {
   foo: 'bar'
 }
 ");
@@ -117,7 +117,7 @@ import ns from az {
         public void Using_import_statements_frees_up_the_namespace_symbol()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
-import newAz from az
+import az as newAz
 
 var az = 'Fake AZ!'
 var myRg = newAz.resourceGroup()
@@ -133,8 +133,8 @@ output rgLocation string = myRg.location
         public void You_can_swap_imported_namespaces_if_you_really_really_want_to()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
-import sys from az
-import az from sys
+import az as sys
+import sys as az
 
 var myRg = sys.resourceGroup()
 
@@ -150,7 +150,7 @@ output rgLocation string = myRg.location
         public void Overwriting_single_built_in_namespace_with_import_is_permitted()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
-import sys from az
+import az as sys
 
 var myRg = sys.resourceGroup()
 
@@ -164,11 +164,11 @@ output rgLocation string = myRg.location
         public void Singleton_imports_cannot_be_used_multiple_times()
         {
             var result = CompilationHelper.Compile(EnabledImportsContext, @"
-import az1 from az
-import az2 from az
+import az as az1
+import az as az2
 
-import sys1 from sys
-import sys2 from sys
+import sys as sys1
+import sys as sys2
 ");
 
             result.Should().HaveDiagnostics(new[] {
@@ -193,7 +193,7 @@ import sys2 from sys
                         ArmTemplateProviderName: "Ns1-Unused",
                         ArmTemplateProviderVersion: "1.0"),
                     ImmutableArray<TypeProperty>.Empty,
-                    new [] { 
+                    new[] {
                         new FunctionOverloadBuilder("ns1Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
                     },
@@ -209,7 +209,7 @@ import sys2 from sys
                         ArmTemplateProviderName: "Ns2-Unused",
                         ArmTemplateProviderVersion: "1.0"),
                     ImmutableArray<TypeProperty>.Empty,
-                    new [] { 
+                    new[] {
                         new FunctionOverloadBuilder("ns2Func").Build(),
                         new FunctionOverloadBuilder("dupeFunc").Build(),
                     },
@@ -223,8 +223,8 @@ import sys2 from sys
                 NamespaceProvider: nsProvider);
 
             var result = CompilationHelper.Compile(context, @"
-import ns1 from ns1
-import ns2 from ns2
+import ns1 as ns1
+import ns2 as ns2
 
 output ambiguousResult string = dupeFunc()
 output ns1Result string = ns1Func()
@@ -237,8 +237,8 @@ output ns2Result string = ns2Func()
 
             // fix by fully-qualifying
             result = CompilationHelper.Compile(context, @"
-import ns1 from ns1
-import ns2 from ns2
+import ns1 as ns1
+import ns2 as ns2
 
 output ambiguousResult string = ns1.dupeFunc()
 output ns1Result string = ns1Func()
@@ -280,10 +280,10 @@ output ns2Result string = ns2Func()
                 NamespaceProvider: nsProvider);
 
             var result = CompilationHelper.Compile(context, @"
-import ns1 from mockNs {
+import mockNs as ns1 {
   optionalConfig: 'blah blah'
 }
-import ns2 from mockNs
+import mockNs as ns2
 ");
 
             result.Should().NotHaveAnyDiagnostics();

@@ -47,7 +47,7 @@ namespace Bicep.Cli.Commands
             var moduleReference = ValidateReference(args.TargetModuleReference, configuration);
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
-            if(diagnosticLogger.ErrorCount > 0)
+            if (diagnosticLogger.ErrorCount > 0)
             {
                 // can't publish if we can't compile
                 return 1;
@@ -65,7 +65,7 @@ namespace Bicep.Cli.Commands
         private ModuleReference ValidateReference(string targetModuleReference, RootConfiguration configuration)
         {
             var moduleReference = this.moduleDispatcher.TryGetModuleReference(targetModuleReference, configuration, out var failureBuilder);
-            if(moduleReference is null)
+            if (moduleReference is null)
             {
                 failureBuilder = failureBuilder ?? throw new InvalidOperationException($"{nameof(moduleDispatcher.TryGetModuleReference)} did not provide an error.");
 
@@ -75,7 +75,7 @@ namespace Bicep.Cli.Commands
                 throw new BicepException(message);
             }
 
-            if(!this.moduleDispatcher.GetRegistryCapabilities(moduleReference).HasFlag(RegistryCapabilities.Publish))
+            if (!this.moduleDispatcher.GetRegistryCapabilities(moduleReference).HasFlag(RegistryCapabilities.Publish))
             {
                 throw new BicepException($"The specified module target \"{targetModuleReference}\" is not supported.");
             }

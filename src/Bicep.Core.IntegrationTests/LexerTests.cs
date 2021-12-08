@@ -80,7 +80,7 @@ namespace Bicep.Core.IntegrationTests
                     VisitSpan(trivium.Span, trivium.Text);
                 }
             }
-            
+
             var tokens = lexer.GetTokens();
             foreach (var token in tokens)
             {
@@ -110,7 +110,7 @@ namespace Bicep.Core.IntegrationTests
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainTokens), sourceTextWithDiags);
 
             sourceTextWithDiags.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Tokens,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainTokens),
                 actualLocation: resultsFile);

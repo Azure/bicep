@@ -47,9 +47,12 @@ namespace Bicep.LanguageServer {
             }
         }
         
-        internal static string DisableLinterRule {
+        /// <summary>
+        ///   Looks up a localized string similar to Disable {0} for this line.
+        /// </summary>
+        internal static string DisableDiagnosticForThisLine {
             get {
-                return ResourceManager.GetString("DisableLinterRule", resourceCulture);
+                return ResourceManager.GetString("DisableDiagnosticForThisLine", resourceCulture);
             }
         }
     }

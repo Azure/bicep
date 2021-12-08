@@ -23,7 +23,8 @@ namespace Bicep.LanguageServer.Utils
             => GetNameSyntax(syntax).ToRange(lineStarts);
 
         public static SyntaxBase GetNameSyntax(SyntaxBase syntax)
-            => syntax switch {
+            => syntax switch
+            {
                 INamedDeclarationSyntax x => x.Name,
                 ISymbolReference x => x.Name,
                 PropertyAccessSyntax x => x.PropertyName,

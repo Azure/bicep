@@ -11,11 +11,11 @@ using FluentAssertions.Primitives;
 
 namespace Bicep.Core.UnitTests.Assertions
 {
-    public static class DiagnosticExtensions 
+    public static class DiagnosticExtensions
     {
         public static DiagnosticAssertions Should(this IDiagnostic diagnostic)
         {
-            return new DiagnosticAssertions(diagnostic); 
+            return new DiagnosticAssertions(diagnostic);
         }
     }
 
