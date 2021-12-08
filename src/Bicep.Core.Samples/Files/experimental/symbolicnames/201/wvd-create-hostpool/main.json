@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5915215774680937096"
+      "templateHash": "6570365507497931924"
     }
   },
   "parameters": {
@@ -502,7 +502,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "copy": [
       {
@@ -575,7 +574,7 @@
     "workspace": {
       "condition": "[parameters('addToWorkspace')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('Workspace-linkedTemplate-{0}', parameters('deploymentId'))]",
       "resourceGroup": "[variables('workspaceResourceGroup_var')]",
       "properties": {
@@ -603,7 +602,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7312403041374597157"
+              "templateHash": "5180923156111509853"
             }
           },
           "parameters": {
@@ -617,7 +616,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": {
             "workSpace": {
               "type": "Microsoft.DesktopVirtualization/workspaces",
@@ -635,7 +633,7 @@
     "AVSet": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('availabilityOption'), 'AvailabilitySet')), parameters('createAvailabilitySet'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "AVSet-deployment",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -672,7 +670,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1310292062566099270"
+              "templateHash": "13597904005241275944"
             }
           },
           "parameters": {
@@ -695,7 +693,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "availabilitySet": {
               "type": "Microsoft.Compute/availabilitySets",
@@ -721,7 +718,7 @@
     "vmCreation_customVHD_managedDisks": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-customvhdvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -848,7 +845,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12803195105479768873"
+              "templateHash": "7582544658857588922"
             }
           },
           "parameters": {
@@ -1114,7 +1111,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -1333,7 +1329,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -1366,7 +1362,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -1386,7 +1382,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
@@ -1413,7 +1408,7 @@
     "vmCreation_customVHD_unmanagedDisks": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomVHD')), not(parameters('vmUseManagedDisks')))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-unmanagedDisks-customvhdvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -1540,7 +1535,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10221138661537585248"
+              "templateHash": "14524098034320383856"
             }
           },
           "parameters": {
@@ -1806,7 +1801,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -2010,7 +2004,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2043,7 +2037,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -2063,7 +2057,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
@@ -2090,7 +2083,7 @@
     "vmCreation_customeImage": {
       "condition": "[and(variables('createVMs'), equals(parameters('vmImageType'), 'CustomImage'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-customimagevm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -2217,7 +2210,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17353466569456978138"
+              "templateHash": "3843857765550258576"
             }
           },
           "parameters": {
@@ -2483,7 +2476,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -2683,7 +2675,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -2716,7 +2708,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -2736,7 +2728,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",
@@ -2763,7 +2754,7 @@
     "vmCreation_Gallery": {
       "condition": "[and(and(variables('createVMs'), equals(parameters('vmImageType'), 'Gallery')), parameters('vmUseManagedDisks'))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('vmCreation-linkedTemplate-{0}-managedDisks-galleryvm', parameters('deploymentId'))]",
       "resourceGroup": "[parameters('vmResourceGroup')]",
       "properties": {
@@ -2890,7 +2881,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4418196960236946836"
+              "templateHash": "8226053396290136045"
             }
           },
           "parameters": {
@@ -3156,7 +3147,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "emptyArray": [],
             "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -3359,7 +3349,7 @@
             },
             "NSG": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "NSG-linkedTemplate",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -3392,7 +3382,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "11062318330053370487"
+                      "templateHash": "18233818777227830375"
                     }
                   },
                   "parameters": {
@@ -3412,7 +3402,6 @@
                       "type": "array"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "newNsg": {
                       "condition": "[parameters('createNetworkSecurityGroup')]",

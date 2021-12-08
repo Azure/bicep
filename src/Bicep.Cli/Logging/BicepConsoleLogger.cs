@@ -19,7 +19,7 @@ namespace Bicep.Cli.Logging
             this.options = options;
         }
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             string message = formatter(state, exception);
 
@@ -76,7 +76,7 @@ namespace Bicep.Cli.Logging
             return new NullDisposable();
         }
 
-        private class NullDisposable: IDisposable
+        private class NullDisposable : IDisposable
         {
             public void Dispose()
             {

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "176429456247611231"
+      "templateHash": "15404785701839224842"
     }
   },
   "parameters": {
@@ -42,11 +42,10 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "resources": {
     "storage": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('{0}-deploy', parameters('storageName'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -70,7 +69,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5022879701253378012"
+              "templateHash": "3979230528101032463"
             }
           },
           "parameters": {
@@ -119,7 +118,6 @@
               "defaultValue": "[resourceGroup().id]"
             }
           },
-          "functions": [],
           "resources": {
             "storage": {
               "type": "Microsoft.Storage/storageAccounts",
@@ -162,7 +160,7 @@
     },
     "container": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('{0}-deploy', parameters('containerName'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -201,7 +199,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4346160734782299103"
+              "templateHash": "10766962329556810795"
             }
           },
           "parameters": {
@@ -254,7 +252,6 @@
               "defaultValue": "[resourceGroup().location]"
             }
           },
-          "functions": [],
           "variables": {
             "version": "[if(and(equals(parameters('type'), 'AzureCLI'), equals(parameters('toolVersion'), '')), 'latest', if(and(equals(parameters('type'), 'AzurePowerShell'), equals(parameters('toolVersion'), '')), '5.6', parameters('toolVersion')))]",
             "azcliImage": "[format('mcr.microsoft.com/azure-cli:{0}', variables('version'))]",

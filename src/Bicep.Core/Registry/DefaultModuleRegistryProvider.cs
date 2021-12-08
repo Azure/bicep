@@ -28,7 +28,7 @@ namespace Bicep.Core.Registry
             {
                 var builder = ImmutableArray.CreateBuilder<IModuleRegistry>();
                 builder.Add(new LocalModuleRegistry(this.fileResolver));
-                if(features.RegistryEnabled)
+                if (features.RegistryEnabled)
                 {
                     builder.Add(new OciModuleRegistry(this.fileResolver, this.clientFactory, this.features));
                     builder.Add(new TemplateSpecModuleRegistry(this.fileResolver, this.templateSpecRepositoryFactory, this.features));

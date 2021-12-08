@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15467470731904966241"
+      "templateHash": "3649550548495665476"
     }
   },
   "parameters": {
@@ -44,7 +44,6 @@
       }
     }
   },
-  "functions": [],
   "resources": {
     "newRg": {
       "type": "Microsoft.Resources/resourceGroups",
@@ -58,7 +57,7 @@
     },
     "applyLock": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "applyLock",
       "resourceGroup": "[parameters('rgName')]",
       "properties": {
@@ -86,7 +85,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10462737407853481980"
+              "templateHash": "12145708462599333811"
             }
           },
           "parameters": {
@@ -109,7 +108,6 @@
               }
             }
           },
-          "functions": [],
           "resources": {
             "dontDeleteLock": {
               "type": "Microsoft.Authorization/locks",

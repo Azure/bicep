@@ -58,7 +58,7 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             typeString.Should().Be(expectedTypeString);
             nameExpressionString.Should().Be(expectedNameExpression);
         }
-        
+
         [DataTestMethod]
         [DataRow("[concat('Microsoft.Network/networkSecurityGroups/', concat('nsg', variables('subnet0Name')))]")]
         [DataRow("[resourceId(parameters('vnetResourceGroupName'), 'Microsoft.Network/virtualNetworks', parameters('vnetResourceName'))]")]
@@ -107,8 +107,10 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
         public void RewriteExpressions_replaces_expressions(string jsonInput, string expectedJsonOutput)
         {
             var input = JToken.Parse(jsonInput);
-            var output = JTokenHelpers.RewriteExpressions(input, expression => {
-                if (expression is FunctionExpression function && function.Function == "replaceMe") {
+            var output = JTokenHelpers.RewriteExpressions(input, expression =>
+            {
+                if (expression is FunctionExpression function && function.Function == "replaceMe")
+                {
                     return new FunctionExpression("replaced", Array.Empty<LanguageExpression>(), Array.Empty<LanguageExpression>());
                 }
 
@@ -129,8 +131,10 @@ namespace Bicep.Core.IntegrationTests.ArmHelpers
             var input = JToken.Parse(jsonInput);
 
             var visited = false;
-            JTokenHelpers.VisitExpressions(input, expression => {
-                if (expression is FunctionExpression function && function.Function == "visitMe") {
+            JTokenHelpers.VisitExpressions(input, expression =>
+            {
+                if (expression is FunctionExpression function && function.Function == "visitMe")
+                {
                     visited = true;
                 }
             });

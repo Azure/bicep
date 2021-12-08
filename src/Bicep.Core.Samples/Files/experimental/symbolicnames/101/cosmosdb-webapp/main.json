@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10412279700134669295"
+      "templateHash": "16446097041576627113"
     }
   },
   "parameters": {
@@ -85,7 +85,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "cosmosAccountName": "[toLower(parameters('applicationName'))]",
     "websiteName": "[parameters('applicationName')]",

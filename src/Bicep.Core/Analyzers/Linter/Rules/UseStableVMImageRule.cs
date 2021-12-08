@@ -38,7 +38,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (ResourceMetadata resource in model.AllResources)
             {
                 ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
-                if (resourceSyntax.TryGetBody()?.SafeGetPropertyByNameRecursive("properties", "storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)
+                if (resourceSyntax.TryGetBody()?.TryGetPropertyByNameRecursive("properties", "storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)
                 {
                     var imageReferenceValue = imageReferenceSyntax.Value;
 
@@ -62,7 +62,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             foreach (string property in imageReferenceProperties)
             {
-                if (objectSyntax.SafeGetPropertyByNameRecursive(property) is ObjectPropertySyntax objectPropertySyntax &&
+                if (objectSyntax.TryGetPropertyByNameRecursive(property) is ObjectPropertySyntax objectPropertySyntax &&
                     objectPropertySyntax.Value is StringSyntax valueSyntax &&
                     valueSyntax.TryGetLiteralValue() is string value &&
                     value.Contains("preview", StringComparison.OrdinalIgnoreCase))

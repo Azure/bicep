@@ -107,7 +107,7 @@ namespace Bicep.Core.UnitTests.Utils
                             output.Append(new String('~', x));
                             break;
                     }
-                    
+
                     output.Append(" ");
                     output.Append(annotation.Message);
                     output.Append('\n');

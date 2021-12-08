@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8827004317952449181"
+      "templateHash": "15264817147163729952"
     }
   },
   "parameters": {
@@ -45,7 +45,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "namingInfix": "[toLower(substring(format('{0}{1}', parameters('vmssName'), uniqueString(resourceGroup().id)), 0, 9))]",
     "longNamingInfix": "[toLower(parameters('vmssName'))]",

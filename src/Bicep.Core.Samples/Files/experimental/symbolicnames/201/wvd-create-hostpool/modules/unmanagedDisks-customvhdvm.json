@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10221138661537585248"
+      "templateHash": "14524098034320383856"
     }
   },
   "parameters": {
@@ -273,7 +273,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "emptyArray": [],
     "domain_var": "[if(equals(parameters('domain'), ''), last(split(parameters('administratorAccountUsername'), '@')), parameters('domain'))]",
@@ -477,7 +476,7 @@
     },
     "NSG": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "NSG-linkedTemplate",
       "properties": {
         "expressionEvaluationOptions": {
@@ -510,7 +509,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11062318330053370487"
+              "templateHash": "18233818777227830375"
             }
           },
           "parameters": {
@@ -530,7 +529,6 @@
               "type": "array"
             }
           },
-          "functions": [],
           "resources": {
             "newNsg": {
               "condition": "[parameters('createNetworkSecurityGroup')]",

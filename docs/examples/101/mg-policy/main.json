@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4645215035624560254"
+      "templateHash": "12630195116226956816"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "mgScope": "[tenantResourceId('Microsoft.Management/managementGroups', parameters('targetMG'))]",
     "policyDefinitionName": "LocationRestriction"

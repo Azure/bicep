@@ -28,7 +28,7 @@ namespace Bicep.LanguageServer.Providers
             options.Scope = configuration.Cloud.AuthenticationScope;
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
-            
+
             return new ArmClient(configuration.Cloud.ResourceManagerEndpointUri, credential, options);
         }
 

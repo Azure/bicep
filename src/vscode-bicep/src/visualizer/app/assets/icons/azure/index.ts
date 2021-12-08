@@ -51,6 +51,58 @@ export async function importResourceIconInline(
     case "microsoft.sql/servers/databases":
       return (await import("./databases/10130-icon-service-SQL-Database.svg"))
         .default;
+    case "microsoft.documentdb/databaseaccounts":
+      return (
+        await import("./databases/10121-icon-service-Azure-Cosmos-DB.svg")
+      ).default;
+    case "microsoft.dbformysql/servers":
+      return (
+        await import(
+          "./databases/10122-icon-service-Azure-Database-MySQL-Server.svg"
+        )
+      ).default;
+    case "microsoft.dbformariadb/servers":
+      return (
+        await import(
+          "./databases/10123-icon-service-Azure-Database-MariaDB-Server.svg"
+        )
+      ).default;
+    case "microsoft.sqlvirtualmachine/sqlvirtualmachines":
+      return (await import("./databases/10124-icon-service-Azure-SQL-VM.svg"))
+        .default;
+    case "microsoft.datafactory/factories":
+      return (await import("./databases/10126-icon-service-Data-Factory.svg"))
+        .default;
+    case "microsoft.dbforpostgressql/servers":
+      return (
+        await import(
+          "./databases/10131-icon-service-Azure-Database-PostgreSQL-Server.svg"
+        )
+      ).default;
+    case "microsoft.datamigration/services":
+      return (
+        await import(
+          "./databases/10133-icon-service-Azure-Database-Migration-Services.svg"
+        )
+      ).default;
+    case "microsoft.sql/servers/elasticpools":
+      return (
+        await import("./databases/10134-icon-service-SQL-Elastic-Pools.svg")
+      ).default;
+    case "microsoft.sql/managedinstances":
+      return (
+        await import("./databases/10136-icon-service-SQL-Managed-Instance.svg")
+      ).default;
+    case "microsoft.sql/managedinstances/databases":
+      return (
+        await import("./databases/10135-icon-service-Managed-Database.svg")
+      ).default;
+    case "microsoft.cache/redis":
+      return (await import("./databases/10137-icon-service-Cache-Redis.svg"))
+        .default;
+    case "microsoft.sql/instancepools":
+      return (await import("./databases/10139-icon-service-Instance-Pools.svg"))
+        .default;
 
     // microsoft.network
     case "microsoft.network/dnszones":
@@ -161,6 +213,12 @@ export async function importResourceIconInline(
       return (
         await import("./networking/10372-icon-service-Public-IP-Prefixes.svg")
       ).default;
+    case "microsoft.network/applicationsecuritygroups":
+      return (
+        await import(
+          "./security/10244-icon-service-Application-Security-Groups.svg"
+        )
+      ).default;
 
     // Microsoft.Resources
     case "microsoft.resources/resourcegroups":
@@ -180,6 +238,29 @@ export async function importResourceIconInline(
     // Microsoft.Storage
     case "microsoft.storage/storageaccounts":
       return (await import("./storage/10086-icon-service-Storage-Accounts.svg"))
+        .default;
+    case "microsoft.recoveryservices/vaults":
+      return (
+        await import(
+          "./storage/00017-icon-service-Recovery-Services-Vaults.svg"
+        )
+      ).default;
+    case "microsoft.storagesync/storagesyncservices":
+      return (
+        await import("./storage/10093-icon-service-Storage-Sync-Services.svg")
+      ).default;
+    case "microsoft.databox/jobs":
+      return (await import("./storage/10094-icon-service-Data-Box.svg"))
+        .default;
+    case "microsoft.databoxedge/databoxedgedevices":
+      return (await import("./storage/10095-icon-service-Data-Box-Edge.svg"))
+        .default;
+    case "microsoft.netapp/netappaccounts":
+      return (
+        await import("./storage/10096-icon-service-Azure-NetApp-Files.svg")
+      ).default;
+    case "microsoft.datashare/accounts":
+      return (await import("./storage/10098-icon-service-Data-Shares.svg"))
         .default;
 
     // Microsoft.Web
@@ -203,12 +284,126 @@ export async function importResourceIconInline(
         )
       ).default;
 
+    // Microsoft.OperationalInsights
+    case "microsoft.operationalinsights/workspaces":
+      return (
+        await import(
+          "./analytics/00009-icon-service-Log-Analytics-Workspaces.svg"
+        )
+      ).default;
+
+    // Microsoft.EventHub
+    case "microsoft.eventhub/namespaces":
+      return (await import("./analytics/00039-icon-service-Event-Hubs.svg"))
+        .default;
+
+    case "microsoft.eventhub/clusters":
+      return (
+        await import("./analytics/10149-icon-service-Event-Hub-Clusters.svg")
+      ).default;
+
+    // Microsoft.StreamAnalytics
+    case "microsoft.streamanalytics/streamingjobs":
+      return (
+        await import("./analytics/00042-icon-service-Stream-Analytics-Jobs.svg")
+      ).default;
+
+    // Microsoft.Synapse
+    case "microsoft.synapse/workspaces":
+      return (
+        await import(
+          "./analytics/00606-icon-service-Azure-Synapse-Analytics.svg"
+        )
+      ).default;
+
+    // Microsoft.Databricks
+    case "microsoft.databricks/workspaces":
+      return (
+        await import("./analytics/10787-icon-service-Azure-Databricks.svg")
+      ).default;
+
+    // Microsoft.BotService
+    case "microsoft.botservice/botservices":
+      return (await import("./ai/10165-icon-service-Bot-Services.svg")).default;
+
+    // Microsoft.CognitiveServices
+    case "microsoft.cognitiveservices/accounts":
+      return (await import("./ai/10162-icon-service-Cognitive-Services.svg"))
+        .default;
+
+    // Microsoft.MachineLearning
+    case "microsoft.machinelearning/workspaces":
+      return (
+        await import(
+          "./ai/10167-icon-service-Machine-Learning-Studio-Workspaces.svg"
+        )
+      ).default;
+
+    // Microsoft.HDInsight
+    case "microsoft.hdinsight/clusters":
+      return (
+        await import("./analytics/10142-icon-service-HD-Insight-Clusters.svg")
+      ).default;
+
+    // Microsoft.AnalysisServices
+    case "microsoft.analysisservices/servers":
+      return (
+        await import("./analytics/10148-icon-service-Analysis-Services.svg")
+      ).default;
+
+    // microsoft.insights
+    case "microsoft.insights/components":
+      return (
+        await import("./devops/00012-icon-service-Application-Insights.svg")
+      ).default;
+
+    // Microsoft.DevTestLab
+    case "microsoft.devtestlab/labs":
+      return (await import("./devops/10264-icon-service-DevTest-Labs.svg"))
+        .default;
+
+    // Microsoft.AAD
+    case "microsoft.aad/domainservices":
+      return (
+        await import(
+          "./identity/10222-icon-service-Azure-AD-Domain-Services.svg"
+        )
+      ).default;
+
+    // Microsoft.AzureActiveDirectory
+    case "microsoft.azureactivedirectory/b2cdirectories":
+      return (await import("./identity/10228-icon-service-Azure-AD-B2C.svg"))
+        .default;
+
+    // Microsoft.ManagedIdentity
+    case "microsoft.managedidentity/identities":
+      return (
+        await import("./identity/10227-icon-service-Managed-Identities.svg")
+      ).default;
+
+    // Microsoft.LabServices
+    case "microsoft.labservices/labaccounts":
+      return (await import("./devops/10265-icon-service-Lab-Services.svg"))
+        .default;
+
     // Microsoft.ApiManagement
     case "microsoft.apimanagement/service":
       return (
         await import(
           "./appServices/10042-icon-service-API-Management-Services.svg"
         )
+      ).default;
+
+    // Microsoft.ContainerInstance
+    case "microsoft.containerinstance/containergroups":
+      return (
+        await import("./containers/10104-icon-service-Container-Instances.svg")
+      ).default;
+
+    // Microsoft.ContainerRegistry
+    case "microsoft.containerregistry/registries":
+      return (
+        await import("./containers/10105-icon-service-Container-Registries.svg")
       ).default;
 
     // Microsoft.Cdn

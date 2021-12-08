@@ -208,7 +208,7 @@ module modB 'modb.bicep' = {
         [TestMethod]
         public void ProgramSyntax_is_not_modified_if_no_changes_are_applied()
         {
-          var bicepFile = @"
+            var bicepFile = @"
 resource resA 'My.Rp/resA@2020-01-01' = {
   name: 'resA'
 }";

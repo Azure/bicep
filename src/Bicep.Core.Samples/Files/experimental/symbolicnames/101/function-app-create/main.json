@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3468090399701756867"
+      "templateHash": "6865430929447030832"
     }
   },
   "parameters": {
@@ -27,7 +27,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "variables": {
     "functionAppName": "[format('{0}-functionapp', parameters('appNamePrefix'))]",
     "appServiceName": "[format('{0}-appservice', parameters('appNamePrefix'))]",

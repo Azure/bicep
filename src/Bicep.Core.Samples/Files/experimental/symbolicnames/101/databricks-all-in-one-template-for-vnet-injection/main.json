@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5700586290913965024"
+      "templateHash": "18417593559327655298"
     }
   },
   "parameters": {
@@ -93,7 +93,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "managedResourceGroupName": "[format('databricks-rg-{0}-{1}', parameters('workspaceName'), uniqueString(parameters('workspaceName'), resourceGroup().id))]"
   },

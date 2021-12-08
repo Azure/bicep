@@ -21,7 +21,7 @@ namespace Bicep.Core.Diagnostics
     public static class DiagnosticBuilder
     {
         public const string UseStringInterpolationInsteadClause = "Use string interpolation instead.";
-        
+
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);

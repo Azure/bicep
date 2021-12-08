@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7111355816980958501"
+      "templateHash": "12829523487718671926"
     }
   },
   "parameters": {
@@ -150,7 +150,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
     "vmNicId": "[resourceId('Microsoft.Network/networkInterfaces', variables('vmNicName'))]",

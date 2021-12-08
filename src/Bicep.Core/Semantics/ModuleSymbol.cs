@@ -15,14 +15,14 @@ namespace Bicep.Core.Semantics
         {
         }
 
-        public ModuleDeclarationSyntax DeclaringModule => (ModuleDeclarationSyntax) this.DeclaringSyntax;
+        public ModuleDeclarationSyntax DeclaringModule => (ModuleDeclarationSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitModuleSymbol(this);
 
         public override SymbolKind Kind => SymbolKind.Module;
 
         public bool TryGetSemanticModel([NotNullWhen(true)] out ISemanticModel? semanticModel, [NotNullWhen(false)] out ErrorDiagnostic? failureDiagnostic)
-        {            
+        {
             if (Context.Compilation.SourceFileGrouping.TryLookUpModuleErrorDiagnostic(this.DeclaringModule, out failureDiagnostic))
             {
                 semanticModel = null;

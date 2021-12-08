@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7958237444528491028"
+      "templateHash": "4280826704478190185"
     }
   },
   "parameters": {
@@ -18,7 +18,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.DataFactory/factories",

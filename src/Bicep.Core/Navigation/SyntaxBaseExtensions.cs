@@ -11,10 +11,10 @@ namespace Bicep.Core.Navigation
 {
     public static class SyntaxBaseExtensions
     {
-        public static SyntaxBase? TryFindMostSpecificNodeInclusive(this SyntaxBase root, int offset, Func<SyntaxBase, bool> predicate) => 
+        public static SyntaxBase? TryFindMostSpecificNodeInclusive(this SyntaxBase root, int offset, Func<SyntaxBase, bool> predicate) =>
             TryFindMostSpecificNodeInternal(root, offset, predicate, inclusive: true);
 
-        public static SyntaxBase? TryFindMostSpecificNodeExclusive(this SyntaxBase root, int offset, Func<SyntaxBase, bool> predicate) => 
+        public static SyntaxBase? TryFindMostSpecificNodeExclusive(this SyntaxBase root, int offset, Func<SyntaxBase, bool> predicate) =>
             TryFindMostSpecificNodeInternal(root, offset, predicate, inclusive: false);
 
         private static SyntaxBase? TryFindMostSpecificNodeInternal(SyntaxBase root, int offset, Func<SyntaxBase, bool> predicate, bool inclusive)
@@ -72,7 +72,7 @@ namespace Bicep.Core.Navigation
         /// <param name="syntax"></param>
         /// <param name="indent"></param>
         /// <returns></returns>
-        public static string ToText(this SyntaxBase syntax, string indent="")
+        public static string ToText(this SyntaxBase syntax, string indent = "")
         {
             var sb = new StringBuilder();
             var documentBuildVisitor = new DocumentBuildVisitor();

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "7531632338313062776"
+      "templateHash": "15697172255155232419"
     }
   },
   "parameters": {
@@ -26,7 +26,6 @@
       "defaultValue": 1
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/resourceGroups",
@@ -48,7 +47,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "network",
       "resourceGroup": "bicep-network-rg",
       "properties": {
@@ -68,7 +67,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6221020817843547137"
+              "templateHash": "10154278416046209142"
             }
           },
           "parameters": {
@@ -81,7 +80,6 @@
               "defaultValue": "1.1.1.1"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/networkSecurityGroups",
@@ -174,7 +172,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "anchor",
       "resourceGroup": "bicep-anchor-rg",
       "properties": {
@@ -187,7 +185,7 @@
             "value": "[parameters('adminSshKey')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-06-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "anchor"
@@ -203,7 +201,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16228755905477314031"
+              "templateHash": "17798777799174646976"
             }
           },
           "parameters": {
@@ -229,7 +227,6 @@
               ]
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Compute/proximityPlacementGroups",
@@ -354,7 +351,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "vm01",
       "resourceGroup": "bicep-workload-rg",
       "properties": {
@@ -367,10 +364,10 @@
             "value": "[parameters('adminSshKey')]"
           },
           "ppgId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-06-01').outputs.ppgId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-10-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-06-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm01"
@@ -383,7 +380,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4387499852680388806"
+              "templateHash": "838009304435023175"
             }
           },
           "parameters": {
@@ -404,7 +401,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Compute/availabilitySets",
@@ -507,7 +503,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "vm02",
       "resourceGroup": "bicep-workload-rg",
       "properties": {
@@ -520,10 +516,10 @@
             "value": "[parameters('adminSshKey')]"
           },
           "ppgId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-06-01').outputs.ppgId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-10-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-06-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm02"
@@ -536,7 +532,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4387499852680388806"
+              "templateHash": "838009304435023175"
             }
           },
           "parameters": {
@@ -557,7 +553,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Compute/availabilitySets",

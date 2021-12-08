@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6208542158778129603"
+      "templateHash": "17252196052378360540"
     }
   },
   "parameters": {
@@ -65,7 +65,6 @@
       }
     }
   },
-  "functions": [],
   "resources": {
     "circuit": {
       "type": "Microsoft.Network/expressRouteCircuits",

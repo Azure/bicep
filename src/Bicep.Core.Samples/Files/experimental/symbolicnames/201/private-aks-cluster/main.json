@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1738761125357915028"
+      "templateHash": "564168822936387489"
     }
   },
   "parameters": {
@@ -494,11 +494,10 @@
       }
     }
   },
-  "functions": [],
   "resources": {
     "vnet": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "vnet",
       "properties": {
         "expressionEvaluationOptions": {
@@ -540,7 +539,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17038988552482683858"
+              "templateHash": "2127873313917417280"
             }
           },
           "parameters": {
@@ -600,7 +599,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "bastionSubnetName": "AzureBastionSubnet",
             "bastionSubnetNsgName": "[format('{0}Nsg', variables('bastionSubnetName'))]",
@@ -843,7 +841,7 @@
     },
     "bastion": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "bastion",
       "properties": {
         "expressionEvaluationOptions": {
@@ -870,7 +868,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3181622900167712412"
+              "templateHash": "7108512484788460945"
             }
           },
           "parameters": {
@@ -894,7 +892,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "bastionPublicIpAddressName": "[format('{0}PublicIp', parameters('bastionHostName'))]"
           },
@@ -944,7 +941,7 @@
     },
     "logAnalytics": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "log-analytics.bicep",
       "properties": {
         "expressionEvaluationOptions": {
@@ -974,7 +971,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14026314123047208315"
+              "templateHash": "16306238993413596590"
             }
           },
           "parameters": {
@@ -1012,7 +1009,6 @@
               }
             }
           },
-          "functions": [],
           "resources": {
             "logAnalyticsWorkspace": {
               "type": "Microsoft.OperationalInsights/workspaces",
@@ -1038,7 +1034,7 @@
     },
     "jumpbox": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "jumpbox",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1113,7 +1109,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "220947672133229591"
+              "templateHash": "2606259165118348826"
             }
           },
           "parameters": {
@@ -1258,7 +1254,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "vmNicName": "[format('{0}Nic', parameters('vmName'))]",
             "vmNicId": "[resourceInfo('vmNic').id]",
@@ -1501,7 +1496,7 @@
     },
     "aks": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "aks",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1636,7 +1631,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3548758362621322445"
+              "templateHash": "9697433238765311144"
             }
           },
           "parameters": {
@@ -1945,7 +1940,6 @@
               }
             }
           },
-          "functions": [],
           "variables": {
             "aadProfileConfiguration": {
               "managed": "[parameters('aadProfileManaged')]",

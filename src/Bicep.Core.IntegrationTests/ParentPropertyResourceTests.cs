@@ -430,7 +430,7 @@ resource res1 'Microsoft.Rp1/resource1@2020-06-01' = {
 
             // There are definitely too many '/' characters in the name - we should return an error.
             result.Should().NotGenerateATemplate();
-            result.Diagnostics.ExcludingMissingTypes().Should().HaveDiagnostics(new [] {
+            result.Diagnostics.ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP169", DiagnosticLevel.Error, "Expected resource name to contain 0 \"/\" character(s). The number of name segments must match the number of segments in the resource type."),
             });
 

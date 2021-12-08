@@ -66,7 +66,7 @@ namespace Bicep.Cli.IntegrationTests
                 error.Should().BeEmpty();
             }
 
-            if(dataSet.HasExternalModules)
+            if (dataSet.HasExternalModules)
             {
                 // ensure something got restored
                 settings.Features.Should().HaveValidModules();
@@ -93,7 +93,7 @@ namespace Bicep.Cli.IntegrationTests
             Directory.CreateDirectory(tempDirectory);
 
             var publishedBicepFilePath = Path.Combine(tempDirectory, "published.bicep");
-File.WriteAllText(publishedBicepFilePath, string.Empty);
+            File.WriteAllText(publishedBicepFilePath, string.Empty);
 
             var (publishOutput, publishError, publishResult) = await Bicep(settings, "publish", publishedBicepFilePath, "--target", $"br:{registry}/{repository}:v1");
             using (new AssertionScope())
@@ -130,7 +130,7 @@ module empty 'br:{registry}/{repository}@{digest}' = {{
         [DataTestMethod]
         [DynamicData(nameof(GetValidDataSetsWithExternalModules), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task Restore_NonExistentModules_ShouldFail(DataSet dataSet)
-{
+        {
             var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
             var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);

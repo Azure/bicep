@@ -32,7 +32,7 @@ namespace Bicep.Core.Registry.Oci
         /// <param name="tag">The tag value. The tag should be validated to match the OCI spec before calling this function.</param>
         public static string Encode(string tag)
         {
-            if(tag.Length > OciArtifactModuleReference.MaxTagLength)
+            if (tag.Length > OciArtifactModuleReference.MaxTagLength)
             {
                 throw new ArgumentException($"The specified tag '{tag}' exceeds max length of {OciArtifactModuleReference.MaxTagLength}.");
             }
@@ -56,7 +56,7 @@ namespace Bicep.Core.Registry.Oci
             buffer.Append('$');
 
             var includeLeadingZeros = false;
-            for(int i = mask.Length - 1; i >= 0; i--)
+            for (int i = mask.Length - 1; i >= 0; i--)
             {
                 var format = includeLeadingZeros ? UnsignedLongHexFormat : HexFormat;
                 ulong maskValue = mask[i];

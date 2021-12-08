@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17921285011367370930"
+      "templateHash": "12114583236596559523"
     }
   },
   "parameters": {
@@ -30,7 +30,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "variables": {
     "scriptName": "createFileShare",
     "identityName": "scratch",

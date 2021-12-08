@@ -9,7 +9,7 @@ namespace Bicep.Core.TypeSystem
         protected TypeSymbol(string name) : base(name)
         {
         }
-        
+
         public override SymbolKind Kind => SymbolKind.Type;
 
         public abstract TypeKind TypeKind { get; }

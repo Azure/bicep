@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11875800929175748875"
+      "templateHash": "16943397028185821019"
     }
   },
   "parameters": {
@@ -21,7 +21,6 @@
       "type": "int"
     }
   },
-  "functions": [],
   "variables": {
     "vnetConfigurations": [
       {
@@ -414,7 +413,7 @@
     },
     "singleModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "test",
       "properties": {
         "expressionEvaluationOptions": {
@@ -435,7 +434,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16677402125539667887"
+              "templateHash": "6221643429023379733"
             }
           },
           "parameters": {
@@ -443,7 +442,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {},
           "outputs": {
             "myOutput": {
@@ -462,7 +460,7 @@
         "batchSize": 3
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -483,7 +481,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16677402125539667887"
+              "templateHash": "6221643429023379733"
             }
           },
           "parameters": {
@@ -491,7 +489,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {},
           "outputs": {
             "myOutput": {
@@ -512,7 +509,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -533,7 +530,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16677402125539667887"
+              "templateHash": "6221643429023379733"
             }
           },
           "parameters": {
@@ -541,7 +538,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {},
           "outputs": {
             "myOutput": {
@@ -558,7 +554,7 @@
     },
     "singleModuleWithIndexedDependencies": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "hello",
       "properties": {
         "expressionEvaluationOptions": {
@@ -579,7 +575,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16677402125539667887"
+              "templateHash": "6221643429023379733"
             }
           },
           "parameters": {
@@ -587,7 +583,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {},
           "outputs": {
             "myOutput": {
@@ -609,7 +604,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[concat(variables('moduleSetup')[copyIndex()], copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -630,7 +625,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16677402125539667887"
+              "templateHash": "6221643429023379733"
             }
           },
           "parameters": {
@@ -638,7 +633,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {},
           "outputs": {
             "myOutput": {
@@ -660,7 +654,7 @@
         "count": "[length(variables('regions'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('apim-{0}-{1}-{2}', variables('regions')[copyIndex()], parameters('name'), copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -681,7 +675,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16677402125539667887"
+              "templateHash": "6221643429023379733"
             }
           },
           "parameters": {
@@ -689,7 +683,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {},
           "outputs": {
             "myOutput": {
@@ -724,7 +717,7 @@
     },
     "indexedCollectionIdentity": {
       "type": "object",
-      "value": "[reference('storageAccounts', '2019-06-01', 'full').identity]"
+      "value": "[reference(format('storageAccounts[{0}]', parameters('index')), '2019-06-01', 'full').identity]"
     },
     "indexedEndpointPair": {
       "type": "object",
@@ -763,7 +756,7 @@
     },
     "existingIndexedResourceLocation": {
       "type": "string",
-      "value": "[reference('existingStorageAccounts', '2019-06-01', 'full').location]"
+      "value": "[reference(format('existingStorageAccounts[{0}]', div(parameters('index'), 2)), '2019-06-01', 'full').location]"
     },
     "existingIndexedResourceAccessTier": {
       "type": "string",

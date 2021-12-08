@@ -17,7 +17,7 @@
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
         "BICEP_TRACING_ENABLED": "true",
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll"
       }
     },
     {
@@ -34,7 +34,7 @@
       "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
       "preLaunchTask": "build:prod",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll"
       }
     },
     {
@@ -51,7 +51,7 @@
       "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
       "preLaunchTask": "watch",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll"
       }
     },
     {
@@ -66,7 +66,7 @@
       "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
       "preLaunchTask": "build:e2e",
       "env": {
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net5.0/Bicep.LangServer.dll",
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
         "TEST_MODE": "e2e"
       }
     }

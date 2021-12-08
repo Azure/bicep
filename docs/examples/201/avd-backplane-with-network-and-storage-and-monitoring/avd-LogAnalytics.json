@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4464042552642153847"
+      "templateHash": "2428758099845201020"
     }
   },
   "parameters": {
@@ -30,7 +30,6 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.OperationalInsights/workspaces",
@@ -45,7 +44,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "myBicepLADiag",
       "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
       "properties": {
@@ -71,7 +70,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1455955442339016099"
+              "templateHash": "4134091672904132879"
             }
           },
           "parameters": {
@@ -85,7 +84,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Insights/diagnosticSettings",

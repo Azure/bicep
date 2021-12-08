@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6932515354107245659"
+      "templateHash": "18221291617889272327"
     }
   },
   "parameters": {
@@ -40,7 +40,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "responseAlertName": "[format('ResponseTime-{0}', toLower(parameters('applicationInsightsName')))]"
   },

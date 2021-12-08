@@ -20,11 +20,11 @@ namespace Bicep.Cli.Commands
         private readonly DecompilationWriter writer;
 
         public DecompileCommand(
-            ILogger logger, 
-            IDiagnosticLogger diagnosticLogger, 
-            InvocationContext invocationContext, 
+            ILogger logger,
+            IDiagnosticLogger diagnosticLogger,
+            InvocationContext invocationContext,
             CompilationService compilationService,
-            DecompilationWriter writer) 
+            DecompilationWriter writer)
         {
             this.logger = logger;
             this.diagnosticLogger = diagnosticLogger;

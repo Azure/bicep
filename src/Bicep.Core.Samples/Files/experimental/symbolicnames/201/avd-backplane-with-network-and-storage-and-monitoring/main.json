@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10910894560050238019"
+      "templateHash": "1382713534926921616"
     }
   },
   "parameters": {
@@ -132,7 +132,6 @@
       "defaultValue": false
     }
   },
-  "functions": [],
   "resources": {
     "rgavd": {
       "type": "Microsoft.Resources/resourceGroups",
@@ -166,7 +165,7 @@
     },
     "avdbackplane": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "avdbackplane",
       "resourceGroup": "[format('{0}BACKPLANE', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -230,7 +229,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15297506896368941142"
+              "templateHash": "11734737491927560896"
             }
           },
           "parameters": {
@@ -289,7 +288,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "hp": {
               "type": "Microsoft.DesktopVirtualization/hostPools",
@@ -334,7 +332,7 @@
             },
             "avdmonitor": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "LAWorkspace",
               "resourceGroup": "[parameters('logAnalyticsResourceGroup')]",
               "properties": {
@@ -371,7 +369,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "15952827541288753365"
+                      "templateHash": "16864722642105308362"
                     }
                   },
                   "parameters": {
@@ -396,7 +394,6 @@
                       "type": "string"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "avdla": {
                       "type": "Microsoft.OperationalInsights/workspaces",
@@ -411,7 +408,7 @@
                     },
                     "avdmonitor": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myBicepLADiag",
                       "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
                       "properties": {
@@ -439,7 +436,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "10996175173856467619"
+                              "templateHash": "1620512394627203274"
                             }
                           },
                           "parameters": {
@@ -453,7 +450,6 @@
                               "type": "string"
                             }
                           },
-                          "functions": [],
                           "resources": {
                             "hostPool": {
                               "existing": true,
@@ -550,7 +546,7 @@
     },
     "avdnetwork": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "avdnetwork",
       "resourceGroup": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -584,7 +580,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14998095338942063206"
+              "templateHash": "14440187448325350653"
             }
           },
           "parameters": {
@@ -606,7 +602,6 @@
               "defaultValue": "AVD"
             }
           },
-          "functions": [],
           "resources": {
             "vnet": {
               "type": "Microsoft.Network/virtualNetworks",
@@ -649,7 +644,7 @@
     },
     "avdFileServices": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "avdFileServices",
       "resourceGroup": "[format('{0}FILESERVICES', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -683,7 +678,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "18155317466407965240"
+              "templateHash": "3646938118059409476"
             }
           },
           "parameters": {
@@ -705,7 +700,6 @@
               "defaultValue": "profilecontainers"
             }
           },
-          "functions": [],
           "variables": {
             "filesharelocation": "[format('{0}/default/{1}', resourceInfo('sa').name, parameters('fileshareFolderName'))]"
           },
@@ -743,7 +737,7 @@
     },
     "pep": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "privateEndpoint",
       "resourceGroup": "[format('{0}NETWORK', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -777,7 +771,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5787402335250242721"
+              "templateHash": "13675653132844872894"
             }
           },
           "parameters": {
@@ -806,7 +800,6 @@
               "defaultValue": "privatelink.file.core.windows.net"
             }
           },
-          "functions": [],
           "resources": {
             "privateDNSZoneGroup": {
               "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
@@ -881,7 +874,7 @@
     },
     "avdsig": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "avdsig",
       "resourceGroup": "[format('{0}SIG', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -924,7 +917,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1899033175673285632"
+              "templateHash": "10796674423451692405"
             }
           },
           "parameters": {
@@ -953,7 +946,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "avdsig": {
               "type": "Microsoft.Compute/galleries",
@@ -1058,7 +1050,7 @@
     },
     "avdaib": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('avdimagebuilder{0}', 'avdsig')]",
       "resourceGroup": "[format('{0}SIG', parameters('resourceGroupPrefrix'))]",
       "properties": {
@@ -1098,7 +1090,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17023233329059124249"
+              "templateHash": "7366460419688481408"
             }
           },
           "parameters": {
@@ -1144,7 +1136,6 @@
               "defaultValue": "[resourceGroup().name]"
             }
           },
-          "functions": [],
           "resources": {
             "managedidentity": {
               "existing": true,

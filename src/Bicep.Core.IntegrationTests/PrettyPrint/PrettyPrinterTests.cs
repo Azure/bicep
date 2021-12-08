@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -39,7 +39,7 @@ namespace Bicep.Core.IntegrationTests.PrettyPrint
             var resultsFile = FileHelper.SaveResultFile(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainFormatted), formattedOutput!);
 
             formattedOutput.Should().EqualWithLineByLineDiffOutput(
-                TestContext, 
+                TestContext,
                 dataSet.Formatted,
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainFormatted),
                 actualLocation: resultsFile);

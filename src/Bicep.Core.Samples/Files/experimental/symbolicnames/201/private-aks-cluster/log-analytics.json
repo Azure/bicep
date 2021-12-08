@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14026314123047208315"
+      "templateHash": "16306238993413596590"
     }
   },
   "parameters": {
@@ -45,7 +45,6 @@
       }
     }
   },
-  "functions": [],
   "resources": {
     "logAnalyticsWorkspace": {
       "type": "Microsoft.OperationalInsights/workspaces",

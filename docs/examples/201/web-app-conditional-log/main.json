@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15876327905859377550"
+      "templateHash": "3034225805702252853"
     }
   },
   "parameters": {
@@ -18,11 +18,10 @@
       "defaultValue": false
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "webAppPlanDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -41,7 +40,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1240988414714428155"
+              "templateHash": "7041487136027912103"
             }
           },
           "parameters": {
@@ -61,7 +60,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "appServicePlanName": "[toLower(format('asp-{0}', parameters('appName')))]",
             "webSiteName": "[toLower(format('wapp-{0}', parameters('appName')))]"
@@ -144,7 +142,7 @@
     {
       "condition": "[parameters('logging')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "loggingDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -153,7 +151,7 @@
         "mode": "Incremental",
         "parameters": {
           "appName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy'), '2020-06-01').outputs.appServiceName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'webAppPlanDeploy'), '2020-10-01').outputs.appServiceName.value]"
           }
         },
         "template": {
@@ -163,7 +161,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13009186405517622186"
+              "templateHash": "16717574754976290273"
             }
           },
           "parameters": {
@@ -175,7 +173,6 @@
               "defaultValue": "[resourceGroup().location]"
             }
           },
-          "functions": [],
           "variables": {
             "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]",
             "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"

@@ -219,6 +219,9 @@
             "simplify-interpolation": {
               "level": "warning"
             },
+            "use-protectedsettings-for-commandtoexecute-secrets": {
+              "level": "warning"
+            },
             "use-stable-vm-image": {
               "level": "warning"
             }
@@ -351,6 +354,16 @@
                   "allOf": [
                     {
                       "description": "Remove unnecessary string interpolation. See https://aka.ms/bicep/linter/simplify-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "use-protectedsettings-for-commandtoexecute-secrets": {
+                  "allOf": [
+                    {
+                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/use-protectedsettings-for-commandtoexecute-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule"

@@ -33,10 +33,18 @@ namespace Bicep.Core.Extensions
             where TSource : class
             => source.WhereNotNull().ToImmutableDictionary(x => keySelector(x), x => x, keyComparer);
 
+        public static ImmutableDictionary<TKey, TValue> ToImmutableDictionaryExcludingNullValues<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue?> elementSelector, IEqualityComparer<TKey> keyComparer)
+            where TKey : notnull
+            where TValue : class
+            => source.Select(x => (key: keySelector(x), value: elementSelector(x))).Where(x => x.value != null).ToImmutableDictionary(
+                kvp => kvp.key,
+                kvp => kvp.value!,
+                keyComparer);
+
         public static ImmutableHashSet<TSource> ToImmutableHashSetExcludingNull<TSource>(this IEnumerable<TSource?> source, IEqualityComparer<TSource> comparer)
             where TSource : class
             => source.WhereNotNull().ToImmutableHashSet(comparer);
-            
+
         public static IEnumerable<T> AsEnumerable<T>(this T single)
         {
             yield return single;
@@ -58,19 +66,6 @@ namespace Bicep.Core.Extensions
                 if (item != null)
                 {
                     yield return item;
-                }
-            }
-        }
-
-        public static IEnumerable<TSource> DistinctBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector)
-        {
-            HashSet<TKey> keySet = new HashSet<TKey>();
-
-            foreach (TSource element in source)
-            {
-                if (keySet.Add(keySelector(element)))
-                {
-                    yield return element;
                 }
             }
         }

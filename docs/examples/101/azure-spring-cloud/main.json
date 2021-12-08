@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1871411128533601104"
+      "templateHash": "8943762412804612021"
     }
   },
   "parameters": {
@@ -29,7 +29,6 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.AppPlatform/Spring",
@@ -127,7 +126,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "setActiveDeployment",
       "properties": {
         "expressionEvaluationOptions": {
@@ -152,7 +151,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "14716049199041538326"
+              "templateHash": "5754326839291847658"
             }
           },
           "parameters": {
@@ -166,7 +165,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.AppPlatform/Spring/apps",

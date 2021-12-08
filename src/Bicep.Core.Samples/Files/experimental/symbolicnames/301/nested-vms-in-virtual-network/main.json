@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "543643878246113824"
+      "templateHash": "3812945097062088018"
     }
   },
   "parameters": {
@@ -117,7 +117,6 @@
       "type": "secureString"
     }
   },
-  "functions": [],
   "variables": {
     "NATSubnetNSGName": "[format('{0}NSG', parameters('NATSubnetName'))]",
     "hyperVSubnetNSGName": "[format('{0}NSG', parameters('hyperVSubnetName'))]",
@@ -344,7 +343,7 @@
     },
     "createNic1": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "createNic1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -371,7 +370,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12266946764841305208"
+              "templateHash": "6002572554315619854"
             }
           },
           "parameters": {
@@ -406,7 +405,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": {
             "nic": {
               "type": "Microsoft.Network/networkInterfaces",
@@ -451,7 +449,7 @@
     },
     "createNic2": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "createNic2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -478,7 +476,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12266946764841305208"
+              "templateHash": "6002572554315619854"
             }
           },
           "parameters": {
@@ -513,7 +511,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": {
             "nic": {
               "type": "Microsoft.Network/networkInterfaces",
@@ -557,7 +554,7 @@
     },
     "updateNic1": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "updateNic1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -590,7 +587,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12266946764841305208"
+              "templateHash": "6002572554315619854"
             }
           },
           "parameters": {
@@ -625,7 +622,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": {
             "nic": {
               "type": "Microsoft.Network/networkInterfaces",
@@ -671,7 +667,7 @@
     },
     "updateNic2": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "updateNic2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -704,7 +700,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "12266946764841305208"
+              "templateHash": "6002572554315619854"
             }
           },
           "parameters": {
@@ -739,7 +735,6 @@
               "defaultValue": false
             }
           },
-          "functions": [],
           "resources": {
             "nic": {
               "type": "Microsoft.Network/networkInterfaces",
@@ -784,7 +779,7 @@
     },
     "createAzureVmUdr": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "udrDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -805,7 +800,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10301753709145241530"
+              "templateHash": "1859635465192769327"
             }
           },
           "parameters": {
@@ -825,7 +820,6 @@
               "defaultValue": ""
             }
           },
-          "functions": [],
           "resources": {
             "udr": {
               "type": "Microsoft.Network/routeTables",
@@ -848,7 +842,7 @@
     },
     "updateAzureVmUdr": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "udrUpdate",
       "properties": {
         "expressionEvaluationOptions": {
@@ -875,7 +869,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10301753709145241530"
+              "templateHash": "1859635465192769327"
             }
           },
           "parameters": {
@@ -895,7 +889,6 @@
               "defaultValue": ""
             }
           },
-          "functions": [],
           "resources": {
             "udr": {
               "type": "Microsoft.Network/routeTables",

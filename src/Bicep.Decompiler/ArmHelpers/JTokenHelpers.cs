@@ -31,7 +31,7 @@ namespace Bicep.Decompiler.ArmHelpers
                 }
             }
 
-            if (input is JValue jValue && jValue.ToObject<string>() is {} value)
+            if (input is JValue jValue && jValue.ToObject<string>() is { } value)
             {
                 VisitLanguageExpressions(value);
                 return;
@@ -39,14 +39,16 @@ namespace Bicep.Decompiler.ArmHelpers
 
             JsonUtility.WalkJsonRecursive(
                 input,
-                objectAction: @object => {
+                objectAction: @object =>
+                {
                     foreach (var property in @object.Properties())
                     {
                         VisitLanguageExpressions(property.Name);
                     }
                 },
-                tokenAction: token => {
-                    if (token.Type == JTokenType.String && token.ToObject<string>() is {} value)
+                tokenAction: token =>
+                {
+                    if (token.Type == JTokenType.String && token.ToObject<string>() is { } value)
                     {
                         VisitLanguageExpressions(value);
                     }
@@ -80,7 +82,7 @@ namespace Bicep.Decompiler.ArmHelpers
                 return value;
             }
 
-            if (input is JValue jValue && jValue.ToObject<string>() is {} value)
+            if (input is JValue jValue && jValue.ToObject<string>() is { } value)
             {
                 var expression = RewriteLanguageExpression(value);
 
@@ -89,7 +91,8 @@ namespace Bicep.Decompiler.ArmHelpers
 
             JsonUtility.WalkJsonRecursive(
                 input,
-                objectAction: @object => {
+                objectAction: @object =>
+                {
                     // force enumeration with .ToArray() - to avoid modifying a collection while iterating
                     foreach (var property in @object.Properties().ToArray())
                     {
@@ -101,7 +104,8 @@ namespace Bicep.Decompiler.ArmHelpers
                         }
                     }
                 },
-                propertyAction: property => {
+                propertyAction: property =>
+                {
                     if (property.Value is null)
                     {
                         return;

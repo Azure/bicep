@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer
         private void AddContextualKeyword(IPositionable positionable, string keyword)
         {
             // contextual keywords should only be highlighted as keywords if they are valid
-            if (positionable is Token {Type: TokenType.Identifier} token && string.Equals(token.Text, keyword, StringComparison.Ordinal))
+            if (positionable is Token { Type: TokenType.Identifier } token && string.Equals(token.Text, keyword, StringComparison.Ordinal))
             {
                 AddTokenType(positionable, SemanticTokenType.Keyword);
             }
@@ -190,13 +190,15 @@ namespace Bicep.LanguageServer
 
         private void AddStringToken(Token token)
         {
-            var endInterp = token.Type switch {
+            var endInterp = token.Type switch
+            {
                 TokenType.StringLeftPiece => LanguageConstants.StringHoleOpen,
                 TokenType.StringMiddlePiece => LanguageConstants.StringHoleOpen,
                 _ => ""
             };
 
-            var startInterp = token.Type switch {
+            var startInterp = token.Type switch
+            {
                 TokenType.StringMiddlePiece => LanguageConstants.StringHoleClose,
                 TokenType.StringRightPiece => LanguageConstants.StringHoleClose,
                 _ => ""
@@ -296,9 +298,9 @@ namespace Bicep.LanguageServer
         public override void VisitImportDeclarationSyntax(ImportDeclarationSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
-            AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
-            AddContextualKeyword(syntax.FromKeyword, LanguageConstants.FromKeyword);
             AddTokenType(syntax.ProviderName, SemanticTokenType.Variable);
+            AddContextualKeyword(syntax.AsKeyword, LanguageConstants.AsKeyword);
+            AddTokenType(syntax.AliasName, SemanticTokenType.Variable);
             base.VisitImportDeclarationSyntax(syntax);
         }
     }

@@ -5,10 +5,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12155511442967661456"
+      "templateHash": "1872456562591003148"
     }
   },
-  "functions": [],
   "variables": {
     "websites": [
       {
@@ -40,7 +39,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "planDeploy",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -60,7 +59,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4938872769570543882"
+              "templateHash": "15019246960605065046"
             }
           },
           "parameters": {
@@ -72,7 +71,6 @@
               "defaultValue": "B1"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/serverfarms",
@@ -102,7 +100,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "planDeploy2",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -122,7 +120,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "4938872769570543882"
+              "templateHash": "15019246960605065046"
             }
           },
           "parameters": {
@@ -134,7 +132,6 @@
               "defaultValue": "B1"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/serverfarms",
@@ -168,7 +165,7 @@
         "count": "[length(variables('websites'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('{0}siteDeploy', variables('websites')[copyIndex()].name)]",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -178,7 +175,7 @@
         "mode": "Incremental",
         "parameters": {
           "appPlanId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-06-01').outputs.planId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
           },
           "namePrefix": {
             "value": "[variables('websites')[copyIndex()].name]"
@@ -197,7 +194,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "228337352270462398"
+              "templateHash": "16733674086069502117"
             }
           },
           "parameters": {
@@ -218,7 +215,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/sites",
@@ -270,7 +266,7 @@
         "count": "[length(variables('websites'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('{0}siteDeploy2', variables('websites')[copyIndex()].name)]",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -280,7 +276,7 @@
         "mode": "Incremental",
         "parameters": {
           "appPlanId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-06-01').outputs.planId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', 'planDeploy'), '2020-10-01').outputs.planId.value]"
           },
           "namePrefix": {
             "value": "[variables('websites')[copyIndex()].name]"
@@ -299,7 +295,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "228337352270462398"
+              "templateHash": "16733674086069502117"
             }
           },
           "parameters": {
@@ -320,7 +316,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Web/sites",
@@ -368,7 +363,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "storageDeploy",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -391,7 +386,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "storageDeploy2",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -418,7 +413,7 @@
         "count": "[length(variables('vnets'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('{0}Deploy', variables('vnets')[copyIndex()].name)]",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -444,7 +439,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "port",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -464,7 +459,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "11372722735750462419"
+              "templateHash": "2505217721104922110"
             }
           },
           "parameters": {
@@ -472,7 +467,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "port": {
@@ -488,7 +482,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "ipv4",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -508,7 +502,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13832203834710666930"
+              "templateHash": "12121705673191614943"
             }
           },
           "parameters": {
@@ -516,7 +510,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv4": {
@@ -532,7 +525,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "ipv4port",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -552,7 +545,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6585722063237736357"
+              "templateHash": "7823936554124086035"
             }
           },
           "parameters": {
@@ -560,7 +553,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv4port": {
@@ -576,7 +568,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "ipv6",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -596,7 +588,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15909077893907372746"
+              "templateHash": "5093140793351809054"
             }
           },
           "parameters": {
@@ -604,7 +596,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv6": {
@@ -620,7 +611,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "ipv6port",
       "resourceGroup": "adotfrank-rg",
       "properties": {
@@ -640,7 +631,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "1421603444460114359"
+              "templateHash": "969477156678070948"
             }
           },
           "parameters": {
@@ -648,7 +639,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": [],
           "outputs": {
             "ipv6port": {
@@ -668,7 +658,7 @@
       "type": "array",
       "copy": {
         "count": "[length(variables('websites'))]",
-        "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', format('{0}siteDeploy', variables('websites')[copyIndex()].name)), '2020-06-01').outputs.siteUrl.value]"
+        "input": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'adotfrank-rg'), 'Microsoft.Resources/deployments', format('{0}siteDeploy', variables('websites')[copyIndex()].name)), '2020-10-01').outputs.siteUrl.value]"
       }
     }
   }

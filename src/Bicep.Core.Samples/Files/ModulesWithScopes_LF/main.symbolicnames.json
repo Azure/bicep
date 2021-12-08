@@ -7,14 +7,13 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9451425537701688468"
+      "templateHash": "8259149412180736595"
     }
   },
-  "functions": [],
   "resources": {
     "myManagementGroupMod": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "myManagementGroupMod",
       "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup')]",
       "location": "[deployment().location]",
@@ -32,14 +31,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16280859909667524604"
+              "templateHash": "575629283725196939"
             }
           },
-          "functions": [],
           "resources": {
             "myTenantMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myTenantMod",
               "scope": "/",
               "location": "[deployment().location]",
@@ -57,10 +55,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "13795227476051739062"
+                      "templateHash": "5192803437910961230"
                     }
                   },
-                  "functions": [],
                   "resources": {},
                   "outputs": {
                     "myOutput": {
@@ -73,7 +70,7 @@
             },
             "myManagementGroupModWithDuplicatedNameButInSeparateModule": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myManagementGroupMod",
               "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
               "location": "[deployment().location]",
@@ -91,17 +88,16 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "797197645865752552"
+                      "templateHash": "8579565390553187175"
                     }
                   },
-                  "functions": [],
                   "resources": {}
                 }
               }
             },
             "mySubscriptionModWithDuplicatedNameButInSeparateModule": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "mySubscriptionMod",
               "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
               "location": "[deployment().location]",
@@ -119,10 +115,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7728902878217370074"
+                      "templateHash": "5913949326104398861"
                     }
                   },
-                  "functions": [],
                   "resources": {}
                 }
               }
@@ -139,7 +134,7 @@
     },
     "myManagementGroupModWithDuplicatedNameButDifferentScope": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "myManagementGroupMod",
       "scope": "[format('Microsoft.Management/managementGroups/{0}', 'myManagementGroup2')]",
       "location": "[deployment().location]",
@@ -157,17 +152,16 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "797197645865752552"
+              "templateHash": "8579565390553187175"
             }
           },
-          "functions": [],
           "resources": {}
         }
       }
     },
     "mySubscriptionMod": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "mySubscriptionMod",
       "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
       "location": "[deployment().location]",
@@ -185,14 +179,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5050669221819578396"
+              "templateHash": "11332547608418453047"
             }
           },
-          "functions": [],
           "resources": {
             "myResourceGroupMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myResourceGroupMod",
               "resourceGroup": "myRg",
               "properties": {
@@ -209,14 +202,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8706733343442957113"
+                      "templateHash": "17061210083080366528"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -234,10 +226,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "13795227476051739062"
+                              "templateHash": "5192803437910961230"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -250,7 +241,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -268,10 +259,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17932567062051050182"
+                              "templateHash": "2040383910825521107"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -284,7 +274,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -302,17 +292,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -330,10 +319,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
@@ -354,7 +342,7 @@
             },
             "myResourceGroupMod2": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myResourceGroupMod2",
               "resourceGroup": "myRg",
               "properties": {
@@ -371,14 +359,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8706733343442957113"
+                      "templateHash": "17061210083080366528"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -396,10 +383,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "13795227476051739062"
+                              "templateHash": "5192803437910961230"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -412,7 +398,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -430,10 +416,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17932567062051050182"
+                              "templateHash": "2040383910825521107"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -446,7 +431,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -464,17 +449,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -492,10 +476,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
@@ -516,7 +499,7 @@
             },
             "myResourceGroupMod3": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myResourceGroupMod3",
               "subscriptionId": "subId",
               "resourceGroup": "myRg",
@@ -534,14 +517,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8706733343442957113"
+                      "templateHash": "17061210083080366528"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -559,10 +541,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "13795227476051739062"
+                              "templateHash": "5192803437910961230"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -575,7 +556,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -593,10 +574,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17932567062051050182"
+                              "templateHash": "2040383910825521107"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -609,7 +589,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -627,17 +607,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -655,10 +634,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
@@ -679,7 +657,7 @@
             },
             "myTenantMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myTenantMod",
               "scope": "/",
               "location": "[deployment().location]",
@@ -697,10 +675,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "13795227476051739062"
+                      "templateHash": "5192803437910961230"
                     }
                   },
-                  "functions": [],
                   "resources": {},
                   "outputs": {
                     "myOutput": {
@@ -732,7 +709,7 @@
     "mySubscriptionModWithCondition": {
       "condition": "[equals(length('foo'), 3)]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "mySubscriptionModWithCondition",
       "subscriptionId": "ee44cd78-68c6-43d9-874e-e684ec8d1191",
       "location": "[deployment().location]",
@@ -750,14 +727,13 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "5050669221819578396"
+              "templateHash": "11332547608418453047"
             }
           },
-          "functions": [],
           "resources": {
             "myResourceGroupMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myResourceGroupMod",
               "resourceGroup": "myRg",
               "properties": {
@@ -774,14 +750,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8706733343442957113"
+                      "templateHash": "17061210083080366528"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -799,10 +774,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "13795227476051739062"
+                              "templateHash": "5192803437910961230"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -815,7 +789,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -833,10 +807,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17932567062051050182"
+                              "templateHash": "2040383910825521107"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -849,7 +822,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -867,17 +840,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -895,10 +867,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
@@ -919,7 +890,7 @@
             },
             "myResourceGroupMod2": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myResourceGroupMod2",
               "resourceGroup": "myRg",
               "properties": {
@@ -936,14 +907,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8706733343442957113"
+                      "templateHash": "17061210083080366528"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -961,10 +931,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "13795227476051739062"
+                              "templateHash": "5192803437910961230"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -977,7 +946,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -995,10 +964,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17932567062051050182"
+                              "templateHash": "2040383910825521107"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -1011,7 +979,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -1029,17 +997,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -1057,10 +1024,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
@@ -1081,7 +1047,7 @@
             },
             "myResourceGroupMod3": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myResourceGroupMod3",
               "subscriptionId": "subId",
               "resourceGroup": "myRg",
@@ -1099,14 +1065,13 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "8706733343442957113"
+                      "templateHash": "17061210083080366528"
                     }
                   },
-                  "functions": [],
                   "resources": {
                     "myTenantMod": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myTenantMod",
                       "scope": "/",
                       "location": "[resourceGroup().location]",
@@ -1124,10 +1089,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "13795227476051739062"
+                              "templateHash": "5192803437910961230"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -1140,7 +1104,7 @@
                     },
                     "myOtherResourceGroup": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "myOtherResourceGroup",
                       "subscriptionId": "db90cfef-a146-4f67-b32f-b263518bd216",
                       "resourceGroup": "myOtherRg",
@@ -1158,10 +1122,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17932567062051050182"
+                              "templateHash": "2040383910825521107"
                             }
                           },
-                          "functions": [],
                           "resources": {},
                           "outputs": {
                             "myOutput": {
@@ -1174,7 +1137,7 @@
                     },
                     "mySubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "mySubscription",
                       "subscriptionId": "[subscription().subscriptionId]",
                       "location": "[resourceGroup().location]",
@@ -1192,17 +1155,16 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
                     },
                     "otherSubscription": {
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "otherSubscription",
                       "subscriptionId": "cd780357-07f5-49cc-b945-a3fe15863860",
                       "location": "[resourceGroup().location]",
@@ -1220,10 +1182,9 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "7728902878217370074"
+                              "templateHash": "5913949326104398861"
                             }
                           },
-                          "functions": [],
                           "resources": {}
                         }
                       }
@@ -1244,7 +1205,7 @@
             },
             "myTenantMod": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myTenantMod",
               "scope": "/",
               "location": "[deployment().location]",
@@ -1262,10 +1223,9 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "13795227476051739062"
+                      "templateHash": "5192803437910961230"
                     }
                   },
-                  "functions": [],
                   "resources": {},
                   "outputs": {
                     "myOutput": {
@@ -1296,7 +1256,7 @@
     },
     "mySubscriptionModWithDuplicatedNameButDifferentScope": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "mySubscriptionMod",
       "subscriptionId": "1ad827ac-2669-4c2f-9970-282b93c3c550",
       "location": "[deployment().location]",
@@ -1314,10 +1274,9 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "7728902878217370074"
+              "templateHash": "5913949326104398861"
             }
           },
-          "functions": [],
           "resources": {}
         }
       }

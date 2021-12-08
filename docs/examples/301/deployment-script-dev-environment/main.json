@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11634997279449412299"
+      "templateHash": "18096088897546366532"
     }
   },
   "parameters": {
@@ -40,11 +40,10 @@
       "defaultValue": "[resourceGroup().location]"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('{0}-deploy', parameters('storageName'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -66,7 +65,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "10072553779848923110"
+              "templateHash": "9461343632591088191"
             }
           },
           "parameters": {
@@ -115,7 +114,6 @@
               "defaultValue": "[resourceGroup().id]"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Storage/storageAccounts",
@@ -158,7 +156,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('{0}-deploy', parameters('containerName'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -173,13 +171,13 @@
             "value": "[parameters('location')]"
           },
           "storageName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-06-01').outputs.storageName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-10-01').outputs.storageName.value]"
           },
           "storageId": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-06-01').outputs.resourceId.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-10-01').outputs.resourceId.value]"
           },
           "fileShareName": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-06-01').outputs.fileShareName.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-deploy', parameters('storageName'))), '2020-10-01').outputs.fileShareName.value]"
           },
           "type": {
             "value": "[parameters('type')]"
@@ -195,7 +193,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6673808017610235563"
+              "templateHash": "12360193174347893668"
             }
           },
           "parameters": {
@@ -248,7 +246,6 @@
               "defaultValue": "[resourceGroup().location]"
             }
           },
-          "functions": [],
           "variables": {
             "version": "[if(and(equals(parameters('type'), 'AzureCLI'), equals(parameters('toolVersion'), '')), 'latest', if(and(equals(parameters('type'), 'AzurePowerShell'), equals(parameters('toolVersion'), '')), '5.6', parameters('toolVersion')))]",
             "azcliImage": "[format('mcr.microsoft.com/azure-cli:{0}', variables('version'))]",

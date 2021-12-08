@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16493228908903635516"
+      "templateHash": "6219697027787344860"
     }
   },
   "parameters": {
@@ -22,11 +22,10 @@
       "type": "string"
     }
   },
-  "functions": [],
   "resources": {
     "policy": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "policy",
       "location": "[deployment().location]",
       "properties": {
@@ -48,7 +47,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "2900571262339678012"
+              "templateHash": "2457970379301751180"
             }
           },
           "parameters": {
@@ -56,7 +55,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "policyDefCategory": "Custom",
             "policySource": "Bicep",
@@ -392,7 +390,7 @@
     },
     "assignment": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "assignment",
       "location": "[deployment().location]",
       "properties": {
@@ -420,7 +418,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "3057911705389341300"
+              "templateHash": "3313635155036670047"
             }
           },
           "parameters": {
@@ -434,7 +432,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "resources": {
             "monitoringGovernanceAssignment": {
               "type": "Microsoft.Authorization/policyAssignments",

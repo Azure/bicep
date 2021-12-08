@@ -19,27 +19,27 @@ namespace Bicep.Core.Semantics
             this.ancestry = ImmutableDictionary.CreateBuilder<ResourceMetadata, ResourceAncestor>();
         }
 
-        public ImmutableDictionary<ResourceMetadata, ResourceAncestor> Ancestry 
+        public ImmutableDictionary<ResourceMetadata, ResourceAncestor> Ancestry
             => this.ancestry.ToImmutableDictionary();
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             // Skip analysis for ErrorSymbol and similar cases, these are invalid cases, and won't be emitted.
-            if (semanticModel.ResourceMetadata.TryLookup(syntax) is not {} resource)
+            if (semanticModel.ResourceMetadata.TryLookup(syntax) is not { } resource)
             {
                 base.VisitResourceDeclarationSyntax(syntax);
                 return;
             }
-            
-            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is {} nestedParentSyntax)
+
+            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is { } nestedParentSyntax)
             {
                 // nested resource parent syntax
-                if (semanticModel.ResourceMetadata.TryLookup(nestedParentSyntax) is {} parentResource)
+                if (semanticModel.ResourceMetadata.TryLookup(nestedParentSyntax) is { } parentResource)
                 {
                     this.ancestry.Add(resource, new ResourceAncestor(ResourceAncestorType.Nested, parentResource, null));
                 }
             }
-            else if (resource.Symbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax)
+            else if (resource.Symbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
             {
                 SyntaxBase? indexExpression = null;
                 if (referenceParentSyntax is ArrayAccessSyntax arrayAccess)
@@ -49,7 +49,7 @@ namespace Bicep.Core.Semantics
                 }
 
                 // parent property reference syntax
-                if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is {} parentResource)
+                if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is { } parentResource)
                 {
                     this.ancestry.Add(resource, new ResourceAncestor(ResourceAncestorType.ParentProperty, parentResource, indexExpression));
                 }

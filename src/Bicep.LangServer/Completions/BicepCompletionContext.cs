@@ -12,6 +12,7 @@ using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -102,10 +103,34 @@ namespace Bicep.LanguageServer.Completions
             var triviaMatchingOffset = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, offset);
             switch (triviaMatchingOffset?.Type)
             {
+                case SyntaxTriviaType.Whitespace:
+                    var position = triviaMatchingOffset.Span.Position;
+                    if (position > 0)
+                    {
+                        var previousTrivia = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, position - 1);
+
+                        if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
+                        {
+                            return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                        }
+                    }
+                    break;
+                case SyntaxTriviaType.DisableNextLineDiagnosticsDirective:
+                    // This will handle the following case: #disable-next-line |
+                    if (triviaMatchingOffset.Text.EndsWith(' '))
+                    {
+                        return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+                    }
+                    return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                 case SyntaxTriviaType.SingleLineComment when offset > triviaMatchingOffset.Span.Position:
                 case SyntaxTriviaType.MultiLineComment when offset > triviaMatchingOffset.Span.Position && offset < triviaMatchingOffset.Span.Position + triviaMatchingOffset.Span.Length:
                     //we're in a comment, no hints here
                     return new BicepCompletionContext(BicepCompletionContextKind.None, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
+            }
+
+            if (IsDisableNextLineDiagnosticsDirectiveStartContext(bicepFile, offset, matchingNodes))
+            {
+                return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
             }
 
             var topLevelDeclarationInfo = SyntaxMatcher.FindLastNodeOfType<ITopLevelNamedDeclarationSyntax, SyntaxBase>(matchingNodes);
@@ -139,11 +164,11 @@ namespace Bicep.LanguageServer.Completions
                        ConvertFlag(IsTargetScopeContext(matchingNodes, offset), BicepCompletionContextKind.TargetScope) |
                        ConvertFlag(IsDecoratorNameContext(matchingNodes, offset), BicepCompletionContextKind.DecoratorName) |
                        ConvertFlag(IsFunctionArgumentContext(matchingNodes, offset), BicepCompletionContextKind.FunctionArgument | BicepCompletionContextKind.Expression);
-                       
+
             if (featureProvider.ImportsEnabled)
             {
-                kind |= ConvertFlag(IsImportSymbolFollower(matchingNodes, offset), BicepCompletionContextKind.ImportSymbolFollower) |
-                    ConvertFlag(IsImportFromFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFromFollower);
+                kind |= ConvertFlag(IsImportProviderFollower(matchingNodes, offset), BicepCompletionContextKind.ImportProviderFollower) |
+                    ConvertFlag(IsImportFollower(matchingNodes, offset), BicepCompletionContextKind.ImportFollower);
             }
 
             if (kind == BicepCompletionContextKind.None)
@@ -167,6 +192,37 @@ namespace Bicep.LanguageServer.Completions
                 functionCallInfo.node,
                 functionArgumentInfo.node,
                 activeScopes);
+        }
+
+        private static bool IsDisableNextLineDiagnosticsDirectiveStartContext(BicepFile bicepFile, int offset, List<SyntaxBase> matchingNodes)
+        {
+            return matchingNodes[^1] is Token token &&
+                token.Text == "#" &&
+                token.Span.GetEndPosition() == offset &&
+                ShouldAllowCompletionAfterPoundSign(bicepFile, token);
+        }
+
+        private static bool ShouldAllowCompletionAfterPoundSign(BicepFile bicepFile, Token token)
+        {
+            var lineStarts = bicepFile.LineStarts;
+            var position = token.GetPosition();
+            (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, position);
+            var lineStart = lineStarts[line];
+
+            if (position == lineStart)
+            {
+                return true;
+            }
+
+            var triviaMatchingLineStart = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, lineStart);
+
+            if (triviaMatchingLineStart?.Type == SyntaxTriviaType.Whitespace &&
+                triviaMatchingLineStart.GetEndPosition() == position)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -266,13 +322,13 @@ namespace Bicep.LanguageServer.Completions
                 return true;
             }
 
-            if (matchingNodes.Count >=2 && matchingNodes[^1] is Token token)
+            if (matchingNodes.Count >= 2 && matchingNodes[^1] is Token token)
             {
                 // we have at least 2 matching nodes in the "stack" and the last one is a token
                 var node = matchingNodes[^2];
 
                 switch (node)
-            {
+                {
                     case ProgramSyntax programSyntax:
                         // the token at current position is inside a program node
                         // we're in a declaration if one of the following conditions is met:
@@ -422,7 +478,7 @@ namespace Bicep.LanguageServer.Completions
                     // if that's the case, the offset should match the end of the property span exactly
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax>(matchingNodes, property => property.Colon is not SkippedTriviaSyntax && offset >= property.Colon.GetEndPosition() && property.Value is SkippedTriviaSyntax) ||
                     // the cursor position is after the colon that follows the property name
-                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset>= token.GetEndPosition()) ||
+                    SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, Token>(matchingNodes, (_, token) => token.Type == TokenType.Colon && offset >= token.GetEndPosition()) ||
                     // the cursor is inside a string value of the property that is not interpolated
                     SyntaxMatcher.IsTailMatch<ObjectPropertySyntax, StringSyntax, Token>(matchingNodes, (property, stringSyntax, token) => ReferenceEquals(property.Value, stringSyntax) && !stringSyntax.Expressions.Any()) ||
                     // the cursor could is a partial or full identifier
@@ -563,16 +619,16 @@ namespace Bicep.LanguageServer.Completions
             // abc.someFunc(x,|)
             SyntaxMatcher.IsTailMatch<FunctionCallSyntaxBase, FunctionArgumentSyntax, Token>(matchingNodes, (func, _, _) => true);
 
-        private static bool IsImportSymbolFollower(List<SyntaxBase> matchingNodes, int offset) =>
+        private static bool IsImportProviderFollower(List<SyntaxBase> matchingNodes, int offset) =>
             // import foo |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.AliasName.IsValid && offset > import.AliasName.GetEndPosition() && offset <= import.FromKeyword.GetEndPosition()) ||
-            // import foo f|
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, skipped, _) => import.FromKeyword == skipped);
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.IsValid && offset > import.ProviderName.GetEndPosition() && offset <= import.AsKeyword.GetEndPosition()) ||
+            // import foo a|
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, SkippedTriviaSyntax, Token>(matchingNodes, (import, skipped, _) => import.AsKeyword == skipped);
 
-        private static bool IsImportFromFollower(List<SyntaxBase> matchingNodes, int offset) =>
-            // import foo from |
-            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => offset > import.FromKeyword.GetEndPosition() && import.ProviderName.Child is SkippedTriviaSyntax) ||
-            // import foo from f|
+        private static bool IsImportFollower(List<SyntaxBase> matchingNodes, int offset) =>
+            // import |
+            SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax>(matchingNodes, import => import.ProviderName.Child is SkippedTriviaSyntax && offset > import.Keyword.GetEndPosition()) ||
+            // import f|
             SyntaxMatcher.IsTailMatch<ImportDeclarationSyntax, IdentifierSyntax, Token>(matchingNodes, (import, ident, _) => import.ProviderName == ident);
 
         private static bool IsOuterExpressionContext(List<SyntaxBase> matchingNodes, int offset)
@@ -608,7 +664,7 @@ namespace Bicep.LanguageServer.Completions
 
                     break;
 
-                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >=2 && offset == token.GetEndPosition():
+                case Token token when token.Type == TokenType.Assignment && matchingNodes.Count >= 2 && offset == token.GetEndPosition():
                     // cursor is after the = token
                     // check if parent is of the right type
                     var parent = matchingNodes[^2];
@@ -651,7 +707,7 @@ namespace Bicep.LanguageServer.Completions
             var isInStringSegment = SyntaxMatcher.IsTailMatch<StringSyntax, Token>(matchingNodes, (_, token) => token.Type switch
             {
                 // The cursor is immediately after the { character: '...${|...}...'.
-                TokenType.StringLeftPiece when IsOffsetImmediatlyAfterNode(offset, token)=> false,
+                TokenType.StringLeftPiece when IsOffsetImmediatlyAfterNode(offset, token) => false,
                 TokenType.StringMiddlePiece when IsOffsetImmediatlyAfterNode(offset, token) => false,
                 // In other cases, we are in a string segment.
                 TokenType.StringComplete => true,
@@ -668,7 +724,7 @@ namespace Bicep.LanguageServer.Completions
             }
 
             // It does not make sense to insert expressions at the cursor positions shown in the comments below.
-            return  !(
+            return !(
                 //║{              ║{             ║|{|           ║{            ║{
                 //║  foo: true |  ║ | foo: true  ║  foo: true   ║  foo: true  ║  |
                 //║}              ║}             ║}             ║|}|          ║}
@@ -735,7 +791,7 @@ namespace Bicep.LanguageServer.Completions
                         (operatorToken.Type == TokenType.Colon && operatorToken.GetPosition() == offset && ternaryOperation.TrueExpression is not SkippedTriviaSyntax) ||
                         (operatorToken.Type == TokenType.Colon && operatorToken.GetEndPosition() == offset && ternaryOperation.FalseExpression is not SkippedTriviaSyntax)));
         }
-        
+
         static bool IsOffsetImmediatlyAfterNode(int offset, SyntaxBase node) => node.Span.Position + node.Span.Length == offset;
 
         private static Range GetReplacementRange(BicepFile bicepFile, SyntaxBase innermostMatchingNode, int offset)

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2566864244715309887"
+      "templateHash": "9735576921797330771"
     }
   },
   "parameters": {
@@ -20,11 +20,10 @@
       "defaultValue": false
     }
   },
-  "functions": [],
   "resources": {
     "webappModule": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "webAppPlanDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -45,7 +44,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16930629051351428013"
+              "templateHash": "11741697022736338181"
             }
           },
           "parameters": {
@@ -65,7 +64,6 @@
               "type": "string"
             }
           },
-          "functions": [],
           "variables": {
             "appServicePlanName": "[toLower(format('asp-{0}', parameters('appName')))]",
             "webSiteName": "[toLower(format('wapp-{0}', parameters('appName')))]"
@@ -148,7 +146,7 @@
     "loggingModule": {
       "condition": "[parameters('logging')]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "loggingDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -169,7 +167,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15829090324176702955"
+              "templateHash": "16360286843581299856"
             }
           },
           "parameters": {
@@ -181,7 +179,6 @@
               "defaultValue": "[resourceGroup().location]"
             }
           },
-          "functions": [],
           "variables": {
             "appInsightName": "[toLower(format('appi-{0}', parameters('appName')))]",
             "logAnalyticsName": "[toLower(format('la-{0}', parameters('appName')))]"

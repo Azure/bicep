@@ -29,12 +29,10 @@ namespace Bicep.Core.IntegrationTests
             int generateRandomInt(int minVal = 0, int maxVal = 50)
             {
                 var rnd = new byte[4];
-                using var rng = new RNGCryptoServiceProvider();
-                rng.GetBytes(rnd);
+                RandomNumberGenerator.Fill(rnd);
                 var i = Math.Abs(BitConverter.ToInt32(rnd, 0));
                 return Convert.ToInt32(i % (maxVal - minVal + 1) + minVal);
             }
-            Random random = new Random();
 
             string randomString()
             {
@@ -136,8 +134,8 @@ output vnetstate string = vnet.properties.provisioningState
 
             result.Should().NotHaveAnyDiagnostics();
             // ensure we're generating the correct expression with 'subscriptionResourceId', and using the correct name for the module
-            result.Template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-06-01').outputs.vnetId.value]");
-            result.Template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-06-01').outputs.vnetstate.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['vnetid'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-10-01').outputs.vnetId.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['vnetstate'].value", "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'vnet-rg'), 'Microsoft.Resources/deployments', 'network-module'), '2020-10-01').outputs.vnetstate.value]");
         }
 
         [TestMethod]
@@ -910,7 +908,7 @@ output test string = 'hello'
 
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['fooName'].value", "[format('{0}-test', parameters('someParam'))]");
-            result.Template.Should().HaveValueAtPath("$.outputs['fooOutput'].value", "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2020-06-01').outputs.test.value]");
+            result.Template.Should().HaveValueAtPath("$.outputs['fooOutput'].value", "[reference(resourceId('Microsoft.Resources/deployments', format('{0}-test', parameters('someParam'))), '2020-10-01').outputs.test.value]");
         }
 
         [TestMethod]
@@ -2777,6 +2775,64 @@ output out4 string = 'hello' + 'world'
                 ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"string\" and \"string\". Use string interpolation instead."),
                 ("BCP045", DiagnosticLevel.Error, "Cannot apply operator \"+\" to operands of type \"'hello'\" and \"'world'\". Use string interpolation instead.")
             });
+        }
+
+        // https://github.com/Azure/bicep/issues/3749
+        [TestMethod]
+        public void Test_Issue3749()
+        {
+            // missing new line at the start and end of the object
+            var result = CompilationHelper.Compile(@"
+param foo string
+param bar string
+
+output out1 string = foo
+");
+
+            result.Template.Should().NotHaveValueAtPath("$.functions");
+            result.Should().OnlyContainDiagnostic("no-unused-params", DiagnosticLevel.Warning, "Parameter \"bar\" is declared but never used.");
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5099
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5099()
+        {
+            var result = CompilationHelper.Compile(("foo.bicep", @"param input array
+output out array = input"), ("main.bicep", @"targetScope = 'subscription'
+
+@description('rgNames param')
+param rgNames array = [
+  'hello'
+  'world'
+]
+
+@description('resource group in for loop')
+resource rgs 'Microsoft.Resources/resourceGroups@2019-10-01' = [for rgName in rgNames: {
+  name: rgName
+  location: deployment().location
+}]
+
+@description('module loop')
+module m 'foo.bicep' = [for (rgName, i) in rgNames: {
+  name: 'foo${rgName}'
+  scope: rgs[i]
+  params: {
+    input: rgName
+  }
+}]
+
+@description('The Resources Ids of the API management service product groups')
+output productGroupsResourceIds array = [for rgName in rgNames: resourceId('Microsoft.Resources/resourceGroups', rgName)]
+"));
+            result.Template.Should().NotBeNull();
+            var templateContent = result.Template!.ToString();
+
+            result.Template!.Should().HaveValueAtPath("$.parameters.rgNames.metadata.description", "rgNames param");
+            result.Template!.Should().HaveValueAtPath("$.resources[?(@.name == '[parameters(\\'rgNames\\')[copyIndex()]]')].metadata.description", "resource group in for loop");
+            result.Template!.Should().HaveValueAtPath("$.resources[?(@.name == '[format(\\'foo{0}\\', parameters(\\'rgNames\\')[copyIndex()])]')].metadata.description", "module loop");
+            result.Template!.Should().HaveValueAtPath("$.outputs.productGroupsResourceIds.metadata.description", "The Resources Ids of the API management service product groups");
         }
     }
 }

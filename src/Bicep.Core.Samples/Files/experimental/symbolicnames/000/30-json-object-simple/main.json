@@ -7,10 +7,9 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11048355249342662017"
+      "templateHash": "5654013624082658449"
     }
   },
-  "functions": [],
   "variables": {
     "jsonString": "[\n  \"one\",\n  \"two\",\n  \"three\"\n]\n",
     "jsonArray": "[json(variables('jsonString'))]",

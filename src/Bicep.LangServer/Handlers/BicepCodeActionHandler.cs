@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -63,16 +62,6 @@ namespace Bicep.LanguageServer.Handlers
             List<CommandOrCodeAction> commandOrCodeActions = new();
 
             commandOrCodeActions.AddRange(quickFixes);
-
-            var analyzerDiagnostics = diagnostics
-                .Where(analyzerDiagnostic =>
-                    analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
-                    analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
-                    (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
-                .OfType<AnalyzerDiagnostic>()
-                .Select(analyzerDiagnostic => DisableLinterRule(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ConfigurationPath));
-
-            commandOrCodeActions.AddRange(analyzerDiagnostics);
 
             var coreCompilerErrors = diagnostics
                 .Where(diagnostic => !diagnostic.CanBeSuppressed());
@@ -142,7 +131,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return new CodeAction
             {
-                Title = string.Format("Disable {0}", diagnosticCode.String),
+                Title = string.Format(LangServerResources.DisableDiagnosticForThisLine, diagnosticCode.String),
                 Edit = new WorkspaceEdit
                 {
                     Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>
@@ -151,17 +140,6 @@ namespace Bicep.LanguageServer.Handlers
                     }
                 },
                 Command = telemetryCommand
-            };
-        }
-
-        private static CommandOrCodeAction DisableLinterRule(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
-        {
-            var command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty);
-
-            return new CodeAction
-            {
-                Title = LangServerResources.DisableLinterRule,
-                Command = command
             };
         }
 

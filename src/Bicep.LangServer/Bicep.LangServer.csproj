@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
     <RootNamespace>Bicep.LanguageServer</RootNamespace>
   </PropertyGroup>
 
@@ -31,6 +30,5 @@
       <LastGenOutput>LangServerResources.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
-  </ItemGroup>	
-
+  </ItemGroup>
 </Project>

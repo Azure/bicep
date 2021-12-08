@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1822521508074159212"
+      "templateHash": "16808045335522622772"
     }
   },
   "parameters": {
@@ -42,7 +42,6 @@
       ]
     }
   },
-  "functions": [],
   "variables": {
     "frontDoorNameLower": "[toLower(parameters('frontDoorName'))]",
     "backendPool1Name": "[format('{0}-backendPool1', variables('frontDoorNameLower'))]",

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1232113087017290403"
+      "templateHash": "14015889880722387132"
     }
   },
   "parameters": {
@@ -32,7 +32,6 @@
       }
     }
   },
-  "functions": [],
   "resources": {
     "cosmosAccount": {
       "type": "Microsoft.DocumentDB/databaseAccounts",

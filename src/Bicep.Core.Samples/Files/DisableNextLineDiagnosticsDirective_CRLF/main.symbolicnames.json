@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3833569478389834963"
+      "templateHash": "15068560912148769948"
     }
   },
   "parameters": {
@@ -28,7 +28,6 @@
       "defaultValue": "testStorageAccount"
     }
   },
-  "functions": [],
   "variables": {
     "vmProperties": {
       "diagnosticsProfile": {

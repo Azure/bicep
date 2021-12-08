@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16228755905477314031"
+      "templateHash": "17798777799174646976"
     }
   },
   "parameters": {
@@ -31,7 +31,6 @@
       ]
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Compute/proximityPlacementGroups",

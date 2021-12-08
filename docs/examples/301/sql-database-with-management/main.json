@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3272166138089580697"
+      "templateHash": "16673020754422444703"
     }
   },
   "parameters": {
@@ -16,7 +16,6 @@
       }
     }
   },
-  "functions": [],
   "variables": {
     "defaultResourceGroupProperties": {
       "tags": {},
@@ -35,7 +34,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "sqlLogicalServers",
       "resourceGroup": "[parameters('resourceGroup').name]",
       "properties": {
@@ -58,7 +57,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "13336441185399082470"
+              "templateHash": "4342176167733754365"
             }
           },
           "parameters": {
@@ -72,7 +71,6 @@
               "type": "object"
             }
           },
-          "functions": [],
           "variables": {
             "defaultSqlLogicalServerProperties": {
               "name": "",
@@ -129,7 +127,7 @@
                 "count": "[length(parameters('sqlLogicalServers'))]"
               },
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "[format('sqlLogicalServer-{0}', copyIndex())]",
               "properties": {
                 "expressionEvaluationOptions": {
@@ -159,7 +157,7 @@
                     "_generator": {
                       "name": "bicep",
                       "version": "dev",
-                      "templateHash": "7713578241009111792"
+                      "templateHash": "879416403877336575"
                     }
                   },
                   "parameters": {
@@ -179,7 +177,6 @@
                       "type": "object"
                     }
                   },
-                  "functions": [],
                   "variables": {
                     "defaultAuditActionsAndGroups": [
                       "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",
@@ -407,7 +404,7 @@
                         "count": "[length(parameters('sqlLogicalServer').firewallRules)]"
                       },
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "[format('sqlFirewallRule-{0}-{1}', uniqueString(parameters('sqlLogicalServer').name), copyIndex())]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -429,7 +426,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "14005243826429444249"
+                              "templateHash": "9146811373829415744"
                             }
                           },
                           "parameters": {
@@ -446,7 +443,6 @@
                               }
                             }
                           },
-                          "functions": [],
                           "resources": [
                             {
                               "type": "Microsoft.Sql/servers/firewallRules",
@@ -470,7 +466,7 @@
                         "count": "[length(parameters('sqlLogicalServer').databases)]"
                       },
                       "type": "Microsoft.Resources/deployments",
-                      "apiVersion": "2020-06-01",
+                      "apiVersion": "2020-10-01",
                       "name": "[format('sqlDb-{0}-{1}', uniqueString(parameters('sqlLogicalServer').name), copyIndex())]",
                       "properties": {
                         "expressionEvaluationOptions": {
@@ -495,7 +491,7 @@
                             "_generator": {
                               "name": "bicep",
                               "version": "dev",
-                              "templateHash": "17820208337665717935"
+                              "templateHash": "15221157786117041750"
                             }
                           },
                           "parameters": {
@@ -515,7 +511,6 @@
                               "type": "object"
                             }
                           },
-                          "functions": [],
                           "resources": [
                             {
                               "type": "Microsoft.Sql/servers/databases",
@@ -642,7 +637,7 @@
                             {
                               "condition": "[not(equals(parameters('sqlDatabase').shortTermBackupRetention, 0))]",
                               "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2020-06-01",
+                              "apiVersion": "2020-10-01",
                               "name": "[format('shortTermBackup-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
                               "properties": {
                                 "expressionEvaluationOptions": {
@@ -664,7 +659,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "dev",
-                                      "templateHash": "13857232367360321477"
+                                      "templateHash": "2953203708405635961"
                                     }
                                   },
                                   "parameters": {
@@ -675,7 +670,6 @@
                                       "type": "string"
                                     }
                                   },
-                                  "functions": [],
                                   "resources": [
                                     {
                                       "type": "Microsoft.Sql/servers/databases/backupShortTermRetentionPolicies",
@@ -695,7 +689,7 @@
                             },
                             {
                               "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2020-06-01",
+                              "apiVersion": "2020-10-01",
                               "name": "[format('azureDefender-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
                               "properties": {
                                 "expressionEvaluationOptions": {
@@ -717,7 +711,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "dev",
-                                      "templateHash": "2829092679645401993"
+                                      "templateHash": "12798430629813662906"
                                     }
                                   },
                                   "parameters": {
@@ -728,7 +722,6 @@
                                       "type": "string"
                                     }
                                   },
-                                  "functions": [],
                                   "resources": [
                                     {
                                       "type": "Microsoft.Sql/servers/databases/securityAlertPolicies",
@@ -751,7 +744,7 @@
                             },
                             {
                               "type": "Microsoft.Resources/deployments",
-                              "apiVersion": "2020-06-01",
+                              "apiVersion": "2020-10-01",
                               "name": "[format('auditSettings-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
                               "properties": {
                                 "expressionEvaluationOptions": {
@@ -773,7 +766,7 @@
                                     "_generator": {
                                       "name": "bicep",
                                       "version": "dev",
-                                      "templateHash": "5447449594683998530"
+                                      "templateHash": "336987510423517988"
                                     }
                                   },
                                   "parameters": {
@@ -784,7 +777,6 @@
                                       "type": "string"
                                     }
                                   },
-                                  "functions": [],
                                   "variables": {
                                     "defaultAuditActionsAndGroups": [
                                       "SUCCESSFUL_DATABASE_AUTHENTICATION_GROUP",

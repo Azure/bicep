@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3949719055369974346"
+      "templateHash": "5607822056066172754"
     }
   },
   "parameters": {
@@ -14,11 +14,10 @@
       "defaultValue": "mypublicip"
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "publicIp",
       "properties": {
         "expressionEvaluationOptions": {
@@ -40,7 +39,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "17282422556248381741"
+              "templateHash": "7368437974421050543"
             }
           },
           "parameters": {
@@ -59,7 +58,6 @@
               "type": "bool"
             }
           },
-          "functions": [],
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",
@@ -87,7 +85,7 @@
   "outputs": {
     "ipFqdn": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2020-06-01').outputs.ipFqdn.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', 'publicIp'), '2020-10-01').outputs.ipFqdn.value]"
     }
   }
 }
