@@ -25,6 +25,7 @@ jobs:
       # let us get failures from other jobs even if one fails
       fail-fast: false
 
+      # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
         include:
         - os: 'windows-latest'
@@ -32,21 +33,43 @@ jobs:
           configuration: 'release'
           publishLanguageServer: 'false'
           publishPackages: 'false'
+          runTests: 'true'
         - os: 'ubuntu-latest'
           rid: 'linux-x64'
           configuration: 'release'
           publishLanguageServer: 'true'
           publishPackages: 'true'
+          runTests: 'true'
         - os: 'ubuntu-latest'
           rid: 'linux-musl-x64'
           configuration: 'release'
           publishLanguageServer: 'false'
           publishPackages: 'false'
+          runTests: 'true'
         - os: 'macos-latest'
           rid: 'osx-x64'
           configuration: 'release'
           publishLanguageServer: 'false'
           publishPackages: 'false'
+          runTests: 'true'
+        - os: 'ubuntu-latest'
+          rid: 'linux-arm64'
+          configuration: 'release'
+          publishLanguageServer: 'false'
+          publishPackages: 'false'
+          runTests: 'false'
+        - os: 'ubuntu-latest'
+          rid: 'win-arm64'
+          configuration: 'release'
+          publishLanguageServer: 'false'
+          publishPackages: 'false'
+          runTests: 'false'
+        - os: 'ubuntu-latest'
+          rid: 'osx-arm64'
+          configuration: 'release'
+          publishLanguageServer: 'false'
+          publishPackages: 'false'
+          runTests: 'false'
 
     steps:
       - uses: actions/checkout@v2.3.5
@@ -65,11 +88,12 @@ jobs:
         run: dotnet pack --configuration ${{ matrix.configuration }}
       
       - name: Test
+        if: ${{ matrix.runTests == 'true' }}
         run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v2
-        if: ${{ always() }}
+        if: ${{ always() && matrix.runTests == 'true' }}
         with:
           name: Bicep.TestResults.${{ matrix.rid }}
           path: ./TestResults/**/*.trx
@@ -83,14 +107,14 @@ jobs:
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Run Bicep E2E Tests
-        if: ${{ matrix.rid != 'linux-musl-x64' }}
+        if: ${{ matrix.rid != 'linux-musl-x64' && matrix.runTests == 'true' }}
         run: npm ci && npm test
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
-        if: ${{ matrix.rid == 'linux-musl-x64' }}
+        if: ${{ matrix.rid == 'linux-musl-x64' && matrix.runTests == 'true' }}
         uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
           entrypoint: sh
@@ -122,6 +146,7 @@ jobs:
           if-no-files-found: error
 
       - name: Upload Code Coverage
+        if: ${{ matrix.runTests == 'true' }}
         uses: codecov/codecov-action@v2.1.0
         with:
           flags: dotnet
@@ -139,6 +164,7 @@ jobs:
     strategy:
       fail-fast: false
 
+      # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
       matrix:
         include:
         - os: 'windows-latest'
@@ -229,7 +255,7 @@ jobs:
           if-no-files-found: error
 
   build-packages:
-    name: 'Build Packages'
+    name: 'Build Packages (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
     needs: build-bicep
 
@@ -239,15 +265,28 @@ jobs:
 
     strategy:
       fail-fast: false
+      
+      # should be the full list of RIDs that we support in the CLI
       matrix:
-        os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
         include:
         - os: 'windows-latest'
           rid: 'win-x64'
+          runTests: 'true'
         - os: 'ubuntu-latest'
           rid: 'linux-x64'
+          runTests: 'true'
         - os: 'macos-latest'
           rid: 'osx-x64'
+          runTests: 'true'
+        - os: 'ubuntu-latest'
+          rid: 'win-arm64'
+          runTests: 'false'
+        - os: 'ubuntu-latest'
+          rid: 'linux-arm64'
+          runTests: 'false'
+        - os: 'ubuntu-latest'
+          rid: 'osx-arm64'
+          runTests: 'false'
     
     steps:
       - uses: actions/checkout@v2.3.5
@@ -264,14 +303,17 @@ jobs:
           node-version: 10.x
 
       - name: npm ci
+        if: ${{ matrix.runTests == 'true' }}
         run: npm ci
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Compile
+        if: ${{ matrix.runTests == 'true' }}
         run: npm run compile
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Run lint
+        if: ${{ matrix.runTests == 'true' }}
         run: npm run lint
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
@@ -298,12 +340,14 @@ jobs:
           if-no-files-found: error
       
       - name: Download CLI Package
+        if: ${{ matrix.runTests == 'true' }}
         uses: actions/download-artifact@v2
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
 
       - name: Run E2E tests
+        if: ${{ matrix.runTests == 'true' }}
         run: npm run test
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
@@ -317,6 +361,8 @@ jobs:
 
     strategy:
       fail-fast: false
+
+      # should be the list of RIDs with corresponding OSs that are supported by GitHub hosted runners
       matrix:
         os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
         include:
