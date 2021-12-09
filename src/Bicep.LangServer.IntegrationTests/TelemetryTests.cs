@@ -333,6 +333,9 @@ resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
   properties: {
     Application_Type: 'web'
   }
+  resource favorites 'favorites@2015-05-01'{
+    name: 'testName'
+  }
 }
 
 module apimGroups 'groups.bicep' = if (deployGroups) {
@@ -393,27 +396,27 @@ var useDefaultSettings = true";
             };
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
-            bicepTelemetryEvent.Properties.Should().Equal(properties);
+            bicepTelemetryEvent.Properties.Should().Contain(properties);
 
             properties = new Dictionary<string, string>
             {
                 { "modules", "1" },
                 { "parameters", "2" },
-                { "resources", "1" },
+                { "resources", "2" },
                 { "variables", "1" },
-                { "fileSizeInBytes", "418" },
-                { "lineCount", "20" },
-                { "errors", "1" },
+                { "fileSizeInBytes", "488" },
+                { "lineCount", "23" },
+                { "errors", "2" },
                 { "warnings", "1" },
                 { "modulesInReferencedFiles", "0" },
-                { "resourcesInReferencedFiles", "2" },
+                { "parentResourcesInReferencedFiles", "2" },
                 { "parametersInReferencedFiles", "2" },
                 { "variablesInReferencedFiles", "1" }
             };
 
             bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
-            bicepTelemetryEvent.Properties.Should().Equal(properties);
+            bicepTelemetryEvent.Properties.Should().Contain(properties);
         }
 
         private async Task<BicepTelemetryEvent> GetTelemetryEventForBicepConfigChange(string prevBicepConfigFileContents, string curBicepConfigFileContents, string bicepFileContents)

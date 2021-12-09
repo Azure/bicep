@@ -269,7 +269,7 @@ namespace Bicep.LanguageServer
 
                 if (version == 1)
                 {
-                    SendTelemetryOnBicepFileOpen(documentUri.ToUri(), configuration, sourceFiles, diagnostics);
+                    SendTelemetryOnBicepFileOpen(context.Compilation.GetEntrypointSemanticModel(), documentUri.ToUri(), configuration, sourceFiles, diagnostics);
                 }
 
                 // publish all the diagnostics
@@ -301,14 +301,14 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void SendTelemetryOnBicepFileOpen(DocumentUri documentUri, RootConfiguration configuration, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        private void SendTelemetryOnBicepFileOpen(SemanticModel semanticModel, DocumentUri documentUri, RootConfiguration configuration, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
         {
             // Telemetry on linter state on bicep file open
             var telemetryEvent = GetLinterStateTelemetryOnBicepFileOpen(configuration);
             TelemetryProvider.PostEvent(telemetryEvent);
 
             // Telemetry on open bicep file and the referenced modules
-            telemetryEvent = GetTelemetryAboutSourceFiles(documentUri.ToUri(), sourceFiles, diagnostics);
+            telemetryEvent = GetTelemetryAboutSourceFiles(semanticModel, documentUri.ToUri(), sourceFiles, diagnostics);
 
             if (telemetryEvent is not null)
             {
@@ -316,7 +316,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        public BicepTelemetryEvent? GetTelemetryAboutSourceFiles(Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        public BicepTelemetryEvent? GetTelemetryAboutSourceFiles(SemanticModel semanticModel, Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
         {
             var mainFile = sourceFiles.First(x => x.FileUri == uri) as BicepFile;
 
@@ -325,7 +325,7 @@ namespace Bicep.LanguageServer
                 return null;
             }
 
-            Dictionary<string, string> properties = GetTelemetryPropertiesForMainFile(mainFile, diagnostics);
+            Dictionary<string, string> properties = GetTelemetryPropertiesForMainFile(semanticModel, mainFile, diagnostics);
 
             var referencedFiles = sourceFiles.Where(x => x.FileUri != uri);
             var propertiesFromReferencedFiles = GetTelemetryPropertiesForReferencedFiles(referencedFiles);
@@ -335,32 +335,30 @@ namespace Bicep.LanguageServer
             return BicepTelemetryEvent.CreateBicepFileOpen(properties);
         }
 
-        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(BicepFile bicepFile, IEnumerable<Diagnostic> diagnostics)
+        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(SemanticModel sematicModel, BicepFile bicepFile, IEnumerable<Diagnostic> diagnostics)
         {
             Dictionary<string, string> properties = new();
 
             var declarationsInMainFile = bicepFile.ProgramSyntax.Declarations;
             properties.Add("Modules", declarationsInMainFile.Count(x => x is ModuleDeclarationSyntax).ToString());
             properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
-            properties.Add("Resources", declarationsInMainFile.Count(x => x is ResourceDeclarationSyntax).ToString());
+            properties.Add("Resources", sematicModel.AllResources.Length.ToString());
             properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
 
             var localPath = bicepFile.FileUri.LocalPath;
 
-            // This check is added to handle the tests that use mock data to create bicep file.
-            if (File.Exists(localPath))
+            try
             {
-                try
+                if (File.Exists(localPath))
                 {
-                    // Catching new FileInfo(..) alone because it's the only one that throws.
-                    // File.Exists will not throw exceptions regardless the existence of path or if the user has permissions to read the file.
                     var fileInfo = new FileInfo(bicepFile.FileUri.LocalPath);
                     properties.Add("FileSizeInBytes", fileInfo.Length.ToString());
                 }
-                catch (Exception)
-                {
-                    // We should not throw in this case since it will block compilation.
-                }
+            }
+            catch (Exception)
+            {
+                // We should not throw in this case since it will block compilation.
+                properties.Add("FileSizeInBytes", string.Empty);
             }
 
             properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());
@@ -391,7 +389,7 @@ namespace Bicep.LanguageServer
             }
 
             properties.Add("ModulesInReferencedFiles", modules.ToString());
-            properties.Add("ResourcesInReferencedFiles", resources.ToString());
+            properties.Add("ParentResourcesInReferencedFiles", resources.ToString());
             properties.Add("ParametersInReferencedFiles", parameters.ToString());
             properties.Add("VariablesInReferencedFiles", variables.ToString());
 

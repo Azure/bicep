@@ -1160,7 +1160,7 @@ module moduleB './moduleB.bicep' = {
                 { "secure-parameter-default", "warning" }
             };
 
-            telemetryEvent.Properties.Should().Equal(properties);
+            telemetryEvent.Properties.Should().Contain(properties);
         }
 
         [TestMethod]
@@ -1231,7 +1231,7 @@ module moduleB './moduleB.bicep' = {
                 { "secure-parameter-default", "warning" }
             };
 
-            telemetryEvent.Properties.Should().Equal(properties);
+            telemetryEvent.Properties.Should().Contain(properties);
         }
 
         [TestMethod]
@@ -1260,7 +1260,8 @@ param location string = 'testLocation'";
 
             var compilationManager = CreateBicepCompilationManager();
 
-            var telemetryEvent = compilationManager.GetTelemetryAboutSourceFiles(bicepFile.FileUri,
+            var telemetryEvent = compilationManager.GetTelemetryAboutSourceFiles(compilation.GetEntrypointSemanticModel(),
+                                                                                 bicepFile.FileUri,
                                                                                  ImmutableHashSet.Create<ISourceFile>(bicepFile),
                                                                                  diagnostics);
 
@@ -1282,7 +1283,7 @@ param location string = 'testLocation'";
 
             telemetryEvent.Should().NotBeNull();
             telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
-            telemetryEvent.Properties.Should().Equal(properties);
+            telemetryEvent.Properties.Should().Contain(properties);
         }
 
         private (RootConfiguration, RootConfiguration) GetPreviousAndCurrentRootConfiguration(string prevBicepConfigContents, string curBicepConfigContents)
