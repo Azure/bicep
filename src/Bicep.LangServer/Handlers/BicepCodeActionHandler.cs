@@ -12,7 +12,9 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CodeFixes;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
@@ -26,6 +28,11 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepCodeActionHandler : CodeActionHandlerBase
     {
         private readonly ICompilationManager compilationManager;
+
+        private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new []
+        {
+            new SecureParameterCodeFixProvider(),
+        }.ToImmutableArray<ICodeFixProvider>();
 
         public BicepCodeActionHandler(ICompilationManager compilationManager)
         {
@@ -88,6 +95,12 @@ namespace Bicep.LanguageServer.Handlers
                     }
                 }
             }
+
+            var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
+            var secureFixes = codeFixProviders
+                .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
+                .Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix));
+            commandOrCodeActions.AddRange(secureFixes);
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
         }
