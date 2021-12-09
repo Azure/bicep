@@ -20,24 +20,23 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
     [TestClass]
     public class JsonSchemaValidatorTests
     {
-        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithGeneratedFiles();
+        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithAllValidFiles();
+
+        private readonly JsonSchemaValidator sut = new(MockLogger.Create());
 
         [TestMethod]
         public void Validate_ValidMetadataFile_Succeeds()
         {
             var file = MetadataFile.ReadFromFileSystem(FileSystem);
-            var sut = new JsonSchemaValidator(MockAnyCategoryLogger.Create());
 
-            FluentActions.Invoking(() => sut.Validate(file)).Should().NotThrow();
+            FluentActions.Invoking(() => this.sut.Validate(file)).Should().NotThrow();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidMetadataFileData), DynamicDataSourceType.Method)]
         public void Validate_InvalidMetadataFile_ThrowsException(MetadataFile invalidFile, string expectedErrorMessage)
         {
-            var sut = new JsonSchemaValidator(MockAnyCategoryLogger.Create());
-
-            FluentActions.Invoking(() => sut.Validate(invalidFile)).Should()
+            FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
                 .Throw<BicepException>()
                 .WithMessage(expectedErrorMessage.Replace("\r\n", Environment.NewLine));
         }
@@ -46,18 +45,15 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         public void Validate_ValidMainArmTemplateParametersFile_Succeeds()
         {
             var file = MainArmTemplateParametersFile.ReadFromFileSystem(FileSystem);
-            var sut = new JsonSchemaValidator(MockAnyCategoryLogger.Create());
 
-            FluentActions.Invoking(() => sut.Validate(file)).Should().NotThrow();
+            FluentActions.Invoking(() => this.sut.Validate(file)).Should().NotThrow();
         }
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidMainArmTemplateParametersFileData), DynamicDataSourceType.Method)]
         public void Validate_InvalidMainArmTemplateParametersFile_ThrowsException(MainArmTemplateParametersFile invalidFile, string expectedErrorMessage)
         {
-            var sut = new JsonSchemaValidator(MockAnyCategoryLogger.Create());
-
-            FluentActions.Invoking(() => sut.Validate(invalidFile)).Should()
+            FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
                 .Throw<BicepException>()
                 .WithMessage(expectedErrorMessage.Replace("\r\n", Environment.NewLine));
         }

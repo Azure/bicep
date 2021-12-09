@@ -11,6 +11,7 @@ using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
 using FluentAssertions;
 using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
@@ -18,13 +19,13 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
     [TestClass]
     public class DescriptionsValidatorTests
     {
-        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithGeneratedFiles();
+        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithAllValidFiles();
 
         [TestMethod]
-        public void Validate_ValidFile_Succeeds()
+        public void Validate_ValidMainBicepFile_Succeeds()
         {
             var file = MainBicepFile.ReadFromFileSystem(FileSystem);
-            var sut = new DescriptionsValidator(MockAnyCategoryLogger.Create(), MainArmTemplateFile.ReadFromFileSystem(FileSystem));
+            var sut = new DescriptionsValidator(MockLogger.Create(), MainArmTemplateFile.ReadFromFileSystem(FileSystem));
 
             FluentActions.Invoking(() => sut.Validate(file)).Should().NotThrow();
         }
@@ -49,7 +50,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             tempFileSystem.Directory.SetCurrentDirectory(tempFileSystem.Path.GetDirectoryName(mainArmTemplateFile.Path));
 
             var modifiedArmTemplate = MainArmTemplateFile.ReadFromFileSystem(tempFileSystem);
-            var sut = new DescriptionsValidator(MockAnyCategoryLogger.Create(), modifiedArmTemplate);
+            var sut = new DescriptionsValidator(MockLogger.Create(), modifiedArmTemplate);
 
             FluentActions.Invoking(() => sut.Validate(mainBicepFile)).Should()
                 .Throw<BicepException>()
@@ -61,7 +62,7 @@ $@"Descriptions for the following parameters are missing in ""{mainBicepFile.Pat
 
 Descriptions for the following outputs are missing in ""{mainBicepFile.Path}"":
   - controlPlaneFQDN
-");
+".Replace("\r\n", Environment.NewLine));
         }
     }
 }

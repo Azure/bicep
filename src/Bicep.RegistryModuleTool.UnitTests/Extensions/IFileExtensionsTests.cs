@@ -5,11 +5,7 @@ using Bicep.RegistryModuleTool.Extensions;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.UnitTests.Extensions
 {

@@ -54,7 +54,6 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.Logger.LogDebug("Validating that no additional files are in the module folder...");
                 this.EnsureNoAdditionalFiles();
 
-
                 this.Logger.LogDebug("Validating main Bicep file...");
 
                 var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger);

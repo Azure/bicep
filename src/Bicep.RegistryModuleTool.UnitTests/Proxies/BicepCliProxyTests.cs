@@ -40,7 +40,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.Proxies
             var processProxyMock = StrictMock.Of<IProcessProxy>();
             processProxyMock.Setup(x => x.Start(It.IsAny<string>(), It.IsAny<string>())).Returns((0, "", ""));
 
-            var mockLogger = MockLogger<It.IsAnyType>.Create();
+            var mockLogger = MockGenericLogger<It.IsAnyType>.Create();
 
             var sut = CreateBicepCliProxy(environmentProxy, processProxyMock.Object, fileSystem, mockLogger);
 
@@ -60,7 +60,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.Proxies
             var processProxyMock = StrictMock.Of<IProcessProxy>();
             processProxyMock.Setup(x => x.Start(It.IsAny<string>(), It.IsAny<string>())).Returns((0, "", "warning message"));
 
-            var mockLogger = MockLogger<It.IsAnyType>.Create();
+            var mockLogger = MockGenericLogger<It.IsAnyType>.Create();
 
             var sut = CreateBicepCliProxy(environmentProxy, processProxyMock.Object, fileSystem, mockLogger);
 
@@ -93,7 +93,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.Proxies
             var processProxyMock = StrictMock.Of<IProcessProxy>();
             processProxyMock.Setup(x => x.Start(It.IsAny<string>(), It.IsAny<string>())).Returns((1, "", string.Join('\n', warnings.Concat(errors))));
 
-            var mockLogger = MockLogger<It.IsAnyType>.Create();
+            var mockLogger = MockGenericLogger<It.IsAnyType>.Create();
 
             var sut = CreateBicepCliProxy(environmentProxy, processProxyMock.Object, fileSystem, mockLogger);
 
@@ -116,7 +116,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.Proxies
             environmentProxy ??= new MockEnvironmentProxy();
             processProxy ??= StrictMock.Of<IProcessProxy>().Object;
             fileSystem ??= new MockFileSystem();
-            logger ??= MockLogger<It.IsAnyType>.Create();
+            logger ??= MockGenericLogger<It.IsAnyType>.Create();
 
             return new(environmentProxy, processProxy, fileSystem, logger);
         }

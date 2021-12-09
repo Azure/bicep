@@ -26,7 +26,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Factories
 
         private readonly static string VersionFileContent = ReadContent($"{SampleResourcePrefix}.{VersionFile.FileName}");
 
-        public static MockFileSystem CreateFileSystemWithGeneratedFiles()
+        public static MockFileSystem CreateFileSystemWithAllValidFiles()
         {
             var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
             {

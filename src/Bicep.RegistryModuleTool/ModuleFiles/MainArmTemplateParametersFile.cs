@@ -108,13 +108,17 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             var parametersByName = mainArmTemplateFile.Parameters.ToDictionary(x => x.Name, x => x);
             var parameterInstancesByName = existingFile.ParameterInstances.ToDictionary(x => x.Name, x => x);
 
+            foreach (var parameterInstance in existingFile.ParameterInstances)
+            {
+                if (parametersByName.ContainsKey(parameterInstance.Name))
+                {
+                    mergedParameterInstances.Add(parameterInstance);
+                }
+            }
+
             foreach (var parameter in mainArmTemplateFile.Parameters)
             {
-                if (parameterInstancesByName.TryGetValue(parameter.Name, out var existingInstance))
-                {
-                    mergedParameterInstances.Add(existingInstance);
-                }
-                else if (parameter.Required)
+                if (parameter.Required && !parameterInstancesByName.ContainsKey(parameter.Name))
                 {
                     mergedParameterInstances.Add(GenerateDummyParameterInstance(parameter));
                 }

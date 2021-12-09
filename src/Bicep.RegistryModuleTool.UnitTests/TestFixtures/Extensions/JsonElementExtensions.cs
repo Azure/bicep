@@ -21,5 +21,10 @@ namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions
 
             throw new InvalidOperationException(patchResult.Error);
         }
+
+        public static string ToFormattedJsonString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+        });
     }
 }
