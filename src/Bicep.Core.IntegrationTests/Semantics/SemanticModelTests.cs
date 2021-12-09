@@ -219,6 +219,7 @@ resource test";
 }
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'vm'
+#disable-next-line no-hardcoded-location
   location: 'West US'
 #disable-next-line BCP036 BCP037
   properties: vmProperties

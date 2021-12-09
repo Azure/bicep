@@ -647,6 +647,9 @@ module moduleB './moduleB.bicep' = {
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "no-hardcoded-location", "warning" },
+                { "explicit-values-for-location-params", "warning" },
+                { "no-location-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);
@@ -719,6 +722,9 @@ module moduleB './moduleB.bicep' = {
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "no-hardcoded-location", "warning" },
+                { "explicit-values-for-location-params", "warning" },
+                { "no-location-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);
