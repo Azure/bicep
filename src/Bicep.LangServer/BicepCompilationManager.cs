@@ -303,13 +303,12 @@ namespace Bicep.LanguageServer
 
         private void SendTelemetryOnBicepFileOpen(DocumentUri documentUri, RootConfiguration configuration, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
         {
-            SendLinterStateTelemetryOnBicepFileOpen(configuration);
-            SendTelemetryAboutSourceFiles(documentUri.ToUri(), sourceFiles, diagnostics);
-        }
+            // Telemetry on linter state on bicep file open
+            var telemetryEvent = GetLinterStateTelemetryOnBicepFileOpen(configuration);
+            TelemetryProvider.PostEvent(telemetryEvent);
 
-        private void SendTelemetryAboutSourceFiles(Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
-        {
-            var telemetryEvent = GetTelemetryAboutSourceFiles(uri, sourceFiles, diagnostics);
+            // Telemetry on open bicep file and the referenced modules
+            telemetryEvent = GetTelemetryAboutSourceFiles(documentUri.ToUri(), sourceFiles, diagnostics);
 
             if (telemetryEvent is not null)
             {
@@ -386,12 +385,6 @@ namespace Bicep.LanguageServer
             properties.Add("VariablesInReferencedFiles", variables.ToString());
 
             return properties;
-        }
-
-        private void SendLinterStateTelemetryOnBicepFileOpen(RootConfiguration configuration)
-        {
-            var telemetryEvent = GetLinterStateTelemetryOnBicepFileOpen(configuration);
-            TelemetryProvider.PostEvent(telemetryEvent);
         }
 
         private int GetLineCount(BicepFile bicepFile)
