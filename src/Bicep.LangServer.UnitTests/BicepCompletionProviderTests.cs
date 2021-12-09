@@ -444,7 +444,7 @@ output length int =
 
             functionCompletions.Select(c => c.Label).Should().BeEquivalentTo(availableFunctionNames);
             functionCompletions.Should().OnlyContain(c => c.TextEdit!.TextEdit!.NewText.StartsWith(c.Label + '(', StringComparison.Ordinal));
-            functionCompletions.Should().OnlyContain(c => string.Equals(c.Label + "()", c.Detail));
+            functionCompletions.Should().OnlyContain(c => c.Documentation != null && !string.IsNullOrWhiteSpace(c.Documentation.ToString()));
             functionCompletions.Should().OnlyContain(c => c.InsertTextFormat == InsertTextFormat.Snippet);
         }
     }

@@ -10,6 +10,7 @@ namespace Bicep.Core.Semantics
     {
         public FunctionWildcardOverload(
             string name,
+            string genericDescription,
             string description,
             Regex wildcardRegex,
             ReturnTypeBuilderDelegate returnTypeBuilder,
@@ -18,7 +19,7 @@ namespace Bicep.Core.Semantics
             VariableFunctionParameter? variableArgumentType,
             EvaluatorDelegate? expressionEmitterDelegate,
             FunctionFlags flags = FunctionFlags.Default)
-            : base(name, description, returnTypeBuilder, returnType, fixedArgumentTypes, variableArgumentType, expressionEmitterDelegate, flags)
+            : base(name, genericDescription, description, returnTypeBuilder, returnType, fixedArgumentTypes, variableArgumentType, expressionEmitterDelegate, flags)
         {
             WildcardRegex = wildcardRegex;
         }

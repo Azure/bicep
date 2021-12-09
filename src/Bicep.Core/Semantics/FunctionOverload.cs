@@ -17,9 +17,10 @@ namespace Bicep.Core.Semantics
         public delegate TypeSymbol ReturnTypeBuilderDelegate(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes);
         public delegate SyntaxBase EvaluatorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol);
 
-        public FunctionOverload(string name, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, FunctionFlags flags = FunctionFlags.Default)
+        public FunctionOverload(string name, string genericDescription, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, FunctionFlags flags = FunctionFlags.Default)
         {
             Name = name;
+            GenericDescription = genericDescription;
             Description = description;
             ReturnTypeBuilder = returnTypeBuilder;
             Evaluator = evaluator;
@@ -35,6 +36,8 @@ namespace Bicep.Core.Semantics
         }
 
         public string Name { get; }
+
+        public string GenericDescription { get; }
 
         public string Description { get; }
 
