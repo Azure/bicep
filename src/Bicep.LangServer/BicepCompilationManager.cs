@@ -350,7 +350,17 @@ namespace Bicep.LanguageServer
             // This check is added to handle the tests that use mock data to create bicep file.
             if (File.Exists(localPath))
             {
-                properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.LocalPath).Length.ToString());
+                try
+                {
+                    // Catching new FileInfo(..) alone because it's the only one that throws.
+                    // File.Exists will not throw exceptions regardless the existence of path or if the user has permissions to read the file.
+                    var fileInfo = new FileInfo(bicepFile.FileUri.LocalPath);
+                    properties.Add("FileSizeInBytes", fileInfo.Length.ToString());
+                }
+                catch (Exception)
+                {
+                    // We should not throw in this case since it will block compilation.
+                }
             }
 
             properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());
