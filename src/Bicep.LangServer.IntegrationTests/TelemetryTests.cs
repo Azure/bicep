@@ -339,7 +339,9 @@ module apimGroups 'groups.bicep' = if (deployGroups) {
   name: 'apimGroups'
 }
 
-param location string = 'testLocation'";
+param location string = 'testLocation'
+
+#disable-next-line";
             var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", mainBicepFileContents, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
             fileSystemDict[mainUri.ToUri()] = mainBicepFileContents;
@@ -399,9 +401,9 @@ var useDefaultSettings = true";
                 { "parameters", "2" },
                 { "resources", "1" },
                 { "variables", "1" },
-                { "fileSizeInBytes", "398" },
-                { "lineCount", "18" },
-                { "errors", "0" },
+                { "fileSizeInBytes", "418" },
+                { "lineCount", "20" },
+                { "errors", "1" },
                 { "warnings", "1" },
                 { "modulesInReferencedFiles", "0" },
                 { "resourcesInReferencedFiles", "2" },
