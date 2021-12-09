@@ -18,9 +18,9 @@ using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool;
 
-internal class Program
+public class Program
 {
-    static Task<int> Main(string[] args) => CreateCommandLineBuilder()
+    public static Task<int> Main(string[] args) => CreateCommandLineBuilder()
         .UseHost(Host.CreateDefaultBuilder, ConfigureHost)
         .UseDefaults()
         .UseVerbose()

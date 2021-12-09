@@ -14,11 +14,11 @@ using System.Text.Json;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal record MainArmTemplateParameter(string Name, string Type, bool Required, string? Description);
+    public record MainArmTemplateParameter(string Name, string Type, bool Required, string? Description);
 
-    internal record MainArmTemplateOutput(string Name, string Type, string? Description);
+    public record MainArmTemplateOutput(string Name, string Type, string? Description);
 
-    internal sealed class MainArmTemplateFile : ModuleFile
+    public sealed class MainArmTemplateFile : ModuleFile
     {
         public const string FileName = "azuredeploy.json";
 

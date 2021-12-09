@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
-    internal abstract class BaseCommandHandler : ICommandHandler
+    public abstract class BaseCommandHandler : ICommandHandler
     {
         protected BaseCommandHandler(IFileSystem fileSystem, ILogger logger)
         {

@@ -8,6 +8,16 @@
         "resolved": "3.1.0",
         "contentHash": "YzYqSRrjoP5lULBhTDcTOjuM4IDPPi6PhFsl4w8EI4WdZhE6llt7E38Tg4CHyrS+QKwyu1+9OwkdDgluOdoBTw=="
       },
+      "JsonPatch.Net": {
+        "type": "Direct",
+        "requested": "[1.1.2, )",
+        "resolved": "1.1.2",
+        "contentHash": "Qhvg7FWmV94tUklasH/NuegylPFJ3zmtoXkOZ2KY0E6ASEwcVOkSj9YsbvRSLdGNEZw8kv/ZT3tzZ5WkPv6YxA==",
+        "dependencies": {
+          "JsonPointer.Net": "2.1.0",
+          "System.Text.Json": "4.7.2"
+        }
+      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.3, )",
@@ -212,8 +222,8 @@
       },
       "JsonPointer.Net": {
         "type": "Transitive",
-        "resolved": "2.0.0",
-        "contentHash": "Ir4rQ5WheZsJsMIOyJ5+qfx6tw4kDJy0Uk/G4nwZA5Fs7b0jvYEVVPxkd/T5JxUbXtssGKPg0ZR9+rqOBh0T9Q==",
+        "resolved": "2.1.0",
+        "contentHash": "T/upKtpS8MWV1Th90bnyWtcs+vt9WRcrH2BSQIXkIDNwwcdoUxfhJkO+mrtCSlkyCOREbHrV3KeT1U2oL+n+6w==",
         "dependencies": {
           "Json.More.Net": "1.4.4",
           "System.Text.Json": "4.7.2"
@@ -221,12 +231,12 @@
       },
       "JsonSchema.Net": {
         "type": "Transitive",
-        "resolved": "1.11.5",
-        "contentHash": "ojcQoMQt3+RllUwaWZPPgirHSa3RkuVdTHyQL5XRWHmCtPsrVgZ3gDbq88LGfr1dKxhCefMMlWVk6OqEZw8RAA==",
+        "resolved": "1.12.0",
+        "contentHash": "2RUhx6AVLv+Tnn9fLe87wHwzs+kfBySweydKdJwUi+i+y4n2R47pgfPWuQWNi9O35pelvgfQYB8uDQGVyvZDTA==",
         "dependencies": {
           "JetBrains.Annotations": "2021.2.0",
           "Json.More.Net": "1.4.4",
-          "JsonPointer.Net": "2.0.0",
+          "JsonPointer.Net": "2.1.0",
           "System.Text.Json": "4.7.2"
         }
       },
@@ -2468,7 +2478,7 @@
           "Bicep.Core.UnitTests": "1.0.0",
           "DiffPlex": "1.7.0",
           "FluentAssertions": "6.2.0",
-          "JsonSchema.Net": "1.11.5",
+          "JsonSchema.Net": "1.12.0",
           "Microsoft.Extensions.Logging": "6.0.0",
           "Microsoft.Extensions.Logging.Console": "6.0.0",
           "System.CommandLine": "2.0.0-beta1.21308.1",

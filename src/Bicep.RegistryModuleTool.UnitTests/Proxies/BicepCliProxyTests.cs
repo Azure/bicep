@@ -4,7 +4,7 @@
 using Bicep.Core.Exceptions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.RegistryModuleTool.Proxies;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures;
+using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

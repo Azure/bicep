@@ -5,7 +5,7 @@ using System.Diagnostics;
 
 namespace Bicep.RegistryModuleTool.Proxies
 {
-    internal sealed class ProcessProxy : IProcessProxy
+    public sealed class ProcessProxy : IProcessProxy
     {
         public (int exitCode, string standardOutput, string standardError) Start(string executablePath, string arguments)
         {

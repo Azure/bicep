@@ -11,17 +11,14 @@ using System.Text;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    internal sealed class DescriptionsValidator : IModuleFileValidator
+    public sealed class DescriptionsValidator : IModuleFileValidator
     {
-        private readonly IFileSystem fileSystem;
-
         private readonly ILogger logger;
 
         private readonly MainArmTemplateFile latestMainArmTemplateFile;
 
-        public DescriptionsValidator(IFileSystem fileSystem, ILogger logger, MainArmTemplateFile latestMainArmTemplateFile)
+        public DescriptionsValidator(ILogger logger, MainArmTemplateFile latestMainArmTemplateFile)
         {
-            this.fileSystem = fileSystem;
             this.logger = logger;
             this.latestMainArmTemplateFile = latestMainArmTemplateFile;
         }

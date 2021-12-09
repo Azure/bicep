@@ -2,21 +2,22 @@
 // Licensed under the MIT License.
 
 using Bicep.RegistryModuleTool.ModuleFiles;
+using System;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    internal interface IModuleFileValidator
+    public interface IModuleFileValidator
     {
-        void Validate(VersionFile file) { }
+        void Validate(VersionFile file) => throw new NotImplementedException();
 
-        void Validate(MetadataFile file) { }
+        void Validate(MetadataFile file) => throw new NotImplementedException();
 
-        void Validate(MainBicepFile file) { }
+        void Validate(MainBicepFile file) => throw new NotImplementedException();
 
-        void Validate(MainArmTemplateFile file) { }
+        void Validate(MainArmTemplateFile file) => throw new NotImplementedException();
 
-        void Validate(MainArmTemplateParametersFile file) { }
+        void Validate(MainArmTemplateParametersFile file) => throw new NotImplementedException();
 
-        void Validate(ReadmeFile file) { }
+        void Validate(ReadmeFile file) => throw new NotImplementedException();
     }
 }

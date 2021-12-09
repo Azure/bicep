@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.RegistryModuleTool.Proxies
 {
-    internal sealed class BicepCliProxy
+    public sealed class BicepCliProxy
     {
         private readonly static Regex BicepBuildWarningRegex = new(
             @"^([^\s].*)\((\d+)(?:,\d+|,\d+,\d+)?\)\s+:\s+(Warning)\s+([a-zA-Z-\d]+):\s*(.*?)\s+\[(.*?)\]$",

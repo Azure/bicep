@@ -7,7 +7,7 @@ using System.IO.Abstractions;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal sealed class MainBicepFile : ModuleFile
+    public sealed class MainBicepFile : ModuleFile
     {
         public const string FileName = "main.bicep";
 

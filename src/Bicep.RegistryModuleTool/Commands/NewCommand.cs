@@ -9,7 +9,7 @@ using System.IO.Abstractions;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
-    internal sealed class NewCommand : Command
+    public sealed class NewCommand : Command
     {
         public NewCommand(string name, string description)
             : base(name, description)

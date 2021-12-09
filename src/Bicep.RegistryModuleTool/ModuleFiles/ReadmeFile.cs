@@ -3,14 +3,13 @@
 
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.Proxies;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal sealed class ReadmeFile : ModuleFile
+    public sealed class ReadmeFile : ModuleFile
     {
         public const string FileName = "README.md";
 

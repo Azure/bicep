@@ -14,9 +14,9 @@ using System.Text.Json;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal record MainArmTemplateParameterInstance(string Name, object Value);
+    public record MainArmTemplateParameterInstance(string Name, object Value);
 
-    internal sealed class MainArmTemplateParametersFile : ModuleFile
+    public sealed class MainArmTemplateParametersFile : ModuleFile
     {
         public const string FileName = "azuredeploy.parameters.json";
 

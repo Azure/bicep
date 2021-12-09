@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal sealed class MetadataFile : ModuleFile
+    public sealed class MetadataFile : ModuleFile
     {
         public const string FileName = "metadata.json";
 
@@ -51,7 +51,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             try
             {
-                using var stream = fileSystem.FileStream.Create(FileName, FileMode.Open, FileAccess.Read);
+                using var stream = fileSystem.FileStream.Create(path, FileMode.Open, FileAccess.Read);
                 var jsonElement = JsonElementFactory.CreateElement(stream);
 
                 return new(path, jsonElement);

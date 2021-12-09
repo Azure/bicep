@@ -4,7 +4,7 @@
 using Bicep.RegistryModuleTool.Proxies;
 using System.Collections.Generic;
 
-namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures
+namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks
 {
     internal class MockEnvironmentProxy : IEnvironmentProxy
     {

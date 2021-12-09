@@ -11,7 +11,7 @@ using System.IO.Abstractions;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
-    internal sealed class GenerateCommand : Command
+    public sealed class GenerateCommand : Command
     {
         public GenerateCommand(string name, string description)
             : base(name, description)

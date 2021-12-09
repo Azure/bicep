@@ -14,7 +14,7 @@ using System.Text.Json;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    internal sealed class JsonSchemaValidator : IModuleFileValidator
+    public sealed class JsonSchemaValidator : IModuleFileValidator
     {
         private const string AdditionalPropertiesSchemaLocationSuffix = "/additionalProperties/$false";
 

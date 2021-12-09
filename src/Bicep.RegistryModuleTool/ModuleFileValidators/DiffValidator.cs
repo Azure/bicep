@@ -3,14 +3,13 @@
 
 using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
-using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.IO.Abstractions;
 
 namespace Bicep.RegistryModuleTool.ModuleFileValidators
 {
-    internal sealed class DiffValidator : IModuleFileValidator
+    public sealed class DiffValidator : IModuleFileValidator
     {
         private readonly IFileSystem fileSystem;
 
@@ -32,6 +31,14 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
             var latestMainArmTemplateParametersFile = MainArmTemplateParametersFile.Generate(this.fileSystem, this.latestMainArmTemplateFile);
 
             this.Validate(file.Path, file.Content, latestMainArmTemplateParametersFile.Content);
+        }
+
+        public void Validate(ReadmeFile file)
+        {
+            var latestMetadataFile = MetadataFile.ReadFromFileSystem(this.fileSystem);
+            var latestReadmeFile = ReadmeFile.Generate(this.fileSystem, latestMetadataFile, latestMainArmTemplateFile);
+
+            this.Validate(file.Path, file.Content, latestReadmeFile.Content);
         }
 
         public void Validate(VersionFile file)

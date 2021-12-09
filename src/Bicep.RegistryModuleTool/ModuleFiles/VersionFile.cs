@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal sealed class VersionFile : ModuleFile
+    public sealed class VersionFile : ModuleFile
     {
         public const string FileName = "version.json";
 

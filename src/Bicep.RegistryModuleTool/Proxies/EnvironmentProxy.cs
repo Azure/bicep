@@ -5,7 +5,7 @@ using System;
 
 namespace Bicep.RegistryModuleTool.Proxies
 {
-    internal class EnvironmentProxy : IEnvironmentProxy
+    public class EnvironmentProxy : IEnvironmentProxy
     {
         public string? GetEnvironmentVariable(string variableName) => Environment.GetEnvironmentVariable(variableName);
 

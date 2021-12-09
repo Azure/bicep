@@ -5,7 +5,7 @@ using System.CommandLine;
 
 namespace Bicep.RegistryModuleTool.Options
 {
-    internal class VerboseOption : Option<bool>
+    public class VerboseOption : Option<bool>
     {
         public VerboseOption()
             : base("--verbose", "Show verbose information")

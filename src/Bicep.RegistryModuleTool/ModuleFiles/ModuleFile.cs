@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    internal abstract class ModuleFile
+    public abstract class ModuleFile
     {
         protected ModuleFile(string path)
         {

@@ -6,9 +6,9 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 
-namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures
+namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks
 {
-    internal class MockLogger<T> : ILogger, ILogger<T>
+    public class MockLogger<T> : ILogger, ILogger<T>
     {
         private readonly Mock<ILogger<T>> loggerMock;
 

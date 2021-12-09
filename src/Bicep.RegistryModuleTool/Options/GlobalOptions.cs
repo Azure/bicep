@@ -3,7 +3,7 @@
 
 namespace Bicep.RegistryModuleTool.Options
 {
-    internal class GlobalOptions
+    public class GlobalOptions
     {
         public static VerboseOption Verbose { get; } = new();
     }

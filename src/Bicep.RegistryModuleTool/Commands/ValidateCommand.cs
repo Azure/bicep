@@ -18,7 +18,7 @@ using System.Text;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
-    internal sealed class ValidateCommand : Command
+    public sealed class ValidateCommand : Command
     {
         public ValidateCommand(string name, string description)
             : base(name, description)
@@ -62,7 +62,7 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 // This also validates that the main Bicep file can be built.
                 var latestMainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
-                var descriptionsValidator = new DescriptionsValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
+                var descriptionsValidator = new DescriptionsValidator(this.Logger, latestMainArmTemplateFile);
 
                 mainBicepFile.ValidatedBy(descriptionsValidator);
 
