@@ -13,6 +13,7 @@ var scripts = take(groups, 2)
 resource resourceGroups 'Microsoft.Resources/resourceGroups@2020-06-01' = [for name in groups: {
   name: '${prefix}-${name}'
   location: 'westus'
+//@[12:20) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westus' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westus'|
 }]
 
 module scopedToSymbolicName 'hello.bicep' = [for (name, i) in scripts: {
