@@ -638,7 +638,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(1);
 
             var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
             {
@@ -724,7 +724,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(1);
 
             var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
             {
@@ -772,7 +772,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(1);
 
             var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
             {
@@ -883,7 +883,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(1);
 
             var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
             {
@@ -921,7 +921,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(1);
 
             var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.OverallLinterStateChangeInBicepConfig);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
 
             var properties = new Dictionary<string, string>
             {
@@ -1031,7 +1031,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(2);
 
             var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
 
             var properties = new Dictionary<string, string>
             {
@@ -1043,7 +1043,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvent.Properties.Should().Equal(properties);
 
             telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-vars");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
 
             properties = new Dictionary<string, string>
             {
@@ -1091,7 +1091,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvents.Count().Should().Be(2);
 
             var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
 
             var properties = new Dictionary<string, string>
             {
@@ -1103,7 +1103,7 @@ module moduleB './moduleB.bicep' = {
             telemetryEvent.Properties.Should().Equal(properties);
 
             telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-vars");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChangeInBicepConfig);
+            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
 
             properties = new Dictionary<string, string>
             {
@@ -1142,7 +1142,7 @@ module moduleB './moduleB.bicep' = {
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
 
             IDictionary<string, string> properties = new Dictionary<string, string>
             {
@@ -1191,7 +1191,7 @@ module moduleB './moduleB.bicep' = {
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
 
             IDictionary<string, string> properties = new Dictionary<string, string>
             {
@@ -1214,7 +1214,7 @@ module moduleB './moduleB.bicep' = {
 
             var telemetryEvent = compilationManager.GetLinterStateTelemetryOnBicepFileOpen(rootConfiguration);
 
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
+            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
 
             var properties = new Dictionary<string, string>
             {
