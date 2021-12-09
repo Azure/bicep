@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetTargetScopeCompletions(model, context))
                 .Concat(GetImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
-                .Concat(GetExpressionCompletions(model, context));
+                .Concat(GetExpressionCompletions(model, context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
         }
