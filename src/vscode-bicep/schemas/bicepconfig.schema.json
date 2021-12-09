@@ -330,7 +330,7 @@
                 "no-location-expr-outside-params": {
                   "allOf": [
                     {
-                      "description": "resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-location-expr-outside-params"
+                      "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-location-expr-outside-params"
                     },
                     {
                       "$ref": "#/definitions/rule"

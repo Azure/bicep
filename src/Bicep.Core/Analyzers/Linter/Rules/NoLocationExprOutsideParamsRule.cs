@@ -20,7 +20,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class NoLocationExprOutsideParamsRule : LocationRuleBase
     {
-        // resourceGroup().location and deployment().location should only be used as the default value of a parameter.
+        // Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter.
 
         public new const string Code = "no-location-expr-outside-params";
 

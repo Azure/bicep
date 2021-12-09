@@ -187,7 +187,7 @@
     <comment>{0} = programmatic expression, e.g. 'resourceGroup().location'</comment>
   </data>
   <data name="NoLocExprOutsideParamsRuleDescription" xml:space="preserve">
-    <value>resourceGroup().location and deployment().location should only be used as the default value of a parameter.</value>
+    <value>Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter.</value>
     <comment>{0} = programmatic expression, e.g. 'resourceGroup().location'</comment>
   </data>
   <data name="NoHardcodedLocation_ErrorChangeVarToParam" xml:space="preserve">
