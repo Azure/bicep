@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.TypeSystem;
@@ -16,11 +16,11 @@ namespace Bicep.Core.Semantics
         }
 
         public string NamePrefix { get; }
-        
+
         public TypeSymbol Type { get; }
 
         public int MinimumCount { get; }
-        
+
         public string Description { get; }
 
         public string GetNamedSignature(int index) => $"{this.NamePrefix}{index} : {this.Type}";

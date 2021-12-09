@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.FileSystem
     public class FileLockTests
     {
         [NotNull]
-        public TestContext? TestContext {  get; set; }
+        public TestContext? TestContext { get; set; }
 
         [TestMethod]
         public async Task ConcurrentRequestsShouldBeSerializedByFileLock()
@@ -48,7 +48,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             const int ConcurrentTasks = 50;
 
             var tasks = new List<Task>();
-            for(int i = 0; i < ConcurrentTasks; i++)
+            for (int i = 0; i < ConcurrentTasks; i++)
             {
                 tasks.Add(Task.Run(() => Append(list, fileName)));
             }
@@ -56,7 +56,7 @@ namespace Bicep.Core.UnitTests.FileSystem
             await Task.WhenAll(tasks);
 
             var expectedValues = new int[ConcurrentTasks];
-            for(int i = 0; i < ConcurrentTasks; i++)
+            for (int i = 0; i < ConcurrentTasks; i++)
             {
                 expectedValues[i] = i;
             }

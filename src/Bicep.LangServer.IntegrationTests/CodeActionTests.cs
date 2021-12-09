@@ -6,20 +6,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Bicep.Core;
-using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
-using Bicep.Core.Registry;
 using Bicep.Core.Samples;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using FluentAssertions;
@@ -28,7 +24,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -95,302 +90,6 @@ namespace Bicep.LangServer.IntegrationTests
                     }
                 }
             }
-        }
-
-        [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithoutBicepConfig_ShouldCreateConfigFileAndDisableRule()
-        {
-            var bicepFileContents = "param storageAccountName string = 'testAccount'";
-            var expectedBicepConfigContents = @"{
-  ""cloud"": {
-    ""currentProfile"": ""AzureCloud"",
-    ""profiles"": {
-      ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
-      },
-      ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
-        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
-      },
-      ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
-      }
-    },
-    ""credentialPrecedence"": [
-      ""AzureCLI"",
-      ""AzurePowerShell""
-    ]
-  },
-  ""moduleAliases"": {
-    ""ts"": {},
-    ""br"": {}
-  },
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-hardcoded-env-urls"": {
-          ""level"": ""warning"",
-          ""disallowedhosts"": [
-            ""gallery.azure.com"",
-            ""management.core.windows.net"",
-            ""management.azure.com"",
-            ""database.windows.net"",
-            ""core.windows.net"",
-            ""login.microsoftonline.com"",
-            ""graph.windows.net"",
-            ""trafficmanager.net"",
-            ""datalake.azure.net"",
-            ""azuredatalakestore.net"",
-            ""azuredatalakeanalytics.net"",
-            ""vault.azure.net"",
-            ""api.loganalytics.io"",
-            ""asazure.windows.net"",
-            ""region.asazure.windows.net"",
-            ""batch.core.windows.net""
-          ],
-          ""excludedhosts"": [
-            ""schema.management.azure.com""
-          ]
-        },
-        ""no-unused-params"": {
-          ""level"": ""off""
-        }
-      }
-    }
-  }
-}";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
-                                                  bicepConfigFileContents: null,
-                                                  diagnosticLevel: DiagnosticLevel.Warning,
-                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
-        }
-
-        [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithBicepConfig_ShouldUpdateConfigFileAndDisableRule()
-        {
-            var bicepFileContents = "param storageAccountName string = 'testAccount'";
-            var bicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var expectedBicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""off""
-        }
-      }
-    }
-  }
-}";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
-                                                  bicepConfigFileContents: bicepConfigContents,
-                                                  diagnosticLevel: DiagnosticLevel.Info,
-                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
-
-        }
-
-        [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithoutRulesNodeInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
-        {
-            var bicepFileContents = "param storageAccountName string = 'testAccount'";
-            var bicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true
-    }
-  }
-}";
-            var expectedBicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""off""
-        }
-      }
-    }
-  }
-}";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
-                                                  bicepConfigFileContents: bicepConfigContents,
-                                                  diagnosticLevel: DiagnosticLevel.Warning,
-                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
-
-        }
-
-        [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithoutRuleInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
-        {
-            var bicepFileContents = "param storageAccountName string = 'testAccount'";
-            var bicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-vars"": {
-          ""level"": ""warning""
-        }
-      }
-    }
-  }
-}";
-            var expectedBicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-vars"": {
-          ""level"": ""warning""
-        },
-        ""no-unused-params"": {
-          ""level"": ""off""
-        }
-      }
-    }
-  }
-}";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
-                                                  bicepConfigFileContents: bicepConfigContents,
-                                                  diagnosticLevel: DiagnosticLevel.Warning,
-                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
-
-        }
-
-        [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithoutLevelPropertyInRule_ShouldUpdateConfigFileAndDisableRule()
-        {
-            var bicepFileContents = "param storageAccountName string = 'testAccount'";
-            var bicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-        }
-      }
-    }
-  }
-}";
-            var expectedBicepConfigContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""off""
-        }
-      }
-    }
-  }
-}";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
-                                                  bicepConfigFileContents: bicepConfigContents,
-                                                  diagnosticLevel: DiagnosticLevel.Warning,
-                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
-
-        }
-
-        [TestMethod]
-        public async Task DisableLinterRuleCodeActionInvocation_WithOnlyCurlyBracesInBicepConfig_ShouldUpdateConfigFileAndDisableRule()
-        {
-            var bicepFileContents = "param storageAccountName string = 'testAccount'";
-            var bicepConfigContents = @"{}";
-            var expectedBicepConfigContents = @"{
-  ""cloud"": {
-    ""currentProfile"": ""AzureCloud"",
-    ""profiles"": {
-      ""AzureCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.azure.com"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.com""
-      },
-      ""AzureChinaCloud"": {
-        ""resourceManagerEndpoint"": ""https://management.chinacloudapi.cn"",
-        ""activeDirectoryAuthority"": ""https://login.chinacloudapi.cn""
-      },
-      ""AzureUSGovernment"": {
-        ""resourceManagerEndpoint"": ""https://management.usgovcloudapi.net"",
-        ""activeDirectoryAuthority"": ""https://login.microsoftonline.us""
-      }
-    },
-    ""credentialPrecedence"": [
-      ""AzureCLI"",
-      ""AzurePowerShell""
-    ]
-  },
-  ""moduleAliases"": {
-    ""ts"": {},
-    ""br"": {}
-  },
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-hardcoded-env-urls"": {
-          ""level"": ""warning"",
-          ""disallowedhosts"": [
-            ""gallery.azure.com"",
-            ""management.core.windows.net"",
-            ""management.azure.com"",
-            ""database.windows.net"",
-            ""core.windows.net"",
-            ""login.microsoftonline.com"",
-            ""graph.windows.net"",
-            ""trafficmanager.net"",
-            ""datalake.azure.net"",
-            ""azuredatalakestore.net"",
-            ""azuredatalakeanalytics.net"",
-            ""vault.azure.net"",
-            ""api.loganalytics.io"",
-            ""asazure.windows.net"",
-            ""region.asazure.windows.net"",
-            ""batch.core.windows.net""
-          ],
-          ""excludedhosts"": [
-            ""schema.management.azure.com""
-          ]
-        },
-        ""no-unused-params"": {
-          ""level"": ""off""
-        }
-      }
-    }
-  }
-}";
-            await VerifyLinterRuleIsDisabledAsync(bicepFileContents: bicepFileContents,
-                                                  bicepConfigFileContents: bicepConfigContents,
-                                                  diagnosticLevel: DiagnosticLevel.Warning,
-                                                  diagnosticMessage: @"Parameter ""storageAccountName"" is declared but never used.",
-                                                  expectedBicepConfigFileContents: expectedBicepConfigContents);
         }
 
         [TestMethod]
@@ -493,11 +192,7 @@ namespace Bicep.LangServer.IntegrationTests
             codeActions.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.CodeAction!.Title.Should().Be("Disable linter rule");
-                },
-                x =>
-                {
-                    x.CodeAction!.Title.Should().Be("Disable no-unused-params");
+                    x.CodeAction!.Title.Should().Be("Disable no-unused-params for this line");
                     x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line no-unused-params\n");
                 });
         }
@@ -618,92 +313,14 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
             codeActions.Should().SatisfyRespectively(
                 x =>
                 {
-                    x.CodeAction!.Title.Should().Be("Disable BCP036");
+                    x.CodeAction!.Title.Should().Be("Disable BCP036 for this line");
                     x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line BCP036\n");
                 },
                 x =>
                 {
-                    x.CodeAction!.Title.Should().Be("Disable BCP037");
+                    x.CodeAction!.Title.Should().Be("Disable BCP037 for this line");
                     x.CodeAction.Edit!.Changes!.First().Value.First().NewText.Should().Be("#disable-next-line BCP037\n");
                 });
-        }
-
-        private async Task VerifyLinterRuleIsDisabledAsync(string bicepFileContents, string? bicepConfigFileContents, DiagnosticLevel diagnosticLevel, string diagnosticMessage, string expectedBicepConfigFileContents)
-        {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
-
-            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
-            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-
-            var fileSystemDict = new Dictionary<Uri, string>();
-            fileSystemDict[documentUri.ToUri()] = bicepFileContents;
-
-            string bicepConfigFilePath;
-
-            if (bicepConfigFileContents is not null)
-            {
-                bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
-                var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
-                fileSystemDict[bicepConfigUri.ToUri()] = bicepConfigFileContents;
-            }
-            else
-            {
-                bicepConfigFilePath = Path.Combine(testOutputPath, LanguageConstants.BicepConfigurationFileName);
-            }
-
-            var workspace = new Workspace();
-            var compilation = GetCompilation(bicepFilePath, workspace);
-
-            var serverOptions = new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict));
-
-            // Start language server
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext,
-                bicepFileContents,
-                documentUri,
-                creationOptions: serverOptions);
-            var client = helper.Client;
-
-            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
-
-            // Verify diagnostics before code action for disabling linter rule is invoked
-            diagnostics.Should().HaveCount(1);
-            diagnostics.Should().SatisfyRespectively(
-                x =>
-                {
-                    x.Level.Should().Be(diagnosticLevel);
-                    x.Message.Should().Be(diagnosticMessage);
-                });
-            var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
-            var disableLinterRuleCodeActionSpan = diagnostics.OfType<AnalyzerDiagnostic>().First().Span;
-
-            var codeActions = await client.RequestCodeAction(new CodeActionParams
-            {
-                TextDocument = new TextDocumentIdentifier(documentUri),
-                Range = disableLinterRuleCodeActionSpan.ToRange(lineStarts)
-            });
-
-            var command = codeActions.First().CodeAction!.Command;
-
-            command!.Should().NotBeNull();
-            command!.Name.Should().Be(LanguageConstants.DisableLinterRuleCommandName);
-
-            await client.Workspace.ExecuteCommand(command);
-
-            // Verify diagnostics is cleared
-            GetCompilation(bicepFilePath, workspace).GetEntrypointSemanticModel().GetAllDiagnostics().Should().BeEmpty();
-
-            // Verify bicepconfig.json file contents
-            File.ReadAllText(bicepConfigFilePath).Should().BeEquivalentToIgnoringNewlines(expectedBicepConfigFileContents);
-        }
-
-        private Compilation GetCompilation(string bicepFilePath, Workspace workspace)
-        {
-            var moduleRegistryProvider = new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features);
-            var dispatcher = new ModuleDispatcher(moduleRegistryProvider);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, PathHelper.FilePathToFileUrl(bicepFilePath), BicepTestConstants.BuiltInConfiguration);
-            var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(new Uri(bicepFilePath));
-
-            return new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration);
         }
 
         private static IEnumerable<TextSpan> GetOverlappingSpans(TextSpan span)

@@ -115,7 +115,7 @@ namespace Bicep.Decompiler.ArmHelpers
                 {
                     // recurse
                     var flattenedParameter = FlattenStringOperations(parameter);
-                    
+
                     if (flattenedParameter is FunctionExpression childFunction && childFunction.NameEquals("concat"))
                     {
                         // concat directly inside a concat - break it out
@@ -143,7 +143,7 @@ namespace Bicep.Decompiler.ArmHelpers
         {
             var pathSegments = nameSegments
                 .Select(FlattenStringOperations)
-                .SelectMany((expression, i) => i == 0 ? new [] { expression } : new [] { new JTokenExpression("/"), expression })
+                .SelectMany((expression, i) => i == 0 ? new[] { expression } : new[] { new JTokenExpression("/"), expression })
                 .ToArray();
 
             return pathSegments.Length > 1 ? Concat(pathSegments) : pathSegments.First();
@@ -248,7 +248,7 @@ namespace Bicep.Decompiler.ArmHelpers
                 // return the original expression so that the author can fix it up rather than failing
                 return null;
             }
-            
+
             var output = jTokenExpression.Value.ToString();
             if (output.IndexOf("./") == 0)
             {

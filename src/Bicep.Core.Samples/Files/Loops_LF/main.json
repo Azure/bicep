@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1859129425407400548"
+      "templateHash": "15198790550558309071"
     }
   },
   "parameters": {
@@ -284,8 +284,8 @@
                   "name": "backends",
                   "count": "[length(range(0, length(variables('regions'))))]",
                   "input": {
-                    "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2020-06-01').outputs.myOutput.value]",
-                    "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2020-06-01').outputs.myOutput.value]",
+                    "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2020-10-01').outputs.myOutput.value]",
+                    "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex('backends')]], parameters('name'))), '2020-10-01').outputs.myOutput.value]",
                     "httpPort": 80,
                     "httpsPort": 443,
                     "priority": 1,
@@ -317,8 +317,8 @@
             "properties": {
               "backends": [
                 {
-                  "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2020-06-01').outputs.myOutput.value]",
-                  "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2020-06-01').outputs.myOutput.value]",
+                  "address": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2020-10-01').outputs.myOutput.value]",
+                  "backendHostHeader": "[reference(resourceId('Microsoft.Resources/deployments', format('apim-{0}-{1}', variables('regions')[range(0, length(variables('regions')))[copyIndex()]], parameters('name'))), '2020-10-01').outputs.myOutput.value]",
                   "httpPort": 80,
                   "httpsPort": 443,
                   "priority": 1,
@@ -423,7 +423,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "test",
       "properties": {
         "expressionEvaluationOptions": {
@@ -468,7 +468,7 @@
         "batchSize": 3
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -515,7 +515,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -558,7 +558,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "hello",
       "properties": {
         "expressionEvaluationOptions": {
@@ -567,7 +567,7 @@
         "mode": "Incremental",
         "parameters": {
           "myInput": {
-            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-06-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier)]"
+            "value": "[concat(reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier)]"
           }
         },
         "template": {
@@ -606,7 +606,7 @@
         "count": "[length(variables('moduleSetup'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[variables('moduleSetup')[copyIndex()]]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -615,7 +615,7 @@
         "mode": "Incremental",
         "parameters": {
           "myInput": {
-            "value": "[format('{0} - {1} - {2}', reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-06-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier, variables('moduleSetup')[copyIndex()])]"
+            "value": "[format('{0} - {1} - {2}', reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[parameters('index')]), '2020-10-01').outputs.myOutput.value, reference(resourceId('Microsoft.Storage/storageAccounts', format('{0}-collection-{1}', parameters('name'), parameters('accounts')[mul(parameters('index'), 3)].name))).accessTier, variables('moduleSetup')[copyIndex()])]"
           }
         },
         "template": {
@@ -654,7 +654,7 @@
         "count": "[length(variables('regions'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('apim-{0}-{1}', variables('regions')[copyIndex()], parameters('name'))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -698,7 +698,7 @@
         "count": "[length(range(0, 6))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('stuff{0}', range(0, 6)[copyIndex()])]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -742,7 +742,7 @@
         "count": "[length(parameters('accounts'))]"
       },
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('stuff-{0}', copyIndex())]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -822,7 +822,7 @@
     },
     "indexedModuleOutput": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[mul(parameters('index'), 1)]), '2020-06-01').outputs.myOutput.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', variables('moduleSetup')[mul(parameters('index'), 1)]), '2020-10-01').outputs.myOutput.value]"
     },
     "existingIndexedResourceName": {
       "type": "string",
@@ -854,7 +854,7 @@
     },
     "lastModuleOutput": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('stuff-{0}', sub(length(parameters('accounts')), 1))), '2020-06-01').outputs.myOutput.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('stuff-{0}', sub(length(parameters('accounts')), 1))), '2020-10-01').outputs.myOutput.value]"
     }
   }
 }

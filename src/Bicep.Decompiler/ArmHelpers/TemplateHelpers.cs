@@ -40,10 +40,10 @@ namespace Bicep.Decompiler.ArmHelpers
 
         public static void RemoveNestedProperty(JObject parent, params string[] names)
         {
-            if (GetNestedProperty(parent, names.SkipLast(1).ToArray()) is {} directParent)
+            if (GetNestedProperty(parent, names.SkipLast(1).ToArray()) is { } directParent)
             {
                 if (directParent is JObject directParentObject &&
-                    GetProperty(directParentObject, names.Last()) is {} property)
+                    GetProperty(directParentObject, names.Last()) is { } property)
                 {
                     property.Remove();
                 }
@@ -60,12 +60,12 @@ namespace Bicep.Decompiler.ArmHelpers
 
         public static JToken AssertRequiredProperty(JObject parent, string propertyName, string message)
         {
-            if (GetProperty(parent, propertyName) is not {} value)
+            if (GetProperty(parent, propertyName) is not { } value)
             {
                 throw new ConversionFailedException(message, parent);
             }
 
-            return value.Value;            
+            return value.Value;
         }
 
         public static (string type, string name, string apiVersion) ParseResource(JObject resource)
@@ -73,7 +73,7 @@ namespace Bicep.Decompiler.ArmHelpers
             var type = AssertRequiredProperty(resource, "type", $"Unable to parse \"type\" for resource").ToString();
             var name = AssertRequiredProperty(resource, "name", $"Unable to parse \"name\" for resource").ToString();
             var apiVersion = AssertRequiredProperty(resource, "apiVersion", $"Unable to parse \"apiVersion\" for resource").ToString();
-            
+
             return (type, name, apiVersion);
         }
 
@@ -100,14 +100,14 @@ namespace Bicep.Decompiler.ArmHelpers
             foreach (var childResource in childResourcesArray)
             {
                 var childResourceObject = childResource as JObject ?? throw new ConversionFailedException($"Unable to read child resource", childResource);
-                
+
                 var (childType, childName, _) = ParseResource(childResourceObject);
 
-                if (GetProperty(resource, "copy") is {} copyProperty)
+                if (GetProperty(resource, "copy") is { } copyProperty)
                 {
                     childResourceObject["copy"] = copyProperty.Value;
                 }
-                if (GetProperty(resource, "condition") is {} conditionProperty)
+                if (GetProperty(resource, "condition") is { } conditionProperty)
                 {
                     childResourceObject["condition"] = conditionProperty.Value;
                 }
@@ -132,9 +132,9 @@ namespace Bicep.Decompiler.ArmHelpers
             // this is useful to avoid naming clashes - we should prioritize names that have come from the parent template
             var paramsAccessed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-            JTokenHelpers.VisitExpressions(template, expression => 
+            JTokenHelpers.VisitExpressions(template, expression =>
             {
-                if (ExpressionHelpers.TryGetNamedFunction(expression, "parameters") is not {} function)
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "parameters") is not { } function)
                 {
                     return;
                 }
@@ -157,7 +157,7 @@ namespace Bicep.Decompiler.ArmHelpers
                     function.Function,
                     function.Parameters,
                     Array.Empty<LanguageExpression>());
-                
+
                 var paramNameSerialized = ExpressionsEngine.SerializeExpression(paramNameExpression);
                 var paramName = UniqueNamingResolver.EscapeIdentifier(paramNameSerialized);
 
@@ -173,20 +173,20 @@ namespace Bicep.Decompiler.ArmHelpers
 
                 return new FunctionExpression(
                     "parameters",
-                    new [] { new JTokenExpression(paramName) },
+                    new[] { new JTokenExpression(paramName) },
                     function.Properties);
             }
 
             // process references first
             template = JTokenHelpers.RewriteExpressions(template, expression =>
             {
-                if (ExpressionHelpers.TryGetNamedFunction(expression, "reference") is not {} function)
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "reference") is not { } function)
                 {
                     return expression;
                 }
 
                 var paramNameExpression = function;
-                if (function.Parameters.Length > 0 && ExpressionHelpers.TryGetNamedFunction(function.Parameters[0], "resourceId") is {} firstParam)
+                if (function.Parameters.Length > 0 && ExpressionHelpers.TryGetNamedFunction(function.Parameters[0], "resourceId") is { } firstParam)
                 {
                     paramNameExpression = firstParam;
                 }
@@ -195,9 +195,9 @@ namespace Bicep.Decompiler.ArmHelpers
             });
 
             // process resourceIds
-            template = JTokenHelpers.RewriteExpressions(template, expression => 
+            template = JTokenHelpers.RewriteExpressions(template, expression =>
             {
-                if (ExpressionHelpers.TryGetNamedFunction(expression, "resourceId") is not {} function)
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "resourceId") is not { } function)
                 {
                     return expression;
                 }
@@ -206,9 +206,9 @@ namespace Bicep.Decompiler.ArmHelpers
             });
 
             // process variables
-            template = JTokenHelpers.RewriteExpressions(template, expression => 
+            template = JTokenHelpers.RewriteExpressions(template, expression =>
             {
-                if (ExpressionHelpers.TryGetNamedFunction(expression, "variables") is not {} function)
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "variables") is not { } function)
                 {
                     return expression;
                 }
@@ -217,7 +217,7 @@ namespace Bicep.Decompiler.ArmHelpers
             });
 
             // unescape escaped expressions
-            template = JTokenHelpers.RewriteExpressions(template, expression => 
+            template = JTokenHelpers.RewriteExpressions(template, expression =>
             {
                 if (expression is not JTokenExpression jtoken)
                 {
@@ -229,14 +229,14 @@ namespace Bicep.Decompiler.ArmHelpers
                 {
                     return expression;
                 }
-                
+
                 return ExpressionsEngine.ParseLanguageExpression(stringValue);
             });
 
             // add parameters to lookup
-            JTokenHelpers.VisitExpressions(template, expression => 
+            JTokenHelpers.VisitExpressions(template, expression =>
             {
-                if (ExpressionHelpers.TryGetNamedFunction(expression, "parameters") is not {} function)
+                if (ExpressionHelpers.TryGetNamedFunction(expression, "parameters") is not { } function)
                 {
                     return;
                 }

@@ -60,6 +60,15 @@ $artifacts = @(
     );
   },
   @{
+    buildArtifactName = 'drop_build_bicep_linux_arm64';
+    assets = @(
+      @{
+        assetName = 'bicep-linux-arm64';
+        relativePath = 'bicep-Release-linux-arm64/bicep';
+      }
+    );
+  },
+  @{
     buildArtifactName = 'drop_build_bicep_linux_musl';
     assets = @(
       @{
@@ -74,6 +83,15 @@ $artifacts = @(
       @{
         assetName = 'bicep-osx-x64';
         relativePath = 'bicep-Release-osx-x64/bicep';
+      }
+    );
+  },
+  @{
+    buildArtifactName = 'drop_build_bicep_osx_arm64';
+    assets = @(
+      @{
+        assetName = 'bicep-osx-arm64';
+        relativePath = 'bicep-Release-osx-arm64/bicep';
       }
     );
   },
@@ -107,6 +125,15 @@ $artifacts = @(
     )
   },
   @{
+    buildArtifactName = 'drop_build_bicep_windows_arm64';
+    assets = @(
+      @{
+        assetName = 'bicep-win-arm64.exe';
+        relativePath = 'bicep-Release-win-arm64/bicep.exe';
+      }
+    );
+  },
+  @{
     buildArtifactName = 'drop_build_vsix';
     assets = @(
       @{
@@ -125,6 +152,15 @@ $artifacts = @(
     );
   },
   @{
+    buildArtifactName = 'drop_build_packages_windows_arm64';
+    assets = @(
+      @{
+        assetName = "Azure.Bicep.CommandLine.win-arm64.$buildVersion.nupkg";
+        relativePath = "Azure.Bicep.CommandLine.win-arm64.$buildVersion.nupkg";
+      }
+    );
+  },
+  @{
     buildArtifactName = 'drop_build_packages_linux';
     assets = @(
       @{
@@ -134,11 +170,29 @@ $artifacts = @(
     );
   },
   @{
+    buildArtifactName = 'drop_build_packages_linux_arm64';
+    assets = @(
+      @{
+        assetName = "Azure.Bicep.CommandLine.linux-arm64.$buildVersion.nupkg";
+        relativePath = "Azure.Bicep.CommandLine.linux-arm64.$buildVersion.nupkg";
+      }
+    );
+  },
+  @{
     buildArtifactName = 'drop_build_packages_osx';
     assets = @(
       @{
         assetName = "Azure.Bicep.CommandLine.osx-x64.$buildVersion.nupkg";
         relativePath = "Azure.Bicep.CommandLine.osx-x64.$buildVersion.nupkg";
+      }
+    );
+  },
+  @{
+    buildArtifactName = 'drop_build_packages_osx_arm64';
+    assets = @(
+      @{
+        assetName = "Azure.Bicep.CommandLine.osx-arm64.$buildVersion.nupkg";
+        relativePath = "Azure.Bicep.CommandLine.osx-arm64.$buildVersion.nupkg";
       }
     );
   }

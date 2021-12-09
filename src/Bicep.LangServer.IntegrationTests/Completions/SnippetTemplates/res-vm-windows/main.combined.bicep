@@ -1,17 +1,19 @@
 // $1 = windowsVM
 // $2 = 'name'
-// $3 = 'computerName'
-// $4 = adminUsername
-// $5 = 'adminPassword'
-// $6 = 'name'
-// $7 = 'id'
-// $8 = 'storageUri'
+// $3 = location
+// $4 = 'computerName'
+// $5 = adminUsername
+// $6 = 'adminPassword'
+// $7 = 'name'
+// $8 = 'id'
+// $9 = 'storageUri'
 
 param adminUsername string
+param location string
 
 resource windowsVM 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     hardwareProfile: {
       vmSize: 'Standard_A2_v2'

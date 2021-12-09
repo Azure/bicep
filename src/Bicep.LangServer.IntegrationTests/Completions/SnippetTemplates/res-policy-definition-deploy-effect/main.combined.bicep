@@ -32,10 +32,13 @@
 // $32 = 'name'
 // $33 = 'type'
 // $34 = 'apiVersion'
-// $35 = 'location'
+// $35 = location
 // $36 = parameterName
 // $37 = 'value'
+
 targetScope = 'subscription'
+param location string
+
 resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {
   name: 'name'
   properties: {
@@ -103,7 +106,7 @@ resource policyDefinition 'Microsoft.Authorization/policyDefinitions@2020-09-01'
                     name: 'name'
                     type: 'type'
                     apiVersion: 'apiVersion'
-                    location: 'location'
+                    location: location
                     properties: {}
                   }
                 ]

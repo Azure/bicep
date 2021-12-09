@@ -187,7 +187,8 @@ module main 'main.bicep' = {
             string? outFileContents;
             DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder;
             mockFileResolver.Setup(x => x.TryRead(fileUri, out outFileContents, out outFailureBuilder))
-                .Returns(new TryReadDelegate((Uri filePath, out string? outFileContents, out DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder) => {
+                .Returns(new TryReadDelegate((Uri filePath, out string? outFileContents, out DiagnosticBuilder.ErrorBuilderDelegate? outFailureBuilder) =>
+                {
                     outFailureBuilder = failureBuilder;
                     outFileContents = fileContents;
                     return fileContents != null;

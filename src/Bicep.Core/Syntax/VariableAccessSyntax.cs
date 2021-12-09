@@ -8,7 +8,7 @@ namespace Bicep.Core.Syntax
     /// <summary>
     /// Represents a reference to a variable or parameter
     /// </summary>
-    public class VariableAccessSyntax: ExpressionSyntax, ISymbolReference
+    public class VariableAccessSyntax : ExpressionSyntax, ISymbolReference
     {
         public VariableAccessSyntax(IdentifierSyntax name)
         {

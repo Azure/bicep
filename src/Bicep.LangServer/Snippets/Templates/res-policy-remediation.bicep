@@ -7,7 +7,7 @@ resource /*${1:policyRemediation}*/policyRemediation 'Microsoft.PolicyInsights/r
     resourceDiscoveryMode: /*${5|'ExistingNonCompliant','ReEvaluateCompliance'|}*/'ExistingNonCompliant'
     filters: {
       locations: [
-        /*${6:'location'}*/'location'
+        /*${6:location}*/'location'
       ]
     }
   }

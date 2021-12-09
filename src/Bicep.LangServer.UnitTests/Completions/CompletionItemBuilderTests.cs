@@ -61,7 +61,7 @@ namespace Bicep.LangServer.UnitTests.Completions
                 .WithSnippetEdit(new Range(), snippet);
             string completionItemTextEditText = completionItemBuilder.Build().TextEdit!.TextEdit!.NewText;
 
-            completionItemTextEditText.Should().Be("module testModule 'main.bicep' = {\n  name: 'myModule'\n  }");         
+            completionItemTextEditText.Should().Be("module testModule 'main.bicep' = {\n  name: 'myModule'\n  }");
         }
 
         [TestMethod]

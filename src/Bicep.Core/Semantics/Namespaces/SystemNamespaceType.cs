@@ -528,7 +528,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new ObjectType(
                     "object",
                     TypeSymbolValidationFlags.Default,
-                    new [] {
+                    new[] {
                         new TypeProperty("key", keyType, description: "The key of the object property being iterated over."),
                         new TypeProperty("value", valueType, description: "The value of the object property being iterated over."),
                     },
@@ -556,7 +556,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueTypes.Add(property.TypeReference.Type);
             }
 
-            if (objectType.AdditionalPropertiesType?.Type is {} additionalPropertiesType)
+            if (objectType.AdditionalPropertiesType?.Type is { } additionalPropertiesType)
             {
                 keyTypes.Add(LanguageConstants.String);
                 valueTypes.Add(additionalPropertiesType);
@@ -570,7 +570,8 @@ namespace Bicep.Core.Semantics.Namespaces
         private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
             static TypeSymbol ToBicepType(JToken token)
-                => token switch {
+                => token switch
+                {
                     JObject @object => new ObjectType(
                         "object",
                         TypeSymbolValidationFlags.Default,
@@ -579,7 +580,8 @@ namespace Bicep.Core.Semantics.Namespaces
                     JArray @array => new TypedArrayType(
                         TypeHelper.CreateTypeUnion(@array.Select(x => ToBicepType(x))),
                         TypeSymbolValidationFlags.Default),
-                    JValue value => value.Type switch {
+                    JValue value => value.Type switch
+                    {
                         JTokenType.String => new StringLiteralType(value.ToString()),
                         JTokenType.Integer => LanguageConstants.Int,
                         // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
@@ -598,7 +600,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             // Purposefully use the same method and parsing settings as the deployment engine,
             // to provide as much consistency as possible.
-            if (stringLiteral.RawStringValue.TryFromJson<JToken>() is not {} token)
+            if (stringLiteral.RawStringValue.TryFromJson<JToken>() is not { } token)
             {
                 // Instead of catching and returning the JSON parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.

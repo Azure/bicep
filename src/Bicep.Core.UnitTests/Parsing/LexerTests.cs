@@ -121,6 +121,36 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
+        public void DisableNextLineDiagnosticsDirectiveWithInvalidTrailingCharacter_ShouldLexCorrectly()
+        {
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow("#disable-next-line BCP037|"), diagnosticWriter);
+            lexer.Lex();
+
+            var diagnostics = diagnosticWriter.GetDiagnostics();
+
+            diagnostics.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Level.Should().Be(DiagnosticLevel.Error);
+                    x.Code.Should().Be("BCP001");
+                    x.Message.Should().Be("The following token is not recognized: \"|\".");
+                });
+
+            var tokens = lexer.GetTokens();
+
+            var leadingTrivia = tokens[0].LeadingTrivia;
+            leadingTrivia.Count().Should().Be(1);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                    x.Text.Should().Be("#disable-next-line BCP037");
+                });
+        }
+
+        [TestMethod]
         public void DisableNextLineDiagnosticsDirectiveWithLeadingText_ShouldBeRecognizedWithError()
         {
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -265,7 +295,7 @@ namespace Bicep.Core.UnitTests.Parsing
         }
 
         [TestMethod]
-        public void ValidDisableNextLineDiagnosticsDirective_WithTrailingWhiteSpace_ShouldLexCorrectly()
+        public void ValidDisableNextLineDiagnosticsDirective_WithTrailingWhiteSpaceFollowedByComment_ShouldLexCorrectly()
         {
             string text = "#disable-next-line BCP226   // test";
             var diagnosticWriter = ToListDiagnosticWriter.Create();
@@ -297,6 +327,39 @@ namespace Bicep.Core.UnitTests.Parsing
                     x.Type.Should().Be(SyntaxTriviaType.SingleLineComment);
                 });
         }
+
+        [TestMethod]
+        public void ValidDisableNextLineDiagnosticsDirective_WithinResourceAndWithTrailingWhiteSpace_ShouldLexCorrectly()
+        {
+            string text = @"resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+#disable-next-line BCP226   
+  properties: vmProperties
+}";
+            var diagnosticWriter = ToListDiagnosticWriter.Create();
+            var lexer = new Lexer(new SlidingTextWindow(text), diagnosticWriter);
+            lexer.Lex();
+
+            diagnosticWriter.GetDiagnostics().Should().BeEmpty();
+
+            var tokens = lexer.GetTokens();
+            tokens.Count().Should().Be(13);
+
+            var leadingTrivia = tokens.ElementAt(6).LeadingTrivia;
+            leadingTrivia.Count().Should().Be(2);
+
+            leadingTrivia.Should().SatisfyRespectively(
+                x =>
+                {
+                    x.Text.Should().Be("#disable-next-line BCP226");
+                    x.Type.Should().Be(SyntaxTriviaType.DisableNextLineDiagnosticsDirective);
+                },
+                x =>
+                {
+                    x.Text.Should().Be("   ");
+                    x.Type.Should().Be(SyntaxTriviaType.Whitespace);
+                });
+        }
+
 
         [TestMethod]
         public void UnterminatedString_ShouldBeRecognizedWithError()
