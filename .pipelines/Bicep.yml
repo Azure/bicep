@@ -3,6 +3,19 @@ parameters:
     type: boolean
   - name: rid
     type: string
+  - name: runTests
+    type: boolean
+  - name: enableSigning
+    type: boolean
+  - name: publishLanguageServer
+    type: boolean
+    default: false
+  - name: publishNuget
+    type: boolean
+    default: false
+  - name: publishSetup
+    type: boolean
+    default: false
 
 steps:
 - task: UseDotNet@2
@@ -20,23 +33,24 @@ steps:
     projects: $(BuildSolution)
     arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }}'
 
-- task: DotNetCoreCLI@2
-  displayName: Test
-  inputs:
-    command: 'test'
-    projects: $(BuildSolution)
-    arguments: '--configuration $(BuildConfiguration) --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory $(Build.SourcesDirectory)/TestResults/'
-    publishTestResults: false
+- ${{ if eq(parameters.runTests, true) }}:
+  - task: DotNetCoreCLI@2
+    displayName: Test
+    inputs:
+      command: 'test'
+      projects: $(BuildSolution)
+      arguments: '--configuration $(BuildConfiguration) --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory $(Build.SourcesDirectory)/TestResults/'
+      publishTestResults: false
 
-- task: PublishTestResults@2
-  displayName: Publish Test Results
-  condition: always()
-  inputs:
-    testResultsFormat: VSTest
-    testResultsFiles: '$(Build.SourcesDirectory)/TestResults/**/*.trx'
-    failTaskOnFailedTests: true
+  - task: PublishTestResults@2
+    displayName: Publish Test Results
+    condition: always()
+    inputs:
+      testResultsFormat: VSTest
+      testResultsFiles: '$(Build.SourcesDirectory)/TestResults/**/*.trx'
+      failTaskOnFailedTests: true
 
-- ${{ if eq(parameters.rid, 'win-x64') }}:
+- ${{ if eq(parameters.publishLanguageServer, true) }}:
   - task: DotNetCoreCLI@2
     displayName: Publish Language Server
     inputs:
@@ -46,13 +60,14 @@ steps:
       arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }}'
       zipAfterPublish: false
 
-  - task: onebranch.pipeline.signing@1
-    displayName: Sign Language Server
-    inputs:
-      command: 'sign'
-      signing_profile: 'external_distribution'
-      files_to_sign: '**/*.exe;**/*.dll;**/*.ps1'
-      search_root: '$(Build.SourcesDirectory)/src/Bicep.LangServer/bin/$(BuildConfiguration)/$(TargetFramework)/publish/'
+  - ${{ if eq(parameters.enableSigning, true) }}:
+    - task: onebranch.pipeline.signing@1
+      displayName: Sign Language Server
+      inputs:
+        command: 'sign'
+        signing_profile: 'external_distribution'
+        files_to_sign: '**/*.exe;**/*.dll;**/*.ps1'
+        search_root: '$(Build.SourcesDirectory)/src/Bicep.LangServer/bin/$(BuildConfiguration)/$(TargetFramework)/publish/'
 
   - task: CopyFiles@2
     displayName: Copy language server to output
@@ -70,7 +85,7 @@ steps:
     arguments: '--configuration $(BuildConfiguration) --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ parameters.rid }} /p:PublicRelease=${{ parameters.official }}'
     zipAfterPublish: false
 
-- ${{ if eq(parameters.rid, 'win-x64') }}:
+- ${{ if eq(parameters.enableSigning, true) }}:
   - task: onebranch.pipeline.signing@1
     displayName: Sign Bicep
     inputs:
@@ -88,14 +103,15 @@ steps:
       !**/*.pdb
     targetFolder: '$(Build.SourcesDirectory)/out/bicep-$(BuildConfiguration)-${{ parameters.rid }}/'
 
-- ${{ if eq(parameters.rid, 'win-x64') }}:
-  - task: onebranch.pipeline.signing@1
-    displayName: Sign Bicep.MSBuild bin
-    inputs:
-      command: 'sign'
-      signing_profile: 'external_distribution'
-      files_to_sign: '**/*.dll'
-      search_root: '$(Build.SourcesDirectory)/src/Bicep.MSBuild/bin/$(BuildConfiguration)/netstandard2.0/'
+- ${{ if eq(parameters.publishNuget, true) }}:
+  - ${{ if eq(parameters.enableSigning, true) }}:
+    - task: onebranch.pipeline.signing@1
+      displayName: Sign Bicep.MSBuild bin
+      inputs:
+        command: 'sign'
+        signing_profile: 'external_distribution'
+        files_to_sign: '**/*.dll'
+        search_root: '$(Build.SourcesDirectory)/src/Bicep.MSBuild/bin/$(BuildConfiguration)/netstandard2.0/'
 
   - task: DotNetCoreCLI@2
     displayName: Pack
@@ -106,7 +122,7 @@ steps:
       arguments: '--configuration $(BuildConfiguration) /p:BuildProjectReferences=false /p:NoBuild=true /p:PublicRelease=${{ parameters.official }}'
 
   # test signing fails on .nupkg files and .snupkg files are completely unsupported for signing
-  - ${{ if eq(parameters.official, 'true') }}:
+  - ${{ if and(eq(parameters.official, true), eq(parameters.enableSigning, true)) }}:
     - task: onebranch.pipeline.signing@1
       displayName: Sign Nuget Packages
       inputs:
@@ -115,6 +131,7 @@ steps:
         files_to_sign: '**/*.nupkg'
         search_root: '$(Build.SourcesDirectory)\out\'
 
+- ${{ if eq(parameters.publishSetup, true) }}:
   - task: CopyFiles@2
     displayName: Copy bicep to setup project
     inputs:
@@ -122,13 +139,14 @@ steps:
       contents: '**'
       targetFolder: $(Build.SourcesDirectory)/src/installer-win/bicep
 
-  - task: onebranch.pipeline.signing@1
-    displayName: Sign Path Script
-    inputs:
-      command: 'sign'
-      signing_profile: 'external_distribution'
-      files_to_sign: '*.ps1'
-      search_root: '$(Build.SourcesDirectory)/src/installer-win/'
+  - ${{ if eq(parameters.enableSigning, true) }}:
+    - task: onebranch.pipeline.signing@1
+      displayName: Sign Path Script
+      inputs:
+        command: 'sign'
+        signing_profile: 'external_distribution'
+        files_to_sign: '*.ps1'
+        search_root: '$(Build.SourcesDirectory)/src/installer-win/'
 
   - task: DotNetCoreCLI@2
     displayName: Build Windows Setup
@@ -137,13 +155,14 @@ steps:
       projects: ./src/installer-win/installer.proj
       arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }}'
 
-  - task: onebranch.pipeline.signing@1
-    displayName: Sign Windows Setup
-    inputs:
-      command: 'sign'
-      signing_profile: 'external_distribution'
-      files_to_sign: '**/*.exe'
-      search_root: '$(Build.SourcesDirectory)/src/installer-win/bin/release/net472/'
+  - ${{ if eq(parameters.enableSigning, true) }}:
+    - task: onebranch.pipeline.signing@1
+      displayName: Sign Windows Setup
+      inputs:
+        command: 'sign'
+        signing_profile: 'external_distribution'
+        files_to_sign: '**/*.exe'
+        search_root: '$(Build.SourcesDirectory)/src/installer-win/bin/release/net472/'
 
   - task: CopyFiles@2
     displayName: Copy Windows Setup to output
