@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "10531657942066035492"
+      "templateHash": "2217255660688287162"
     }
   },
   "parameters": {
@@ -215,7 +215,7 @@
                 "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('azureVMsSubnetNSGName'))]"
               },
               "routeTable": {
-                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'udrDeploy'), '2020-06-01').outputs.udrId.value]"
+                "id": "[reference(resourceId('Microsoft.Resources/deployments', 'udrDeploy'), '2020-10-01').outputs.udrId.value]"
               }
             }
           }
@@ -274,13 +274,13 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2020-06-01').outputs.nicId.value]",
+              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2020-10-01').outputs.nicId.value]",
               "properties": {
                 "primary": true
               }
             },
             {
-              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-06-01').outputs.nicId.value]",
+              "id": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-10-01').outputs.nicId.value]",
               "properties": {
                 "primary": false
               }
@@ -330,7 +330,7 @@
           "fileUris": [
             "[variables('HVHostSetupScriptUri')]"
           ],
-          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2020-06-01').outputs.assignedIp.value, reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-06-01').outputs.assignedIp.value, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
+          "commandToExecute": "[format('powershell -ExecutionPolicy Unrestricted -File HVHostSetup.ps1 -NIC1IPAddress {0} -NIC2IPAddress {1} -GhostedSubnetPrefix {2} -VirtualNetworkPrefix {3}', reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2020-10-01').outputs.assignedIp.value, reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-10-01').outputs.assignedIp.value, parameters('ghostedSubnetPrefix'), parameters('virtualNetworkAddressPrefix'))]"
         }
       },
       "dependsOn": [
@@ -341,7 +341,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "createNic1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -445,7 +445,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "createNic2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -548,7 +548,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "updateNic1",
       "properties": {
         "expressionEvaluationOptions": {
@@ -560,7 +560,7 @@
             "value": "Static"
           },
           "staticIpAddress": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2020-06-01').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic1'), '2020-10-01').outputs.assignedIp.value]"
           },
           "nicName": {
             "value": "[parameters('HostNetworkInterface1Name')]"
@@ -659,7 +659,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "updateNic2",
       "properties": {
         "expressionEvaluationOptions": {
@@ -671,7 +671,7 @@
             "value": "Static"
           },
           "staticIpAddress": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-06-01').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-10-01').outputs.assignedIp.value]"
           },
           "nicName": {
             "value": "[parameters('HostNetworkInterface2Name')]"
@@ -769,7 +769,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "udrDeploy",
       "properties": {
         "expressionEvaluationOptions": {
@@ -830,7 +830,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "udrUpdate",
       "properties": {
         "expressionEvaluationOptions": {
@@ -845,7 +845,7 @@
             "value": "[parameters('ghostedSubnetPrefix')]"
           },
           "nextHopAddress": {
-            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-06-01').outputs.assignedIp.value]"
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'createNic2'), '2020-10-01').outputs.assignedIp.value]"
           }
         },
         "template": {

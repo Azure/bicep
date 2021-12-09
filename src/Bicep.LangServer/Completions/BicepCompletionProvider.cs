@@ -1249,12 +1249,12 @@ namespace Bicep.LanguageServer.Completions
 
         private IEnumerable<CompletionItem> GetImportCompletions(SemanticModel model, BicepCompletionContext context)
         {
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportSymbolFollower))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportProviderFollower))
             {
-                yield return CreateKeywordCompletion(LanguageConstants.FromKeyword, "From keyword", context.ReplacementRange);
+                yield return CreateKeywordCompletion(LanguageConstants.AsKeyword, "As keyword", context.ReplacementRange);
             }
 
-            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportFromFollower))
+            if (context.Kind.HasFlag(BicepCompletionContextKind.ImportFollower))
             {
                 foreach (var builtInNamespace in model.Root.Namespaces.OfType<BuiltInNamespaceSymbol>().OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
                 {

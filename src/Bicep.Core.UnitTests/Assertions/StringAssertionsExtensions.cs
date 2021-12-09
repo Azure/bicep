@@ -83,5 +83,16 @@ namespace Bicep.Core.UnitTests.Assertions
 
             return new AndConstraint<StringAssertions>(instance);
         }
+
+        public static AndConstraint<StringAssertions> HaveLengthLessThanOrEqualTo(this StringAssertions instance, int maxLength, string because = "", params object[] becauseArgs)
+        {
+            int length = instance.Subject.Length;
+            Execute.Assertion
+                .BecauseOf(because, becauseArgs)
+                .ForCondition(length <= maxLength)
+                .FailWith("Expected {0} to have length less than or equal to {1}, but it has length {2}", instance.Subject, maxLength, length);
+
+            return new AndConstraint<StringAssertions>(instance);
+        }
     }
 }

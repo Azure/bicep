@@ -14,6 +14,11 @@ namespace Bicep.Core.IntegrationTests.Extensibility
     {
         public const string BuiltInName = "storage";
 
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
+        {
+            "name",
+        }.ToImmutableHashSet();
+
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: false,
             BicepProviderName: BuiltInName,
@@ -69,7 +74,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                     return null;
                 }
 
-                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
+                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
             }
 
             public bool HasDefinedType(ResourceTypeReference typeReference)

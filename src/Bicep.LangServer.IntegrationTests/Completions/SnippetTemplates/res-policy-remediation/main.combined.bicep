@@ -3,7 +3,9 @@
 // $3 = 'policyAssignmentId'
 // $4 = 'policyDefinitionReferenceId'
 // $5 = 'ExistingNonCompliant'
-// $6 = 'location'
+// $6 = location
+
+param location string
 
 resource policyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = {
   name: 'name'
@@ -13,7 +15,7 @@ resource policyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = 
     resourceDiscoveryMode: 'ExistingNonCompliant'
     filters: {
       locations: [
-        'location'
+        location
       ]
     }
   }

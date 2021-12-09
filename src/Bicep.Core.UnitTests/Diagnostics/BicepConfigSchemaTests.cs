@@ -4,8 +4,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -82,7 +84,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
                 var description = allOf[0]?.SelectToken("description")?.ToString();
                 Assert.IsNotNull(description);
-                description.Should().Contain($"https://aka.ms/bicep/linter/{configKey}", "each rule's description should contain a link to the rule's docs");
+                description.Should().EndWith($" See https://aka.ms/bicep/linter/{configKey}", "each rule's description should end with 'See <help-link>' using the link to the rule's docs");
 
                 var matchingRule = rules.SingleOrDefault(r => r.Code == configKey);
                 matchingRule.Should().NotBeNull("Rule's key in config does not match any linter rule's code");
@@ -96,14 +98,32 @@ namespace Bicep.Core.UnitTests.Diagnostics
         }
 
         [TestMethod]
-        public void RuleConfigs_RuleNamesShouldUseCorrectCasing()
+        public void RuleConfigs_RuleNamesShouldBeConsistent()
         {
             var (rules, schema) = GetRulesAndSchema();
             var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
             Assert.IsNotNull(ruleConfigs);
             foreach (var (key, rule) in ruleConfigs)
             {
-                key.Should().MatchRegex("^[a-z][a-z-]*[a-z]$", "all rule keys should be lower-cased with hyphens, not start or end with hyphen");
+                key.Should().MatchRegex("^[a-z][a-z-]*[a-z]$", "all rule keys should be lower-cased with hyphens, and not start or end with hyphen");
+                key.Should().HaveLengthLessThanOrEqualTo(50, "rule ids should have a reasonable length");
+            }
+        }
+
+        [TestMethod]
+        public void RuleConfigs_RuleDescriptionsShouldBeConsistent()
+        {
+            var (rules, schema) = GetRulesAndSchema();
+            var ruleConfigs = schema.SelectToken("properties.analyzers.properties.core.properties.rules.properties")!.ToObject<IDictionary<string, JObject>>();
+            Assert.IsNotNull(ruleConfigs);
+            foreach (var (key, rule) in ruleConfigs)
+            {
+                string descriptionWithLink = rule.SelectToken("allOf[0].description")!.ToString();
+                string description = new Regex("^(.+) See https://.+").Match(descriptionWithLink)?.Groups[1].Value ?? "<couldn't find rule description>";
+                description.Should().MatchRegex("^[A-Z]", "all rule descriptions should start with a capital letter");
+                description.Should().EndWith(".", "all rule descriptions should end with a period");
+                description.Should().NotContainAny("Don't", "don't", "Do not", "do not"); // Use "Should" type of language generally (less impolite)
+                description.Should().NotContain("\"", "use single quotes instead of double quotes in rule descriptions");
             }
         }
     }
