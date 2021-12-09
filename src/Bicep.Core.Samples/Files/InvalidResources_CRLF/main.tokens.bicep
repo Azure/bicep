@@ -5727,8 +5727,8 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 //@[105:106) Colon |:|
 //@[107:108) LeftBrace |{|
 //@[108:110) NewLine |\r\n|
-  // #completionTest(7,8) -> symbolsPlusAccount2
-//@[48:50) NewLine |\r\n|
+  // #completionTest(7) -> symbolsPlusAccount1
+//@[46:48) NewLine |\r\n|
   name: account.name
 //@[2:6) Identifier |name|
 //@[6:7) Colon |:|
@@ -5736,6 +5736,8 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 //@[15:16) Dot |.|
 //@[16:20) Identifier |name|
 //@[20:22) NewLine |\r\n|
+  // #completionTest(12) -> symbolsPlusAccount2
+//@[47:49) NewLine |\r\n|
   location: account.location
 //@[2:10) Identifier |location|
 //@[10:11) Colon |:|

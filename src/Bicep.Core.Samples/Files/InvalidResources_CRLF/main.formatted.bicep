@@ -1142,8 +1142,9 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
 
 // using the same loop variable in a new language scope should be allowed
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-  // #completionTest(7,8) -> symbolsPlusAccount2
+  // #completionTest(7) -> symbolsPlusAccount1
   name: account.name
+  // #completionTest(12) -> symbolsPlusAccount2
   location: account.location
   sku: {
     // #completionTest(9,10) -> storageSkuNamePlusSymbols

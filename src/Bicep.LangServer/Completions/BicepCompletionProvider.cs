@@ -74,6 +74,7 @@ namespace Bicep.LanguageServer.Completions
                 .Concat(GetTargetScopeCompletions(model, context))
                 .Concat(GetImportCompletions(model, context))
                 .Concat(GetFunctionParamCompletions(model, context))
+                .Concat(GetExpressionCompletions(model, context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
                 .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
         }
@@ -912,6 +913,14 @@ namespace Bicep.LanguageServer.Completions
             }
         }
 
+        private IEnumerable<CompletionItem> GetExpressionCompletions(SemanticModel model, BicepCompletionContext context)
+        {
+            if (context.Kind.HasFlag(BicepCompletionContextKind.Expression))
+            {
+                yield return CreateConditionCompletion(context.ReplacementRange);
+            }
+        }
+        
         private IEnumerable<CompletionItem> GetDisableNextLineDiagnosticsDirectiveCompletion(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart))
@@ -977,12 +986,22 @@ namespace Bicep.LanguageServer.Completions
 
             return null;
         }
-
+        
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)
         {
             const string conditionLabel = "if";
             return CompletionItemBuilder.Create(CompletionItemKind.Snippet, conditionLabel)
                 .WithSnippetEdit(replacementRange, "if (${1:condition}) {\n\t$0\n}")
+                .WithDetail(conditionLabel)
+                .WithSortText(GetSortText(conditionLabel, CompletionPriority.High))
+                .Build();
+        }
+
+        private static CompletionItem CreateConditionCompletion(Range replacementRange)
+        {
+            const string conditionLabel = "if-else";
+            return CompletionItemBuilder.Create(CompletionItemKind.Snippet, conditionLabel)
+                .WithSnippetEdit(replacementRange, "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}")
                 .WithDetail(conditionLabel)
                 .WithSortText(GetSortText(conditionLabel, CompletionPriority.High))
                 .Build();
