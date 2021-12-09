@@ -342,6 +342,13 @@ jobs:
         run: npm ci
         working-directory: ./src/vscode-bicep
         
+      - name: npm ci
+        run: |
+          cat package.json
+          cat package-lock.json
+          cat node_modules/vscode-extension-telemetry/package.json
+        working-directory: ./src/vscode-bicep
+        
       - name: Run lint
         run: npm run lint
         working-directory: ./src/vscode-bicep
