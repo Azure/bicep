@@ -308,6 +308,9 @@ var useDefaultSettings = true";
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "explicit-values-for-location-params", "warning" },
+                { "no-location-expr-outside-params", "warning" },
+                { "no-hardcoded-location", "warning" }
             };
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
