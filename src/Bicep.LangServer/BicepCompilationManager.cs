@@ -347,6 +347,7 @@ namespace Bicep.LanguageServer
 
             var localPath = bicepFile.FileUri.LocalPath;
 
+            // This check is added to handle the tests that use mock data to create bicep file.
             if (File.Exists(localPath))
             {
                 properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.LocalPath).Length.ToString());
