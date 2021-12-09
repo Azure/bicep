@@ -34,6 +34,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(NoUnnecessaryDependsOnRule.Code)]
         [DataRow(NoUnusedParametersRule.Code)]
         [DataRow(NoUnusedVariablesRule.Code)]
+        [DataRow(OutputsShouldNotContainSecretsRule.Code)]
         [DataRow(PreferInterpolationRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]

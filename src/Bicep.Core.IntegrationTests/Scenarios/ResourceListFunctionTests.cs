@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -24,9 +25,13 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   }
 }
 
+#disable-next-line outputs-should-not-contain-secrets
 output pkStandard string = listKeys(stg.id, stg.apiVersion).keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethod string = stg.listKeys().keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodVersionOverride string = stg.listKeys('2021-01-01').keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
   key1: 'val1'
 })
@@ -48,9 +53,13 @@ resource stg 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
   name: 'testacc'
 }
 
+#disable-next-line outputs-should-not-contain-secrets
 output pkStandard string = listKeys(stg.id, stg.apiVersion).keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethod string = stg.listKeys().keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodVersionOverride string = stg.listKeys('2021-01-01').keys[0].value
+#disable-next-line outputs-should-not-contain-secrets
 output pkMethodPayload string = stg.listKeys(stg.apiVersion, {
   key1: 'val1'
 })

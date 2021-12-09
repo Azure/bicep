@@ -1156,7 +1156,8 @@ module moduleB './moduleB.bicep' = {
                 { "no-unnecessary-dependson", "warning" },
                 { "adminusername-should-not-be-literal", "warning" },
                 { "use-stable-vm-image", "warning" },
-                { "secure-parameter-default", "warning" }
+                { "secure-parameter-default", "warning" },
+                { "outputs-should-not-contain-secrets", "warning" },
             };
 
             telemetryEvent.Properties.Should().Equal(properties);
@@ -1227,7 +1228,8 @@ module moduleB './moduleB.bicep' = {
                 { "no-unnecessary-dependson", "warning" },
                 { "adminusername-should-not-be-literal", "warning" },
                 { "use-stable-vm-image", "warning" },
-                { "secure-parameter-default", "warning" }
+                { "secure-parameter-default", "warning" },
+                { "outputs-should-not-contain-secrets", "warning" },
             };
 
             telemetryEvent.Properties.Should().Equal(properties);
