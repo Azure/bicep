@@ -353,7 +353,7 @@ namespace Bicep.LanguageServer
                 properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.LocalPath).Length.ToString());
             }
 
-            properties.Add("LineCount", GetLineCount(bicepFile).ToString());
+            properties.Add("LineCount", bicepFile.LineStarts.Length.ToString());
             properties.Add("Errors", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Error).ToString());
             properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
 
@@ -386,12 +386,6 @@ namespace Bicep.LanguageServer
             properties.Add("VariablesInReferencedFiles", variables.ToString());
 
             return properties;
-        }
-
-        private int GetLineCount(BicepFile bicepFile)
-        {
-            var lineStarts = bicepFile.LineStarts;
-            return TextCoordinateConverter.GetPosition(lineStarts, lineStarts.Last()).line + 1;
         }
 
         public BicepTelemetryEvent GetLinterStateTelemetryOnBicepFileOpen(RootConfiguration configuration)
