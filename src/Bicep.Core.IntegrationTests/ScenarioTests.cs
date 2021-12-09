@@ -2740,7 +2740,7 @@ var settings = [
             var result = CompilationHelper.Compile(@"
 param paramString string
 
-#disable-next-line no-location-expr-outside-params
+#disable-next-line no-loc-expr-outside-params
 output out1 string = paramString + resourceGroup().location
 output out2 string = paramString + 'world'
 output out3 string = paramString + paramString

@@ -6,7 +6,7 @@ param index int
 resource singleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: '${name}single-resource-name'
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -109,7 +109,7 @@ resource storageAccounts2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for 
 resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,ii) in range(0, length(accounts)): {
   name: '${name}-set1-${i}-${ii}'
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -119,7 +119,7 @@ resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,ii) i
 resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,iii) in range(0, length(accounts)): {
   name: '${name}-set2-${i}-${iii}'
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -133,7 +133,7 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (i,iii)
 resource anotherSingleResource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: '${name}single-resource-name'
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   kind: 'StorageV2'
   sku: {
     name: 'Standard_LRS'
@@ -149,7 +149,7 @@ var vnetConfigurations = [
   {
     name: 'one'
     location: resourceGroup().location
-//@[14:38) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[14:38) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   }
   {
     name: 'two'

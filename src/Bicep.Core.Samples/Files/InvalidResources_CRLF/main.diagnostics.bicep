@@ -1958,7 +1958,7 @@ resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extension
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: 'anyTypeInDependsOn'
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   dependsOn: [
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
 //@[4:70) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)|
@@ -2058,7 +2058,7 @@ resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
 resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'issue3000LogicApp1'
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   properties: {
     state: 'Enabled'
     definition: ''
@@ -2095,7 +2095,7 @@ resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
 resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
   name: 'issue3000LogicApp2'
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   properties: {
     state: 'Enabled'
     definition: ''

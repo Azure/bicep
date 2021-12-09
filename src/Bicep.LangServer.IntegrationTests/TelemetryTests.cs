@@ -309,7 +309,7 @@ var useDefaultSettings = true";
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
                 { "explicit-values-for-location-params", "warning" },
-                { "no-location-expr-outside-params", "warning" },
+                { "no-loc-expr-outside-params", "warning" },
                 { "no-hardcoded-location", "warning" }
             };
 

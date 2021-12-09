@@ -77,7 +77,7 @@ param appServicePlanTier string
 param appServicePlanInstances int
 
 var location = resourceGroup().location
-//@[15:39) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[15:39) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
 
 resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   // dependsOn: resourceId('Microsoft.DocumentDB/databaseAccounts', cosmosAccountName)
@@ -416,7 +416,7 @@ resource singleLockOnFirstZone 'Microsoft.Authorization/locks@2016-09-01' = {
 
 resource p1_vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
   location: resourceGroup().location
-//@[12:36) [no-location-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-location-expr-outside-params)) |resourceGroup().location|
+//@[12:36) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |resourceGroup().location|
   name: 'myVnet'
   properties: {
     addressSpace: {

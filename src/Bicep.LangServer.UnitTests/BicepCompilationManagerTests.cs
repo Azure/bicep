@@ -649,7 +649,7 @@ module moduleB './moduleB.bicep' = {
                 { "outputs-should-not-contain-secrets", "warning" },
                 { "no-hardcoded-location", "warning" },
                 { "explicit-values-for-location-params", "warning" },
-                { "no-location-expr-outside-params", "warning" },
+                { "no-loc-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);
@@ -724,7 +724,7 @@ module moduleB './moduleB.bicep' = {
                 { "outputs-should-not-contain-secrets", "warning" },
                 { "no-hardcoded-location", "warning" },
                 { "explicit-values-for-location-params", "warning" },
-                { "no-location-expr-outside-params", "warning" },
+                { "no-loc-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);

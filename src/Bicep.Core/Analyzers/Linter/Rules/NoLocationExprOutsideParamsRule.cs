@@ -22,7 +22,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     {
         // Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter.
 
-        public new const string Code = "no-location-expr-outside-params";
+        public new const string Code = "no-loc-expr-outside-params";
 
         public NoLocationExprOutsideParamsRule() : base(
             code: Code,
