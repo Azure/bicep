@@ -354,7 +354,8 @@ namespace Bicep.LangServer.IntegrationTests
                 { "no-unnecessary-dependson", "warning" },
                 { "adminusername-should-not-be-literal", "warning" },
                 { "use-stable-vm-image", "warning" },
-                { "secure-parameter-default", "warning" }
+                { "secure-parameter-default", "warning" },
+                { "outputs-should-not-contain-secrets", "warning" },
             };
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterStateOnBicepFileOpen);
