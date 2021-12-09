@@ -1272,15 +1272,16 @@ param location string = 'testLocation'";
                 { "Variables", "0" },
                 { "FileSizeInBytes", "294" },
                 { "LineCount", "12" },
+                { "Errors", "0" },
+                { "Warnings", "2" },
                 { "ModulesInReferencedFiles", "0" },
                 { "ResourcesInReferencedFiles", "0" },
                 { "ParametersInReferencedFiles", "0" },
-                { "VariablesInReferencedFiles", "0" },
-                { "Errors", "0" },
-                { "Warnings", "2" }
+                { "VariablesInReferencedFiles", "0" }
             };
 
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
+            telemetryEvent.Should().NotBeNull();
+            telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
             telemetryEvent.Properties.Should().Equal(properties);
         }
 

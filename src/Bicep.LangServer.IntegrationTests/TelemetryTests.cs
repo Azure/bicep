@@ -401,12 +401,12 @@ var useDefaultSettings = true";
                 { "variables", "1" },
                 { "fileSizeInBytes", "398" },
                 { "lineCount", "18" },
+                { "errors", "0" },
+                { "warnings", "1" },
                 { "modulesInReferencedFiles", "0" },
                 { "resourcesInReferencedFiles", "2" },
                 { "parametersInReferencedFiles", "2" },
-                { "variablesInReferencedFiles", "1" },
-                { "errors", "0" },
-                { "warnings", "1" }
+                { "variablesInReferencedFiles", "1" }
             };
 
             bicepTelemetryEvent = await telemetryEventsListener.WaitNext();

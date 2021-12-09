@@ -310,59 +310,82 @@ namespace Bicep.LanguageServer
         private void SendTelemetryAboutSourceFiles(Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
         {
             var telemetryEvent = GetTelemetryAboutSourceFiles(uri, sourceFiles, diagnostics);
-            TelemetryProvider.PostEvent(telemetryEvent);
+
+            if (telemetryEvent is not null)
+            {
+                TelemetryProvider.PostEvent(telemetryEvent);
+            }
         }
 
-        public BicepTelemetryEvent GetTelemetryAboutSourceFiles(Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        public BicepTelemetryEvent? GetTelemetryAboutSourceFiles(Uri uri, ImmutableHashSet<ISourceFile> sourceFiles, IEnumerable<Diagnostic> diagnostics)
+        {
+            var mainFile = sourceFiles.First(x => x.FileUri == uri) as BicepFile;
+
+            if (mainFile is null)
+            {
+                return null;
+            }
+
+            Dictionary<string, string> properties = GetTelemetryPropertiesForMainFile(mainFile, diagnostics);
+
+            var referencedFiles = sourceFiles.Where(x => x.FileUri != uri);
+            var propertiesFromReferencedFiles = GetTelemetryPropertiesForReferencedFiles(referencedFiles);
+
+            properties = properties.Concat(propertiesFromReferencedFiles).ToDictionary(s => s.Key, s => s.Value);
+
+            return BicepTelemetryEvent.CreateBicepFileOpen(properties);
+        }
+
+        private Dictionary<string, string> GetTelemetryPropertiesForMainFile(BicepFile bicepFile, IEnumerable<Diagnostic> diagnostics)
         {
             Dictionary<string, string> properties = new();
 
-            int numberOfModuleDeclarationsInReferencedFiles = 0;
-            int numberOfParameterDeclarationsInReferencedFiles = 0;
-            int numberOfResourceDeclarationsInReferencedFiles = 0;
-            int numberOfVariableDeclarationsInReferencedFiles = 0;
+            var declarationsInMainFile = bicepFile.ProgramSyntax.Declarations;
+            properties.Add("Modules", declarationsInMainFile.Count(x => x is ModuleDeclarationSyntax).ToString());
+            properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
+            properties.Add("Resources", declarationsInMainFile.Count(x => x is ResourceDeclarationSyntax).ToString());
+            properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
+
+            var localPath = bicepFile.FileUri.LocalPath;
+
+            if (File.Exists(localPath))
+            {
+                properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.LocalPath).Length.ToString());
+            }
+
+            properties.Add("LineCount", GetLineCount(bicepFile).ToString());
+            properties.Add("Errors", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Error).ToString());
+            properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
+
+            return properties;
+        }
+
+        private Dictionary<string, string> GetTelemetryPropertiesForReferencedFiles(IEnumerable<ISourceFile> sourceFiles)
+        {
+            Dictionary<string, string> properties = new();
+            int modules = 0;
+            int parameters = 0;
+            int resources = 0;
+            int variables = 0;
 
             foreach (var sourceFile in sourceFiles)
             {
                 if (sourceFile is BicepFile bicepFile)
                 {
-                    if (sourceFile.FileUri == uri)
-                    {
-                        var declarationsInMainFile = bicepFile.ProgramSyntax.Declarations;
-                        properties.Add("Modules", declarationsInMainFile.Count(x => x is ModuleDeclarationSyntax).ToString());
-                        properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
-                        properties.Add("Resources", declarationsInMainFile.Count(x => x is ResourceDeclarationSyntax).ToString());
-                        properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
-
-                        var localPath = bicepFile.FileUri.LocalPath;
-
-                        if (File.Exists(localPath))
-                        {
-                            properties.Add("FileSizeInBytes", new FileInfo(bicepFile.FileUri.LocalPath).Length.ToString());
-                        }
-
-                        properties.Add("LineCount", GetLineCount(bicepFile).ToString());
-                    }
-                    else
-                    {
-                        var declarations = bicepFile.ProgramSyntax.Declarations;
-                        numberOfModuleDeclarationsInReferencedFiles += declarations.Count(x => x is ModuleDeclarationSyntax);
-                        numberOfParameterDeclarationsInReferencedFiles += declarations.Count(x => x is ParameterDeclarationSyntax);
-                        numberOfResourceDeclarationsInReferencedFiles += declarations.Count(x => x is ResourceDeclarationSyntax);
-                        numberOfVariableDeclarationsInReferencedFiles += declarations.Count(x => x is VariableDeclarationSyntax);
-                    }
+                    var declarations = bicepFile.ProgramSyntax.Declarations;
+                    modules += declarations.Count(x => x is ModuleDeclarationSyntax);
+                    parameters += declarations.Count(x => x is ParameterDeclarationSyntax);
+                    resources += declarations.Count(x => x is ResourceDeclarationSyntax);
+                    variables += declarations.Count(x => x is VariableDeclarationSyntax);
                 }
             }
 
-            properties.Add("ModulesInReferencedFiles", numberOfModuleDeclarationsInReferencedFiles.ToString());
-            properties.Add("ResourcesInReferencedFiles", numberOfResourceDeclarationsInReferencedFiles.ToString());
-            properties.Add("ParametersInReferencedFiles", numberOfParameterDeclarationsInReferencedFiles.ToString());
-            properties.Add("VariablesInReferencedFiles", numberOfVariableDeclarationsInReferencedFiles.ToString());
+            properties.Add("ModulesInReferencedFiles", modules.ToString());
+            properties.Add("ResourcesInReferencedFiles", resources.ToString());
+            properties.Add("ParametersInReferencedFiles", parameters.ToString());
+            properties.Add("VariablesInReferencedFiles", variables.ToString());
 
-            properties.Add("Errors", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Error).ToString());
-            properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
-
-            return BicepTelemetryEvent.CreateBicepFileOpen(properties);
+            return properties;
         }
 
         private void SendLinterStateTelemetryOnBicepFileOpen(RootConfiguration configuration)
