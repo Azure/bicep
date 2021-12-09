@@ -1276,7 +1276,7 @@ param location string = 'testLocation'";
                 { "Errors", "0" },
                 { "Warnings", "2" },
                 { "ModulesInReferencedFiles", "0" },
-                { "ResourcesInReferencedFiles", "0" },
+                { "ParentResourcesInReferencedFiles", "0" },
                 { "ParametersInReferencedFiles", "0" },
                 { "VariablesInReferencedFiles", "0" }
             };
