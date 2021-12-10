@@ -14,7 +14,6 @@ using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Extensions;
@@ -121,7 +120,7 @@ namespace Bicep.LanguageServer
             {
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig, sendTelemetryOnBicepConfigChange);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig);
                 }
             }
         }
