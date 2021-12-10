@@ -20,7 +20,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
-using Bicep.LanguageServer.Providers;
+using Bicep.Core.Analyzers.Linter;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {

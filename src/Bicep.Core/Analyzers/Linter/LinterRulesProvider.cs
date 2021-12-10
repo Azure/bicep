@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reflection;
 using Bicep.Core.Analyzers.Interfaces;
 
-namespace Bicep.LanguageServer.Providers
+namespace Bicep.Core.Analyzers.Linter
 {
     public class LinterRulesProvider : ILinterRulesProvider
     {
@@ -22,17 +22,7 @@ namespace Bicep.LanguageServer.Providers
         private Dictionary<string, string> GetLinterRulesInternal()
         {
             var rules = new Dictionary<string, string>();
-            var ruleTypes = Assembly.GetAssembly(typeof(IBicepAnalyzerRule))?
-                .GetTypes()
-                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
-                            && t.IsClass
-                            && t.IsPublic
-                            && t.GetConstructor(Type.EmptyTypes) != null);
-
-            if (ruleTypes is null)
-            {
-                return rules;
-            }
+            var ruleTypes = GetRuleTypes();
 
             foreach (var ruleType in ruleTypes)
             {
@@ -45,6 +35,16 @@ namespace Bicep.LanguageServer.Providers
             }
 
             return rules;
+        }
+
+        public IEnumerable<Type> GetRuleTypes()
+        {
+            return Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
+                            && t.IsClass
+                            && t.IsPublic
+                            && t.GetConstructor(Type.EmptyTypes) != null);
         }
 
         public ImmutableDictionary<string, string> GetLinterRules() => linterRulesLazy.Value;

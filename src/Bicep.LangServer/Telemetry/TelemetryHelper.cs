@@ -3,8 +3,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.LanguageServer.Providers;
 
 namespace Bicep.LanguageServer.Telemetry
 {
