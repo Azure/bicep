@@ -55,9 +55,7 @@ namespace Bicep.LanguageServer.Handlers
             if (IsBicepConfigFile(documentUri))
             {
                 var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-                activeBicepConfigCache.AddOrUpdate(documentUri,
-                                                   (documentUri) => configuration,
-                                                   (documentUri, prevConfiguration) => configuration);
+                activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
             }
 
             return Unit.Task;
