@@ -56,6 +56,9 @@ namespace Bicep.LanguageServer.Handlers
             {
                 try
                 {
+                    // Add copy of configuration(saved on disk) to activeBicepConfigCache.
+                    // This is useful in scenarios where the bicepconfig.json file was opened prior to
+                    // language service activation.
                     var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
                     activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
                 }
@@ -72,6 +75,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             var documentUri = request.TextDocument.Uri;
 
+            // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
             if (IsBicepConfigFile(documentUri))
             {
                 try
@@ -94,6 +98,10 @@ namespace Bicep.LanguageServer.Handlers
         {
             var documentUri = request.TextDocument.Uri;
 
+            // If the documentUri corresponds to bicepconfig.json and there's an entry in activeBicepConfigCache,
+            // we'll use the last known configuration and the one from currently saved config file to figure out
+            // if we need to send out telemetry information regarding the config change.
+            // We'll also remove the entry from activeBicepConfigCache.
             if (IsBicepConfigFile(documentUri) &&
                 activeBicepConfigCache.TryRemove(documentUri, out RootConfiguration? prevBicepConfiguration) &&
                 prevBicepConfiguration != null)
@@ -116,6 +124,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             var documentUri = request.TextDocument.Uri;
 
+            // If the documentUri corresponds to bicepconfig.json, we'll remove the entry from activeBicepConfigCache.
             if (IsBicepConfigFile(documentUri))
             {
                 activeBicepConfigCache.TryRemove(documentUri, out _);
