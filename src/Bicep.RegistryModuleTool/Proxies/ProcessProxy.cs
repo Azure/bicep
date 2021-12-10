@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics;
+using System.Threading;
 
 namespace Bicep.RegistryModuleTool.Proxies
 {
@@ -19,11 +20,18 @@ namespace Bicep.RegistryModuleTool.Proxies
 
             process.Start();
 
-            // TODO: fix deadlock.
-            var standardOutput = process.StandardOutput.ReadToEnd();
-            var standardError = process.StandardError.ReadToEnd();
+            string standardOutput = "";
+            string standardError = "";
+
+            Thread readStandardOutputThread = new(() => { standardOutput = process.StandardOutput.ReadToEnd(); });
+            Thread readStandardErrorThread = new(() => { standardError = process.StandardError.ReadToEnd(); });
+
+            readStandardOutputThread.Start();
+            readStandardErrorThread.Start();
 
             process.WaitForExit();
+            readStandardOutputThread.Join();
+            readStandardErrorThread.Join();
 
 
             return (process.ExitCode, standardOutput, standardError);

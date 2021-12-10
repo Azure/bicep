@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.Proxies;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +8,11 @@ using System.Text;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal static class EnumerableExtensions
+    public static class EnumerableExtensions
     {
         public static bool IsEmpty<T>(this IEnumerable<T> enumerable) => !enumerable.Any();
 
-        public static string ToMarkdownTable<T>(this IEnumerable<T> enumerable, Func<string, MarkdownTableColumnAlignment> columnAlignmentSelector)
+        public static string ToMarkdownTable<T>(this IEnumerable<T> enumerable, Func<string, MarkdownTableColumnAlignment> columnAlignmentSelector) where T : class
         {
             var type = typeof(T);
             var properties = typeof(T).GetProperties();

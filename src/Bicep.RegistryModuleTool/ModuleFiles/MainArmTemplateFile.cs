@@ -8,6 +8,7 @@ using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.Proxies;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text.Json;
@@ -50,11 +51,14 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public static MainArmTemplateFile Generate(IFileSystem fileSystem, BicepCliProxy bicepCliProxy, MainBicepFile mainBicepFile)
         {
-            using var tempFile = fileSystem.File.CreateTempFile();
-            bicepCliProxy.Build(mainBicepFile.Path, tempFile.Path);
+            var tempFilePath = fileSystem.Path.GetTempFileName();
+            bicepCliProxy.Build(mainBicepFile.Path, tempFilePath);
 
             var path = fileSystem.Path.GetFullPath(FileName);
-            var content = fileSystem.File.ReadAllText(tempFile.Path);
+
+            using var tempFileStream = fileSystem.FileStream.CreateDeleteOnCloseStream(tempFilePath);
+            using var streamReader = new StreamReader(tempFileStream);
+            var content = streamReader.ReadToEnd();
 
             return new(path, content);
         }
