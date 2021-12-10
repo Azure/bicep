@@ -56,11 +56,15 @@ namespace Bicep.LanguageServer.Handlers
             {
                 try
                 {
-                    // Add copy of configuration(saved on disk) to activeBicepConfigCache.
-                    // This is useful in scenarios where the bicepconfig.json file was opened prior to
-                    // language service activation.
-                    var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-                    activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
+                    if (!activeBicepConfigCache.ContainsKey(documentUri))
+                    {
+                        // Handle scenario where the bicepconfig.json file was opened prior to
+                        // language service activation. If the config file was opened before the language server
+                        // activation, there won't be an entry for it in the cache. We'll capture the state of the
+                        // config file on disk when it's changes and cache it.
+                        var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
+                        activeBicepConfigCache.TryAdd(documentUri, configuration);
+                    }
                 }
                 catch (Exception)
                 {
@@ -101,15 +105,17 @@ namespace Bicep.LanguageServer.Handlers
             // If the documentUri corresponds to bicepconfig.json and there's an entry in activeBicepConfigCache,
             // we'll use the last known configuration and the one from currently saved config file to figure out
             // if we need to send out telemetry information regarding the config change.
-            // We'll also remove the entry from activeBicepConfigCache.
+            // We'll also update the entry in activeBicepConfigCache.
             if (IsBicepConfigFile(documentUri) &&
-                activeBicepConfigCache.TryRemove(documentUri, out RootConfiguration? prevBicepConfiguration) &&
+                activeBicepConfigCache.TryGetValue(documentUri, out RootConfiguration? prevBicepConfiguration) &&
                 prevBicepConfiguration != null)
             {
                 try
                 {
                     var curConfiguration = configurationManager.GetConfiguration(documentUri.ToUri());
                     TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);
+
+                    activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => curConfiguration, (documentUri, prevConfiguration) => curConfiguration);
                 }
                 catch (Exception)
                 {
