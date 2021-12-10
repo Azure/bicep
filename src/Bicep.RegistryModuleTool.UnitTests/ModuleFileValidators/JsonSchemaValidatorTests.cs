@@ -20,7 +20,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
     [TestClass]
     public class JsonSchemaValidatorTests
     {
-        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithAllValidFiles();
+        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateMockFileSystem();
 
         private readonly JsonSchemaValidator sut = new(MockLogger.Create());
 
@@ -38,7 +38,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         {
             FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
                 .Throw<BicepException>()
-                .WithMessage(expectedErrorMessage.Replace("\r\n", Environment.NewLine));
+                .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 
         [TestMethod]
@@ -55,7 +55,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         {
             FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
                 .Throw<BicepException>()
-                .WithMessage(expectedErrorMessage.Replace("\r\n", Environment.NewLine));
+                .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 
         private static IEnumerable<object[]> GetInvalidMetadataFileData()

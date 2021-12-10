@@ -12,7 +12,7 @@ using System.Reflection;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal static class IHostBuilderExtensions
+    public static class HostBuilderExtensions
     {
         public static IHostBuilder UseCommandHandlers(this IHostBuilder builder)
         {

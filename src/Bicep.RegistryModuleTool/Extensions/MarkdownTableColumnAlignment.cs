@@ -3,7 +3,7 @@
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal enum MarkdownTableColumnAlignment
+    public enum MarkdownTableColumnAlignment
     {
         Left,
         Center,

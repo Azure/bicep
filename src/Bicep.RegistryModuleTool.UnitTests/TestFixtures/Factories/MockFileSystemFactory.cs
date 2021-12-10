@@ -3,7 +3,6 @@
 
 using Bicep.RegistryModuleTool.ModuleFiles;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions.TestingHelpers;
 using System.Reflection;
@@ -26,17 +25,20 @@ namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Factories
 
         private readonly static string VersionFileContent = ReadContent($"{SampleResourcePrefix}.{VersionFile.FileName}");
 
-        public static MockFileSystem CreateFileSystemWithAllValidFiles()
+        public static MockFileSystem CreateMockFileSystem(bool includeGeneratedFiles = true)
         {
-            var fileSystem = new MockFileSystem(new Dictionary<string, MockFileData>
+            var fileSystem = new MockFileSystem();
+
+            fileSystem.AddFile($"/1.1/{MainBicepFile.FileName}", MainBicepFileContent);
+            fileSystem.AddFile($"/1.1/{MetadataFile.FileName}", MetadataFileContent);
+
+            if (includeGeneratedFiles)
             {
-                [$"/1.1/{MainBicepFile.FileName}"] = MainBicepFileContent,
-                [$"/1.1/{MainArmTemplateFile.FileName}"] = MainArmTemplateFileContent,
-                [$"/1.1/{MainArmTemplateParametersFile.FileName}"] = MainArmTemplateParametersFileContent,
-                [$"/1.1/{MetadataFile.FileName}"] = MetadataFileContent,
-                [$"/1.1/{ReadmeFile.FileName}"] = ReadmeFileContent,
-                [$"/1.1/{VersionFile.FileName}"] = VersionFileContent,
-            });
+                fileSystem.AddFile($"/1.1/{MainArmTemplateFile.FileName}", MainArmTemplateFileContent);
+                fileSystem.AddFile($"/1.1/{MainArmTemplateParametersFile.FileName}", MainArmTemplateParametersFileContent);
+                fileSystem.AddFile($"/1.1/{ReadmeFile.FileName}", ReadmeFileContent);
+                fileSystem.AddFile($"/1.1/{VersionFile.FileName}", VersionFileContent);
+            }
 
             fileSystem.Directory.SetCurrentDirectory(fileSystem.Path.GetFullPath("1.1"));
 

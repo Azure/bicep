@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal static class IEnumerableExtensions
+    internal static class EnumerableExtensions
     {
         public static bool IsEmpty<T>(this IEnumerable<T> enumerable) => !enumerable.Any();
 

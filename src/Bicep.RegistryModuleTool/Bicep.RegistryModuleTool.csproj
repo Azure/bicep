@@ -29,10 +29,4 @@
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-    <_Parameter1>Bicep.RegistryModuleTool.UnitTests</_Parameter1>
-  </AssemblyAttribute>
-  </ItemGroup>
-
 </Project>

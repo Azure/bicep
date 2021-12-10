@@ -6,7 +6,7 @@ using System.CommandLine;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal static class CommandExtensions
+    public static class CommandExtensions
     {
         public static Command AddSubcommand(this Command command, Command subcommand)
         {

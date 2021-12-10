@@ -53,7 +53,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             using var tempFile = fileSystem.File.CreateTempFile();
             bicepCliProxy.Build(mainBicepFile.Path, tempFile.Path);
 
-            var path = fileSystem.Path.GetFullPath(MainArmTemplateFile.FileName);
+            var path = fileSystem.Path.GetFullPath(FileName);
             var content = fileSystem.File.ReadAllText(tempFile.Path);
 
             return new(path, content);
@@ -62,7 +62,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public static MainArmTemplateFile ReadFromFileSystem(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);
-
             var content = fileSystem.File.ReadAllText(FileName);
 
             return new(path, content);

@@ -5,7 +5,7 @@ using System.IO.Abstractions;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal static class IDirectoryExtensions
+    public static class DirectoryExtensions
     {
         public static string GetCurrentDirectoryName(this IDirectory directory)
         {

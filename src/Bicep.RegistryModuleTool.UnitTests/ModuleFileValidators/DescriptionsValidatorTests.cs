@@ -19,7 +19,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
     [TestClass]
     public class DescriptionsValidatorTests
     {
-        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithAllValidFiles();
+        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateMockFileSystem();
 
         [TestMethod]
         public void Validate_ValidMainBicepFile_Succeeds()
@@ -62,7 +62,7 @@ $@"Descriptions for the following parameters are missing in ""{mainBicepFile.Pat
 
 Descriptions for the following outputs are missing in ""{mainBicepFile.Path}"":
   - controlPlaneFQDN
-".Replace("\r\n", Environment.NewLine));
+".ReplaceLineEndings());
         }
     }
 }

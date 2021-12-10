@@ -6,7 +6,7 @@ using System.IO.Abstractions;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal sealed class TempFile : IDisposable
+    public sealed class TempFile : IDisposable
     {
         private readonly IFileSystem fileSystem;
 

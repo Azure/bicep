@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
-    internal static class CommandLineBuilderExtensions
+    public static class CommandLineBuilderExtensions
     {
         public static CommandLineBuilder UseVerbose(this CommandLineBuilder builder)
         {

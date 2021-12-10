@@ -27,7 +27,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
 
         public DiffValidatorTests()
         {
-            this.fileSystem = MockFileSystemFactory.CreateFileSystemWithAllValidFiles();
+            this.fileSystem = MockFileSystemFactory.CreateMockFileSystem();
             this.latestMainArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
             this.sut = new DiffValidator(fileSystem, MockLogger.Create(), this.latestMainArmTemplateFile);
         }
