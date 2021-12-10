@@ -47,6 +47,6 @@ namespace Bicep.LanguageServer.Providers
             return rules;
         }
 
-        public Dictionary<string, string> GetLinterRules() => linterRulesLazy.Value.ToDictionary(t => t.Key, t => t.Value);
+        public ImmutableDictionary<string, string> GetLinterRules() => linterRulesLazy.Value;
     }
 }

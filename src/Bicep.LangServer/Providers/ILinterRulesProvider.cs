@@ -1,12 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace Bicep.LanguageServer.Providers
 {
     public interface ILinterRulesProvider
     {
-        Dictionary<string, string> GetLinterRules();
+        ImmutableDictionary<string, string> GetLinterRules();
     }
 }
