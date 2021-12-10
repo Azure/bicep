@@ -7,6 +7,7 @@ using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -144,9 +145,11 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.DataLakeStore/accounts@2016-11-01"),
                 ResourceScope.ResourceGroup,
-                CreateObjectType("Microsoft.DataLakeStore/accounts@2016-11-01",
-                ("name", LanguageConstants.String, TypePropertyFlags.Required),
-                ("location", LanguageConstants.String, TypePropertyFlags.Required)));
+                CreateObjectType(
+                    "Microsoft.DataLakeStore/accounts@2016-11-01",
+                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("location", LanguageConstants.String, TypePropertyFlags.Required)),
+                AzResourceTypeProvider.UniqueIdentifierProperties);
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -165,10 +168,10 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     x.CompletionPriority.Should().Be(CompletionPriority.Medium);
                     x.Text.Should().BeEquivalentToIgnoringNewlines(@"{
   name: ${2:'name'}
-  location: resourceGroup().location
+  location: ${3:location}
   properties: {
-    newTier: ${3|'Consumption','Commitment_1TB','Commitment_10TB','Commitment_100TB','Commitment_500TB','Commitment_1PB','Commitment_5PB'|}
-    encryptionState: ${4|'Enabled','Disabled'|}
+    newTier: ${4|'Consumption','Commitment_1TB','Commitment_10TB','Commitment_100TB','Commitment_500TB','Commitment_1PB','Commitment_5PB'|}
+    encryptionState: ${5|'Enabled','Disabled'|}
   }
 }
 ");
@@ -192,9 +195,11 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/modules@2015-10-31"),
                 ResourceScope.ResourceGroup,
-                CreateObjectType("Microsoft.Automation/automationAccounts/modules@2015-10-31",
-                ("name", LanguageConstants.String, TypePropertyFlags.Required),
-                ("location", LanguageConstants.String, TypePropertyFlags.Required)));
+                CreateObjectType(
+                    "Microsoft.Automation/automationAccounts/modules@2015-10-31",
+                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("location", LanguageConstants.String, TypePropertyFlags.Required)),
+                AzResourceTypeProvider.UniqueIdentifierProperties);
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -244,9 +249,11 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("Microsoft.Automation/automationAccounts/certificates@2019-06-01"),
                 ResourceScope.ResourceGroup,
-                CreateObjectType("Microsoft.Automation/automationAccounts/certificates@2019-06-01",
-                ("name", LanguageConstants.String, TypePropertyFlags.Required),
-                ("location", LanguageConstants.String, TypePropertyFlags.Required)));
+                CreateObjectType(
+                    "Microsoft.Automation/automationAccounts/certificates@2019-06-01",
+                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("location", LanguageConstants.String, TypePropertyFlags.Required)),
+                AzResourceTypeProvider.UniqueIdentifierProperties);
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: true);
 
@@ -292,20 +299,22 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
-                CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview",
-                ("name", LanguageConstants.String, TypePropertyFlags.Required),
-                ("location", LanguageConstants.String, TypePropertyFlags.Required),
-                ("kind", LanguageConstants.String, TypePropertyFlags.Required),
-                ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
-                ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
-                ("sku", CreateObjectType("applicationGroup",
+                CreateObjectType(
+                    "microsoft.aadiam/azureADMetrics@2020-07-01-preview",
+                    ("name", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("location", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("kind", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("id", LanguageConstants.String, TypePropertyFlags.ReadOnly),
+                    ("hostPoolType", LanguageConstants.String, TypePropertyFlags.Required),
+                    ("sku", CreateObjectType("applicationGroup",
                         ("friendlyName", LanguageConstants.String, TypePropertyFlags.None),
                         ("properties", CreateObjectType("properties",
                                        ("loadBalancerType", LanguageConstants.String, TypePropertyFlags.Required),
                                        ("preferredAppGroupType", LanguageConstants.String, TypePropertyFlags.WriteOnly)),
                                            TypePropertyFlags.Required),
                         ("name", LanguageConstants.String, TypePropertyFlags.Required)),
-                        TypePropertyFlags.Required)));
+                        TypePropertyFlags.Required)),
+                AzResourceTypeProvider.UniqueIdentifierProperties);
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -344,7 +353,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
-                CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"));
+                CreateObjectType("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
+                AzResourceTypeProvider.UniqueIdentifierProperties);
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -439,7 +449,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
-                discriminatedObjectType);
+                discriminatedObjectType,
+                AzResourceTypeProvider.UniqueIdentifierProperties);
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 
@@ -478,7 +489,8 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
                 azNamespaceType,
                 ResourceTypeReference.Parse("microsoft.aadiam/azureADMetrics@2020-07-01-preview"),
                 ResourceScope.ResourceGroup,
-                discriminatedObjectType);
+                discriminatedObjectType,
+                AzResourceTypeProvider.UniqueIdentifierProperties);
 
             IEnumerable<Snippet> snippets = snippetsProvider.GetResourceBodyCompletionSnippets(resourceType, isExistingResource: false, isResourceNested: false);
 

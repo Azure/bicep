@@ -45,7 +45,7 @@ namespace Bicep.Core.Emit
             public ResourceMetadata? ResourceScope { get; set; }
 
             /// <summary>
-            /// The expression for the loop index. This is used with loops when indexing into resource collections. 
+            /// The expression for the loop index. This is used with loops when indexing into resource collections.
             /// </summary>
             public SyntaxBase? IndexExpression { get; set; }
         }
@@ -146,7 +146,7 @@ namespace Bicep.Core.Emit
                         // special-case 'Microsoft.Resources/resourceGroups' in order to allow it to create a resourceGroup-scope resource
                         // ignore diagnostics - these will be collected separately in the pass over resources
                         var hasErrors = false;
-                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.ScopeSyntax);
+                        var rgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.TryGetScopeSyntax());
                         if (!hasErrors)
                         {
                             if (!supportedScopes.HasFlag(ResourceScope.ResourceGroup))
@@ -164,7 +164,7 @@ namespace Bicep.Core.Emit
                         // special-case 'Microsoft.Management/managementGroups' in order to allow it to create a managementGroup-scope resource
                         // ignore diagnostics - these will be collected separately in the pass over resources
                         var hasErrors = false;
-                        var mgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.ScopeSyntax);
+                        var mgScopeData = ScopeHelper.ValidateScope(semanticModel, (_, _, _) => { hasErrors = true; }, targetResource.Type.ValidParentScopes, targetResource.Symbol.DeclaringResource.Value, targetResource.TryGetScopeSyntax());
                         if (!hasErrors)
                         {
                             if (!supportedScopes.HasFlag(ResourceScope.ManagementGroup))
@@ -254,7 +254,7 @@ namespace Bicep.Core.Emit
                     {
                         mgScope = converter.GenerateManagementGroupResourceId(scopeData.ManagementGroupNameProperty, true);
                     }
-                    else 
+                    else
                     {
                         // use managementGroup().id to format the scope. This will only work at management group scope,
                         // but we only permit referencing a parameter-less management group function at this scope.
@@ -468,10 +468,10 @@ namespace Bicep.Core.Emit
             {
                 if (ancestors.Any())
                 {
-                    if (resource.ScopeSyntax is not null)
+                    if (resource.TryGetScopeSyntax() is { } scopeSyntax)
                     {
                         // it doesn't make sense to have scope on a descendent resource; it should be inherited from the oldest ancestor.
-                        diagnosticWriter.Write(resource.ScopeSyntax, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol.Name));
+                        diagnosticWriter.Write(scopeSyntax, x => x.ScopeUnsupportedOnChildResource(ancestors.Last().Resource.Symbol.Name));
                         // TODO: format the ancestor name using the resource accessor (::) for nested resources
                         scopeInfo[resource] = defaultScopeData;
                         continue;
@@ -502,7 +502,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var validatedScopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.ScopeSyntax);
+                var validatedScopeData = ScopeHelper.ValidateScope(semanticModel, logInvalidScopeDiagnostic, resource.Type.ValidParentScopes, resource.Symbol.DeclaringResource.Value, resource.TryGetScopeSyntax());
 
                 scopeInfo[resource] = validatedScopeData ?? defaultScopeData;
             }
@@ -513,7 +513,7 @@ namespace Bicep.Core.Emit
                     semanticModel,
                     scopeInfo,
                     resourceToValidate,
-                    buildDiagnostic => diagnosticWriter.Write(resourceToValidate.ScopeSyntax ?? resourceToValidate.Symbol.DeclaringResource.Value, buildDiagnostic));
+                    buildDiagnostic => diagnosticWriter.Write(resourceToValidate.TryGetScopeSyntax() ?? resourceToValidate.Symbol.DeclaringResource.Value, buildDiagnostic));
             }
 
             return scopeInfo.ToImmutableDictionary();
@@ -584,7 +584,7 @@ namespace Bicep.Core.Emit
                     continue;
                 }
 
-                var scopeValue = moduleSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
+                var scopeValue = moduleSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceScopePropertyName);
                 var scopeData = ScopeHelper.ValidateScope(semanticModel, LogInvalidScopeDiagnostic, moduleType.ValidParentScopes, moduleSymbol.DeclaringModule.Value, scopeValue);
 
                 if (scopeData is null)

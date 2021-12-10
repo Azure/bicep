@@ -53,7 +53,7 @@ namespace Bicep.Core.Workspaces
 
         public ImmutableHashSet<ISourceFile> GetFilesDependingOn(ISourceFile sourceFile)
         {
-            var filesToCheck = new Queue<ISourceFile>(new [] { sourceFile });
+            var filesToCheck = new Queue<ISourceFile>(new[] { sourceFile });
             var knownFiles = new HashSet<ISourceFile>();
 
             while (filesToCheck.TryDequeue(out var current))

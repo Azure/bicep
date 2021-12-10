@@ -49,8 +49,8 @@ namespace Bicep.Core.TypeSystem
         /// * A single type, if the source types can be collapsed into a single type.
         /// * A union type.
         /// </summary>
-        public static TypeSymbol CreateTypeUnion(params ITypeReference[] members) 
-            => CreateTypeUnion((IEnumerable<ITypeReference>) members);
+        public static TypeSymbol CreateTypeUnion(params ITypeReference[] members)
+            => CreateTypeUnion((IEnumerable<ITypeReference>)members);
 
         private static ImmutableArray<ITypeReference> NormalizeTypeList(IEnumerable<ITypeReference> unionMembers)
         {
@@ -73,7 +73,7 @@ namespace Bicep.Core.TypeSystem
                 intermediateMembers = intermediateMembers.Where(member => member.Type is not StringLiteralType);
             }
 
-            if(flattenedMembers.Any(member => member.Type == LanguageConstants.Array))
+            if (flattenedMembers.Any(member => member.Type == LanguageConstants.Array))
             {
                 // the union has the base "array" type, so we can drop any more specific array types
                 intermediateMembers = intermediateMembers.Where(member => member.Type is not ArrayType || member.Type == LanguageConstants.Array);
@@ -82,12 +82,12 @@ namespace Bicep.Core.TypeSystem
             return intermediateMembers.ToImmutableArray();
         }
 
-        private static IEnumerable<ITypeReference> FlattenMembers(IEnumerable<ITypeReference> members) => 
-            members.SelectMany(member => member.Type is UnionType union 
+        private static IEnumerable<ITypeReference> FlattenMembers(IEnumerable<ITypeReference> members) =>
+            members.SelectMany(member => member.Type is UnionType union
                 ? FlattenMembers(union.Members)
                 : member.AsEnumerable());
 
-        private static string FormatName(IEnumerable<ITypeReference> unionMembers) => 
+        private static string FormatName(IEnumerable<ITypeReference> unionMembers) =>
             unionMembers.Select(m => m.Type.FormatNameForCompoundTypes()).ConcatString(" | ");
     }
 }

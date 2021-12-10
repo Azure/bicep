@@ -319,9 +319,9 @@ namespace Bicep.Core.Syntax
         {
             this.VisitNodes(syntax.LeadingNodes);
             this.Visit(syntax.Keyword);
-            this.Visit(syntax.AliasName);
-            this.Visit(syntax.FromKeyword);
             this.Visit(syntax.ProviderName);
+            this.Visit(syntax.AsKeyword);
+            this.Visit(syntax.AliasName);
             this.Visit(syntax.Config);
         }
 

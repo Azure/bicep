@@ -30,7 +30,7 @@ namespace Bicep.Core.Modules
 
         public override bool Equals(object? obj)
         {
-            if(obj is not LocalModuleReference other)
+            if (obj is not LocalModuleReference other)
             {
                 return false;
             }
@@ -48,7 +48,7 @@ namespace Bicep.Core.Modules
 
         public static LocalModuleReference? TryParse(string unqualifiedReference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
-            if(!Validate(unqualifiedReference, out failureBuilder))
+            if (!Validate(unqualifiedReference, out failureBuilder))
             {
                 return null;
             }

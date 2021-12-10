@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics
             this.LocalKind = localKind;
         }
 
-        public LocalVariableSyntax DeclaringLocalVariable => (LocalVariableSyntax) this.DeclaringSyntax;
+        public LocalVariableSyntax DeclaringLocalVariable => (LocalVariableSyntax)this.DeclaringSyntax;
 
         public override void Accept(SymbolVisitor visitor) => visitor.VisitLocalVariableSymbol(this);
 

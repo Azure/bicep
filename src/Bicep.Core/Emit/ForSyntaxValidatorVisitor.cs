@@ -67,7 +67,7 @@ namespace Bicep.Core.Emit
         {
             SyntaxBase? current = property;
             int propertyLoopCount = 0;
-            while(current is not null)
+            while (current is not null)
             {
                 var parent = semanticModel.SourceFile.Hierarchy.GetParent(current);
                 if (current is ForSyntax @for && IsPropertyLoop(parent, @for))
@@ -140,7 +140,7 @@ namespace Bicep.Core.Emit
             // save previous property loop count on the call stack
             var previousPropertyLoopCount = this.propertyLoopCount;
 
-            switch(this.IsLoopAllowedHere(syntax))
+            switch (this.IsLoopAllowedHere(syntax))
             {
                 case false:
                     // this loop was used incorrectly
@@ -151,7 +151,7 @@ namespace Bicep.Core.Emit
                     // this is a property loop
                     this.propertyLoopCount += 1;
 
-                    if(this.propertyLoopCount > MaximumNestedPropertyLoopCount)
+                    if (this.propertyLoopCount > MaximumNestedPropertyLoopCount)
                     {
                         // too many property loops
                         this.diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax.ForKeyword).TooManyPropertyForExpressions());
@@ -159,7 +159,7 @@ namespace Bicep.Core.Emit
 
                     break;
             }
-            
+
             // visit children
             base.VisitForSyntax(syntax);
 
@@ -250,31 +250,31 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.SafeGetPropertyByName("dependsOn");
+        private static ObjectPropertySyntax? TryGetDependsOnProperty(ObjectSyntax? body) => body?.TryGetPropertyByName("dependsOn");
 
         private bool? IsLoopAllowedHere(ForSyntax syntax)
         {
-            if(this.activeLoopCapableTopLevelDeclaration is null)
+            if (this.activeLoopCapableTopLevelDeclaration is null)
             {
                 // we're not in a loop capable declaration
                 return false;
             }
 
-            if(this.IsTopLevelLoop(syntax))
+            if (this.IsTopLevelLoop(syntax))
             {
                 // this is a loop in a resource, module, variable, or output value
                 return true;
             }
 
             // not a top-level loop
-            if(this.activeLoopCapableTopLevelDeclaration is OutputDeclarationSyntax || this.activeLoopCapableTopLevelDeclaration is VariableDeclarationSyntax)
+            if (this.activeLoopCapableTopLevelDeclaration is OutputDeclarationSyntax || this.activeLoopCapableTopLevelDeclaration is VariableDeclarationSyntax)
             {
                 // output and variable loops are only supported in the values due to runtime limitations
                 return false;
             }
 
             // could be a property loop
-            if(this.isPropertyLoopPotentiallyAllowed == PropertyLoopCapability.DisallowedInExpression || !this.IsPropertyLoop(syntax))
+            if (this.isPropertyLoopPotentiallyAllowed == PropertyLoopCapability.DisallowedInExpression || !this.IsPropertyLoop(syntax))
             {
                 // not a property loop or property loop inside an operator or function call
                 return false;
@@ -305,7 +305,7 @@ namespace Bicep.Core.Emit
         {
             // property loops can be used as long as the path to get to the property is constructed via object or array literals
             // operators or function calls prevent usage of property loops inside
-            switch(syntax)
+            switch (syntax)
             {
                 case not ExpressionSyntax:
                     return PropertyLoopCapability.Inconclusive;
@@ -325,7 +325,7 @@ namespace Bicep.Core.Emit
         {
             var parent = this.semanticModel.SourceFile.Hierarchy.GetParent(syntax);
 
-            switch(parent)
+            switch (parent)
             {
                 case ResourceDeclarationSyntax resource when ReferenceEquals(resource.Value, syntax):
                 case ModuleDeclarationSyntax module when ReferenceEquals(module.Value, syntax):

@@ -9,11 +9,11 @@ using Bicep.Core.UnitTests.Assertions;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {
-    public static class ShowMessageParamsExtensions 
+    public static class ShowMessageParamsExtensions
     {
         public static ShowMessageParamsAssertions Should(this ShowMessageParams instance)
         {
-            return new ShowMessageParamsAssertions(instance); 
+            return new ShowMessageParamsAssertions(instance);
         }
     }
 

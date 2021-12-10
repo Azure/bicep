@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics
         {
         }
 
-        public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax) this.DeclaringSyntax;
+        public ParameterDeclarationSyntax DeclaringParameter => (ParameterDeclarationSyntax)this.DeclaringSyntax;
 
         public override SymbolKind Kind => SymbolKind.Parameter;
 

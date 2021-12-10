@@ -126,7 +126,7 @@ namespace Bicep.Core.Samples
 
         private Lazy<string>? CreateIffValid(string fileName) => this.IsValid ? this.CreateRequired(fileName) : null;
 
-        public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((DataSet) data[0]).Name}";
+        public static string GetDisplayName(MethodInfo info, object[] data) => $"{info.Name}_{((DataSet)data[0]).Name}";
 
         private string ReadDataSetFile(string fileName) => ReadFile(GetStreamName(fileName));
 
@@ -199,12 +199,12 @@ namespace Bicep.Core.Samples
                 var moduleSourceName = $"{moduleName}{moduleExtension}";
                 var moduleMetadataName = $"{moduleName}.metadata.json";
 
-                if(!rawFiles.TryGetValue(moduleSourceName, out var moduleSource))
+                if (!rawFiles.TryGetValue(moduleSourceName, out var moduleSource))
                 {
                     throw new AssertFailedException($"The module source file '{moduleSourceName}' is missing.");
                 }
 
-                if(!rawFiles.TryGetValue(moduleMetadataName, out var moduleMetadataText))
+                if (!rawFiles.TryGetValue(moduleMetadataName, out var moduleMetadataText))
                 {
                     throw new AssertFailedException($"The module metadata file '{moduleMetadataName}' is missing.");
                 }

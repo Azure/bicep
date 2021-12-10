@@ -42,7 +42,7 @@ namespace Bicep.Core
         public const string ModuleKeyword = "module";
         public const string ExistingKeyword = "existing";
         public const string ImportKeyword = "import";
-        public const string FromKeyword = "from";
+        public const string AsKeyword = "as";
 
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";
@@ -54,8 +54,6 @@ namespace Bicep.Core
         public const string TargetScopeTypeResourceGroup = "resourceGroup";
 
         public const string BicepConfigurationFileName = "bicepconfig.json";
-
-        public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
 
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
 
@@ -100,6 +98,7 @@ namespace Bicep.Core
         public const string ResourceScopePropertyName = "scope";
         public const string ResourceParentPropertyName = "parent";
         public const string ResourceDependsOnPropertyName = "dependsOn";
+        public const string ResourcePropertiesPropertyName = "properties";
 
         // types
         public const string TypeNameString = "string";
@@ -107,6 +106,9 @@ namespace Bicep.Core
 
         public static readonly StringComparer IdentifierComparer = StringComparer.Ordinal;
         public static readonly StringComparison IdentifierComparison = StringComparison.Ordinal;
+
+        public static readonly StringComparer ResourceTypeComparer = StringComparer.OrdinalIgnoreCase;
+        public static readonly StringComparison ResourceTypeComparison = StringComparison.OrdinalIgnoreCase;
 
         public const string StringDelimiter = "'";
         public const string StringHoleOpen = "${";

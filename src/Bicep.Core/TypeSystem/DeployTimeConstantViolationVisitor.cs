@@ -39,7 +39,7 @@ namespace Bicep.Core.TypeSystem
                 : null;
             var containerObjectType = containerObjectSyntax is not null
                 ? this.SemanticModel.TypeManager.GetDeclaredType(containerObjectSyntax)
-                : null; 
+                : null;
 
             var diagnosticBuilder = DiagnosticBuilder.ForPosition(errorSyntax);
             var diagnostic = this.DeployTimeConstantContainer switch

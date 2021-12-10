@@ -49,7 +49,7 @@ namespace Bicep.Core.UnitTests.Modules
                 parsed.Repository.Should().Be(@case.ExpectedRepository);
                 parsed.Tag.Should().Be(@case.ExpectedTag);
                 parsed.Digest.Should().Be(@case.ExpectedDigest);
-                parsed.ArtifactId.Should().Be(@case.Value);                
+                parsed.ArtifactId.Should().Be(@case.Value);
             }
         }
 
@@ -123,7 +123,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataRow("test.azurecr.io/foo/bar:latest", "test.azurecr.io/foo/bar:LATEST")]
         [DataRow("localhost:5000/test/ssss:version1", "localhost:5000/test/ssss:VERSION1")]
-        [DataRow("one.azurecr.io/first/second:tag1","two.azurecr.io/third/fourth:tag2")]
+        [DataRow("one.azurecr.io/first/second:tag1", "two.azurecr.io/third/fourth:tag2")]
         [DataTestMethod]
         public void MismatchedReferencesShouldNotBeEqual(string package1, string package2)
         {
@@ -177,7 +177,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidAliasData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName,  string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
             var reference = OciArtifactModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
 

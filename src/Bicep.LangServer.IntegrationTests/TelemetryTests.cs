@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.FileSystem;
@@ -162,18 +163,24 @@ namespace Bicep.LangServer.IntegrationTests
             var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
-            var telemetryReceived = new TaskCompletionSource<BicepTelemetryEvent>();
+            var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
 
             using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
-                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryReceived.SetResult(telemetry));
+                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
                 },
                 new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: new InMemoryFileResolver(files)));
             var client = helper.Client;
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, files[uri], 1));
+
+            var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
+
+            bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
@@ -183,7 +190,7 @@ namespace Bicep.LangServer.IntegrationTests
                 Range = diagnostics.First().ToRange(lineStarts)
             });
 
-            var disableNextLineCodeAction = codeActions.First(x => x.CodeAction!.Title == "Disable no-unused-params").CodeAction;
+            var disableNextLineCodeAction = codeActions.First(x => x.CodeAction!.Title == "Disable no-unused-params for this line").CodeAction;
 
             _ = await client!.ResolveCodeAction(disableNextLineCodeAction!);
 
@@ -192,7 +199,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             await client.Workspace.ExecuteCommand(command);
 
-            var bicepTelemetryEvent = await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
+            bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
 
             IDictionary<string, string> properties = new Dictionary<string, string>
             {
@@ -203,24 +210,290 @@ namespace Bicep.LangServer.IntegrationTests
             bicepTelemetryEvent.Properties.Should().Equal(properties);
         }
 
-        private async Task<BicepTelemetryEvent> ResolveCompletionAsync(string text, string prefix, Position position)
+        [TestMethod]
+        public async Task ChangingLinterRuleDiagnosticLevel_ShouldFireTelemetryEvent()
         {
+            var prevBicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            var curBicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""off""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
+
+            var bicepTelemetryEvent = await GetTelemetryEventForBicepConfigChange(prevBicepConfigFileContents, curBicepConfigFileContents, bicepFileContents);
+
+            IDictionary<string, string> properties = new Dictionary<string, string>
+            {
+                { "rule", "no-unused-params" },
+                { "previousDiagnosticLevel", "info" },
+                { "currentDiagnosticLevel", "off" }
+            };
+
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
+            bicepTelemetryEvent.Properties.Should().Equal(properties);
+        }
+
+        [TestMethod]
+        public async Task ChangingOverallLinterState_ShouldFireTelemetryEvent()
+        {
+            var prevBicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            var curBicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": false,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            var bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
+
+            var bicepTelemetryEvent = await GetTelemetryEventForBicepConfigChange(prevBicepConfigFileContents, curBicepConfigFileContents, bicepFileContents);
+
+            IDictionary<string, string> properties = new Dictionary<string, string>
+            {
+                { "previousState", "true" },
+                { "currentState", "false" }
+            };
+
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
+            bicepTelemetryEvent.Properties.Should().Equal(properties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_ShouldFireTelemetryEvent()
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            var bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": true,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""warning""
+        },
+        ""no-unused-vars"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
+
             var fileSystemDict = new Dictionary<Uri, string>();
-            var telemetryReceived = new TaskCompletionSource<BicepTelemetryEvent>();
+
+            var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
+
+var deployGroups = true
+
+resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
+  name: appInsightsName
+  location: resourceGroup().location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+  resource favorites 'favorites@2015-05-01'{
+    name: 'testName'
+  }
+}
+
+module apimGroups 'groups.bicep' = if (deployGroups) {
+  name: 'apimGroups'
+}
+
+param location string = 'testLocation'
+
+#disable-next-line";
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", mainBicepFileContents, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+            fileSystemDict[mainUri.ToUri()] = mainBicepFileContents;
+
+            var referencedBicepFileContents = @"resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
+  name: 'testApimInstanceName'
+}
+
+resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = {
+  name: 'apiManagement/groups'
+}
+
+param storageAccount string = 'testStorageAccount'
+param location string = 'testLocation'
+
+var useDefaultSettings = true";
+            var referencedBicepFilePath = FileHelper.SaveResultFile(TestContext, "groups.bicep", referencedBicepFileContents, testOutputPath);
+            var moduleUri = DocumentUri.FromFileSystemPath(referencedBicepFilePath);
+            fileSystemDict[moduleUri.ToUri()] = referencedBicepFileContents;
+
+            var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
 
             using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
-                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryReceived.SetResult(telemetry));
+                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
                 },
-                new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: new InMemoryFileResolver(fileSystemDict)));
+                creationOptions: new Server.CreationOptions(FileResolver: new InMemoryFileResolver(fileSystemDict)));
+            var client = helper.Client;
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+
+            var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+
+            IDictionary<string, string> properties = new Dictionary<string, string>
+            {
+                { "enabled", "true" },
+                { "simplify-interpolation", "warning" },
+                { "no-unused-vars", "info" },
+                { "no-hardcoded-env-urls", "warning" },
+                { "no-unused-params", "warning" },
+                { "prefer-interpolation", "warning" },
+                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
+                { "no-unnecessary-dependson", "warning" },
+                { "adminusername-should-not-be-literal", "warning" },
+                { "use-stable-vm-image", "warning" },
+                { "secure-parameter-default", "warning" },
+                { "outputs-should-not-contain-secrets", "warning" },
+            };
+
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
+            bicepTelemetryEvent.Properties.Should().Contain(properties);
+
+            properties = new Dictionary<string, string>
+            {
+                { "modules", "1" },
+                { "parameters", "2" },
+                { "resources", "2" },
+                { "variables", "1" },
+                { "fileSizeInBytes", "488" },
+                { "lineCount", "23" },
+                { "errors", "2" },
+                { "warnings", "1" },
+                { "modulesInReferencedFiles", "0" },
+                { "parentResourcesInReferencedFiles", "2" },
+                { "parametersInReferencedFiles", "2" },
+                { "variablesInReferencedFiles", "1" }
+            };
+
+            bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
+            bicepTelemetryEvent.Properties.Should().Contain(properties);
+        }
+
+        private async Task<BicepTelemetryEvent> GetTelemetryEventForBicepConfigChange(string prevBicepConfigFileContents, string curBicepConfigFileContents, string bicepFileContents)
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+
+            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", prevBicepConfigFileContents, testOutputPath);
+            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
+
+            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
+            var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
+
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+                TestContext,
+                options =>
+                {
+                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
+                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
+                });
+            var client = helper.Client;
+
+            client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(documentUri, bicepFileContents, 1));
+
+            var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
+
+            bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
+
+            var diagsParams = await diagsListener.WaitNext();
+            diagsParams.Uri.Should().Be(documentUri);
+
+            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigFileContents, testOutputPath);
+
+            client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
+            {
+                Changes = new Container<FileEvent>(new FileEvent
+                {
+                    Type = FileChangeType.Changed,
+                    Uri = bicepConfigUri,
+                })
+            });
+
+            diagsParams = await diagsListener.WaitNext();
+            diagsParams.Uri.Should().Be(documentUri);
+
+            return await telemetryEventsListener.WaitNext();
+        }
+
+        private async Task<BicepTelemetryEvent> ResolveCompletionAsync(string text, string prefix, Position position)
+        {
+            var fileSystemDict = new Dictionary<Uri, string>();
+            var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
+
+            using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
+                TestContext,
+                options =>
+                {
+                    options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
+                },
+                new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: new InMemoryFileResolver(fileSystemDict)));
             var client = helper.Client;
 
             var mainUri = DocumentUri.FromFileSystemPath("/main.bicep");
             fileSystemDict[mainUri.ToUri()] = text;
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, fileSystemDict[mainUri.ToUri()], 1));
+
+            var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
+
+            bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
+            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
 
             var completions = await client.RequestCompletion(new CompletionParams
             {
@@ -236,7 +509,7 @@ namespace Bicep.LangServer.IntegrationTests
             await client.ResolveCompletion(completionItem);
             await client.Workspace.ExecuteCommand(command);
 
-            return await IntegrationTestHelper.WithTimeoutAsync(telemetryReceived.Task);
+            return await telemetryEventsListener.WaitNext();
         }
     }
 }

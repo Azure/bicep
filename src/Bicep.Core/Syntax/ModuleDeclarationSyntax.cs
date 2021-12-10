@@ -37,7 +37,7 @@ namespace Bicep.Core.Syntax
         public SyntaxBase Path { get; }
 
         public SyntaxBase Assignment { get; }
-        
+
         public SyntaxBase Value { get; }
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitModuleDeclarationSyntax(this);

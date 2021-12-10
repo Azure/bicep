@@ -30,7 +30,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<MockRegistryAssertions> HaveModule(string tag, Stream expectedModuleContent)
         {
-            using(new AssertionScope())
+            using (new AssertionScope())
             {
                 this.Subject.ManifestTags.Should().ContainKey(tag, $"tag '{tag}' should exist");
 
@@ -71,7 +71,7 @@ namespace Bicep.Core.UnitTests.Assertions
 
         public AndConstraint<MockRegistryAssertions> OnlyHaveModule(string tag, Stream expectedModuleContent)
         {
-            using(new AssertionScope())
+            using (new AssertionScope())
             {
                 this.Subject.Should().HaveModule(tag, expectedModuleContent);
 

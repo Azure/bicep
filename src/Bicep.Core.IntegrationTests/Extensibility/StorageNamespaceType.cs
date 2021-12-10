@@ -14,6 +14,11 @@ namespace Bicep.Core.IntegrationTests.Extensibility
     {
         public const string BuiltInName = "storage";
 
+        public static readonly ImmutableHashSet<string> UniqueIdentifierProperties = new[]
+        {
+            "name",
+        }.ToImmutableHashSet();
+
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: false,
             BicepProviderName: BuiltInName,
@@ -31,7 +36,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
         private class StorageTypeProvider : IResourceTypeProvider
         {
-            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new [] {
+            private readonly ImmutableDictionary<ResourceTypeReference, ResourceTypeComponents> resourceTypes = new[] {
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("service"),
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
@@ -64,12 +69,12 @@ namespace Bicep.Core.IntegrationTests.Extensibility
 
             public ResourceType? TryGetDefinedType(NamespaceType declaringNamespace, ResourceTypeReference reference, ResourceTypeGenerationFlags flags)
             {
-                if (resourceTypes.TryGetValue(reference) is not {} resourceType)
+                if (resourceTypes.TryGetValue(reference) is not { } resourceType)
                 {
                     return null;
                 }
 
-                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body);
+                return new(declaringNamespace, resourceType.TypeReference, resourceType.ValidParentScopes, resourceType.Body, UniqueIdentifierProperties);
             }
 
             public bool HasDefinedType(ResourceTypeReference typeReference)

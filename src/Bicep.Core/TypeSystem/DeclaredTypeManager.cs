@@ -136,7 +136,7 @@ namespace Bicep.Core.TypeSystem
         private DeclaredTypeAssignment GetModuleType(ModuleDeclarationSyntax syntax)
         {
             var declaredModuleType = syntax.GetDeclaredType(this.binder);
-            
+
             // if the value is a loop (not a condition or object), the type is an array of the declared module type
             return new DeclaredTypeAssignment(
                 syntax.Value is ForSyntax ? new TypedArrayType(declaredModuleType, TypeSymbolValidationFlags.Default) : declaredModuleType,
@@ -182,7 +182,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
-            
+
             // it's ok to rely on useSyntax=true because those types have already been established
 
             var body = baseExpressionAssignment?.DeclaringSyntax switch
@@ -231,7 +231,7 @@ namespace Bicep.Core.TypeSystem
             return this.GetDeclaredTypeAssignment(((ResourceSymbol)symbol).DeclaringResource.Value);
         }
 
-        
+
         private DeclaredTypeAssignment? GetArrayAccessType(ArrayAccessSyntax syntax)
         {
             var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
@@ -252,7 +252,7 @@ namespace Bicep.Core.TypeSystem
                         ForSyntax { Body: IfConditionSyntax { Body: ObjectSyntax loopBody } } => loopBody,
                         _ => null
                     };
-                    
+
                     return new DeclaredTypeAssignment(arrayType.Item.Type, declaringSyntax);
 
                 case ObjectType objectType when syntax.IndexExpression is StringSyntax potentialLiteralValue && potentialLiteralValue.TryGetLiteralValue() is { } propertyName:
@@ -317,7 +317,7 @@ namespace Bicep.Core.TypeSystem
             {
                 return null;
             }
- 
+
             var argIndex = parentFunction.Arguments.IndexOf(syntax);
             var declaredType = functionSymbol.GetDeclaredArgumentType(argIndex);
 
@@ -398,7 +398,8 @@ namespace Bicep.Core.TypeSystem
                 return null;
             }
 
-            var parentTypeAssignment = parent switch {
+            var parentTypeAssignment = parent switch
+            {
                 // variable declared type is calculated using its assigned type, so querying it here causes endless recursion.
                 // we can shortcut that by returning any[] here
                 VariableDeclarationSyntax var => new DeclaredTypeAssignment(LanguageConstants.Array, var),
@@ -411,7 +412,7 @@ namespace Bicep.Core.TypeSystem
             }
 
             var parentType = parentTypeAssignment.Reference.Type;
-            
+
             // a for-loop expressions are semantically valid in places that allow array values
             // for non-array types, there's no need to propagate them further since it won't lead to anything useful
             if (parentType is not ArrayType arrayType)
@@ -478,19 +479,19 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(ResolveDiscriminatedObjects(moduleType.Body.Type, syntax), syntax);
 
                 case IfConditionSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not {} ifParentTypeAssignment)
+                    if (GetDeclaredTypeAssignment(parent) is not { } ifParentTypeAssignment)
                     {
                         return null;
                     }
 
                     // if-condition declared type already resolved discriminators and used the object as the declaring syntax
                     Debug.Assert(ReferenceEquals(syntax, ifParentTypeAssignment.DeclaringSyntax), "ReferenceEquals(syntax,parentTypeAssignment.DeclaringSyntax)");
-                    
+
                     // the declared type will be the same as the parent
                     return ifParentTypeAssignment;
 
                 case ForSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not {} forParentTypeAssignment ||
+                    if (GetDeclaredTypeAssignment(parent) is not { } forParentTypeAssignment ||
                         forParentTypeAssignment.Reference.Type is not ArrayType arrayType)
                     {
                         return null;
@@ -502,8 +503,8 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(arrayType.Item.Type, syntax, forParentTypeAssignment.Flags);
 
                 case ObjectPropertySyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not {} objectPropertyAssignment ||
-                        objectPropertyAssignment.Reference.Type is not {} objectPropertyParent)
+                    if (GetDeclaredTypeAssignment(parent) is not { } objectPropertyAssignment ||
+                        objectPropertyAssignment.Reference.Type is not { } objectPropertyParent)
                     {
                         return null;
                     }
@@ -513,8 +514,8 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(ResolveDiscriminatedObjects(objectPropertyParent, syntax), syntax, objectPropertyAssignment.Flags);
 
                 case ArrayItemSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not {} arrayItemAssignment ||
-                        arrayItemAssignment.Reference.Type is not {} arrayParent)
+                    if (GetDeclaredTypeAssignment(parent) is not { } arrayItemAssignment ||
+                        arrayItemAssignment.Reference.Type is not { } arrayParent)
                     {
                         return null;
                     }
@@ -524,8 +525,8 @@ namespace Bicep.Core.TypeSystem
                     return TryCreateAssignment(ResolveDiscriminatedObjects(arrayParent, syntax), syntax, arrayItemAssignment.Flags);
 
                 case ImportDeclarationSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not {} importAssignment ||
-                        importAssignment.Reference.Type  is not NamespaceType namespaceType)
+                    if (GetDeclaredTypeAssignment(parent) is not { } importAssignment ||
+                        importAssignment.Reference.Type is not NamespaceType namespaceType)
                     {
                         return null;
                     }
@@ -541,7 +542,7 @@ namespace Bicep.Core.TypeSystem
                     // use the item's type and propagate flags
                     return TryCreateAssignment(ResolveDiscriminatedObjects(namespaceType.ConfigurationType.Type, syntax), syntax, importAssignment.Flags);
                 case FunctionArgumentSyntax:
-                    if (GetDeclaredTypeAssignment(parent) is not {} parentAssignment)
+                    if (GetDeclaredTypeAssignment(parent) is not { } parentAssignment)
                     {
                         return null;
                     }
@@ -579,7 +580,7 @@ namespace Bicep.Core.TypeSystem
             // the declared types on the declaration side of things will take advantage of properties
             // set on objects to resolve discriminators at all levels
             // to take advantage of this, we should first try looking up the property's declared type
-            var declaringProperty = objectSyntax?.SafeGetPropertyByName(propertyName);
+            var declaringProperty = objectSyntax?.TryGetPropertyByName(propertyName);
             if (useSyntax && declaringProperty != null)
             {
                 // it is important to get the property value's decl type instead of the property's decl type
@@ -702,7 +703,7 @@ namespace Bicep.Core.TypeSystem
                 var scheme = stringContent.Substring(0, colonIndex);
                 var typeString = stringContent.Substring(colonIndex + 1);
 
-                if (binder.NamespaceResolver.TryGetNamespace(scheme) is not {} namespaceType)
+                if (binder.NamespaceResolver.TryGetNamespace(scheme) is not { } namespaceType)
                 {
                     return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).UnknownResourceReferenceScheme(scheme, binder.NamespaceResolver.GetNamespaceNames().OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
                 }
@@ -726,12 +727,12 @@ namespace Bicep.Core.TypeSystem
                     throw new InvalidOperationException($"typeReference is null");
                 }
 
-                if (namespaceType.ResourceTypeProvider.TryGetDefinedType(namespaceType, typeReference, typeGenerationFlags) is {} definedResource)
+                if (namespaceType.ResourceTypeProvider.TryGetDefinedType(namespaceType, typeReference, typeGenerationFlags) is { } definedResource)
                 {
                     return definedResource;
                 }
 
-                if (namespaceType.ResourceTypeProvider.TryGenerateFallbackType(namespaceType, typeReference, typeGenerationFlags) is {} defaultResource)
+                if (namespaceType.ResourceTypeProvider.TryGenerateFallbackType(namespaceType, typeReference, typeGenerationFlags) is { } defaultResource)
                 {
                     return defaultResource;
                 }
@@ -753,7 +754,7 @@ namespace Bicep.Core.TypeSystem
                     throw new InvalidOperationException($"qualifiedTypeReference is null");
                 }
 
-                if (binder.NamespaceResolver.TryGetResourceType(typeReference, typeGenerationFlags) is {} resourceType)
+                if (binder.NamespaceResolver.TryGetResourceType(typeReference, typeGenerationFlags) is { } resourceType)
                 {
                     return resourceType;
                 }
@@ -765,7 +766,7 @@ namespace Bicep.Core.TypeSystem
         private (ResourceTypeGenerationFlags flags, ResourceType? parentResourceType) GetResourceTypeGenerationFlags(ResourceDeclarationSyntax resource)
         {
             var isSyntacticallyNested = false;
-            TypeSymbol? parentType = null;            
+            TypeSymbol? parentType = null;
 
             var parentResource = binder.GetAllAncestors<ResourceDeclarationSyntax>(resource).LastOrDefault();
             if (parentResource is not null)
@@ -775,7 +776,7 @@ namespace Bicep.Core.TypeSystem
             }
             else if (binder.GetSymbolInfo(resource) is ResourceSymbol resourceSymbol &&
                 binder.TryGetCycle(resourceSymbol) is null &&
-                resourceSymbol.SafeGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is {} referenceParentSyntax &&
+                resourceSymbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax &&
                 binder.GetSymbolInfo(referenceParentSyntax) is ResourceSymbol parentResourceSymbol)
             {
                 parentResource = parentResourceSymbol.DeclaringResource;
@@ -803,7 +804,7 @@ namespace Bicep.Core.TypeSystem
 
         private static (ErrorType? error, ResourceTypeReference? typeReference) GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceDeclarationSyntax resource, ResourceType? parentResourceType, string typeString)
         {
-            if (ResourceTypeReference.TryParse(typeString) is not {} typeReference)
+            if (ResourceTypeReference.TryParse(typeString) is not { } typeReference)
             {
                 return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType()), null);
             }

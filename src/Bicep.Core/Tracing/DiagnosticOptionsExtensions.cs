@@ -48,12 +48,12 @@ namespace Bicep.Core.Tracing
             options.IsDistributedTracingEnabled = false;
             options.IsTelemetryEnabled = false;
 
-            foreach(var header in additionalHeaders)
+            foreach (var header in additionalHeaders)
             {
                 options.LoggedHeaderNames.Add(header);
             }
 
-            foreach(var queryParam in additionalQueryParameters)
+            foreach (var queryParam in additionalQueryParameters)
             {
                 options.LoggedQueryParameters.Add(queryParam);
             }

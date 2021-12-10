@@ -13,7 +13,7 @@ namespace Bicep.Wasm.LanguageHelpers
         public static TextSpan GetSpanSlice(this IPositionable positionable, int start, int length)
             => new TextSpan(positionable.Span.Position + start, length);
 
-        public static TextSpan SafeGetSpanSlice(this IPositionable positionable, int start, int length)
+        public static TextSpan TryGetSpanSlice(this IPositionable positionable, int start, int length)
             => GetSpanSlice(
                 positionable,
                 Math.Min(start, positionable.Span.Length),
@@ -35,7 +35,7 @@ namespace Bicep.Wasm.LanguageHelpers
             {
                 var lineEnd = PositionHelper.GetPosition(lineStarts, lineStarts[start.Line + 1] - 1);
                 yield return new Range(start, lineEnd);
-                
+
                 start = new Position(start.Line + 1, 0);
             }
 

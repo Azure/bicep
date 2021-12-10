@@ -30,7 +30,7 @@ namespace Bicep.LanguageServer.Completions
                    (predicate is null || predicate(one, two));
         }
 
-        public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool> predicate) 
+        public static bool IsTailMatch<T1, T2, T3>(IList<SyntaxBase> nodes, Func<T1, T2, T3, bool> predicate)
             where T1 : SyntaxBase
             where T2 : SyntaxBase
             where T3 : SyntaxBase

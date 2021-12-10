@@ -46,7 +46,7 @@ namespace Bicep.Core.Syntax
         /// </summary>
         /// <param name="syntax">The object syntax node</param>
         /// <param name="propertyName">The property name</param>
-        public static ObjectPropertySyntax? SafeGetPropertyByName(this ObjectSyntax syntax, string propertyName)
+        public static ObjectPropertySyntax? TryGetPropertyByName(this ObjectSyntax syntax, string propertyName)
         {
             ObjectPropertySyntax? result = null;
 
@@ -72,17 +72,17 @@ namespace Bicep.Core.Syntax
             return result;
         }
 
-        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, IList<IdentifierSyntax> propertyAccesses)
+        public static ObjectPropertySyntax? TryGetPropertyByNameRecursive(this ObjectSyntax syntax, IList<IdentifierSyntax> propertyAccesses)
         {
-            return syntax.SafeGetPropertyByNameRecursive(propertyAccesses.Select(pa => pa.IdentifierName).ToArray());
+            return syntax.TryGetPropertyByNameRecursive(propertyAccesses.Select(pa => pa.IdentifierName).ToArray());
         }
 
-        public static ObjectPropertySyntax? SafeGetPropertyByNameRecursive(this ObjectSyntax syntax, params string[] propertyAccesses)
+        public static ObjectPropertySyntax? TryGetPropertyByNameRecursive(this ObjectSyntax syntax, params string[] propertyAccesses)
         {
             var currentSyntax = syntax;
             for (int i = 0; i < propertyAccesses.Length; i++)
             {
-                if (currentSyntax.SafeGetPropertyByName(propertyAccesses[i]) is ObjectPropertySyntax propertySyntax)
+                if (currentSyntax.TryGetPropertyByName(propertyAccesses[i]) is ObjectPropertySyntax propertySyntax)
                 {
                     // we have found our last property access
                     if (i == propertyAccesses.Length - 1)

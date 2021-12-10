@@ -21,7 +21,7 @@ namespace Bicep.Core.Diagnostics
     public static class DiagnosticBuilder
     {
         public const string UseStringInterpolationInsteadClause = "Use string interpolation instead.";
-        
+
         public delegate ErrorDiagnostic ErrorBuilderDelegate(DiagnosticBuilderInternal builder);
 
         public delegate Diagnostic DiagnosticBuilderDelegate(DiagnosticBuilderInternal builder);
@@ -653,7 +653,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic IfFunctionNotSupported() => new(
                 TextSpan,
                 "BCP100",
-                "The \"if\" function is not supported. Use the ternary conditional operator instead.");
+                "The function \"if\" is not supported. Use the \"?:\" (ternary conditional) operator instead, e.g. condition ? ValueIfTrue : ValueIfFalse");
 
             public ErrorDiagnostic CreateArrayFunctionNotSupported() => new(
                 TextSpan,

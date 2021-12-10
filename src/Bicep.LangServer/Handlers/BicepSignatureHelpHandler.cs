@@ -23,7 +23,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepSignatureHelpHandler: SignatureHelpHandlerBase
+    public class BicepSignatureHelpHandler : SignatureHelpHandlerBase
     {
         private const string FunctionArgumentStart = "(";
         private const string FunctionArgumentEnd = ")";
@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             int offset = PositionHelper.GetOffset(context.LineStarts, request.Position);
-            
+
             var functionCall = GetActiveFunctionCall(context.ProgramSyntax, offset);
             if (functionCall == null)
             {
@@ -167,7 +167,7 @@ namespace Bicep.LanguageServer.Handlers
             return new SignatureHelp
             {
                 Signatures = new Container<SignatureInformation>(matchingOverloads.Select(tuple => CreateSignature(tuple.overload, arguments, includeReturnType))),
-                ActiveSignature = activeSignatureIndex < 0 ? (int?) null : activeSignatureIndex,
+                ActiveSignature = activeSignatureIndex < 0 ? (int?)null : activeSignatureIndex,
                 ActiveParameter = GetActiveParameterIndex(arguments, offset)
             };
         }
@@ -242,7 +242,7 @@ namespace Bicep.LanguageServer.Handlers
             return new SignatureInformation
             {
                 Label = typeSignature.ToString(),
-                Documentation = new MarkupContent {Kind = MarkupKind.Markdown, Value = overload.Description},
+                Documentation = new MarkupContent { Kind = MarkupKind.Markdown, Value = overload.Description },
                 Parameters = new Container<ParameterInformation>(parameters)
             };
         }
@@ -256,7 +256,7 @@ namespace Bicep.LanguageServer.Handlers
             parameterInfos.Add(new ParameterInformation
             {
                 Label = new ParameterInformationLabel((start, end)),
-                Documentation = new MarkupContent {Kind = MarkupKind.Markdown, Value = documentation}
+                Documentation = new MarkupContent { Kind = MarkupKind.Markdown, Value = documentation }
             });
         }
 

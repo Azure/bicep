@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Providers
                 return null;
             }
 
-            if (semanticModel.GetSymbolInfo(node) is {} symbol)
+            if (semanticModel.GetSymbolInfo(node) is { } symbol)
             {
                 return new SymbolResolutionResult(node, symbol, context);
             }

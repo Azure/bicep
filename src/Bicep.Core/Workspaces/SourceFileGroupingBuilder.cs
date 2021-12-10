@@ -60,7 +60,7 @@ namespace Bicep.Core.Workspaces
             this.errorBuildersByModuleDeclaration = new(current.ErrorBuildersByModuleDeclaration);
 
             this.modulesToRestore = new();
-            
+
             this.sourceFilesByUri = current.SourceFiles.ToDictionary(tree => tree.FileUri);
             this.errorBuildersByUri = new();
         }
@@ -180,7 +180,7 @@ namespace Bicep.Core.Workspaces
             foreach (var childModule in GetModuleDeclarations(bicepFile))
             {
                 var childModuleReference = this.moduleDispatcher.TryGetModuleReference(childModule, this.configuration, out var parseReferenceFailureBuilder);
-                if(childModuleReference is null)
+                if (childModuleReference is null)
                 {
                     // module reference is not valid
                     errorBuildersByModuleDeclaration[childModule] = parseReferenceFailureBuilder ?? throw new InvalidOperationException($"Expected {nameof(IModuleDispatcher.TryGetModuleReference)} to provide failure diagnostics.");
@@ -190,7 +190,7 @@ namespace Bicep.Core.Workspaces
                 var restoreStatus = this.moduleDispatcher.GetModuleRestoreStatus(childModuleReference, this.configuration, out var restoreErrorBuilder);
                 if (restoreStatus != ModuleRestoreStatus.Succeeded)
                 {
-                    if(restoreStatus == ModuleRestoreStatus.Unknown)
+                    if (restoreStatus == ModuleRestoreStatus.Unknown)
                     {
                         // we have not yet attempted to restore the module, so let's do it
                         modulesToRestore.Add(childModule);

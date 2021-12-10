@@ -11,11 +11,14 @@
                 "--extensionDevelopmentPath=${workspaceRoot}/src/vscode-bicep"
             ],
             "env": {
-                "BICEP_TRACING_ENABLED": "true"
+                "BICEP_TRACING_ENABLED": "true",
+                "DEBUGTELEMETRY": "", // "" or "0" or "false": send telemetry; "1": no telemetry; "verbose": telemetry in console, don't send (defined by vscode-azureextensionui)
             },
             "stopOnEntry": false,
             "sourceMaps": true,
-            "outFiles": ["${workspaceRoot}/out/src/**/*.js"],
+            "outFiles": [
+                "${workspaceRoot}/out/src/**/*.js"
+            ],
             "preLaunchTask": "Build VSIX"
         },
         {
@@ -40,7 +43,9 @@
             "type": "node",
             "request": "launch",
             "program": "${workspaceFolder}/src/playground/node_modules/webpack/bin/webpack.js",
-            "args": ["serve"],
+            "args": [
+                "serve"
+            ],
             "cwd": "${workspaceFolder}/src/playground",
             "autoAttachChildProcesses": true,
             "stopOnEntry": false,

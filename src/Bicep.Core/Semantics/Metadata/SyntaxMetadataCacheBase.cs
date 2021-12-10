@@ -13,7 +13,7 @@ namespace Bicep.Core.Semantics.Metadata
         {
             cache = new();
         }
-        
+
         protected abstract TMetadata Calculate(SyntaxBase syntax);
 
         public TMetadata? TryLookup(SyntaxBase syntax)

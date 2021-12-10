@@ -3,6 +3,7 @@
 import vscode from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
+import { IActionContext, parseError } from "vscode-azureextensionui";
 
 export class BuildCommand implements Command {
   public readonly id = "bicep.build";
@@ -11,7 +12,10 @@ export class BuildCommand implements Command {
 
   public constructor(private readonly client: LanguageClient) {}
 
-  public async execute(documentUri?: vscode.Uri | undefined): Promise<void> {
+  public async execute(
+    _context: IActionContext,
+    documentUri?: vscode.Uri | undefined
+  ): Promise<void> {
     documentUri ??= vscode.window.activeTextEditor?.document.uri;
 
     if (!documentUri) {
@@ -39,7 +43,7 @@ export class BuildCommand implements Command {
       );
       appendToOutputChannel(this.outputChannel, buildOutput);
     } catch (err) {
-      this.client.error("Build failed", err.message, true);
+      this.client.error("Build failed", parseError(err).message, true);
     }
   }
 }

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17743984119146916557"
+      "templateHash": "174370743240355342"
     }
   },
   "parameters": {
@@ -167,7 +167,7 @@
     "shortTermBackup": {
       "condition": "[not(equals(parameters('sqlDatabase').shortTermBackupRetention, 0))]",
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('shortTermBackup-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -221,7 +221,7 @@
     },
     "azureDefender": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('azureDefender-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
       "properties": {
         "expressionEvaluationOptions": {
@@ -278,7 +278,7 @@
     },
     "auditSettings": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "[format('auditSettings-{0}', uniqueString(parameters('sqlServerName'), parameters('sqlDatabase').name))]",
       "properties": {
         "expressionEvaluationOptions": {
