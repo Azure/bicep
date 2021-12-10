@@ -606,7 +606,7 @@ module moduleB './moduleB.bicep' = {
         [TestMethod]
         public void GetLinterStateTelemetryOnBicepFileOpen_ShouldReturnTelemetryEvent()
         {
-            var compilationManager = CreateBicepCompilationManager();
+            var compilationManager = BicepCompilationManagerHelper.CreateBicepCompilationManager(this.TestContext.TestName);
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -654,7 +654,7 @@ module moduleB './moduleB.bicep' = {
         [TestMethod]
         public void GetLinterStateTelemetryOnBicepFileOpen_WithOverallLinterStateDisabled_ShouldReturnTelemetryEventWithOneProperty()
         {
-            var compilationManager = CreateBicepCompilationManager();
+            var compilationManager = BicepCompilationManagerHelper.CreateBicepCompilationManager(this.TestContext.TestName);
 
             var bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -692,7 +692,7 @@ module moduleB './moduleB.bicep' = {
         [TestMethod]
         public void GetLinterStateTelemetryOnBicepFileOpen_WithNoContents_ShouldUseDefaultSettingsAndReturnTelemetryEvent()
         {
-            var compilationManager = CreateBicepCompilationManager();
+            var compilationManager = BicepCompilationManagerHelper.CreateBicepCompilationManager(this.TestContext.TestName);
 
             var bicepConfigFileContents = @"{}";
             var configurationManager = new ConfigurationManager(new IOFileSystem());
@@ -747,7 +747,7 @@ param location string = 'testLocation'";
             var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ToDiagnostics(bicepFile.LineStarts);
 
-            var compilationManager = CreateBicepCompilationManager();
+            var compilationManager = BicepCompilationManagerHelper.CreateBicepCompilationManager(this.TestContext.TestName);
 
             var telemetryEvent = compilationManager.GetTelemetryAboutSourceFiles(compilation.GetEntrypointSemanticModel(),
                                                                                  bicepFile.FileUri,
@@ -781,18 +781,6 @@ param location string = 'testLocation'";
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
 
             return configurationManager.GetConfiguration(bicepConfigUri.ToUri());
-        }
-
-        private BicepCompilationManager CreateBicepCompilationManager()
-        {
-            PublishDiagnosticsParams? receivedParams = null;
-
-            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
-            var server = BicepCompilationManagerHelper.CreateMockServer(document);
-            var uri = DocumentUri.File(this.TestContext.TestName);
-            var workspace = new Workspace();
-
-            return new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
         }
     }
 }
