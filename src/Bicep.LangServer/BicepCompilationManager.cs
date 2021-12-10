@@ -120,7 +120,7 @@ namespace Bicep.LanguageServer
             {
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig, sendTelemetryOnBicepConfigChange);
                 }
             }
         }
