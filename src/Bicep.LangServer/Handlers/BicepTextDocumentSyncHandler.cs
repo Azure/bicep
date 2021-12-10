@@ -1,14 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Concurrent;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
@@ -52,24 +51,15 @@ namespace Bicep.LanguageServer.Handlers
 
             this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, contents);
 
-            if (IsBicepConfigFile(documentUri))
+            // Handle scenario where the bicepconfig.json file was opened prior to
+            // language service activation. If the config file was opened before the language server
+            // activation, there won't be an entry for it in the cache. We'll capture the state of the
+            // config file on disk when it's changes and cache it.
+            if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
+                !activeBicepConfigCache.ContainsKey(documentUri) &&
+                ConfigurationHelper.TryGetConfigurarion(configurationManager, documentUri, out RootConfiguration? configuration) && configuration is not null)
             {
-                try
-                {
-                    if (!activeBicepConfigCache.ContainsKey(documentUri))
-                    {
-                        // Handle scenario where the bicepconfig.json file was opened prior to
-                        // language service activation. If the config file was opened before the language server
-                        // activation, there won't be an entry for it in the cache. We'll capture the state of the
-                        // config file on disk when it's changes and cache it.
-                        var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-                        activeBicepConfigCache.TryAdd(documentUri, configuration);
-                    }
-                }
-                catch (Exception)
-                {
-                    // If there was an issue getting RootConfguration, we'll not do anything.
-                }
+                activeBicepConfigCache.TryAdd(documentUri, configuration);
             }
 
             return Unit.Task;
@@ -80,17 +70,11 @@ namespace Bicep.LanguageServer.Handlers
             var documentUri = request.TextDocument.Uri;
 
             // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
-            if (IsBicepConfigFile(documentUri))
+            if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
+                ConfigurationHelper.TryGetConfigurarion(configurationManager, documentUri, out RootConfiguration? configuration) &&
+                configuration is not null)
             {
-                try
-                {
-                    var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-                    activeBicepConfigCache.TryAdd(documentUri, configuration);
-                }
-                catch (Exception)
-                {
-                    // If there was an issue getting RootConfguration, we'll not do anything.
-                }
+                activeBicepConfigCache.TryAdd(documentUri, configuration);
             }
 
             this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
@@ -106,21 +90,14 @@ namespace Bicep.LanguageServer.Handlers
             // we'll use the last known configuration and the one from currently saved config file to figure out
             // if we need to send out telemetry information regarding the config change.
             // We'll also update the entry in activeBicepConfigCache.
-            if (IsBicepConfigFile(documentUri) &&
+            if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
                 activeBicepConfigCache.TryGetValue(documentUri, out RootConfiguration? prevBicepConfiguration) &&
-                prevBicepConfiguration != null)
+                prevBicepConfiguration != null &&
+                ConfigurationHelper.TryGetConfigurarion(configurationManager, documentUri, out RootConfiguration? curConfiguration) &&
+                curConfiguration is not null)
             {
-                try
-                {
-                    var curConfiguration = configurationManager.GetConfiguration(documentUri.ToUri());
-                    TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);
-
-                    activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => curConfiguration, (documentUri, prevConfiguration) => curConfiguration);
-                }
-                catch (Exception)
-                {
-                    // If there was an issue getting RootConfguration, we'll fail silently and not do anything.
-                }
+                TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);
+                activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => curConfiguration, (documentUri, prevConfiguration) => curConfiguration);
             }
 
             return Unit.Task;
@@ -131,26 +108,13 @@ namespace Bicep.LanguageServer.Handlers
             var documentUri = request.TextDocument.Uri;
 
             // If the documentUri corresponds to bicepconfig.json, we'll remove the entry from activeBicepConfigCache.
-            if (IsBicepConfigFile(documentUri))
+            if (ConfigurationHelper.IsBicepConfigFile(documentUri))
             {
                 activeBicepConfigCache.TryRemove(documentUri, out _);
             }
 
             this.compilationManager.CloseCompilation(request.TextDocument.Uri);
             return Unit.Task;
-        }
-
-        private bool IsBicepConfigFile(DocumentUri documentUri)
-        {
-            try
-            {
-                return string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigurationFileName, StringComparison.OrdinalIgnoreCase);
-            }
-            catch (Exception)
-            {
-                // If we encounter any issues while getting file name, we'll return false.
-                return false;
-            }
         }
 
         protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
