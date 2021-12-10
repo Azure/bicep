@@ -106,7 +106,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private bool IsBicepConfigFile(DocumentUri documentUri)
         {
-            return string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigurationFileName);
+            return string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigurationFileName, StringComparison.OrdinalIgnoreCase);
         }
 
         protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
