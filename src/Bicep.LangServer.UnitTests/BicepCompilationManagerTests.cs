@@ -38,6 +38,8 @@ namespace Bicep.LangServer.UnitTests
 
         private static readonly ConfigurationManager configurationManager = new(new IOFileSystem());
 
+        private static readonly LinterRulesProvider linterRulesProvider = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
@@ -88,7 +90,7 @@ namespace Bicep.LangServer.UnitTests
             var workspace = new Workspace();
             workspace.UpsertSourceFile(originalFile);
 
-            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -126,7 +128,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -175,7 +177,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -247,7 +249,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             // first get should not return anything
             manager.GetCompilation(uri).Should().BeNull();
@@ -307,7 +309,7 @@ namespace Bicep.LangServer.UnitTests
         {
             var server = Repository.Create<ILanguageServerFacade>();
 
-            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -322,7 +324,7 @@ namespace Bicep.LangServer.UnitTests
             var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
             var server = BicepCompilationManagerHelper.CreateMockServer(document);
 
-            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), new Workspace(), new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             var uri = DocumentUri.File(this.TestContext.TestName);
 
@@ -363,7 +365,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             // upsert should fail because of the mock fatal exception
             manager.UpsertCompilation(uri, BaseVersion, "fake", languageId);
@@ -429,7 +431,7 @@ namespace Bicep.LangServer.UnitTests
                 workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(uri.ToUri(), ""));
             }
 
-            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var manager = new BicepCompilationManager(server.Object, provider.Object, workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             // upsert should fail because of the mock fatal exception
             manager.UpsertCompilation(uri, version, "fake", languageId);
@@ -513,7 +515,7 @@ module moduleB './moduleB.bicep' = {
             var fileResolver = new InMemoryFileResolver(fileDict);
             var compilationProvider = new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), fileResolver, new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, BicepTestConstants.ClientFactory, BicepTestConstants.TemplateSpecRepositoryFactory, BicepTestConstants.Features)));
 
-            var compilationManager = new BicepCompilationManager(server.Object, compilationProvider, new Workspace(), fileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var compilationManager = new BicepCompilationManager(server.Object, compilationProvider, new Workspace(), fileResolver, BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             diagsReceieved.Should().BeEmpty();
 
@@ -599,521 +601,6 @@ module moduleB './moduleB.bicep' = {
 
                 EnsureSemanticModelsAndSourceFilesDeduplicated();
             }
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithOverallLinterStateChange_ShouldReturnTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Count().Should().Be(1);
-
-            var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "previousState", "true" },
-                { "currentState", "false" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithNoStateChange_ShouldDoNothing()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithNoEnabledSectionInCurrentConfigurationAndPreviousSettingIsFalse_ShouldFireTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Count().Should().Be(1);
-
-            var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "previousState", "false" },
-                { "currentState", "true" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithNoEnabledSectionInPreviousConfigurationAndCurrentSettingIsFalse_ShouldFireTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Count().Should().Be(1);
-
-            var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "previousState", "true" },
-                { "currentState", "false" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithNoEnabledSectionInCurrentConfigurationAndPreviousSettingIsTrue_ShouldDoNothing()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithNoEnabledSectionInPreviousConfigurationAndCurrentSettingIsTrue_ShouldDoNothing()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithEmptyCurrentConfig_ShouldUseDefaultSettingsAndFireTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{}";
-
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Count().Should().Be(1);
-
-            var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "previousState", "false" },
-                { "currentState", "true" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithEmptyPreviousConfig_ShouldUseDefaultSettingsAndFireTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Count().Should().Be(1);
-
-            var telemetryEvent = telemetryEvents.First();
-            telemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterCoreEnabledStateChange);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "previousState", "true" },
-                { "currentState", "false" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithEmptyCurrentAndPreviousConfig_ShouldDoNothing()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = "{}";
-            var curBicepConfigFileContents = "{}";
-
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithOverallLinterSettingDisabledInBothPreviousAndCurrentConfig_ShouldDoNothing()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": false,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""warning""
-        }
-      }
-    }
-  }
-}";
-
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Should().BeEmpty();
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_WithMismatchInRuleSettingsInPreviousAndCurrentConfig_ShouldFireTelemetryEvent()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""info""
-        },
-        ""no-unused-vars"": {
-          ""level"": ""info""
-        }
-      }
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""warning""
-        },
-        ""no-unused-vars"": {
-          ""level"": ""warning""
-        }
-      }
-    }
-  }
-}";
-
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Count().Should().Be(2);
-
-            var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "rule", "no-unused-params" },
-                { "previousDiagnosticLevel", "info" },
-                { "currentDiagnosticLevel", "warning" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-
-            telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-vars");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
-
-            properties = new Dictionary<string, string>
-            {
-                { "rule", "no-unused-vars" },
-                { "previousDiagnosticLevel", "info" },
-                { "currentDiagnosticLevel", "warning" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-        }
-
-        [TestMethod]
-        public void GetTelemetryEventsForBicepConfigChange_VerifyDefaultRuleSettingsAreUsed()
-        {
-            var compilationManager = CreateBicepCompilationManager();
-
-            var prevBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true
-    }
-  }
-}";
-            var curBicepConfigFileContents = @"{
-  ""analyzers"": {
-    ""core"": {
-      ""verbose"": false,
-      ""enabled"": true,
-      ""rules"": {
-        ""no-unused-params"": {
-          ""level"": ""error""
-        },
-        ""no-unused-vars"": {
-          ""level"": ""error""
-        }
-      }
-    }
-  }
-}";
-            (RootConfiguration prevConfiguration, RootConfiguration curConfiguration) = GetPreviousAndCurrentRootConfiguration(prevBicepConfigFileContents, curBicepConfigFileContents);
-
-            var telemetryEvents = compilationManager.GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration);
-
-            telemetryEvents.Count().Should().Be(2);
-
-            var telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-params");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
-
-            var properties = new Dictionary<string, string>
-            {
-                { "rule", "no-unused-params" },
-                { "previousDiagnosticLevel", "warning" },
-                { "currentDiagnosticLevel", "error" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
-
-            telemetryEvent = telemetryEvents.First(x => x.Properties is not null && x.Properties["rule"] == "no-unused-vars");
-            telemetryEvent.EventName!.Should().Be(TelemetryConstants.EventNames.LinterRuleStateChange);
-
-            properties = new Dictionary<string, string>
-            {
-                { "rule", "no-unused-vars" },
-                { "previousDiagnosticLevel", "warning" },
-                { "currentDiagnosticLevel", "error" }
-            };
-
-            telemetryEvent.Properties.Should().Equal(properties);
         }
 
         [TestMethod]
@@ -1288,17 +775,6 @@ param location string = 'testLocation'";
             telemetryEvent.Properties.Should().Contain(properties);
         }
 
-        private (RootConfiguration, RootConfiguration) GetPreviousAndCurrentRootConfiguration(string prevBicepConfigContents, string curBicepConfigContents)
-        {
-            var configurationManager = new ConfigurationManager(new IOFileSystem());
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
-
-            var prevConfiguration = GetRootConfiguration(testOutputPath, prevBicepConfigContents, configurationManager);
-            var curConfiguration = GetRootConfiguration(testOutputPath, curBicepConfigContents, configurationManager);
-
-            return (prevConfiguration, curConfiguration);
-        }
-
         private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)
         {
             var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
@@ -1316,7 +792,7 @@ param location string = 'testLocation'";
             var uri = DocumentUri.File(this.TestContext.TestName);
             var workspace = new Workspace();
 
-            return new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            return new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
         }
     }
 }

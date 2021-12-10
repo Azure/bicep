@@ -20,6 +20,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Bicep.LanguageServer.Providers;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
@@ -218,7 +219,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var workspace = new Workspace();
 
-            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object);
+            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, new LinterRulesProvider());
             bicepCompilationManager.UpsertCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
