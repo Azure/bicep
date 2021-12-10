@@ -353,6 +353,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1));
 
+            // Close the bicep file and modify the bicepconfig.json. Verify config change telemetry event is fired.
             client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(documentUri, 2));
 
             var diagsParams = await diagsListener.WaitNext();
@@ -433,6 +434,7 @@ namespace Bicep.LangServer.IntegrationTests
             // Open bicepconfig.json first
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1));
 
+            // Open bicep file
             await OpenBicepFileAndVerifyTelemetryEventsAreSent(client, documentUri, bicepFileContents, telemetryEventsListener);
 
             var diagsParams = await diagsListener.WaitNext();
@@ -441,8 +443,8 @@ namespace Bicep.LangServer.IntegrationTests
             bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigFileContents, testOutputPath);
             bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
 
+            // Modify and save bicepconfig.json
             client.TextDocument.DidChangeTextDocument(new DidChangeTextDocumentParams());
-
             client.TextDocument.DidSaveTextDocument(new DidSaveTextDocumentParams
             {
                 TextDocument = new TextDocumentIdentifier(bicepConfigUri),
