@@ -54,8 +54,15 @@ namespace Bicep.LanguageServer.Handlers
 
             if (IsBicepConfigFile(documentUri))
             {
-                var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-                activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
+                try
+                {
+                    var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
+                    activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
+                }
+                catch (Exception)
+                {
+                    // If there was an issue getting RootConfguration, we'll not do anything.
+                }
             }
 
             return Unit.Task;
@@ -67,8 +74,15 @@ namespace Bicep.LanguageServer.Handlers
 
             if (IsBicepConfigFile(documentUri))
             {
-                var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-                activeBicepConfigCache.TryAdd(documentUri, configuration);
+                try
+                {
+                    var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
+                    activeBicepConfigCache.TryAdd(documentUri, configuration);
+                }
+                catch (Exception)
+                {
+                    // If there was an issue getting RootConfguration, we'll not do anything.
+                }
             }
 
             this.compilationManager.UpsertCompilation(documentUri, request.TextDocument.Version, request.TextDocument.Text, request.TextDocument.LanguageId);
@@ -84,11 +98,17 @@ namespace Bicep.LanguageServer.Handlers
                 activeBicepConfigCache.TryRemove(documentUri, out RootConfiguration? prevBicepConfiguration) &&
                 prevBicepConfiguration != null)
             {
-                var curConfiguration = configurationManager.GetConfiguration(documentUri.ToUri());
-                TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);
+                try
+                {
+                    var curConfiguration = configurationManager.GetConfiguration(documentUri.ToUri());
+                    TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);
+                }
+                catch (Exception)
+                {
+                    // If there was an issue getting RootConfguration, we'll fail silently and not do anything.
+                }
             }
 
-            // nothing needs to be done when the document is saved
             return Unit.Task;
         }
 
@@ -107,7 +127,15 @@ namespace Bicep.LanguageServer.Handlers
 
         private bool IsBicepConfigFile(DocumentUri documentUri)
         {
-            return string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigurationFileName, StringComparison.OrdinalIgnoreCase);
+            try
+            {
+                return string.Equals(Path.GetFileName(documentUri.Path), LanguageConstants.BicepConfigurationFileName, StringComparison.OrdinalIgnoreCase);
+            }
+            catch (Exception)
+            {
+                // If we encounter any issues while getting file name, we'll return false.
+                return false;
+            }
         }
 
         protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new()
