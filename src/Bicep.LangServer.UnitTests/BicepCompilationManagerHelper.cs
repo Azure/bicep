@@ -28,6 +28,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly FileResolver FileResolver = new();
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
+        private static readonly LinterRulesProvider linterRulesProvider = new();
 
         public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false)
         {
@@ -35,7 +36,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), CreateMockTelemetryProvider().Object);
+            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             if (upsertCompilation)
             {
@@ -93,6 +94,19 @@ namespace Bicep.LangServer.UnitTests
             scheduler.Setup(m => m.RequestModuleRestore(It.IsAny<ICompilationManager>(), It.IsAny<DocumentUri>(), It.IsAny<IEnumerable<ModuleDeclarationSyntax>>(), It.IsAny<RootConfiguration>()));
 
             return scheduler;
+        }
+
+        public static BicepCompilationManager CreateBicepCompilationManager(string testName)
+        {
+            PublishDiagnosticsParams? receivedParams = null;
+
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+            var uri = DocumentUri.File(testName);
+            var workspace = new Workspace();
+            var configurationManager = new ConfigurationManager(new IOFileSystem());
+
+            return new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, linterRulesProvider);
         }
     }
 }

@@ -133,6 +133,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
+            services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
         }
 
         public void Dispose()

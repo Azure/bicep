@@ -6,9 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -39,9 +37,7 @@ namespace Bicep.LanguageServer
         private readonly IModuleRestoreScheduler scheduler;
         private readonly IConfigurationManager configurationManager;
         private readonly ITelemetryProvider TelemetryProvider;
-
-        private readonly Lazy<ImmutableDictionary<string, string>> linterRulesLazy;
-        private ImmutableDictionary<string, string> LinterRules => linterRulesLazy.Value;
+        private readonly ILinterRulesProvider LinterRulesProvider;
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
@@ -53,7 +49,8 @@ namespace Bicep.LanguageServer
             IFileResolver fileResolver,
             IModuleRestoreScheduler scheduler,
             IConfigurationManager configurationManager,
-            ITelemetryProvider telemetryProvider)
+            ITelemetryProvider telemetryProvider,
+            ILinterRulesProvider LinterRulesProvider)
         {
             this.server = server;
             this.provider = provider;
@@ -63,10 +60,10 @@ namespace Bicep.LanguageServer
             this.configurationManager = configurationManager;
             this.TelemetryProvider = telemetryProvider;
 
-            this.linterRulesLazy = new Lazy<ImmutableDictionary<string, string>>(() => GetLinterRules().ToImmutableDictionary());
+            this.LinterRulesProvider = LinterRulesProvider;
         }
 
-        public void RefreshCompilation(DocumentUri documentUri, bool reloadBicepConfig = false, bool sendTelemetryOnBicepConfigChange = false)
+        public void RefreshCompilation(DocumentUri documentUri, bool reloadBicepConfig = false)
         {
             var compilationContext = this.GetCompilation(documentUri);
 
@@ -84,7 +81,7 @@ namespace Bicep.LanguageServer
                     workspace.TryGetSourceFile(documentUri.ToUri(), out ISourceFile? sourceFile) &&
                     sourceFile is BicepFile)
                 {
-                    UpsertCompilationInternal(documentUri, null, sourceFile, reloadBicepConfig, sendTelemetryOnBicepConfigChange);
+                    UpsertCompilationInternal(documentUri, null, sourceFile, reloadBicepConfig);
                 }
                 return;
             }
@@ -93,7 +90,7 @@ namespace Bicep.LanguageServer
             // need to make a shallow copy so it counts as a different file even though all the content is identical
             // this was the easiest way to force the compilation to be regenerated
             var shallowCopy = new BicepFile(compilationContext.Compilation.SourceFileGrouping.EntryPoint);
-            UpsertCompilationInternal(documentUri, null, shallowCopy, reloadBicepConfig, sendTelemetryOnBicepConfigChange);
+            UpsertCompilationInternal(documentUri, null, shallowCopy, reloadBicepConfig);
         }
 
         public void UpsertCompilation(DocumentUri documentUri, int? version, string fileContents, string? languageId = null)
@@ -105,7 +102,7 @@ namespace Bicep.LanguageServer
             }
         }
 
-        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool reloadBicepConfig = false, bool sendTelemetryOnBicepConfigChange = false)
+        private void UpsertCompilationInternal(DocumentUri documentUri, int? version, ISourceFile newFile, bool reloadBicepConfig = false)
         {
             var (_, removedFiles) = workspace.UpsertSourceFile(newFile);
 
@@ -113,14 +110,14 @@ namespace Bicep.LanguageServer
             if (newFile is BicepFile)
             {
                 // Do not update compilation if it is an ARM template file, since it cannot be an entrypoint.
-                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, reloadBicepConfig, sendTelemetryOnBicepConfigChange);
+                UpdateCompilationInternal(documentUri, version, modelLookup, removedFiles, reloadBicepConfig);
             }
 
             foreach (var (entrypointUri, context) in activeContexts)
             {
                 if (removedFiles.Any(x => context.Compilation.SourceFileGrouping.SourceFiles.Contains(x)))
                 {
-                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig, sendTelemetryOnBicepConfigChange);
+                    UpdateCompilationInternal(entrypointUri, null, modelLookup, removedFiles, reloadBicepConfig);
                 }
             }
         }
@@ -207,7 +204,7 @@ namespace Bicep.LanguageServer
             return closedFiles.ToImmutableArray();
         }
 
-        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false, bool sendTelemetryOnBicepConfigChange = false)
+        private (ImmutableArray<ISourceFile> added, ImmutableArray<ISourceFile> removed) UpdateCompilationInternal(DocumentUri documentUri, int? version, IDictionary<ISourceFile, ISemanticModel> modelLookup, IEnumerable<ISourceFile> removedFiles, bool reloadBicepConfig = false)
         {
             var configuration = this.GetConfigurationSafely(documentUri, out var configurationDiagnostic);
 
@@ -237,11 +234,6 @@ namespace Bicep.LanguageServer
                         var configuration = reloadBicepConfig
                             ? this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic)
                             : prevContext.Compilation.Configuration;
-
-                        if (sendTelemetryOnBicepConfigChange)
-                        {
-                            SendTelemetryOnBicepConfigChange(prevConfiguration, configuration);
-                        }
 
                         return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration);
                     });
@@ -404,7 +396,7 @@ namespace Bicep.LanguageServer
 
             if (linterEnabledSettingValue)
             {
-                foreach (var kvp in LinterRules)
+                foreach (var kvp in LinterRulesProvider.GetLinterRules())
                 {
                     string linterRuleDiagnosticLevelValue = configuration.Analyzers.GetValue(kvp.Value, "warning");
 
@@ -413,14 +405,6 @@ namespace Bicep.LanguageServer
             }
 
             return BicepTelemetryEvent.CreateLinterStateOnBicepFileOpen(properties);
-        }
-
-        private void SendTelemetryOnBicepConfigChange(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
-        {
-            foreach (var telemetryEvent in GetTelemetryEventsForBicepConfigChange(prevConfiguration, curConfiguration))
-            {
-                TelemetryProvider.PostEvent(telemetryEvent);
-            }
         }
 
         public IEnumerable<BicepTelemetryEvent> GetTelemetryEventsForBicepConfigChange(RootConfiguration prevConfiguration, RootConfiguration curConfiguration)
@@ -442,7 +426,7 @@ namespace Bicep.LanguageServer
             }
             else
             {
-                foreach (var kvp in LinterRules)
+                foreach (var kvp in LinterRulesProvider.GetLinterRules())
                 {
                     string prevLinterRuleDiagnosticLevelValue = prevConfiguration.Analyzers.GetValue(kvp.Value, "warning");
                     string curLinterRuleDiagnosticLevelValue = curConfiguration.Analyzers.GetValue(kvp.Value, "warning");
@@ -456,34 +440,6 @@ namespace Bicep.LanguageServer
             }
 
             return telemetryEvents;
-        }
-
-        private Dictionary<string, string> GetLinterRules()
-        {
-            var rules = new Dictionary<string, string>();
-            var ruleTypes = Assembly.GetAssembly(typeof(IBicepAnalyzerRule))?
-                .GetTypes()
-                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
-                            && t.IsClass
-                            && t.IsPublic
-                            && t.GetConstructor(Type.EmptyTypes) != null);
-
-            if (ruleTypes is null)
-            {
-                return rules;
-            }
-
-            foreach (var ruleType in ruleTypes)
-            {
-                IBicepAnalyzerRule? rule = Activator.CreateInstance(ruleType) as IBicepAnalyzerRule;
-                if (rule is not null)
-                {
-                    var code = rule.Code;
-                    rules.Add(code, $"core.rules.{code}.level");
-                }
-            }
-
-            return rules;
         }
 
         private RootConfiguration GetConfigurationSafely(DocumentUri documentUri, out Diagnostic? diagnostic)
