@@ -10,7 +10,7 @@ namespace Bicep.RegistryModuleTool.Extensions
     {
         public static Stream CreateDeleteOnCloseStream(this IFileStreamFactory factory, string filePath) => factory.Create(
             filePath,
-            FileMode.CreateNew,
+            FileMode.Open,
             FileAccess.ReadWrite,
             FileShare.ReadWrite,
             bufferSize: 4096,

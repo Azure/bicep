@@ -54,10 +54,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             var tempFilePath = fileSystem.Path.GetTempFileName();
             bicepCliProxy.Build(mainBicepFile.Path, tempFilePath);
 
-            var path = fileSystem.Path.GetFullPath(FileName);
-
             using var tempFileStream = fileSystem.FileStream.CreateDeleteOnCloseStream(tempFilePath);
             using var streamReader = new StreamReader(tempFileStream);
+
+            var path = fileSystem.Path.GetFullPath(FileName);
             var content = streamReader.ReadToEnd();
 
             return new(path, content);

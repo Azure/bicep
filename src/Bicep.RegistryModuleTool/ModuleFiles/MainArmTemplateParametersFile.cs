@@ -14,7 +14,7 @@ using System.Text.Json;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
-    public record MainArmTemplateParameterInstance(string Name, object Value);
+    public record MainArmTemplateParameterInstance(string Name, object? Value);
 
     public sealed class MainArmTemplateParametersFile : ModuleFile
     {
@@ -56,14 +56,19 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                     ? GenerateParameterInstancesWithExistingFile(ReadFromFileSystem(fileSystem), mainArmTemplateFile)
                     : mainArmTemplateFile.Parameters
                         .Where(x => x.Required)
-                        .Select(GenerateDummyParameterInstance);
+                        .Select(CreateBlankParameterInstance);
 
-                foreach (var parameterInstance in parameterInstances)
+                foreach (var (parameterName, parameterValue) in parameterInstances)
                 {
-                    writer.WritePropertyName(parameterInstance.Name);
+                    writer.WritePropertyName(parameterName);
                     writer.WriteStartObject();
-                    writer.WritePropertyName("value");
-                    JsonElementFactory.CreateElement(parameterInstance.Value).WriteTo(writer);
+
+                    if (parameterValue is not null)
+                    {
+                        writer.WritePropertyName("value");
+                        JsonElementFactory.CreateElement(parameterValue).WriteTo(writer);
+                    }
+
                     writer.WriteEndObject();
                 }
 
@@ -120,29 +125,15 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             {
                 if (parameter.Required && !parameterInstancesByName.ContainsKey(parameter.Name))
                 {
-                    mergedParameterInstances.Add(GenerateDummyParameterInstance(parameter));
+                    mergedParameterInstances.Add(CreateBlankParameterInstance(parameter));
                 }
             }
 
             return mergedParameterInstances;
         }
 
-        private static MainArmTemplateParameterInstance GenerateDummyParameterInstance(MainArmTemplateParameter parameter)
-        {
-            var name = parameter.Name;
-            object value = parameter.Type.ToLowerInvariant() switch
-            {
-                "bool" => false,
-                "int" => 0,
-                "string" or "securestring" => JsonElementFactory.CreateElement(@"[ """" ]")[0],
-                "object" or "secureobject" => JsonElementFactory.CreateElement("{}"),
-                "array" => JsonElementFactory.CreateElement("[]"),
-
-                _ => throw new InvalidOperationException($"Unknown parameter type \"{parameter.Type}\""),
-            };
-
-            return new(name, value);
-        }
+        private static MainArmTemplateParameterInstance CreateBlankParameterInstance(MainArmTemplateParameter parameter) =>
+            new(parameter.Name, null);
 
         private MainArmTemplateParameterInstance ToParameterInstance(JsonProperty parameterInstanceProperty)
         {
