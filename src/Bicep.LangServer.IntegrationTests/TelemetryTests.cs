@@ -435,7 +435,6 @@ namespace Bicep.LangServer.IntegrationTests
             bicepTelemetryEvent.Properties.Should().Equal(properties);
 
             await telemetryEventsListener.EnsureNoMessageSent();
-
         }
 
         private async Task OpenFileAndVerifyTelemetryEventsAreSent(ILanguageClient client, DocumentUri documentUri, string bicepFileContents, MultipleMessageListener<BicepTelemetryEvent> telemetryEventsListener)
@@ -570,9 +569,6 @@ var useDefaultSettings = true";
             bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
             bicepTelemetryEvent.Properties.Should().Contain(properties);
-
-            // Ensures telemetry event is sent exactly once
-            await telemetryEventsListener.EnsureNoMessageSent();
         }
 
         private async Task<BicepTelemetryEvent> GetTelemetryEventForBicepConfigChange(string prevBicepConfigFileContents, string curBicepConfigFileContents, string bicepFileContents)
