@@ -123,5 +123,12 @@ namespace Bicep.LanguageServer.Telemetry
                 EventName = TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen,
                 Properties = properties
             };
+
+        public static BicepTelemetryEvent CreateBicepFileOpen(Dictionary<string, string> properties)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.BicepFileOpen,
+                Properties = properties
+            };
     }
 }

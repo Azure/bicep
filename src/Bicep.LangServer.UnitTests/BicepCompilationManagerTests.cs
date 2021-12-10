@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
@@ -1160,7 +1161,7 @@ module moduleB './moduleB.bicep' = {
                 { "outputs-should-not-contain-secrets", "warning" },
             };
 
-            telemetryEvent.Properties.Should().Equal(properties);
+            telemetryEvent.Properties.Should().Contain(properties);
         }
 
         [TestMethod]
@@ -1232,7 +1233,59 @@ module moduleB './moduleB.bicep' = {
                 { "outputs-should-not-contain-secrets", "warning" },
             };
 
-            telemetryEvent.Properties.Should().Equal(properties);
+            telemetryEvent.Properties.Should().Contain(properties);
+        }
+
+        [TestMethod]
+        public void GetTelemetryAboutSourceFiles_ShouldReturnTelemetryEvent()
+        {
+            string bicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
+
+resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
+  name: appInsightsName
+  location: resourceGroup().location
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+}
+
+param location string = 'testLocation'";
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", bicepFileContents, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(bicepFilePath).ToUri();
+
+            var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, bicepFileContents);
+
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
+            var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ToDiagnostics(bicepFile.LineStarts);
+
+            var compilationManager = CreateBicepCompilationManager();
+
+            var telemetryEvent = compilationManager.GetTelemetryAboutSourceFiles(compilation.GetEntrypointSemanticModel(),
+                                                                                 bicepFile.FileUri,
+                                                                                 ImmutableHashSet.Create<ISourceFile>(bicepFile),
+                                                                                 diagnostics);
+
+            var properties = new Dictionary<string, string>
+            {
+                { "Modules", "0" },
+                { "Parameters", "2" },
+                { "Resources", "1" },
+                { "Variables", "0" },
+                { "FileSizeInBytes", "294" },
+                { "LineCount", "12" },
+                { "Errors", "0" },
+                { "Warnings", "2" },
+                { "ModulesInReferencedFiles", "0" },
+                { "ParentResourcesInReferencedFiles", "0" },
+                { "ParametersInReferencedFiles", "0" },
+                { "VariablesInReferencedFiles", "0" }
+            };
+
+            telemetryEvent.Should().NotBeNull();
+            telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
+            telemetryEvent.Properties.Should().Contain(properties);
         }
 
         private (RootConfiguration, RootConfiguration) GetPreviousAndCurrentRootConfiguration(string prevBicepConfigContents, string curBicepConfigContents)
