@@ -338,13 +338,11 @@ namespace Bicep.LangServer.IntegrationTests
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
 
             var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
             using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                     options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
                 });
             var client = helper.Client;
@@ -356,8 +354,9 @@ namespace Bicep.LangServer.IntegrationTests
             // Close the bicep file and modify the bicepconfig.json. Verify config change telemetry event is fired.
             client.TextDocument.DidCloseTextDocument(TextDocumentParamHelper.CreateDidCloseTextDocumentParams(documentUri, 2));
 
-            var diagsParams = await diagsListener.WaitNext();
-            diagsParams.Uri.Should().Be(documentUri);
+            // There's no good way to wait between document open and save. And looks like omnisharp swallows DidSaveTextDocument(..) event
+            // while it's still processing DidOpenTextDocument(..)
+            await Task.Delay(10000);
 
             bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigFileContents, testOutputPath);
             bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
@@ -608,13 +607,11 @@ var useDefaultSettings = true";
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
 
             var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
-            var diagsListener = new MultipleMessageListener<PublishDiagnosticsParams>();
 
             using var helper = await LanguageServerHelper.StartServerWithClientConnectionAsync(
                 TestContext,
                 options =>
                 {
-                    options.OnPublishDiagnostics(diags => diagsListener.AddMessage(diags));
                     options.OnTelemetryEvent<BicepTelemetryEvent>(telemetry => telemetryEventsListener.AddMessage(telemetry));
                 });
             var client = helper.Client;
@@ -623,8 +620,9 @@ var useDefaultSettings = true";
 
             client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1));
 
-            var diagsParams = await diagsListener.WaitNext();
-            diagsParams.Uri.Should().Be(documentUri);
+            // There's no good way to wait between document open and save. And looks like omnisharp swallows DidSaveTextDocument(..) event
+            // while it's still processing DidOpenTextDocument(..)
+            await Task.Delay(10000);
 
             bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigFileContents, testOutputPath);
             bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
