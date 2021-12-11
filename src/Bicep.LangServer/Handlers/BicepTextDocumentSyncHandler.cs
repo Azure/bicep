@@ -56,10 +56,9 @@ namespace Bicep.LanguageServer.Handlers
             // activation, there won't be an entry for it in the cache. We'll capture the state of the
             // config file on disk when it's changes and cache it.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
-                !activeBicepConfigCache.ContainsKey(documentUri) &&
                 ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration))
             {
-                activeBicepConfigCache.TryAdd(documentUri, configuration);
+                activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
             }
 
             return Unit.Task;
