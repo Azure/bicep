@@ -11,10 +11,16 @@ namespace Bicep.LanguageServer.CodeFixes
 {
     public class SecureParameterCodeFixProvider : ICodeFixProvider
     {
+        public static string[] SupportedTypes= new []{"string", "object"};
         public IEnumerable<CodeFix> GetFixes(SemanticModel semanticModel, IReadOnlyList<SyntaxBase> matchingNodes)
         {
             if (matchingNodes.OfType<ParameterDeclarationSyntax>().FirstOrDefault() is not {} parameterSyntax ||
-                semanticModel.GetSymbolInfo(parameterSyntax) is not ParameterSymbol parameterSymbol)
+                semanticModel.GetSymbolInfo(parameterSyntax) is not ParameterSymbol parameterSymbol ||
+                parameterSymbol.IsSecure()) 
+            {
+                yield break;
+            }
+            if(!SupportedTypes.Any(t => parameterSyntax.ParameterType?.TypeName == t))
             {
                 yield break;
             }

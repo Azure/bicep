@@ -24,29 +24,63 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public class CodeFixTests
     {
+        private const string SecureTitle = "Add @secure";
+
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        [DataRow("string")]
+        [DataRow("object")]
+        [DataTestMethod]
+        public async Task Secure_parameter_basic_test(string type)
+        {
+            var fileWithCursors = @$"
+param fo|o {type}
+";
+            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == SecureTitle);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == SecureTitle));
+            updatedFile.Should().HaveSourceText(@$"
+@secure()
+param foo {type}
+");
+        }
+        
+
         [TestMethod]
-        public async Task Secure_parameter_basic_test()
+        public async Task Secure_parameter_do_not_add_duplicate()
         {
             var fileWithCursors = @"
+@secure()
 param fo|o string
 ";
+            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == SecureTitle);
+        }
 
+        [DataRow("array")]
+        [DataRow("bool")]
+        [DataRow("int")]
+        [DataTestMethod]
+        public async Task Secure_parameter_do_not_add_for_unsupported_type(string type)
+        {
+            var fileWithCursors = $@"
+param fo|o {type}
+";
+            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == SecureTitle);
+        }
+
+        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> TestCodeAction(string fileWithCursors)
+        {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri);
             var client = helper.Client;
 
             var codeActions = await RequestCodeActions(client, bicepFile, cursors.Single());
-            codeActions.Should().Contain(x => x.Title == "Add @secure");
-
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == "Add @secure"));
-            updatedFile.Should().HaveSourceText(@"
-@secure()
-param foo string
-");
+            return (codeActions, bicepFile);
         }
 
         private static async Task<IEnumerable<CodeAction>> RequestCodeActions(ILanguageClient client, BicepFile bicepFile, int cursor)
