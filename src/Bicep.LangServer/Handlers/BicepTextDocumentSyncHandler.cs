@@ -57,7 +57,7 @@ namespace Bicep.LanguageServer.Handlers
             // config file on disk when it's changes and cache it.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
                 !activeBicepConfigCache.ContainsKey(documentUri) &&
-                ConfigurationHelper.TryGetConfigurarion(configurationManager, documentUri, out RootConfiguration? configuration) && configuration is not null)
+                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration) && configuration is not null)
             {
                 activeBicepConfigCache.TryAdd(documentUri, configuration);
             }
@@ -71,7 +71,7 @@ namespace Bicep.LanguageServer.Handlers
 
             // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
-                ConfigurationHelper.TryGetConfigurarion(configurationManager, documentUri, out RootConfiguration? configuration) &&
+                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration) &&
                 configuration is not null)
             {
                 activeBicepConfigCache.TryAdd(documentUri, configuration);
@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer.Handlers
             if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
                 activeBicepConfigCache.TryGetValue(documentUri, out RootConfiguration? prevBicepConfiguration) &&
                 prevBicepConfiguration != null &&
-                ConfigurationHelper.TryGetConfigurarion(configurationManager, documentUri, out RootConfiguration? curConfiguration) &&
+                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? curConfiguration) &&
                 curConfiguration is not null)
             {
                 TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);

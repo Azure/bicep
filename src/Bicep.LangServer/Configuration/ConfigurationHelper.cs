@@ -25,7 +25,7 @@ namespace Bicep.LanguageServer.Configuration
             }
         }
 
-        public static bool TryGetConfigurarion(IConfigurationManager configurationManager, DocumentUri documentUri, out RootConfiguration? rootConfiguration)
+        public static bool TryGetConfiguration(IConfigurationManager configurationManager, DocumentUri documentUri, out RootConfiguration? rootConfiguration)
         {
             try
             {
