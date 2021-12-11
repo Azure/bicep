@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Bicep.Core;
 using Bicep.Core.Configuration;
@@ -25,7 +26,7 @@ namespace Bicep.LanguageServer.Configuration
             }
         }
 
-        public static bool TryGetConfiguration(IConfigurationManager configurationManager, DocumentUri documentUri, out RootConfiguration? rootConfiguration)
+        public static bool TryGetConfiguration(IConfigurationManager configurationManager, DocumentUri documentUri, [NotNullWhen(true)] out RootConfiguration? rootConfiguration)
         {
             try
             {

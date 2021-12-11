@@ -57,7 +57,7 @@ namespace Bicep.LanguageServer.Handlers
             // config file on disk when it's changes and cache it.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
                 !activeBicepConfigCache.ContainsKey(documentUri) &&
-                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration) && configuration is not null)
+                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration))
             {
                 activeBicepConfigCache.TryAdd(documentUri, configuration);
             }
@@ -71,8 +71,7 @@ namespace Bicep.LanguageServer.Handlers
 
             // If the documentUri corresponds to bicepconfig.json, we'll add an entry to activeBicepConfigCache.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
-                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration) &&
-                configuration is not null)
+                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration))
             {
                 activeBicepConfigCache.TryAdd(documentUri, configuration);
             }
@@ -93,8 +92,7 @@ namespace Bicep.LanguageServer.Handlers
             if (ConfigurationHelper.IsBicepConfigFile(documentUri) &&
                 activeBicepConfigCache.TryGetValue(documentUri, out RootConfiguration? prevBicepConfiguration) &&
                 prevBicepConfiguration != null &&
-                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? curConfiguration) &&
-                curConfiguration is not null)
+                ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? curConfiguration))
             {
                 TelemetryHelper.SendTelemetryOnBicepConfigChange(prevBicepConfiguration, curConfiguration, linterRulesProvider, telemetryProvider);
                 activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => curConfiguration, (documentUri, prevConfiguration) => curConfiguration);
