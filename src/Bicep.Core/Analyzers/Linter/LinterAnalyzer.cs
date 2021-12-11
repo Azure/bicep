@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Reflection;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
@@ -25,6 +24,8 @@ namespace Bicep.Core.Analyzers.Linter
 
         private readonly RootConfiguration configuration;
 
+        private readonly LinterRulesProvider linterRulesProvider;
+
         private ImmutableArray<IBicepAnalyzerRule> ruleSet;
 
         private ImmutableArray<IDiagnostic> ruleCreationErrors;
@@ -35,6 +36,7 @@ namespace Bicep.Core.Analyzers.Linter
         public LinterAnalyzer(RootConfiguration configuration)
         {
             this.configuration = configuration;
+            this.linterRulesProvider = new LinterRulesProvider();
             (this.ruleSet, this.ruleCreationErrors) = CreateLinterRules();
         }
 
@@ -47,12 +49,7 @@ namespace Bicep.Core.Analyzers.Linter
             var errors = new List<IDiagnostic>();
             var rules = new List<IBicepAnalyzerRule>();
 
-            var ruleTypes = Assembly.GetExecutingAssembly()
-                .GetTypes()
-                .Where(t => typeof(IBicepAnalyzerRule).IsAssignableFrom(t)
-                            && t.IsClass
-                            && t.IsPublic
-                            && t.GetConstructor(Type.EmptyTypes) != null);
+            var ruleTypes = linterRulesProvider.GetRuleTypes();
 
             foreach (var ruleType in ruleTypes)
             {
