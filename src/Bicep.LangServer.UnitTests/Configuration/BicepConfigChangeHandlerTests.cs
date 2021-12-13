@@ -21,6 +21,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
 using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
@@ -30,10 +31,10 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private string CurrentDirectory = Directory.GetCurrentDirectory();
+        private static readonly LinterRulesProvider LinterRulesProvider = new();
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
+        public void HandleBicepConfigSaveEvent_WithValidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -75,7 +76,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
+        public void HandleBicepConfigSaveEvent_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -112,7 +113,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
+        public void HandleBicepConfigSaveEvent_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -153,9 +154,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 });
         }
 
-
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRefreshCompilation()
+        public void HandleBicepConfigSaveEvent_WithEmptySourceFile_ShouldNotRefreshCompilation()
         {
             var bicepConfigFileContents = @"{
               ""analyzers"": {
@@ -181,7 +181,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void RefreshCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
+        public void HandleBicepConfigSaveEvent_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -219,7 +219,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var workspace = new Workspace();
 
-            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepCompilationManagerHelper.CreateMockTelemetryProvider().Object, new LinterRulesProvider());
+            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, new LinterRulesProvider());
             bicepCompilationManager.UpsertCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
@@ -230,8 +230,13 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             }
 
-            var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager, workspace);
-            bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
+            var bicepConfigChangeHandler = new BicepConfigChangeHandler(BicepTestConstants.ConfigurationManager,
+                                                                        bicepCompilationManager,
+                                                                        workspace,
+                                                                        BicepTestConstants.CreateMockTelemetryProvider().Object,
+                                                                        LinterRulesProvider);
+
+            bicepConfigChangeHandler.HandleBicepConfigSaveEvent(bicepConfigDocumentUri);
 
             diagnostics = receivedParams?.Diagnostics;
         }
