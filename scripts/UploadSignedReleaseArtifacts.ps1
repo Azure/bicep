@@ -169,15 +169,15 @@ $artifacts = @(
       }
     );
   },
-  @{
-    buildArtifactName = 'drop_build_packages_linux_arm64';
-    assets = @(
-      @{
-        assetName = "Azure.Bicep.CommandLine.linux-arm64.$buildVersion.nupkg";
-        relativePath = "Azure.Bicep.CommandLine.linux-arm64.$buildVersion.nupkg";
-      }
-    );
-  },
+  # @{
+  #   buildArtifactName = 'drop_build_packages_linux_arm64';
+  #   assets = @(
+  #     @{
+  #       assetName = "Azure.Bicep.CommandLine.linux-arm64.$buildVersion.nupkg";
+  #       relativePath = "Azure.Bicep.CommandLine.linux-arm64.$buildVersion.nupkg";
+  #     }
+  #   );
+  # },
   @{
     buildArtifactName = 'drop_build_packages_osx';
     assets = @(
@@ -186,16 +186,16 @@ $artifacts = @(
         relativePath = "Azure.Bicep.CommandLine.osx-x64.$buildVersion.nupkg";
       }
     );
-  },
-  @{
-    buildArtifactName = 'drop_build_packages_osx_arm64';
-    assets = @(
-      @{
-        assetName = "Azure.Bicep.CommandLine.osx-arm64.$buildVersion.nupkg";
-        relativePath = "Azure.Bicep.CommandLine.osx-arm64.$buildVersion.nupkg";
-      }
-    );
-  }
+  }#,
+  # @{
+  #   buildArtifactName = 'drop_build_packages_osx_arm64';
+  #   assets = @(
+  #     @{
+  #       assetName = "Azure.Bicep.CommandLine.osx-arm64.$buildVersion.nupkg";
+  #       relativePath = "Azure.Bicep.CommandLine.osx-arm64.$buildVersion.nupkg";
+  #     }
+  #   );
+  # }
 )
 
 Write-Output "Removing working dir...";
