@@ -23,6 +23,7 @@ using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
+using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -1213,7 +1214,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority))
                 .Build();
-
+        
         private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, bool disableFollowUp = false, string? insertText = null)
         {
             insertText ??= symbol.Name;
@@ -1244,8 +1245,18 @@ namespace Bicep.LanguageServer.Completions
                     completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp });
                 }
 
+                ImmutableArray<FunctionOverload> overloads = function.Overloads;
+                var genericDescription = overloads.First().GenericDescription;
+                var description = overloads.First().Description;
+                string codeBlock = string.Empty;
+
+                foreach (var overload in overloads)
+                {
+                    codeBlock = $"{codeBlock}{function.Name}{overload.TypeSignature}\n";
+                }
+
                 return completion
-                    .WithDetail($"{insertText}()")
+                    .WithDocumentation(MarkdownHelper.CodeBlockWithDescription(codeBlock, genericDescription.ToString()))
                     .WithSnippetEdit(replacementRange, snippet)
                     .Build();
             }

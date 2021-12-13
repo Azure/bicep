@@ -1895,6 +1895,30 @@ resource test";
             completions.Should().BeEmpty();
         }
 
+        [TestMethod]
+        public async Task Descriptions_for_function_completions()
+        {
+            var fileWithCursors = @"
+var foo = resourceI|
+";
+
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            var client = helper.Client;
+            var completions = await RequestCompletion(client, bicepFile, cursors.Single());
+            completions.Where(x => x.Label == "resourceId").First().Documentation!.MarkupContent!.Value.Should().EqualIgnoringNewlines(@"```bicep
+resourceId(resourceType: string, ... : string): string
+resourceId(subscriptionId: string, resourceType: string, ... : string): string
+resourceId(resourceGroupName: string, resourceType: string, ... : string): string
+resourceId(subscriptionId: string, resourceGroupName: string, resourceType: string, ... : string): string
+
+```
+Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.
+"
+);
+        }
+
         private string ApplyCompletion(CompletionItem completionItem, BicepFile bicepFile)
         {
             var start = PositionHelper.GetOffset(bicepFile.LineStarts, completionItem.TextEdit!.TextEdit!.Range.Start);

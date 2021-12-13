@@ -18,6 +18,7 @@ namespace Bicep.Core.Semantics
         {
             return new FunctionWildcardOverload(
                 Name,
+                GenericDescription,
                 Description,
                 WildcardRegex,
                 ReturnTypeBuilder,
