@@ -230,7 +230,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             }
 
-            BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(bicepCompilationManager, workspace);
+            var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager, workspace);
+            bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
 
             diagnostics = receivedParams?.Diagnostics;
         }
