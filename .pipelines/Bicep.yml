@@ -42,13 +42,13 @@ steps:
       arguments: '--configuration $(BuildConfiguration) --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory $(Build.SourcesDirectory)/TestResults/'
       publishTestResults: false
 
-  - task: PublishTestResults@2
-    displayName: Publish Test Results
-    condition: always()
-    inputs:
-      testResultsFormat: VSTest
-      testResultsFiles: '$(Build.SourcesDirectory)/TestResults/**/*.trx'
-      failTaskOnFailedTests: true
+  # - task: PublishTestResults@2
+  #   displayName: Publish Test Results
+  #   condition: always()
+  #   inputs:
+  #     testResultsFormat: VSTest
+  #     testResultsFiles: '$(Build.SourcesDirectory)/TestResults/**/*.trx'
+  #     failTaskOnFailedTests: true
 
 - ${{ if eq(parameters.publishLanguageServer, true) }}:
   - task: DotNetCoreCLI@2
