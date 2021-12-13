@@ -84,6 +84,7 @@ namespace Bicep.Decompiler.BicepHelpers
             "providers",
             "pickZones",
             "reference",
+            "items",
         }.ToDictionary(x => x, StringComparer.OrdinalIgnoreCase);
 
         private static IReadOnlyDictionary<string, TokenType> BinaryOperatorReplacements = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)
