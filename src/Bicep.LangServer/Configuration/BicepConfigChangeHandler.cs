@@ -35,6 +35,14 @@ namespace Bicep.LanguageServer.Configuration
             this.telemetryProvider = telemetryProvider;
         }
 
+        public void RefreshCompilationOfSourceFilesInWorkspace()
+        {
+            foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
+            {
+                compilationManager.RefreshCompilation(DocumentUri.From(sourceFileUri), reloadBicepConfig: true);
+            }
+        }
+
         public void HandleBicepConfigOpenEvent(DocumentUri documentUri)
         {
             HandleBicepConfigOpenOrChangeEvent(documentUri);
