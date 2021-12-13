@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="JsonSchemas\schema.armTemplateParameters.json" />
+    <None Remove="JsonSchemas\schema.metadata.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="JsonSchemas\schema.armTemplateParameters.json" />
+    <EmbeddedResource Include="JsonSchemas\schema.metadata.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DiffPlex" Version="1.7.0" />
+    <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="JsonSchema.Net" Version="1.12.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21308.1" />
+    <PackageReference Include="System.CommandLine.Hosting" Version="0.3.0-alpha.21216.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.Core.UnitTests\Bicep.Core.UnitTests.csproj" />
+    <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
+  </ItemGroup>
+
+</Project>

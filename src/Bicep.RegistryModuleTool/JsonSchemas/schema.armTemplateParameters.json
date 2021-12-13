@@ -1,0 +1,88 @@
+﻿{
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "contentVersion": {
+      "type": "string",
+      "pattern": "(^[0-9]+\\.[0-9]+\\.[0-9]+\\.[0-9]+$)",
+      "description": "A 4 number format for the version number of this parameter file. For example, 1.0.0.0"
+    },
+    "parameters": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/parameter"
+      },
+      "description": "Collection of parameters to pass into a template"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "contentVersion",
+    "parameters"
+  ],
+  "definitions": {
+    "parameter": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": [
+            "string",
+            "boolean",
+            "integer",
+            "number",
+            "object",
+            "array",
+            "null"
+          ],
+          "description": "Input value to template"
+        },
+        "reference": {
+          "type": "object",
+          "properties": {
+            "keyVault": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [ "id" ],
+              "additionalProperties": false
+            },
+            "secretName": {
+              "type": "string",
+              "minLength": 1
+            },
+            "secretVersion": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [ "keyVault", "secretName" ],
+          "additionalProperties": false,
+          "description": "KeyVault parameter reference"
+        },
+        "metadata": {
+          "type": "object",
+          "description": "Client specific metadata"
+        }
+      },
+      "oneOf": [
+        {
+          "required": [
+            "value"
+          ]
+        },
+        {
+          "required": [
+            "reference"
+          ]
+        }
+      ],
+      "additionalProperties": false
+    }
+  }
+}
