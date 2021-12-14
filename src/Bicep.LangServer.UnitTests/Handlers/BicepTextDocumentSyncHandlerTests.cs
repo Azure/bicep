@@ -25,6 +25,7 @@ using IOFileSystem = System.IO.Abstractions.FileSystem;
 namespace Bicep.LangServer.UnitTests.Handlers
 {
     [TestClass]
+    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class BicepTextDocumentSyncHandlerTests
     {
         [NotNull]
@@ -61,27 +62,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
-
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", prevBicepConfigFileContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
-
             var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
-            var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
-            var bicepConfigChangeHandler = new BicepConfigChangeHandler(new ConfigurationManager(new IOFileSystem()),
-                                                                        compilationManager,
-                                                                        new Workspace(),
-                                                                        telemetryProvider.Object,
-                                                                        linterRulesProvider);
-
-            var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler);
-
-            await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1), CancellationToken.None);
-
-            bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigFileContents, testOutputPath);
-            bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
-
-            await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidSaveTextDocumentParams(bicepConfigUri, curBicepConfigFileContents, 2), CancellationToken.None);
+            await ChangeLinterRuleState(telemetryProvider, prevBicepConfigFileContents, curBicepConfigFileContents);
 
             var properties = new Dictionary<string, string>
             {
@@ -89,8 +71,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 { "previousDiagnosticLevel", "info" },
                 { "currentDiagnosticLevel", "off" }
             };
-
-            var bicepTelemetryEvent = BicepTelemetryEvent.CreateLinterRuleStateChangeInBicepConfig("no-unused-params", "info", "off");
 
             telemetryProvider.Verify(m => m.PostEvent(It.Is<BicepTelemetryEvent>(
                 p => p.EventName == TelemetryConstants.EventNames.LinterRuleStateChange &&
@@ -127,27 +107,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
-
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", prevBicepConfigFileContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
-
             var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
-            var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
-            var bicepConfigChangeHandler = new BicepConfigChangeHandler(new ConfigurationManager(new IOFileSystem()),
-                                                                        compilationManager,
-                                                                        new Workspace(),
-                                                                        telemetryProvider.Object,
-                                                                        linterRulesProvider);
-
-            var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler);
-
-            await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1), CancellationToken.None);
-
-            bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigFileContents, testOutputPath);
-            bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
-
-            await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidSaveTextDocumentParams(bicepConfigUri, curBicepConfigFileContents, 2), CancellationToken.None);
+            await ChangeLinterRuleState(telemetryProvider, prevBicepConfigFileContents, curBicepConfigFileContents);
 
             var properties = new Dictionary<string, string>
             {
@@ -193,27 +154,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
-
-            var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", prevBicepConfigFileContents, testOutputPath);
-            var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
-
             var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
-            var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
-            var bicepConfigChangeHandler = new BicepConfigChangeHandler(new ConfigurationManager(new IOFileSystem()),
-                                                                        compilationManager,
-                                                                        new Workspace(),
-                                                                        telemetryProvider.Object,
-                                                                        linterRulesProvider);
-
-            var bicepTextDocumentSyncHandler = new BicepTextDocumentSyncHandler(compilationManager, bicepConfigChangeHandler);
-
-            await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidOpenDocumentParams(bicepConfigUri, prevBicepConfigFileContents, 1), CancellationToken.None);
-
-            bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", curBicepConfigFileContents, testOutputPath);
-            bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
-
-            await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidSaveTextDocumentParams(bicepConfigUri, curBicepConfigFileContents, 2), CancellationToken.None);
+            await ChangeLinterRuleState(telemetryProvider, prevBicepConfigFileContents, curBicepConfigFileContents);
 
             telemetryProvider.Verify(m => m.PostEvent(It.IsAny<BicepTelemetryEvent>()), Times.Never);
         }
@@ -247,12 +189,19 @@ namespace Bicep.LangServer.UnitTests.Handlers
     }
   }
 }";
+            var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
+            await ChangeLinterRuleState(telemetryProvider, prevBicepConfigFileContents, curBicepConfigFileContents);
+
+            telemetryProvider.Verify(m => m.PostEvent(It.IsAny<BicepTelemetryEvent>()), Times.Never);
+        }
+
+        private async Task ChangeLinterRuleState(Mock<ITelemetryProvider> telemetryProvider, string prevBicepConfigFileContents, string curBicepConfigFileContents)
+        {
             var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
             var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", prevBicepConfigFileContents, testOutputPath);
             var bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
 
-            var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
             var compilationManager = BicepCompilationManagerHelper.CreateCompilationManager(bicepConfigUri, prevBicepConfigFileContents);
             var bicepConfigChangeHandler = new BicepConfigChangeHandler(new ConfigurationManager(new IOFileSystem()),
                                                                         compilationManager,
@@ -268,8 +217,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
             bicepConfigUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath).ToUri();
 
             await bicepTextDocumentSyncHandler.Handle(TextDocumentParamHelper.CreateDidSaveTextDocumentParams(bicepConfigUri, curBicepConfigFileContents, 2), CancellationToken.None);
-
-            telemetryProvider.Verify(m => m.PostEvent(It.IsAny<BicepTelemetryEvent>()), Times.Never);
         }
     }
 }
