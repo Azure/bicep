@@ -63,11 +63,6 @@ namespace Bicep.LanguageServer.Configuration
 
         public void HandleBicepConfigSaveEvent(DocumentUri documentUri)
         {
-            foreach (Uri sourceFileUri in workspace.GetActiveSourceFilesByUri().Keys)
-            {
-                compilationManager.RefreshCompilation(DocumentUri.From(sourceFileUri), reloadBicepConfig: true);
-            }
-
             if (activeBicepConfigCache.TryGetValue(documentUri, out RootConfiguration? prevBicepConfiguration) &&
                 prevBicepConfiguration != null &&
                 ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? curConfiguration))
