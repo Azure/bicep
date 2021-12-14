@@ -14,25 +14,25 @@ namespace Bicep.LanguageServer.Configuration
 {
     public class BicepConfigChangeHandler : IBicepConfigChangeHandler
     {
-        private readonly IWorkspace workspace;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
         private readonly ILinterRulesProvider linterRulesProvider;
         private readonly ITelemetryProvider telemetryProvider;
+        private readonly IWorkspace workspace;
 
         private readonly ConcurrentDictionary<DocumentUri, RootConfiguration> activeBicepConfigCache = new ConcurrentDictionary<DocumentUri, RootConfiguration>();
 
-        public BicepConfigChangeHandler(IConfigurationManager configurationManager,
-                                        ICompilationManager compilationManager,
-                                        IWorkspace workspace,
+        public BicepConfigChangeHandler(ICompilationManager compilationManager,
+                                        IConfigurationManager configurationManager,
+                                        ILinterRulesProvider linterRulesProvider,
                                         ITelemetryProvider telemetryProvider,
-                                        ILinterRulesProvider linterRulesProvider)
+                                        IWorkspace workspace)
         {
-            this.configurationManager = configurationManager;
             this.compilationManager = compilationManager;
-            this.workspace = workspace;
+            this.configurationManager = configurationManager;
             this.linterRulesProvider = linterRulesProvider;
             this.telemetryProvider = telemetryProvider;
+            this.workspace = workspace;
         }
 
         public void RefreshCompilationOfSourceFilesInWorkspace()

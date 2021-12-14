@@ -149,7 +149,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         },
         ""no-unused-vars"": {
           ""level"": ""warning""
-        },
+        }
       }
     }
   }

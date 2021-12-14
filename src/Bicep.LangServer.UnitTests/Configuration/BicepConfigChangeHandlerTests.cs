@@ -34,7 +34,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         private static readonly LinterRulesProvider LinterRulesProvider = new();
 
         [TestMethod]
-        public void HandleBicepConfigSaveEvent_WithValidBicepConfigFile_ShouldRefreshCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -76,7 +76,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void HandleBicepConfigSaveEvent_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithInvalidBicepConfigFile_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -113,7 +113,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void HandleBicepConfigSaveEvent_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithBicepConfigFileThatDoesntAdhereToSchema_ShouldRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -155,7 +155,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void HandleBicepConfigSaveEvent_WithEmptySourceFile_ShouldNotRefreshCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRefreshCompilation()
         {
             var bicepConfigFileContents = @"{
               ""analyzers"": {
@@ -181,7 +181,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void HandleBicepConfigSaveEvent_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
+        public void RefreshCompilationOfSourceFilesInWorkspace_WithoutBicepConfigFile_ShouldUseDefaultConfigAndRefreshCompilation()
         {
             var bicepFileContents = "param storageAccountName string = 'testAccount'";
 
@@ -236,7 +236,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
                                                                         BicepTestConstants.CreateMockTelemetryProvider().Object,
                                                                         LinterRulesProvider);
 
-            bicepConfigChangeHandler.HandleBicepConfigSaveEvent(bicepConfigDocumentUri);
+            bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
 
             diagnostics = receivedParams?.Diagnostics;
         }
