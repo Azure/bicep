@@ -14,6 +14,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Registry;
+using Bicep.LanguageServer.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
@@ -117,6 +118,14 @@ namespace Bicep.Core.UnitTests
         {
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
             return new ModuleRestoreScheduler(moduleDispatcher.Object);
+        }
+
+        public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
+        {
+            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
+            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
+
+            return telemetryProvider;
         }
     }
 }

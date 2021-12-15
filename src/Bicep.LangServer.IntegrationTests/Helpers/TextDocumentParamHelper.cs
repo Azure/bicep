@@ -55,5 +55,19 @@ namespace Bicep.LangServer.IntegrationTests.Helpers
                 }
             };
         }
+
+        public static DidSaveTextDocumentParams CreateDidSaveTextDocumentParams(DocumentUri documentUri, string text, int version)
+        {
+            return new DidSaveTextDocumentParams
+            {
+                TextDocument = new TextDocumentItem
+                {
+                    LanguageId = LanguageConstants.LanguageId,
+                    Version = version,
+                    Uri = documentUri,
+                    Text = text
+                }
+            };
+        }
     }
 }

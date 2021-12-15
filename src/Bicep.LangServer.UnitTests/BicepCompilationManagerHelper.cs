@@ -16,7 +16,6 @@ using Bicep.LanguageServer;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
-using Bicep.LanguageServer.Telemetry;
 using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -37,7 +36,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), CreateMockTelemetryProvider().Object, linterRulesProvider);
+            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             if (upsertCompilation)
             {
@@ -79,14 +78,6 @@ namespace Bicep.LangServer.UnitTests
         public static ICompilationProvider CreateEmptyCompilationProvider()
         {
             return new BicepCompilationProvider(TestTypeHelper.CreateEmptyProvider(), FileResolver, new ModuleDispatcher(BicepTestConstants.RegistryProvider));
-        }
-
-        public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
-        {
-            var telemetryProvider = Repository.Create<ITelemetryProvider>();
-            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
-
-            return telemetryProvider;
         }
 
         public static Mock<IModuleRestoreScheduler> CreateMockScheduler()
