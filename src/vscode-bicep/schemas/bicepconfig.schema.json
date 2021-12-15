@@ -110,11 +110,6 @@
   },
   "type": "object",
   "default": {
-    "analyzers": {
-      "core": {
-        "enabled": true
-      }
-    }
   },
   "properties": {
     "cloud": {
