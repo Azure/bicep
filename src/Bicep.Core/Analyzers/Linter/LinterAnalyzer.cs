@@ -31,7 +31,7 @@ namespace Bicep.Core.Analyzers.Linter
         private ImmutableArray<IDiagnostic> ruleCreationErrors;
 
         // TODO: This should be controlled by a core component, not an analyzer
-        public const string FailedRuleCode = "linter-internal-error";
+        public const string LinterRuleInternalError = "linter-internal-error";
 
         public LinterAnalyzer(RootConfiguration configuration)
         {
@@ -127,7 +127,7 @@ namespace Bicep.Core.Analyzers.Linter
             analyzerName,
             new TextSpan(0, 0),
             DiagnosticLevel.Warning,
-            LinterAnalyzer.FailedRuleCode,
+            LinterAnalyzer.LinterRuleInternalError,
             message);
     }
 }
