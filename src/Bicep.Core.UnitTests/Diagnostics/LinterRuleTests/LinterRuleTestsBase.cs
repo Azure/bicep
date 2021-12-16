@@ -59,7 +59,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 scope.AddReportable("bicep code", bicepText);
 
                 var result = CompilationHelper.Compile(bicepText);
-                result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.FailedRuleCode }, "There should never be linter FailedRuleCode errors");
+                result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.LinterRuleInternalError }, "There should never be linter LinterRuleInternalError errors");
 
                 if (onCompileErrors == OnCompileErrors.Fail)
                 {
