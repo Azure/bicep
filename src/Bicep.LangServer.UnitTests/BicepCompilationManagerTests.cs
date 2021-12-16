@@ -770,7 +770,7 @@ param location string = 'testLocation'";
                 { "FileSizeInBytes", "294" },
                 { "LineCount", "12" },
                 { "Errors", "0" },
-                { "Warnings", "2" },
+                { "Warnings", "3" },
                 { "ModulesInReferencedFiles", "0" },
                 { "ParentResourcesInReferencedFiles", "0" },
                 { "ParametersInReferencedFiles", "0" },
