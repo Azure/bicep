@@ -107,19 +107,19 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // Fix: Create a new parameter
                 string newParamName = GetAvailableDefinitionName("location", model);
                 string newDefaultValue = locationValueSyntax.ToTextPreserveFormatting();
-                CodeReplacement replacementInsertNewParamDefinition = new CodeReplacement(
+                CodeReplacement insertNewParamDefinition = new CodeReplacement(
                         new TextSpan(0, 0),
                         $"@description('Specifies the location for resources.')\n"
                         + $"param {newParamName} string = {newDefaultValue}\n\n");
-                CodeReplacement replacementUseNewParam = new CodeReplacement(
+                CodeReplacement replacementWithNewParam = new CodeReplacement(
                         locationValueSyntax.Span,
                         newParamName);
                 CodeFix fixWithNewParam = new CodeFix(
                     // Create new parameter '{0}' with default value {1}
                     String.Format(CoreResources.NoHardcodedLocation_FixNewParam, newParamName, newDefaultValue),
                     false, // isPreferred
-                    replacementUseNewParam,
-                    replacementInsertNewParamDefinition);
+                    replacementWithNewParam,
+                    insertNewParamDefinition);
 
                 var errorMessage =
                     moduleParameterName == null ?
