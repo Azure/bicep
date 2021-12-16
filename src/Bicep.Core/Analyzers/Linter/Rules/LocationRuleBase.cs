@@ -35,8 +35,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             DiagnosticLabel? diagnosticLabel = null
             )
         : base(code, description, docUri, diagnosticLevel, diagnosticLabel) { }
-        
-        protected static (string? literalTextValue, VariableSymbol? definingVariable) TryGetLiteralText(SyntaxBase valueSyntax, SemanticModel model)
+
+        /// <summary>
+        /// Retrieves the literal text value of a syntax node if that node is either a string literal or a reference (possibly indirectly)
+        /// to a variable whose value is a literal text value.  If it is a reference to a variable with literal text value, also retrieves the
+        /// variable definition for it.
+        /// </summary>
+        protected static (string? literalTextValue, VariableSymbol? definingVariable) TryGetLiteralTextValueAndDefiningVariable(SyntaxBase valueSyntax, SemanticModel model)
         {
             if (model.GetTypeInfo(valueSyntax) is StringLiteralType stringLiteral)
             {
@@ -238,7 +243,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 ObjectSyntax? paramsObject = (body.TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) as ObjectPropertySyntax)
                     ?.Value as ObjectSyntax;
 
-                ImmutableArray<ParameterDeclarationSyntax> moduleFormalParameters = TryGetParameterDefinitionsForConsumedModule(moduleDeclarationSyntax, model); 
+                ImmutableArray<ParameterDeclarationSyntax> moduleFormalParameters = TryGetParameterDefinitionsForConsumedModule(moduleDeclarationSyntax, model);
                 ImmutableArray<string> moduleLocationParameters = GetLocationRelatedModuleParameters(moduleDeclarationSyntax, model, moduleFormalParameters, onlyParamsWithDefaultValues);
 
                 foreach (var parameterName in moduleLocationParameters)
