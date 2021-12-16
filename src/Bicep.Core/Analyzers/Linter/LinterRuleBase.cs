@@ -94,7 +94,7 @@ namespace Bicep.Core.Analyzers.Linter
                     this.AnalyzerName,
                     new TextSpan(0, 0),
                     DiagnosticLevel.Warning,
-                    LinterAnalyzer.FailedRuleCode,
+                    LinterAnalyzer.LinterRuleInternalError,
                     string.Format(CoreResources.LinterRuleExceptionMessageFormat, this.AnalyzerName, ex.Message)).AsEnumerable();
             }
         }
