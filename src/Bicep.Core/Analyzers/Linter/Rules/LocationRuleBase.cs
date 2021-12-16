@@ -64,13 +64,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     {
                         // We have a variable declaration, e.g. "var a = <value>"
                         var value = declarationSyntax.Value;
-                        var nestedAssignment = TryGetLiteralText(value, model);
+                        var nestedAssignment = TryGetLiteralTextValueAndDefiningVariable(value, model);
                         if (nestedAssignment.literalTextValue != null)
                         {
                             // We have something like:
                             //   var a = 'westus'
                             //   var b = a
-                            // resource ... { location = b }
+                            // resource ... {
+                            //   location: b
+                            // }
                             return (nestedAssignment.literalTextValue, nestedAssignment.definingVariable ?? variableSymbol);
                         }
                         else

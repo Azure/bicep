@@ -60,7 +60,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private void VerifyResourceLocation(List<IDiagnostic> diagnostics, SyntaxBase locationValueSyntax, SemanticModel model, string? moduleParameterName)
         {
-            (string? literalValue, VariableSymbol? definingVariable) = TryGetLiteralText(locationValueSyntax, model);
+            (string? literalValue, VariableSymbol? definingVariable) = TryGetLiteralTextValueAndDefiningVariable(locationValueSyntax, model);
             if (literalValue == null)
             {
                 return;
