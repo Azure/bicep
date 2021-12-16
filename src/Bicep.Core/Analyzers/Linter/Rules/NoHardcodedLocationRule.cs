@@ -66,9 +66,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return;
             }
 
-            // The value is a string literal.  In that case, it must be the value 'global' (case-insensitive)
+            // The value is a string literal.
+
             if (StringComparer.OrdinalIgnoreCase.Equals(literalValue, Global))
             {
+                // The value 'global' (case-insensitive) is allowed
                 return;
             }
 
@@ -99,24 +101,25 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
             else
             {
-                List<CodeFix> fixes = new List<CodeFix>();
+                // Just a string literal, e.g.:
+                //   location: 'westus'
 
                 // Fix: Create a new parameter
                 string newParamName = GetAvailableDefinitionName("location", model);
                 string newDefaultValue = locationValueSyntax.ToTextPreserveFormatting();
-                CodeFix fixWithNewParam = new CodeFix(
-                    // Create new parameter '{0}' with default value {1}
-                    String.Format(
-                        CoreResources.NoHardcodedLocation_FixNewParam,
-                        newParamName,
-                        newDefaultValue),
-                    false,
-                    new CodeReplacement(
+                CodeReplacement replacementInsertNewParamDefinition = new CodeReplacement(
                         new TextSpan(0, 0),
                         $"@description('Specifies the location for resources.')\n"
-                        + $"param {newParamName} string = {newDefaultValue}\n\n"
-                    ));
-                fixes.Add(fixWithNewParam);
+                        + $"param {newParamName} string = {newDefaultValue}\n\n");
+                CodeReplacement replacementUseNewParam = new CodeReplacement(
+                        locationValueSyntax.Span,
+                        newParamName);
+                CodeFix fixWithNewParam = new CodeFix(
+                    // Create new parameter '{0}' with default value {1}
+                    String.Format(CoreResources.NoHardcodedLocation_FixNewParam, newParamName, newDefaultValue),
+                    false, // isPreferred
+                    replacementUseNewParam,
+                    replacementInsertNewParamDefinition);
 
                 var errorMessage =
                     moduleParameterName == null ?
@@ -133,7 +136,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var fullMessage = errorMessage + " " + solutionMessage;
                 diagnostics.Add(CreateFixableDiagnosticForSpan(
                     locationValueSyntax.Span,
-                    fixes.ToArray(),
+                    fixWithNewParam,
                     fullMessage));
             }
         }
