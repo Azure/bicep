@@ -12,7 +12,7 @@ namespace Bicep.Core.UnitTests.Assertions
     {
         public static IEnumerable<IDiagnostic> ExcludingLinterDiagnostics(this IEnumerable<IDiagnostic> diagnostics, params string[] codes)
         {
-            diagnostics.Should().NotContainDiagnostic(LinterAnalyzer.FailedRuleCode, "Should never get LinterAnalyzer.FailedRuleCode");
+            diagnostics.Should().NotContainDiagnostic(LinterAnalyzer.LinterRuleInternalError, "Should never get LinterAnalyzer.LinterRuleInternalError");
             return diagnostics.Where(d => d is not AnalyzerDiagnostic);
         }
 
