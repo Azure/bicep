@@ -4,11 +4,13 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 using Bicep.Core.Configuration;
 using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.Navigation;
 using Bicep.Core.PrettyPrint;
 using Bicep.Core.PrettyPrint.Options;
 using Bicep.Core.Registry;
@@ -62,7 +64,7 @@ namespace Bicep.Decompiler
                 }
 
                 var (program, jsonTemplateUrisByModule) = TemplateConverter.DecompileTemplate(workspace, fileResolver, bicepUri, jsonInput);
-                var bicepFile = new BicepFile(bicepUri, ImmutableArray<int>.Empty, program);
+                var bicepFile = SourceFileFactory.CreateBicepFile(bicepUri, program.ToText());
                 workspace.UpsertSourceFile(bicepFile);
 
                 foreach (var module in program.Children.OfType<ModuleDeclarationSyntax>())
@@ -124,11 +126,13 @@ namespace Bicep.Decompiler
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
             var compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration);
 
-            foreach (var (fileUri, sourceFile) in workspace.GetActiveSourceFilesByUri())
+            // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
+            var fileUris = sourceFileGrouping.SourceFiles.Select(x => x.FileUri).ToImmutableArray();
+            foreach (var fileUri in fileUris)
             {
-                if (sourceFile is not BicepFile bicepFile)
+                if (sourceFileGrouping.SourceFiles.FirstOrDefault(x => x.FileUri == fileUri) is not BicepFile bicepFile)
                 {
-                    throw new InvalidOperationException("Expected a bicep source file.");
+                    throw new InvalidOperationException($"Failed to find a bicep source file for URI {fileUri}.");
                 }
 
                 var newProgramSyntax = rewriteVisitorBuilder(compilation.GetSemanticModel(bicepFile)).Rewrite(bicepFile.ProgramSyntax);
@@ -136,7 +140,7 @@ namespace Bicep.Decompiler
                 if (!object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))
                 {
                     hasChanges = true;
-                    var newFile = new BicepFile(fileUri, ImmutableArray<int>.Empty, newProgramSyntax);
+                    var newFile = SourceFileFactory.CreateBicepFile(fileUri, newProgramSyntax.ToText());
                     workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
