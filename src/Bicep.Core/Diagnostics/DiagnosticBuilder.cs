@@ -496,11 +496,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP072",
                 "This symbol cannot be referenced here. Only other parameters can be referenced in parameter default values.");
 
-            public Diagnostic CannotAssignToReadOnlyProperty(bool warnInsteadOfError, string property) => new(
+            public Diagnostic CannotAssignToReadOnlyProperty(string property) => new(
                 TextSpan,
-                warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
+                DiagnosticLevel.Warning,
                 "BCP073",
-                $"The property \"{property}\" is read-only. Expressions cannot be assigned to read-only properties.");
+                $"The property \"{property}\" is read-only. Expressions cannot be assigned to read-only properties.{TypeInaccuracyClause}", TypeInaccuracyLink);
 
             public ErrorDiagnostic ArraysRequireIntegerIndex(TypeSymbol wrongType) => new(
                 TextSpan,

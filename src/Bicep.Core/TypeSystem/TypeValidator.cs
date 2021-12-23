@@ -503,7 +503,7 @@ namespace Bicep.Core.TypeSystem
                         }
                         else
                         {
-                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(declaredProperty.Name));
                         }
 
                         narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));

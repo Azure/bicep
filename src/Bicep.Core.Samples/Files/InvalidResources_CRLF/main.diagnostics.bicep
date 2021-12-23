@@ -263,11 +263,11 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
 //@[8:14) [BCP121 (Error)] Resources: "baz", "badDepends", "badDepends2", "badDepends3", "badDepends4", "badDepends5", "badInterp" are defined with this same name in a file. Rename them or split into different modules. (CodeDescription: none) |'test'|
   id: 2
-//@[2:4) [BCP073 (Error)] The property "id" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |id|
+//@[2:4) [BCP073 (Warning)] The property "id" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |id|
   type: 'hello'
-//@[2:6) [BCP073 (Error)] The property "type" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |type|
+//@[2:6) [BCP073 (Warning)] The property "type" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |type|
   apiVersion: true
-//@[2:12) [BCP073 (Error)] The property "apiVersion" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |apiVersion|
+//@[2:12) [BCP073 (Warning)] The property "apiVersion" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |apiVersion|
 }
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
