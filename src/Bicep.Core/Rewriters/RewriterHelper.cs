@@ -16,7 +16,7 @@ namespace Bicep.Core.Rewriters
     {
         public static (BicepFile bicepFile, bool hasChanges) Rewrite(Compilation prevCompilation, BicepFile bicepFile, Func<SemanticModel, SyntaxRewriteVisitor> rewriteVisitorBuilder)
         {
-            var semanticModel = new SemanticModel(prevCompilation, bicepFile, prevCompilation.SourceFileGrouping.FileResolver, prevCompilation.Configuration);
+            var semanticModel = new SemanticModel(prevCompilation, bicepFile, prevCompilation.SourceFileGrouping.FileResolver, prevCompilation.Configuration, null);
             var newProgramSyntax = rewriteVisitorBuilder(semanticModel).Rewrite(bicepFile.ProgramSyntax);
 
             if (object.ReferenceEquals(bicepFile.ProgramSyntax, newProgramSyntax))

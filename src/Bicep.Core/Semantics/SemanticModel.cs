@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
-using Bicep.Core.Analyzers;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -26,14 +26,13 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<EmitLimitationInfo> emitLimitationInfoLazy;
         private readonly Lazy<SymbolHierarchy> symbolHierarchyLazy;
         private readonly Lazy<ResourceAncestorGraph> resourceAncestorsLazy;
-        private readonly Lazy<LinterAnalyzer> linterAnalyzerLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> parameterTypePropertiesLazy;
         private readonly Lazy<ImmutableArray<TypeProperty>> outputTypePropertiesLazy;
 
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, RootConfiguration configuration)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, RootConfiguration configuration, IBicepAnalyzer? linterAnalyzer)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
@@ -66,9 +65,7 @@ namespace Bicep.Core.Semantics
             this.resourceAncestorsLazy = new Lazy<ResourceAncestorGraph>(() => ResourceAncestorGraph.Compute(this));
             this.ResourceMetadata = new ResourceMetadataCache(this);
 
-            // lazy loading the linter will delay linter rule loading
-            // and configuration loading until the linter is actually needed
-            this.linterAnalyzerLazy = new Lazy<LinterAnalyzer>(() => new LinterAnalyzer(configuration));
+            LinterAnalyzer = linterAnalyzer ?? new LinterAnalyzer(configuration);
 
             this.allResourcesLazy = new Lazy<ImmutableArray<ResourceMetadata>>(() => GetAllResourceMetadata());
 
@@ -129,7 +126,7 @@ namespace Bicep.Core.Semantics
 
         public ResourceMetadataCache ResourceMetadata { get; }
 
-        private LinterAnalyzer LinterAnalyzer => linterAnalyzerLazy.Value;
+        private IBicepAnalyzer LinterAnalyzer { get; }
 
         public ImmutableArray<TypeProperty> ParameterTypeProperties => this.parameterTypePropertiesLazy.Value;
 
