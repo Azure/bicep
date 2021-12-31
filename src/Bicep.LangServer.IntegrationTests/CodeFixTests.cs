@@ -25,6 +25,7 @@ namespace Bicep.LangServer.IntegrationTests
     public class CodeFixTests
     {
         private const string SecureTitle = "Add @secure";
+        private const string DescriptionTitle = "Add @description";
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -81,6 +82,43 @@ param fo|o {type}
 
             var codeActions = await RequestCodeActions(client, bicepFile, cursors.Single());
             return (codeActions, bicepFile);
+        }
+
+        [DataRow("string")]
+        [DataRow("object")]
+        [DataRow("array")]
+        [DataRow("bool")]
+        [DataRow("int")]
+        [DataTestMethod]
+        public async Task Description_parameter_basic_test(string type)
+        {
+            var fileWithCursors = @$"
+param fo|o {type}
+";
+            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == DescriptionTitle);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == DescriptionTitle));
+            updatedFile.Should().HaveSourceText(@$"
+@description('')
+param foo {type}
+");
+        }
+
+        [DataRow("string")]
+        [DataRow("object")]
+        [DataRow("array")]
+        [DataRow("bool")]
+        [DataRow("int")]
+        [DataTestMethod]
+        public async Task Description_parameter_do_not_add_duplicate(string type)
+        {
+            var fileWithCursors = @$"
+@description()
+param fo|o {type}
+";
+            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == DescriptionTitle);
         }
 
         private static async Task<IEnumerable<CodeAction>> RequestCodeActions(ILanguageClient client, BicepFile bicepFile, int cursor)

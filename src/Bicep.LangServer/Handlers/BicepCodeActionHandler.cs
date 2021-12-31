@@ -29,9 +29,10 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ICompilationManager compilationManager;
 
-        private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new []
+        private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new ICodeFixProvider[]
         {
             new SecureParameterCodeFixProvider(),
+            new DescriptionParameterCodeFixProvider(),
         }.ToImmutableArray<ICodeFixProvider>();
 
         public BicepCodeActionHandler(ICompilationManager compilationManager)

@@ -30,12 +30,17 @@ namespace Bicep.Core.Semantics
 
         public static bool IsSecure(this ParameterSymbol parameterSymbol)
         {
+            return HasDecorator(parameterSymbol, "secure");
+        }
+
+        public static bool HasDecorator(this ParameterSymbol parameterSymbol, string decoratorName)
+        {
             // local function
-            bool isSecure(DecoratorSyntax? value) => value?.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.NameEquals("secure");
+            bool hasDecorator(DecoratorSyntax? value, string decoratorName) => value?.Expression is FunctionCallSyntax functionCallSyntax && functionCallSyntax.NameEquals(decoratorName);
 
             if (parameterSymbol?.DeclaringSyntax is ParameterDeclarationSyntax paramDeclaration)
             {
-                return paramDeclaration.Decorators.Any(d => isSecure(d));
+                return paramDeclaration.Decorators.Any(d => hasDecorator(d, decoratorName));
             }
             return false;
         }
