@@ -26,99 +26,98 @@ namespace Bicep.LangServer.IntegrationTests
     {
         private const string SecureTitle = "Add @secure";
         private const string DescriptionTitle = "Add @description";
+        private const string AllowedTitle = "Add @allowed";
+        private const string MinLengthTitle = "Add @minLength";
+        private const string MaxLengthTitle = "Add @maxLength";
+        private const string MinValueTitle = "Add @minValue";
+        private const string MaxValueTitle = "Add @maxValue";
 
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        [DataRow("string")]
-        [DataRow("object")]
+        [DataRow("string", "@secure()", SecureTitle)]
+        [DataRow("object", "@secure()", SecureTitle)]
+        [DataRow("string", "@description('')", DescriptionTitle)]
+        [DataRow("object", "@description('')", DescriptionTitle)]
+        [DataRow("array", "@description('')", DescriptionTitle)]
+        [DataRow("bool", "@description('')", DescriptionTitle)]
+        [DataRow("int", "@description('')", DescriptionTitle)]
+        [DataRow("string", "@allowed([])", AllowedTitle)]
+        [DataRow("object", "@allowed([])", AllowedTitle)]
+        [DataRow("array", "@allowed([])", AllowedTitle)]
+        [DataRow("bool", "@allowed([])", AllowedTitle)]
+        [DataRow("int", "@allowed([])", AllowedTitle)]
+        [DataRow("string", "@minLength()", MinLengthTitle)]
+        [DataRow("array", "@minLength()", MinLengthTitle)]
+        [DataRow("string", "@maxLength()", MaxLengthTitle)]
+        [DataRow("array", "@maxLength()", MaxLengthTitle)]
+        [DataRow("int", "@minValue()", MinValueTitle)]
+        [DataRow("int", "@maxValue()", MaxValueTitle)]
         [DataTestMethod]
-        public async Task Secure_parameter_basic_test(string type)
+        public async Task Parameter_basic_test(string type, string decorator, string title)
         {
-            var fileWithCursors = @$"
-param fo|o {type}
-";
-            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
-            codeActions.Should().Contain(x => x.Title == SecureTitle);
+            await AssertBasicParameterTest(type, title, decorator);
+        }
 
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == SecureTitle));
-            updatedFile.Should().HaveSourceText(@$"
-@secure()
+        [DataRow("string", "@secure()", SecureTitle)]
+        [DataRow("object", "@secure()", SecureTitle)]
+        [DataRow("string", "@description()", DescriptionTitle)]
+        [DataRow("object", "@description()", DescriptionTitle)]
+        [DataRow("array", "@description()", DescriptionTitle)]
+        [DataRow("bool", "@description()", DescriptionTitle)]
+        [DataRow("int", "@description()", DescriptionTitle)]
+        [DataRow("string", "@allowed([])", AllowedTitle)]
+        [DataRow("object", "@allowed([])", AllowedTitle)]
+        [DataRow("array", "@allowed([])", AllowedTitle)]
+        [DataRow("bool", "@allowed([])", AllowedTitle)]
+        [DataRow("int", "@allowed([])", AllowedTitle)]
+        [DataRow("string", "@minLength()", MinLengthTitle)]
+        [DataRow("object", "@minLength()", MinLengthTitle)]
+        [DataRow("string", "@maxLength()", MaxLengthTitle)]
+        [DataRow("object", "@maxLength()", MaxLengthTitle)]
+        [DataRow("int", "@minValue()", MinValueTitle)]
+        [DataRow("int", "@maxValue()", MaxValueTitle)]
+        [DataTestMethod]
+        public async Task Parameter_do_not_add_duplicate(string type, string decorator, string title)
+        {
+            (var codeActions, var bicepFile) = await TestCodeAction(type, decorator);
+            codeActions.Should().NotContain(x => x.Title == title);
+        }
+
+        [DataRow("array", SecureTitle)]
+        [DataRow("bool", SecureTitle)]
+        [DataRow("int", SecureTitle)]
+        [DataRow("object", MinLengthTitle)]
+        [DataRow("bool", MinLengthTitle)]
+        [DataRow("int", MinLengthTitle)]
+        [DataRow("object", MaxLengthTitle)]
+        [DataRow("bool", MaxLengthTitle)]
+        [DataRow("int", MaxLengthTitle)]
+        [DataRow("object", MinValueTitle)]
+        [DataRow("bool", MinValueTitle)]
+        [DataRow("string", MinValueTitle)]
+        [DataRow("array", MinValueTitle)]
+        [DataRow("object", MaxValueTitle)]
+        [DataRow("bool", MaxValueTitle)]
+        [DataRow("string", MaxValueTitle)]
+        [DataRow("array", MaxValueTitle)]
+        [DataTestMethod]
+        public async Task Parameter_do_not_add_for_unsupported_type(string type, string title)
+        {
+            (var codeActions, var bicepFile) = await TestCodeAction(type);
+            codeActions.Should().NotContain(x => x.Title == title);
+        }
+
+        private async Task AssertBasicParameterTest(string type, string title, string expectedDecorator)
+        {
+            (var codeActions, var bicepFile) = await TestCodeAction(type);
+            codeActions.Should().Contain(x => x.Title == title);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == title));
+            updatedFile.Should().HaveSourceText($@"
+{expectedDecorator}
 param foo {type}
 ");
-        }
-        
-
-        [TestMethod]
-        public async Task Secure_parameter_do_not_add_duplicate()
-        {
-            var fileWithCursors = @"
-@secure()
-param fo|o string
-";
-            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
-            codeActions.Should().NotContain(x => x.Title == SecureTitle);
-        }
-
-        [DataRow("array")]
-        [DataRow("bool")]
-        [DataRow("int")]
-        [DataTestMethod]
-        public async Task Secure_parameter_do_not_add_for_unsupported_type(string type)
-        {
-            var fileWithCursors = $@"
-param fo|o {type}
-";
-            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
-            codeActions.Should().NotContain(x => x.Title == SecureTitle);
-        }
-
-        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> TestCodeAction(string fileWithCursors)
-        {
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri);
-            var client = helper.Client;
-
-            var codeActions = await RequestCodeActions(client, bicepFile, cursors.Single());
-            return (codeActions, bicepFile);
-        }
-
-        [DataRow("string")]
-        [DataRow("object")]
-        [DataRow("array")]
-        [DataRow("bool")]
-        [DataRow("int")]
-        [DataTestMethod]
-        public async Task Description_parameter_basic_test(string type)
-        {
-            var fileWithCursors = @$"
-param fo|o {type}
-";
-            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
-            codeActions.Should().Contain(x => x.Title == DescriptionTitle);
-
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == DescriptionTitle));
-            updatedFile.Should().HaveSourceText(@$"
-@description('')
-param foo {type}
-");
-        }
-
-        [DataRow("string")]
-        [DataRow("object")]
-        [DataRow("array")]
-        [DataRow("bool")]
-        [DataRow("int")]
-        [DataTestMethod]
-        public async Task Description_parameter_do_not_add_duplicate(string type)
-        {
-            var fileWithCursors = @$"
-@description()
-param fo|o {type}
-";
-            (var codeActions, var bicepFile) = await TestCodeAction(fileWithCursors);
-            codeActions.Should().NotContain(x => x.Title == DescriptionTitle);
         }
 
         private static async Task<IEnumerable<CodeAction>> RequestCodeActions(ILanguageClient client, BicepFile bicepFile, int cursor)
@@ -133,6 +132,27 @@ param fo|o {type}
             });
 
             return result.Select(x => x.CodeAction).WhereNotNull();
+        }
+
+        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> TestCodeAction(string type, string decorator = "")
+        {
+            string fileWithCursors = @$"
+param fo|o {type}
+";
+            if (!String.IsNullOrWhiteSpace(decorator))
+            {
+                fileWithCursors = @$"
+{decorator}
+param fo|o {type}
+";
+            }
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri);
+            var client = helper.Client;
+
+            var codeActions = await RequestCodeActions(client, bicepFile, cursors.Single());
+            return (codeActions, bicepFile);
         }
 
         private static BicepFile ApplyCodeAction(BicepFile bicepFile, CodeAction codeAction, params string[] tabStops)
