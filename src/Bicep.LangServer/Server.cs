@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
@@ -133,6 +134,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
+            services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
         }
 
         public void Dispose()

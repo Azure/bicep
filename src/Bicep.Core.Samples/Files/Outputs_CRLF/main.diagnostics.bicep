@@ -60,6 +60,7 @@ output expressionBasedIndexer string = {
 var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), '2020-01-01').secondaryKey
 
 output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01').primaryKey
+//@[27:86) [outputs-should-not-contain-secrets (Warning)] Outputs should not contain secrets. Found possible secret: function 'listKeys' (CodeDescription: bicep core(https://aka.ms/bicep/linter/outputs-should-not-contain-secrets)) |listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-01-01')|
 output secondaryKey string = secondaryKeyIntermediateVar
 
 var varWithOverlappingOutput = 'hello'
