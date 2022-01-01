@@ -3,9 +3,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Navigation;
+using Bicep.Core.Parsing;
+using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -37,26 +40,10 @@ namespace Bicep.LanguageServer.CodeFixes
                 yield break;
             }
 
-            var newLeadingNodes = parameterSyntax.LeadingNodes
-                .Add(SyntaxFactory.CreateDecorator(decoratorName, decoratorParams))
-                .Add(SyntaxFactory.NewlineToken);
-
-            var newParameterSyntax = new ParameterDeclarationSyntax(
-                newLeadingNodes,
-                parameterSyntax.Keyword,
-                parameterSyntax.Name,
-                parameterSyntax.Type,
-                parameterSyntax.Modifier);
-            string text;
-            try
-            {
-                text = newParameterSyntax.ToText();
-            }
-            catch (Exception)
-            {
-                yield break;
-            }
-            var codeReplacement = new CodeReplacement(parameterSyntax.Span, text);
+            var decorator = SyntaxFactory.CreateDecorator(decoratorName, decoratorParams);
+            var decoratorText = $"{decorator.ToText()}{Environment.NewLine}";
+            var newSpan = new TextSpan(parameterSyntax.Span.Position, 0);
+            var codeReplacement = new CodeReplacement(newSpan, decoratorText);
 
             yield return new CodeFix(
                 $"Add @{decoratorName}",

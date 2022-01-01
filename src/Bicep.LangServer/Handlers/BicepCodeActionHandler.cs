@@ -107,10 +107,10 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
-            var secureFixes = codeFixProviders
+            var codeFixes = codeFixProviders
                 .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
                 .Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix));
-            commandOrCodeActions.AddRange(secureFixes);
+            commandOrCodeActions.AddRange(codeFixes);
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
         }
