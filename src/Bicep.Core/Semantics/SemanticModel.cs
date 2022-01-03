@@ -126,7 +126,7 @@ namespace Bicep.Core.Semantics
 
         public ResourceMetadataCache ResourceMetadata { get; }
 
-        private IBicepAnalyzer LinterAnalyzer { get; }
+        public IBicepAnalyzer LinterAnalyzer { get; }
 
         public ImmutableArray<TypeProperty> ParameterTypeProperties => this.parameterTypePropertiesLazy.Value;
 

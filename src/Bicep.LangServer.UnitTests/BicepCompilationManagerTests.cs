@@ -777,6 +777,47 @@ param location string = 'testLocation'";
             telemetryEvent.Properties.Should().Contain(properties);
         }
 
+        [TestMethod]
+        public void VerifyLinterAnalyzerShouldNotBeCreatedForNonBicepConfigChange()
+        {
+            (IBicepAnalyzer oldLinterAnalyzer, IBicepAnalyzer newLinterAnalyzer) = GetOldAndNewBicepAnalyzer(false);
+
+            oldLinterAnalyzer.Should().BeSameAs(newLinterAnalyzer);
+        }
+
+        [TestMethod]
+        public void VerifyNewLinterAnalyzerIsCreatedOnBicepConfigChange()
+        {
+            (IBicepAnalyzer oldLinterAnalyzer, IBicepAnalyzer newLinterAnalyzer) = GetOldAndNewBicepAnalyzer(true);
+
+            oldLinterAnalyzer.Should().NotBeSameAs(newLinterAnalyzer);
+        }
+
+        private (IBicepAnalyzer, IBicepAnalyzer) GetOldAndNewBicepAnalyzer(bool reloadBicepConfig)
+        {
+            PublishDiagnosticsParams? receivedParams = null;
+
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+            var documentUri = DocumentUri.File(this.TestContext.TestName);
+            var workspace = new Workspace();
+            workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(documentUri.ToUri(), ""));
+
+            var compilationManager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider);
+            var bicepFileContents = @"param storageAccountName string = 'test'";
+            compilationManager.UpsertCompilation(documentUri, 1, bicepFileContents);
+
+            var compilationContext = compilationManager.GetCompilation(documentUri);
+            var oldLinterAnalyzer = compilationContext!.Compilation.GetEntrypointSemanticModel().LinterAnalyzer;
+
+            compilationManager.RefreshCompilation(documentUri, reloadBicepConfig);
+
+            compilationContext = compilationManager.GetCompilation(documentUri);
+            var newLinterAnalyzer = compilationContext!.Compilation.GetEntrypointSemanticModel().LinterAnalyzer;
+
+            return (oldLinterAnalyzer, newLinterAnalyzer);
+        }
+
         private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)
         {
             var bicepConfigFilePath = FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigContents, testOutputPath);
