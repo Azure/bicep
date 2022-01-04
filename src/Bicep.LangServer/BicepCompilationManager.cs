@@ -187,6 +187,7 @@ namespace Bicep.LanguageServer
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
         {
             this.activeContexts.TryRemove(documentUri, out var removedContext);
+            this.activeLinterAnalyzers.TryRemove(documentUri, out _);
 
             this.PublishDocumentDiagnostics(documentUri, version, closingDiagnostics);
 
