@@ -101,9 +101,19 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
         }
 
-        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(FileName, this.Content);
+        public MainArmTemplateParametersFile WriteToFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.File.WriteAllText(FileName, this.Content);
+
+            return this;
+        }
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
+
+        private static IEnumerable<MainArmTemplateParameterInstance> GenerateParameterInstances(IFileSystem fileSystem, MainArmTemplateFile mainArmTemplateFile)
+        {
+
+        }
 
         private static IEnumerable<MainArmTemplateParameterInstance> GenerateParameterInstancesWithExistingFile(
             MainArmTemplateParametersFile existingFile,

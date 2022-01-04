@@ -5,7 +5,6 @@ using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
-using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
 

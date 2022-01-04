@@ -70,7 +70,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return new(path, content);
         }
 
-        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(FileName, this.Content);
+        public ReadmeFile WriteToFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.File.WriteAllText(FileName, this.Content);
+
+            return this;
+        }
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }

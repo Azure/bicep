@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
-using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Schemas;
@@ -47,7 +46,8 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
                 var errorMessageBuilder = new StringBuilder();
                 errorMessageBuilder.AppendLine($"The file \"{filePath}\" is invalid:");
 
-                var invalidResults = results.NestedResults.Count == 0 ? results.AsEnumerable() : results.NestedResults;
+                // TODO: enumerable.
+                var invalidResults = results.NestedResults.Count == 0 ? new[] { results } : results.NestedResults;
                 var shouldSkipAdditionalPropertyError = invalidResults.Any(x => !IsAdditionalPropertyError(x));
 
                 foreach (var result in invalidResults)

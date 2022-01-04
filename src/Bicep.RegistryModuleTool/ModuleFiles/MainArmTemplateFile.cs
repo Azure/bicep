@@ -71,7 +71,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return new(path, content);
         }
 
-        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(this.Path, this.Content);
+        public MainArmTemplateFile WriteToFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.File.WriteAllText(this.Path, this.Content);
+
+            return this;
+        }
 
         private static MainArmTemplateParameter ToParameter(JsonProperty parameterProperty)
         {

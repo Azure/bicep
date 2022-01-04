@@ -2,9 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine.Invocation;
+using System.CommandLine.IO;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
@@ -27,7 +29,7 @@ namespace Bicep.RegistryModuleTool.Commands
         {
             try
             {
-                this.InvokeInternal(context);
+                this.Invoke(context);
             }
             catch (Exception exception)
             {
@@ -36,11 +38,17 @@ namespace Bicep.RegistryModuleTool.Commands
                     case BicepException:
                     case IOException:
                     case UnauthorizedAccessException:
-                        this.Logger.LogError("{message}", exception.Message);
+                        this.Logger.LogDebug(exception, "Command failure.");
+
+                        using (context.Console.RedForegroundColorScope())
+                        {
+                            context.Console.Error.WriteLine(exception.Message);
+                        }
+
                         break;
 
                     default:
-                        this.Logger.LogError(exception, "Unexpected exception.");
+                        this.Logger.LogCritical(exception, "Unexpected exception.");
                         break;
                 }
 
@@ -50,6 +58,6 @@ namespace Bicep.RegistryModuleTool.Commands
             return Task.FromResult(0);
         }
 
-        protected abstract void InvokeInternal(InvocationContext context);
+        protected abstract void Invoke(InvocationContext context);
     }
 }

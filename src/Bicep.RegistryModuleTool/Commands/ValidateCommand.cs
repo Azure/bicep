@@ -20,8 +20,8 @@ namespace Bicep.RegistryModuleTool.Commands
 {
     public sealed class ValidateCommand : Command
     {
-        public ValidateCommand(string name, string description)
-            : base(name, description)
+        public ValidateCommand()
+            : base("validate", "Validate files for the Bicep registry module")
         {
         }
 
@@ -49,14 +49,14 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override void InvokeInternal(InvocationContext context)
+            protected override void Invoke(InvocationContext context)
             {
-                this.Logger.LogDebug("Validating that no additional files are in the module folder...");
+                this.Logger.LogInformation("Validating that no additional files are in the module folder...");
                 this.EnsureNoAdditionalFiles();
 
-                this.Logger.LogDebug("Validating main Bicep file...");
+                this.Logger.LogInformation("Validating main Bicep file...");
 
-                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger);
+                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
 
                 // This also validates that the main Bicep file can be built.
@@ -68,19 +68,19 @@ namespace Bicep.RegistryModuleTool.Commands
                 var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
                 var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
 
-                this.Logger.LogDebug("Validating main ARM template file...");
+                this.Logger.LogInformation("Validating main ARM template file...");
                 MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
 
-                this.Logger.LogDebug("Validating main ARM template parameters file...");
+                this.Logger.LogInformation("Validating main ARM template parameters file...");
                 MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator);
 
-                this.Logger.LogDebug("Validating metadata file...");
+                this.Logger.LogInformation("Validating metadata file...");
                 MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator);
 
-                this.Logger.LogDebug("Validating README file...");
+                this.Logger.LogInformation("Validating README file...");
                 ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
 
-                this.Logger.LogDebug("Validating version file...");
+                this.Logger.LogInformation("Validating version file...");
                 VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
             }
 

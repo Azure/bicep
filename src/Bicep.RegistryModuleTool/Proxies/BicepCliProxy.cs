@@ -2,9 +2,12 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
+using System.CommandLine;
+using System.CommandLine.IO;
+using System.CommandLine.Rendering;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -28,60 +31,66 @@ namespace Bicep.RegistryModuleTool.Proxies
 
         private readonly ILogger logger;
 
-        public BicepCliProxy(IEnvironmentProxy environmentProxy, IProcessProxy processProxy, IFileSystem fileSystem, ILogger logger)
+        private readonly IConsole console;
+
+        public BicepCliProxy(IEnvironmentProxy environmentProxy, IProcessProxy processProxy, IFileSystem fileSystem, ILogger logger, IConsole console)
         {
             this.environmentProxy = environmentProxy;
             this.processProxy = processProxy;
             this.fileSystem = fileSystem;
             this.logger = logger;
+            this.console = console;
         }
 
         public void Build(string bicepFilePath, string outputFilePath)
         {
-            this.logger.LogDebug("Building \"{BicepFilePath}\"...", bicepFilePath);
+            this.logger.LogInformation("Building \"{BicepFilePath}\"...", bicepFilePath);
 
             var bicepCliPath = this.LocateBicepCli();
             var command = $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
 
+            this.logger.LogDebug("Running Bicep CLI command: {Command}", command);
             var (exitCode, _, standardError) = this.processProxy.Start(bicepCliPath, command);
 
-            if (exitCode == 0 && !string.IsNullOrEmpty(standardError))
+            if (exitCode is 0)
             {
-                this.logger.LogWarning("{BicepBuildWarnings}", standardError);
+                if (!string.IsNullOrEmpty(standardError))
+                {
+                    using (console.YellowForegroundColorScope())
+                    {
+                        foreach (var warning in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                        {
+                            console.Out.WriteLine(warning);
+                        }
+                    }
+                }
 
                 return;
             }
 
-            if (exitCode != 0)
+            // exitCode is not 0.
+            if (!string.IsNullOrEmpty(standardError))
             {
-                if (!string.IsNullOrEmpty(standardError))
+                foreach (var line in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    var warnings = new List<string>();
-                    var errors = new List<string>();
-
-                    foreach (var line in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                    if (BicepBuildWarningRegex.IsMatch(line))
                     {
-                        if (BicepBuildWarningRegex.IsMatch(line))
+                        using (console.YellowForegroundColorScope())
                         {
-                            warnings.Add(line);
-                        }
-                        else
-                        {
-                            errors.Add(line);
+                            console.Out.WriteLine(line);
                         }
                     }
-
-                    if (warnings.Count > 0)
+                    else
                     {
-                        this.logger.LogWarning("{BicepBuildWarnings}", string.Join(Environment.NewLine, warnings));
+                        using (console.RedForegroundColorScope())
+                        {
+                            console.Error.WriteLine(line);
+                        }
                     }
-
-
-                    this.logger.LogError("{BicepBuildErrors}", string.Join(Environment.NewLine, errors));
                 }
-
-                throw new BicepException($"Failed to build \"{bicepFilePath}\".");
             }
+
+            throw new BicepException($"Failed to build \"{bicepFilePath}\".");
         }
 
         private string LocateBicepCli()
