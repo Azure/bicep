@@ -6,7 +6,6 @@ using Bicep.RegistryModuleTool.Extensions;
 using Microsoft.Extensions.Logging;
 using System;
 using System.CommandLine.Invocation;
-using System.CommandLine.IO;
 using System.IO;
 using System.IO.Abstractions;
 using System.Threading.Tasks;
@@ -29,7 +28,9 @@ namespace Bicep.RegistryModuleTool.Commands
         {
             try
             {
-                this.Invoke(context);
+                var exitCode = this.Invoke(context);
+
+                return Task.FromResult(exitCode);
             }
             catch (Exception exception)
             {
@@ -39,11 +40,7 @@ namespace Bicep.RegistryModuleTool.Commands
                     case IOException:
                     case UnauthorizedAccessException:
                         this.Logger.LogDebug(exception, "Command failure.");
-
-                        using (context.Console.RedForegroundColorScope())
-                        {
-                            context.Console.Error.WriteLine(exception.Message);
-                        }
+                        context.Console.WriteError(exception.Message);
 
                         break;
 
@@ -54,10 +51,8 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 return Task.FromResult(1);
             }
-
-            return Task.FromResult(0);
         }
 
-        protected abstract void Invoke(InvocationContext context);
+        protected abstract int Invoke(InvocationContext context);
     }
 }

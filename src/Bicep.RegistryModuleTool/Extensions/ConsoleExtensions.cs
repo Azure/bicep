@@ -1,19 +1,35 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.RegistryModuleTool.Terminal;
 using System;
 using System.CommandLine;
+using System.CommandLine.IO;
 using System.CommandLine.Rendering;
 
 namespace Bicep.RegistryModuleTool.Extensions
 {
     public static class ConsoleExtensions
     {
-        public static ForegroundColorScope YellowForegroundColorScope(this IConsole console) =>
-            new(console.GetTerminal(preferVirtualTerminal: false), ConsoleColor.Yellow);
+        public static void WriteWarning(this IConsole console, string warning) => console.WriteMessage(console.Out, ConsoleColor.Yellow, warning);
 
-        public static ForegroundColorScope RedForegroundColorScope(this IConsole console) =>
-            new(console.GetTerminal(preferVirtualTerminal: false), ConsoleColor.Red);
+        public static void WriteError(this IConsole console, string error) => console.WriteMessage(console.Error, ConsoleColor.Red, error);
+
+        private static void WriteMessage(this IConsole console, IStandardStreamWriter writer, ConsoleColor color, string messsage)
+        {
+            var terminal = console.GetTerminal(preferVirtualTerminal: false);
+            var originalForegroundColor = terminal?.ForegroundColor ??  Console.ForegroundColor;
+
+            if (terminal is not null)
+            {
+                terminal.ForegroundColor = color;
+            }
+
+            writer.WriteLine(messsage);
+
+            if (terminal is not null)
+            {
+                terminal.ForegroundColor = originalForegroundColor;
+            }
+        }
     }
 }

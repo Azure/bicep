@@ -54,39 +54,26 @@ namespace Bicep.RegistryModuleTool.Proxies
 
             if (exitCode is 0)
             {
-                if (!string.IsNullOrEmpty(standardError))
+                foreach (var warning in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
                 {
-                    using (console.YellowForegroundColorScope())
-                    {
-                        foreach (var warning in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
-                        {
-                            console.Out.WriteLine(warning);
-                        }
-                    }
+                    console.WriteWarning(warning);
                 }
+
+                console.Out.WriteLine();
 
                 return;
             }
 
-            // exitCode is not 0.
-            if (!string.IsNullOrEmpty(standardError))
+            // Exit code is not 0. There exists errors.
+            foreach (var line in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
             {
-                foreach (var line in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                if (BicepBuildWarningRegex.IsMatch(line))
                 {
-                    if (BicepBuildWarningRegex.IsMatch(line))
-                    {
-                        using (console.YellowForegroundColorScope())
-                        {
-                            console.Out.WriteLine(line);
-                        }
-                    }
-                    else
-                    {
-                        using (console.RedForegroundColorScope())
-                        {
-                            console.Error.WriteLine(line);
-                        }
-                    }
+                    console.WriteWarning(line);
+                }
+                else
+                {
+                    console.WriteError(line);
                 }
             }
 

@@ -31,11 +31,15 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override void Invoke(InvocationContext context)
+            protected override int Invoke(InvocationContext context)
             {
                 // Read or create main Bicep file.
                 this.Logger.LogInformation("Ensure {MainBicepFile} exists...", "main Bicep file");
                 var mainBicepFile = MainBicepFile.EnsureInFileSystem(this.FileSystem);
+
+                // Read or create metadata file.
+                this.Logger.LogInformation("Ensure {MetadataFile} exists...", "metadata file");
+                var metadataFile = MetadataFile.EnsureInFileSystem(this.FileSystem);
 
                 // Generate main ARM template file.
                 var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
@@ -48,10 +52,6 @@ namespace Bicep.RegistryModuleTool.Commands
                     .Generate(this.FileSystem, mainArmTemplateFile)
                     .WriteToFileSystem(this.FileSystem));
 
-                // Read or create metadata file.
-                this.Logger.LogInformation("Ensure {MetadataFile} exists...", "metadata file");
-                var metadataFile = MetadataFile.EnsureInFileSystem(this.FileSystem);
-
                 // Generate README file.
                 this.GenerateFileAndLogInformation("README file", () => ReadmeFile
                     .Generate(this.FileSystem, metadataFile, mainArmTemplateFile)
@@ -61,6 +61,8 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.GenerateFileAndLogInformation("version file", () => VersionFile
                     .Generate(this.FileSystem)
                     .WriteToFileSystem(this.FileSystem));
+
+                return 0;
             }
 
             private T GenerateFileAndLogInformation<T>(string fileFriendlyName, Func<T> fileGenerator) where T : ModuleFile

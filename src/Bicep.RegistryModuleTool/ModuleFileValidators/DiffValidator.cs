@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
+using System;
+using System.CommandLine;
 using System.IO;
 using System.IO.Abstractions;
 
@@ -54,7 +56,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
             if (DiffLines(newContent, oldContent))
             {
-                throw new BicepException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.");
+                throw new InvalidModuleFileException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
             }
         }
 
