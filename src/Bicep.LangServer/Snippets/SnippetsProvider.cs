@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -224,7 +225,8 @@ namespace Bicep.LanguageServer.Snippets
 
             // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
             // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            Compilation compilation = new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration(disableAnalyzers: true));
+            var configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            Compilation compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 

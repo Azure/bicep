@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Logging;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -81,7 +82,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration);
+            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
             LogDiagnostics(compilation);
 
             return compilation;

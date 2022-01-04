@@ -18,7 +18,7 @@ namespace Bicep.Core.IntegrationTests.Semantics
         {
             var fileResolver = new FileResolver();
             var program = SourceFileGroupingFactory.CreateFromText(DataSets.Empty.Bicep, fileResolver);
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), program, BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), program, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
 
             compilation.SourceFileGrouping.Should().BeSameAs(program);
             compilation.GetEntrypointSemanticModel().Should().NotBeNull();
