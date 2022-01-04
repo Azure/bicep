@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Immutable;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -29,21 +30,21 @@ namespace Bicep.LanguageServer.Providers
             this.moduleDispatcher = moduleDispatcher;
         }
 
-        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration)
+        public CompilationContext Create(IReadOnlyWorkspace workspace, DocumentUri documentUri, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration, LinterAnalyzer linterAnalyzer)
         {
             var syntaxTreeGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, workspace, documentUri.ToUri(), configuration);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup, configuration);
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, configuration, linterAnalyzer);
         }
 
-        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration)
+        public CompilationContext Update(IReadOnlyWorkspace workspace, CompilationContext current, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration, LinterAnalyzer linterAnalyzer)
         {
             var syntaxTreeGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, workspace, current.Compilation.SourceFileGrouping, configuration);
-            return this.CreateContext(syntaxTreeGrouping, modelLookup, configuration);
+            return this.CreateContext(syntaxTreeGrouping, modelLookup, configuration, linterAnalyzer);
         }
 
-        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration)
+        private CompilationContext CreateContext(SourceFileGrouping syntaxTreeGrouping, ImmutableDictionary<ISourceFile, ISemanticModel> modelLookup, RootConfiguration configuration, LinterAnalyzer linterAnalyzer)
         {
-            var compilation = new Compilation(namespaceProvider, syntaxTreeGrouping, configuration, modelLookup);
+            var compilation = new Compilation(namespaceProvider, syntaxTreeGrouping, configuration, linterAnalyzer, modelLookup);
             return new CompilationContext(compilation);
         }
     }
