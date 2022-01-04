@@ -32,14 +32,13 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
-        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, RootConfiguration configuration, IBicepAnalyzer linterAnalyzer)
+        public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer)
         {
             Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
             Compilation = compilation;
             SourceFile = sourceFile;
             FileResolver = fileResolver;
-            Configuration = configuration;
 
             // create this in locked mode by default
             // this blocks accidental type or binding queries until binding is done
@@ -113,8 +112,6 @@ namespace Bicep.Core.Semantics
         public ISymbolContext SymbolContext { get; }
 
         public Compilation Compilation { get; }
-
-        public RootConfiguration Configuration { get; }
 
         public ITypeManager TypeManager { get; }
 
