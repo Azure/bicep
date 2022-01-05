@@ -7,70 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="SampleFiles\EmptyGenerated\azuredeploy.json" />
-    <None Remove="SampleFiles\EmptyGenerated\azuredeploy.parameters.json" />
-    <None Remove="SampleFiles\EmptyGenerated\main.bicep" />
-    <None Remove="SampleFiles\EmptyGenerated\metadata.json" />
-    <None Remove="SampleFiles\EmptyGenerated\README.md" />
-    <None Remove="SampleFiles\EmptyGenerated\version.json" />
-    <None Remove="SampleFiles\Invalid\azuredeploy.json" />
-    <None Remove="SampleFiles\Invalid\azuredeploy.parameters.json" />
-    <None Remove="SampleFiles\Invalid\main.bicep" />
-    <None Remove="SampleFiles\Invalid\metadata.json" />
-    <None Remove="SampleFiles\Invalid\README.md" />
-    <None Remove="SampleFiles\Invalid\version.json" />
-    <None Remove="SampleFiles\NewGenerated\azuredeploy.json" />
-    <None Remove="SampleFiles\NewGenerated\azuredeploy.parameters.json" />
-    <None Remove="SampleFiles\NewGenerated\main.bicep" />
-    <None Remove="SampleFiles\NewGenerated\metadata.json" />
-    <None Remove="SampleFiles\NewGenerated\README.md" />
-    <None Remove="SampleFiles\NewGenerated\version.json" />
-    <None Remove="SampleFiles\ModifiedGenerated\azuredeploy.json" />
-    <None Remove="SampleFiles\ModifiedGenerated\azuredeploy.parameters.json" />
-    <None Remove="SampleFiles\ModifiedGenerated\main.bicep" />
-    <None Remove="SampleFiles\ModifiedGenerated\metadata.json" />
-    <None Remove="SampleFiles\ModifiedGenerated\README.md" />
-    <None Remove="SampleFiles\ModifiedGenerated\version.json" />
-    <None Remove="SampleFiles\README.md" />
-    <None Remove="SampleFiles\Valid\main.bicep" />
-    <None Remove="SampleFiles\Valid\metadata.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="SampleFiles\EmptyGenerated\azuredeploy.json" />
-    <EmbeddedResource Include="SampleFiles\EmptyGenerated\azuredeploy.parameters.json" />
-    <EmbeddedResource Include="SampleFiles\EmptyGenerated\main.bicep" />
-    <EmbeddedResource Include="SampleFiles\EmptyGenerated\metadata.json" />
-    <EmbeddedResource Include="SampleFiles\EmptyGenerated\README.md" />
-    <EmbeddedResource Include="SampleFiles\EmptyGenerated\version.json" />
-    <EmbeddedResource Include="SampleFiles\Invalid\azuredeploy.json" />
-    <EmbeddedResource Include="SampleFiles\Invalid\azuredeploy.parameters.json" />
-    <EmbeddedResource Include="SampleFiles\Invalid\main.bicep" />
-    <EmbeddedResource Include="SampleFiles\Invalid\metadata.json" />
-    <EmbeddedResource Include="SampleFiles\Invalid\README.md" />
-    <EmbeddedResource Include="SampleFiles\Invalid\version.json" />
-    <EmbeddedResource Include="SampleFiles\NewGenerated\azuredeploy.json" />
-    <EmbeddedResource Include="SampleFiles\NewGenerated\azuredeploy.parameters.json" />
-    <EmbeddedResource Include="SampleFiles\NewGenerated\main.bicep" />
-    <EmbeddedResource Include="SampleFiles\NewGenerated\metadata.json" />
-    <EmbeddedResource Include="SampleFiles\NewGenerated\README.md" />
-    <EmbeddedResource Include="SampleFiles\NewGenerated\version.json" />
-    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\azuredeploy.json" />
-    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\azuredeploy.parameters.json" />
-    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\main.bicep" />
-    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\metadata.json" />
-    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\README.md" />
-    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\version.json" />
-    <EmbeddedResource Include="SampleFiles\Valid\azuredeploy.json" />
-    <EmbeddedResource Include="SampleFiles\Valid\azuredeploy.parameters.json" />
-    <EmbeddedResource Include="SampleFiles\Modified\main.bicep" />
-    <EmbeddedResource Include="SampleFiles\Modified\metadata.json" />
-    <EmbeddedResource Include="SampleFiles\New\main.bicep" />
-    <EmbeddedResource Include="SampleFiles\New\metadata.json" />
-    <EmbeddedResource Include="SampleFiles\Valid\main.bicep" />
-    <EmbeddedResource Include="SampleFiles\Valid\metadata.json" />
-    <EmbeddedResource Include="SampleFiles\Valid\README.md" />
-    <EmbeddedResource Include="SampleFiles\Valid\version.json" />
+    <EmbeddedResource Include="SampleFiles/**/*" />
   </ItemGroup>
 
   <ItemGroup>
