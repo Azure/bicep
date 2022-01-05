@@ -9,6 +9,7 @@ using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -56,7 +57,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
-        public void If_ResLocationIs_VariableAsGlobal_ShouldPass()
+        public void If_ResLocationIs_VariableWithGlobal_ShouldPass()
         {
             var result = CompilationHelper.Compile(@"
                 var location = 'Global'
@@ -87,17 +88,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }"
             );
 
-            result.Diagnostics.Should().HaveFixableDiagnostics(new[]
-            {
-                (
-                  NoHardcodedLocationRule.Code,
-                  DiagnosticLevel.Warning,
-                  "A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'non-global'",
-                  "Create new parameter 'location' with default value 'non-global'",
-                  "@description('Specifies the location for resources.')\nparam location string = 'non-global'\n\n"
-                )
-
-            });
+            CodeFix x = result.Diagnostics.First().Should().BeAssignableTo<IFixable>()
+                .Which.Fixes.Single();
+            x.Should().BeEquivalentTo(
+                new
+                {
+                    Description = "Create new parameter 'location' with default value 'non-global'",
+                    Replacements = new[] {
+                        // Replacement 1: change 'non-global' to 'location'
+                        new { Text = "location" },
+                        // Replacement 1: add new location param
+                        new { Text = "@description('Specifies the location for resources.')\nparam location string = 'non-global'\n\n" }
+                    }
+                });
         }
 
         [TestMethod]
@@ -117,16 +120,19 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 output location4 string = '${location}${location2}'
                 ");
 
-            result.Diagnostics.Should().HaveFixableDiagnostics(new[]
-            {
-                (
-                  NoHardcodedLocationRule.Code,
-                  DiagnosticLevel.Warning,
-                  "A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'non-global'",
-                  "Create new parameter 'location5' with default value 'non-global'",
-                  "@description('Specifies the location for resources.')\nparam location5 string = 'non-global'\n\n"
-                  )
-            });
+            CodeFix x = result.Diagnostics.First().Should().BeAssignableTo<IFixable>()
+                .Which.Fixes.Single();
+            x.Should().BeEquivalentTo(
+                new
+                {
+                    Description = "Create new parameter 'location5' with default value 'non-global'",
+                    Replacements = new[] {
+                        // Replacement 1: change 'non-global' to 'location5'
+                        new { Text = "location5" },
+                        // Replacement 1: add new location param
+                        new { Text = "@description('Specifies the location for resources.')\nparam location5 string = 'non-global'\n\n" }
+                    }
+                });
         }
 
         [TestMethod]
@@ -166,7 +172,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ");
 
             result.Diagnostics.Should().HaveFixableDiagnostics(new[]
-            {
+                       {
                 (
                     NoHardcodedLocationRule.Code,
                     DiagnosticLevel.Warning,
