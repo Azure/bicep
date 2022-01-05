@@ -9,7 +9,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
 {
     public static class MockFileSystemFactory
     {
-        private const string CurrentDirectory = "/1.1";
+        private const string CurrentDirectory = "modules/Microsoft.Test/testModule/1.1";
 
         public static MockFileSystem CreateFileSystemWithEmptyFolder() => CreateFileSystem(Enumerable.Empty<(string, string)>());
 
