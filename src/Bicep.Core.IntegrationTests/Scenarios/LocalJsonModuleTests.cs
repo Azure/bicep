@@ -55,7 +55,7 @@ module mod 'module.json' = {
             {
                 template.Should().BeNull();
                 diagnosticsByFileName.Should().NotContainKey("module.json");
-                diagnosticsByFileName["main.bicep"].Should().HaveDiagnostics(new[]
+                diagnosticsByFileName["main.bicep"].ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
                 {
                     ("BCP188", DiagnosticLevel.Error, "The referenced ARM template has errors. Please see https://aka.ms/arm-template for information on how to diagnose and fix the template."),
                 });
@@ -122,7 +122,7 @@ module mod 'module.json' = {
             {
                 template.Should().NotBeNull();
                 diagnosticsByFileName.Should().NotContainKey("module.json");
-                diagnosticsByFileName["main.bicep"].Should().BeEmpty();
+                diagnosticsByFileName["main.bicep"].ExcludingLinterDiagnostics().Should().BeEmpty();
             }
         }
 
