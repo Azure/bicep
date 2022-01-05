@@ -312,7 +312,7 @@ var useDefaultSettings = true";
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
                 { "explicit-values-for-location-params", "warning" },
-                { "no-loc-expr-outside-params", "warning" },
+                { "no-loc-expr-outside-params", "none" },
                 { "no-hardcoded-location", "warning" }
             };
 
@@ -337,8 +337,10 @@ var useDefaultSettings = true";
                 {
                     // param location string = 'testLocation'
                     //   => Parameter "location" is declared but never used.
+                    // location: resourceGroup().location
+                    //   => Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.
                     "warnings",
-                    "1"
+                    "2"
                 },
                 { "modulesInReferencedFiles", "0" },
                 { "parentResourcesInReferencedFiles", "2" },
