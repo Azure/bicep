@@ -2,16 +2,15 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>bicep-registry-module</ToolCommandName>
+    <EnableNuget>true</EnableNuget>
+    <PackageTags>CLI</PackageTags>
+    <Description>Bicep registry module tool</Description>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="JsonSchemas\schema.armTemplateParameters.json" />
-    <None Remove="JsonSchemas\schema.metadata.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="JsonSchemas\schema.armTemplateParameters.json" />
-    <EmbeddedResource Include="JsonSchemas\schema.metadata.json" />
+    <EmbeddedResource Include="JsonSchemas\schema.*.json" />
   </ItemGroup>
 
   <ItemGroup>
