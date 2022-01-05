@@ -226,6 +226,9 @@ namespace Bicep.LangServer.IntegrationTests
         },
         ""no-unused-vars"": {
           ""level"": ""info""
+        },
+        ""no-loc-expr-outside-params"": {
+            ""level"": ""none""
         }
       }
     }
@@ -307,6 +310,9 @@ var useDefaultSettings = true";
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "explicit-values-for-loc-params", "warning" },
+                { "no-loc-expr-outside-params", "none" },
+                { "no-hardcoded-location", "warning" }
             };
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
@@ -320,8 +326,21 @@ var useDefaultSettings = true";
                 { "variables", "1" },
                 { "fileSizeInBytes", "488" },
                 { "lineCount", "23" },
-                { "errors", "2" },
-                { "warnings", "1" },
+                {
+                    // #disable-next-line
+                    //   => Expected at least one diagnostic code at this location. Valid format is "#disable-next-line diagnosticCode1 diagnosticCode2 ..."bicep(BCP226)
+                    // resource favorites 'favorites@2015-05-01'{
+                    //   => Expected the "=" character at this location.
+                    "errors", "2"
+                },
+                {
+                    // param location string = 'testLocation'
+                    //   => Parameter "location" is declared but never used.
+                    // location: resourceGroup().location
+                    //   => Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.
+                    "warnings",
+                    "2"
+                },
                 { "modulesInReferencedFiles", "0" },
                 { "parentResourcesInReferencedFiles", "2" },
                 { "parametersInReferencedFiles", "2" },

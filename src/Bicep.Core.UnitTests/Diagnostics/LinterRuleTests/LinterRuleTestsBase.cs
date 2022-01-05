@@ -54,11 +54,9 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
         private void RunWithDiagnosticAnnotations(string bicepText, Func<IDiagnostic, bool> filterFunc, OnCompileErrors onCompileErrors, Action<IEnumerable<IDiagnostic>> assertAction)
         {
-            using (AssertionScope scope = new AssertionScope())
+            var result = CompilationHelper.Compile(bicepText);
+            using (new AssertionScope().WithFullSource(result.BicepFile))
             {
-                scope.AddReportable("bicep code", bicepText);
-
-                var result = CompilationHelper.Compile(bicepText);
                 result.Should().NotHaveDiagnosticsWithCodes(new[] { LinterAnalyzer.LinterRuleInternalError }, "There should never be linter LinterRuleInternalError errors");
 
                 if (onCompileErrors == OnCompileErrors.Fail)
@@ -77,5 +75,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                     assertAction);
             }
         }
+
+
     }
 }

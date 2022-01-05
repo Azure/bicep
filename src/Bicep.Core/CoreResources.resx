@@ -4,14 +4,14 @@
     Microsoft ResX Schema 
     
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -123,6 +123,7 @@
   </data>
   <data name="BicepConfigNoCustomSettingsMessage" xml:space="preserve">
     <value>No bicepconfig.json found for configuration override.</value>
+    <comment />
   </data>
   <data name="AdminUsernameShouldNotBeLiteralRuleDescription" xml:space="preserve">
     <value>Property 'adminUserName' should not use a literal value. Use a param instead.</value>
@@ -148,6 +149,7 @@
   </data>
   <data name="EnvironmentUrlHardcodedRuleDescription" xml:space="preserve">
     <value>Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds.</value>
+    <comment />
   </data>
   <data name="InterpolateNotConcatFixTitle" xml:space="preserve">
     <value>Use string interpolation: {0}.</value>
@@ -155,6 +157,7 @@
   </data>
   <data name="InterpolateNotConcatRuleDescription" xml:space="preserve">
     <value>Use string interpolation instead of the concat function.</value>
+    <comment />
   </data>
   <data name="LinterDisabledFormatMessage" xml:space="preserve">
     <value>Linter is disabled in settings file located at {0} </value>
@@ -169,10 +172,53 @@
   </data>
   <data name="NoUnnecessaryDependsOnRuleDescription" xml:space="preserve">
     <value>No unnecessary dependsOn.</value>
+    <comment />
   </data>
   <data name="NoUnnecessaryDependsOnRuleMessage" xml:space="preserve">
     <value>Remove unnecessary dependsOn entry '{0}'.</value>
     <comment>Text for linter rule error. {0} is a programmatic expression</comment>
+  </data>
+  <data name="NoHardcodedLocationRuleDescription" xml:space="preserve">
+    <value>A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'.</value>
+    <comment />
+  </data>
+  <data name="NoLocExprOutsideParamsRuleError" xml:space="preserve">
+    <value>Use a parameter here instead of '{0}'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.</value>
+    <comment>{0} = programmatic expression, e.g. 'resourceGroup().location'</comment>
+  </data>
+  <data name="NoLocExprOutsideParamsRuleDescription" xml:space="preserve">
+    <value>Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter.</value>
+    <comment>{0} = programmatic expression, e.g. 'resourceGroup().location'</comment>
+  </data>
+  <data name="NoHardcodedLocation_ErrorChangeVarToParam" xml:space="preserve">
+    <value>A resource location should not use a hard-coded string or variable value. Change variable '{0}' into a parameter.</value>
+    <comment>{0} is a variable name</comment>
+  </data>
+  <data name="NoHardcodedLocation_FixChangeVarToParam" xml:space="preserve">
+    <value>Change variable '{0}' into a parameter</value>
+    <comment>{0} is a variable name</comment>
+  </data>
+  <data name="NoHardcodedLocation_FixNewParam" xml:space="preserve">
+    <value>Create new parameter '{0}' with default value {1}</value>
+    <comment>{0} is a variable name, {1} is a programmatic expression</comment>
+  </data>
+  <data name="NoHardcodedLocation_ErrorForResourceLocation" xml:space="preserve">
+    <value>A resource location should not use a hard-coded string or variable value.</value>
+  </data>
+  <data name="NoHardcodedLocation_ErrorForModuleParam" xml:space="preserve">
+    <value>Parameter '{0}' may be used as a resource location in the module and should not be assigned a hard-coded string or variable value.</value>
+    <comment>{0} is programmatic variable name</comment>
+  </data>
+  <data name="NoHardcodedLocation_ErrorSolution" xml:space="preserve">
+    <value>Please use a parameter value, an expression, or the string '{0}'. Found: '{1}'</value>
+  </data>
+  <data name="NoHardcodedLocation_ModuleLocationNeedsExplicitValue" xml:space="preserve">
+    <value>Parameter '{0}' of module '{1}' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter.</value>
+    <comment>{0}, {1} are programmatic variable names</comment>
+  </data>
+  <data name="NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal" xml:space="preserve">
+    <value>A resource location should be either an expression or the string '{0}'. Found '{1}'</value>
+    <comment>{0} = programmatic string value, e.g. 'global. {1} = programmatic string value, e.g. 'westus'</comment>
   </data>
   <data name="ParameterMustBeUsedRuleDescription" xml:space="preserve">
     <value>All parameters must be used.</value>
@@ -191,15 +237,19 @@
   </data>
   <data name="SecureParameterDefaultFixTitle" xml:space="preserve">
     <value>Remove insecure default value.</value>
+    <comment />
   </data>
   <data name="SecureParameterDefaultRuleDescription" xml:space="preserve">
     <value>Secure parameters should not have hardcoded defaults (except for empty or newGuid()).</value>
+    <comment />
   </data>
   <data name="SimplifyInterpolationFixTitle" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
+    <comment />
   </data>
   <data name="SimplifyInterpolationRuleDescription" xml:space="preserve">
     <value>Remove unnecessary string interpolation.</value>
+    <comment />
   </data>
   <data name="UnusedVariableRuleDescription" xml:space="preserve">
     <value>All variables must be used.</value>
@@ -217,8 +267,10 @@
   </data>
   <data name="UseStableVMImage" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images.</value>
+    <comment />
   </data>
   <data name="UseStableVMImageRuleFixMessageFormat" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images. Use stable version in imageReference property "{0}".</value>
+    <comment />
   </data>
 </root>

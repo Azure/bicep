@@ -648,6 +648,9 @@ module moduleB './moduleB.bicep' = {
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "no-hardcoded-location", "warning" },
+                { "explicit-values-for-loc-params", "warning" },
+                { "no-loc-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);
@@ -720,6 +723,9 @@ module moduleB './moduleB.bicep' = {
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "no-hardcoded-location", "warning" },
+                { "explicit-values-for-loc-params", "warning" },
+                { "no-loc-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);
@@ -765,7 +771,7 @@ param location string = 'testLocation'";
                 { "FileSizeInBytes", "294" },
                 { "LineCount", "12" },
                 { "Errors", "0" },
-                { "Warnings", "2" },
+                { "Warnings", "3" },
                 { "ModulesInReferencedFiles", "0" },
                 { "ParentResourcesInReferencedFiles", "0" },
                 { "ParametersInReferencedFiles", "0" },
