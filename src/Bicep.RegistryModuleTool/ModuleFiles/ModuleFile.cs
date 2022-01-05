@@ -22,8 +22,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             if (additionalValidators is { Length: > 0 })
             {
                 this.ValidatedBy(validator.AsEnumerable().Concat(additionalValidators));
-
-                return;
             }
 
             this.ValidatedBy(validator);

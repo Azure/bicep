@@ -64,7 +64,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return new(path, content);
         }
 
-        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(this.Path, this.Content);
+        public VersionFile WriteToFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.File.WriteAllText(this.Path, this.Content);
+
+            return this;
+        }
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }

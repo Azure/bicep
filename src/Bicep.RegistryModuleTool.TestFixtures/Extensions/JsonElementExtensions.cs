@@ -2,10 +2,9 @@
 // Licensed under the MIT License.
 
 using Json.Patch;
-using System;
 using System.Text.Json;
 
-namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions
+namespace Bicep.RegistryModuleTool.TestFixtures.Extensions
 {
     public static class JsonElementExtensions
     {
@@ -22,7 +21,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions
             throw new InvalidOperationException(patchResult.Error);
         }
 
-        public static string ToFormattedJsonString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
+        public static string ToFormattedString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
         {
             WriteIndented = true,
         });

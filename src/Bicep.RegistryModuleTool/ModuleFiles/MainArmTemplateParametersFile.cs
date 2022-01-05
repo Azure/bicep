@@ -7,6 +7,7 @@ using Bicep.RegistryModuleTool.ModuleFileValidators;
 using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
@@ -52,11 +53,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                 writer.WritePropertyName("parameters");
                 writer.WriteStartObject();
 
-                var parameterInstances = fileSystem.File.Exists(FileName)
-                    ? GenerateParameterInstancesWithExistingFile(ReadFromFileSystem(fileSystem), mainArmTemplateFile)
-                    : mainArmTemplateFile.Parameters
-                        .Where(x => x.Required)
-                        .Select(CreateBlankParameterInstance);
+                var parameterInstances = GenerateParameterInstances(fileSystem, mainArmTemplateFile);
 
                 foreach (var (parameterName, parameterValue) in parameterInstances)
                 {
@@ -101,35 +98,48 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             }
         }
 
-        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(FileName, this.Content);
+        public MainArmTemplateParametersFile WriteToFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.File.WriteAllText(FileName, this.Content);
+
+            return this;
+        }
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
 
-        private static IEnumerable<MainArmTemplateParameterInstance> GenerateParameterInstancesWithExistingFile(
-            MainArmTemplateParametersFile existingFile,
-            MainArmTemplateFile mainArmTemplateFile)
+        private static IEnumerable<MainArmTemplateParameterInstance> GenerateParameterInstances(IFileSystem fileSystem, MainArmTemplateFile mainArmTemplateFile)
         {
-            var mergedParameterInstances = new List<MainArmTemplateParameterInstance>();
+            var parameterInstances = new List<MainArmTemplateParameterInstance>();
             var parametersByName = mainArmTemplateFile.Parameters.ToDictionary(x => x.Name, x => x);
-            var parameterInstancesByName = existingFile.ParameterInstances.ToDictionary(x => x.Name, x => x);
+            var existingParameterInstancesByName = new Dictionary<string, MainArmTemplateParameterInstance>();
 
-            foreach (var parameterInstance in existingFile.ParameterInstances)
+            try
             {
-                if (parametersByName.ContainsKey(parameterInstance.Name))
+                var existingParametersFile = ReadFromFileSystem(fileSystem);
+                existingParameterInstancesByName = existingParametersFile.ParameterInstances.ToDictionary(x => x.Name, x => x);
+
+                foreach (var parameterInstance in existingParametersFile.ParameterInstances)
                 {
-                    mergedParameterInstances.Add(parameterInstance);
+                    if (parametersByName.ContainsKey(parameterInstance.Name))
+                    {
+                        parameterInstances.Add(parameterInstance);
+                    }
                 }
             }
-
+            catch (FileNotFoundException)
+            {
+                // Nothing to do.
+            }
+            
             foreach (var parameter in mainArmTemplateFile.Parameters)
             {
-                if (parameter.Required && !parameterInstancesByName.ContainsKey(parameter.Name))
+                if (parameter.Required && !existingParameterInstancesByName.ContainsKey(parameter.Name))
                 {
-                    mergedParameterInstances.Add(CreateBlankParameterInstance(parameter));
+                    parameterInstances.Add(CreateBlankParameterInstance(parameter));
                 }
             }
 
-            return mergedParameterInstances;
+            return parameterInstances;
         }
 
         private static MainArmTemplateParameterInstance CreateBlankParameterInstance(MainArmTemplateParameter parameter) =>
@@ -138,9 +148,13 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         private MainArmTemplateParameterInstance ToParameterInstance(JsonProperty parameterInstanceProperty)
         {
             var name = parameterInstanceProperty.Name;
-            var value = parameterInstanceProperty.Value.GetProperty("value");
 
-            return new(name, value);
+            if (parameterInstanceProperty.Value.TryGetProperty("value", out var value))
+            {
+                return new(name, value);
+            }
+
+            return new(name, null);
         }
     }
 }

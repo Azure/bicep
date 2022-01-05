@@ -2,9 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using System;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Abstractions;
 using System.Text.Json;
@@ -14,6 +15,17 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     public sealed class MetadataFile : ModuleFile
     {
         public const string FileName = "metadata.json";
+
+        private static readonly JsonElement EmptyMetadataElement = JsonElementFactory.CreateElement(new Dictionary<string, string>
+        {
+            ["$schema"] = "https://aka.ms/azure-quickstart-templates-metadata-schema#",
+            ["type"] = "",
+            ["itemDisplayName"] = "",
+            ["description"] = "",
+            ["summary"] = "",
+            ["githubUsername"] = "",
+            ["dateUpdated"] = "",
+        });
 
         public MetadataFile(string path, JsonElement rootElement)
             : base(path)
@@ -27,22 +39,27 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public string? Description => this.RootElement.TryGetProperty("description", out var element) ? element.GetString() : null;
 
-        public static void CreateInFileSystem(IFileSystem fileSystem)
+        public static MetadataFile EnsureInFileSystem(IFileSystem fileSystem)
         {
-            using var stream = fileSystem.FileStream.Create(FileName, FileMode.CreateNew);
-            using var writer = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = true });
+            var path = fileSystem.Path.GetFullPath(FileName);
+            var rootElement = EmptyMetadataElement;
 
-            writer.WriteStartObject();
+            try
+            {
+                var existingMetadataFile = ReadFromFileSystem(fileSystem);
+                rootElement = rootElement.Merge(existingMetadataFile.RootElement);
+            }
+            catch (FileNotFoundException)
+            {
+                // Nothing to do.
+            }
 
-            writer.WriteString("$schema", "https://aka.ms/azure-quickstart-templates-metadata-schema#");
-            writer.WriteString("type", "");
-            writer.WriteString("itemDisplayName", "");
-            writer.WriteString("description", "");
-            writer.WriteString("summary", "");
-            writer.WriteString("githubUsername", "");
-            writer.WriteString("dateUpdated", DateTime.Now.ToString("yyyy-MM-dd"));
+            using var writeStream = fileSystem.FileStream.Create(path, FileMode.Create, FileAccess.Write);
+            using var writer = new Utf8JsonWriter(writeStream, new JsonWriterOptions { Indented = true });
 
-            writer.WriteEndObject();
+            rootElement.WriteTo(writer);
+
+            return new(path, rootElement);
         }
 
         public static MetadataFile ReadFromFileSystem(IFileSystem fileSystem)
