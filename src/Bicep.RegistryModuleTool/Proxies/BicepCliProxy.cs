@@ -54,12 +54,15 @@ namespace Bicep.RegistryModuleTool.Proxies
 
             if (exitCode is 0)
             {
-                foreach (var warning in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                if (standardError.Length > 0)
                 {
-                    console.WriteWarning(warning);
-                }
+                    foreach (var warning in standardError.Split(LineSeperators, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        console.WriteWarning(warning);
+                    }
 
-                console.Out.WriteLine();
+                    console.Out.WriteLine();
+                }
 
                 return;
             }

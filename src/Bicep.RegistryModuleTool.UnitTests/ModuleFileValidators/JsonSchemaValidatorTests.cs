@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Factories;
+using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
 using FluentAssertions;
 using Json.More;
 using Json.Patch;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 
@@ -20,16 +18,16 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
     [TestClass]
     public class JsonSchemaValidatorTests
     {
-        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateMockFileSystem();
+        private static readonly MockFileSystem FileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
 
-        private readonly JsonSchemaValidator sut = new(MockLogger.Create());
+        private readonly JsonSchemaValidator sut = new(MockLoggerFactory.CreateLogger());
 
         [TestMethod]
         public void Validate_ValidMetadataFile_Succeeds()
         {
-            var file = MetadataFile.ReadFromFileSystem(FileSystem);
+            var fileToValidate = MetadataFile.ReadFromFileSystem(FileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(file)).Should().NotThrow();
+            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
 
         [DataTestMethod]
@@ -37,7 +35,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         public void Validate_InvalidMetadataFile_ThrowsException(MetadataFile invalidFile, string expectedErrorMessage)
         {
             FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
-                .Throw<BicepException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 
@@ -54,7 +52,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         public void Validate_InvalidMainArmTemplateParametersFile_ThrowsException(MainArmTemplateParametersFile invalidFile, string expectedErrorMessage)
         {
             FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
-                .Throw<BicepException>()
+                .Throw<InvalidModuleFileException>()
                 .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 
@@ -113,9 +111,8 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         private static MetadataFile PatchMetadataFile(MetadataFile file, params PatchOperation[] operations)
         {
             var patchedElement = file.RootElement.Patch(operations);
-            var tempFileSystem = new MockFileSystem();
+            var tempFileSystem = MockFileSystemFactory.CreateFileSystemWithEmptyFolder();
             tempFileSystem.AddFile(file.Path, patchedElement.ToJsonString());
-            tempFileSystem.Directory.SetCurrentDirectory(tempFileSystem.Path.GetDirectoryName(file.Path));
 
             return MetadataFile.ReadFromFileSystem(tempFileSystem);
         }
@@ -123,9 +120,8 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         private static MainArmTemplateParametersFile PatchMainArmTemplateParametersFile(MainArmTemplateParametersFile file, params PatchOperation[] operations)
         {
             var patchedElement = file.RootElement.Patch(operations);
-            var tempFileSystem = new MockFileSystem();
+            var tempFileSystem = MockFileSystemFactory.CreateFileSystemWithEmptyFolder();
             tempFileSystem.AddFile(file.Path, patchedElement.ToJsonString());
-            tempFileSystem.Directory.SetCurrentDirectory(tempFileSystem.Path.GetDirectoryName(file.Path));
 
             return MainArmTemplateParametersFile.ReadFromFileSystem(tempFileSystem);
         }

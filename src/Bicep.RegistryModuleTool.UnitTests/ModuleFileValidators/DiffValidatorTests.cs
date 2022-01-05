@@ -1,18 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Factories;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
 using FluentAssertions;
 using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
 using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
 using System.Text.Json;
+using static FluentAssertions.FluentActions;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
 {
@@ -27,9 +28,9 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
 
         public DiffValidatorTests()
         {
-            this.fileSystem = MockFileSystemFactory.CreateMockFileSystem();
+            this.fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
             this.latestMainArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
-            this.sut = new DiffValidator(fileSystem, MockLogger.Create(), this.latestMainArmTemplateFile);
+            this.sut = new DiffValidator(this.fileSystem, MockLoggerFactory.CreateLogger(), this.latestMainArmTemplateFile);
         }
 
         [TestMethod]
@@ -37,7 +38,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         {
             var fileToValidate = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
+            Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
 
         [TestMethod]
@@ -47,9 +48,9 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
 
             var fileToValidate = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<BicepException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.");
+            Invoking(() => this.sut.Validate(fileToValidate)).Should()
+                .Throw<InvalidModuleFileException>()
+                .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -57,7 +58,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         {
             var fileToValidate = MainArmTemplateParametersFile.ReadFromFileSystem(this.fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
+            Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
 
         [TestMethod]
@@ -72,9 +73,9 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
 
             fileSystem.AddFile(originalFile.Path, patchedFileElement.ToFormattedJsonString());
 
-            var fileToValiate = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
+            var fileToValidate = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValiate)).Should().NotThrow();
+            Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
 
         [TestMethod]
@@ -89,11 +90,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
 
             fileSystem.AddFile(originalFile.Path, patchedFileElement.ToJsonString());
 
-            var fileToValiate = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
+            var fileToValidate = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValiate)).Should()
-                .Throw<BicepException>()
-                .WithMessage($@"The file ""{fileToValiate.Path}"" is modified or outdated. Please regenerate the file to fix it.");
+            Invoking(() => this.sut.Validate(fileToValidate)).Should()
+                .Throw<InvalidModuleFileException>()
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -101,19 +102,19 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         {
             var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
+            Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
 
         [TestMethod]
-        public void Validate_ModifiedReadmeFile_Succeeds()
+        public void Validate_ModifiedReadmeFile_ThrowsException()
         {
             this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(ReadmeFile.FileName), "modified");
 
             var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<BicepException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.");
+            Invoking(() => this.sut.Validate(fileToValidate)).Should()
+                .Throw<InvalidModuleFileException>()
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
         [TestMethod]
@@ -121,7 +122,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         {
             var fileToValidate = VersionFile.ReadFromFileSystem(this.fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
+            Invoking(() => this.sut.Validate(fileToValidate)).Should().NotThrow();
         }
 
         [TestMethod]
@@ -131,9 +132,9 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
 
             var fileToValidate = VersionFile.ReadFromFileSystem(this.fileSystem);
 
-            FluentActions.Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<BicepException>()
-                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.");
+            Invoking(() => this.sut.Validate(fileToValidate)).Should()
+                .Throw<InvalidModuleFileException>()
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
     }
 }

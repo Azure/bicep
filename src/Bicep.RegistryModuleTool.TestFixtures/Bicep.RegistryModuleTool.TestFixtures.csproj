@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="SampleFiles\NewGenerated\azuredeploy.json" />
+    <None Remove="SampleFiles\NewGenerated\azuredeploy.parameters.json" />
+    <None Remove="SampleFiles\NewGenerated\main.bicep" />
+    <None Remove="SampleFiles\NewGenerated\metadata.json" />
+    <None Remove="SampleFiles\NewGenerated\README.md" />
+    <None Remove="SampleFiles\NewGenerated\version.json" />
+    <None Remove="SampleFiles\ModifiedGenerated\azuredeploy.json" />
+    <None Remove="SampleFiles\ModifiedGenerated\azuredeploy.parameters.json" />
+    <None Remove="SampleFiles\ModifiedGenerated\main.bicep" />
+    <None Remove="SampleFiles\ModifiedGenerated\metadata.json" />
+    <None Remove="SampleFiles\ModifiedGenerated\README.md" />
+    <None Remove="SampleFiles\ModifiedGenerated\version.json" />
+    <None Remove="SampleFiles\README.md" />
+    <None Remove="SampleFiles\Valid\main.bicep" />
+    <None Remove="SampleFiles\Valid\metadata.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="SampleFiles\NewGenerated\azuredeploy.json" />
+    <EmbeddedResource Include="SampleFiles\NewGenerated\azuredeploy.parameters.json" />
+    <EmbeddedResource Include="SampleFiles\NewGenerated\main.bicep" />
+    <EmbeddedResource Include="SampleFiles\NewGenerated\metadata.json" />
+    <EmbeddedResource Include="SampleFiles\NewGenerated\README.md" />
+    <EmbeddedResource Include="SampleFiles\NewGenerated\version.json" />
+    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\azuredeploy.json" />
+    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\azuredeploy.parameters.json" />
+    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\main.bicep" />
+    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\metadata.json" />
+    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\README.md" />
+    <EmbeddedResource Include="SampleFiles\ModifiedGenerated\version.json" />
+    <EmbeddedResource Include="SampleFiles\Valid\azuredeploy.json" />
+    <EmbeddedResource Include="SampleFiles\Valid\azuredeploy.parameters.json" />
+    <EmbeddedResource Include="SampleFiles\Modified\main.bicep" />
+    <EmbeddedResource Include="SampleFiles\Modified\metadata.json" />
+    <EmbeddedResource Include="SampleFiles\New\main.bicep" />
+    <EmbeddedResource Include="SampleFiles\New\metadata.json" />
+    <EmbeddedResource Include="SampleFiles\Valid\main.bicep" />
+    <EmbeddedResource Include="SampleFiles\Valid\metadata.json" />
+    <EmbeddedResource Include="SampleFiles\Valid\README.md" />
+    <EmbeddedResource Include="SampleFiles\Valid\version.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="14.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.RegistryModuleTool\Bicep.RegistryModuleTool.csproj" />
+  </ItemGroup>
+
+</Project>
