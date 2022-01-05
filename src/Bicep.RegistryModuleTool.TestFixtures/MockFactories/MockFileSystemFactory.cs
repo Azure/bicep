@@ -13,6 +13,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
 
         public static MockFileSystem CreateFileSystemWithEmptyFolder() => CreateFileSystem(Enumerable.Empty<(string, string)>());
 
+        public static MockFileSystem CreateFileSystemWithEmptyGeneratedFiles() => CreateFileSystem(SampleFiles.EmptyGenerated);
+
         public static MockFileSystem CreateFileSystemWithNewFiles() => CreateFileSystem(SampleFiles.New);
 
         public static MockFileSystem CreateFileSystemWithNewGeneratedFiles() => CreateFileSystem(SampleFiles.NewGenerated);
@@ -22,6 +24,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
         public static MockFileSystem CreateFileSystemWithModifiedGeneratedFiles() => CreateFileSystem(SampleFiles.NewGenerated);
 
         public static MockFileSystem CreateFileSystemWithValidFiles() => CreateFileSystem(SampleFiles.Valid);
+
+        public static MockFileSystem CreateFileSystemWithInvalidFiles() => CreateFileSystem(SampleFiles.Invalid);
 
         private static MockFileSystem CreateFileSystem(IEnumerable<(string, string)> sampleFiles)
         {
@@ -46,6 +50,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
         {
             private const string SampleResourcePrefix = "Bicep.RegistryModuleTool.TestFixtures.SampleFiles";
 
+            public static IEnumerable<(string, string)> EmptyGenerated { get; } = LoadSampleFiles();
+
             public static IEnumerable<(string, string)> New { get; } = LoadSampleFiles();
 
             public static IEnumerable<(string, string)> NewGenerated { get; } = LoadSampleFiles();
@@ -55,6 +61,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
             public static IEnumerable<(string, string)> ModifiedGenerated { get; } = LoadSampleFiles();
 
             public static IEnumerable<(string, string)> Valid { get; } = LoadSampleFiles();
+            
+            public static IEnumerable<(string, string)> Invalid { get; } = LoadSampleFiles();
 
             private static IEnumerable<(string, string)> LoadSampleFiles([CallerMemberName] string? category = null)
             {

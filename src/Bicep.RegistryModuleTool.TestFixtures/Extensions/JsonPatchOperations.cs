@@ -6,9 +6,9 @@ using Json.Patch;
 using Json.Pointer;
 using System.Text.Json;
 
-namespace Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions
+namespace Bicep.RegistryModuleTool.TestFixtures.Extensions
 {
-    public static class PatchOperations
+    public static class JsonPatchOperations
     {
         public static PatchOperation Add(string path, JsonElement value) => PatchOperation.Add(JsonPointer.Parse(path), value);
 

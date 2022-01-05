@@ -22,6 +22,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         private readonly List<string> actualErrorLines = new();
 
+        public MockConsole ExpectOutLines(params string[] expectedOutLines) => this.ExpectOutLines((IEnumerable<string>)expectedOutLines);
+
         public MockConsole ExpectOutLines(IEnumerable<string> expectedOutLines)
         {
             foreach (var expectedOutLine in expectedOutLines)
@@ -45,6 +47,8 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
             return this;
         }
+
+        public MockConsole ExpectErrorLines(params string[] expectedErrorLines) => this.ExpectErrorLines((IEnumerable<string>)expectedErrorLines);
 
         public MockConsole ExpectErrorLines(IEnumerable<string> expectedErrorLines)
         {

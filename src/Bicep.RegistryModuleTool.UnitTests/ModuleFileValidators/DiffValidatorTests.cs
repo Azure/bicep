@@ -4,8 +4,8 @@
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions;
 using FluentAssertions;
 using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -67,11 +67,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             // Update a parameter value and add an existing parameter.
             var originalFile = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
             var patchedFileElement = originalFile.RootElement.Patch(
-                PatchOperations.Replace("/parameters/linuxAdminUsername/value", "testuser"),
-                PatchOperations.Add("/parameters/clusterName", new Dictionary<string, JsonElement>().AsJsonElement()),
-                PatchOperations.Add("/parameters/clusterName/value", "aks101cluster"));
+                JsonPatchOperations.Replace("/parameters/linuxAdminUsername/value", "testuser"),
+                JsonPatchOperations.Add("/parameters/clusterName", new Dictionary<string, JsonElement>().AsJsonElement()),
+                JsonPatchOperations.Add("/parameters/clusterName/value", "aks101cluster"));
 
-            fileSystem.AddFile(originalFile.Path, patchedFileElement.ToFormattedJsonString());
+            fileSystem.AddFile(originalFile.Path, patchedFileElement.ToFormattedString());
 
             var fileToValidate = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
 
@@ -84,11 +84,11 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             // Remove a required parameter and add a non-existing parameter.
             var originalFile = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
             var patchedFileElement = originalFile.RootElement.Patch(
-                PatchOperations.Remove("/parameters/linuxAdminUsername"),
-                PatchOperations.Add("/parameters/nonExisting", new Dictionary<string, JsonElement>().AsJsonElement()),
-                PatchOperations.Add("/parameters/nonExisting/value", 0));
+                JsonPatchOperations.Remove("/parameters/linuxAdminUsername"),
+                JsonPatchOperations.Add("/parameters/nonExisting", new Dictionary<string, JsonElement>().AsJsonElement()),
+                JsonPatchOperations.Add("/parameters/nonExisting/value", 0));
 
-            fileSystem.AddFile(originalFile.Path, patchedFileElement.ToJsonString());
+            fileSystem.AddFile(originalFile.Path, patchedFileElement.ToFormattedString());
 
             var fileToValidate = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
 

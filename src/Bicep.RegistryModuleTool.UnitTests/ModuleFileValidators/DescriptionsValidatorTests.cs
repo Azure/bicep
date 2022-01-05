@@ -5,8 +5,8 @@ using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions;
 using FluentAssertions;
 using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -43,10 +43,10 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             var mainArmTemplateFileElement = JsonElementFactory.CreateElement(mainArmTemplateFile.Content);
 
             var patchedElement = mainArmTemplateFileElement.Patch(
-                PatchOperations.Remove("/parameters/sshRSAPublicKey/metadata/description"),
-                PatchOperations.Remove("/parameters/clusterName/metadata/description"),
-                PatchOperations.Remove("/parameters/osDiskSizeGB/metadata/description"),
-                PatchOperations.Remove("/outputs/controlPlaneFQDN/metadata/description"));
+                JsonPatchOperations.Remove("/parameters/sshRSAPublicKey/metadata/description"),
+                JsonPatchOperations.Remove("/parameters/clusterName/metadata/description"),
+                JsonPatchOperations.Remove("/parameters/osDiskSizeGB/metadata/description"),
+                JsonPatchOperations.Remove("/outputs/controlPlaneFQDN/metadata/description"));
 
             fileSystem.AddFile(mainArmTemplateFile.Path, patchedElement.ToJsonString());
 

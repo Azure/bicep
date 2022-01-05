@@ -7,6 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="SampleFiles\EmptyGenerated\azuredeploy.json" />
+    <None Remove="SampleFiles\EmptyGenerated\azuredeploy.parameters.json" />
+    <None Remove="SampleFiles\EmptyGenerated\main.bicep" />
+    <None Remove="SampleFiles\EmptyGenerated\metadata.json" />
+    <None Remove="SampleFiles\EmptyGenerated\README.md" />
+    <None Remove="SampleFiles\EmptyGenerated\version.json" />
+    <None Remove="SampleFiles\Invalid\azuredeploy.json" />
+    <None Remove="SampleFiles\Invalid\azuredeploy.parameters.json" />
+    <None Remove="SampleFiles\Invalid\main.bicep" />
+    <None Remove="SampleFiles\Invalid\metadata.json" />
+    <None Remove="SampleFiles\Invalid\README.md" />
+    <None Remove="SampleFiles\Invalid\version.json" />
     <None Remove="SampleFiles\NewGenerated\azuredeploy.json" />
     <None Remove="SampleFiles\NewGenerated\azuredeploy.parameters.json" />
     <None Remove="SampleFiles\NewGenerated\main.bicep" />
@@ -25,6 +37,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="SampleFiles\EmptyGenerated\azuredeploy.json" />
+    <EmbeddedResource Include="SampleFiles\EmptyGenerated\azuredeploy.parameters.json" />
+    <EmbeddedResource Include="SampleFiles\EmptyGenerated\main.bicep" />
+    <EmbeddedResource Include="SampleFiles\EmptyGenerated\metadata.json" />
+    <EmbeddedResource Include="SampleFiles\EmptyGenerated\README.md" />
+    <EmbeddedResource Include="SampleFiles\EmptyGenerated\version.json" />
+    <EmbeddedResource Include="SampleFiles\Invalid\azuredeploy.json" />
+    <EmbeddedResource Include="SampleFiles\Invalid\azuredeploy.parameters.json" />
+    <EmbeddedResource Include="SampleFiles\Invalid\main.bicep" />
+    <EmbeddedResource Include="SampleFiles\Invalid\metadata.json" />
+    <EmbeddedResource Include="SampleFiles\Invalid\README.md" />
+    <EmbeddedResource Include="SampleFiles\Invalid\version.json" />
     <EmbeddedResource Include="SampleFiles\NewGenerated\azuredeploy.json" />
     <EmbeddedResource Include="SampleFiles\NewGenerated\azuredeploy.parameters.json" />
     <EmbeddedResource Include="SampleFiles\NewGenerated\main.bicep" />
@@ -51,6 +75,7 @@
 
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
     <PackageReference Include="Moq" Version="4.16.1" />
     <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="14.0.13" />

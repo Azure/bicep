@@ -11,6 +11,16 @@
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
       },
+      "JsonPatch.Net": {
+        "type": "Direct",
+        "requested": "[1.1.2, )",
+        "resolved": "1.1.2",
+        "contentHash": "Qhvg7FWmV94tUklasH/NuegylPFJ3zmtoXkOZ2KY0E6ASEwcVOkSj9YsbvRSLdGNEZw8kv/ZT3tzZ5WkPv6YxA==",
+        "dependencies": {
+          "JsonPointer.Net": "2.1.0",
+          "System.Text.Json": "4.7.2"
+        }
+      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.3, )",
