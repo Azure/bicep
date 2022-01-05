@@ -43,7 +43,10 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return visitor.diagnostics;
         }
 
-        private static string GetAvailableDefinitionName(string baseName, SemanticModel model)
+        /// <summary>
+        /// Find a name starting with `baseName` that is not already used as a top-level definition
+        /// </summary>
+        private static string GetUnusedTopLevelName(string baseName, SemanticModel model)
         {
             int increment = 1;
             while (true)
@@ -58,29 +61,36 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private void VerifyResourceLocation(List<IDiagnostic> diagnostics, SyntaxBase locationValueSyntax, SemanticModel model, string? moduleParameterName)
+        private void ValidateResourceLocationValue(List<IDiagnostic> diagnostics, SyntaxBase locationValueSyntax, SemanticModel model, string? moduleParameterName)
         {
+            // Is the value a string literal (or a variable defined as a string literal)?
             (string? literalValue, VariableSymbol? definingVariable) = TryGetLiteralTextValueAndDefiningVariable(locationValueSyntax, model);
             if (literalValue == null)
             {
+                // No - it's okay
                 return;
             }
 
-            // The value is a string literal.
-
             if (StringComparer.OrdinalIgnoreCase.Equals(literalValue, Global))
             {
-                // The value 'global' (case-insensitive) is allowed
+                // The string value 'global' (case-insensitive) is allowed
                 return;
             }
 
             if (definingVariable != null)
             {
-                // It's using a variable that is defined as a literal string.  Suggest they change it to
+                // It's using a variable that is defined as a literal string. Suggest they change it to
                 // a parameter (the error goes on the variable definition, not the resource location property)
+                //
+                // e.g.
+                //
+                // var location = 'westus'    << suggest change this to param
+                // resource ... {
+                //   location: location
+
                 TextSpan errorSpan = definingVariable.NameSyntax.Span;
 
-                // Is there already a diagnostic for this variable definition?  Don't repeat
+                // Is there already a diagnostic for this variable definition? Don't add a duplicate
                 if (diagnostics.Any(d => d.Code == Code && d.Span.Equals(errorSpan)))
                 {
                     return;
@@ -90,7 +100,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     CoreResources.NoHardcodedLocation_ErrorChangeVarToParam,
                     definingVariable.Name);
 
-                // Fix: change the variable into a parameter
                 CodeFix fix = new CodeFix(
                     String.Format(CoreResources.NoHardcodedLocation_FixChangeVarToParam, definingVariable.Name),
                     true,
@@ -101,11 +110,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
             else
             {
-                // Just a string literal, e.g.:
+                // A plain string literal, e.g.:
+                //
+                // resource ... {
                 //   location: 'westus'
 
                 // Fix: Create a new parameter
-                string newParamName = GetAvailableDefinitionName("location", model);
+                string newParamName = GetUnusedTopLevelName("location", model);
                 string newDefaultValue = locationValueSyntax.ToTextPreserveFormatting();
                 CodeReplacement insertNewParamDefinition = new CodeReplacement(
                         new TextSpan(0, 0),
@@ -156,12 +167,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
             {
-                // Check the location property provided to a resource
+                // Check the resource's location property value
                 SyntaxBase? locationValue = syntax.TryGetBody()
                    ?.TryGetPropertyByName(LanguageConstants.ResourceLocationPropertyName)?.Value;
                 if (locationValue != null)
                 {
-                    parent.VerifyResourceLocation(diagnostics, locationValue, model, null);
+                    parent.ValidateResourceLocationValue(diagnostics, locationValue, model, null);
                 }
 
                 base.VisitResourceDeclarationSyntax(syntax);
@@ -177,7 +188,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 {
                     if (parameter.actualValue != null)
                     {
-                        parent.VerifyResourceLocation(diagnostics, parameter.actualValue, model, parameter.parameterName);
+                        parent.ValidateResourceLocationValue(diagnostics, parameter.actualValue, model, parameter.parameterName);
                     }
                 }
 

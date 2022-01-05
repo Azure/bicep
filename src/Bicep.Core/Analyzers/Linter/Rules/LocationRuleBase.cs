@@ -27,6 +27,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private const string DeploymentFunctionName = "deployment";
         private const string RGOrDeploymentLocationPropertyName = "location";
 
+        protected Dictionary<ISourceFile, ImmutableArray<ParameterSymbol>> _paramsUsedInLocationPropsForFile = new();
+
         public LocationRuleBase(
             string code,
             string description,
@@ -45,12 +47,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             if (model.GetTypeInfo(valueSyntax) is StringLiteralType stringLiteral)
             {
-                // The type of the expression is a string literal, so either we have a 
                 if (valueSyntax is StringSyntax stringSyntax)
                 {
                     if (!stringSyntax.IsInterpolated())
                     {
-                        // Simple string literal value, e.g. 'westus'
+                        // Simple string literal value, e.g.
+                        //
+                        // resource ... {
+                        //   location: 'westus'     <<< For 'westus' here as the valueSyntax, we return ('westus', null)
+                        // }
 
                         Debug.Assert(stringSyntax.TryGetLiteralValue() == stringLiteral.RawStringValue);
                         return (stringLiteral.RawStringValue, null);
@@ -67,12 +72,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         var nestedAssignment = TryGetLiteralTextValueAndDefiningVariable(value, model);
                         if (nestedAssignment.literalTextValue != null)
                         {
-                            // We have something like:
-                            //   var a = 'westus'
-                            //   var b = a
+                            // We have something like this:
+                            //
+                            //   var v1 = 'westus'
+                            //   var v2 = v1
+                            //
                             // resource ... {
-                            //   location: b
+                            //   location: v2     <<< For 'v2' here as the valueSyntax, we return ('westus', <defition-of-v1>)
                             // }
+
                             return (nestedAssignment.literalTextValue, nestedAssignment.definingVariable ?? variableSymbol);
                         }
                         else
@@ -173,19 +181,32 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             return ImmutableArray<ParameterDeclarationSyntax>.Empty;
         }
 
-        private static ImmutableArray<ParameterSymbol> GetParametersUsedInResourceLocationProperties(BicepFile bicepFile, SemanticModel semanticModel)
+        /// <summary>
+        /// Finds all parameters that are used inside the 'location' value of any resource in the file
+        /// </summary>
+        /// <param name="bicepFile"></param>
+        /// <param name="semanticModel"></param>
+        /// <returns></returns>
+        private ImmutableArray<ParameterSymbol> GetParametersUsedInResourceLocations(BicepFile bicepFile, SemanticModel semanticModel)
         {
+            if (this._paramsUsedInLocationPropsForFile.TryGetValue(bicepFile, out ImmutableArray<ParameterSymbol> cachedValue))
+            {
+                return cachedValue;
+            }
+
             GetParametersUsedInResourceLocationsVisitor visitor = new GetParametersUsedInResourceLocationsVisitor(semanticModel);
             visitor.Visit(bicepFile.ProgramSyntax);
-            return visitor.parameters.ToImmutableArray();
+            ImmutableArray<ParameterSymbol> parameters = visitor.parameters.ToImmutableArray();
+            _paramsUsedInLocationPropsForFile.Add(bicepFile, parameters);
+            return parameters;
         }
 
         /// <summary>
-        /// For a module, retrieves public parameters that are related to resource locations.  This is either:
+        /// For a module, retrieves public parameters that are related to resource locations, meaning either:
         ///   The parameter default contains resourceGroup().location or deployment().location
         ///   The parameter is used inside any resource's top-level location property
         /// </summary>
-        protected static ImmutableArray<string> GetLocationRelatedModuleParameters(
+        protected ImmutableArray<string> GetLocationRelatedParametersForModule(
             ModuleDeclarationSyntax moduleDeclarationSyntax,
             SemanticModel fileSemanticModel,
             ImmutableArray<ParameterDeclarationSyntax> moduleFormalParameters,
@@ -194,7 +215,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             List<string> locationParameters = new List<string>();
 
-            // Parameters with defaults values referencing resourceGroup().location or deployment().location
+            // Parameters with default values referencing resourceGroup().location or deployment().location
             foreach (var moduleFormalParameter in moduleFormalParameters)
             {
                 SyntaxBase? defaultValue = (moduleFormalParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue;
@@ -210,7 +231,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (fileSemanticModel.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleSemanticModel)
                 {
                     ImmutableArray<ParameterSymbol> parametersUsedInResourceLocationProperties =
-                        GetParametersUsedInResourceLocationProperties(bicepFile, moduleSemanticModel).ToImmutableArray();
+                        GetParametersUsedInResourceLocations(bicepFile, moduleSemanticModel).ToImmutableArray();
                     foreach (var moduleFormalParameter in parametersUsedInResourceLocationProperties)
                     {
                         // No duplicates in the list
@@ -246,7 +267,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     ?.Value as ObjectSyntax;
 
                 ImmutableArray<ParameterDeclarationSyntax> moduleFormalParameters = TryGetParameterDefinitionsForConsumedModule(moduleDeclarationSyntax, model);
-                ImmutableArray<string> moduleLocationParameters = GetLocationRelatedModuleParameters(moduleDeclarationSyntax, model, moduleFormalParameters, onlyParamsWithDefaultValues);
+                ImmutableArray<string> moduleLocationParameters = GetLocationRelatedParametersForModule(moduleDeclarationSyntax, model, moduleFormalParameters, onlyParamsWithDefaultValues);
 
                 foreach (var parameterName in moduleLocationParameters)
                 {

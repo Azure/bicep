@@ -171,6 +171,46 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         [TestMethod]
+        public void MultipleInstances_OfSameModule()
+        {
+            var result = CompilationHelper.Compile(
+                ("main.bicep", @"
+                    param location string
+
+                    module m1 'module1.bicep' = {
+                      name: 'm1'
+                      params: {
+                        // FAILURE: p1 not passed in
+                        // FAILURE: p2 not passed in
+                      }
+                    }
+
+                    module m2 'module1.bicep' = {
+                      name: 'm2'
+                      params: {
+                        // FAILURE: p1 not passed in
+                        // FAILURE: p2 not passed in
+                      }
+                    }
+
+                    output o string = location
+                    "),
+                ("module1.bicep", @"
+                    param p1 string = resourceGroup().location
+                    param p2 string = resourceGroup().location
+                    output o string = p1
+                   ")
+            );
+            result.Diagnostics.Should().HaveDiagnostics(new[]
+            {
+                (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p1' of module 'm1' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
+                (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p2' of module 'm1' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
+                (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p1' of module 'm2' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
+                (ExplicitValuesForLocationParamsRule.Code, DiagnosticLevel.Warning, "Parameter 'p2' of module 'm2' isn't assigned an explicit value, and its default value may not give the intended behavior for a location-related parameter. You should assign an explicit value to the parameter."),
+            });
+        }
+
+        [TestMethod]
         public void If_ModuleHas_LocationParams_WithRGLocationDefault_AndValuesNotPassedIn_ShouldFail()
         {
             var result = CompilationHelper.Compile(
