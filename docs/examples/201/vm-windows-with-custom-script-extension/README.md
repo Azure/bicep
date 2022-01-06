@@ -5,7 +5,7 @@ This sample Bicep file is an extension of [101-vm-simple-windows](https://github
 
 ## Getting Started ##
 
-* [Install the Bicep CLI](https://github.com/Azure/bicep/blob/main/docs/installing.md) by following the instruction.
+* [Install the Bicep CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install) by following the instruction.
 * Build the `main.bicep` file by running the Bicep CLI command:
 
 ```bash
