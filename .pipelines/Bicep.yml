@@ -113,6 +113,14 @@ steps:
         files_to_sign: '**/*.dll'
         search_root: '$(Build.SourcesDirectory)/src/Bicep.MSBuild/bin/$(BuildConfiguration)/netstandard2.0/'
 
+    - task: onebranch.pipeline.signing@1
+      displayName: Sign Bicep.RegistryModuleTool bin
+      inputs:
+        command: 'sign'
+        signing_profile: 'external_distribution'
+        files_to_sign: '**/*.dll'
+        search_root: '$(Build.SourcesDirectory)/src/Bicep.RegistryModuleTool/bin/$(BuildConfiguration)/net6.0/'
+
   - task: DotNetCoreCLI@2
     displayName: Pack
     inputs:
