@@ -118,7 +118,7 @@ steps:
       inputs:
         command: 'sign'
         signing_profile: 'external_distribution'
-        files_to_sign: '**/*.dll'
+        files_to_sign: '**/*.exe;**/*.dll'
         search_root: '$(Build.SourcesDirectory)/src/Bicep.RegistryModuleTool/bin/$(BuildConfiguration)/net6.0/'
 
   - task: DotNetCoreCLI@2
