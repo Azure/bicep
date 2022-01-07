@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "dependencies": {
+    ".NETFramework,Version=v4.7.2": {
+      "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
+        "type": "Direct",
+        "requested": "[3.3.3, )",
+        "resolved": "3.3.3",
+        "contentHash": "vvz3XCHVrd/Ks4xPoutLmL/T2+8JcOk/OMs3ngwQqnzokQCGEDsY+WjK/txCsDWU29sX3fGzH/FnYwNV93O1mA=="
+      },
+      "Nerdbank.GitVersioning": {
+        "type": "Direct",
+        "requested": "[3.4.231, )",
+        "resolved": "3.4.231",
+        "contentHash": "ifpSbv0sySgIVymTQQz0pjI6O7o/JxnIQMlj28JF5Ybr1LoUTcMfoKnAKwteRlhpQM9qJmONGy9M8BgrEcOteg=="
+      },
+      "NuGet.CommandLine": {
+        "type": "Direct",
+        "requested": "[5.8.1, )",
+        "resolved": "5.8.1",
+        "contentHash": "75mXXZr2IfK5aux/f2Axbt/P9baVK9ICws1ezEJ692r05VGX7u+8jrhZyp2meZTFpRZG9CjC29z/KZ1Y5LJFGw=="
+      }
+    },
+    ".NETFramework,Version=v4.7.2/linux-arm64": {},
+    ".NETFramework,Version=v4.7.2/linux-musl-x64": {},
+    ".NETFramework,Version=v4.7.2/linux-x64": {},
+    ".NETFramework,Version=v4.7.2/osx-arm64": {},
+    ".NETFramework,Version=v4.7.2/osx-x64": {},
+    ".NETFramework,Version=v4.7.2/win-arm64": {},
+    ".NETFramework,Version=v4.7.2/win-x64": {}
+  }
+}
