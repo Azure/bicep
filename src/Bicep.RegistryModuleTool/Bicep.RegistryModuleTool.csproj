@@ -31,5 +31,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
   </ItemGroup>
+  
+  <!-- TF_BUILD is a read-only predefined variable in ADO. It is set to True when starting a build task. -->
+  <Target Name="DisablePacking" BeforeTargets="GenerateNuspec" Condition=" '$(TF_BUILD)' == 'True' ">
+    <PropertyGroup>
+      <ContinuePackingAfterGeneratingNuspec>false</ContinuePackingAfterGeneratingNuspec>
+    </PropertyGroup>
+  </Target>
 
 </Project>
