@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -68,13 +69,18 @@ namespace Bicep.LanguageServer.Snippets
         };
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
-        private readonly IConfigurationManager configurationManager;
+        private readonly RootConfiguration configuration;
+        private readonly LinterAnalyzer linterAnalyzer;
 
         public SnippetsProvider(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager)
         {
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
-            this.configurationManager = configurationManager;
+
+            // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
+            // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
+            configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            linterAnalyzer = new LinterAnalyzer(configuration);
 
             Initialize();
         }
@@ -222,9 +228,7 @@ namespace Bicep.LanguageServer.Snippets
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
-            // We'll use default bicepconfig.json settings during SnippetsProvider creation to avoid errors during language service initialization.
-            // We don't do any validation in SnippetsProvider. So using default settings shouldn't be a problem.
-            Compilation compilation = new Compilation(namespaceProvider, sourceFileGrouping, configurationManager.GetBuiltInConfiguration(disableAnalyzers: true));
+            Compilation compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 

@@ -119,7 +119,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     [combinedFileUri] = bicepContentsReplaced,
                 }, combinedFileUri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration);
-                var compilation = new Compilation(NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration);
+                var compilation = new Compilation(NamespaceProvider, sourceFileGrouping, BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
                 var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
                 var sourceTextWithDiags = OutputHelper.AddDiagsToSourceText(bicepContentsReplaced, "\n", diagnostics, diag => OutputHelper.GetDiagLoggingString(bicepContentsReplaced, outputDirectory, diag));
@@ -1870,7 +1870,7 @@ resource test";
             var fileSystemDict = new Dictionary<Uri, string>();
             fileSystemDict[uri] = file;
 
-            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(fileSystemDict, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             diagnostics.Should().SatisfyRespectively(

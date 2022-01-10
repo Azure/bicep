@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
@@ -58,7 +57,7 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration), outputDirectory, fileUri);
+            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)

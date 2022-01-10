@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -16,7 +17,7 @@ namespace Bicep.Core.Semantics
     {
         private readonly ImmutableDictionary<ISourceFile, Lazy<ISemanticModel>> lazySemanticModelLookup;
 
-        public Compilation(INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
+        public Compilation(INamespaceProvider namespaceProvider, SourceFileGrouping sourceFileGrouping, RootConfiguration configuration, IBicepAnalyzer linterAnalyzer, ImmutableDictionary<ISourceFile, ISemanticModel>? modelLookup = null)
         {
             this.SourceFileGrouping = sourceFileGrouping;
             this.NamespaceProvider = namespaceProvider;
@@ -30,7 +31,7 @@ namespace Bicep.Core.Semantics
                     new(existingModel) :
                     new Lazy<ISemanticModel>(() => sourceFile switch
                     {
-                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, configuration),
+                        BicepFile bicepFile => new SemanticModel(this, bicepFile, fileResolver, linterAnalyzer),
                         ArmTemplateFile armTemplateFile => new ArmTemplateSemanticModel(armTemplateFile),
                         TemplateSpecFile templateSpecFile => new TemplateSpecSemanticModel(templateSpecFile),
                         _ => throw new ArgumentOutOfRangeException(nameof(sourceFile)),

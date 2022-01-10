@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
@@ -123,8 +124,9 @@ namespace Bicep.Decompiler
             var hasChanges = false;
             var dispatcher = new ModuleDispatcher(this.registryProvider);
             var configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
+            var linterAnalyzer = new LinterAnalyzer(configuration);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration);
+            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
 
             // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
             var fileUris = sourceFileGrouping.SourceFiles.Select(x => x.FileUri).ToImmutableArray();
@@ -144,7 +146,7 @@ namespace Bicep.Decompiler
                     workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration);
+                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
                 }
             }
 
