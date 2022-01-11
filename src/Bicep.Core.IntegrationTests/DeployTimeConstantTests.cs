@@ -57,9 +57,8 @@ resource storageAccounts 'Microsoft.Storage/storageAccounts@2021-02-01' = [for i
   }
 }]
 ");
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
-                (NoUnusedVariablesRule.Code, DiagnosticLevel.Warning, new NoUnusedVariablesRule().GetMessage("foo")),
                 ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of dnsZone which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of storageAccounts which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
                 ("BCP178", DiagnosticLevel.Error, "This expression is being used in the for-expression, which requires a value that can be calculated at the start of the deployment. Properties of aRecord which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
@@ -91,7 +90,7 @@ resource appPlan 'Microsoft.Web/serverfarms@2020-12-01' = {
   }
 }
 ");
-            result.Should().HaveDiagnostics(new[]
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[]
             {
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Web/serverfarms\" type, which requires a value that can be calculated at the start of the deployment."),
                 ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"tags\" property of the \"Microsoft.Web/serverfarms\" type, which requires a value that can be calculated at the start of the deployment. Properties of dnsZone which can be calculated at the start include \"apiVersion\", \"id\", \"name\", \"type\"."),
