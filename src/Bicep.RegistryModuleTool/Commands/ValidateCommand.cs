@@ -2,7 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core;
-using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.Proxies;
@@ -20,8 +21,8 @@ namespace Bicep.RegistryModuleTool.Commands
 {
     public sealed class ValidateCommand : Command
     {
-        public ValidateCommand(string name, string description)
-            : base(name, description)
+        public ValidateCommand()
+            : base("validate", "Validate files for the Bicep registry module")
         {
         }
 
@@ -49,42 +50,62 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override void InvokeInternal(InvocationContext context)
+            protected override int Invoke(InvocationContext context)
             {
-                this.Logger.LogDebug("Validating that no additional files are in the module folder...");
-                this.EnsureNoAdditionalFiles();
+                var valid = true;
 
-                this.Logger.LogDebug("Validating main Bicep file...");
+                this.Logger.LogInformation("Validating that no additional files are in the module folder...");
+                valid &= Validate(context.Console, () => this.ValidateNoAdditionalFiles());
 
-                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger);
+                this.Logger.LogInformation("Validating main Bicep file...");
+
+                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
 
-                // This also validates that the main Bicep file can be built.
+                // This also validates that the main Bicep file can be built without errors.
                 var latestMainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
                 var descriptionsValidator = new DescriptionsValidator(this.Logger, latestMainArmTemplateFile);
 
-                mainBicepFile.ValidatedBy(descriptionsValidator);
+                valid &= Validate(context.Console, () => mainBicepFile.ValidatedBy(descriptionsValidator));
 
-                var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
+                var jsonSchemaValidator = new JsonSchemaValidator( this.Logger);
                 var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
 
-                this.Logger.LogDebug("Validating main ARM template file...");
-                MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+                this.Logger.LogInformation("Validating main ARM template file...");
+                valid &= Validate(context.Console, () => MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
 
-                this.Logger.LogDebug("Validating main ARM template parameters file...");
-                MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator);
+                this.Logger.LogInformation("Validating main ARM template parameters file...");
+                valid &= Validate(context.Console, () => MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator));
 
-                this.Logger.LogDebug("Validating metadata file...");
-                MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator);
+                this.Logger.LogInformation("Validating metadata file...");
+                valid &= Validate(context.Console, () => MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator));
 
-                this.Logger.LogDebug("Validating README file...");
-                ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+                this.Logger.LogInformation("Validating README file...");
+                valid &= Validate(context.Console, () => ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
 
-                this.Logger.LogDebug("Validating version file...");
-                VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+                this.Logger.LogInformation("Validating version file...");
+                valid &= Validate(context.Console, () => VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
+
+                return valid ? 0 : 1;
             }
 
-            private void EnsureNoAdditionalFiles()
+            private static bool Validate(IConsole console, Action validateAction)
+            {
+                try
+                {
+                    validateAction();
+                }
+                catch (InvalidModuleFileException exception)
+                {
+                    console.WriteError(exception.Message);
+
+                    return false;
+                }
+
+                return true;
+            }
+
+            private void ValidateNoAdditionalFiles()
             {
                 var currentDirectoryPath = this.FileSystem.Directory.GetCurrentDirectory();
                 var filePaths = this.FileSystem.Directory.EnumerateFiles(currentDirectoryPath, "*", SearchOption.AllDirectories);
@@ -113,14 +134,14 @@ namespace Bicep.RegistryModuleTool.Commands
                 if (notAllowedFilePaths.Any())
                 {
                     var errorMessageBuilder = new StringBuilder();
-                    errorMessageBuilder.AppendLine("The files below are not allowed:");
+                    errorMessageBuilder.AppendLine("The files below are not allowed in the module:");
 
                     foreach (var filePath in notAllowedFilePaths)
                     {
                         errorMessageBuilder.Append("  - ").AppendLine(filePath);
                     }
 
-                    throw new BicepException(errorMessageBuilder.ToString());
+                    throw new InvalidModuleFileException(errorMessageBuilder.ToString());
                 }
             }
         }

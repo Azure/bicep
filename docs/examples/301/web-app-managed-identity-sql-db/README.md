@@ -3,7 +3,7 @@
 A common architecture for Azure customers is Web App + Data + Managed Identity + Monitoring.
 
 **How easy it to deploy this with Bicep?**
-1. [Install Bicep CLI and VS Code extension](https://github.com/Azure/bicep/blob/main/docs/installing.md)
+1. [Install Bicep CLI and VS Code extension](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install)
 2. Use example from [main.bicep](main.bicep)
 3. Arrange/re-order, update variables and params to your preference
 4. Use the Bicep CLI to run Bicep Build command: ``` Bicep Build ./main.bicep ``` to generate ARM Template (main._json_)

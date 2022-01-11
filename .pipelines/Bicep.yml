@@ -119,7 +119,35 @@ steps:
       command: custom
       custom: pack
       projects: $(BuildSolution)
-      arguments: '--configuration $(BuildConfiguration) /p:BuildProjectReferences=false /p:NoBuild=true /p:PublicRelease=${{ parameters.official }}'
+      arguments: '--configuration $(BuildConfiguration) --no-build /p:PublicRelease=${{ parameters.official }}'
+
+  # dotnet pack publishes the registry module tool on the fly and always copies the latest binaries to a publish folder.
+  # In order to sign the publish folder, nuget package generation is disabled in the pack step above (see the DisablePacking target
+  # in Bicep.RegistryModuleTool.csproj). The publish folder is packed using the Bicep.RegistryModuleTool.Nuget project.
+  - ${{ if eq(parameters.enableSigning, true) }}:
+    - task: onebranch.pipeline.signing@1
+      displayName: Sign Bicep.RegistryModuleTool bin
+      inputs:
+        command: 'sign'
+        signing_profile: 'external_distribution'
+        files_to_sign: '**/*.exe;**/*.dll'
+        search_root: '$(Build.SourcesDirectory)/src/Bicep.RegistryModuleTool/bin/$(BuildConfiguration)/net6.0/'
+
+    - task: DotNetCoreCLI@2
+      displayName: Build Bicep registry module tool package
+      inputs:
+        command: build
+        projects: $(Build.SourcesDirectory)/src/Bicep.RegistryModuleTool.Nuget/nuget.proj
+        arguments: '--configuration $(BuildConfiguration) /p:PublicRelease=${{ parameters.official }}'
+
+    - task: CopyFiles@2
+      displayName: Copy Bicep registry module tool package to output
+      inputs:
+        sourceFolder: '$(Build.SourcesDirectory)/src/Bicep.RegistryModuleTool.Nuget/'
+        contents: |
+          *.nupkg
+          *.snupkg
+        targetFolder: '$(Build.SourcesDirectory)/out/'
 
   # test signing fails on .nupkg files and .snupkg files are completely unsupported for signing
   - ${{ if and(eq(parameters.official, true), eq(parameters.enableSigning, true)) }}:

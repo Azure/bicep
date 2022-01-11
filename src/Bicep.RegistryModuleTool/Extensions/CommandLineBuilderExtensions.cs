@@ -9,7 +9,7 @@ namespace Bicep.RegistryModuleTool.Extensions
 {
     public static class CommandLineBuilderExtensions
     {
-        public static CommandLineBuilder UseVerbose(this CommandLineBuilder builder)
+        public static CommandLineBuilder UseVerboseOption(this CommandLineBuilder builder)
         {
             if (builder.Command.Children.Any(x => x is VerboseOption))
             {

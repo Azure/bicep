@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.Build.NoTargets">
+  <PropertyGroup>
+    <TargetFramework>net472</TargetFramework>
+    <!-- NoTargets SDK no longer sets Language, which is required by NerdBank.GitVersioning -->
+    <Language>C#</Language>
+
+    <NugetExePath>$(PkgNuGet_CommandLine)\tools\NuGet.exe</NugetExePath>
+    <NugetExePath Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">mono $(NugetExePath)</NugetExePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="NuGet.CommandLine" Version="5.8.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <Target Name="RunTool" AfterTargets="Build" DependsOnTargets="GetBuildVersion">
+    <ItemGroup>
+      <NuSpec Include="$(BUILD_SOURCESDIRECTORY)/src/Bicep.RegistryModuleTool/obj/$(BUILDCONFIGURATION)/Bicep.RegistryModuleTool.$(NugetPackageVersion).nuspec" />
+    </ItemGroup>
+
+    <Exec Command="$(NugetExePath) pack @(NuSpec) -Version $(NuGetPackageVersion) -Symbols -SymbolPackageFormat snupkg -NonInteractive"
+          WorkingDirectory="$(MSBuildProjectDirectory)" />
+  </Target>
+</Project>

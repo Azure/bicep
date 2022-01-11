@@ -13,13 +13,13 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
 using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem.Az;
 using FluentAssertions.Execution;
 using System.Text.RegularExpressions;
 using Bicep.Decompiler.Exceptions;
 using Bicep.Decompiler;
 using Bicep.Core.Registry;
 using Bicep.Core.UnitTests;
+using Bicep.Core.Analyzers.Linter;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -99,7 +99,7 @@ namespace Bicep.Core.IntegrationTests
             var dispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, workspace, bicepUri, configuration);
-            var compilation = new Compilation(nsProvider, sourceFileGrouping, configuration);
+            var compilation = new Compilation(nsProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
             var diagnosticsByBicepFile = compilation.GetAllDiagnosticsByBicepFile();
 
             using (new AssertionScope())
