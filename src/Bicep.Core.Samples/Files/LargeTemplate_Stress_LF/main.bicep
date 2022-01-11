@@ -17028,3 +17028,13 @@ var test = [
   {}
   {}
 ]
+// no-unused-params
+param param1 string
+param param2 string
+param param3 string
+param param4 string
+// no-unused-vars and no-hardcoded-env-urls
+var location1 = 'http://MANAGEMENT.core.windows.net'
+var location2 = 'http://MANAGEMENT.core.windows.net'
+var location3 = 'http://MANAGEMENT.core.windows.net'
+var location4 = 'http://MANAGEMENT.core.windows.net'
