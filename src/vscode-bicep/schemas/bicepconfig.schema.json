@@ -225,7 +225,7 @@
             "simplify-interpolation": {
               "level": "warning"
             },
-            "use-protectedsettings-for-commandtoexecute-secrets": {
+            "protect-commandtoexecute-secrets": {
               "level": "warning"
             },
             "use-stable-vm-image": {
@@ -406,10 +406,10 @@
                     }
                   ]
                 },
-                "use-protectedsettings-for-commandtoexecute-secrets": {
+                "protect-commandtoexecute-secrets": {
                   "allOf": [
                     {
-                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/use-protectedsettings-for-commandtoexecute-secrets"
+                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule"

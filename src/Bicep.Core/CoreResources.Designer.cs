@@ -269,15 +269,15 @@ namespace Bicep.Core {
             }
         }
         
-        internal static string UseProtectedSettingsForCommandToExecuteSecretsRuleDescription {
+        internal static string ProtectCommandToExecuteSecretsRuleDescription {
             get {
-                return ResourceManager.GetString("UseProtectedSettingsForCommandToExecuteSecretsRuleDescription", resourceCulture);
+                return ResourceManager.GetString("ProtectCommandToExecuteSecretsRuleDescription", resourceCulture);
             }
         }
         
-        internal static string UseProtectedSettingsForCommandToExecuteSecretsRuleMessage {
+        internal static string ProtectCommandToExecuteSecretsRuleMessage {
             get {
-                return ResourceManager.GetString("UseProtectedSettingsForCommandToExecuteSecretsRuleMessage", resourceCulture);
+                return ResourceManager.GetString("ProtectCommandToExecuteSecretsRuleMessage", resourceCulture);
             }
         }
         

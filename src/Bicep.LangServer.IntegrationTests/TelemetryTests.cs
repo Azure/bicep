@@ -304,7 +304,7 @@ var useDefaultSettings = true";
                 { "no-hardcoded-env-urls", "warning" },
                 { "no-unused-params", "warning" },
                 { "prefer-interpolation", "warning" },
-                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
+                { "protect-commandtoexecute-secrets", "warning" },
                 { "no-unnecessary-dependson", "warning" },
                 { "adminusername-should-not-be-literal", "warning" },
                 { "use-stable-vm-image", "warning" },
