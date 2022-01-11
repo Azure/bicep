@@ -84,9 +84,18 @@ namespace Bicep.Core.Analyzers.Linter
         {
             try
             {
+                Stopwatch stopWatch = new Stopwatch();
+                stopWatch.Start();
+
                 // Expand the iteration immediately or the try/catch won't catch exceptions occuring during the rule analysis
                 // TODO: We need exception handling further up the tree in order to handle external linters.
-                return AnalyzeInternal(model).ToArray();
+                var diagnostics = AnalyzeInternal(model).ToArray();
+
+                stopWatch.Stop();
+
+                Trace.WriteLine(Code + " : " + stopWatch.Elapsed.TotalSeconds);
+
+                return diagnostics;
             }
             catch (Exception ex)
             {

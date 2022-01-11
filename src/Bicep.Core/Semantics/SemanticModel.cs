@@ -32,7 +32,7 @@ namespace Bicep.Core.Semantics
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer)
         {
-            Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
+            //Trace.WriteLine($"Building semantic model for {sourceFile.FileUri}");
 
             Compilation = compilation;
             SourceFile = sourceFile;
@@ -182,10 +182,18 @@ namespace Bicep.Core.Semantics
 
         private IReadOnlyList<IDiagnostic> AssembleDiagnostics()
         {
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
             var diagnostics = GetParseDiagnostics()
                 .Concat(GetSemanticDiagnostics())
                 .Concat(GetAnalyzerDiagnostics())
                 .OrderBy(diag => diag.Span.Position);
+
+            stopWatch.Stop();
+
+            Trace.WriteLine("Total time in seconds: " + stopWatch.Elapsed.TotalSeconds);
+
             var filteredDiagnostics = new List<IDiagnostic>();
 
             var disabledDiagnosticsCache = SourceFile.DisabledDiagnosticsCache;
