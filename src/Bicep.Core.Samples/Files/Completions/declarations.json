@@ -34,7 +34,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "module"
           }
@@ -77,7 +77,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "output"
           }
@@ -120,7 +120,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "param"
           }
@@ -149,7 +149,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "param-defaults"
           }
@@ -178,7 +178,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "param-defaults-allowed-values"
           }
@@ -207,7 +207,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "param-secure-string"
           }
@@ -236,7 +236,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-aks-cluster"
           }
@@ -265,7 +265,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-api-management-instance"
           }
@@ -294,7 +294,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-gateway"
           }
@@ -323,7 +323,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-gateway-waf"
           }
@@ -352,7 +352,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-insights"
           }
@@ -381,7 +381,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-insights-alert-rules"
           }
@@ -410,7 +410,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-insights-auto-scale-settings"
           }
@@ -439,7 +439,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-plan"
           }
@@ -468,7 +468,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-app-security-group"
           }
@@ -497,7 +497,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-account"
           }
@@ -526,7 +526,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-cert"
           }
@@ -555,7 +555,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-cred"
           }
@@ -584,7 +584,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-job-schedule"
           }
@@ -613,7 +613,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-module"
           }
@@ -642,7 +642,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-runbook"
           }
@@ -671,7 +671,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-schedule"
           }
@@ -700,7 +700,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-automation-variable"
           }
@@ -729,7 +729,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-availability-set"
           }
@@ -758,7 +758,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-container-group"
           }
@@ -787,7 +787,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-container-registry"
           }
@@ -816,7 +816,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-account"
           }
@@ -845,7 +845,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-cassandra-keyspace"
           }
@@ -874,7 +874,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-cassandra-table"
           }
@@ -903,7 +903,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-gremlin-database"
           }
@@ -932,7 +932,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-gremlin-graph"
           }
@@ -961,7 +961,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-mongo-database"
           }
@@ -990,7 +990,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-sql-container"
           }
@@ -1019,7 +1019,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-sql-database"
           }
@@ -1048,7 +1048,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-cosmos-tablestorage-table"
           }
@@ -1077,7 +1077,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-data-lake"
           }
@@ -1106,7 +1106,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-dns-record"
           }
@@ -1135,7 +1135,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-dns-zone"
           }
@@ -1164,7 +1164,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-expressroute-circuit"
           }
@@ -1193,7 +1193,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-expressroute-gateway"
           }
@@ -1222,7 +1222,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-firewall"
           }
@@ -1251,7 +1251,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-function"
           }
@@ -1280,7 +1280,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-ip"
           }
@@ -1309,7 +1309,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-ip-prefix"
           }
@@ -1338,7 +1338,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-keyvault"
           }
@@ -1367,7 +1367,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-keyvault-secret"
           }
@@ -1396,7 +1396,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-loadbalancer-external"
           }
@@ -1425,7 +1425,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-loadbalancer-internal"
           }
@@ -1454,7 +1454,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-log-analytics-solution"
           }
@@ -1483,7 +1483,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-log-analytics-workspace"
           }
@@ -1512,7 +1512,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-logic-app"
           }
@@ -1541,7 +1541,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-logic-app-connector"
           }
@@ -1570,7 +1570,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-logic-app-from-file"
           }
@@ -1599,7 +1599,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-logic-app-integration"
           }
@@ -1628,7 +1628,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-managed-identity"
           }
@@ -1657,7 +1657,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-media"
           }
@@ -1686,7 +1686,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-mysql"
           }
@@ -1715,7 +1715,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-nic"
           }
@@ -1744,7 +1744,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-nsg"
           }
@@ -1773,7 +1773,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-nsgrule"
           }
@@ -1802,7 +1802,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-plan"
           }
@@ -1831,7 +1831,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-assignment"
           }
@@ -1860,7 +1860,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-definition-audit-effect"
           }
@@ -1889,7 +1889,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-definition-deploy-effect"
           }
@@ -1918,7 +1918,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-definition-modify-effect"
           }
@@ -1947,7 +1947,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-exemption"
           }
@@ -1976,7 +1976,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-guestconfig"
           }
@@ -2005,7 +2005,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-guestconfig-hybrid"
           }
@@ -2034,7 +2034,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-guestconfig-params"
           }
@@ -2063,7 +2063,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policy-remediation"
           }
@@ -2092,7 +2092,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-policyset-definition"
           }
@@ -2121,7 +2121,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-recovery-service-vault"
           }
@@ -2150,7 +2150,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-redis"
           }
@@ -2179,7 +2179,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-rg"
           }
@@ -2208,7 +2208,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-route-server"
           }
@@ -2237,7 +2237,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-route-table"
           }
@@ -2266,7 +2266,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-route-table-route"
           }
@@ -2295,7 +2295,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-shared-image-gallery"
           }
@@ -2324,7 +2324,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-sql"
           }
@@ -2353,7 +2353,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-sql-db-import"
           }
@@ -2382,7 +2382,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-sql-server-firewall-rules"
           }
@@ -2411,7 +2411,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-storage"
           }
@@ -2440,7 +2440,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-template-spec"
           }
@@ -2469,7 +2469,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-traffic-manager"
           }
@@ -2498,7 +2498,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-virtual-wan"
           }
@@ -2527,7 +2527,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-dsc"
           }
@@ -2556,7 +2556,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-linux-guestconfig-ext"
           }
@@ -2585,7 +2585,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-script-linux"
           }
@@ -2614,7 +2614,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-script-windows"
           }
@@ -2643,7 +2643,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-ubuntu"
           }
@@ -2672,7 +2672,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-windows"
           }
@@ -2701,7 +2701,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-windows-diagnostics"
           }
@@ -2730,7 +2730,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vm-windows-guestconfig-ext"
           }
@@ -2759,7 +2759,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vnet"
           }
@@ -2788,7 +2788,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vnet-peering"
           }
@@ -2817,7 +2817,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vpn-local-gateway"
           }
@@ -2846,7 +2846,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vpn-vnet-connection"
           }
@@ -2875,7 +2875,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-vpn-vnet-gateway"
           }
@@ -2904,7 +2904,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-web-app"
           }
@@ -2933,7 +2933,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-web-app-deploy"
           }
@@ -2962,7 +2962,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-wvd-appgroup"
           }
@@ -2991,7 +2991,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-wvd-hostpool"
           }
@@ -3020,7 +3020,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "res-wvd-workspace"
           }
@@ -3063,7 +3063,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "resource-child-defaults"
           }
@@ -3092,7 +3092,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "resource-child-without-defaults"
           }
@@ -3121,7 +3121,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "resource-defaults"
           }
@@ -3150,7 +3150,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "resource-without-defaults"
           }
@@ -3207,7 +3207,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "EventName": "snippet/toplevel",
           "Properties": {
             "name": "var"
           }

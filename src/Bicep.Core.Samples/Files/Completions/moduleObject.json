@@ -91,7 +91,7 @@
           "Properties": {
             "name": "{}"
           },
-          "EventName": "ModuleBodySnippetInsertion"
+          "EventName": "snippet/modulebody"
         }
       ]
     }
