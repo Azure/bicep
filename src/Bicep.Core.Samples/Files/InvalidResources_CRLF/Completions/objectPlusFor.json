@@ -88,7 +88,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ResourceBodySnippetInsertion",
+          "EventName": "snippet/resourcebody",
           "Properties": {
             "name": "required-properties",
             "type": "Microsoft.Network/dnsZones@2018-05-01"
@@ -118,7 +118,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ResourceBodySnippetInsertion",
+          "EventName": "snippet/resourcebody",
           "Properties": {
             "name": "snippet",
             "type": "Microsoft.Network/dnsZones@2018-05-01"
@@ -148,7 +148,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ResourceBodySnippetInsertion",
+          "EventName": "snippet/resourcebody",
           "Properties": {
             "name": "{}",
             "type": "Microsoft.Network/dnsZones@2018-05-01"
