@@ -15,7 +15,7 @@ Currently, we only accept contributions from Microsoft employees. The guide was 
 
 ### Making a proposal for new module
 <!-- TODO: create an issue template in the quickstart repo -->
-Before creating a new module, you must fill out this [issue template](https://github.com/Azure/azure-quickstart-templates/issues/new) to make a proposal. Once the proposal is approved, proceed with the following steps.
+Before creating a new module, you must fill out this [issue template](https://github.com/Azure/azure-quickstart-templates/issues/new) to make a proposal. Once the proposal is approved, proceed with the following steps. You should not send out a pull request to add a module without an associated approval as the pull request will be rejected.
 
 ### Creating a directory for the new module
 <!-- TODO: need to discuss the pattern of the module path -->
@@ -59,7 +59,7 @@ brm validate
 ```
 
 ## Submitting a pull request
-When you are done with editing and validating the module files, you can commit your changes and open a pull request in the [Azure/azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates/tree/master/modules) repository. You must link the new module proposal in the pull request description if you are trying to add a new module.
+When you are done with editing and validating the module files, you can commit your changes and open a pull request in the [TBD]() repository. You must link the new module proposal in the pull request description if you are trying to add a new module.
 
 ## Publishing a module
 Once your pull request is approved and merged to the main, a CI job will be triggered to check if there are changes made to `azuredeploy.json`. If yes, it will automatically bump the version of the module and publish the module to the Bicep public registry.
