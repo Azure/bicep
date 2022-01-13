@@ -192,7 +192,7 @@
   },
   {
     "name": "contains",
-    "description": "Checks whether an array contains a value.",
+    "description": "Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
     "fixedParameters": [
       {
         "name": "array",
@@ -466,7 +466,7 @@
   },
   {
     "name": "indexOf",
-    "description": "Returns the first position of a value within an array.",
+    "description": "Returns the first position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
     "fixedParameters": [
       {
         "name": "array",
@@ -647,7 +647,7 @@
   },
   {
     "name": "lastIndexOf",
-    "description": "Returns the last position of a value within an array.",
+    "description": "Returns the last position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
     "fixedParameters": [
       {
         "name": "array",
