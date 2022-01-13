@@ -2,13 +2,14 @@
 
 # Contributing to Bicep public registry
 
-Currently, we only accept contributions from Microsoft employees. The guide was created to help teams within Microsoft with the development of Bicep public registry modules. External customers can propose a new module by opening an [issue]() in the [Azure/azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates/tree/master/modules) repository.
+Currently, we only accept contributions from Microsoft employees. The guide was created to help teams within Microsoft with the development of Bicep public registry modules. External customers can propose a new module by opening an [issue]() in the [TBD]() repository.
 
 ## Prerequisite
-- Create a fork of the [Azure/azure-quickstart-templates](https://github.com/Azure/azure-quickstart-templates/tree/master/modules) repository and clone the fork to your local machine.
-<!-- TODO: Add link to Nuget once the tool is published -->
-- Install the [bicep-registry-module]() .NET tool by running:
-  - `dotnet tool install -g bicep-registry-module`
+- Create a fork of the [TBD]() repository and clone the fork to your local machine.
+- Install [.NET 6.0 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/6.0/runtime).
+  <!-- TODO: Add link to Nuget once the tool is published -->
+- Install the [Bicep registry module]() .NET tool by running:
+  - `dotnet tool install -g brm`
 
 ## Creating a new module
 
@@ -18,14 +19,14 @@ Before creating a new module, you must fill out this [issue template](https://gi
 
 ### Creating a directory for the new module
 <!-- TODO: need to discuss the pattern of the module path -->
-Add a new directory under the `modules` folder in your local azure-quickstart-templates repository with the path following the pattern `<ResourceProviderName>/<ModuleName>/<ModuleMajorVersion>.<ModuleMinorVersion>`. For examples: 
-- `Microsoft.Storage/storageAccounts/0.9`
-- `Microsoft.Web/webApplications/1.0`
+Add a new directory under the `modules` folder in your local azure-quickstart-templates repository with the path following the pattern `<ResourceProviderName>/<ModuleName>/<ModuleMajorVersion>.<ModuleMinorVersion>`, and the path must be in lowercase. For examples: 
+- `microsoft.storage/storageaccounts/0.9`
+- `microsoft.web/webapplications/1.0`
 
 ### Generating module files
 Open a terminal and navigate to the newly created folder. From there, run the following command to generate the required files for the Bicep public registry module:
 ```
-bicep-registry-module generate
+brm generate
 ```
 
 You should be able to see these files created in the module folder:
@@ -40,10 +41,10 @@ You should be able to see these files created in the module folder:
 - `README.md`
   - The README file generated based on the contents of `metadata.json` and `main.bicep`. Do not update this file manually.
 - `version.json`
-  - The version file, together with the `azuredeploy.json` file, are used to calculate the patch version of the module automatically when publishing the module to the Bicep public module registry. You should not edit this contents of the file.
+  - The version file, together with the `azuredeploy.json` file, are used to calculate the patch version number of the module. Every time `azuredeploy.json` is changed, the patch version number gets bumped. The full version (`<ModuleMajorVersion>.<ModuleMinorVersion>.<ModulePatchVersion>`) will then be assigned to the module when it gets published to the Bicep public module registry. The process is done by the module publishing CI automatically. You should not edit this contents of the file.
 
 ### Authoring module files
-The only two files that you need to edit are `metadata.json` and  `main.bicep`. When authoring `main.bicep`, make sure to provide a description for each parameter and output. You are free to create other Bicep files and reference them as local modules in `main.bicep` if needed. Once you are done, run `bicep-registry-module generate` again to refresh the other files. You may need to update `azuredeploy.parameters.json` to provide parameter values after the generation if there are changes to the template parameters.
+The only two files that you need to edit are `metadata.json` and  `main.bicep`. When authoring `main.bicep`, make sure to provide a description for each parameter and output. You are free to create other Bicep files and reference them as local modules in `main.bicep` if needed. You can also reference other external modules available in the Bicep public registry to help build your module. Once you are done, run `bicep-registry-module generate` again to refresh the other files. You may need to update `azuredeploy.parameters.json` to provide parameter values after the generation if there are changes to the template parameters.
 
 ## Updating an existing module
 To update an existing module, simply follow the [Authoring module files](#authoring-module-files) section to update and regenerate the module files.
@@ -52,9 +53,9 @@ To update an existing module, simply follow the [Authoring module files](#author
 
 > Before running the command, it is recommended to run `generate` and check `azuredeploy.parameters.json` to ensure all files are up-to-date.
 
-You may use the bicep-registry-module .NET tool to validate files in a registry module. To do so, invoke the follow command from the module folder:
+You may use the Bicep registry module tool to validate files in a registry module. To do so, invoke the follow command from the module folder:
 ```
-bicep-registry-module validate
+brm validate
 ```
 
 ## Submitting a pull request
