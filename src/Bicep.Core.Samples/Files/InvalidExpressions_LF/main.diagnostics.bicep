@@ -361,7 +361,7 @@ var concatWrongTypesContradiction = concat('s', [
 ])
 var indexOfWrongTypes = indexOf(1,1)
 //@[4:21) [no-unused-vars (Warning)] Variable "indexOfWrongTypes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |indexOfWrongTypes|
-//@[32:34) [BCP070 (Error)] Argument of type "int" is not assignable to parameter of type "string". (CodeDescription: none) |1,|
+//@[32:34) [BCP048 (Error)] Cannot resolve function overload.\n  Overload 1 of 2, "(stringToSearch: string, stringToFind: string): int", gave the following error:\n    Argument of type "int" is not assignable to parameter of type "string".\n  Overload 2 of 2, "(array: array, itemToFind: any): int", gave the following error:\n    Argument of type "int" is not assignable to parameter of type "array". (CodeDescription: none) |1,|
 
 // not enough params
 var test1 = listKeys('abcd')
