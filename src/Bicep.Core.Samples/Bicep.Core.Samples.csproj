@@ -16,6 +16,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Files\LargeTemplate_Stress_LF\small.bicep" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Files\LargeTemplate_Stress_LF\small.bicep">
+      <LogicalName>$([System.String]::new('Bicep.Core.Samples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="6.1.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.10.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="2.2.3" />

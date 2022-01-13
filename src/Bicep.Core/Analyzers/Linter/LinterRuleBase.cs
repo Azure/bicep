@@ -93,7 +93,7 @@ namespace Bicep.Core.Analyzers.Linter
 
                 stopWatch.Stop();
 
-                Trace.WriteLine(Code + " : " + stopWatch.Elapsed.TotalSeconds);
+                Trace.WriteLine(Code + " : " + stopWatch.ElapsedMilliseconds);
 
                 return diagnostics;
             }

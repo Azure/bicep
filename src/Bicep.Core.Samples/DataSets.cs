@@ -37,6 +37,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet LargeTemplate_Stress_LF => CreateDataSet();
 
+        public static DataSet LinterPerf_LF => CreateDataSet();
+
         public static DataSet Loops_LF => CreateDataSet();
 
         public static DataSet LoopsIndexed_LF => CreateDataSet();

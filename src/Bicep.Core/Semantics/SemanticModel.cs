@@ -192,7 +192,7 @@ namespace Bicep.Core.Semantics
 
             stopWatch.Stop();
 
-            Trace.WriteLine("Total time in seconds: " + stopWatch.Elapsed.TotalSeconds);
+            Trace.WriteLine("Total elapsed time measured by the current instance, in millisecond: " + stopWatch.ElapsedMilliseconds);
 
             var filteredDiagnostics = new List<IDiagnostic>();
 

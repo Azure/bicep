@@ -29,7 +29,7 @@ namespace Bicep.LangServer.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         [TestMethod]
-        public async Task CollectPerfData()
+        public async Task CollectPerfData_LargeTemplate()
         {
             var (diagsListener, testOutputPath) = GetTestConfig();
             var bicepFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.LargeTemplate_Stress_LF.Bicep, testOutputPath);
@@ -38,18 +38,16 @@ namespace Bicep.LangServer.IntegrationTests
             using var helper = await StartServerWithClientConnectionAsync(diagsListener);
             var client = helper.Client;
 
-            // open the main document and verify diagnostics
+            // open the main document with analyzer turned on
             {
                 Trace.WriteLine("---- Analyzer turned on ----");
 
                 client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
 
                 var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
-
-                diagnostics.Should().NotBeEmpty();
             }
 
-            // Delete bicepconfig.json and verify diagnostics are based off of default bicepconfig.json
+            // open the main document with analyzer turned off
             {
                 string bicepConfigFileContents = @"{
   ""analyzers"": {
@@ -78,8 +76,159 @@ namespace Bicep.LangServer.IntegrationTests
                 Trace.WriteLine("---- Analyzer turned off ----");
 
                 var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
+            }
+        }
 
-                diagnostics.Should().BeEmpty();
+        [TestMethod]
+        public async Task CollectPerfData_SmallTemplate()
+        {
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            var bicepFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.IntermediaryVariables_LF.Bicep, testOutputPath);
+            var bicepFileContents = File.ReadAllText(bicepFile);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
+
+            // open the main document with analyzer turned on
+            {
+                Trace.WriteLine("---- Analyzer turned on ----");
+
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
+
+                var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
+            }
+
+            // open the main document with analyzer turned off
+            {
+                string bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": false,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+                var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
+
+                client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
+                {
+                    Changes = new Container<FileEvent>(new FileEvent
+                    {
+                        Type = FileChangeType.Created,
+                        Uri = bicepConfigUri,
+                    })
+                });
+
+                Trace.WriteLine("---- Analyzer turned off ----");
+
+                var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
+            }
+        }
+
+        [TestMethod]
+        public async Task CollectPerfData_SingleParameter()
+        {
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            var bicepFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.InvalidTargetScopes_LF.Bicep, testOutputPath);
+            var bicepFileContents = File.ReadAllText(bicepFile);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
+
+            // open the main document with analyzer turned on
+            {
+                Trace.WriteLine("---- Analyzer turned on ----");
+
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
+
+                var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
+            }
+
+            // open the main document with analyzer turned off
+            {
+                string bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": false,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+                var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
+
+                client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
+                {
+                    Changes = new Container<FileEvent>(new FileEvent
+                    {
+                        Type = FileChangeType.Created,
+                        Uri = bicepConfigUri,
+                    })
+                });
+
+                Trace.WriteLine("---- Analyzer turned off ----");
+
+                var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
+            }
+        }
+
+        [TestMethod]
+        public async Task CollectPerfData_SingleVar()
+        {
+            var (diagsListener, testOutputPath) = GetTestConfig();
+            var bicepFile = FileHelper.SaveResultFile(this.TestContext, "main.bicep", DataSets.InvalidParameters_LF.Bicep, testOutputPath);
+            var bicepFileContents = File.ReadAllText(bicepFile);
+            var mainUri = SaveFile("main.bicep", bicepFileContents, testOutputPath);
+            using var helper = await StartServerWithClientConnectionAsync(diagsListener);
+            var client = helper.Client;
+
+            // open the main document with analyzer turned on
+            {
+                Trace.WriteLine("---- Analyzer turned on ----");
+
+                client.TextDocument.DidOpenTextDocument(TextDocumentParamHelper.CreateDidOpenDocumentParams(mainUri, bicepFileContents, 1));
+
+                var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
+            }
+
+            // open the main document with analyzer turned off
+            {
+                string bicepConfigFileContents = @"{
+  ""analyzers"": {
+    ""core"": {
+      ""verbose"": false,
+      ""enabled"": false,
+      ""rules"": {
+        ""no-unused-params"": {
+          ""level"": ""info""
+        }
+      }
+    }
+  }
+}";
+                var bicepConfigUri = SaveFile("bicepconfig.json", bicepConfigFileContents, testOutputPath);
+
+                client.Workspace.DidChangeWatchedFiles(new DidChangeWatchedFilesParams
+                {
+                    Changes = new Container<FileEvent>(new FileEvent
+                    {
+                        Type = FileChangeType.Created,
+                        Uri = bicepConfigUri,
+                    })
+                });
+
+                Trace.WriteLine("---- Analyzer turned off ----");
+
+                var diagnostics = await GetDiagnosticsAsync(diagsListener, mainUri);
             }
         }
 
