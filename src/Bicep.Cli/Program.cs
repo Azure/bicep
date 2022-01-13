@@ -51,7 +51,7 @@ namespace Bicep.Cli
             }
 
             // this event listener picks up SDK events and writes them to Trace.WriteLine()
-            using(FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
+            using (FeatureProvider.TracingEnabled ? AzureEventSourceListenerFactory.Create(FeatureProvider.TracingVerbosity) : null)
             {
                 var program = new Program(new InvocationContext(
                     new AzResourceTypeLoader(),

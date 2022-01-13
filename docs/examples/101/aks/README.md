@@ -4,7 +4,7 @@
 ## Deployment steps ##
 
 ### 0. Optional: Install Bicep ###
-* [Install the Bicep CLI](https://github.com/Azure/bicep/blob/main/docs/installing.md) by following the instruction.
+* [Install the Bicep CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install) by following the instruction.
 
 ### 1. Create Service Principal ###
 ```

@@ -11,11 +11,11 @@ using System.Linq;
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 {
     [TestClass]
-    public class UseProtectedSettingsForCommandToExecuteSecretsRuleTests : LinterRuleTestsBase
+    public class ProtectCommandToExecuteSecretsRuleTests : LinterRuleTestsBase
     {
         private void CompileAndTest(string text, OnCompileErrors onCompileErrors, string[] expectedMessages)
         {
-            AssertLinterRuleDiagnostics(UseProtectedSettingsForCommandToExecuteSecretsRule.Code, text, expectedMessages, onCompileErrors);
+            AssertLinterRuleDiagnostics(ProtectCommandToExecuteSecretsRule.Code, text, expectedMessages, onCompileErrors);
         }
 
         // Modified from https://docs.microsoft.com/en-us/azure/azure-arc/servers/manage-vm-extensions-template#template-file-for-windows-1

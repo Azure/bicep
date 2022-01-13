@@ -333,7 +333,7 @@ namespace Bicep.Core.Parsing
 
             var span = textWindow.GetSpan();
             int start = span.Position;
-            int length = span.Length;
+            int end = span.GetEndPosition();
 
             StringBuilder sb = new StringBuilder();
             sb.Append(textWindow.GetText());
@@ -346,7 +346,11 @@ namespace Bicep.Core.Parsing
             {
                 var nextChar = textWindow.Peek();
 
-                if (IsIdentifierContinuation(nextChar) || nextChar == '-')
+                if (IsNewLine(nextChar))
+                {
+                    break;
+                }
+                else if (IsIdentifierContinuation(nextChar) || nextChar == '-')
                 {
                     switch (textWindow.Peek(1))
                     {
@@ -360,7 +364,7 @@ namespace Bicep.Core.Parsing
                             if (GetToken() is { } token)
                             {
                                 codes.Add(token);
-                                length += token.Span.Length;
+                                end += token.Span.Length;
                                 sb.Append(token.Text);
 
                                 continue;
@@ -375,11 +379,20 @@ namespace Bicep.Core.Parsing
                 {
                     textWindow.Advance();
                     sb.Append(nextChar);
-                    length++;
+                    end++;
                     textWindow.Reset();
                 }
                 else
                 {
+                    // Handle scenario where nextChar is not one of the following: identifier, '-', space, tab
+                    // Eg: '|' in #disable-next-line BCP037|
+                    if (GetToken() is { } token)
+                    {
+                        codes.Add(token);
+                        end += token.Span.Length;
+                        sb.Append(token.Text);
+                    }
+
                     break;
                 }
             }
@@ -389,7 +402,7 @@ namespace Bicep.Core.Parsing
                 AddDiagnostic(b => b.MissingDiagnosticCodes());
             }
 
-            return GetDisableNextLineDiagnosticsSyntaxTrivia(codes, start, length, sb.ToString());
+            return GetDisableNextLineDiagnosticsSyntaxTrivia(codes, start, end, sb.ToString());
         }
 
         private bool CheckAdjacentText(string text)
@@ -409,7 +422,7 @@ namespace Bicep.Core.Parsing
             return true;
         }
 
-        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<Token> codes, int start, int length, string text)
+        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<Token> codes, int start, int end, string text)
         {
             if (codes.Any())
             {
@@ -418,15 +431,16 @@ namespace Bicep.Core.Parsing
 
                 // There could be whitespace following #disable-next-line directive, in which case we need to adjust the span and text.
                 // E.g. #disable-next-line BCP226   // test
-                if (length > lastCodeSpanEnd)
+                if (end > lastCodeSpanEnd)
                 {
-                    textWindow.Rewind(length - lastCodeSpanEnd);
+                    var delta = end - lastCodeSpanEnd;
+                    textWindow.Rewind(delta);
 
-                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd), text.Substring(0, lastCodeSpanEnd), codes);
+                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes);
                 }
             }
 
-            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, length), text, codes);
+            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, end - start), text, codes);
         }
 
         private Token? GetToken()

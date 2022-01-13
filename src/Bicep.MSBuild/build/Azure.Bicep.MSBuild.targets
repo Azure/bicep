@@ -7,7 +7,7 @@
     <BicepOutputPath Condition=" $(BicepOutputPath) == '' ">$(OutputPath)</BicepOutputPath>
   </PropertyGroup>
 
-  <Target Name="BicepCompile" Condition=" @(Bicep) != '' " DependsOnTargets="$(BicepCompileDependsOn)" AfterTargets="$(BicepCompileAfterTargets)" BeforeTargets="$(BicepCompileBeforeTargets)">
+  <Target Name="BeforeBicepCompile" Condition=" @(Bicep) != '' " BeforeTargets="BicepCompile">
     <ItemGroup>
       <_BicepResolved Include="@(Bicep)">
         <!-- populate missing output file metadata using the default path -->
@@ -16,13 +16,13 @@
 
       <_BicepOutputFile Include="%(_BicepResolved.OutputFile)" />
     </ItemGroup>
-
     <!-- pre-create directories for all the outputs in case they don't exist -->
     <MakeDir Directories=" %(_BicepOutputFile.RootDir)%(Directory)" />
-
     <Error Text="The path to the Bicep compiler is not set. Reference the appropriate Azure.Bicep.CommandLine.* package for your runtime or set the BicepPath property." Condition=" $(BicepPath) == '' " />
-    <Bicep SourceFile="%(_BicepResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" />
-    
+  </Target>
+
+  <Target Name="BicepCompile" Inputs="@(_BicepResolved)" Outputs="%(_BicepResolved.OutputFile)" DependsOnTargets="$(BicepCompileDependsOn)" AfterTargets="$(BicepCompileAfterTargets)" BeforeTargets="$(BicepCompileBeforeTargets)">
+    <Bicep SourceFile="%(_BicepResolved.FullPath)" OutputFile="%(OutputFile)" ToolExe="$(BicepPath)" YieldDuringToolExecution="true" />
     <Message Importance="High" Text="$(MSBuildProjectName) -&gt; %(_BicepResolved.OutputFile)" />
 
     <ItemGroup>

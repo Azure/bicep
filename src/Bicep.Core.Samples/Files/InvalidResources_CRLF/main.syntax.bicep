@@ -8870,14 +8870,14 @@ resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in
 // using the same loop variable in a new language scope should be allowed
 //@[73:75) NewLine |\r\n|
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:321) ResourceDeclarationSyntax
+//@[0:368) ResourceDeclarationSyntax
 //@[0:8)  Identifier |resource|
 //@[9:24)  IdentifierSyntax
 //@[9:24)   Identifier |premiumStorages|
 //@[25:71)  StringSyntax
 //@[25:71)   StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
 //@[72:73)  Assignment |=|
-//@[74:321)  ForSyntax
+//@[74:368)  ForSyntax
 //@[74:75)   LeftSquare |[|
 //@[75:78)   Identifier |for|
 //@[79:86)   LocalVariableSyntax
@@ -8888,11 +8888,11 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 //@[90:105)    IdentifierSyntax
 //@[90:105)     Identifier |storageAccounts|
 //@[105:106)   Colon |:|
-//@[107:320)   ObjectSyntax
+//@[107:367)   ObjectSyntax
 //@[107:108)    LeftBrace |{|
 //@[108:110)    NewLine |\r\n|
-  // #completionTest(7,8) -> symbolsPlusAccount2
-//@[48:50)    NewLine |\r\n|
+  // #completionTest(7) -> symbolsPlusAccount1
+//@[46:48)    NewLine |\r\n|
   name: account.name
 //@[2:20)    ObjectPropertySyntax
 //@[2:6)     IdentifierSyntax
@@ -8906,6 +8906,8 @@ resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for a
 //@[16:20)      IdentifierSyntax
 //@[16:20)       Identifier |name|
 //@[20:22)    NewLine |\r\n|
+  // #completionTest(12) -> symbolsPlusAccount2
+//@[47:49)    NewLine |\r\n|
   location: account.location
 //@[2:28)    ObjectPropertySyntax
 //@[2:10)     IdentifierSyntax

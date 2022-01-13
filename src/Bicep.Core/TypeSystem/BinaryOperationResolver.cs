@@ -45,7 +45,7 @@ namespace Bicep.Core.TypeSystem
             new BinaryOperatorInfo(BinaryOperator.Modulo, LanguageConstants.Int, LanguageConstants.Int),
 
             //coalesce
-            new BinaryOperatorInfo(BinaryOperator.Coalesce, LanguageConstants.Any, LanguageConstants.Any)            
+            new BinaryOperatorInfo(BinaryOperator.Coalesce, LanguageConstants.Any, LanguageConstants.Any)
         }.ToLookup(info => info.Operator);
 
         public static BinaryOperatorInfo? TryMatchExact(BinaryOperator @operator, TypeSymbol operandType1, TypeSymbol operandType2)

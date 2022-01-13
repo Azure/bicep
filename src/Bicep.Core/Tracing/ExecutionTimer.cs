@@ -34,7 +34,7 @@ namespace Bicep.Core.Tracing
         public void Dispose()
         {
             this.stopwatch.Stop();
-            if(this.status == Status.Started)
+            if (this.status == Status.Started)
             {
                 this.status = Status.Succeeded;
             }

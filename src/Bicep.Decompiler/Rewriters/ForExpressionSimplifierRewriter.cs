@@ -38,7 +38,7 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             // look for a range() function with 2 args
             if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, "sys", syntax) is not FunctionCallSyntaxBase rangeFunction ||
-                !LanguageConstants.IdentifierComparer.Equals(rangeFunction.Name.IdentifierName, "range") || 
+                !LanguageConstants.IdentifierComparer.Equals(rangeFunction.Name.IdentifierName, "range") ||
                 rangeFunction.Arguments.Length != 2)
             {
                 return false;
@@ -53,7 +53,7 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             // look for a length() function with 1 arg
             if (SemanticModelHelper.TryGetFunctionInNamespace(semanticModel, "sys", rangeFunction.Arguments[1].Expression) is not FunctionCallSyntaxBase lengthFunction ||
-                !LanguageConstants.IdentifierComparer.Equals(lengthFunction.Name.IdentifierName, "length") || 
+                !LanguageConstants.IdentifierComparer.Equals(lengthFunction.Name.IdentifierName, "length") ||
                 lengthFunction.Arguments.Length != 1)
             {
                 return false;
@@ -94,10 +94,11 @@ namespace Bicep.Core.Decompiler.Rewriters
 
             var arrayAccesses = new HashSet<ArrayAccessSyntax>();
             var independentIndexAccesses = new HashSet<VariableAccessSyntax>();
-            CallbackVisitor.Visit(syntax, child => {
+            CallbackVisitor.Visit(syntax, child =>
+            {
                 if (child is ArrayAccessSyntax arrayAccess)
                 {
-                    if (semanticModel.GetSymbolInfo(arrayAccess.BaseExpression) == arraySymbol && 
+                    if (semanticModel.GetSymbolInfo(arrayAccess.BaseExpression) == arraySymbol &&
                         semanticModel.GetSymbolInfo(arrayAccess.IndexExpression) == arrayIndexSymbol)
                     {
                         arrayAccesses.Add(arrayAccess);
@@ -127,7 +128,8 @@ namespace Bicep.Core.Decompiler.Rewriters
             }
 
             var itemVarName = GetUniqueVariableNameForNewScope(syntax, "item");
-            var forBody = CallbackRewriter.Rewrite(syntax.Body, child => {
+            var forBody = CallbackRewriter.Rewrite(syntax.Body, child =>
+            {
                 if (arrayAccesses.Contains(child))
                 {
                     return new VariableAccessSyntax(SyntaxFactory.CreateIdentifier(itemVarName));
@@ -167,7 +169,8 @@ namespace Bicep.Core.Decompiler.Rewriters
         private static string GetUniqueVariableNameForNewScope(SyntaxBase syntax, string name)
         {
             var variableAccesses = new HashSet<string>(LanguageConstants.IdentifierComparer);
-            CallbackVisitor.Visit(syntax, child => {
+            CallbackVisitor.Visit(syntax, child =>
+            {
                 if (child is VariableAccessSyntax variableAccess)
                 {
                     variableAccesses.Add(variableAccess.Name.IdentifierName);
@@ -180,7 +183,7 @@ namespace Bicep.Core.Decompiler.Rewriters
             {
                 return name;
             }
-            
+
             var index = 1;
             while (true)
             {

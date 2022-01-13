@@ -100,7 +100,10 @@
   {
     "label": "any",
     "kind": "function",
-    "detail": "any()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nany(value: any): any\n\n```\nConverts the specified value to the `any` type.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_any",
@@ -131,7 +134,10 @@
   {
     "label": "array",
     "kind": "function",
-    "detail": "array()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\narray(valueToConvert: any): array\n\n```\nConverts the value to an array.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_array",
@@ -277,7 +283,10 @@
   {
     "label": "az.resourceGroup",
     "kind": "function",
-    "detail": "az.resourceGroup()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceGroup(): resourceGroup\nresourceGroup(resourceGroupName: string): resourceGroup\nresourceGroup(subscriptionId: string, resourceGroupName: string): resourceGroup\n\n```\nReturns a resource group scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_az.resourceGroup",
@@ -294,7 +303,10 @@
   {
     "label": "base64",
     "kind": "function",
-    "detail": "base64()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64(inputString: string): string\n\n```\nReturns the base64 representation of the input string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64",
@@ -311,7 +323,10 @@
   {
     "label": "base64ToJson",
     "kind": "function",
-    "detail": "base64ToJson()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64ToJson(base64Value: string): any\n\n```\nConverts a base64 representation to a JSON object.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToJson",
@@ -328,7 +343,10 @@
   {
     "label": "base64ToString",
     "kind": "function",
-    "detail": "base64ToString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbase64ToString(base64Value: string): string\n\n```\nConverts a base64 representation to a string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_base64ToString",
@@ -345,7 +363,10 @@
   {
     "label": "bool",
     "kind": "function",
-    "detail": "bool()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nbool(value: any): bool\n\n```\nConverts the parameter to a boolean.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_bool",
@@ -404,7 +425,10 @@
   {
     "label": "coalesce",
     "kind": "function",
-    "detail": "coalesce()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncoalesce(... : any): any\n\n```\nReturns first non-null value from the parameters. Empty strings, empty arrays, and empty objects are not null.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_coalesce",
@@ -421,7 +445,10 @@
   {
     "label": "concat",
     "kind": "function",
-    "detail": "concat()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nconcat(... : array): array\nconcat(... : bool | int | string): string\n\n```\nCombines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_concat",
@@ -438,7 +465,10 @@
   {
     "label": "contains",
     "kind": "function",
-    "detail": "contains()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ncontains(object: object, propertyName: string): bool\ncontains(array: array, itemToFind: any): bool\ncontains(string: string, itemToFind: string): bool\n\n```\nChecks whether an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_contains",
@@ -511,7 +541,10 @@
   {
     "label": "dataUri",
     "kind": "function",
-    "detail": "dataUri()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndataUri(valueToConvert: any): string\n\n```\nConverts a value to a data URI.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUri",
@@ -528,7 +561,10 @@
   {
     "label": "dataUriToString",
     "kind": "function",
-    "detail": "dataUriToString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndataUriToString(dataUriToConvert: string): string\n\n```\nConverts a data URI formatted value to a string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dataUriToString",
@@ -545,7 +581,10 @@
   {
     "label": "dateTimeAdd",
     "kind": "function",
-    "detail": "dateTimeAdd()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeAdd(base: string, duration: string, [format: string]): string\n\n```\nAdds a time duration to a base value. ISO 8601 format is expected.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_dateTimeAdd",
@@ -562,7 +601,10 @@
   {
     "label": "deployment",
     "kind": "function",
-    "detail": "deployment()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndeployment(): deployment\n\n```\nReturns information about the current deployment operation.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_deployment",
@@ -618,7 +660,10 @@
   {
     "label": "empty",
     "kind": "function",
-    "detail": "empty()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nempty(itemToTest: array | null | object | string): bool\n\n```\nDetermines if an array, object, or string is empty.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_empty",
@@ -649,7 +694,10 @@
   {
     "label": "endsWith",
     "kind": "function",
-    "detail": "endsWith()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nendsWith(stringToSearch: string, stringToFind: string): bool\n\n```\nDetermines whether a string ends with a value. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_endsWith",
@@ -666,7 +714,10 @@
   {
     "label": "environment",
     "kind": "function",
-    "detail": "environment()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nenvironment(): environment\n\n```\nReturns information about the Azure environment used for deployment.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_environment",
@@ -708,7 +759,10 @@
   {
     "label": "extensionResourceId",
     "kind": "function",
-    "detail": "extensionResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nextensionResourceId(resourceId: string, resourceType: string, ... : string): string\n\n```\nReturns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_extensionResourceId",
@@ -725,7 +779,10 @@
   {
     "label": "first",
     "kind": "function",
-    "detail": "first()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nfirst(array: array): any\nfirst(string: string): string\n\n```\nReturns the first element of the array, or first character of the string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_first",
@@ -778,7 +835,10 @@
   {
     "label": "format",
     "kind": "function",
-    "detail": "format()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nformat(formatString: string, ... : any): string\n\n```\nCreates a formatted string from input values.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_format",
@@ -865,7 +925,10 @@
   {
     "label": "guid",
     "kind": "function",
-    "detail": "guid()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nguid(... : string): string\n\n```\nCreates a value in the format of a globally unique identifier based on the values provided as parameters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_guid",
@@ -894,6 +957,20 @@
     }
   },
   {
+    "label": "if-else",
+    "kind": "snippet",
+    "detail": "if-else",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "1_if-else",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "${1:condition} ? ${2:TrueValue} : ${3:FalseValue}"
+    }
+  },
+  {
     "label": "incrementingNumbers",
     "kind": "variable",
     "detail": "incrementingNumbers",
@@ -910,7 +987,10 @@
   {
     "label": "indexOf",
     "kind": "function",
-    "detail": "indexOf()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nindexOf(stringToSearch: string, stringToFind: string): int\n\n```\nReturns the first position of a value within a string. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_indexOf",
@@ -927,7 +1007,10 @@
   {
     "label": "int",
     "kind": "function",
-    "detail": "int()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nint(valueToConvert: int | string): int\n\n```\nConverts the specified value to an integer.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_int",
@@ -1028,7 +1111,10 @@
   {
     "label": "intersection",
     "kind": "function",
-    "detail": "intersection()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nintersection(... : object): object\nintersection(... : array): array\n\n```\nReturns a single array or object with the common elements from the parameters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_intersection",
@@ -1101,7 +1187,10 @@
   {
     "label": "items",
     "kind": "function",
-    "detail": "items()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nitems(object: object): object[]\n\n```\nReturns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_items",
@@ -1118,7 +1207,10 @@
   {
     "label": "json",
     "kind": "function",
-    "detail": "json()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\njson(json: string): any\n\n```\nConverts a valid JSON string into a JSON data type.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_json",
@@ -1135,7 +1227,10 @@
   {
     "label": "last",
     "kind": "function",
-    "detail": "last()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlast(array: array): any\nlast(string: string): string\n\n```\nReturns the last element of the array, or last character of the string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_last",
@@ -1152,7 +1247,10 @@
   {
     "label": "lastIndexOf",
     "kind": "function",
-    "detail": "lastIndexOf()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlastIndexOf(stringToSearch: string, stringToFind: string): int\n\n```\nReturns the last position of a value within a string. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_lastIndexOf",
@@ -1169,7 +1267,10 @@
   {
     "label": "length",
     "kind": "function",
-    "detail": "length()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nlength(arg: array | object | string): int\n\n```\nReturns the number of characters in a string, elements in an array, or root-level properties in an object.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_length",
@@ -1214,7 +1315,10 @@
   {
     "label": "loadFileAsBase64",
     "kind": "function",
-    "detail": "loadFileAsBase64()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadFileAsBase64(filePath: string): string\n\n```\nLoads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is 96 Kb.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_loadFileAsBase64",
@@ -1231,7 +1335,10 @@
   {
     "label": "loadTextContent",
     "kind": "function",
-    "detail": "loadTextContent()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadTextContent(filePath: string, [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): string\n\n```\nLoads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is 131072 characters (including line endings).\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_loadTextContent",
@@ -1276,7 +1383,10 @@
   {
     "label": "managementGroup",
     "kind": "function",
-    "detail": "managementGroup()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroup(name: string): managementGroup\n\n```\nReturns a management group scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_managementGroup",
@@ -1293,7 +1403,10 @@
   {
     "label": "max",
     "kind": "function",
-    "detail": "max()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmax(... : int): int\nmax(intArray: array): int\n\n```\nReturns the maximum value from an array of integers or a comma-separated list of integers.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_max",
@@ -1310,7 +1423,10 @@
   {
     "label": "min",
     "kind": "function",
-    "detail": "min()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmin(... : int): int\nmin(intArray: array): int\n\n```\nReturns the minimum value from an array of integers or a comma-separated list of integers.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_min",
@@ -1803,7 +1919,10 @@
   {
     "label": "padLeft",
     "kind": "function",
-    "detail": "padLeft()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\npadLeft(valueToPad: int | string, totalLength: int, [paddingCharacter: string]): string\n\n```\nReturns a right-aligned string by adding characters to the left until reaching the total specified length.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_padLeft",
@@ -1834,7 +1953,10 @@
   {
     "label": "pickZones",
     "kind": "function",
-    "detail": "pickZones()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\npickZones(providerNamespace: string, resourceType: string, location: string, [numberOfZones: int], [offset: int]): array\n\n```\nDetermines whether a resource type supports zones for a region.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_pickZones",
@@ -1921,7 +2043,10 @@
   {
     "label": "providers",
     "kind": "function",
-    "detail": "providers()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nproviders(providerNamespace: string): Provider\nproviders(providerNamespace: string, resourceType: string): ProviderResource\n\n```\nReturns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_providers",
@@ -1938,7 +2063,10 @@
   {
     "label": "range",
     "kind": "function",
-    "detail": "range()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nrange(startIndex: int, count: int): int[]\n\n```\nCreates an array of integers from a starting integer and containing a number of items.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_range",
@@ -1955,7 +2083,10 @@
   {
     "label": "reference",
     "kind": "function",
-    "detail": "reference()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreference(resourceNameOrIdentifier: string, [apiVersion: string], [full: string]): object\n\n```\nReturns an object representing a resource's runtime state.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_reference",
@@ -1972,7 +2103,10 @@
   {
     "label": "replace",
     "kind": "function",
-    "detail": "replace()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreplace(originalString: string, oldString: string, newString: string): string\n\n```\nReturns a new string with all instances of one string replaced by another string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_replace",
@@ -2031,7 +2165,10 @@
   {
     "label": "resourceId",
     "kind": "function",
-    "detail": "resourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceId(resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceType: string, ... : string): string\nresourceId(resourceGroupName: string, resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceGroupName: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_resourceId",
@@ -2090,7 +2227,10 @@
   {
     "label": "skip",
     "kind": "function",
-    "detail": "skip()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nskip(originalValue: array, numberToSkip: int): array\nskip(originalValue: string, numberToSkip: int): string\n\n```\nReturns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_skip",
@@ -2121,7 +2261,10 @@
   {
     "label": "split",
     "kind": "function",
-    "detail": "split()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsplit(inputString: string, delimiter: array | string): array\n\n```\nReturns an array of strings that contains the substrings of the input string that are delimited by the specified delimiters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_split",
@@ -2138,7 +2281,10 @@
   {
     "label": "startsWith",
     "kind": "function",
-    "detail": "startsWith()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nstartsWith(stringToSearch: string, stringToFind: string): bool\n\n```\nDetermines whether a string starts with a value. The comparison is case-insensitive.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_startsWith",
@@ -2155,7 +2301,10 @@
   {
     "label": "string",
     "kind": "function",
-    "detail": "string()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nstring(valueToConvert: any): string\n\n```\nConverts the specified value to a string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_string",
@@ -2186,7 +2335,10 @@
   {
     "label": "subscription",
     "kind": "function",
-    "detail": "subscription()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscription(): subscription\nsubscription(subscriptionId: string): subscription\n\n```\nReturns a subscription scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscription",
@@ -2203,7 +2355,10 @@
   {
     "label": "subscriptionResourceId",
     "kind": "function",
-    "detail": "subscriptionResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscriptionResourceId(resourceType: string, ... : string): string\nsubscriptionResourceId(subscriptionId: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the subscription level.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscriptionResourceId",
@@ -2220,7 +2375,10 @@
   {
     "label": "substring",
     "kind": "function",
-    "detail": "substring()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubstring(stringToParse: string, startIndex: int, [length: int]): string\n\n```\nReturns a substring that starts at the specified character position and contains the specified number of characters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_substring",
@@ -2254,7 +2412,10 @@
   {
     "label": "take",
     "kind": "function",
-    "detail": "take()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntake(originalValue: array, numberToTake: int): array\ntake(originalValue: string, numberToTake: int): string\n\n```\nReturns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_take",
@@ -2299,7 +2460,10 @@
   {
     "label": "tenant",
     "kind": "function",
-    "detail": "tenant()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenant(): tenant\n\n```\nReturns the current tenant scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenant",
@@ -2313,7 +2477,10 @@
   {
     "label": "tenantResourceId",
     "kind": "function",
-    "detail": "tenantResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenantResourceId(resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the tenant level.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenantResourceId",
@@ -2330,7 +2497,10 @@
   {
     "label": "toLower",
     "kind": "function",
-    "detail": "toLower()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoLower(stringToChange: string): string\n\n```\nConverts the specified string to lower case.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toLower",
@@ -2347,7 +2517,10 @@
   {
     "label": "toUpper",
     "kind": "function",
-    "detail": "toUpper()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntoUpper(stringToChange: string): string\n\n```\nConverts the specified string to upper case.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_toUpper",
@@ -2364,7 +2537,10 @@
   {
     "label": "trim",
     "kind": "function",
-    "detail": "trim()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntrim(stringToTrim: string): string\n\n```\nRemoves all leading and trailing white-space characters from the specified string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_trim",
@@ -2381,7 +2557,10 @@
   {
     "label": "union",
     "kind": "function",
-    "detail": "union()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nunion(... : object): object\nunion(... : array): array\n\n```\nReturns a single array or object with all elements from the parameters. Duplicate values or keys are only included once.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_union",
@@ -2398,7 +2577,10 @@
   {
     "label": "uniqueString",
     "kind": "function",
-    "detail": "uniqueString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuniqueString(... : string): string\n\n```\nCreates a deterministic hash string based on the values provided as parameters.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uniqueString",
@@ -2443,7 +2625,10 @@
   {
     "label": "uri",
     "kind": "function",
-    "detail": "uri()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuri(baseUri: string, relativeUri: string): string\n\n```\nCreates an absolute URI by combining the baseUri and the relativeUri string.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uri",
@@ -2460,7 +2645,10 @@
   {
     "label": "uriComponent",
     "kind": "function",
-    "detail": "uriComponent()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuriComponent(stringToEncode: string): string\n\n```\nEncodes a URI.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponent",
@@ -2477,7 +2665,10 @@
   {
     "label": "uriComponentToString",
     "kind": "function",
-    "detail": "uriComponentToString()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nuriComponentToString(uriEncodedString: string): string\n\n```\nReturns a string of a URI encoded value.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_uriComponentToString",

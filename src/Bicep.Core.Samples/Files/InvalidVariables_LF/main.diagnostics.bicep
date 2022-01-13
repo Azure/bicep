@@ -302,7 +302,7 @@ var nonTopLevelLoop = {
 var noFilteredLoopsInVariables = [for thing in stuff: if]
 //@[4:30) [no-unused-vars (Warning)] Variable "noFilteredLoopsInVariables" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |noFilteredLoopsInVariables|
 //@[47:52) [BCP057 (Error)] The name "stuff" does not exist in the current context. (CodeDescription: none) |stuff|
-//@[54:56) [BCP100 (Error)] The "if" function is not supported. Use the ternary conditional operator instead. (CodeDescription: none) |if|
+//@[54:56) [BCP100 (Error)] The function "if" is not supported. Use the "?:" (ternary conditional) operator instead, e.g. condition ? ValueIfTrue : ValueIfFalse (CodeDescription: none) |if|
 
 // nested loops are also not allowed
 var noNestedVariableLoopsEither = [for thing in stuff: {

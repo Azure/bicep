@@ -47,7 +47,7 @@ namespace Bicep.Core.Semantics
         public LocalScope ReplaceChildren(IEnumerable<LocalScope> newChildren) => new(this.Name, this.DeclaringSyntax, this.BindingSyntax, this.Locals, newChildren);
 
         public IEnumerable<DeclaredSymbol> GetDeclarationsByName(string name) => this.Locals.Where(symbol => symbol.NameSyntax.IsValid && string.Equals(symbol.Name, name, LanguageConstants.IdentifierComparison)).ToList();
-        
+
         public IEnumerable<DeclaredSymbol> Declarations => this.Locals;
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
@@ -13,6 +14,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
@@ -74,7 +76,6 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepCompletionHandler>()
                     .WithHandler<BicepCodeActionHandler>()
                     .WithHandler<BicepDidChangeWatchedFilesHandler>()
-                    .WithHandler<BicepDisableLinterRuleCommandHandler>()
                     .WithHandler<BicepSignatureHelpHandler>()
                     .WithHandler<BicepSemanticTokensHandler>()
                     .WithHandler<BicepTelemetryHandler>()
@@ -134,6 +135,8 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ICompletionProvider, BicepCompletionProvider>();
             services.AddSingletonOrInstance<IModuleRestoreScheduler, ModuleRestoreScheduler>(creationOptions.ModuleRestoreScheduler);
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
+            services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
+            services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
         }
 
         public void Dispose()

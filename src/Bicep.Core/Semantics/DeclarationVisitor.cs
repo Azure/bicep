@@ -12,7 +12,7 @@ using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
-    public sealed class DeclarationVisitor: SyntaxVisitor
+    public sealed class DeclarationVisitor : SyntaxVisitor
     {
         private readonly INamespaceProvider namespaceProvider;
         private readonly ResourceScope targetScope;
@@ -145,7 +145,7 @@ namespace Bicep.Core.Semantics
             }
 
             var indexVariable = syntax.IndexVariable;
-            if(indexVariable is not null)
+            if (indexVariable is not null)
             {
                 var indexVariableSymbol = new LocalVariableSymbol(this.context, indexVariable.Name.IdentifierName, indexVariable, LocalKind.ForExpressionIndexVariable);
                 DeclareSymbol(indexVariableSymbol);
@@ -188,7 +188,7 @@ namespace Bicep.Core.Semantics
                 // add this to the root list
                 this.childScopes.Add(item);
             }
-            
+
             this.activeScopes.Push(item);
         }
 

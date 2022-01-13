@@ -22,8 +22,8 @@
 		<PackageReference Include="Azure.Deployments.Core" Version="1.0.253" />
 		<PackageReference Include="Azure.Deployments.Templates" Version="1.0.253" />
 		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.253" />
-		<PackageReference Include="Azure.Bicep.Types" Version="0.1.330" />
-		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.330" />
+		<PackageReference Include="Azure.Bicep.Types" Version="0.1.331" />
+		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.331" />
 		<PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
 	</ItemGroup>
 	<ItemGroup>

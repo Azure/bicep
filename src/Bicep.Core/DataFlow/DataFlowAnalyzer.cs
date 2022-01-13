@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Bicep.Core.Semantics;
@@ -12,7 +12,7 @@ namespace Bicep.Core.DataFlow
     public class DataFlowAnalyzer
     {
         private readonly SemanticModel semanticModel;
-        
+
         public DataFlowAnalyzer(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
@@ -45,7 +45,7 @@ namespace Bicep.Core.DataFlow
         private SyntaxBase GetScopeBindingContainer(LocalVariableSymbol symbol)
         {
             var parent = this.semanticModel.GetSymbolParent(symbol);
-            if(parent is LocalScope scope)
+            if (parent is LocalScope scope)
             {
                 return scope.BindingSyntax;
             }

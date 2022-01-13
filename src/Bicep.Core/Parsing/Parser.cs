@@ -350,9 +350,9 @@ namespace Bicep.Core.Parsing
         private ImportDeclarationSyntax ImportDeclaration(IEnumerable<SyntaxBase> leadingNodes)
         {
             var keyword = ExpectKeyword(LanguageConstants.ImportKeyword);
-            var aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), RecoveryFlags.None, TokenType.NewLine);
-            var fromKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.FromKeyword), GetSuppressionFlag(aliasName), TokenType.NewLine);
-            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), GetSuppressionFlag(fromKeyword), TokenType.NewLine);
+            var providerName = this.IdentifierWithRecovery(b => b.ExpectedImportProviderName(), RecoveryFlags.None, TokenType.NewLine);
+            var asKeyword = this.WithRecovery(() => this.ExpectKeyword(LanguageConstants.AsKeyword), GetSuppressionFlag(providerName), TokenType.NewLine);
+            var aliasName = this.IdentifierWithRecovery(b => b.ExpectedImportAliasName(), GetSuppressionFlag(asKeyword), TokenType.NewLine);
             var config = this.WithRecoveryNullable(
                 () =>
                 {
@@ -371,7 +371,7 @@ namespace Bicep.Core.Parsing
                 GetSuppressionFlag(providerName),
                 TokenType.NewLine);
 
-            return new(leadingNodes, keyword, aliasName, fromKeyword, providerName, config);
+            return new(leadingNodes, keyword, providerName, asKeyword, aliasName, config);
         }
 
         private Token? NewLineOrEof()
@@ -1013,7 +1013,7 @@ namespace Bicep.Core.Parsing
 
         private SyntaxBase ForBody(ExpressionFlags expressionFlags, bool isResourceOrModuleContext)
         {
-            if(!isResourceOrModuleContext)
+            if (!isResourceOrModuleContext)
             {
                 // we're not parsing a resource or module body, which means we can have any expression at this point
                 return this.Expression(WithExpressionFlag(expressionFlags, ExpressionFlags.AllowComplexLiterals));
@@ -1339,7 +1339,7 @@ namespace Bicep.Core.Parsing
 
         private Token ExpectKeyword(string expectedKeyword)
         {
-            return GetOptionalKeyword(expectedKeyword) ?? 
+            return GetOptionalKeyword(expectedKeyword) ??
                 throw new ExpectedTokenException(this.reader.Peek(), b => b.ExpectedKeyword(expectedKeyword));
         }
 

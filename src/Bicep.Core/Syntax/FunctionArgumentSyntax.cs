@@ -21,7 +21,7 @@ namespace Bicep.Core.Syntax
 
         public override void Accept(ISyntaxVisitor visitor) => visitor.VisitFunctionArgumentSyntax(this);
 
-        public override TextSpan Span => this.Comma == null 
+        public override TextSpan Span => this.Comma == null
             ? this.Expression.Span
             : TextSpan.Between(this.Expression, this.Comma);
     }

@@ -118,6 +118,6 @@ resource res5 'Test.Rp/basicTests@2020-01-01' = {
         }
 
         private static TextRange CreateTextRange(int startLine, int startCharacter, int endLine, int endCharacter) =>
-            new(new (startLine, startCharacter), new (endLine, endCharacter));
+            new(new(startLine, startCharacter), new(endLine, endCharacter));
     }
 }

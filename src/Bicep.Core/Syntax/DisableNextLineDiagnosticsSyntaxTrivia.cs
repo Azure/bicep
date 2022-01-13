@@ -10,7 +10,7 @@ namespace Bicep.Core.Syntax
     public class DisableNextLineDiagnosticsSyntaxTrivia : SyntaxTrivia
     {
         public DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType type, TextSpan span, string text, IEnumerable<Token> diagnosticCodes)
-            :base(type, span, text)
+            : base(type, span, text)
         {
             DiagnosticCodes = diagnosticCodes.ToImmutableArray();
         }

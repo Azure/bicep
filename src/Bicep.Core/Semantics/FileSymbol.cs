@@ -166,7 +166,7 @@ namespace Bicep.Core.Semantics
                 var typeBySymbol = new Dictionary<ImportedNamespaceSymbol, NamespaceType>();
                 foreach (var symbol in symbols)
                 {
-                    if (symbol.TryGetNamespaceType() is {} namespaceType)
+                    if (symbol.TryGetNamespaceType() is { } namespaceType)
                     {
                         typeBySymbol[symbol] = namespaceType;
                     }

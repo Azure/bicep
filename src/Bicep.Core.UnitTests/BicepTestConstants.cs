@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Generic;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Emit;
 using Bicep.Core.Extensions;
@@ -14,6 +15,7 @@ using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Registry;
+using Bicep.LanguageServer.Telemetry;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
@@ -48,6 +50,8 @@ namespace Bicep.Core.UnitTests
         public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
 
         public static readonly RootConfiguration BuiltInConfiguration = ConfigurationManager.GetBuiltInConfiguration();
+
+        public static readonly LinterAnalyzer LinterAnalyzer = new LinterAnalyzer(BuiltInConfiguration);
 
         public static readonly RootConfiguration BuiltInConfigurationWithAnalyzersDisabled = ConfigurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
 
@@ -117,6 +121,14 @@ namespace Bicep.Core.UnitTests
         {
             var moduleDispatcher = StrictMock.Of<IModuleDispatcher>();
             return new ModuleRestoreScheduler(moduleDispatcher.Object);
+        }
+
+        public static Mock<ITelemetryProvider> CreateMockTelemetryProvider()
+        {
+            var telemetryProvider = StrictMock.Of<ITelemetryProvider>();
+            telemetryProvider.Setup(x => x.PostEvent(It.IsAny<BicepTelemetryEvent>()));
+
+            return telemetryProvider;
         }
     }
 }

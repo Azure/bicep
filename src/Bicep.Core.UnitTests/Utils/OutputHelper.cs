@@ -27,7 +27,8 @@ namespace Bicep.Core.UnitTests.Utils
             var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
 
             var itemsByLine = items
-                .Select(item => {
+                .Select(item =>
+                {
                     var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, getSpanFunc(item).Position);
                     return (line, character, item);
                 })

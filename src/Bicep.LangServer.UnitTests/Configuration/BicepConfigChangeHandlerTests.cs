@@ -20,6 +20,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Bicep.Core.Analyzers.Linter;
+using Bicep.Core.UnitTests;
 
 namespace Bicep.LangServer.UnitTests.Configuration
 {
@@ -29,7 +31,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         [NotNull]
         public TestContext? TestContext { get; set; }
 
-        private string CurrentDirectory = Directory.GetCurrentDirectory();
+        private static readonly LinterRulesProvider LinterRulesProvider = new();
 
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithValidBicepConfigFile_ShouldRefreshCompilation()
@@ -152,7 +154,6 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 });
         }
 
-
         [TestMethod]
         public void RefreshCompilationOfSourceFilesInWorkspace_WithEmptySourceFile_ShouldNotRefreshCompilation()
         {
@@ -218,7 +219,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
             var workspace = new Workspace();
 
-            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()));
+            var bicepCompilationManager = new BicepCompilationManager(server, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, new LinterRulesProvider());
             bicepCompilationManager.UpsertCompilation(DocumentUri.From(bicepFilePath), null, bicepFileContents, LanguageConstants.LanguageId);
 
             var bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
@@ -229,7 +230,13 @@ namespace Bicep.LangServer.UnitTests.Configuration
                 bicepConfigDocumentUri = DocumentUri.FromFileSystemPath(bicepConfigFilePath);
             }
 
-            BicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace(bicepCompilationManager, workspace);
+            var bicepConfigChangeHandler = new BicepConfigChangeHandler(bicepCompilationManager,
+                                                                        BicepTestConstants.ConfigurationManager,
+                                                                        LinterRulesProvider,
+                                                                        BicepTestConstants.CreateMockTelemetryProvider().Object,
+                                                                        workspace);
+
+            bicepConfigChangeHandler.RefreshCompilationOfSourceFilesInWorkspace();
 
             diagnostics = receivedParams?.Diagnostics;
         }

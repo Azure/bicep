@@ -456,7 +456,7 @@ var bannedFunctions = {
   param: parameters() + 2
 //@[9:19) [BCP061 (Error)] The "parameters" function is not supported. Directly reference parameters by their symbolic names. (CodeDescription: none) |parameters|
   if: sys.if(null,null)
-//@[10:12) [BCP100 (Error)] The "if" function is not supported. Use the ternary conditional operator instead. (CodeDescription: none) |if|
+//@[10:12) [BCP100 (Error)] The function "if" is not supported. Use the "?:" (ternary conditional) operator instead, e.g. condition ? ValueIfTrue : ValueIfFalse (CodeDescription: none) |if|
   obj: sys.createArray()
 //@[11:22) [BCP101 (Error)] The "createArray" function is not supported. Construct an array literal using []. (CodeDescription: none) |createArray|
   arr: sys.createObject()

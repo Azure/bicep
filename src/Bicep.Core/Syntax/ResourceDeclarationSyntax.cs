@@ -66,7 +66,7 @@ namespace Bicep.Core.Syntax
                     IfConditionSyntax ifCondition => ifCondition.Body as ObjectSyntax,
                     SkippedTriviaSyntax => null,
 
-                    _=> throw new NotImplementedException($"Unexpected type of for-expression value '{this.Value.GetType().Name}'.")
+                    _ => throw new NotImplementedException($"Unexpected type of for-expression value '{this.Value.GetType().Name}'.")
                 },
                 SkippedTriviaSyntax => null,
 

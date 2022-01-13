@@ -110,7 +110,7 @@ namespace Bicep.Core.UnitTests.Modules
 
         [DataTestMethod]
         [DynamicData(nameof(GetValidData), DynamicDataSourceType.Method)]
-        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName,  string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
+        public void TryGetModuleReference_ValidAlias_ReplacesReferenceValue(string aliasName, string referenceValue, string fullyQualifiedReferenceValue, RootConfiguration configuration)
         {
             var reference = TemplateSpecModuleReference.TryParse(aliasName, referenceValue, configuration, out var errorBuilder);
 
