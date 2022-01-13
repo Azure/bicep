@@ -372,9 +372,9 @@ output containsArr123 bool = contains(inputArray, 123)
                 evaluated.Should().HaveValueAtPath("$.outputs['strIdxBarLC'].value", new JValue(3));
                 evaluated.Should().HaveValueAtPath("$.outputs['strIdxBarUC'].value", new JValue(3));
 
-                evaluated.Should().HaveValueAtPath("$.outputs['containsStrFooLC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrFooLC'].value", new JValue(false)); // case-sensitive
                 evaluated.Should().HaveValueAtPath("$.outputs['containsStrFooUC'].value", new JValue(true));
-                evaluated.Should().HaveValueAtPath("$.outputs['containsStrBarLC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrBarLC'].value", new JValue(false)); // case-sensitive
                 evaluated.Should().HaveValueAtPath("$.outputs['containsStrBarUC'].value", new JValue(true));
 
                 evaluated.Should().HaveValueAtPath("$.outputs['arrIdxFooLC'].value", new JValue(-1));
