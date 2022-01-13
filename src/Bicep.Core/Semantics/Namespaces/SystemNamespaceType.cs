@@ -288,11 +288,25 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                 .Build(),
 
+            new FunctionOverloadBuilder("indexOf")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Returns the first position of a value within an array.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
+                .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
+                .Build(),
+
             new FunctionOverloadBuilder("lastIndexOf")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the last position of a value within a string. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
+                .Build(),
+
+            new FunctionOverloadBuilder("lastIndexOf")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Returns the last position of a value within an array.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
+                .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
                 .Build(),
 
             new FunctionOverloadBuilder("startsWith")
