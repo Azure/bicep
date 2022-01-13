@@ -3,8 +3,7 @@
 -->
 <Project Sdk="Microsoft.Build.NoTargets">
   <PropertyGroup>
-    <!-- Ensure the package supports multi-targeting -->
-    <TargetFrameworks>net5;net472</TargetFrameworks>
+    <TargetFramework>net472</TargetFramework>
     <BicepOutputPath>bin\$(Configuration)\templates</BicepOutputPath>
   </PropertyGroup>
 
