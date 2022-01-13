@@ -42,11 +42,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             builder.AppendLine($"# {metadataFile.ItemDisplayName}");
             builder.AppendLine();
 
-            var path = fileSystem.Path.GetFullPath(FileName);
-            var directoryPath = fileSystem.Path.GetDirectoryName(path);
-            var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
-
-            BuildBadgesAndButtons(builder, directoryInfo);
+            BuildBadgesAndButtons(builder, fileSystem);
 
             builder.AppendLine(metadataFile.Description);
             builder.AppendLine();
@@ -74,12 +70,16 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
 
-        private static void BuildBadgesAndButtons(StringBuilder builder, IDirectoryInfo directoryInfo)
+        private static void BuildBadgesAndButtons(StringBuilder builder, IFileSystem fileSystem)
         {
             var stack = new Stack<string>();
 
             try
             {
+                var path = fileSystem.Path.GetFullPath(FileName);
+                var directoryPath = fileSystem.Path.GetDirectoryName(path);
+                var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
+
                 while (directoryInfo is not null && !directoryInfo.Name.Equals("modules", StringComparison.OrdinalIgnoreCase))
                 {
                     stack.Push(directoryInfo.Name);
