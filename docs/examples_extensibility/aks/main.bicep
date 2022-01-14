@@ -29,4 +29,4 @@ module kubernetes './modules/kubernetes.bicep' = {
   }
 }
 
-// output webUrl string = 'http://${kubernetes.outputs.externalIp}/'
+// output webUrl string = 'https://${kubernetes.outputs.externalIp}/'
