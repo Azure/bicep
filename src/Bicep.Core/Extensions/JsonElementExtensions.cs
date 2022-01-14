@@ -3,8 +3,11 @@
 
 using Bicep.Core.Json;
 using Json.Patch;
+using Json.Path;
 using System;
 using System.Buffers;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
 
 namespace Bicep.Core.Extensions
@@ -36,7 +39,10 @@ namespace Bicep.Core.Extensions
                 throw new JsonException($"Expected deserialized value of \"{element}\" to be non-null.");
         }
 
-        public static JsonElement? GetPropertyByPath(this JsonElement element, string path)
+        public static JsonElement GetPropertyByPath(this JsonElement element, string path) =>
+            element.TryGetPropertyByPath(path) ?? throw new InvalidOperationException($"The property \"{path}\" does not exist.");
+
+        public static JsonElement? TryGetPropertyByPath(this JsonElement element, string path)
         {
             var current = element;
 
@@ -88,6 +94,19 @@ namespace Bicep.Core.Extensions
             }
 
             throw new InvalidOperationException(patchResult.Error);
+        }
+
+        public static IEnumerable<JsonElement> Select(this JsonElement element, string jsonPathQuery)
+        {
+            var jsonPath = JsonPath.Parse(jsonPathQuery);
+            var result = jsonPath.Evaluate(element);
+
+            if (result.Error is string error)
+            {
+                throw new InvalidOperationException(error);
+            }
+
+            return result.Matches?.Select(match => match.Value) ?? Enumerable.Empty<JsonElement>();
         }
 
         public static string ToFormattedString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
