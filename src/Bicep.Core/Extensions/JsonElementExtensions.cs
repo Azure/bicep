@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Json;
+using Json.Patch;
+using System;
 using System.Buffers;
 using System.Text.Json;
 
@@ -74,6 +76,24 @@ namespace Bicep.Core.Extensions
 
             return element.Merge(valueElement);
         }
+
+        public static JsonElement Patch(this JsonElement element, params PatchOperation[] operations)
+        {
+            var patch = new JsonPatch(operations);
+            var patchResult = patch.Apply(element);
+
+            if (patchResult.IsSuccess)
+            {
+                return patchResult.Result;
+            }
+
+            throw new InvalidOperationException(patchResult.Error);
+        }
+
+        public static string ToFormattedString(this JsonElement element) => JsonSerializer.Serialize(element, new JsonSerializerOptions
+        {
+            WriteIndented = true,
+        });
 
         public static JsonElement Merge(this JsonElement element, JsonElement other)
         {

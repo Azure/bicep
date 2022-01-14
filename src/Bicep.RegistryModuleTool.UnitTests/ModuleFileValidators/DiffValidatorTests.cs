@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
@@ -49,7 +50,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             var fileToValidate = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleFileException>()
+                .Throw<InvalidModuleException>()
                 .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
@@ -93,7 +94,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             var fileToValidate = MainArmTemplateParametersFile.ReadFromFileSystem(fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleFileException>()
+                .Throw<InvalidModuleException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
@@ -113,7 +114,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleFileException>()
+                .Throw<InvalidModuleException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
@@ -133,7 +134,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             var fileToValidate = VersionFile.ReadFromFileSystem(this.fileSystem);
 
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
-                .Throw<InvalidModuleFileException>()
+                .Throw<InvalidModuleException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
     }

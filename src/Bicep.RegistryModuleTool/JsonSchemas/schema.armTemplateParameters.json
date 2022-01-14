@@ -1,7 +1,10 @@
 ﻿{
   "properties": {
     "$schema": {
-      "type": "string"
+      "type": "string",
+      "enum": [
+        "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"
+      ]
     },
     "contentVersion": {
       "type": "string",

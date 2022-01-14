@@ -56,7 +56,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
             if (DiffLines(newContent, oldContent))
             {
-                throw new InvalidModuleFileException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                throw new InvalidModuleException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
             }
         }
 

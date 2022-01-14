@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
@@ -35,7 +37,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         public void Validate_InvalidMetadataFile_ThrowsException(MetadataFile invalidFile, string expectedErrorMessage)
         {
             FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
-                .Throw<InvalidModuleFileException>()
+                .Throw<InvalidModuleException>()
                 .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 
@@ -52,7 +54,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         public void Validate_InvalidMainArmTemplateParametersFile_ThrowsException(MainArmTemplateParametersFile invalidFile, string expectedErrorMessage)
         {
             FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
-                .Throw<InvalidModuleFileException>()
+                .Throw<InvalidModuleException>()
                 .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 

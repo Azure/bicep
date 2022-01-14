@@ -93,6 +93,16 @@
         "resolved": "2021.2.0",
         "contentHash": "kKSyoVfndMriKHLfYGmr0uzQuI4jcc3TKGyww7buJFCYeHb/X0kodYBPL7n9454q7v6ASiRmDgpPGaDGerg/Hg=="
       },
+      "JsonPatch.Net": {
+        "type": "Direct",
+        "requested": "[1.1.2, )",
+        "resolved": "1.1.2",
+        "contentHash": "Qhvg7FWmV94tUklasH/NuegylPFJ3zmtoXkOZ2KY0E6ASEwcVOkSj9YsbvRSLdGNEZw8kv/ZT3tzZ5WkPv6YxA==",
+        "dependencies": {
+          "JsonPointer.Net": "2.1.0",
+          "System.Text.Json": "4.7.2"
+        }
+      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.3, )",
@@ -182,6 +192,23 @@
         "dependencies": {
           "Azure.Core": "1.20.0",
           "System.Text.Json": "4.6.0"
+        }
+      },
+      "Json.More.Net": {
+        "type": "Transitive",
+        "resolved": "1.4.4",
+        "contentHash": "fEODh5RsZ1cd4Cfg/f6NoVZ1v3a0iZ5XtshIsdWPnuIMMwxuN07/v8QJ7wyIQI+0MASa1l3v0k7XN9FjypaY3A==",
+        "dependencies": {
+          "System.Text.Json": "4.7.2"
+        }
+      },
+      "JsonPointer.Net": {
+        "type": "Transitive",
+        "resolved": "2.1.0",
+        "contentHash": "T/upKtpS8MWV1Th90bnyWtcs+vt9WRcrH2BSQIXkIDNwwcdoUxfhJkO+mrtCSlkyCOREbHrV3KeT1U2oL+n+6w==",
+        "dependencies": {
+          "Json.More.Net": "1.4.4",
+          "System.Text.Json": "4.7.2"
         }
       },
       "Microsoft.Bcl.AsyncInterfaces": {

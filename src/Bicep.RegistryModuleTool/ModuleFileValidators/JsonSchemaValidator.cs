@@ -93,7 +93,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
                     }
                 }
 
-                throw new InvalidModuleFileException(errorMessageBuilder.ToString());
+                throw new InvalidModuleException(errorMessageBuilder.ToString());
             }
         }
 

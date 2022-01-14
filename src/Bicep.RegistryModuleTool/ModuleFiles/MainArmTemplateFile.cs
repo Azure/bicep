@@ -21,7 +21,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
     public sealed class MainArmTemplateFile : ModuleFile
     {
-        public const string FileName = "azuredeploy.json";
+        public const string FileName = "main.json";
 
         private readonly Lazy<JsonElement> lazyRootElement;
 
