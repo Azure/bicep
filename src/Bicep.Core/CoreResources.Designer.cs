@@ -178,6 +178,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximum number of resources..
+        /// </summary>
+        internal static string MaxNumberResourcesRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberResourcesRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many resources. Number of resources is limited to 800..
+        /// </summary>
+        internal static string MaxNumberResourcesRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberResourcesRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Maximum number of variables..
         /// </summary>
         internal static string MaxNumberVariablesRuleDescription {

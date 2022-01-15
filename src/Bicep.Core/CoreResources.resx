@@ -239,4 +239,10 @@
   <data name="MaxNumberOutputsRuleMessageFormat" xml:space="preserve">
     <value>Too many outputs. Number of outputs is limited to 64.</value>
   </data>
+  <data name="MaxNumberResourcesRuleDescription" xml:space="preserve">
+    <value>Maximum number of resources.</value>
+  </data>
+  <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
+    <value>Too many resources. Number of resources is limited to 800.</value>
+  </data>
 </root>
