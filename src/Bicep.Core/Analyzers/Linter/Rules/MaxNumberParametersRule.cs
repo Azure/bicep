@@ -13,7 +13,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class MaxNumberParametersRule : LinterRuleBase
     {
-        public new const string Code = "no-unused-params";
+        public new const string Code = "max-params";
         public MaxNumberParametersRule() : base(
             code: Code,
             description: CoreResources.MaxNumberParametersRuleDescription,
