@@ -142,7 +142,25 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum number of parameters.
+        ///   Looks up a localized string similar to Maximum number of outputs..
+        /// </summary>
+        internal static string MaxNumberOutputsRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberOutputsRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many outputs. Number of outputs is limited to 64..
+        /// </summary>
+        internal static string MaxNumberOutputsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberOutputsRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum number of parameters..
         /// </summary>
         internal static string MaxNumberParametersRuleDescription {
             get {
@@ -160,7 +178,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum number of variables.
+        ///   Looks up a localized string similar to Maximum number of variables..
         /// </summary>
         internal static string MaxNumberVariablesRuleDescription {
             get {

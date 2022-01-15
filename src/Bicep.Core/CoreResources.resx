@@ -222,15 +222,21 @@
     <value>Virtual machines shouldn't use preview images. Use stable version in imageReference property "{0}".</value>
   </data>
   <data name="MaxNumberParametersRuleDescription" xml:space="preserve">
-    <value>Maximum number of parameters</value>
+    <value>Maximum number of parameters.</value>
   </data>
   <data name="MaxNumberParametersRuleMessageFormat" xml:space="preserve">
     <value>Too many parameters. Number of parameters is limited to 256.</value>
   </data>
   <data name="MaxNumberVariablesRuleDescription" xml:space="preserve">
-    <value>Maximum number of variables</value>
+    <value>Maximum number of variables.</value>
   </data>
   <data name="MaxNumberVariablesRuleMessageFormat" xml:space="preserve">
     <value>Too many variables. Number of variables is limited to 256.</value>
+  </data>
+  <data name="MaxNumberOutputsRuleDescription" xml:space="preserve">
+    <value>Maximum number of outputs.</value>
+  </data>
+  <data name="MaxNumberOutputsRuleMessageFormat" xml:space="preserve">
+    <value>Too many outputs. Number of outputs is limited to 64.</value>
   </data>
 </root>
