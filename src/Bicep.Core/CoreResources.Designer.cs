@@ -160,6 +160,24 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximum number of variables.
+        /// </summary>
+        internal static string MaxNumberVariablesRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberVariablesRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many variables. Number of variables is limited to 256..
+        /// </summary>
+        internal static string MaxNumberVariablesRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberVariablesRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to No unnecessary dependsOn..
         /// </summary>
         internal static string NoUnnecessaryDependsOnRuleDescription {

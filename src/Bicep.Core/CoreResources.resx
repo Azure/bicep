@@ -227,4 +227,10 @@
   <data name="MaxNumberParametersRuleMessageFormat" xml:space="preserve">
     <value>Too many parameters. Number of parameters is limited to 256.</value>
   </data>
+  <data name="MaxNumberVariablesRuleDescription" xml:space="preserve">
+    <value>Maximum number of variables</value>
+  </data>
+  <data name="MaxNumberVariablesRuleMessageFormat" xml:space="preserve">
+    <value>Too many variables. Number of variables is limited to 256.</value>
+  </data>
 </root>
