@@ -221,6 +221,18 @@
             },
             "use-stable-vm-image": {
               "level": "warning"
+            },
+            "max-variables": {
+              "level": "error"
+            },
+            "max-params": {
+              "level": "error"
+            },
+            "max-outputs": {
+              "level": "error"
+            },
+            "max-resources": {
+              "level": "error"
             }
           }
         }
@@ -381,6 +393,46 @@
                   "allOf": [
                     {
                       "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "max-params": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "max-variables": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "max-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "max-resources": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
                     },
                     {
                       "$ref": "#/definitions/rule"
