@@ -221,4 +221,10 @@
   <data name="UseStableVMImageRuleFixMessageFormat" xml:space="preserve">
     <value>Virtual machines shouldn't use preview images. Use stable version in imageReference property "{0}".</value>
   </data>
+  <data name="MaxNumberParametersRuleDescription" xml:space="preserve">
+    <value>Maximum number of parameters</value>
+  </data>
+  <data name="MaxNumberParametersRuleMessageFormat" xml:space="preserve">
+    <value>Too many parameters. Number of parameters is limited to 256.</value>
+  </data>
 </root>
