@@ -142,7 +142,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum number of outputs..
+        ///   Looks up a localized string similar to Maximum number of outputs used..
         /// </summary>
         internal static string MaxNumberOutputsRuleDescription {
             get {
@@ -160,7 +160,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum number of parameters..
+        ///   Looks up a localized string similar to Maximum number of parameters used..
         /// </summary>
         internal static string MaxNumberParametersRuleDescription {
             get {
@@ -178,7 +178,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum number of resources..
+        ///   Looks up a localized string similar to Maximum number of resources used..
         /// </summary>
         internal static string MaxNumberResourcesRuleDescription {
             get {
@@ -196,7 +196,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Maximum number of variables..
+        ///   Looks up a localized string similar to Maximum number of variables used..
         /// </summary>
         internal static string MaxNumberVariablesRuleDescription {
             get {
