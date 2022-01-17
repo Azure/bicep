@@ -20,6 +20,15 @@
           "Azure.Bicep.Types": "0.1.331"
         }
       },
+      "Azure.Bicep.Types.K8s": {
+        "type": "Direct",
+        "requested": "[0.1.11, )",
+        "resolved": "0.1.11",
+        "contentHash": "pKBzr7xjTS7+fj0Fh83T40rnrpGh0JLVV4gErcJCbr+4AAYS/O6Tpu3DCPu8ZlSgHGcuCzGMWYarkSO5VDsf9w==",
+        "dependencies": {
+          "Azure.Bicep.Types": "0.1.304"
+        }
+      },
       "Azure.Containers.ContainerRegistry": {
         "type": "Direct",
         "requested": "[1.1.0-beta.3, )",
