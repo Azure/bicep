@@ -183,6 +183,77 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             });
         }
 
+        public void If_ResLocationIs_VariableDefinedAsLiteral_ShouldFail_WithFixToChangeToParam_OnlyOneErrorPerVariable()
+        {
+            var result = CompilationHelper.Compile(@"
+                var location = 'westus'
+                var location2 = 'westus'
+
+                resource storageaccount1 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name1'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount2 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name2'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount3 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name3'
+                  location: location2
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount4 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name4'
+                  location: location2
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+
+                resource storageaccount5 'Microsoft.Storage/storageAccounts@2021-02-01' = {
+                  name: 'name5'
+                  location: location
+                  kind: 'StorageV2'
+                  sku: {
+                    name: 'Premium_LRS'
+                  }
+                }
+            ");
+
+            result.Diagnostics.Should().HaveFixableDiagnostics(new[]
+            {
+                (
+                    NoHardcodedLocationRule.Code,
+                    DiagnosticLevel.Warning,
+                    "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.",
+                    "Change variable 'location' into a parameter",
+                    "param location string = 'westus'"
+                ),
+                (
+                    NoHardcodedLocationRule.Code,
+                    DiagnosticLevel.Warning,
+                    "A resource location should not use a hard-coded string or variable value. Change variable 'location2' into a parameter.",
+                    "Change variable 'location2' into a parameter",
+                    "param location2 string = 'westus'"
+                )
+            });
+        }
+
         [TestMethod]
         public void If_ResLocationIs_VariableDefinedAsLiteral_Used2Times_ShouldFailJustOnVariableDef__WithFixToChangeToParam()
         {

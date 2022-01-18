@@ -61,7 +61,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private void ValidateResourceLocationValue(List<IDiagnostic> diagnostics, SyntaxBase locationValueSyntax, SemanticModel model, string? moduleParameterName)
+        private void ValidateResourceLocationValue(List<IDiagnostic> diagnostics, HashSet<VariableSymbol> variablesToChangeToParam, SyntaxBase locationValueSyntax, SemanticModel model, string? moduleParameterName)
         {
             // Is the value a string literal (or a variable defined as a string literal)?
             (string? literalValue, VariableSymbol? definingVariable) = TryGetLiteralTextValueAndDefiningVariable(locationValueSyntax, model);
@@ -91,9 +91,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 TextSpan errorSpan = definingVariable.NameSyntax.Span;
 
                 // Is there already a diagnostic for this variable definition? Don't add a duplicate
-                if (diagnostics.Any(d => d.Code == Code && d.Span.Equals(errorSpan)))
+                if (variablesToChangeToParam.Contains(definingVariable))
                 {
                     return;
+                }
+                else
+                {
+                    variablesToChangeToParam.Add(definingVariable);
                 }
 
                 string msg = String.Format(
@@ -144,7 +148,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         CoreResources.NoHardcodedLocation_ErrorSolution,
                         Global,
                         literalValue);
-                var fullMessage = errorMessage + " " + solutionMessage;
+                var fullMessage = $"{errorMessage} {solutionMessage}";
                 diagnostics.Add(CreateFixableDiagnosticForSpan(
                     locationValueSyntax.Span,
                     fixWithNewParam,
@@ -155,6 +159,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private sealed class RuleVisitor : SyntaxVisitor
         {
             public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            private HashSet<VariableSymbol> variablesToChangeToParam = new HashSet<VariableSymbol>();
 
             private NoHardcodedLocationRule parent;
             private SemanticModel model;
@@ -172,7 +177,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                    ?.TryGetPropertyByName(LanguageConstants.ResourceLocationPropertyName)?.Value;
                 if (locationValue != null)
                 {
-                    parent.ValidateResourceLocationValue(diagnostics, locationValue, model, null);
+                    parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, locationValue, model, null);
                 }
 
                 base.VisitResourceDeclarationSyntax(syntax);
@@ -182,13 +187,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // Check the values passed in to any location-related parameters in a consumed module
                 ImmutableArray<(string parameterName, SyntaxBase? actualValue)> locationParametersActualValues =
-                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, true /*onlyParametersWithDefaultValues*/);
+                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParametersWithDefaultValues: true);
 
                 foreach (var parameter in locationParametersActualValues)
                 {
                     if (parameter.actualValue != null)
                     {
-                        parent.ValidateResourceLocationValue(diagnostics, parameter.actualValue, model, parameter.parameterName);
+                        parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, parameter.actualValue, model, parameter.parameterName);
                     }
                 }
 

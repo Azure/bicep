@@ -57,7 +57,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // Check that explicit values passed in to any location-related parameters in a consumed module
                 ImmutableArray<(string parameterName, SyntaxBase? actualValue)> locationParametersActualValues =
-                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, true /*onlyParamsWithDefaultValues*/);
+                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
 
                 // Show the error on the params key if it exists, otherwise on the module name
                 var moduleParamsPropertyObject = moduleDeclarationSyntax.TryGetBody()?
@@ -66,7 +66,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
                 foreach (var parameter in locationParametersActualValues)
                 {
-                    if (parameter.actualValue == null)
+                    if (parameter.actualValue is null)
                     {
                         // No value being passed in - this is a failure
                         string moduleName = moduleDeclarationSyntax.Name.IdentifierName;
