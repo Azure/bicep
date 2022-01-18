@@ -187,7 +187,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // Check the values passed in to any location-related parameters in a consumed module
                 ImmutableArray<(string parameterName, SyntaxBase? actualValue)> locationParametersActualValues =
-                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParametersWithDefaultValues: true);
+                    parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
 
                 foreach (var parameter in locationParametersActualValues)
                 {
