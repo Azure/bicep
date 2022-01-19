@@ -189,12 +189,46 @@
         "resolved": "1.7.0",
         "contentHash": "2Mna9MSihC3tujLJ34+FqhFdsS6xlaMzPd8ywuTz3Qq/Z7vWRKAe18H2R5v69TMbmGyzn3FuIngnhyuNkrfUzQ=="
       },
+      "Json.More.Net": {
+        "type": "Transitive",
+        "resolved": "1.4.4",
+        "contentHash": "fEODh5RsZ1cd4Cfg/f6NoVZ1v3a0iZ5XtshIsdWPnuIMMwxuN07/v8QJ7wyIQI+0MASa1l3v0k7XN9FjypaY3A==",
+        "dependencies": {
+          "System.Text.Json": "4.7.2"
+        }
+      },
       "JsonDiffPatch.Net": {
         "type": "Transitive",
         "resolved": "2.3.0",
         "contentHash": "a+I1WNXSwkelsgUfMk3LVRY3FzQDV8nCpRMcml2whQDimbnOG+mxRCt6kCzMRFwshg9ir4shm0yvYDL7E89ayg==",
         "dependencies": {
           "Newtonsoft.Json": "11.0.1"
+        }
+      },
+      "JsonPatch.Net": {
+        "type": "Transitive",
+        "resolved": "1.1.2",
+        "contentHash": "Qhvg7FWmV94tUklasH/NuegylPFJ3zmtoXkOZ2KY0E6ASEwcVOkSj9YsbvRSLdGNEZw8kv/ZT3tzZ5WkPv6YxA==",
+        "dependencies": {
+          "JsonPointer.Net": "2.1.0",
+          "System.Text.Json": "4.7.2"
+        }
+      },
+      "JsonPath.Net": {
+        "type": "Transitive",
+        "resolved": "0.1.14",
+        "contentHash": "NKaq/Sna+/u/3rdxJzbV0evKxjtiICn2ceS3DmK4TZ3c+6Y9UP5xbTumY4P1KKyy92hx5hjLup6F3HvOgM7HnA==",
+        "dependencies": {
+          "JsonPointer.Net": "2.0.0"
+        }
+      },
+      "JsonPointer.Net": {
+        "type": "Transitive",
+        "resolved": "2.1.0",
+        "contentHash": "T/upKtpS8MWV1Th90bnyWtcs+vt9WRcrH2BSQIXkIDNwwcdoUxfhJkO+mrtCSlkyCOREbHrV3KeT1U2oL+n+6w==",
+        "dependencies": {
+          "Json.More.Net": "1.4.4",
+          "System.Text.Json": "4.7.2"
         }
       },
       "Markdig.Signed": {
@@ -2305,6 +2339,8 @@
           "Azure.Deployments.Templates": "1.0.546",
           "Azure.Identity": "1.5.0",
           "Azure.ResourceManager.Resources": "1.0.0-beta.3",
+          "JsonPatch.Net": "1.1.2",
+          "JsonPath.Net": "0.1.14",
           "Microsoft.Extensions.Configuration": "6.0.0",
           "Microsoft.Extensions.Configuration.Binder": "6.0.0",
           "Microsoft.Extensions.Configuration.Json": "6.0.0",

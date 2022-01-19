@@ -18,13 +18,10 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private static readonly JsonElement EmptyMetadataElement = JsonElementFactory.CreateElement(new Dictionary<string, string>
         {
-            ["$schema"] = "https://aka.ms/azure-quickstart-templates-metadata-schema#",
-            ["type"] = "",
-            ["itemDisplayName"] = "",
+            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-schema#",
+            ["name"] = "",
             ["description"] = "",
-            ["summary"] = "",
-            ["githubUsername"] = "",
-            ["dateUpdated"] = "",
+            ["owner"] = "",
         });
 
         public MetadataFile(string path, JsonElement rootElement)
@@ -35,7 +32,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public JsonElement RootElement { get; }
 
-        public string? ItemDisplayName => this.RootElement.TryGetProperty("itemDisplayName", out var element) ? element.GetString() : null;
+        public string? Name => this.RootElement.TryGetProperty("name", out var element) ? element.GetString() : null;
 
         public string? Description => this.RootElement.TryGetProperty("description", out var element) ? element.GetString() : null;
 

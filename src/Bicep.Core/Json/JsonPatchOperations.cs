@@ -6,7 +6,7 @@ using Json.Patch;
 using Json.Pointer;
 using System.Text.Json;
 
-namespace Bicep.RegistryModuleTool.TestFixtures.Extensions
+namespace Bicep.Core.Json
 {
     public static class JsonPatchOperations
     {
