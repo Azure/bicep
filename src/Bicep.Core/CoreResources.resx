@@ -195,7 +195,8 @@
     <comment>{0} is a variable name</comment>
   </data>
   <data name="NoHardcodedLocation_FixChangeVarToParam" xml:space="preserve">
-    <value>Change variable '{0}' into a parameter</value>
+    <value>Change variable '{0}' into a parameter instead.</value>
+
     <comment>{0} is a variable name</comment>
   </data>
   <data name="NoHardcodedLocation_FixNewParam" xml:space="preserve">
