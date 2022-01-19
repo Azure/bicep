@@ -176,8 +176,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 (
                     NoHardcodedLocationRule.Code,
                     DiagnosticLevel.Warning,
-                    "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.",
-                    "Change variable 'location' into a parameter",
+                    "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.",
+                    "Change variable 'location' into a parameter instead",
                     "param location string = 'westus'"
                 )
             });
@@ -240,15 +240,15 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 (
                     NoHardcodedLocationRule.Code,
                     DiagnosticLevel.Warning,
-                    "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.",
-                    "Change variable 'location' into a parameter",
+                    "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.",
+                    "Change variable 'location' into a parameter instead",
                     "param location string = 'westus'"
                 ),
                 (
                     NoHardcodedLocationRule.Code,
                     DiagnosticLevel.Warning,
-                    "A resource location should not use a hard-coded string or variable value. Change variable 'location2' into a parameter.",
-                    "Change variable 'location2' into a parameter",
+                    "A resource location should not use a hard-coded string or variable value. Change variable 'location2' into a parameter instead.",
+                    "Change variable 'location2' into a parameter instead",
                     "param location2 string = 'westus'"
                 )
             });
@@ -281,7 +281,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
         }
 
@@ -332,7 +332,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
         }
 
@@ -355,7 +355,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
         }
 
@@ -387,7 +387,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
         }
 
@@ -419,7 +419,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter."),
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead."),
             });
         }
 
@@ -481,7 +481,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter.")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'location' into a parameter instead.")
             });
         }
 
@@ -605,7 +605,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
 
             result.Diagnostics.Should().HaveDiagnostics(new[]
             {
-                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'v1' into a parameter.")
+                (NoHardcodedLocationRule.Code, DiagnosticLevel.Warning, "A resource location should not use a hard-coded string or variable value. Change variable 'v1' into a parameter instead.")
             });
         }
 
