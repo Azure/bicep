@@ -6,7 +6,6 @@ using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
@@ -41,23 +40,6 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
                 .WithMessage(expectedErrorMessage.ReplaceLineEndings());
         }
 
-        [TestMethod]
-        public void Validate_ValidMainArmTemplateParametersFile_Succeeds()
-        {
-            var file = MainArmTemplateParametersFile.ReadFromFileSystem(FileSystem);
-
-            FluentActions.Invoking(() => this.sut.Validate(file)).Should().NotThrow();
-        }
-
-        [DataTestMethod]
-        [DynamicData(nameof(GetInvalidMainArmTemplateParametersFileData), DynamicDataSourceType.Method)]
-        public void Validate_InvalidMainArmTemplateParametersFile_ThrowsException(MainArmTemplateParametersFile invalidFile, string expectedErrorMessage)
-        {
-            FluentActions.Invoking(() => this.sut.Validate(invalidFile)).Should()
-                .Throw<InvalidModuleException>()
-                .WithMessage(expectedErrorMessage.ReplaceLineEndings());
-        }
-
         private static IEnumerable<object[]> GetInvalidMetadataFileData()
         {
             var file = MetadataFile.ReadFromFileSystem(FileSystem);
@@ -74,38 +56,13 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             {
                 PatchMetadataFile(
                     file,
-                    JsonPatchOperations.Remove("/itemDisplayName"),
+                    JsonPatchOperations.Remove("/name"),
                     JsonPatchOperations.Replace("/description", ""),
-                    JsonPatchOperations.Replace("/dateUpdated", "42")),
+                    JsonPatchOperations.Replace("/owner", "")),
                 @$"The file ""{file.Path}"" is invalid:
   #/description: Value is not longer than or equal to 10 characters
-  #/dateUpdated: Value does not match the pattern of ""^(20[1-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$""
-  #: Required properties [itemDisplayName] were not present
-",
-            };
-        }
-
-        private static IEnumerable<object[]> GetInvalidMainArmTemplateParametersFileData()
-        {
-            var file = MainArmTemplateParametersFile.ReadFromFileSystem(FileSystem);
-
-            yield return new object[]
-            {
-                PatchMainArmTemplateParametersFile(file, JsonPatchOperations.Add("/extra", true)),
-                @$"The file ""{file.Path}"" is invalid:
-  #/extra: The property is not allowed
-",
-            };
-
-            yield return new object[]
-            {
-                PatchMainArmTemplateParametersFile(
-                    file,
-                    JsonPatchOperations.Remove("/$schema"),
-                    JsonPatchOperations.Replace("/contentVersion", "v1")),
-                @$"The file ""{file.Path}"" is invalid:
-  #/contentVersion: Value does not match the pattern of ""(^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$)""
-  #: Required properties [$schema] were not present
+  #/owner: Value does not match the pattern of ""^[a-zA-Z\d](?:[a-zA-Z\d]|-(?=[a-zA-Z\d])){{0,38}}$""
+  #: Required properties [name] were not present
 ",
             };
         }
@@ -117,15 +74,6 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             tempFileSystem.AddFile(file.Path, patchedElement.ToJsonString());
 
             return MetadataFile.ReadFromFileSystem(tempFileSystem);
-        }
-
-        private static MainArmTemplateParametersFile PatchMainArmTemplateParametersFile(MainArmTemplateParametersFile file, params PatchOperation[] operations)
-        {
-            var patchedElement = file.RootElement.Patch(operations);
-            var tempFileSystem = MockFileSystemFactory.CreateFileSystemWithEmptyFolder();
-            tempFileSystem.AddFile(file.Path, patchedElement.ToJsonString());
-
-            return MainArmTemplateParametersFile.ReadFromFileSystem(tempFileSystem);
         }
     }
 }

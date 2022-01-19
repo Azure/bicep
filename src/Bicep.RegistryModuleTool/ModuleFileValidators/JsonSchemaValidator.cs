@@ -28,8 +28,6 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         public void Validate(MetadataFile file) => this.Validate(file.Path, JsonSchemaManager.MetadataSchema, file.RootElement);
 
-        public void Validate(MainArmTemplateParametersFile file) => this.Validate(file.Path, JsonSchemaManager.ArmTemplateParametersSchema, file.RootElement);
-
         private void Validate(string filePath, JsonSchema schema, JsonElement element)
         {
             this.logger.LogDebug("Validating \"{FilePath}\" against JSON schema...", filePath);

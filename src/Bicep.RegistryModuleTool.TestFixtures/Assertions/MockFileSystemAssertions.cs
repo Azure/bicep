@@ -6,7 +6,7 @@ using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using System.IO.Abstractions.TestingHelpers;
 
-namespace Bicep.RegistryModuleTool.IntegrationTests.Assertions
+namespace Bicep.RegistryModuleTool.TestFixtures.Assertions
 {
     public static class MockFileSystemExtensions
     {

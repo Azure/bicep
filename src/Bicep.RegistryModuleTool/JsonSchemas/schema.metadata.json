@@ -3,7 +3,7 @@
     "$schema": {
       "type": "string",
       "enum": [
-        "https://aka.ms/bicep-registry-module-schema#"
+        "https://aka.ms/bicep-registry-module-metadata-schema#"
       ],
       "description": "Bicep registry module JSON schema reference."
     },

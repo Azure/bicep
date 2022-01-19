@@ -56,14 +56,15 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 valid &= Validate(context.Console, () => mainBicepFile.ValidatedBy(descriptionsValidator));
 
-                var jsonSchemaValidator = new JsonSchemaValidator( this.Logger);
+                var testValidator = new TestValidator(this.FileSystem, this.Logger, bicepCliProxy, latestMainArmTemplateFile);
+                var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
                 var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
+
+                this.Logger.LogInformation("Validating main Bicep test file...");
+                valid &= Validate(context.Console, () => MainBicepTestFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(testValidator));
 
                 this.Logger.LogInformation("Validating main ARM template file...");
                 valid &= Validate(context.Console, () => MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
-
-                this.Logger.LogInformation("Validating main ARM template parameters file...");
-                valid &= Validate(context.Console, () => MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator));
 
                 this.Logger.LogInformation("Validating metadata file...");
                 valid &= Validate(context.Console, () => MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator));
@@ -103,7 +104,7 @@ namespace Bicep.RegistryModuleTool.Commands
                     throw new BicepException(exception.Message, exception);
                 }
 
-                var modulePath = string.Join("/", directoryStack.ToArray());
+                var modulePath = string.Join(fileSystem.Path.DirectorySeparatorChar, directoryStack.ToArray());
 
                 if (modulePath.Any(char.IsUpper))
                 {
@@ -119,7 +120,15 @@ namespace Bicep.RegistryModuleTool.Commands
                 }
                 catch (InvalidModuleException exception)
                 {
-                    console.WriteError(exception.Message);
+                    // Normalize the error message to make it always end with a new line.
+                    var normalizedErrorMessage = exception.Message.ReplaceLineEndings();
+
+                    if (!normalizedErrorMessage.EndsWith(Environment.NewLine))
+                    {
+                        normalizedErrorMessage = $"{normalizedErrorMessage}{Environment.NewLine}";
+                    }
+
+                    console.WriteError(normalizedErrorMessage);
 
                     return false;
                 }

@@ -9,19 +9,13 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
 {
     public static class MockFileSystemFactory
     {
-        private const string CurrentDirectory = "modules/Microsoft.Test/testModule/1.1";
+        private const string CurrentDirectory = "modules/microsoft.test/testmodule/1.1";
 
         public static MockFileSystem CreateFileSystemWithEmptyFolder() => CreateFileSystem(Enumerable.Empty<(string, string)>());
 
-        public static MockFileSystem CreateFileSystemWithEmptyGeneratedFiles() => CreateFileSystem(SampleFiles.EmptyGenerated);
+        public static MockFileSystem CreateFileSystemWithNewlyGeneratedFiles() => CreateFileSystem(SampleFiles.NewlyGenerated);
 
-        public static MockFileSystem CreateFileSystemWithNewFiles() => CreateFileSystem(SampleFiles.New);
-
-        public static MockFileSystem CreateFileSystemWithNewGeneratedFiles() => CreateFileSystem(SampleFiles.NewGenerated);
-
-        public static MockFileSystem CreateFileSystemWithModifiedFiles() => CreateFileSystem(SampleFiles.New);
-
-        public static MockFileSystem CreateFileSystemWithModifiedGeneratedFiles() => CreateFileSystem(SampleFiles.NewGenerated);
+        public static MockFileSystem CreateFileSystemWithModifiedFiles() => CreateFileSystem(SampleFiles.Modified);
 
         public static MockFileSystem CreateFileSystemWithValidFiles() => CreateFileSystem(SampleFiles.Valid);
 
@@ -50,15 +44,9 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
         {
             private const string SampleResourcePrefix = "Bicep.RegistryModuleTool.TestFixtures.SampleFiles";
 
-            public static IEnumerable<(string, string)> EmptyGenerated { get; } = LoadSampleFiles();
-
-            public static IEnumerable<(string, string)> New { get; } = LoadSampleFiles();
-
-            public static IEnumerable<(string, string)> NewGenerated { get; } = LoadSampleFiles();
+            public static IEnumerable<(string, string)> NewlyGenerated { get; } = LoadSampleFiles();
 
             public static IEnumerable<(string, string)> Modified { get; } = LoadSampleFiles();
-
-            public static IEnumerable<(string, string)> ModifiedGenerated { get; } = LoadSampleFiles();
 
             public static IEnumerable<(string, string)> Valid { get; } = LoadSampleFiles();
             
@@ -77,7 +65,16 @@ namespace Bicep.RegistryModuleTool.TestFixtures.MockFactories
                     throw new InvalidOperationException("Could not find any embeded sample files.");
                 }
 
-                return sampleResourceNames.Select(resourceName => (path: resourceName[prefix.Length..], resourceName));
+                var testPrefix = $"{prefix}test.";
+
+                return sampleResourceNames.Select(resourceName =>
+                {
+                    string path = resourceName.StartsWith(testPrefix)
+                        ? $"test/{resourceName[testPrefix.Length..]}"
+                        : resourceName[prefix.Length..];
+
+                    return (path, resourceName);
+                });
             }
         }
     }
