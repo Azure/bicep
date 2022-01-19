@@ -275,6 +275,7 @@ module moduleWithBadScope './empty.bicep' = {
 resource runtimeValidRes1 'Microsoft.Storage/storageAccounts@2019-06-01' = {
   name: 'runtimeValidRes1Name'
   location: 'westeurope'
+//@[12:24) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westeurope' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westeurope'|
   kind: 'Storage'
   sku: {
     name: 'Standard_GRS'
