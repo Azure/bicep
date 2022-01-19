@@ -247,32 +247,62 @@
         }
       ]
     },
+    "walkthroughs.$comments": [
+      "Documentation: https://code.visualstudio.com/api/references/contribution-points#contributes.walkthroughs",
+      "",
+      "Automatically completes if a markdown button is pressed or there are no commands and no completion events",
+      "Available completion events include:",
+      "  onCommand:myCommand.id: Check off step when a command has been run.",
+      "  onSettingChanged:mySetting.id: Check off step once the given setting has been modified.",
+      "  onContext:contextKeyExpression: Check off step when a context key expression evaluates true.",
+      "  extensionInstalled:myExt.id: Check off step if the given extension is installed.",
+      "  onView:myView.id: Check off step once a given view becomes visible.",
+      "  onLink:https://...: Check off step once a given link has been opened via a Walkthrough."
+    ],
     "walkthroughs": [
       {
-        "id": "sample",
-        "title": "Sample",
-        "description": "A sample walkthrough",
+        "id": "gettingStarted",
+        "title": "Getting Started with Bicep",
+        "description": "Learn about Bicep and the Bicep extension for Visual Studio Code",
         "steps": [
           {
-            "title": "Run Command",
+            "id": "openBicepFile",
+            "title": "Open or create a Bicep file",
             "description": "This step will run a command and check off once it has been run.\n[Run Command](command:getting-started-sample.runCommand)",
             "media": {
               "image": "media/walkthroughs/bicep-logo-256.png",
-              "altText": "Empty image"
+              "altText": "TODO"
             },
             "completionEvents": [
               "onCommand:getting-started-sample.runCommand"
             ]
           },
           {
-            "id": "changesetting",
-            "title": "Change Setting",
-            "description": "This step will change a setting and check off when the setting has changed\n[Change Setting](command:getting-started-sample.changeSetting)",
+            "id": "showVisualizer",
+            "title": "Show resource visualizer",
+            "description": "Show the visualizer to see relationships between the resources in your bicep file.\nSwitch to your bicep file and click TODO",
             "media": {
-              "markdown": "media/walkthroughs/markdown.md"
+              "image": "media/walkthroughs/bicep-logo-256.png",
+              "altText": "TODO"
             },
             "completionEvents": [
-              "onSettingChanged:getting-started-sample.sampleSetting"
+              "onCommand:bicep.showVisualizerToSide",
+              "onCommand:bicep.showVisualizer"
+            ]
+          },
+          {
+            "id": "quickstarts",
+            "title": "Copy working bicep files from the Azure QuickStarts repo",
+            "description": "TODO.\n[Search for a bicep quickstart](https://azure.microsoft.com/resources/templates/?term=bicep)\nNavigate to [some quickstart](https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/)\nNavigate to [some other quickstart](https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/)",
+            "media": {
+              "image": "media/walkthroughs/bicep-logo-256.png",
+              "altText": "TODO"
+            },
+            "completionEvents": [
+              "onLink:https://azure.microsoft.com/resources/templates",
+              "onLink:https://azure.microsoft.com/resources/templates/?term=bicep",
+              "onLink:https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/",
+              "onLink:https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/"
             ]
           }
         ]
