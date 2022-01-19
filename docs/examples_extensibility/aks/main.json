@@ -1,0 +1,362 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+  "languageVersion": "1.9-experimental",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "3946576466075641134"
+    }
+  },
+  "parameters": {
+    "baseName": {
+      "type": "string"
+    },
+    "dnsPrefix": {
+      "type": "string"
+    },
+    "linuxAdminUsername": {
+      "type": "string"
+    },
+    "sshRSAPublicKey": {
+      "type": "string"
+    }
+  },
+  "resources": {
+    "rg": {
+      "type": "Microsoft.Resources/resourceGroups",
+      "apiVersion": "2021-04-01",
+      "name": "[parameters('baseName')]",
+      "location": "[deployment().location]"
+    },
+    "aks": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "aks-deploy",
+      "resourceGroup": "[parameters('baseName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "baseName": {
+            "value": "[parameters('baseName')]"
+          },
+          "sshRSAPublicKey": {
+            "value": "[parameters('sshRSAPublicKey')]"
+          },
+          "linuxAdminUsername": {
+            "value": "[parameters('linuxAdminUsername')]"
+          },
+          "dnsPrefix": {
+            "value": "[parameters('dnsPrefix')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "6455952491638494487"
+            }
+          },
+          "parameters": {
+            "location": {
+              "type": "string",
+              "defaultValue": "[resourceGroup().location]"
+            },
+            "baseName": {
+              "type": "string"
+            },
+            "dnsPrefix": {
+              "type": "string"
+            },
+            "linuxAdminUsername": {
+              "type": "string"
+            },
+            "sshRSAPublicKey": {
+              "type": "string"
+            }
+          },
+          "variables": {
+            "osDiskSizeGB": 0,
+            "agentCount": 3,
+            "agentVMSize": "Standard_DS2_v2"
+          },
+          "resources": {
+            "aks": {
+              "type": "Microsoft.ContainerService/managedClusters",
+              "apiVersion": "2020-09-01",
+              "name": "[parameters('baseName')]",
+              "location": "[parameters('location')]",
+              "properties": {
+                "dnsPrefix": "[parameters('dnsPrefix')]",
+                "agentPoolProfiles": [
+                  {
+                    "name": "agentpool",
+                    "osDiskSizeGB": "[variables('osDiskSizeGB')]",
+                    "count": "[variables('agentCount')]",
+                    "vmSize": "[variables('agentVMSize')]",
+                    "osType": "Linux",
+                    "mode": "System"
+                  }
+                ],
+                "linuxProfile": {
+                  "adminUsername": "[parameters('linuxAdminUsername')]",
+                  "ssh": {
+                    "publicKeys": [
+                      {
+                        "keyData": "[parameters('sshRSAPublicKey')]"
+                      }
+                    ]
+                  }
+                }
+              },
+              "identity": {
+                "type": "SystemAssigned"
+              }
+            }
+          },
+          "outputs": {
+            "fqdn": {
+              "type": "string",
+              "value": "[reference('aks').fqdn]"
+            },
+            "kubeConfig": {
+              "type": "string",
+              "value": "[listClusterAdminCredential(resourceId('Microsoft.ContainerService/managedClusters', parameters('baseName')), '2020-09-01').kubeconfigs[0].value]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "rg"
+      ]
+    },
+    "kubernetes": {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-10-01",
+      "name": "kubernetes-deploy",
+      "resourceGroup": "[parameters('baseName')]",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "kubeConfig": {
+            "value": "[reference('aks').outputs.kubeConfig.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "languageVersion": "1.9-experimental",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "EXPERIMENTAL_WARNING": "Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!",
+            "_generator": {
+              "name": "bicep",
+              "version": "dev",
+              "templateHash": "5983176937371621250"
+            }
+          },
+          "parameters": {
+            "kubeConfig": {
+              "type": "secureString"
+            }
+          },
+          "variables": {
+            "backName": "azure-vote-back",
+            "backPort": 6379,
+            "frontName": "azure-vote-front",
+            "frontPort": 80
+          },
+          "imports": {
+            "k8s": {
+              "provider": "Kubernetes",
+              "version": "1.0",
+              "config": {
+                "kubeConfig": "[parameters('kubeConfig')]",
+                "namespace": "default"
+              }
+            }
+          },
+          "resources": {
+            "backDeploy": {
+              "import": "k8s",
+              "type": "apps/Deployment@v1",
+              "properties": {
+                "metadata": {
+                  "name": "[variables('backName')]"
+                },
+                "spec": {
+                  "replicas": 1,
+                  "selector": {
+                    "matchLabels": {
+                      "app": "[variables('backName')]"
+                    }
+                  },
+                  "template": {
+                    "metadata": {
+                      "labels": {
+                        "app": "[variables('backName')]"
+                      }
+                    },
+                    "spec": {
+                      "containers": [
+                        {
+                          "name": "[variables('backName')]",
+                          "image": "mcr.microsoft.com/oss/bitnami/redis:6.0.8",
+                          "env": [
+                            {
+                              "name": "ALLOW_EMPTY_PASSWORD",
+                              "value": "yes"
+                            }
+                          ],
+                          "resources": {
+                            "requests": {
+                              "cpu": "100m",
+                              "memory": "128Mi"
+                            },
+                            "limits": {
+                              "cpu": "250m",
+                              "memory": "256Mi"
+                            }
+                          },
+                          "ports": [
+                            {
+                              "containerPort": "[variables('backPort')]",
+                              "name": "redis"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Application back-end deployment (redis)"
+              }
+            },
+            "backSvc": {
+              "import": "k8s",
+              "type": "core/Service@v1",
+              "properties": {
+                "metadata": {
+                  "name": "[variables('backName')]"
+                },
+                "spec": {
+                  "ports": [
+                    {
+                      "port": "[variables('backPort')]"
+                    }
+                  ],
+                  "selector": {
+                    "app": "[variables('backName')]"
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Configure back-end service"
+              }
+            },
+            "frontDeploy": {
+              "import": "k8s",
+              "type": "apps/Deployment@v1",
+              "properties": {
+                "metadata": {
+                  "name": "[variables('frontName')]"
+                },
+                "spec": {
+                  "replicas": 1,
+                  "selector": {
+                    "matchLabels": {
+                      "app": "[variables('frontName')]"
+                    }
+                  },
+                  "template": {
+                    "metadata": {
+                      "labels": {
+                        "app": "[variables('frontName')]"
+                      }
+                    },
+                    "spec": {
+                      "nodeSelector": {
+                        "beta.kubernetes.io/os": "linux"
+                      },
+                      "containers": [
+                        {
+                          "name": "[variables('frontName')]",
+                          "image": "mcr.microsoft.com/azuredocs/azure-vote-front:v1",
+                          "resources": {
+                            "requests": {
+                              "cpu": "100m",
+                              "memory": "128Mi"
+                            },
+                            "limits": {
+                              "cpu": "250m",
+                              "memory": "256Mi"
+                            }
+                          },
+                          "ports": [
+                            {
+                              "containerPort": "[variables('frontPort')]"
+                            }
+                          ],
+                          "env": [
+                            {
+                              "name": "REDIS",
+                              "value": "[variables('backName')]"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Application front-end deployment (website)"
+              }
+            },
+            "frontSvc": {
+              "import": "k8s",
+              "type": "core/Service@v1",
+              "properties": {
+                "metadata": {
+                  "name": "[variables('frontName')]"
+                },
+                "spec": {
+                  "type": "LoadBalancer",
+                  "ports": [
+                    {
+                      "port": "[variables('frontPort')]"
+                    }
+                  ],
+                  "selector": {
+                    "app": "[variables('frontName')]"
+                  }
+                }
+              },
+              "metadata": {
+                "description": "Configure front-end service"
+              }
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "aks",
+        "rg"
+      ]
+    }
+  }
+}
