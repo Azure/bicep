@@ -298,11 +298,25 @@
               "image": "media/walkthroughs/bicep-logo-256.png",
               "altText": "TODO"
             },
+            "TODO:completionEvents": "",
             "completionEvents": [
               "onLink:https://azure.microsoft.com/resources/templates",
               "onLink:https://azure.microsoft.com/resources/templates/?term=bicep",
               "onLink:https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/",
               "onLink:https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/"
+            ]
+          },
+          {
+            "id": "build",
+            "title": "Build",
+            "description": "If you need to generate a JSON ARM template, you can do a Bicep build. This is not usually necessary, as many tools (such as the Azure CLI and Azure PowerShell) directly support .bicep files.TODO.\nNavigate to your bicep file and click TODO",
+            "media": {
+              "image": "media/walkthroughs/bicep-logo-256.png",
+              "altText": "TODO"
+            },
+            "TODO:completionEvents": "",
+            "completionEvents": [
+              "onCommand:bicep.build"
             ]
           }
         ]
