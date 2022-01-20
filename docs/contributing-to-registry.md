@@ -54,7 +54,7 @@ The only files that you need to edit are `metadata.json`, `main.bicep`, and `tes
 
 The `metadata.json` file contains metadata of the module including `name`, `description`, and `owner`. You must provide the values for them. Below is a sample metadata file:
 
-```JSON
+```JSONC
 {
   "$schema": "https://aka.ms/bicep-registry-module-metadata-schema#",
   // The name of the module (10 - 60 characters).
