@@ -14,6 +14,7 @@ import { BicepVisualizerViewManager } from "./visualizer";
 import {
   BuildCommand,
   CommandManager,
+  DeployCommand,
   InsertResourceCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
@@ -74,6 +75,7 @@ export async function activate(
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient),
+        new DeployCommand(languageClient),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
