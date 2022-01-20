@@ -260,6 +260,7 @@ resource test";
 }
 resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'vm'
+#disable-next-line no-hardcoded-location
   location: 'West US'
   properties: vmProperties
 }";
@@ -325,22 +326,24 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 
         private static IEnumerable<TextSpan> GetOverlappingSpans(TextSpan span)
         {
+            // NOTE: These code assumes there are no errors in the code that are exactly adject to each other or that overlap
+
             // Same span.
             yield return span;
 
             // Adjacent spans before.
-            int startOffset = Math.Max(0, span.Position - 10);
-            yield return new TextSpan(startOffset, 10);
+            int startOffset = Math.Max(0, span.Position - 1);
+            yield return new TextSpan(startOffset, 1);
             yield return new TextSpan(span.Position, 0);
 
             // Adjacent spans after.
-            yield return new TextSpan(span.GetEndPosition(), 10);
+            yield return new TextSpan(span.GetEndPosition(), 1);
             yield return new TextSpan(span.GetEndPosition(), 0);
 
             // Overlapping spans.
-            yield return new TextSpan(startOffset, 11);
+            yield return new TextSpan(startOffset, 2);
             yield return new TextSpan(span.Position + 1, span.Length);
-            yield return new TextSpan(startOffset, span.Length + 10);
+            yield return new TextSpan(startOffset, span.Length + 1);
         }
 
         private static IEnumerable<object[]> GetData()

@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Extensions;
 using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.TestFixtures.Extensions;
 using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
@@ -54,7 +54,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             var sut = this.CreateDescriptionsValidator(latestArmTemplateFile);
 
             FluentActions.Invoking(() => sut.Validate(this.fileToValidate)).Should()
-                .Throw<InvalidModuleFileException>()
+                .Throw<InvalidModuleException>()
                 .WithMessage(
 $@"The file ""{this.fileToValidate.Path}"" is invalid. Descriptions for the following parameters are missing:
   - sshRSAPublicKey

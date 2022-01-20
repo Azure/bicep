@@ -5,15 +5,12 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "7959995366596346262"
+      "templateHash": "12386469280856413464"
     }
   },
   "parameters": {
     "dnsPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The dns prefix"
-      }
+      "type": "string"
     },
     "linuxAdminUsername": {
       "type": "string",
@@ -34,10 +31,7 @@
       }
     },
     "servicePrincipalClientSecret": {
-      "type": "secureString",
-      "metadata": {
-        "description": "The service principal client secret"
-      }
+      "type": "secureString"
     },
     "clusterName": {
       "type": "string",
@@ -117,10 +111,7 @@
   "outputs": {
     "controlPlaneFQDN": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]",
-      "metadata": {
-        "description": "The control plane FQDN"
-      }
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]"
     }
   }
 }

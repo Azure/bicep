@@ -177,6 +177,7 @@ var rgName = resourceGroup().name
 // this does not work at the resource group scope
 var invalidLocationVar = deployment().location
 //@[4:22) [no-unused-vars (Warning)] Variable "invalidLocationVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidLocationVar|
+//@[25:46) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'deployment().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |deployment().location|
 //@[38:46) [BCP053 (Error)] The type "deployment" does not contain property "location". Available properties include "name", "properties". (CodeDescription: none) |location|
 
 var invalidEnvironmentVar = environment().aosdufhsad
@@ -341,6 +342,7 @@ var zoneInput = []
 resource zones 'Microsoft.Network/dnsZones@2018-05-01' = [for (zone, i) in zoneInput: {
   name: zone
   location: az.resourceGroup().location
+//@[12:39) [no-loc-expr-outside-params (Warning)] Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-loc-expr-outside-params)) |az.resourceGroup().location|
 }]
 var inlinedVariable = zones[0].properties.zoneType
 
