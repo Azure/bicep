@@ -149,11 +149,13 @@
       {
         "command": "bicep.build",
         "key": "ctrl+shift+b",
+        "mac": "cmd+alt+b",
         "when": "resourceLangId == bicep"
       },
       {
         "command": "bicep.showVisualizerToSide",
         "key": "ctrl+k v",
+        "mac": "cmd+k v",
         "when": "resourceLangId == bicep && commandsRegistered"
       }
     ],
