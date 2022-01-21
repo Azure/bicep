@@ -32,10 +32,14 @@ The `Compilation` class ([Compilation.cs](../src/Bicep.Core/Semantics/Compilatio
 ### Bicep.Core
 ### Bicep.Cli
 ### Bicep.LangServer
-### VSCode Extension
-The core of the VSCode extension is a language client ([client.ts](../src/vscode-bicep/src/language/client.ts)). When the VSCode extension is activated, the Bicep language server is launched as a separate process, and the language client established a connection with the language server. The language client communicate with the language server using the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) over JSON-RPC. It notifies the language server when the user makes edits to a Bicep file or executes a command, such as "Go to Definition". The language server compiles the Bicep file and queries the compilation to get diagnostics or answers to semantic questions, which are then returned to the client.
+The [Bicep.LangServer](../src/Bicep.LangServer) project is an implementation of the [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/) server which provides support features like goto definition and autocomplete for the Bicep language. The language server program [Program.cs](../src/Bicep.LangServer/Program.cs) starts when the Bicep VSCode extension is being activated. It defines a set of handlers which are used to handle different notifications and requests sent from the Bicep VSCode extension. The implementation is based on the [OmniSharp C# Language Server Protocol](https://github.com/OmniSharp/csharp-language-server-protocol) library. For more details about the language server handlers, refer to the [Language Server Structure](#language-server-structure) section.
 
-The VSCode extension also consists of a [visualizer](../src/vscode-bicep/src/visualizer) which can show a resource dependency graph for a Bicep file. The visualizer is an React app hosted in a [VSCode webview](https://code.visualstudio.com/api/extension-guides/webview). When the visualizer if opened, it queries the the Bicep language server via the language client to get the resource dependency graph data to be rendered in the visualizer webview.
+### VSCode Extension
+The VSCode extension source code is inside the [vscode-bicep](../src/vscode-bicep) folder.
+
+The core of the VSCode extension is a language client ([client.ts](../src/vscode-bicep/src/language/client.ts)). When the VSCode extension is activated, the Bicep language server is launched as a separate process, and the language client established a connection with the language server. The language client communicate with the language server using LSP over JSON-RPC. It notifies the language server when the user makes edits to a Bicep file or executes a command, such as "Go to Definition". The language server compiles the Bicep file and queries the compilation to get diagnostics or answers to semantic questions, which are then returned to the client.
+
+The VSCode extension also consists of a [visualizer](../src/vscode-bicep/src/visualizer) which can show a resource dependency graph for a Bicep file. The visualizer is an React app hosted in a [VSCode webview](https://code.visualstudio.com/api/extension-guides/webview). When the visualizer is opened, it queries the the Bicep language server via the language client to get the resource dependency graph data to be rendered in the visualizer webview.
 
 ### Peripherals (brief mention)
 * Decompiler
@@ -45,7 +49,28 @@ The VSCode extension also consists of a [visualizer](../src/vscode-bicep/src/vis
 ### Pipelines & Build Process
 
 ## Language Server Structure
-* List handlers, brief mention how they integrate with compiler structure
+The Bicep language server contains the following handlers located in the [Handlers](../src/Bicep.LangServer/Handlers) folder:
+| Name | Description |
+| :--- | :---------- |
+| [`BicepBuildCommandHandler`](../src/Bicep.LangServer/Handlers/BicepBuildCommandHandler.cs) | TODO |
+| [`BicepCodeActionHandler`](../src/Bicep.LangServer/Handlers/BicepCodeActionHandler.cs) | TODO |
+| [`BicepCompletionHandler`](../src/Bicep.LangServer/Handlers/BicepCompletionHandler.cs) | TODO |
+| [`BicepDefinitionHandler`](../src/Bicep.LangServer/Handlers/BicepDefinitionHandler.cs) | TODO |
+| [`BicepDeploymentGraphHandler`](../src/Bicep.LangServer/Handlers/BicepDeploymentGraphHandler.cs) | TODO |
+| [`BicepDidChangeWatchedFilesHandler`](../src/Bicep.LangServer/Handlers/BicepDidChangeWatchedFilesHandler.cs) | TODO |
+| [`BicepDocumentFormattingHandler`](../src/Bicep.LangServer/Handlers/BicepDocumentFormattingHandler.cs) | TODO |
+| [`BicepDocumentHighlightHandler`](../src/Bicep.LangServer/Handlers/BicepDocumentHighlightHandler.cs) | TODO |
+| [`BicepDocumentSymbolHandler`](../src/Bicep.LangServer/Handlers/BicepDocumentSymbolHandler.cs) | TODO |
+| [`BicepHoverHandler`](../src/Bicep.LangServer/Handlers/BicepHoverHandler.cs) | TODO |
+| [`BicepReferencesHandler`](../src/Bicep.LangServer/Handlers/BicepReferencesHandler.cs) | TODO |
+| [`BicepRegistryCacheRequestHandler`](../src/Bicep.LangServer/Handlers/BicepRegistryCacheRequestHandler.cs) | TODO |
+| [`BicepRenameHandler`](../src/Bicep.LangServer/Handlers/BicepRenameHandler.cs) | TODO |
+| [`BicepSemanticTokensHandler`](../src/Bicep.LangServer/Handlers/BicepSemanticTokensHandler.cs) | TODO |
+| [`BicepSignatureHelpHandler`](../src/Bicep.LangServer/Handlers/BicepSignatureHelpHandler.cs) | TODO |
+| [`BicepTelemetryHandler`](../src/Bicep.LangServer/Handlers/BicepTelemetryHandler.cs) | TODO |
+| [`BicepTextDocumentSyncHandler`](../src/Bicep.LangServer/Handlers/BicepTextDocumentSyncHandler.cs) | TODO |
+| [`InsertResourceHandler`](../src/Bicep.LangServer/Handlers/InsertResourceHandler.cs) | TODO |
+
 
 ## CLI Structure
 * Super brief intro into how this invokes the compiler pipeline
