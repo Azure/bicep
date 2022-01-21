@@ -33,6 +33,10 @@ The `Compilation` class ([Compilation.cs](../src/Bicep.Core/Semantics/Compilatio
 ### Bicep.Cli
 ### Bicep.LangServer
 ### VSCode Extension
+The core of the VSCode extension is a language client ([client.ts](../src/vscode-bicep/src/language/client.ts)). When the VSCode extension is activated, the Bicep language server is launched as a separate process, and the language client established a connection with the language server. The language client communicate with the language server using the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/) over JSON-RPC. It notifies the language server when the user makes edits to a Bicep file or executes a command, such as "Go to Definition". The language server compiles the Bicep file and queries the compilation to get diagnostics or answers to semantic questions, which are then returned to the client.
+
+The VSCode extension also consists of a [visualizer](../src/vscode-bicep/src/visualizer) which can show a resource dependency graph for a Bicep file. The visualizer is an React app hosted in a [VSCode webview](https://code.visualstudio.com/api/extension-guides/webview). When the visualizer if opened, it queries the the Bicep language server via the language client to get the resource dependency graph data to be rendered in the visualizer webview.
+
 ### Peripherals (brief mention)
 * Decompiler
 * MSBuild
