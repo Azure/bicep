@@ -83,14 +83,18 @@ The Bicep language server contains the following handlers located in the [Handle
 * Some mention of how this works
 
 ## Important Design Considerations
-* Laziness & caching
+### Laziness & Caching
+
 ### Error Recovery
 When parsing a document or performing semantic analysis, it's very important to consider the fact that the document being parsed will very frequently be syntactically invalid. This is because the language server will generally request information after every single keypress. We always try and parse as much of the document as we can, and aim to recover from invalid/missing syntax as gracefully as possible, to avoid providing an inconsistent set of validations while the user is typing.
 
-* Immutability
-* Nullability
-* Transparent abstraction (warnings rather than errors)
-* Visitors
+### Immutability
+
+### Nullability
+
+### Transparent abstraction (warnings rather than errors)
+
+### Visitors
 
 ## Testing Considerations
 * Easy baseline updates
