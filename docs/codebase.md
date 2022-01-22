@@ -30,7 +30,11 @@ The `Compilation` class ([Compilation.cs](../src/Bicep.Core/Semantics/Compilatio
 
 ## Project Structure
 ### Bicep.Core
+The [Bicep.Core](../src/Bicep.Core) project is the library that implements all of the compiler pipeline functionality mentioned in the previous section and is used by many projects in our repository.
+
 ### Bicep.Cli
+The [Bicep.Cli](../src/Bicep.Cli) project implements the Bicep CLI tool that provides the ability to execute commands such as `bicep build` or `bicep decompile`. The entry point is [Program.cs](../src/Bicep.Cli/Program.cs). Official releases publish this project as a self-contained, trimmed, single-file application.
+
 ### Bicep.LangServer
 The [Bicep.LangServer](../src/Bicep.LangServer) project is an implementation of the [Language Server Protocol (LSP)](https://microsoft.github.io/language-server-protocol/) server which provides support features like goto definition and autocomplete for the Bicep language. The language server program [Program.cs](../src/Bicep.LangServer/Program.cs) starts when the Bicep VSCode extension is being activated. It defines a set of handlers which are used to handle different notifications and requests sent from the Bicep VSCode extension. The implementation is based on the [OmniSharp C# Language Server Protocol](https://github.com/OmniSharp/csharp-language-server-protocol) library. For more details about the language server handlers, refer to the [Language Server Structure](#language-server-structure) section.
 
