@@ -83,16 +83,35 @@ The Bicep language server contains the following handlers located in the [Handle
 * Some mention of how this works
 
 ## Important Design Considerations
+When working in the Bicep codebase, please consider the following principles. However, keep in mind that Bicep is a work in progress. You may encounter examples in the codebase that violate these principles. There can be many reasons for this. Any changes made to our codebase will always be based on tradeoffs between impact, complexity, cost, efficiency and potentially other dimensions.
+
 ### Laziness & Caching
+Every time the user presses a button in VS code, the language server will throw away the computed semantic model, the parse tree, and recreate them from scratch. This is the most performance-critical path in Bicep. We simply cannot wait for the compilation to happen many seconds after the user typed something because any completions, hovers, or results of "Go to definition" or "Find references" operations will be stale and potentially misleading.
+
+One of the strategies we try to employ to ensure the timeliness of the compilation is to defer all work until it is needed. A good example of this are completions. Completions rely on what we called "declared" types (similar to contextual types in the TypeScript compiler). To compute a declared type for a particular node in the syntax tree, requires computing the types for all the parent nodes up to the root. We could precompute these types for all the nodes after parsing is completed, but this would be a very expensive operation. In most cases, the language server will request the declared type for one node (and its parents). As a result, all of the precomputed declared types will be thrown away the moment the user presses a key in the editor. To avoid wasting all that work, we only compute these types on-demand when requested.
+
+Another strategy we use is to cache the results of repeated computations. For example when a declared type is computed for a node and its parents, the result is cached for subsequent lookups. When you request a declared type for a sibling node, the cached declared type for its parents don't need to be recomputed and we save a lot of work for nodes that are deep in the tree. 
+
+### Thread Safety
+Our language server is multi-threaded, so any logic that can be invoked directly from the language server must account for concurrent access.
 
 ### Error Recovery
-When parsing a document or performing semantic analysis, it's very important to consider the fact that the document being parsed will very frequently be syntactically invalid. This is because the language server will generally request information after every single keypress. We always try and parse as much of the document as we can, and aim to recover from invalid/missing syntax as gracefully as possible, to avoid providing an inconsistent set of validations while the user is typing.
+When parsing a document or performing semantic analysis, it's very important to consider the fact that the document being parsed will very frequently be syntactically invalid. This is because the language server will generally request information after every single keypress. We always try and parse as much of the document as we can, and aim to recover from invalid/missing syntax as gracefully as possible, to avoid providing an inconsistent set of validations while the user is typing. 
 
 ### Immutability
+The Bicep codebase heavily relies on immutability of objects. This provides a number of benefits that are best described at https://en.wikipedia.org/wiki/Immutable_object. We generally try to make our data structures fully immutable first and only consider adding mutability if an efficient and immutable implementation is not feasible.
 
 ### Nullability
+C# 8.0 and later has a feature that is somewhat ambiguously called [nullable referece types](https://docs.microsoft.com/en-us/dotnet/csharp/nullable-references). In previous versions of the language, reference types were always considered nullable. In 8.0 and later versions, it is possible to make the reference types non-nullable by default. With this feature enabled, the old behavior is opt-in using the `?` operator in a similar manner to how nullable value types work in C#. Additionally, the C# compiler incorporates nullability into its type checking, allowing it to infer whether a reference type is nullable or non-nullable via the surrounding code (if/else branches, nullability attributes, etc.). It is possible to override the C# compiler's analysis of nullability via the [null forgiving `!` operator](https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/null-forgiving).
+
+Bicep has nullable reference types enabled in all projects in the repo. This has effectively eliminated all occurrences of unhandled `NullReferenceException` from the codebase. (The only recent examples involved interop with code that was compiled without nullable reference types enabled.)
+
+The usage of the null forgiving `!` operator is not allowed in the Bicep codebase. If you encounter an error due to the null analysis, you should rewrite your code to remove it without using the `!` operator. We allow the following exceptions to this rule:
+* Test code can freely use the `!` operator as needed.
+* Bicep product code can use the `!` operator in LINQ-style extension methods that work around limitations in the C# compiler's nullability analysis.
 
 ### Transparent abstraction (warnings rather than errors)
+
 
 ### Visitors
 
