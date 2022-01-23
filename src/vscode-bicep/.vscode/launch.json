@@ -17,7 +17,8 @@
       "preLaunchTask": "${defaultBuildTask}",
       "env": {
         "BICEP_TRACING_ENABLED": "true",
-        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll"
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
+        "DEBUGTELEMETRY": "", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from vscode-azureextensionui)
       }
     },
     {
