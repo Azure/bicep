@@ -103,7 +103,7 @@ namespace Bicep.LanguageServer.Handlers
                 (moduleSyntax, stringSyntax, token) => moduleSyntax.Path == stringSyntax && token.Type == TokenType.StringComplete)
                 && matchingNodes[^3] is ModuleDeclarationSyntax moduleDeclarationSyntax
                 && matchingNodes[^2] is StringSyntax stringToken
-                && context.Compilation.SourceFileGrouping.TryLookupModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
+                && context.Compilation.SourceFileGrouping.TryLookUpModuleSourceFile(moduleDeclarationSyntax) is ISourceFile sourceFile
                 && this.moduleDispatcher.TryGetModuleReference(moduleDeclarationSyntax, context.Compilation.Configuration, out _) is { } moduleReference)
             {
                 // goto beginning of the module file.

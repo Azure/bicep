@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Workspaces
         {
             string bicepFileContents = @"#disable-next-line no-unused-params
 param storageAccount string = 'testStorageAccount'";
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
             var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;
@@ -31,7 +31,7 @@ param storageAccount string = 'testStorageAccount'";
         public void VerifyDisableNextLineDiagnosticDirectivesCache_WithNoDisableNextLineDiagnosticDirectivesInBicepFile()
         {
             string bicepFileContents = @"param storageAccount string = 'testStorageAccount'";
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
             var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;
@@ -64,7 +64,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 
 
 ";
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var bicepFile = compilation.GetEntrypointSemanticModel().SourceFile;
 
             var disabledDiagnosticsCache = bicepFile.DisabledDiagnosticsCache;

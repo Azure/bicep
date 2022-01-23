@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
-using System.IO.Abstractions;
+using System.CommandLine;
 using System.Linq;
 using System.Text;
 
@@ -39,29 +39,30 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
             if (noDescriptionParameters.Any())
             {
-                errorMessageBuilder.AppendLine($"Descriptions for the following parameters are missing in \"{file.Path}\":");
+                errorMessageBuilder.AppendLine($"The file \"{file.Path}\" is invalid. Descriptions for the following parameters are missing:");
 
                 foreach (var parameter in noDescriptionParameters)
                 {
                     errorMessageBuilder.AppendLine($"  - {parameter.Name}");
                 }
-
-                errorMessageBuilder.AppendLine();
             }
 
             if (noDescriptionOutputs.Any())
             {
-                errorMessageBuilder.AppendLine($"Descriptions for the following outputs are missing in \"{file.Path}\":");
+                if (errorMessageBuilder.Length > 0)
+                {
+                    errorMessageBuilder.AppendLine();
+                }
+
+                errorMessageBuilder.AppendLine($"The file \"{file.Path}\" is invalid. Descriptions for the following outputs are missing:");
 
                 foreach (var output in noDescriptionOutputs)
                 {
                     errorMessageBuilder.AppendLine($"  - {output.Name}");
                 }
-
-                errorMessageBuilder.AppendLine();
             }
 
-            throw new BicepException(errorMessageBuilder.ToString());
+            throw new InvalidModuleException(errorMessageBuilder.ToString());
         }
     }
 }

@@ -12,15 +12,9 @@ namespace Bicep.RegistryModuleTool.Schemas
     {
         private const string SchemaResourcePrefix = "Bicep.RegistryModuleTool.JsonSchemas";
 
-        private const string ArmTemplateParametersSchemaResourceName = $"{SchemaResourcePrefix}.schema.armTemplateParameters.json";
-
         private const string MetadataJsonSchemaResourceName = $"{SchemaResourcePrefix}.schema.metadata.json";
 
-        private static readonly Lazy<JsonSchema> LazyArmTemplateParametersSchema = new(() => LoadJsonSchema(ArmTemplateParametersSchemaResourceName));
-
         private static readonly Lazy<JsonSchema> LazyMetadataSchema = new(() => LoadJsonSchema(MetadataJsonSchemaResourceName));
-
-        public static JsonSchema ArmTemplateParametersSchema => LazyArmTemplateParametersSchema.Value;
 
         public static JsonSchema MetadataSchema => LazyMetadataSchema.Value;
 

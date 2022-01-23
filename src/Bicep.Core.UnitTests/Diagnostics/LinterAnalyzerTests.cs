@@ -30,7 +30,10 @@ namespace Bicep.Core.UnitTests.Diagnostics
 
         [DataTestMethod]
         [DataRow(AdminUsernameShouldNotBeLiteralRule.Code)]
+        [DataRow(ExplicitValuesForLocationParamsRule.Code)]
         [DataRow(NoHardcodedEnvironmentUrlsRule.Code)]
+        [DataRow(NoHardcodedLocationRule.Code)]
+        [DataRow(NoLocationExprOutsideParamsRule.Code)]
         [DataRow(NoUnnecessaryDependsOnRule.Code)]
         [DataRow(NoUnusedParametersRule.Code)]
         [DataRow(NoUnusedVariablesRule.Code)]
@@ -38,7 +41,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
         [DataRow(PreferInterpolationRule.Code)]
         [DataRow(SecureParameterDefaultRule.Code)]
         [DataRow(SimplifyInterpolationRule.Code)]
-        [DataRow(UseProtectedSettingsForCommandToExecuteSecretsRule.Code)]
+        [DataRow(ProtectCommandToExecuteSecretsRule.Code)]
         [DataRow(UseStableVMImageRule.Code)]
         public void BuiltInRulesExist(string ruleCode)
         {

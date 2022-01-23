@@ -20,7 +20,6 @@ using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
@@ -161,7 +160,7 @@ namespace Bicep.LangServer.IntegrationTests
                 [uri] = bicepFileContents,
             };
 
-            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, SourceFileGroupingFactory.CreateForFiles(files, uri, BicepTestConstants.FileResolver, BicepTestConstants.BuiltInConfiguration), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
 
             var telemetryEventsListener = new MultipleMessageListener<BicepTelemetryEvent>();
@@ -227,6 +226,9 @@ namespace Bicep.LangServer.IntegrationTests
         },
         ""no-unused-vars"": {
           ""level"": ""info""
+        },
+        ""no-loc-expr-outside-params"": {
+            ""level"": ""none""
         }
       }
     }
@@ -302,12 +304,15 @@ var useDefaultSettings = true";
                 { "no-hardcoded-env-urls", "warning" },
                 { "no-unused-params", "warning" },
                 { "prefer-interpolation", "warning" },
-                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
+                { "protect-commandtoexecute-secrets", "warning" },
                 { "no-unnecessary-dependson", "warning" },
                 { "adminusername-should-not-be-literal", "warning" },
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "explicit-values-for-loc-params", "warning" },
+                { "no-loc-expr-outside-params", "none" },
+                { "no-hardcoded-location", "warning" }
             };
 
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
@@ -321,12 +326,26 @@ var useDefaultSettings = true";
                 { "variables", "1" },
                 { "fileSizeInBytes", "488" },
                 { "lineCount", "23" },
-                { "errors", "2" },
-                { "warnings", "1" },
+                {
+                    // #disable-next-line
+                    //   => Expected at least one diagnostic code at this location. Valid format is "#disable-next-line diagnosticCode1 diagnosticCode2 ..."bicep(BCP226)
+                    // resource favorites 'favorites@2015-05-01'{
+                    //   => Expected the "=" character at this location.
+                    "errors", "2"
+                },
+                {
+                    // param location string = 'testLocation'
+                    //   => Parameter "location" is declared but never used.
+                    // location: resourceGroup().location
+                    //   => Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.
+                    "warnings",
+                    "2"
+                },
                 { "modulesInReferencedFiles", "0" },
                 { "parentResourcesInReferencedFiles", "2" },
                 { "parametersInReferencedFiles", "2" },
-                { "variablesInReferencedFiles", "1" }
+                { "variablesInReferencedFiles", "1" },
+                { "lineCountOfReferencedFiles", "12" }
             };
 
             bicepTelemetryEvent = await telemetryEventsListener.WaitNext();

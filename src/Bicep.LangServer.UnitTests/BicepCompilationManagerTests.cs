@@ -7,6 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Extensions;
@@ -356,7 +357,7 @@ namespace Bicep.LangServer.UnitTests
 
             var provider = Repository.Create<ICompilationProvider>();
             const string expectedMessage = "Internal bicep exception.";
-            provider.Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>(), It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>(), It.IsAny<RootConfiguration>())).Throws(new InvalidOperationException(expectedMessage));
+            provider.Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>(), It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>(), It.IsAny<RootConfiguration>(), It.IsAny<LinterAnalyzer>())).Throws(new InvalidOperationException(expectedMessage));
 
             var uri = DocumentUri.File(this.TestContext.TestName);
             var workspace = new Workspace();
@@ -420,10 +421,10 @@ namespace Bicep.LangServer.UnitTests
             // start by failing
             bool failUpsert = true;
             provider
-                .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>(), It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>(), It.IsAny<RootConfiguration>()))
-                .Returns<IReadOnlyWorkspace, DocumentUri, ImmutableDictionary<ISourceFile, ISemanticModel>, RootConfiguration>((grouping, documentUri, modelLookup, configuration) => failUpsert
+                .Setup(m => m.Create(It.IsAny<IReadOnlyWorkspace>(), It.IsAny<DocumentUri>(), It.IsAny<ImmutableDictionary<ISourceFile, ISemanticModel>>(), It.IsAny<RootConfiguration>(), It.IsAny<LinterAnalyzer>()))
+                .Returns<IReadOnlyWorkspace, DocumentUri, ImmutableDictionary<ISourceFile, ISemanticModel>, RootConfiguration, IBicepAnalyzer>((grouping, documentUri, modelLookup, configuration, linterAnalyzer) => failUpsert
                     ? throw new InvalidOperationException(expectedMessage)
-                    : BicepCompilationManagerHelper.CreateEmptyCompilationProvider().Create(grouping, documentUri, modelLookup, configuration));
+                    : BicepCompilationManagerHelper.CreateEmptyCompilationProvider().Create(grouping, documentUri, modelLookup, configuration, new LinterAnalyzer(configuration)));
 
             var workspace = new Workspace();
 
@@ -641,12 +642,15 @@ module moduleB './moduleB.bicep' = {
                 { "no-hardcoded-env-urls", "warning" },
                 { "no-unused-params", "info" },
                 { "prefer-interpolation", "warning" },
-                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
+                { "protect-commandtoexecute-secrets", "warning" },
                 { "no-unnecessary-dependson", "warning" },
                 { "adminusername-should-not-be-literal", "warning" },
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "no-hardcoded-location", "warning" },
+                { "explicit-values-for-loc-params", "warning" },
+                { "no-loc-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);
@@ -713,12 +717,15 @@ module moduleB './moduleB.bicep' = {
                 { "no-hardcoded-env-urls", "warning" },
                 { "no-unused-params", "warning" },
                 { "prefer-interpolation", "warning" },
-                { "use-protectedsettings-for-commandtoexecute-secrets", "warning" },
+                { "protect-commandtoexecute-secrets", "warning" },
                 { "no-unnecessary-dependson", "warning" },
                 { "adminusername-should-not-be-literal", "warning" },
                 { "use-stable-vm-image", "warning" },
                 { "secure-parameter-default", "warning" },
                 { "outputs-should-not-contain-secrets", "warning" },
+                { "no-hardcoded-location", "warning" },
+                { "explicit-values-for-loc-params", "warning" },
+                { "no-loc-expr-outside-params", "warning" },
             };
 
             telemetryEvent.Properties.Should().Contain(properties);
@@ -745,7 +752,7 @@ param location string = 'testLocation'";
 
             var bicepFile = SourceFileFactory.CreateBicepFile(mainUri, bicepFileContents);
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration);
+            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(bicepFileContents, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ToDiagnostics(bicepFile.LineStarts);
 
             var compilationManager = CreateBicepCompilationManager();
@@ -764,7 +771,7 @@ param location string = 'testLocation'";
                 { "FileSizeInBytes", "294" },
                 { "LineCount", "12" },
                 { "Errors", "0" },
-                { "Warnings", "2" },
+                { "Warnings", "3" },
                 { "ModulesInReferencedFiles", "0" },
                 { "ParentResourcesInReferencedFiles", "0" },
                 { "ParametersInReferencedFiles", "0" },
@@ -774,6 +781,47 @@ param location string = 'testLocation'";
             telemetryEvent.Should().NotBeNull();
             telemetryEvent!.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
             telemetryEvent.Properties.Should().Contain(properties);
+        }
+
+        [TestMethod]
+        public void VerifyLinterAnalyzerShouldNotBeCreatedForNonBicepConfigChange()
+        {
+            (IBicepAnalyzer oldLinterAnalyzer, IBicepAnalyzer newLinterAnalyzer) = GetOldAndNewBicepAnalyzer(false);
+
+            oldLinterAnalyzer.Should().BeSameAs(newLinterAnalyzer);
+        }
+
+        [TestMethod]
+        public void VerifyNewLinterAnalyzerIsCreatedOnBicepConfigChange()
+        {
+            (IBicepAnalyzer oldLinterAnalyzer, IBicepAnalyzer newLinterAnalyzer) = GetOldAndNewBicepAnalyzer(true);
+
+            oldLinterAnalyzer.Should().NotBeSameAs(newLinterAnalyzer);
+        }
+
+        private (IBicepAnalyzer, IBicepAnalyzer) GetOldAndNewBicepAnalyzer(bool reloadBicepConfig)
+        {
+            PublishDiagnosticsParams? receivedParams = null;
+
+            var document = BicepCompilationManagerHelper.CreateMockDocument(p => receivedParams = p);
+            var server = BicepCompilationManagerHelper.CreateMockServer(document);
+            var documentUri = DocumentUri.File(this.TestContext.TestName);
+            var workspace = new Workspace();
+            workspace.UpsertSourceFile(SourceFileFactory.CreateBicepFile(documentUri.ToUri(), ""));
+
+            var compilationManager = new BicepCompilationManager(server.Object, BicepCompilationManagerHelper.CreateEmptyCompilationProvider(), workspace, new FileResolver(), BicepCompilationManagerHelper.CreateMockScheduler().Object, configurationManager, BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider);
+            var bicepFileContents = @"param storageAccountName string = 'test'";
+            compilationManager.UpsertCompilation(documentUri, 1, bicepFileContents);
+
+            var compilationContext = compilationManager.GetCompilation(documentUri);
+            var oldLinterAnalyzer = compilationContext!.Compilation.GetEntrypointSemanticModel().LinterAnalyzer;
+
+            compilationManager.RefreshCompilation(documentUri, reloadBicepConfig);
+
+            compilationContext = compilationManager.GetCompilation(documentUri);
+            var newLinterAnalyzer = compilationContext!.Compilation.GetEntrypointSemanticModel().LinterAnalyzer;
+
+            return (oldLinterAnalyzer, newLinterAnalyzer);
         }
 
         private RootConfiguration GetRootConfiguration(string testOutputPath, string bicepConfigContents, ConfigurationManager configurationManager)

@@ -3,6 +3,7 @@
 
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
+using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
@@ -25,17 +26,40 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             var builder = new StringBuilder();
 
-            // TODO: generate badges.
-
-            builder.AppendLine($"# {metadataFile.ItemDisplayName}");
+            builder.AppendLine($"# {metadataFile.Name}");
             builder.AppendLine();
 
             builder.AppendLine(metadataFile.Description);
             builder.AppendLine();
 
+            BuildParametersTable(builder, mainArmTemplateFile.Parameters);
+            BuildOutputsTable(builder, mainArmTemplateFile.Outputs);
+
+            return new(fileSystem.Path.GetFullPath(FileName), builder.ToString());
+        }
+
+        public static ReadmeFile ReadFromFileSystem(IFileSystem fileSystem)
+        {
+            var path = fileSystem.Path.GetFullPath(FileName);
+            var content = fileSystem.File.ReadAllText(FileName);
+
+            return new(path, content);
+        }
+
+        public ReadmeFile WriteToFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.File.WriteAllText(FileName, this.Content);
+
+            return this;
+        }
+
+        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
+
+        private static void BuildParametersTable(StringBuilder builder, IEnumerable<MainArmTemplateParameter> parameters)
+        {
             builder.AppendLine("## Parameters");
             builder.AppendLine();
-            builder.AppendLine(mainArmTemplateFile.Parameters
+            builder.AppendLine(parameters
                 .Select(p => new
                 {
                     Name = $"`{p.Name}`",
@@ -50,28 +74,17 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                     _ => MarkdownTableColumnAlignment.Left,
                 }));
             builder.AppendLine();
+        }
 
+        private static void BuildOutputsTable(StringBuilder builder, IEnumerable<MainArmTemplateOutput> outputs)
+        {
             builder.AppendLine("## Outputs");
             builder.AppendLine();
-            builder.AppendLine(mainArmTemplateFile.Outputs.ToMarkdownTable(
+            builder.AppendLine(outputs.ToMarkdownTable(
                 columnName => columnName == nameof(MainArmTemplateOutput.Type)
                     ? MarkdownTableColumnAlignment.Center
                     : MarkdownTableColumnAlignment.Left));
             builder.AppendLine();
-
-            return new(fileSystem.Path.GetFullPath(FileName), builder.ToString());
         }
-
-        public static ReadmeFile ReadFromFileSystem(IFileSystem fileSystem)
-        {
-            var path = fileSystem.Path.GetFullPath(FileName);
-            var content = fileSystem.File.ReadAllText(FileName);
-
-            return new(path, content);
-        }
-
-        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(FileName, this.Content);
-
-        protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
     }
 }

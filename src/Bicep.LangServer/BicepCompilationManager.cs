@@ -42,6 +42,7 @@ namespace Bicep.LanguageServer
 
         // represents compilations of open bicep files
         private readonly ConcurrentDictionary<DocumentUri, CompilationContext> activeContexts = new ConcurrentDictionary<DocumentUri, CompilationContext>();
+        private readonly ConcurrentDictionary<DocumentUri, LinterAnalyzer> activeLinterAnalyzers = new ConcurrentDictionary<DocumentUri, LinterAnalyzer>();
 
         public BicepCompilationManager(
             ILanguageServerFacade server,
@@ -186,6 +187,7 @@ namespace Bicep.LanguageServer
         private ImmutableArray<ISourceFile> CloseCompilationInternal(DocumentUri documentUri, int? version, IEnumerable<Diagnostic> closingDiagnostics)
         {
             this.activeContexts.TryRemove(documentUri, out var removedContext);
+            this.activeLinterAnalyzers.TryRemove(documentUri, out _);
 
             this.PublishDocumentDiagnostics(documentUri, version, closingDiagnostics);
 
@@ -211,9 +213,15 @@ namespace Bicep.LanguageServer
 
             try
             {
+                var linterAnalyzer = reloadBicepConfig
+                    ? new LinterAnalyzer(configuration)
+                    : activeLinterAnalyzers.TryGetValue(documentUri) ?? new LinterAnalyzer(configuration);
+
+                activeLinterAnalyzers.AddOrUpdate(documentUri, documentUri => linterAnalyzer, (documentUri, prevAnalyzer) => linterAnalyzer);
+
                 var context = this.activeContexts.AddOrUpdate(
                     documentUri,
-                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration),
+                    (documentUri) => this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer),
                     (documentUri, prevContext) =>
                     {
                         var prevConfiguration = prevContext.Compilation.Configuration;
@@ -236,7 +244,7 @@ namespace Bicep.LanguageServer
                             ? this.GetConfigurationSafely(documentUri.ToUri(), out configurationDiagnostic)
                             : prevContext.Compilation.Configuration;
 
-                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration);
+                        return this.provider.Create(workspace, documentUri, modelLookup.ToImmutableDictionary(), configuration, linterAnalyzer);
                     });
 
                 foreach (var sourceFile in context.Compilation.SourceFileGrouping.SourceFiles)
@@ -367,6 +375,7 @@ namespace Bicep.LanguageServer
             int parameters = 0;
             int resources = 0;
             int variables = 0;
+            int lineCount = 0;
 
             foreach (var sourceFile in sourceFiles)
             {
@@ -377,6 +386,7 @@ namespace Bicep.LanguageServer
                     parameters += declarations.Count(x => x is ParameterDeclarationSyntax);
                     resources += declarations.Count(x => x is ResourceDeclarationSyntax);
                     variables += declarations.Count(x => x is VariableDeclarationSyntax);
+                    lineCount += bicepFile.LineStarts.Length;
                 }
             }
 
@@ -384,6 +394,7 @@ namespace Bicep.LanguageServer
             properties.Add("ParentResourcesInReferencedFiles", resources.ToString());
             properties.Add("ParametersInReferencedFiles", parameters.ToString());
             properties.Add("VariablesInReferencedFiles", variables.ToString());
+            properties.Add("LineCountOfReferencedFiles", lineCount.ToString());
 
             return properties;
         }

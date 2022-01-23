@@ -10,7 +10,6 @@ using Bicep.Core.Emit;
 using Bicep.Core.Semantics;
 using Bicep.Wasm.LanguageHelpers;
 using System.Linq;
-using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Workspaces;
@@ -21,6 +20,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Features;
 using Bicep.Core.Configuration;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
+using Bicep.Core.Analyzers.Linter;
 
 namespace Bicep.Wasm
 {
@@ -171,7 +171,7 @@ namespace Bicep.Wasm
             var configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, fileUri, configuration);
 
-            return new Compilation(namespaceProvider, sourceFileGrouping, configuration);
+            return new Compilation(namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
         }
 
         private static string ReadStreamToEnd(Stream stream)

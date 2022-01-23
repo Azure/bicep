@@ -109,8 +109,7 @@
     }
   },
   "type": "object",
-  "default": {
-  },
+  "default": {},
   "properties": {
     "cloud": {
       "title": "Cloud",
@@ -193,10 +192,19 @@
             "adminusername-should-not-be-literal": {
               "level": "warning"
             },
+            "explicit-values-for-loc-params": {
+              "level": "warning"
+            },
             "no-hardcoded-env-urls": {
               "level": "warning"
             },
+            "no-hardcoded-location": {
+              "level": "warning"
+            },
             "no-unnecessary-dependson": {
+              "level": "warning"
+            },
+            "no-loc-expr-outside-params": {
               "level": "warning"
             },
             "no-unused-params": {
@@ -217,7 +225,7 @@
             "simplify-interpolation": {
               "level": "warning"
             },
-            "use-protectedsettings-for-commandtoexecute-secrets": {
+            "protect-commandtoexecute-secrets": {
               "level": "warning"
             },
             "use-stable-vm-image": {
@@ -250,6 +258,16 @@
                   "allOf": [
                     {
                       "description": "Property 'adminUserName' should not use a literal value. Use a param instead. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "explicit-values-for-loc-params": {
+                  "allOf": [
+                    {
+                      "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. See https://aka.ms/bicep/linter/explicit-values-for-loc-params"
                     },
                     {
                       "$ref": "#/definitions/rule"
@@ -292,6 +310,26 @@
                           }
                         }
                       }
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-hardcoded-location": {
+                  "allOf": [
+                    {
+                      "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. See https://aka.ms/bicep/linter/no-hardcoded-location"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-loc-expr-outside-params": {
+                  "allOf": [
+                    {
+                      "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-loc-expr-outside-params"
                     },
                     {
                       "$ref": "#/definitions/rule"
@@ -368,10 +406,10 @@
                     }
                   ]
                 },
-                "use-protectedsettings-for-commandtoexecute-secrets": {
+                "protect-commandtoexecute-secrets": {
                   "allOf": [
                     {
-                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/use-protectedsettings-for-commandtoexecute-secrets"
+                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
                     },
                     {
                       "$ref": "#/definitions/rule"

@@ -1,17 +1,15 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Json;
+using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Extensions;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Factories;
-using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
+using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Json.More;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
 using System.IO.Abstractions.TestingHelpers;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
@@ -19,50 +17,56 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
     [TestClass]
     public class DescriptionsValidatorTests
     {
-        private readonly static MockFileSystem FileSystem = MockFileSystemFactory.CreateMockFileSystem();
+        private readonly MockFileSystem fileSystem;
+
+        private readonly MainBicepFile fileToValidate;
+
+        public DescriptionsValidatorTests()
+        {
+            this.fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
+            this.fileToValidate = MainBicepFile.ReadFromFileSystem(this.fileSystem);
+        }
 
         [TestMethod]
-        public void Validate_ValidMainBicepFile_Succeeds()
+        public void Validate_ValidFile_Succeeds()
         {
-            var file = MainBicepFile.ReadFromFileSystem(FileSystem);
-            var sut = new DescriptionsValidator(MockLogger.Create(), MainArmTemplateFile.ReadFromFileSystem(FileSystem));
+            var latestArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            var sut = this.CreateDescriptionsValidator(latestArmTemplateFile);
 
-            FluentActions.Invoking(() => sut.Validate(file)).Should().NotThrow();
+            FluentActions.Invoking(() => sut.Validate(this.fileToValidate)).Should().NotThrow();
         }
 
         [TestMethod]
         public void Validate_MissingDescriptions_ThrowsException()
         {
-            var mainBicepFile = MainBicepFile.ReadFromFileSystem(FileSystem);
-
-            var mainArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(FileSystem);
+            var mainArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
             var mainArmTemplateFileElement = JsonElementFactory.CreateElement(mainArmTemplateFile.Content);
 
-            // Remove some descriptions.
             var patchedElement = mainArmTemplateFileElement.Patch(
-                PatchOperations.Remove("/parameters/sshRSAPublicKey/metadata/description"),
-                PatchOperations.Remove("/parameters/clusterName/metadata/description"),
-                PatchOperations.Remove("/parameters/osDiskSizeGB/metadata/description"),
-                PatchOperations.Remove("/outputs/controlPlaneFQDN/metadata/description"));
+                JsonPatchOperations.Remove("/parameters/sshRSAPublicKey/metadata/description"),
+                JsonPatchOperations.Remove("/parameters/clusterName/metadata/description"),
+                JsonPatchOperations.Remove("/parameters/osDiskSizeGB/metadata/description"),
+                JsonPatchOperations.Remove("/outputs/controlPlaneFQDN/metadata/description"));
 
-            var tempFileSystem = new MockFileSystem();
-            tempFileSystem.AddFile(mainArmTemplateFile.Path, patchedElement.ToJsonString());
-            tempFileSystem.Directory.SetCurrentDirectory(tempFileSystem.Path.GetDirectoryName(mainArmTemplateFile.Path));
+            fileSystem.AddFile(mainArmTemplateFile.Path, patchedElement.ToJsonString());
 
-            var modifiedArmTemplate = MainArmTemplateFile.ReadFromFileSystem(tempFileSystem);
-            var sut = new DescriptionsValidator(MockLogger.Create(), modifiedArmTemplate);
+            var latestArmTemplateFile = MainArmTemplateFile.ReadFromFileSystem(this.fileSystem);
+            var sut = this.CreateDescriptionsValidator(latestArmTemplateFile);
 
-            FluentActions.Invoking(() => sut.Validate(mainBicepFile)).Should()
-                .Throw<BicepException>()
+            FluentActions.Invoking(() => sut.Validate(this.fileToValidate)).Should()
+                .Throw<InvalidModuleException>()
                 .WithMessage(
-$@"Descriptions for the following parameters are missing in ""{mainBicepFile.Path}"":
+$@"The file ""{this.fileToValidate.Path}"" is invalid. Descriptions for the following parameters are missing:
   - sshRSAPublicKey
   - clusterName
   - osDiskSizeGB
 
-Descriptions for the following outputs are missing in ""{mainBicepFile.Path}"":
+The file ""{this.fileToValidate.Path}"" is invalid. Descriptions for the following outputs are missing:
   - controlPlaneFQDN
 ".ReplaceLineEndings());
         }
+
+        private DescriptionsValidator CreateDescriptionsValidator(MainArmTemplateFile latestMainArmTemplateFile) =>
+            new(MockLoggerFactory.CreateLogger(), latestMainArmTemplateFile);
     }
 }

@@ -91,7 +91,7 @@
           "Properties": {
             "name": "required-properties"
           },
-          "EventName": "ModuleBodySnippetInsertion"
+          "EventName": "snippet/modulebody"
         }
       ]
     }
@@ -120,7 +120,7 @@
           "Properties": {
             "name": "{}"
           },
-          "EventName": "ModuleBodySnippetInsertion"
+          "EventName": "snippet/modulebody"
         }
       ]
     }

@@ -4,7 +4,7 @@ This Bicep template deploys a user assigned managed identity and associates RBAC
 
 ## Deployment steps ##
 
-* [Install the Bicep CLI](https://github.com/Azure/bicep/blob/main/docs/installing.md) by following the instruction.
+* [Install the Bicep CLI](https://docs.microsoft.com/azure/azure-resource-manager/bicep/install) by following the instruction.
 * Build the `main.bicep` file by running the Bicep CLI command:
   
 ```bash

@@ -113,6 +113,14 @@ $artifacts = @(
       @{
         assetName = "Azure.Bicep.MSBuild.$buildVersion.snupkg";
         relativePath = "Azure.Bicep.MSBuild.$buildVersion.snupkg";
+      },
+      @{
+        assetName = "Azure.Bicep.RegistryModuleTool.$buildVersion.nupkg";
+        relativePath = "Azure.Bicep.RegistryModuleTool.$buildVersion.nupkg";
+      },
+      @{
+        assetName = "Azure.Bicep.RegistryModuleTool.$buildVersion.snupkg";
+        relativePath = "Azure.Bicep.RegistryModuleTool.$buildVersion.snupkg";
       }
     );
     zipAssets = @(

@@ -4445,7 +4445,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ObjectBodySnippetInsertion",
+          "EventName": "snippet/object",
           "Properties": {
             "name": "required-properties"
           }
@@ -5891,7 +5891,7 @@
       "command": "bicep.Telemetry",
       "arguments": [
         {
-          "EventName": "ObjectBodySnippetInsertion",
+          "EventName": "snippet/object",
           "Properties": {
             "name": "{}"
           }

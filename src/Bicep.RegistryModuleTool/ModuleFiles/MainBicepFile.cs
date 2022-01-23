@@ -16,16 +16,20 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
         }
 
-        public static void CreateInFileSystem(IFileSystem fileSystem)
+        public static MainBicepFile EnsureInFileSystem(IFileSystem fileSystem)
         {
-            using (fileSystem.FileStream.Create(FileName, FileMode.CreateNew)) { }
+            string path = fileSystem.Path.GetFullPath(FileName);
+
+            using (fileSystem.FileStream.Create(path, FileMode.Append)) { }
+
+            return new(path);
         }
 
         public static MainBicepFile ReadFromFileSystem(IFileSystem fileSystem)
         {
             string path = fileSystem.Path.GetFullPath(FileName);
 
-            using (fileSystem.FileStream.Create(FileName, FileMode.Open, FileAccess.Read)) { }
+            using (fileSystem.FileStream.Create(path, FileMode.Open)) { }
 
             return new(path);
         }

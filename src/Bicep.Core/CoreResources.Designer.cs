@@ -143,6 +143,72 @@ namespace Bicep.Core {
             }
         }
         
+        internal static string NoHardcodedLocationRuleDescription {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocationRuleDescription", resourceCulture);
+            }
+        }
+        
+        internal static string NoLocExprOutsideParamsRuleError {
+            get {
+                return ResourceManager.GetString("NoLocExprOutsideParamsRuleError", resourceCulture);
+            }
+        }
+        
+        internal static string NoLocExprOutsideParamsRuleDescription {
+            get {
+                return ResourceManager.GetString("NoLocExprOutsideParamsRuleDescription", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ErrorChangeVarToParam {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ErrorChangeVarToParam", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_FixChangeVarToParam {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_FixChangeVarToParam", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_FixNewParam {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_FixNewParam", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ErrorForResourceLocation {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ErrorForResourceLocation", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ErrorForModuleParam {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ErrorForModuleParam", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ErrorSolution {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ErrorSolution", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ModuleLocationNeedsExplicitValue {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ModuleLocationNeedsExplicitValue", resourceCulture);
+            }
+        }
+        
+        internal static string NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal {
+            get {
+                return ResourceManager.GetString("NoHardcodedLocation_ResourceLocationShouldBeExpressionOrGlobal", resourceCulture);
+            }
+        }
+        
         internal static string ParameterMustBeUsedRuleDescription {
             get {
                 return ResourceManager.GetString("ParameterMustBeUsedRuleDescription", resourceCulture);
@@ -203,15 +269,15 @@ namespace Bicep.Core {
             }
         }
         
-        internal static string UseProtectedSettingsForCommandToExecuteSecretsRuleDescription {
+        internal static string ProtectCommandToExecuteSecretsRuleDescription {
             get {
-                return ResourceManager.GetString("UseProtectedSettingsForCommandToExecuteSecretsRuleDescription", resourceCulture);
+                return ResourceManager.GetString("ProtectCommandToExecuteSecretsRuleDescription", resourceCulture);
             }
         }
         
-        internal static string UseProtectedSettingsForCommandToExecuteSecretsRuleMessage {
+        internal static string ProtectCommandToExecuteSecretsRuleMessage {
             get {
-                return ResourceManager.GetString("UseProtectedSettingsForCommandToExecuteSecretsRuleMessage", resourceCulture);
+                return ResourceManager.GetString("ProtectCommandToExecuteSecretsRuleMessage", resourceCulture);
             }
         }
         

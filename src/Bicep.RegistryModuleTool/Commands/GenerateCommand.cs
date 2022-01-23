@@ -4,6 +4,7 @@
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
+using System;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
@@ -12,8 +13,8 @@ namespace Bicep.RegistryModuleTool.Commands
 {
     public sealed class GenerateCommand : Command
     {
-        public GenerateCommand(string name, string description)
-            : base(name, description)
+        public GenerateCommand()
+            : base("generate", "Generate files for the Bicep registry module")
         {
         }
 
@@ -30,38 +31,46 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override void InvokeInternal(InvocationContext context)
+            protected override int Invoke(InvocationContext context)
             {
+                // Read or create main Bicep file.
+                this.Logger.LogInformation("Ensuring {MainBicepFile} exists...", "main Bicep file");
+                var mainBicepFile = MainBicepFile.EnsureInFileSystem(this.FileSystem);
+
+                // Create main Bicep test file if it doesn't exist.
+                this.Logger.LogInformation("Ensuring {MainBicepTestFile} exists...", "main Bicep test file");
+                MainBicepTestFile.EnsureInFileSystem(this.FileSystem);
+
                 // Generate main ARM template file.
-                this.Logger.LogDebug("Generating main ARM template file...");
-                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger);
-                var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
-                var mainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
+                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
+                var mainArmTemplateFile = this.GenerateFileAndLogInformation("main ARM template file", () => MainArmTemplateFile
+                    .Generate(this.FileSystem, bicepCliProxy, mainBicepFile)
+                    .WriteToFileSystem(FileSystem));
 
-                this.Logger.LogDebug("Writing main ARM template file to \"{MainArmTemplateFilePath}\"...", mainArmTemplateFile.Path);
-                mainArmTemplateFile.WriteToFileSystem(FileSystem);
-
-                // Generate main ARM template parameters file.
-                this.Logger.LogDebug("Generating main ARM template parameters file...");
-                var mainArmTemplateParametersFile = MainArmTemplateParametersFile.Generate(this.FileSystem, mainArmTemplateFile);
-
-                this.Logger.LogDebug("Writing main ARM template parameters file to \"{MainArmTemplateParametersFilePath}\"...", mainArmTemplateParametersFile.Path);
-                mainArmTemplateParametersFile.WriteToFileSystem(FileSystem);
+                // Read or create metadata file.
+                this.Logger.LogInformation("Ensuring {MetadataFile} exists...", "metadata file");
+                var metadataFile = MetadataFile.EnsureInFileSystem(this.FileSystem);
 
                 // Generate README file.
-                this.Logger.LogDebug("Generating README file...");
-                var metadataFile = MetadataFile.ReadFromFileSystem(this.FileSystem);
-                var readmeFile = ReadmeFile.Generate(this.FileSystem, metadataFile, mainArmTemplateFile);
-
-                this.Logger.LogDebug("Writing README file to \"{ReadmeFilePath}\"...", readmeFile.Path);
-                readmeFile.WriteToFileSystem(this.FileSystem);
+                this.GenerateFileAndLogInformation("README file", () => ReadmeFile
+                    .Generate(this.FileSystem, metadataFile, mainArmTemplateFile)
+                    .WriteToFileSystem(this.FileSystem));
 
                 // Generate version file.
-                this.Logger.LogDebug("Generating version file...");
-                var versionFile = VersionFile.Generate(this.FileSystem);
+                this.GenerateFileAndLogInformation("version file", () => VersionFile
+                    .Generate(this.FileSystem)
+                    .WriteToFileSystem(this.FileSystem));
 
-                this.Logger.LogDebug("Writing version file to \"{VersionFilePath}\"...", versionFile.Path);
-                versionFile.WriteToFileSystem(this.FileSystem);
+                return 0;
+            }
+
+            private T GenerateFileAndLogInformation<T>(string fileFriendlyName, Func<T> fileGenerator) where T : ModuleFile
+            {
+                this.Logger.LogInformation("Generating {FileFriendlyName}..", fileFriendlyName);
+                var file = fileGenerator();
+                this.Logger.LogInformation("Wrote {FileFriendlyName} to \"{FilePath}\".", fileFriendlyName, file.Path);
+
+                return file;
             }
         }
     }

@@ -6,6 +6,7 @@ using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.Proxies;
+using Json.Path;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,13 +22,15 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
     public sealed class MainArmTemplateFile : ModuleFile
     {
-        public const string FileName = "azuredeploy.json";
+        public const string FileName = "main.json";
 
         private readonly Lazy<JsonElement> lazyRootElement;
 
         private readonly Lazy<IEnumerable<MainArmTemplateParameter>> lazyParameters;
 
         private readonly Lazy<IEnumerable<MainArmTemplateOutput>> lazyOutputs;
+
+        private readonly Lazy<string> lazyTemplateHash;
 
         public MainArmTemplateFile(string path, string content)
             : base(path)
@@ -41,18 +44,36 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
                     ? Enumerable.Empty<MainArmTemplateOutput>()
                     : outputsElement.EnumerateObject().Select(ToOutput));
+            this.lazyOutputs = new(() => !lazyRootElement.Value.TryGetProperty("outputs", out var outputsElement)
+                    ? Enumerable.Empty<MainArmTemplateOutput>()
+                    : outputsElement.EnumerateObject().Select(ToOutput));
+            this.lazyTemplateHash = new(() => lazyRootElement.Value.GetPropertyByPath("metadata._generator.templateHash").ToNonNullString());
         }
 
         public string Content { get; }
+
+        public JsonElement RootElement => this.lazyRootElement.Value;
 
         public IEnumerable<MainArmTemplateParameter> Parameters => this.lazyParameters.Value;
         
         public IEnumerable<MainArmTemplateOutput> Outputs => this.lazyOutputs.Value;
 
+        public string TemplateHash => this.lazyTemplateHash.Value;
+
         public static MainArmTemplateFile Generate(IFileSystem fileSystem, BicepCliProxy bicepCliProxy, MainBicepFile mainBicepFile)
         {
             var tempFilePath = fileSystem.Path.GetTempFileName();
-            bicepCliProxy.Build(mainBicepFile.Path, tempFilePath);
+
+            try
+            {
+                bicepCliProxy.Build(mainBicepFile.Path, tempFilePath);
+            }
+            catch (Exception)
+            {
+                fileSystem.File.Delete(tempFilePath);
+
+                throw;
+            }
 
             using var tempFileStream = fileSystem.FileStream.CreateDeleteOnCloseStream(tempFilePath);
             using var streamReader = new StreamReader(tempFileStream);
@@ -71,7 +92,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             return new(path, content);
         }
 
-        public void WriteToFileSystem(IFileSystem fileSystem) => fileSystem.File.WriteAllText(this.Path, this.Content);
+        public MainArmTemplateFile WriteToFileSystem(IFileSystem fileSystem)
+        {
+            fileSystem.File.WriteAllText(this.Path, this.Content);
+
+            return this;
+        }
 
         private static MainArmTemplateParameter ToParameter(JsonProperty parameterProperty)
         {

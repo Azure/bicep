@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core;
 using Bicep.Core.Exceptions;
+using Bicep.RegistryModuleTool.Exceptions;
+using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.Proxies;
@@ -11,33 +12,21 @@ using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Text;
+using System.Security;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
     public sealed class ValidateCommand : Command
     {
-        public ValidateCommand(string name, string description)
-            : base(name, description)
+        public ValidateCommand()
+            : base("validate", "Validate files for the Bicep registry module")
         {
         }
 
         public sealed class CommandHandler : BaseCommandHandler
         {
-            private readonly static IReadOnlyList<string> AllowedFileNames = new[]
-            {
-                MainBicepFile.FileName,
-                MainArmTemplateFile.FileName,
-                MainArmTemplateParametersFile.FileName,
-                MetadataFile.FileName,
-                ReadmeFile.FileName,
-                VersionFile.FileName,
-                "bicepconfig.json"
-            };
-
             private readonly IEnvironmentProxy environmentProxy;
 
             private readonly IProcessProxy processProxy;
@@ -49,79 +38,102 @@ namespace Bicep.RegistryModuleTool.Commands
                 this.processProxy = processProxy;
             }
 
-            protected override void InvokeInternal(InvocationContext context)
+            protected override int Invoke(InvocationContext context)
             {
-                this.Logger.LogDebug("Validating that no additional files are in the module folder...");
-                this.EnsureNoAdditionalFiles();
+                var valid = true;
 
-                this.Logger.LogDebug("Validating main Bicep file...");
+                this.Logger.LogInformation("Validting that the module path is in lowercase...");
+                valid &= Validate(context.Console, () => ValidateModulePathInLowercase(this.FileSystem));
 
-                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger);
+                this.Logger.LogInformation("Validating main Bicep file...");
+
+                var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
                 var mainBicepFile = MainBicepFile.ReadFromFileSystem(this.FileSystem);
 
-                // This also validates that the main Bicep file can be built.
+                // This also validates that the main Bicep file can be built without errors.
                 var latestMainArmTemplateFile = MainArmTemplateFile.Generate(this.FileSystem, bicepCliProxy, mainBicepFile);
                 var descriptionsValidator = new DescriptionsValidator(this.Logger, latestMainArmTemplateFile);
 
-                mainBicepFile.ValidatedBy(descriptionsValidator);
+                valid &= Validate(context.Console, () => mainBicepFile.ValidatedBy(descriptionsValidator));
 
+                var testValidator = new TestValidator(this.FileSystem, this.Logger, bicepCliProxy, latestMainArmTemplateFile);
                 var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
                 var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
 
-                this.Logger.LogDebug("Validating main ARM template file...");
-                MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+                this.Logger.LogInformation("Validating main Bicep test file...");
+                valid &= Validate(context.Console, () => MainBicepTestFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(testValidator));
 
-                this.Logger.LogDebug("Validating main ARM template parameters file...");
-                MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator);
+                this.Logger.LogInformation("Validating main ARM template file...");
+                valid &= Validate(context.Console, () => MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
 
-                this.Logger.LogDebug("Validating metadata file...");
-                MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator);
+                this.Logger.LogInformation("Validating metadata file...");
+                valid &= Validate(context.Console, () => MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator));
 
-                this.Logger.LogDebug("Validating README file...");
-                ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+                this.Logger.LogInformation("Validating README file...");
+                valid &= Validate(context.Console, () => ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
 
-                this.Logger.LogDebug("Validating version file...");
-                VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator);
+                this.Logger.LogInformation("Validating version file...");
+                valid &= Validate(context.Console, () => VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
+
+                return valid ? 0 : 1;
             }
 
-            private void EnsureNoAdditionalFiles()
+            private static void ValidateModulePathInLowercase(IFileSystem fileSystem)
             {
-                var currentDirectoryPath = this.FileSystem.Directory.GetCurrentDirectory();
-                var filePaths = this.FileSystem.Directory.EnumerateFiles(currentDirectoryPath, "*", SearchOption.AllDirectories);
-                var allowedFilePaths = AllowedFileNames
-                    .Select(fileName => this.FileSystem.Path.Combine(currentDirectoryPath, fileName))
-                    .ToHashSet();
+                var directoryPath = fileSystem.Directory.GetCurrentDirectory();
+                var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
+                var directoryStack = new Stack<string>();
 
-                var notAllowedFilePaths = new List<string>();
-
-                foreach (var filePath in filePaths)
+                try
                 {
-                    if (allowedFilePaths.Contains(filePath))
+
+                    while (directoryInfo is not null && !directoryInfo.Name.Equals("modules", StringComparison.OrdinalIgnoreCase))
                     {
-                        continue;
+                        directoryStack.Push(directoryInfo.Name);
+
+                        directoryInfo = directoryInfo.Parent;
                     }
 
-                    if (filePath.EndsWith(LanguageConstants.LanguageFileExtension, StringComparison.OrdinalIgnoreCase))
+                    if (directoryInfo is null)
                     {
-                        // Any Bicep file is allowed.
-                        continue;
+                        throw new InvalidModuleException($"Could not find the \"modules\" folder in the path \"{directoryPath}\".");
                     }
-
-                    notAllowedFilePaths.Add(filePath);
+                }
+                catch (SecurityException exception)
+                {
+                    throw new BicepException(exception.Message, exception);
                 }
 
-                if (notAllowedFilePaths.Any())
-                {
-                    var errorMessageBuilder = new StringBuilder();
-                    errorMessageBuilder.AppendLine("The files below are not allowed:");
+                var modulePath = string.Join(fileSystem.Path.DirectorySeparatorChar, directoryStack.ToArray());
 
-                    foreach (var filePath in notAllowedFilePaths)
+                if (modulePath.Any(char.IsUpper))
+                {
+                    throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" must be in lowercase.");
+                }
+            }
+
+            private static bool Validate(IConsole console, Action validateAction)
+            {
+                try
+                {
+                    validateAction();
+                }
+                catch (InvalidModuleException exception)
+                {
+                    // Normalize the error message to make it always end with a new line.
+                    var normalizedErrorMessage = exception.Message.ReplaceLineEndings();
+
+                    if (!normalizedErrorMessage.EndsWith(Environment.NewLine))
                     {
-                        errorMessageBuilder.Append("  - ").AppendLine(filePath);
+                        normalizedErrorMessage = $"{normalizedErrorMessage}{Environment.NewLine}";
                     }
 
-                    throw new BicepException(errorMessageBuilder.ToString());
+                    console.WriteError(normalizedErrorMessage);
+
+                    return false;
                 }
+
+                return true;
             }
         }
     }

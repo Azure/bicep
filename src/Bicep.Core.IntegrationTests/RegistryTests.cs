@@ -67,11 +67,11 @@ namespace Bicep.Core.IntegrationTests
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration);
+            var compilation = new Compilation(BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetAllDiagnosticsByBicepFile();
             diagnostics.Should().HaveCount(1);
 
-            diagnostics.Single().Value.Should().SatisfyRespectively(
+            diagnostics.Single().Value.ExcludingLinterDiagnostics().Should().SatisfyRespectively(
                 x =>
                 {
                     x.Level.Should().Be(DiagnosticLevel.Error);

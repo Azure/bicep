@@ -38,7 +38,7 @@ import storage as stg {
   madeUpProperty: 'asdf'
 }
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"connectionString\"."),
                 ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"configuration\". Permissible properties include \"connectionString\"."),
             });
@@ -56,7 +56,7 @@ import storage as stg2 {
   connectionString: 'connectionString2'
 }
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ resource blob 'blob' = {
   base64Content: base64('sadfasdfd')
 }
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -194,7 +194,7 @@ resource blob 'stg:blob' = {
   base64Content: base64('sadfasdfd')
 }
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -216,7 +216,7 @@ resource blob 'bar:blob' = {
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"foo\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"bar\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
             });
@@ -239,7 +239,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
                 ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
             });
@@ -291,7 +291,7 @@ resource blob 'blob' = {
                 ("blob.txt", @"
 Hello from Bicep!"));
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().DeepEqual(JToken.Parse(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""languageVersion"": ""1.9-experimental"",
