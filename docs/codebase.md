@@ -45,12 +45,15 @@ The core of the VSCode extension is a language client ([client.ts](../src/vscode
 
 The VSCode extension also consists of a [visualizer](../src/vscode-bicep/src/visualizer) which can show a resource dependency graph for a Bicep file. The visualizer is an React app hosted in a [VSCode webview](https://code.visualstudio.com/api/extension-guides/webview). When the visualizer is opened, it queries the the Bicep language server via the language client to get the resource dependency graph data to be rendered in the visualizer webview.
 
-### Peripherals (brief mention)
-* Decompiler
-* MSBuild
-* Highlighter Libraries
-* External packages (Deployments, Az Types)
-### Pipelines & Build Process
+### Peripherals
+#### Decompiler
+Provides the ability to generate a Bicep representation of an ARM JSON template, using a heuristic-based approach. [TemplateDecompiler.cs](../src/Bicep.Decompiler/TemplateDecompiler.cs) is the entry-point to this logic.
+
+### Syntax highlighting libraries
+We also maintain basic highlighting support for some 3rd party syntax highlighting libraries; [HighlightJs](../src/highlightjs/src/bicep.ts), [Monarch](../src/monarch/src/bicep.ts) and [TextMate](../src/textmate/src/bicep.ts). We use these libraries to power web-based highlighting experiences when the full compiler code is not available - for example GitHub's and Azure DevOps's `.bicep` file highlighting capabilities.
+
+### Azure type generation
+This lives in the [bicep-types-az](https://github.com/Azure/bicep-types-az) repository, and is responsible for ingesting Azure API swagger specifications, and generating the [Azure.Bicep.Types.Az](https://www.nuget.org/packages/Azure.Bicep.Types.Az) package which is bundled with Bicep, and provides Bicep with all of the information about resource types available on Azure.
 
 ## Language Server Structure
 The Bicep language server contains the following handlers located in the [Handlers](../src/Bicep.LangServer/Handlers) folder:
@@ -75,12 +78,10 @@ The Bicep language server contains the following handlers located in the [Handle
 | [`BicepTextDocumentSyncHandler`](../src/Bicep.LangServer/Handlers/BicepTextDocumentSyncHandler.cs) | TODO |
 | [`InsertResourceHandler`](../src/Bicep.LangServer/Handlers/InsertResourceHandler.cs) | TODO |
 
-
 ## CLI Structure
-* Super brief intro into how this invokes the compiler pipeline
+The Bicep CLI exposes various commands, each of which implements the [ICommand](../src/Bicep.Cli/Commands/ICommand.cs) interface.
 
-## Type Generation
-* Some mention of how this works
+When `bicep build` is invoked, the compiler pipeline as described above is invoked through the [BuildCommand](../src/Bicep.Cli/Commands/BuildCommand.cs), to parse, analyze, and generate an ARM JSON Template.
 
 ## Important Design Considerations
 When working in the Bicep codebase, please consider the following principles. However, keep in mind that Bicep is a work in progress. You may encounter examples in the codebase that violate these principles. There can be many reasons for this. Any changes made to our codebase will always be based on tradeoffs between impact, complexity, cost, efficiency and potentially other dimensions.
