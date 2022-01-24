@@ -11,6 +11,9 @@ We are very happy to accept community contributions to Bicep, whether those are 
 * If `git status` shows untracked files in the `bicep-types-az` directory, remove the directory via `rm -r bicep-types-az` on Linux/Mac or `rmdir /S bicep-types-az` on Windows. (This is only needed once.)
 * Build the .NET solution with `dotnet build`.
 
+### Codebase Overview
+* Check out the [Codebase Overview](./docs/codebase.md) for a quick introduction to the various codebase components and how they fit together.
+
 ## Developing
 
 ### Components
