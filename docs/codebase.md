@@ -111,11 +111,10 @@ The usage of the null forgiving `!` operator is not allowed in the Bicep codebas
 * Test code can freely use the `!` operator as needed.
 * Bicep product code can use the `!` operator in LINQ-style extension methods that work around limitations in the C# compiler's nullability analysis.
 
-### Transparent abstraction (warnings rather than errors)
-
-
-### Visitors
-
-## Testing Considerations
-* Easy baseline updates
-* Preference for e2e instead of unit tests (both desirable)
+<!-- TODO - ideas for items to add to this doc:
+* Discussion on why being a 'transparent abstraction' is important, under design consideration
+* General explanation of the 'visitor' pattern and why it's useful
+* Testing considerations - in particular:
+    * Ease of baseline updates
+    * Preference for e2e instead of unit tests
+-->
