@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -183,6 +183,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             });
         }
 
+        [TestMethod]
         public void If_ResLocationIs_VariableDefinedAsLiteral_ShouldFail_WithFixToChangeToParam_OnlyOneErrorPerVariable()
         {
             var result = CompilationHelper.Compile(@"

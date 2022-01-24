@@ -102,9 +102,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 spanFixes[span] = fix;
             }
 
-            private bool IsStrictlyAssignableToString(TypeSymbol typeSymbol)
+            private static bool IsStrictlyAssignableToString(TypeSymbol typeSymbol)
             {
-                return !(typeSymbol is AnyType)
+                return typeSymbol is not AnyType
                     && TypeValidator.AreTypesAssignable(typeSymbol, LanguageConstants.String);
             }
         }

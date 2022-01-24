@@ -37,7 +37,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class ResourceVisitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            public List<IDiagnostic> diagnostics = new();
 
             private readonly AdminUsernameShouldNotBeLiteralRule parent;
             private readonly SemanticModel model;
@@ -59,7 +59,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class PropertiesVisitor : SyntaxVisitor
         {
-            private List<IDiagnostic> diagnostics;
+            private readonly List<IDiagnostic> diagnostics;
 
             private const string adminUsernamePropertyName = "adminusername";
             private readonly AdminUsernameShouldNotBeLiteralRule parent;

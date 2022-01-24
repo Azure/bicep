@@ -38,7 +38,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            RuleVisitor visitor = new RuleVisitor(this, model);
+            RuleVisitor visitor = new(this, model);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
@@ -104,7 +104,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     CoreResources.NoHardcodedLocation_ErrorChangeVarToParam,
                     definingVariable.Name);
 
-                CodeFix fix = new CodeFix(
+                CodeFix fix = new(
                     String.Format(CoreResources.NoHardcodedLocation_FixChangeVarToParam, definingVariable.Name),
                     true,
                     new CodeReplacement(
@@ -122,14 +122,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 // Fix: Create a new parameter
                 string newParamName = GetUnusedTopLevelName("location", model);
                 string newDefaultValue = locationValueSyntax.ToTextPreserveFormatting();
-                CodeReplacement insertNewParamDefinition = new CodeReplacement(
+                CodeReplacement insertNewParamDefinition = new(
                         new TextSpan(0, 0),
                         $"@description('Specifies the location for resources.')\n"
                         + $"param {newParamName} string = {newDefaultValue}\n\n");
-                CodeReplacement replacementWithNewParam = new CodeReplacement(
+                CodeReplacement replacementWithNewParam = new(
                         locationValueSyntax.Span,
                         newParamName);
-                CodeFix fixWithNewParam = new CodeFix(
+                CodeFix fixWithNewParam = new(
                     // Create new parameter '{0}' with default value {1}
                     String.Format(CoreResources.NoHardcodedLocation_FixNewParam, newParamName, newDefaultValue),
                     false, // isPreferred
@@ -158,11 +158,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private sealed class RuleVisitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
-            private HashSet<VariableSymbol> variablesToChangeToParam = new HashSet<VariableSymbol>();
+            public List<IDiagnostic> diagnostics = new();
+            private readonly HashSet<VariableSymbol> variablesToChangeToParam = new();
 
-            private NoHardcodedLocationRule parent;
-            private SemanticModel model;
+            private readonly NoHardcodedLocationRule parent;
+            private readonly SemanticModel model;
 
             public RuleVisitor(NoHardcodedLocationRule parent, SemanticModel model)
             {
@@ -189,11 +189,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 ImmutableArray<(string parameterName, SyntaxBase? actualValue)> locationParametersActualValues =
                     parent.GetParameterValuesForModuleLocationParameters(moduleDeclarationSyntax, model, onlyParamsWithDefaultValues: true);
 
-                foreach (var parameter in locationParametersActualValues)
+                foreach (var (parameterName, actualValue) in locationParametersActualValues)
                 {
-                    if (parameter.actualValue != null)
+                    if (actualValue != null)
                     {
-                        parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, parameter.actualValue, model, parameter.parameterName);
+                        parent.ValidateResourceLocationValue(diagnostics, variablesToChangeToParam, actualValue, model, parameterName);
                     }
                 }
 

@@ -61,7 +61,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         return (stringLiteral.RawStringValue, null);
                     }
                 }
-                else if (valueSyntax is VariableAccessSyntax variableAccessSyntax
+                else if (valueSyntax is VariableAccessSyntax
                         && model.GetSymbolInfo(valueSyntax) is VariableSymbol variableSymbol)
                 {
                     var variableDefinitionAssignment = model.GetDeclaredTypeAssignment(valueSyntax);
@@ -69,8 +69,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     {
                         // We have a variable declaration, e.g. "var a = <value>"
                         var value = declarationSyntax.Value;
-                        var nestedAssignment = TryGetLiteralTextValueAndDefiningVariable(value, model);
-                        if (nestedAssignment.literalTextValue != null)
+                        var (literalTextValue, definingVariable) = TryGetLiteralTextValueAndDefiningVariable(value, model);
+                        if (literalTextValue != null)
                         {
                             // We have something like this:
                             //
@@ -81,7 +81,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             //   location: v2     <<< For 'v2' here as the valueSyntax, we return ('westus', <defition-of-v1>)
                             // }
 
-                            return (nestedAssignment.literalTextValue, nestedAssignment.definingVariable ?? variableSymbol);
+                            return (literalTextValue, definingVariable ?? variableSymbol);
                         }
                         else
                         {
@@ -144,7 +144,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     if (IsBuiltinFunctionAzCall(functionCall, DeploymentFunctionName, ResourceGroupFunctionName))
                     {
                         string rgOrDeploymentFunction = functionCall.Name.IdentifierName;
-                        actualExpression = rgOrDeploymentFunction;
                         actualExpression = $"{rgOrDeploymentFunction}().{RGOrDeploymentLocationPropertyName}";
                         return true;
                     }
@@ -194,7 +193,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 return cachedValue;
             }
 
-            GetParametersUsedInResourceLocationsVisitor visitor = new GetParametersUsedInResourceLocationsVisitor(semanticModel);
+            GetParametersUsedInResourceLocationsVisitor visitor = new(semanticModel);
             visitor.Visit(bicepFile.ProgramSyntax);
             ImmutableArray<ParameterSymbol> parameters = visitor.parameters.ToImmutableArray();
             _paramsUsedInLocationPropsForFile.Add(bicepFile, parameters);
@@ -213,7 +212,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             bool onlyParamsWithDefaultValues
         )
         {
-            List<string> locationParameters = new List<string>();
+            List<string> locationParameters = new();
 
             // Parameters with default values referencing resourceGroup().location or deployment().location
             foreach (var moduleFormalParameter in moduleFormalParameters)
@@ -231,7 +230,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (fileSemanticModel.Compilation.GetSemanticModel(bicepFile) is SemanticModel moduleSemanticModel)
                 {
                     ImmutableArray<ParameterSymbol> parametersUsedInResourceLocationProperties =
-                        GetParametersUsedInResourceLocations(bicepFile, moduleSemanticModel).ToImmutableArray();
+                        GetParametersUsedInResourceLocations(bicepFile, moduleSemanticModel);
                     foreach (var moduleFormalParameter in parametersUsedInResourceLocationProperties)
                     {
                         // No duplicates in the list
@@ -259,7 +258,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             SemanticModel model,
             bool onlyParamsWithDefaultValues)
         {
-            List<(string parameterName, SyntaxBase? actualValue)> result = new List<(string, SyntaxBase?)>();
+            List<(string parameterName, SyntaxBase? actualValue)> result = new();
 
             if (moduleDeclarationSyntax.TryGetBody() is ObjectSyntax body)
             {
@@ -288,9 +287,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class GetParametersUsedInResourceLocationsVisitor : SyntaxVisitor
         {
-            private SemanticModel semanticModel;
+            private readonly SemanticModel semanticModel;
 
-            public List<ParameterSymbol> parameters = new List<ParameterSymbol>();
+            public List<ParameterSymbol> parameters = new();
 
             public GetParametersUsedInResourceLocationsVisitor(SemanticModel semanticModel)
             {
@@ -315,9 +314,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class GetReferencedParametersVisitor : SyntaxVisitor
         {
-            private SemanticModel semanticModel;
+            private readonly SemanticModel semanticModel;
 
-            public List<ParameterSymbol> parameters = new List<ParameterSymbol>();
+            public List<ParameterSymbol> parameters = new();
 
             public GetReferencedParametersVisitor(SemanticModel semanticModel)
             {
