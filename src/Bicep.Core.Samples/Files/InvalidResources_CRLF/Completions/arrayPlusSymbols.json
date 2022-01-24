@@ -4435,6 +4435,23 @@
     }
   },
   {
+    "label": "readOnlyPropertyAssignment",
+    "kind": "interface",
+    "detail": "readOnlyPropertyAssignment",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_readOnlyPropertyAssignment",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "readOnlyPropertyAssignment"
+    },
+    "commitCharacters": [
+      ":"
+    ]
+  },
+  {
     "label": "reference",
     "kind": "function",
     "documentation": {

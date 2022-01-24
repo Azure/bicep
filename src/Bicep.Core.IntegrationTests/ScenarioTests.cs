@@ -2817,7 +2817,7 @@ output productGroupsResourceIds array = [for rgName in rgNames: resourceId('Micr
         /// https://github.com/Azure/bicep/issues/5456
         /// </summary>
         [TestMethod]
-        public void Test_Issue5456()
+        public void Test_Issue5456_1()
         {
             var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
             var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
@@ -2847,6 +2847,25 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
             {
                 ("BCP073", DiagnosticLevel.Warning, "The property \"tags\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            });
+        }
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5456
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5456_2()
+        {
+
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(("module.bicep", @""), ("main.bicep", @"
+module mod 'module.bicep' = {
+  name: 'module'
+  outputs: {}
+}
+"));
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new []
+            {
+                ("BCP073", DiagnosticLevel.Error, "The property \"outputs\" is read-only. Expressions cannot be assigned to read-only properties.")
             });
         }
     }

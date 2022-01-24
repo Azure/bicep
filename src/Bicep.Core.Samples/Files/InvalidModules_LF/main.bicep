@@ -562,3 +562,8 @@ module jsonModMissingParam 'moduled.json' = {
     baz: 'C'
   }
 }
+
+module assignToOutput 'empty.bicep' = {
+  name: 'assignToOutput'
+  outputs: {}
+}
