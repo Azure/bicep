@@ -1,10 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Navigation;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -70,7 +67,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                         // We have a variable declaration, e.g. "var a = <value>"
                         var value = declarationSyntax.Value;
                         var (literalTextValue, definingVariable) = TryGetLiteralTextValueAndDefiningVariable(value, model);
-                        if (literalTextValue != null)
+                        if (literalTextValue is not null)
                         {
                             // We have something like this:
                             //
@@ -158,7 +155,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var visitor = new ContainsCallToRgOrDeploymentLocationVisitor();
             visitor.Visit(syntax);
             actualExpression = visitor.ActualExpression;
-            return actualExpression != null;
+            return actualExpression is not null;
         }
 
         /// <summary>
@@ -218,7 +215,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (var moduleFormalParameter in moduleFormalParameters)
             {
                 SyntaxBase? defaultValue = (moduleFormalParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue;
-                if (defaultValue != null && ContainsCallToRgOrDeploymentLocation(defaultValue, out string _))
+                if (defaultValue is not null && ContainsCallToRgOrDeploymentLocation(defaultValue, out string _))
                 {
                     locationParameters.Add(moduleFormalParameter.Name.IdentifierName);
                 }
