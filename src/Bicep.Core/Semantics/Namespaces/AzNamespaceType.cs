@@ -177,6 +177,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("name", LanguageConstants.String),
                 new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                 {
+                    new TypeProperty("template", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                    {
+                        new TypeProperty("contentVersion", LanguageConstants.String)
+                    }, null)),
                     new TypeProperty("templateLink", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("id", LanguageConstants.String),
