@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
-    <ToolCommandName>bicep-registry-module</ToolCommandName>
+    <ToolCommandName>brm</ToolCommandName>
     <EnableNuget>true</EnableNuget>
     <PackageTags>CLI</PackageTags>
     <Description>Bicep registry module tool</Description>
