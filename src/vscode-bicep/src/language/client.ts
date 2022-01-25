@@ -200,3 +200,4 @@ function configureTelemetry(client: lsp.LanguageClient) {
     },
   };
 }
+

@@ -2,24 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Core;
-using Azure.Deployments.Core.Entities;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -28,14 +23,13 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, string>
+    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, string, string>
     {
         private readonly ICompilationManager compilationManager;
         private readonly EmitterSettings emitterSettings;
@@ -57,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
             this.credentialFactory = credentialFactory;
         }
 
-        public override async Task<string> Handle(string bicepFilePath, string subscriptionId, string resourceId, CancellationToken cancellationToken)
+        public override async Task<string> Handle(string bicepFilePath, string subscriptionId, string resourceId, string deploymentName, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
@@ -65,29 +59,31 @@ namespace Bicep.LanguageServer.Handlers
             }
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-            TokenCredential tokenCredential = this.credentialFactory.CreateChain(ImmutableArray.Create<CredentialType>(CredentialType.VisualStudioCode), configuration.Cloud.ActiveDirectoryAuthorityUri);
+            TokenCredential tokenCredential = this.credentialFactory.CreateChain(ImmutableArray.Create(CredentialType.VisualStudioCode), configuration.Cloud.ActiveDirectoryAuthorityUri);
 
             ArmClient armClient = new ArmClient(tokenCredential);
             var resourceGroup = armClient.GetResourceGroup(resourceId);
             DeploymentCollection deploymentCollection = resourceGroup.GetDeployments();
-            string deploymentName = "myDeployment";
-            string template = GetCompiledFile(bicepFilePath, documentUri);
+            string template = GetCompiledFile(documentUri);
 
-            var input = new DeploymentInput(new DeploymentProperties(Azure.ResourceManager.Resources.Models.DeploymentMode.Incremental)
+            var input = new DeploymentInput(new DeploymentProperties(DeploymentMode.Incremental)
             {
                 Template = JsonDocument.Parse(template).RootElement,
                 Parameters = string.Empty
             });
-            DeploymentCreateOrUpdateAtScopeOperation lro = await deploymentCollection.CreateOrUpdateAsync(deploymentName, input);
-            Deployment deployment = lro.Value;
+            DeploymentCreateOrUpdateAtScopeOperation deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(deploymentName, input);
 
-            return string.Empty;
+            if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
+                deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)
+            {
+                return "Deployment successful!!";
+            }
+
+            return "Deployment failed!!";
         }
 
-        private string GetCompiledFile(string bicepFilePath, DocumentUri documentUri)
+        private string GetCompiledFile(DocumentUri documentUri)
         {
-            string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
-
             var fileUri = documentUri.ToUri();
             RootConfiguration? configuration = null;
 

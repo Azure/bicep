@@ -11,12 +11,10 @@ import {
   SubscriptionModels,
 } from "@azure/arm-subscriptions";
 import { ResourceManagementClient } from "@azure/arm-resources";
+import { appendToOutputChannel } from "../utils/logger";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
-  public readonly outputChannel =
-    vscode.window.createOutputChannel("Bicep Operations");
-
   public constructor(private readonly client: LanguageClient) {}
 
   public async execute(
@@ -40,8 +38,6 @@ export class DeployCommand implements Command {
       return;
     }
 
-    //const path = documentUri.fsPath;
-
     try {
       const azureAccount = vscode.extensions.getExtension<AzureAccount>(
         "ms-vscode.azure-account"
@@ -56,12 +52,14 @@ export class DeployCommand implements Command {
         placeHolder: "Please select subscription",
       });
 
-      //assert(subscription);
-
       if (subscription) {
         const resourceGroupItems = loadResourceGroupItems(subscription);
         const resourceGroup = await window.showQuickPick(resourceGroupItems, {
           placeHolder: "Please select resource group",
+        });
+
+        const deploymentName = await window.showInputBox({
+          prompt: "Enter deployment name",
         });
 
         for (const session of azureAccount.sessions) {
@@ -72,14 +70,19 @@ export class DeployCommand implements Command {
             const resourceGroupName = resourceGroup?.resourceGroup.id;
 
             if (subscriptionId && resourceGroupName) {
-              await this.client.sendRequest("workspace/executeCommand", {
-                command: "deploy",
-                arguments: [
-                  documentUri.fsPath,
-                  subscriptionId,
-                  resourceGroupName,
-                ],
-              });
+              const deployOutput: string = await this.client.sendRequest(
+                "workspace/executeCommand",
+                {
+                  command: "deploy",
+                  arguments: [
+                    documentUri.fsPath,
+                    subscriptionId,
+                    resourceGroupName,
+                    deploymentName,
+                  ],
+                }
+              );
+              appendToOutputChannel(deployOutput);
             }
           }
         }

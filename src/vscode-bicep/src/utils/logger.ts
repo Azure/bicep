@@ -112,6 +112,14 @@ export function getLogger(): Logger {
   return logger;
 }
 
+const outputChannel = vscode.window.createOutputChannel("Bicep Operations");
+
+export function appendToOutputChannel(text: string): void {
+  outputChannel.clear();
+  outputChannel.show();
+  outputChannel.appendLine(text);
+}
+
 export function resetLogger(): void {
   logger = undefined;
 }
