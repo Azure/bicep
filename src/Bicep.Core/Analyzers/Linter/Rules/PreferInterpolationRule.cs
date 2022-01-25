@@ -33,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class Visitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            public List<IDiagnostic> diagnostics = new();
 
             private const string concatFunction = "concat";
             private readonly PreferInterpolationRule parent;
@@ -127,7 +127,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 var segments = new List<string>();
 
                 SyntaxBase? prevArg = default;
-                var argList = argExpressions.Select((arg, i) => new { arg = arg, argindex = i });
+                var argList = argExpressions.Select((arg, i) => new { arg, argindex = i });
 
                 void addStringSyntax(StringSyntax stringSyntax)
                 {
@@ -170,7 +170,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 }
 
                 // build tokens from segment list
-                var last = segments.Count() - 1;
+                var last = segments.Count - 1;
                 var index = 0;
                 segments.ForEach(segment =>
                 {

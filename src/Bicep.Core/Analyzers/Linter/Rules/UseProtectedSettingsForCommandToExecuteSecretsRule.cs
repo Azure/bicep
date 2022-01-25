@@ -45,7 +45,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel semanticModel)
         {
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            List<IDiagnostic> diagnostics = new();
 
             foreach (ResourceMetadata resource in semanticModel.AllResources.Where(r => r.IsAzResource))
             {
