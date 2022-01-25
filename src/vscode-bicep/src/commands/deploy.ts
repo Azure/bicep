@@ -4,21 +4,23 @@ import vscode from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import { IActionContext, parseError } from "vscode-azureextensionui";
-import { AzureAccount, AzureSession } from '../azure-account.api';
-import { commands, ExtensionContext, window } from 'vscode';
-import { SubscriptionClient, SubscriptionModels } from '@azure/arm-subscriptions';
-import { ResourceManagementClient } from '@azure/arm-resources';
+import { AzureAccount, AzureSession } from "../azure-account.api";
+import { commands, window } from "vscode";
+import {
+  SubscriptionClient,
+  SubscriptionModels,
+} from "@azure/arm-subscriptions";
+import { ResourceManagementClient } from "@azure/arm-resources";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
   public readonly outputChannel =
     vscode.window.createOutputChannel("Bicep Operations");
 
-  public constructor(private readonly client: LanguageClient) { }
+  public constructor(private readonly client: LanguageClient) {}
 
   public async execute(
     _context: IActionContext,
-    extensionContext: ExtensionContext,
     documentUri?: vscode.Uri | undefined
   ): Promise<void> {
     documentUri ??= vscode.window.activeTextEditor?.document.uri;
@@ -38,19 +40,49 @@ export class DeployCommand implements Command {
       return;
     }
 
+    //const path = documentUri.fsPath;
+
     try {
-      const azureAccount = vscode.extensions.getExtension<AzureAccount>('ms-vscode.azure-account')!.exports;
+      const azureAccount = vscode.extensions.getExtension<AzureAccount>(
+        "ms-vscode.azure-account"
+      )!.exports;
 
       if (!(await azureAccount.waitForLogin())) {
-        return commands.executeCommand('azure-account.askForLogin');
+        return commands.executeCommand("azure-account.askForLogin");
       }
 
       const subscriptionItems = loadSubscriptionItems(azureAccount);
-      const result = await window.showQuickPick(subscriptionItems, { placeHolder: "Please select subscription" });
+      const subscription = await window.showQuickPick(subscriptionItems, {
+        placeHolder: "Please select subscription",
+      });
 
-      if (result) {
-        const resourceGroupItems = loadResourceGroupItems(result);
-        await window.showQuickPick(resourceGroupItems, { placeHolder: "Please select resource group" });
+      //assert(subscription);
+
+      if (subscription) {
+        const resourceGroupItems = loadResourceGroupItems(subscription);
+        const resourceGroup = await window.showQuickPick(resourceGroupItems, {
+          placeHolder: "Please select resource group",
+        });
+
+        for (const session of azureAccount.sessions) {
+          const credentials = session.credentials2;
+
+          if (credentials) {
+            const subscriptionId = subscription.subscription.subscriptionId;
+            const resourceGroupName = resourceGroup?.resourceGroup.id;
+
+            if (subscriptionId && resourceGroupName) {
+              await this.client.sendRequest("workspace/executeCommand", {
+                command: "deploy",
+                arguments: [
+                  documentUri.fsPath,
+                  subscriptionId,
+                  resourceGroupName,
+                ],
+              });
+            }
+          }
+        }
       }
     } catch (err) {
       this.client.error("Deploy failed", parseError(err).message, true);
@@ -60,13 +92,19 @@ export class DeployCommand implements Command {
 
 async function loadResourceGroupItems(subscriptionItem: SubscriptionItem) {
   const { session, subscription } = subscriptionItem;
-  const resources = new ResourceManagementClient(session.credentials2, subscription.subscriptionId!);
-  const resourceGroups = await listAll(resources.resourceGroups, resources.resourceGroups.list());
-  resourceGroups.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-  return resourceGroups.map(resourceGroup => ({
-    label: resourceGroup.name || '',
+  const resources = new ResourceManagementClient(
+    session.credentials2,
+    subscription.subscriptionId!
+  );
+  const resourceGroups = await listAll(
+    resources.resourceGroups,
+    resources.resourceGroups.list()
+  );
+  resourceGroups.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  return resourceGroups.map((resourceGroup) => ({
+    label: resourceGroup.name || "",
     description: resourceGroup.location,
-    resourceGroup
+    resourceGroup,
   }));
 }
 
@@ -76,21 +114,33 @@ async function loadSubscriptionItems(api: AzureAccount) {
   for (const session of api.sessions) {
     const credentials = session.credentials2;
     const subscriptionClient = new SubscriptionClient(credentials);
-    const subscriptions = await listAll(subscriptionClient.subscriptions, subscriptionClient.subscriptions.list());
-    subscriptionItems.push(...subscriptions.map(subscription => ({
-      label: subscription.displayName || '',
-      description: subscription.subscriptionId || '',
-      session,
-      subscription
-    })));
+    const subscriptions = await listAll(
+      subscriptionClient.subscriptions,
+      subscriptionClient.subscriptions.list()
+    );
+    subscriptionItems.push(
+      ...subscriptions.map((subscription) => ({
+        label: subscription.displayName || "",
+        description: subscription.subscriptionId || "",
+        session,
+        subscription,
+      }))
+    );
   }
   subscriptionItems.sort((a, b) => a.label.localeCompare(b.label));
   return subscriptionItems;
 }
 
-async function listAll<T>(client: { listNext(nextPageLink: string): Promise<PartialList<T>>; }, first: Promise<PartialList<T>>): Promise<T[]> {
+async function listAll<T>(
+  client: { listNext(nextPageLink: string): Promise<PartialList<T>> },
+  first: Promise<PartialList<T>>
+): Promise<T[]> {
   const all: T[] = [];
-  for (let list = await first; list.length || list.nextLink; list = list.nextLink ? await client.listNext(list.nextLink) : []) {
+  for (
+    let list = await first;
+    list.length || list.nextLink;
+    list = list.nextLink ? await client.listNext(list.nextLink) : []
+  ) {
     all.push(...list);
   }
   return all;

@@ -17,7 +17,8 @@
     },
     "credentialPrecedence": [
       "AzureCLI",
-      "AzurePowerShell"
+      "AzurePowerShell",
+      "VisualStudioCode"
     ]
   },
   "moduleAliases": {

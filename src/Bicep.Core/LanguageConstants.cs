@@ -26,6 +26,7 @@ namespace Bicep.Core
         public const string ArmTemplateFileExtension = ".arm";
 
         public const string Build = "build";
+        public const string Deploy = "deploy";
 
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
