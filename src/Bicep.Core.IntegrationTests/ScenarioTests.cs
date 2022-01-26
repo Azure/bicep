@@ -2812,5 +2812,53 @@ output productGroupsResourceIds array = [for rgName in rgNames: resourceId('Micr
             result.Template!.Should().HaveValueAtPath("$.resources[?(@.name == '[format(\\'foo{0}\\', parameters(\\'rgNames\\')[copyIndex()])]')].metadata.description", "module loop");
             result.Template!.Should().HaveValueAtPath("$.outputs.productGroupsResourceIds.metadata.description", "The Resources Ids of the API management service product groups");
         }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_positive_test()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = -9223372036854775808
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_positive_test_2()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = 9223372036854775807
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_negative_test()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = -9223372036854775809
+");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP010", DiagnosticLevel.Error, "Expected a valid 64-bit signed integer.")
+            });
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_negative_test_2()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = 9223372036854775808
+");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP010", DiagnosticLevel.Error, "Expected a valid 64-bit signed integer.")
+            });
+        }
     }
 }

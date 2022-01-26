@@ -686,8 +686,8 @@ namespace Bicep.Core.Semantics.Namespaces
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
                 UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
-                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => -1 * integerLiteralSyntax.Value,
-                IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value,
+                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => -1 * (long)integerLiteralSyntax.Value,
+                IntegerLiteralSyntax integerLiteralSyntax => (long)integerLiteralSyntax.Value,
                 _ => null,
             };
 

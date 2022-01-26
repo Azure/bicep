@@ -142,7 +142,9 @@ namespace Bicep.Core.Syntax
             return CreateStringLiteral(text);
         }
 
-        public static IntegerLiteralSyntax CreateIntegerLiteral(long value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
+        public static IntegerLiteralSyntax CreateIntegerLiteral(ulong value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
+
+        public static UnaryOperationSyntax CreateNegativeIntegerLiteral(ulong value) => new(MinusToken, CreateIntegerLiteral(value));
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
 

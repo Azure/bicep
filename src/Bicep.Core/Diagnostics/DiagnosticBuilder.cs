@@ -110,7 +110,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidInteger() => new(
                 TextSpan,
                 "BCP010",
-                "Expected a valid 32-bit signed integer.");
+                "Expected a valid 64-bit signed integer.");
 
             public ErrorDiagnostic InvalidType() => new(
                 TextSpan,

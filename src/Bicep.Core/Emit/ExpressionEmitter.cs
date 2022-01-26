@@ -202,7 +202,7 @@ namespace Bicep.Core.Emit
 
             writer.WriteValue(serialized);
         }
-        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null, long? batchSize = null)
+        public void EmitCopyObject(string? name, ForSyntax syntax, SyntaxBase? input, string? copyIndexOverride = null, ulong? batchSize = null)
         {
             // local function
             static bool CanEmitAsInputDirectly(SyntaxBase input)
