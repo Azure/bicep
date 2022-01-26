@@ -32,7 +32,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         private void Validate(string filePath, JsonSchema schema, JsonElement element)
         {
-            this.logger.LogDebug("Validating \"{FilePath}\" against JSON schema...", filePath);
+            this.logger.LogInformation("Validating \"{FilePath}\" against JSON schema...", filePath);
 
             var results = schema.Validate(element, new ValidationOptions
             {
