@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1963734572438868460"
+      "templateHash": "15697172255155232419"
     }
   },
   "parameters": {
@@ -47,7 +47,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "network",
       "resourceGroup": "bicep-network-rg",
       "properties": {
@@ -172,7 +172,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "anchor",
       "resourceGroup": "bicep-anchor-rg",
       "properties": {
@@ -185,7 +185,7 @@
             "value": "[parameters('adminSshKey')]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-06-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "anchor"
@@ -351,7 +351,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "vm01",
       "resourceGroup": "bicep-workload-rg",
       "properties": {
@@ -364,10 +364,10 @@
             "value": "[parameters('adminSshKey')]"
           },
           "ppgId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-06-01').outputs.ppgId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-10-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-06-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm01"
@@ -503,7 +503,7 @@
     },
     {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "vm02",
       "resourceGroup": "bicep-workload-rg",
       "properties": {
@@ -516,10 +516,10 @@
             "value": "[parameters('adminSshKey')]"
           },
           "ppgId": {
-            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-06-01').outputs.ppgId.value]"
+            "value": "[reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-anchor-rg'), 'Microsoft.Resources/deployments', 'anchor'), '2020-10-01').outputs.ppgId.value]"
           },
           "subnetId": {
-            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-06-01').outputs.vnetId.value)]"
+            "value": "[format('{0}/subnets/Default', reference(extensionResourceId(format('/subscriptions/{0}/resourceGroups/{1}', subscription().subscriptionId, 'bicep-network-rg'), 'Microsoft.Resources/deployments', 'network'), '2020-10-01').outputs.vnetId.value)]"
           },
           "vmName": {
             "value": "vm02"

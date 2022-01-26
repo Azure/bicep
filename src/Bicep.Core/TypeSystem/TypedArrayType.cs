@@ -12,7 +12,7 @@ namespace Bicep.Core.TypeSystem
         }
 
         public override ITypeReference Item { get; }
- 
+
         public override TypeSymbolValidationFlags ValidationFlags { get; }
 
         private static string FormatTypeName(ITypeReference itemReference) => $"{itemReference.Type.FormatNameForCompoundTypes()}[]";

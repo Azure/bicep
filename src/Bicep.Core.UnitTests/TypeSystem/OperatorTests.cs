@@ -38,7 +38,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             RunTokenTest(Operators.TokenTypeToBinaryOperator);
         }
 
-        private static void RunTextTest<TEnum>(IDictionary<TEnum,string> data) where TEnum : struct
+        private static void RunTextTest<TEnum>(IDictionary<TEnum, string> data) where TEnum : struct
         {
             foreach (TEnum @operator in GetValues<TEnum>())
             {

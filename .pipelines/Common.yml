@@ -22,6 +22,31 @@ stages:
       parameters:
         official: ${{ parameters.official }}
         rid: win-x64
+        runTests: true
+        publishLanguageServer: true
+        enableSigning: true
+        publishNuget: true
+        publishSetup: true
+
+  - job: bicep_windows_arm64
+    pool:
+      type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Bicep.yml
+      parameters:
+        official: ${{ parameters.official }}
+        rid: win-arm64
+        runTests: false
+        enableSigning: true
   
   - job: bicep_linux
     pool:
@@ -40,6 +65,28 @@ stages:
       parameters:
         official: ${{ parameters.official }}
         rid: linux-x64
+        runTests: true
+        enableSigning: false
+
+  - job: bicep_linux_arm64
+    pool:
+      type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Bicep.yml
+      parameters:
+        official: ${{ parameters.official }}
+        rid: linux-arm64
+        runTests: false
+        enableSigning: false
 
   - job: bicep_linux_musl
     pool:
@@ -58,6 +105,8 @@ stages:
       parameters:
         official: ${{ parameters.official }}
         rid: linux-musl-x64
+        runTests: true
+        enableSigning: false
 
   - job: bicep_osx
     pool:
@@ -76,6 +125,28 @@ stages:
       parameters:
         official: ${{ parameters.official }}
         rid: osx-x64
+        runTests: true
+        enableSigning: false
+
+  - job: bicep_osx_arm64
+    pool:
+      type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Bicep.yml
+      parameters:
+        official: ${{ parameters.official }}
+        rid: osx-arm64
+        runTests: false
+        enableSigning: false
 
   - job: packages_windows
     dependsOn: bicep_windows
@@ -96,6 +167,26 @@ stages:
         official: ${{ parameters.official }}
         rid: win-x64
         artifactSuffix: windows
+
+  - job: packages_windows_arm64
+    dependsOn: bicep_windows_arm64
+    pool:
+      type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Packages.yml
+      parameters:
+        official: ${{ parameters.official }}
+        rid: win-arm64
+        artifactSuffix: windows_arm64
 
   - job: packages_linux
     dependsOn: bicep_linux
@@ -118,6 +209,27 @@ stages:
         rid: linux-x64
         artifactSuffix: linux
 
+  - job: packages_linux_arm64
+    dependsOn: bicep_linux_arm64
+    pool:
+      # signing must happen on Windows
+      type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Packages.yml
+      parameters:
+        official: ${{ parameters.official }}
+        rid: linux-arm64
+        artifactSuffix: linux_arm64
+
   - job: packages_osx
     dependsOn: bicep_osx
     pool:
@@ -139,8 +251,31 @@ stages:
         rid: osx-x64
         artifactSuffix: osx
 
+  - job: packages_osx_arm64
+    dependsOn: bicep_osx_arm64
+    pool:
+      # signing must happen on Windows
+      type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
+    
+    variables:
+      ob_outputDirectory: '$(Build.SourcesDirectory)/out' # this directory is uploaded to pipeline artifacts, reddog and cloudvault. More info at https://aka.ms/obpipelines/artifacts
+      # https://aka.ms/obpipelines/sdl
+      ob_sdl_binskim_enabled: true # you can disable sdl tools in non-official build 
+      ob_sdl_binskim_break: false # always break the build on binskim issues. You can disable it by setting to 'false'
+      ob_sdl_binskim_scanOutputDirectoryOnly: true
+      ob_sdl_roslyn_break: true
+      # ob_sdl_suppression_suppressionFile: $(Build.SourcesDirectory)\.gdn\job.gdnsuppress
+    steps:
+    - template: Packages.yml
+      parameters:
+        official: ${{ parameters.official }}
+        rid: osx-arm64
+        artifactSuffix: osx_arm64
+
   - job: packages_test_windows
-    dependsOn: packages_windows
+    dependsOn: 
+    - packages_windows
+    - bicep_windows
     pool:
       type: windows  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs
     
@@ -160,7 +295,9 @@ stages:
         artifactSuffix: windows
 
   - job: packages_test_linux
-    dependsOn: packages_linux
+    dependsOn:
+    - packages_linux
+    - bicep_windows
     pool:
       # signing must happen on Windows
       type: linux  # read more about custom job pool types at https://aka.ms/obpipelines/yaml/jobs

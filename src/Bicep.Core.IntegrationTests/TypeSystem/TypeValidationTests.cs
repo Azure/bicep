@@ -2,12 +2,11 @@
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Configuration;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -22,7 +21,7 @@ namespace Bicep.Core.IntegrationTests
         private static SemanticModel GetSemanticModelForTest(string programText, INamespaceProvider nsProvider)
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
-            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration);
+            var compilation = new Compilation(nsProvider, SourceFileGroupingFactory.CreateFromText(programText, BicepTestConstants.FileResolver), configuration, new LinterAnalyzer(configuration));
 
             return compilation.GetEntrypointSemanticModel();
         }
@@ -429,7 +428,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'123' | 'DEF' | 'abc' | 'arr'");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
@@ -445,7 +444,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, Enumerable.Empty<ResourceTypeComponents>());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("string");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("any");
@@ -465,7 +464,7 @@ var singleItemValue = itemsOutput[0].value
 ";
 
             var model = GetSemanticModelForTest(program, BuiltInTestTypes.Create());
-            
+
             GetTypeForNamedSymbol(model, "itemsOutput").Name.Should().Be("object[]");
             GetTypeForNamedSymbol(model, "singleItemKey").Name.Should().Be("'readonly' | 'readwrite' | 'required'");
             GetTypeForNamedSymbol(model, "singleItemValue").Name.Should().Be("string");

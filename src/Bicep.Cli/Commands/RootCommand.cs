@@ -75,6 +75,7 @@ Usage:
       --outfile <file>  Saves the output as the specified file path.
       --no-summary      Omits the summary at the end of the build.
       --stdout          Prints the output to stdout.
+      --no-restore      Builds the bicep file without restoring external modules.
 
     Examples:
       bicep build file.bicep
@@ -82,6 +83,7 @@ Usage:
       bicep build file.bicep --no-summary
       bicep build file.bicep --outdir dir1
       bicep build file.bicep --outfile file.json
+      bicep build file.bicep --no-restore
 
   {exeName} decompile [options] <file>
     Attempts to decompile a template .json file to .bicep.

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5292768385938170215"
+      "templateHash": "11734737491927560896"
     }
   },
   "parameters": {
@@ -110,7 +110,7 @@
     },
     "avdmonitor": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "LAWorkspace",
       "resourceGroup": "[parameters('logAnalyticsResourceGroup')]",
       "properties": {
@@ -147,7 +147,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "15289507394833495128"
+              "templateHash": "16864722642105308362"
             }
           },
           "parameters": {
@@ -186,7 +186,7 @@
             },
             "avdmonitor": {
               "type": "Microsoft.Resources/deployments",
-              "apiVersion": "2020-06-01",
+              "apiVersion": "2020-10-01",
               "name": "myBicepLADiag",
               "resourceGroup": "[parameters('avdBackplaneResourceGroup')]",
               "properties": {

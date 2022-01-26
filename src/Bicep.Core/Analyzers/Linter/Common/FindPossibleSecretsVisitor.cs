@@ -29,8 +29,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
 
         private const string ListFunctionPrefix = "list";
         private readonly SemanticModel semanticModel;
-        private readonly SyntaxBase syntax;
-        private readonly List<PossibleSecret> possibleSecrets = new List<PossibleSecret>();
+        private readonly List<PossibleSecret> possibleSecrets = new();
 
         /// <summary>
         /// Searches in an expression for possible references to sensitive data, such as secure parameters or list* functions (may but
@@ -38,15 +37,14 @@ namespace Bicep.Core.Analyzers.Linter.Common
         /// </summary>
         public static IImmutableList<PossibleSecret> FindPossibleSecrets(SemanticModel semanticModel, SyntaxBase syntax)
         {
-            FindPossibleSecretsVisitor visitor = new FindPossibleSecretsVisitor(semanticModel, syntax);
+            FindPossibleSecretsVisitor visitor = new(semanticModel);
             visitor.Visit(syntax);
             return visitor.possibleSecrets.ToImmutableList();
         }
 
-        private FindPossibleSecretsVisitor(SemanticModel model, SyntaxBase syntax)
+        private FindPossibleSecretsVisitor(SemanticModel model)
         {
             this.semanticModel = model;
-            this.syntax = syntax;
         }
 
         public override void VisitVariableAccessSyntax(VariableAccessSyntax syntax)
@@ -93,7 +91,7 @@ namespace Bicep.Core.Analyzers.Linter.Common
                 bool found = false;
 
                 Symbol? baseSymbol = semanticModel.GetSymbolInfo(syntax.BaseExpression);
-                if (baseSymbol is ResourceSymbol resource)
+                if (baseSymbol is ResourceSymbol)
                 {
                     // It's a usage of a list*() member function for a resource value, e.g.:
                     //

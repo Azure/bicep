@@ -73,6 +73,10 @@
     "notEquals": {
       "type": "bool",
       "value": "[not(equals(parameters('insensitiveToTest').left,parameters('insensitiveToTest').right))]"
+    },
+    "items_1": {
+      "type": "array",
+      "value": "[items(parameters('insensitiveToTest'))]"
     }
   }
 }

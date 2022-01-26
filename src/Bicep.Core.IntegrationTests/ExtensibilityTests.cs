@@ -34,11 +34,11 @@ namespace Bicep.Core.IntegrationTests
         public void Storage_import_bad_config_is_blocked()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   madeUpProperty: 'asdf'
 }
 ");
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP035", DiagnosticLevel.Error, "The specified \"object\" declaration is missing the following required properties: \"connectionString\"."),
                 ("BCP037", DiagnosticLevel.Error, "The property \"madeUpProperty\" is not allowed on objects of type \"configuration\". Permissible properties include \"connectionString\"."),
             });
@@ -48,22 +48,22 @@ import stg from storage {
         public void Storage_import_can_be_duplicated()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg1 from storage {
+import storage as stg1 {
   connectionString: 'connectionString1'
 }
 
-import stg2 from storage {
+import storage as stg2 {
   connectionString: 'connectionString2'
 }
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Storage_import_basic_test()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -77,6 +77,102 @@ resource blob 'blob' = {
   base64Content: base64('sadfasdfd')
 }
 ");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Storage_import_basic_test_loops_and_referencing()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import storage as stg {
+  connectionString: 'asdf'
+}
+
+resource container 'container' = {
+  name: 'myblob'
+}
+
+resource blobs 'blob' = [for i in range(0, 10): {
+  name: 'myblob-${i}.txt'
+  containerName: container.name
+  base64Content: base64('Hello blob ${i}!')
+}]
+
+resource blobs2 'blob' = [for i in range(10, 10): {
+  name: blobs[i - 10].name
+  containerName: container.name
+  base64Content: base64('Hello blob ${i}!')
+}]
+
+output sourceContainerName string = container.name
+output sourceContainerNameSquare string = container['name']
+output miscBlobContainerName string = blobs[13 % 10].containerName
+output containerName string = blobs[5].containerName
+output base64Content string = blobs[3]['base64Content']
+");
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerName'].value", "[reference('container').name]");
+            result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerNameSquare'].value", "[reference('container').name]");
+            result.Template.Should().HaveValueAtPath("$.outputs['miscBlobContainerName'].value", "[reference(format('blobs[{0}]', mod(13, 10))).containerName]");
+            result.Template.Should().HaveValueAtPath("$.outputs['containerName'].value", "[reference(format('blobs[{0}]', 5)).containerName]");
+            result.Template.Should().HaveValueAtPath("$.outputs['base64Content'].value", "[reference(format('blobs[{0}]', 3)).base64Content]");
+        }
+
+        [TestMethod]
+        public void Aad_import_basic_test_loops_and_referencing()
+        {
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import aad as aad
+param numApps int
+
+resource myApp 'application' = {
+  uniqueName: 'foo'
+}
+
+resource myAppsLoop 'application' = [for i in range(0, numApps): {
+  uniqueName: '${myApp.appId}-bar-${i}'
+}]
+
+output myAppId string = myApp.appId
+output myAppId2 string = myApp['appId']
+output myAppsLoopId string = myAppsLoop[13 % numApps].appId
+output myAppsLoopId2 string = myAppsLoop[3]['appId']
+");
+            result.Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppId'].value", "[reference('myApp').appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppId2'].value", "[reference('myApp').appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId'].value", "[reference(format('myAppsLoop[{0}]', mod(13, parameters('numApps')))).appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId2'].value", "[reference(format('myAppsLoop[{0}]', 3)).appId]");
+        }
+
+        [TestMethod]
+        public void Aad_import_existing_requires_uniqueName()
+        {
+            // we've accidentally used 'name' even though this resource type doesn't support it
+            var result = CompilationHelper.Compile(GetCompilationContext(), @"
+import aad as aad
+
+resource myApp 'application' existing = {
+  name: 'foo'
+}
+");
+
+            result.Should().NotGenerateATemplate();
+            result.Should().HaveDiagnostics(new[] {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"uniqueName\"."),
+                ("BCP037", DiagnosticLevel.Error, "The property \"name\" is not allowed on objects of type \"application\". Permissible properties include \"uniqueName\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+            });
+
+            // oops! let's change it to 'uniqueName'
+            result = CompilationHelper.Compile(GetCompilationContext(), @"
+import aad as aad
+
+resource myApp 'application' existing = {
+  uniqueName: 'foo'
+}
+");
+
+            result.Should().GenerateATemplate();
             result.Should().NotHaveAnyDiagnostics();
         }
 
@@ -84,7 +180,7 @@ resource blob 'blob' = {
         public void Storage_import_basic_test_with_qualified_type()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -98,14 +194,14 @@ resource blob 'stg:blob' = {
   base64Content: base64('sadfasdfd')
 }
 ");
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
         public void Invalid_namespace_qualifier_returns_error()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -120,7 +216,7 @@ resource blob 'bar:blob' = {
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"foo\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
                 ("BCP208", DiagnosticLevel.Error, "The specified namespace \"bar\" is not recognized. Specify a resource reference using one of the following namespaces: \"az\", \"stg\", \"sys\"."),
             });
@@ -130,7 +226,7 @@ resource blob 'bar:blob' = {
         public void Child_resource_with_parent_namespace_mismatch_returns_error()
         {
             var result = CompilationHelper.Compile(GetCompilationContext(), @"
-import stg from storage {
+import storage as stg {
   connectionString: 'asdf'
 }
 
@@ -143,7 +239,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
 }
 ");
 
-            result.Should().HaveDiagnostics(new[] {
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP081", DiagnosticLevel.Warning, "Resource type \"Microsoft.Storage/storageAccounts@2020-01-01\" does not have types available."),
                 ("BCP210", DiagnosticLevel.Error, "Resource type belonging to namespace \"stg\" cannot have a parent resource type belonging to different namespace \"az\"."),
             });
@@ -152,7 +248,7 @@ resource parent 'az:Microsoft.Storage/storageAccounts@2020-01-01' existing = {
         [TestMethod]
         public void Storage_import_end_to_end_test()
         {
-            var result = CompilationHelper.Compile(GetCompilationContext(), 
+            var result = CompilationHelper.Compile(GetCompilationContext(),
                 ("main.bicep", @"
 param accountName string
 
@@ -178,7 +274,7 @@ module website './website.bicep' = {
 @secure()
 param connectionString string
 
-import stg from storage {
+import storage as stg {
   connectionString: connectionString
 }
 
@@ -195,7 +291,7 @@ resource blob 'blob' = {
                 ("blob.txt", @"
 Hello from Bicep!"));
 
-            result.Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
             result.Template.Should().DeepEqual(JToken.Parse(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
   ""languageVersion"": ""1.9-experimental"",
@@ -205,7 +301,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""16730399226644616469""
+      ""templateHash"": ""4434568493241081408""
     }
   },
   ""parameters"": {
@@ -226,7 +322,7 @@ Hello from Bicep!"));
     },
     ""website"": {
       ""type"": ""Microsoft.Resources/deployments"",
-      ""apiVersion"": ""2020-06-01"",
+      ""apiVersion"": ""2020-10-01"",
       ""name"": ""website"",
       ""properties"": {
         ""expressionEvaluationOptions"": {

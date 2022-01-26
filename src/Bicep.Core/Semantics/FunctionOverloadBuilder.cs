@@ -15,6 +15,7 @@ namespace Bicep.Core.Semantics
         public FunctionOverloadBuilder(string name)
         {
             this.Name = name;
+            this.GenericDescription = string.Empty;
             this.Description = string.Empty;
             this.ReturnType = LanguageConstants.Any;
             this.FixedParameters = ImmutableArray.CreateBuilder<FixedFunctionParameter>();
@@ -23,6 +24,8 @@ namespace Bicep.Core.Semantics
         }
 
         protected string Name { get; }
+
+        protected string GenericDescription { get; private set; }
 
         protected string Description { get; private set; }
 
@@ -47,6 +50,7 @@ namespace Bicep.Core.Semantics
         public virtual FunctionOverload BuildInternal() =>
             new FunctionOverload(
                 this.Name,
+                this.GenericDescription,
                 this.Description,
                 this.ReturnTypeBuilder,
                 this.ReturnType,
@@ -55,6 +59,14 @@ namespace Bicep.Core.Semantics
                 this.Evaluator,
                 this.Flags);
 
+        public FunctionOverloadBuilder WithGenericDescription(string genericDescription)
+        {
+            this.GenericDescription = genericDescription;
+            this.Description = genericDescription;
+
+            return this;
+        }
+        
         public FunctionOverloadBuilder WithDescription(string description)
         {
             this.Description = description;

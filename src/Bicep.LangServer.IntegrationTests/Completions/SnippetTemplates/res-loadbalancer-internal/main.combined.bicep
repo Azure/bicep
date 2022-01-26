@@ -1,23 +1,26 @@
 // $1 = loadBalancerInternal
 // $2 = 'name'
-// $3 = 'name'
-// $4 = '0.0.0.0'
-// $5 = 'subnet.id'
-// $6 = 'name'
+// $3 = location
+// $4 = 'name'
+// $5 = '0.0.0.0'
+// $6 = 'subnet.id'
 // $7 = 'name'
-// $8 = 'frontendIPConfiguration.id'
-// $9 = 'backendAddressPool.id'
-// $10 = Tcp
-// $11 = 80
+// $8 = 'name'
+// $9 = 'frontendIPConfiguration.id'
+// $10 = 'backendAddressPool.id'
+// $11 = Tcp
 // $12 = 80
-// $13 = 'probe.id'
-// $14 = 'name'
-// $15 = Tcp
-// $16 = 80
+// $13 = 80
+// $14 = 'probe.id'
+// $15 = 'name'
+// $16 = Tcp
+// $17 = 80
+
+param location string
 
 resource loadBalancerInternal 'Microsoft.Network/loadBalancers@2020-11-01' = {
   name: 'name'
-  location: resourceGroup().location
+  location: location
   properties: {
     frontendIPConfigurations: [
       {

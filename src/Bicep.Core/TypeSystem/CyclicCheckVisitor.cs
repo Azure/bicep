@@ -46,7 +46,7 @@ namespace Bicep.Core.TypeSystem
         private void VisitDeclaration<TDeclarationSyntax>(TDeclarationSyntax syntax, Action<TDeclarationSyntax> visitBaseFunc)
             where TDeclarationSyntax : SyntaxBase, ITopLevelNamedDeclarationSyntax
         {
-            if (!bindings.TryGetValue(syntax, out var symbol) || 
+            if (!bindings.TryGetValue(syntax, out var symbol) ||
                 symbol is not DeclaredSymbol currentDeclaration ||
                 string.IsNullOrEmpty(currentDeclaration.Name) ||
                 string.Equals(LanguageConstants.ErrorName, currentDeclaration.Name, StringComparison.Ordinal) ||

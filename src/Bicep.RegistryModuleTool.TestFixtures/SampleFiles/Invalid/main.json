@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1008.15138",
+      "templateHash": "12386469280856413464"
+    }
+  },
+  "parameters": {
+    "dnsPrefix": {
+      "type": "string"
+    },
+    "linuxAdminUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The linux administrator username"
+      }
+    },
+    "sshRSAPublicKey": {
+      "type": "string",
+      "metadata": {
+        "description": "The RSA public key for SSH"
+      }
+    },
+    "servicePrincipalClientId": {
+      "type": "string",
+      "metadata": {
+        "description": "The service principal client ID"
+      }
+    },
+    "servicePrincipalClientSecret": {
+      "type": "secureString"
+    },
+    "clusterName": {
+      "type": "string",
+      "defaultValue": "aks101cluster",
+      "metadata": {
+        "description": "The cluster name"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "The deployment location"
+      }
+    },
+    "osDiskSizeGB": {
+      "type": "int",
+      "maxValue": 1023,
+      "minValue": 0,
+      "metadata": {
+        "description": "The OS disk size (in GB)"
+      }
+    },
+    "agentCount": {
+      "type": "int",
+      "defaultValue": 0,
+      "maxValue": 50,
+      "minValue": 1,
+      "metadata": {
+        "description": "The agent count"
+      }
+    },
+    "agentVMSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS2_v2",
+      "metadata": {
+        "description": "The agent VM size"
+      }
+    }
+  },
+  "functions": [],
+  "resources": [
+    {
+      "type": "Microsoft.ContainerService/managedClusters",
+      "apiVersion": "2020-09-01",
+      "name": "[parameters('clusterName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "dnsPrefix": "[parameters('dnsPrefix')]",
+        "agentPoolProfiles": [
+          {
+            "name": "agentpool",
+            "osDiskSizeGB": "[parameters('osDiskSizeGB')]",
+            "count": "[parameters('agentCount')]",
+            "vmSize": "[parameters('agentVMSize')]",
+            "osType": "Linux",
+            "mode": "System"
+          }
+        ],
+        "linuxProfile": {
+          "adminUsername": "[parameters('linuxAdminUsername')]",
+          "ssh": {
+            "publicKeys": [
+              {
+                "keyData": "[parameters('sshRSAPublicKey')]"
+              }
+            ]
+          }
+        },
+        "servicePrincipalProfile": {
+          "clientId": "[parameters('servicePrincipalClientId')]",
+          "secret": "[parameters('servicePrincipalClientSecret')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "controlPlaneFQDN": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.ContainerService/managedClusters', parameters('clusterName'))).fqdn]"
+    }
+  }
+}

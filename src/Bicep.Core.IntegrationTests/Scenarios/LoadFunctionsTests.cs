@@ -48,7 +48,7 @@ output out string = script
 "),
     ("script.sh", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.script");
             using (new AssertionScope())
@@ -73,7 +73,7 @@ output out object = script
 "),
     ("script.sh", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.script.content");
             using (new AssertionScope())
@@ -95,7 +95,7 @@ output out string = message
 "),
     ("message.txt", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
@@ -104,7 +104,7 @@ output out string = message
             }
         }
 
-        
+
         [DataTestMethod]
         [DataRow("utf-8")]
         [DataRow("utf-16BE")]
@@ -121,7 +121,7 @@ output out string = message
 "),
     ("message.txt", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
@@ -148,7 +148,7 @@ var message = 'Body: ${loadTextContent('message.txt', '" + encoding + @"')}'
     ("message.txt", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
         }
 
         [DataTestMethod]
@@ -167,7 +167,7 @@ var message = 'Body: ${loadTextContent('message.txt', encoding)}'
     ("message.txt", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP070", Diagnostics.DiagnosticLevel.Error, $"Argument of type \"'{encoding}'\" is not assignable to parameter of type \"{LanguageConstants.LoadTextContentEncodings}\".");
         }
 
         [DataTestMethod]
@@ -207,7 +207,7 @@ output out string = message
 "),
     ("message.txt", TEXT_CONTENT));
 
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
             var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
@@ -265,7 +265,7 @@ var message = 'Body: ${" + function.ToString() + @"(" + filePath + ((encoding is
     ("message.txt", TEXT_CONTENT));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
         }
 
         private const string LOGIC_APP = @"
@@ -316,7 +316,7 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for app in apps :{
     ("logicApp1.json", LOGIC_APP), ("logicApp2.json", LOGIC_APP));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
         }
 
         [TestMethod]
@@ -345,7 +345,7 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for (app, i) in ap
     ("logicApp1.json", LOGIC_APP), ("logicApp2.json", LOGIC_APP));
 
             template!.Should().BeNull();
-            diags.Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
+            diags.ExcludingLinterDiagnostics().Should().ContainSingleDiagnostic("BCP032", Diagnostics.DiagnosticLevel.Error, "The value must be a compile-time constant.");
         }
 
         [TestMethod]
@@ -374,7 +374,7 @@ resource logicApps 'Microsoft.Logic/workflows@2019-05-01' = [ for (app, i) in ap
     ("logicApp1.json", LOGIC_APP), ("logicApp2.json", LOGIC_APP));
 
             template!.Should().NotBeNull();
-            diags.Should().BeEmpty();
+            diags.ExcludingLinterDiagnostics().Should().BeEmpty();
         }
 
         public static IEnumerable<object[]> LoadFunction_InvalidPath_Data

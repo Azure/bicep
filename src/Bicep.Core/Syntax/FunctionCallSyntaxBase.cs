@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -20,11 +20,11 @@ namespace Bicep.Core.Syntax
         }
 
         public IdentifierSyntax Name { get; }
-        
+
         public Token OpenParen { get; }
-        
+
         public ImmutableArray<FunctionArgumentSyntax> Arguments { get; }
-        
+
         public Token CloseParen { get; }
     }
 }

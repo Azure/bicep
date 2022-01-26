@@ -18,7 +18,7 @@ namespace Bicep.Cli.IntegrationTests
         public TestContext? TestContext { get; set; }
 
         // https://github.com/azure/bicep/issues/3182
-        [TestMethod]        
+        [TestMethod]
         public async Task Test_Issue3182()
         {
             var template = @"{

@@ -26,5 +26,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core.Samples\Bicep.Core.Samples.csproj" />
     <ProjectReference Include="..\Bicep.LangServer\Bicep.LangServer.csproj" />
+	<ProjectReference Include="..\Bicep.LangServer.IntegrationTests\Bicep.LangServer.IntegrationTests.csproj" />
   </ItemGroup>
 </Project>

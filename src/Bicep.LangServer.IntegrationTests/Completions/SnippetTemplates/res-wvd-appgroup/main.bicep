@@ -1,7 +1,10 @@
 ﻿// $1 = applicationGroup
 // $2 = 'name'
-// $3 = 'friendlyName'
-// $4 = 'Desktop'
-// $5 = 'desktopVirtualizationHostPools.id'
+// $3 = location
+// $4 = 'friendlyName'
+// $5 = 'Desktop'
+// $6 = 'desktopVirtualizationHostPools.id'
+
+param location string
 
 // Insert snippet here

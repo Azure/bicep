@@ -54,6 +54,11 @@ namespace Bicep.Core.UnitTests.Utils
             return StringUtils.ReplaceNewlines(programText, "\n").Split("\n");
         }
 
+        public static string PrintFullSource(BicepFile bicepFile, int context, bool includeLineNumbers)
+        {
+            return string.Join("\n", GetProgramTextLines(bicepFile).ToArray());
+        }
+
         public static string PrintWithAnnotations(BicepFile bicepFile, IEnumerable<Annotation> annotations, int context, bool includeLineNumbers)
         {
             if (!annotations.Any())
@@ -107,7 +112,7 @@ namespace Bicep.Core.UnitTests.Utils
                             output.Append(new String('~', x));
                             break;
                     }
-                    
+
                     output.Append(" ");
                     output.Append(annotation.Message);
                     output.Append('\n');

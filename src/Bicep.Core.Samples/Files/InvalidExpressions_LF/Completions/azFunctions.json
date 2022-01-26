@@ -2,7 +2,10 @@
   {
     "label": "deployment",
     "kind": "function",
-    "detail": "deployment()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndeployment(): deployment\n\n```\nReturns information about the current deployment operation.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_deployment",
@@ -16,7 +19,10 @@
   {
     "label": "environment",
     "kind": "function",
-    "detail": "environment()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nenvironment(): environment\n\n```\nReturns information about the Azure environment used for deployment.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_environment",
@@ -30,7 +36,10 @@
   {
     "label": "extensionResourceId",
     "kind": "function",
-    "detail": "extensionResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nextensionResourceId(resourceId: string, resourceType: string, ... : string): string\n\n```\nReturns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_extensionResourceId",
@@ -47,7 +56,10 @@
   {
     "label": "managementGroup",
     "kind": "function",
-    "detail": "managementGroup()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroup(name: string): managementGroup\n\n```\nReturns a management group scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_managementGroup",
@@ -64,7 +76,10 @@
   {
     "label": "pickZones",
     "kind": "function",
-    "detail": "pickZones()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\npickZones(providerNamespace: string, resourceType: string, location: string, [numberOfZones: int], [offset: int]): array\n\n```\nDetermines whether a resource type supports zones for a region.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_pickZones",
@@ -81,7 +96,10 @@
   {
     "label": "providers",
     "kind": "function",
-    "detail": "providers()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nproviders(providerNamespace: string): Provider\nproviders(providerNamespace: string, resourceType: string): ProviderResource\n\n```\nReturns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_providers",
@@ -98,7 +116,10 @@
   {
     "label": "reference",
     "kind": "function",
-    "detail": "reference()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nreference(resourceNameOrIdentifier: string, [apiVersion: string], [full: string]): object\n\n```\nReturns an object representing a resource's runtime state.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_reference",
@@ -115,7 +136,10 @@
   {
     "label": "resourceGroup",
     "kind": "function",
-    "detail": "resourceGroup()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceGroup(): resourceGroup\nresourceGroup(resourceGroupName: string): resourceGroup\nresourceGroup(subscriptionId: string, resourceGroupName: string): resourceGroup\n\n```\nReturns a resource group scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_resourceGroup",
@@ -132,7 +156,10 @@
   {
     "label": "resourceId",
     "kind": "function",
-    "detail": "resourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresourceId(resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceType: string, ... : string): string\nresourceId(resourceGroupName: string, resourceType: string, ... : string): string\nresourceId(subscriptionId: string, resourceGroupName: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_resourceId",
@@ -149,7 +176,10 @@
   {
     "label": "subscription",
     "kind": "function",
-    "detail": "subscription()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscription(): subscription\nsubscription(subscriptionId: string): subscription\n\n```\nReturns a subscription scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscription",
@@ -166,7 +196,10 @@
   {
     "label": "subscriptionResourceId",
     "kind": "function",
-    "detail": "subscriptionResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nsubscriptionResourceId(resourceType: string, ... : string): string\nsubscriptionResourceId(subscriptionId: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the subscription level.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_subscriptionResourceId",
@@ -183,7 +216,10 @@
   {
     "label": "tenant",
     "kind": "function",
-    "detail": "tenant()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenant(): tenant\n\n```\nReturns the current tenant scope.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenant",
@@ -197,7 +233,10 @@
   {
     "label": "tenantResourceId",
     "kind": "function",
-    "detail": "tenantResourceId()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ntenantResourceId(resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the tenant level.\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_tenantResourceId",

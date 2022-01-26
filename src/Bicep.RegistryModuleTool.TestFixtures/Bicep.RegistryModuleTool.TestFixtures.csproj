@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="SampleFiles/**/*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="SampleFiles\Modified\main.json" />
+    <None Remove="SampleFiles\Modified\README.md" />
+    <None Remove="SampleFiles\Modified\test\main.test.bicep" />
+    <None Remove="SampleFiles\Modified\version.json" />
+    <None Remove="SampleFiles\NewlyGenerated\main.bicep" />
+    <None Remove="SampleFiles\NewlyGenerated\main.json" />
+    <None Remove="SampleFiles\NewlyGenerated\metadata.json" />
+    <None Remove="SampleFiles\NewlyGenerated\README.md" />
+    <None Remove="SampleFiles\NewlyGenerated\test\main.test.bicep" />
+    <None Remove="SampleFiles\NewlyGenerated\version.json" />
+    <None Remove="SampleFiles\Invalid\metadata.json" />
+    <None Remove="SampleFiles\Invalid\test\main.test.bicep" />
+    <None Remove="SampleFiles\Valid\test\main.test.bicep" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="6.2.0" />
+    <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.0" />
+    <PackageReference Include="Moq" Version="4.16.1" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="14.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Bicep.RegistryModuleTool\Bicep.RegistryModuleTool.csproj" />
+  </ItemGroup>
+
+</Project>

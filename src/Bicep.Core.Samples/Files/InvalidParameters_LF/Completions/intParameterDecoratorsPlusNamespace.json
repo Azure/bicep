@@ -2,7 +2,10 @@
   {
     "label": "allowed",
     "kind": "function",
-    "detail": "allowed()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nallowed(values: array): any\n\n```\n\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_allowed",
@@ -19,7 +22,10 @@
   {
     "label": "description",
     "kind": "function",
-    "detail": "description()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndescription(text: string): any\n\n```\n\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_description",
@@ -36,7 +42,10 @@
   {
     "label": "maxValue",
     "kind": "function",
-    "detail": "maxValue()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmaxValue(value: int): any\n\n```\n\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_maxValue",
@@ -53,7 +62,10 @@
   {
     "label": "metadata",
     "kind": "function",
-    "detail": "metadata()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmetadata(object: object): any\n\n```\n\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_metadata",
@@ -70,7 +82,10 @@
   {
     "label": "minValue",
     "kind": "function",
-    "detail": "minValue()",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nminValue(value: int): any\n\n```\n\n"
+    },
     "deprecated": false,
     "preselect": false,
     "sortText": "3_minValue",

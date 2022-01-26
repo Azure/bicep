@@ -121,7 +121,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.Linter.Common
                   value: storage.listAnything().keys[0].value
                 }
             ",
-            "Don't include secrets in an output. function 'listAnything'"
+            "Outputs should not contain secrets. function 'listAnything'"
         )]*/
         [DataRow(
             @"

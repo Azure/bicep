@@ -7,11 +7,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LangServer.IntegrationTests.Assertions
 {
-    public static class RangeExtensions 
+    public static class RangeExtensions
     {
         public static RangeAssertions Should(this Range instance)
         {
-            return new RangeAssertions(instance); 
+            return new RangeAssertions(instance);
         }
     }
 

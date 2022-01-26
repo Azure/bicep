@@ -13,6 +13,10 @@
     <!-- Path prefix: docs/examples -->
     <EmbeddedResource Include="../../docs/examples/**/*.json" LogicalName="$([System.String]::new('docs/examples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
     <EmbeddedResource Include="../../docs/examples/**/*.bicep" LogicalName="$([System.String]::new('docs/examples/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+
+    <!-- Path prefix: docs/examples_extensibility -->
+    <EmbeddedResource Include="../../docs/examples_extensibility/**/*.json" LogicalName="$([System.String]::new('docs/examples_extensibility/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
+    <EmbeddedResource Include="../../docs/examples_extensibility/**/*.bicep" LogicalName="$([System.String]::new('docs/examples_extensibility/%(RecursiveDir)%(Filename)%(Extension)').Replace('\', '/'))" />
   </ItemGroup>
 
   <ItemGroup>

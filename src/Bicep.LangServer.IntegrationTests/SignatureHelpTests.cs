@@ -56,18 +56,18 @@ namespace Bicep.LangServer.IntegrationTests
                     return accumulated;
                 },
                 accumulated => accumulated);
-            
+
             foreach (FunctionCallSyntaxBase functionCall in functionCalls)
             {
                 var expectDecorator = compilation.GetEntrypointSemanticModel().Binder.GetParent(functionCall) is DecoratorSyntax;
 
                 var symbol = compilation.GetEntrypointSemanticModel().GetSymbolInfo(functionCall);
-                
+
                 // if the cursor is present immediate after the function argument opening paren,
                 // the signature help can only show the signature of the enclosing function
                 var startOffset = functionCall.OpenParen.GetEndPosition();
                 await ValidateOffset(client, uri, tree, startOffset, symbol as FunctionSymbol, expectDecorator);
-                
+
                 // if the cursor is present immediately before the function argument closing paren,
                 // the signature help can only show the signature of the enclosing function
                 var endOffset = functionCall.CloseParen.Span.Position;
@@ -139,15 +139,15 @@ namespace Bicep.LangServer.IntegrationTests
                     if (initial!.Signatures.Count() >= 2)
                     {
                         // update index to 1 to mock user changing active signature
-                    const int ExpectedActiveSignatureIndex = 1;
-                    var modified = initial with
-                    {
-                        ActiveSignature = ExpectedActiveSignatureIndex
-                    };
+                        const int ExpectedActiveSignatureIndex = 1;
+                        var modified = initial with
+                        {
+                            ActiveSignature = ExpectedActiveSignatureIndex
+                        };
 
                         var shouldRemember = await RequestSignatureHelp(client, position, uri, new SignatureHelpContext
                         {
-                        ActiveSignatureHelp = modified,
+                            ActiveSignatureHelp = modified,
                             IsRetrigger = true,
                             TriggerKind = SignatureHelpTriggerKind.ContentChange
                         });
@@ -155,7 +155,7 @@ namespace Bicep.LangServer.IntegrationTests
                         // we passed the same signature help as content with a different active index
                         // should get the same index back
                         AssertValidSignatureHelp(shouldRemember, symbol, expectDecorator);
-                    shouldRemember!.ActiveSignature.Should().Be(ExpectedActiveSignatureIndex);
+                        shouldRemember!.ActiveSignature.Should().Be(ExpectedActiveSignatureIndex);
                     }
                 }
                 else

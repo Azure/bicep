@@ -242,7 +242,7 @@ namespace Bicep.Core.TypeSystem
                     return singleDeclaredType;
                 }
 
-                if (singleDeclaredType is ResourceType resourceType && 
+                if (singleDeclaredType is ResourceType resourceType &&
                     !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
                     // TODO move into Az extension
@@ -628,7 +628,7 @@ namespace Bicep.Core.TypeSystem
                     return ErrorType.Create(errors);
                 }
 
-                if (TypeHelper.TryCollapseTypes(itemTypes) is not {} collapsedItemType)
+                if (TypeHelper.TryCollapseTypes(itemTypes) is not { } collapsedItemType)
                 {
                     return LanguageConstants.Array;
                 }
@@ -698,7 +698,7 @@ namespace Bicep.Core.TypeSystem
                 {
                     additionalInfo = DiagnosticBuilder.UseStringInterpolationInsteadClause;
                 }
-                
+
                 // we do not have a match
                 // operand types didn't match available operators
                 return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).BinaryOperatorInvalidType(Operators.BinaryOperatorToText[syntax.Operator], operandType1, operandType2, additionalInfo: additionalInfo));

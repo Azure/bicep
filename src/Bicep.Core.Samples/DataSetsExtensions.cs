@@ -5,10 +5,9 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Json;
@@ -32,11 +31,11 @@ namespace Bicep.Core.Samples
     {
         public static IEnumerable<object[]> ToDynamicTestData(this IEnumerable<DataSet> source) => source.Select(ToDynamicTestData);
 
-        public static object[] ToDynamicTestData(this DataSet ds) => new object[] {ds};
+        public static object[] ToDynamicTestData(this DataSet ds) => new object[] { ds };
 
         public static bool HasCrLfNewlines(this DataSet dataSet)
-            => dataSet.Name.EndsWith("_CRLF",  StringComparison.Ordinal);
-            
+            => dataSet.Name.EndsWith("_CRLF", StringComparison.Ordinal);
+
         public static string SaveFilesToTestDirectory(this DataSet dataSet, TestContext testContext)
             => FileHelper.SaveEmbeddedResourcesWithPathPrefix(testContext, typeof(DataSet).Assembly, dataSet.GetStreamPrefix());
 
@@ -58,7 +57,7 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration), outputDirectory, fileUri);
+            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
@@ -69,7 +68,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, publishInfo) in dataSet.RegistryModules)
             {
-                if(dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not OciArtifactModuleReference targetReference)
+                if (dispatcher.TryGetModuleReference(publishInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not OciArtifactModuleReference targetReference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{publishInfo.Metadata.Target}'. Specify a reference to an OCI artifact.");
                 }
@@ -88,7 +87,7 @@ namespace Bicep.Core.Samples
             var clientFactory = new Mock<IContainerRegistryClientFactory>(MockBehavior.Strict);
             clientFactory
                 .Setup(m => m.CreateBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
-                .Returns<RootConfiguration ,Uri, string>((_, registryUri, repository) =>
+                .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
                 {
                     if (repoToClient.TryGetValue((registryUri, repository), out var client))
                     {
@@ -108,7 +107,7 @@ namespace Bicep.Core.Samples
 
             foreach (var (moduleName, templateSpecInfo) in dataSet.TemplateSpecs)
             {
-                if(dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not TemplateSpecModuleReference reference)
+                if (dispatcher.TryGetModuleReference(templateSpecInfo.Metadata.Target, BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled, out _) is not TemplateSpecModuleReference reference)
                 {
                     throw new InvalidOperationException($"Module '{moduleName}' has an invalid target reference '{templateSpecInfo.Metadata.Target}'. Specify a reference to a template spec.");
                 }

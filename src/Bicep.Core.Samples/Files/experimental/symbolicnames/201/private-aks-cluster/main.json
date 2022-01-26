@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9446563508745952394"
+      "templateHash": "564168822936387489"
     }
   },
   "parameters": {
@@ -497,7 +497,7 @@
   "resources": {
     "vnet": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "vnet",
       "properties": {
         "expressionEvaluationOptions": {
@@ -841,7 +841,7 @@
     },
     "bastion": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "bastion",
       "properties": {
         "expressionEvaluationOptions": {
@@ -941,7 +941,7 @@
     },
     "logAnalytics": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "log-analytics.bicep",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1034,7 +1034,7 @@
     },
     "jumpbox": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "jumpbox",
       "properties": {
         "expressionEvaluationOptions": {
@@ -1496,7 +1496,7 @@
     },
     "aks": {
       "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-06-01",
+      "apiVersion": "2020-10-01",
       "name": "aks",
       "properties": {
         "expressionEvaluationOptions": {

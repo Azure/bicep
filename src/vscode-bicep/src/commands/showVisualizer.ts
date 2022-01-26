@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import vscode from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 
 import { BicepVisualizerViewManager } from "../visualizer";
 import { Command } from "./types";
@@ -44,6 +45,7 @@ export class ShowVisualizerCommand implements Command {
   ) {}
 
   public async execute(
+    _context: IActionContext,
     documentUri?: vscode.Uri | undefined
   ): Promise<vscode.ViewColumn | undefined> {
     return await showVisualizer(this.viewManager, documentUri);
@@ -58,6 +60,7 @@ export class ShowVisualizerToSideCommand implements Command {
   ) {}
 
   public async execute(
+    _context: IActionContext,
     documentUri?: vscode.Uri | undefined
   ): Promise<vscode.ViewColumn | undefined> {
     return await showVisualizer(this.viewManager, documentUri, true);

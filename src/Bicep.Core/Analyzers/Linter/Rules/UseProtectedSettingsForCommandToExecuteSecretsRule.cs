@@ -20,9 +20,9 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class UseProtectedSettingsForCommandToExecuteSecretsRule : LinterRuleBase
+    public sealed class ProtectCommandToExecuteSecretsRule : LinterRuleBase
     {
-        public new const string Code = "use-protectedsettings-for-commandtoexecute-secrets";
+        public new const string Code = "protect-commandtoexecute-secrets";
 
         private static readonly ImmutableArray<(string publisher, string type)> _publisherAndNameList = ImmutableArray.Create<(string publisher, string type)>(
             // NOTE: This list was obtained by running "az vm extension image list"
@@ -33,19 +33,19 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public static ImmutableArray<(string publisher, string type)> PublisherAndNameList => _publisherAndNameList;
 
-        public UseProtectedSettingsForCommandToExecuteSecretsRule() : base(
+        public ProtectCommandToExecuteSecretsRule() : base(
             code: Code,
-            description: CoreResources.UseProtectedSettingsForCommandToExecuteSecretsRuleDescription,
+            description: CoreResources.ProtectCommandToExecuteSecretsRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}")
         )
         { }
 
         public override string FormatMessage(params object[] values)
-            => string.Format(CoreResources.UseProtectedSettingsForCommandToExecuteSecretsRuleMessage, (string)values[0]);
+            => string.Format(CoreResources.ProtectCommandToExecuteSecretsRuleMessage, (string)values[0]);
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel semanticModel)
         {
-            List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            List<IDiagnostic> diagnostics = new();
 
             foreach (ResourceMetadata resource in semanticModel.AllResources.Where(r => r.IsAzResource))
             {

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Bicep.Core;
+using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -27,6 +28,7 @@ namespace Bicep.LangServer.UnitTests
     {
         private static readonly FileResolver FileResolver = new();
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
+        private static readonly LinterRulesProvider linterRulesProvider = new();
 
         public static BicepCompilationManager CreateCompilationManager(DocumentUri documentUri, string fileContents, bool upsertCompilation = false)
         {
@@ -34,7 +36,7 @@ namespace Bicep.LangServer.UnitTests
 
             var document = CreateMockDocument(p => receivedParams = p);
             var server = CreateMockServer(document);
-            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()));
+            BicepCompilationManager bicepCompilationManager = new(server.Object, CreateEmptyCompilationProvider(), new Workspace(), FileResolver, CreateMockScheduler().Object, new ConfigurationManager(new IOFileSystem()), BicepTestConstants.CreateMockTelemetryProvider().Object, linterRulesProvider);
 
             if (upsertCompilation)
             {

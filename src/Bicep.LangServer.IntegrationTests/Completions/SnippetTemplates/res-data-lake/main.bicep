@@ -1,6 +1,9 @@
 ﻿// $1 = dataLakeStore
 // $2 = 'name'
-// $3 = 'Consumption'
-// $4 = 'Enabled'
+// $3 = location
+// $4 = 'Consumption'
+// $5 = 'Enabled'
+
+param location string
 
 // Insert snippet here

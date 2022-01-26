@@ -94,8 +94,8 @@ namespace Bicep.Core.Analyzers.Linter
                     this.AnalyzerName,
                     new TextSpan(0, 0),
                     DiagnosticLevel.Warning,
-                    LinterAnalyzer.FailedRuleCode,
-                    string.Format(CoreResources.LinterRuleExceptionMessageFormat,this.AnalyzerName, ex.Message)).AsEnumerable();
+                    LinterAnalyzer.LinterRuleInternalError,
+                    string.Format(CoreResources.LinterRuleExceptionMessageFormat, $"{this.AnalyzerName}/{this.Code}", ex.Message)).AsEnumerable();
             }
         }
 
@@ -149,14 +149,17 @@ namespace Bicep.Core.Analyzers.Linter
                 documentationUri: this.Uri,
                 label: this.DiagnosticLabel);
 
-        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix) =>
+        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix, params object[] values) =>
+            CreateFixableDiagnosticForSpan(span, new[] { fix }, values);
+
+        protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix[] fixes, params object[] values) =>
             new(analyzerName: this.AnalyzerName,
                 span: span,
                 level: this.DiagnosticLevel,
                 code: this.Code,
-                message: this.GetMessage(),
+                message: this.GetMessage(values),
                 documentationUri: this.Uri,
-                codeFixes: new[] { fix },
+                codeFixes: fixes,
                 label: this.DiagnosticLabel);
     }
 }

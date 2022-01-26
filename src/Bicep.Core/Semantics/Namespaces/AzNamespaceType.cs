@@ -206,49 +206,58 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return (
                 new FunctionOverloadBuilder("tenant")
                     .WithDynamicReturnType(GetTenantReturnType, new TenantScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
-                    .WithDescription("Returns the current tenant scope.")
+                    .WithGenericDescription("Returns the current tenant scope.")
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
+            const string managementGroupGenericDescription = "Returns a management group scope.";
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
                     .WithDynamicReturnType(GetManagementGroupReturnType, new ManagementGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithGenericDescription(managementGroupGenericDescription)
                     .WithDescription("Returns the current management group scope.")
                     .Build(),
                 ResourceScope.ManagementGroup);
             yield return (
                 new FunctionOverloadBuilder("managementGroup")
                     .WithDynamicReturnType(GetRestrictedManagementGroupReturnType, new ManagementGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithGenericDescription(managementGroupGenericDescription)
                     .WithDescription("Returns the scope for a named management group.")
                     .WithRequiredParameter("name", LanguageConstants.String, "The unique identifier of the management group (not the display name).")
                     .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
+            const string subscriptionGenericDescription = "Returns a subscription scope.";
             yield return (
                 new FunctionOverloadBuilder("subscription")
                     .WithDynamicReturnType(GetSubscriptionReturnType, new SubscriptionScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithGenericDescription(subscriptionGenericDescription)
                     .WithDescription("Returns the subscription scope for the current deployment.")
                     .Build(),
                 ResourceScope.Subscription | ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("subscription")
                     .WithDynamicReturnType(GetRestrictedSubscriptionReturnType, new SubscriptionScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithGenericDescription(subscriptionGenericDescription)
                     .WithDescription("Returns a named subscription scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
                     .Build(),
                 ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup);
 
+            const string resourceGroupGenericDescription = "Returns a resource group scope.";
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
                     .WithDynamicReturnType(GetResourceGroupReturnType, new ResourceGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithGenericDescription(resourceGroupGenericDescription)
                     .WithDescription("Returns the current resource group scope.")
                     .Build(),
                 ResourceScope.ResourceGroup);
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
                     .WithDynamicReturnType(GetRestrictedResourceGroupReturnType, new ResourceGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithGenericDescription(resourceGroupGenericDescription)
                     .WithDescription("Returns a named resource group scope")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                     .WithEvaluator(RestrictedObjectReturnTypeEvaluator)
@@ -257,6 +266,7 @@ namespace Bicep.Core.Semantics.Namespaces
             yield return (
                 new FunctionOverloadBuilder("resourceGroup")
                     .WithDynamicReturnType(GetRestrictedResourceGroupReturnType, new ResourceGroupScopeType(Enumerable.Empty<FunctionArgumentSyntax>(), Enumerable.Empty<TypeProperty>()))
+                    .WithGenericDescription(resourceGroupGenericDescription)
                     .WithDescription("Returns a named resource group scope.")
                     .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                     .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
@@ -281,12 +291,12 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Add schema for return type
             yield return new FunctionOverloadBuilder("deployment")
                 .WithReturnType(GetDeploymentReturnType(resourceScope))
-                .WithDescription("Returns information about the current deployment operation.")
+                .WithGenericDescription("Returns information about the current deployment operation.")
                 .Build();
 
             yield return new FunctionOverloadBuilder("environment")
                 .WithReturnType(GetEnvironmentReturnType())
-                .WithDescription("Returns information about the Azure environment used for deployment.")
+                .WithGenericDescription("Returns information about the Azure environment used for deployment.")
                 .Build();
 
             // TODO: This is based on docs. Verify
@@ -295,14 +305,14 @@ namespace Bicep.Core.Semantics.Namespaces
             const string resourceIdDescription = "Returns the unique identifier of a resource. You use this function when the resource name is ambiguous or not provisioned within the same template. The format of the returned identifier varies based on whether the deployment happens at the scope of a resource group, subscription, management group, or tenant.";
             yield return new FunctionOverloadBuilder("resourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription(resourceIdDescription)
+                .WithGenericDescription(resourceIdDescription)
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
             yield return new FunctionOverloadBuilder("resourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription(resourceIdDescription)
+                .WithGenericDescription(resourceIdDescription)
                 .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
@@ -310,7 +320,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("resourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription(resourceIdDescription)
+                .WithGenericDescription(resourceIdDescription)
                 .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
@@ -318,7 +328,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("resourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription(resourceIdDescription)
+                .WithGenericDescription(resourceIdDescription)
                 .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                 .WithRequiredParameter("resourceGroupName", LanguageConstants.String, "The resource group name")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
@@ -330,14 +340,14 @@ namespace Bicep.Core.Semantics.Namespaces
             const string subscriptionResourceIdDescription = "Returns the unique identifier for a resource deployed at the subscription level.";
             yield return new FunctionOverloadBuilder("subscriptionResourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription(subscriptionResourceIdDescription)
+                .WithGenericDescription(subscriptionResourceIdDescription)
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
             yield return new FunctionOverloadBuilder("subscriptionResourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription(subscriptionResourceIdDescription)
+                .WithGenericDescription(subscriptionResourceIdDescription)
                 .WithRequiredParameter("subscriptionId", LanguageConstants.String, "The subscription ID")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
@@ -345,28 +355,31 @@ namespace Bicep.Core.Semantics.Namespaces
 
             yield return new FunctionOverloadBuilder("tenantResourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription("Returns the unique identifier for a resource deployed at the tenant level.")
+                .WithGenericDescription("Returns the unique identifier for a resource deployed at the tenant level.")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
             yield return new FunctionOverloadBuilder("extensionResourceId")
                 .WithReturnType(LanguageConstants.String)
-                .WithDescription("Returns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.")
+                // .WithGenericDescription("Returns the resource ID for an extension resource, which is a resource type that is applied to another resource to add to its capabilities.")
+                .WithGenericDescription("Returns the resource ID for an [extension](https://docs.microsoft.com/en-us/azure/azure-resource-manager/management/extension-resource-types) resource, which is a resource type that is applied to another resource to add to its capabilities.")
                 .WithRequiredParameter("resourceId", LanguageConstants.String, "The resource ID for the resource that the extension resource is applied to")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of the extension resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
                 .Build();
 
+            const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";
             yield return new FunctionOverloadBuilder("providers")
                 .WithReturnType(GetProvidersSingleProviderReturnType())
-                .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
+                .WithGenericDescription(providersDescription)
                 .WithRequiredParameter("providerNamespace", LanguageConstants.String, "the namespace of the provider")
                 .Build();
 
+            //DEPRECATED?
             yield return new FunctionOverloadBuilder("providers")
                 .WithReturnType(GetProvidersSingleResourceReturnType())
-                .WithDescription("Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.")
+                .WithGenericDescription(providersDescription)
                 .WithRequiredParameter("providerNamespace", LanguageConstants.String, "the namespace of the provider")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "The type of resource within the specified namespace")
                 .Build();
@@ -375,7 +388,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Location param should be of location type if we ever add it
             yield return new FunctionOverloadBuilder("pickZones")
                 .WithReturnType(LanguageConstants.Array)
-                .WithDescription("Determines whether a resource type supports zones for a region.")
+                .WithGenericDescription("Determines whether a resource type supports zones for a region.")
                 .WithRequiredParameter("providerNamespace", LanguageConstants.String, "The resource provider namespace for the resource type to check for zone support")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "The resource type to check for zone support")
                 .WithRequiredParameter("location", LanguageConstants.String, "The region to check for zone support")
@@ -386,7 +399,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Change 'Full' to literal type after verifying in the runtime source
             yield return new FunctionOverloadBuilder("reference")
                 .WithReturnType(LanguageConstants.Object)
-                .WithDescription("Returns an object representing a resource's runtime state.")
+                .WithGenericDescription("Returns an object representing a resource's runtime state.")
                 .WithRequiredParameter("resourceNameOrIdentifier", LanguageConstants.String, "Name or unique identifier of a resource. When referencing a resource in the current template, provide only the resource name as a parameter. When referencing a previously deployed resource or when the name of the resource is ambiguous, provide the resource ID.")
                 .WithOptionalParameter("apiVersion", LanguageConstants.String, "API version of the specified resource. This parameter is required when the resource isn't provisioned within same template.")
                 .WithOptionalParameter("full", LanguageConstants.String, "Value that specifies whether to return the full resource object. If you don't specify 'Full', only the properties object of the resource is returned. The full object includes values such as the resource ID and location.")
@@ -396,7 +409,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Doc parameters need an update
             yield return new FunctionWildcardOverloadBuilder("list*", AzConstants.ListWildcardFunctionRegex)
                 .WithReturnType(LanguageConstants.Any)
-                .WithDescription("The syntax for this function varies by name of the list operations. Each implementation returns values for the resource type that supports a list operation. The operation name must start with list. Some common usages are `listKeys`, `listKeyValue`, and `listSecrets`.")
+                .WithGenericDescription("The syntax for this function varies by name of the list operations. Each implementation returns values for the resource type that supports a list operation. The operation name must start with list. Some common usages are `listKeys`, `listKeyValue`, and `listSecrets`.")
                 .WithRequiredParameter("resourceNameOrIdentifier", LanguageConstants.String, "Name or unique identifier of a resource. When referencing a resource in the current template, provide only the resource name as a parameter. When referencing a previously deployed resource or when the name of the resource is ambiguous, provide the resource ID.")
                 .WithRequiredParameter("apiVersion", LanguageConstants.String, "API version of resource runtime state. Typically, in the format, yyyy-mm-dd.")
                 .WithOptionalParameter("functionValues", LanguageConstants.Object, "An object that has values for the function. Only provide this object for functions that support receiving an object with parameter values, such as listAccountSas on a storage account. An example of passing function values is shown in this article.")
