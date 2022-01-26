@@ -4,9 +4,9 @@
     "net6.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.2.0, )",
-        "resolved": "6.2.0",
-        "contentHash": "5YOZLB0Tay1bw+wEYZTAZlPThQ/Yntk1HSPJYluMd5PW/Xg9E8I1mRC03AKRsnuANBR0kYaHq0NX1fg7RgrGNA==",
+        "requested": "[6.4.0, )",
+        "resolved": "6.4.0",
+        "contentHash": "KOJE1UD7ndxoZAdmOraiUFLdcdGTArGQW8WYN+vwrC3mdt2G/B7gmsMOozgXKiNSh3fpD/Xp/0mhonRh8vrZKw==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -1704,7 +1704,7 @@
         "dependencies": {
           "Bicep.Core": "1.0.0",
           "DiffPlex": "1.7.0",
-          "FluentAssertions": "6.2.0",
+          "FluentAssertions": "6.4.0",
           "JsonPath.Net": "0.1.14",
           "JsonSchema.Net": "1.12.0",
           "Microsoft.Extensions.Logging": "6.0.0",
