@@ -48,13 +48,13 @@ export class DeployCommand implements Command {
       }
 
       const subscriptionItems = loadSubscriptionItems(azureAccount);
-      const subscription = await window.showQuickPick(subscriptionItems, {
+      const subscription = await _context.ui.showQuickPick(subscriptionItems, {
         placeHolder: "Please select subscription",
       });
 
       if (subscription) {
         const resourceGroupItems = loadResourceGroupItems(subscription);
-        const resourceGroup = await window.showQuickPick(resourceGroupItems, {
+        const resourceGroup = await _context.ui.showQuickPick(resourceGroupItems, {
           placeHolder: "Please select resource group",
         });
 
