@@ -20,7 +20,7 @@
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
     "vscode-oniguruma": "^1.6.1",
-    "vscode-textmate": "^5.4.1"
+    "vscode-textmate": "^6.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
