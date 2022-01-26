@@ -2,7 +2,7 @@
   "version": "1.0.0",
   "private": true,
   "devDependencies": {
-    "tmlanguage-generator": "^0.2.0",
+    "tmlanguage-generator": "^0.2.1",
     "@types/html-escaper": "^3.0.0",
     "@types/jest": "^27.4.0",
     "@types/node": "^17.0.12",
@@ -20,7 +20,7 @@
     "ts-node": "^10.4.0",
     "typescript": "^4.5.4",
     "vscode-oniguruma": "^1.6.1",
-    "vscode-textmate": "^5.4.1"
+    "vscode-textmate": "^6.0.0"
   },
   "engines": {
     "node": ">=14.0.0"
