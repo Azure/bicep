@@ -1767,8 +1767,8 @@
           "Bicep.Core.Samples": "1.0.0",
           "Bicep.LangServer": "1.0.0",
           "FluentAssertions": "6.1.0",
-          "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.5",
+          "MSTest.TestAdapter": "2.2.8",
+          "MSTest.TestFramework": "2.2.8",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "Moq": "4.16.1",
           "OmniSharp.Extensions.LanguageClient": "0.19.2"
