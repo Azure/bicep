@@ -544,7 +544,7 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.UpsertCompilation(uris.main, 1, fileDict[uris.main], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.Should().Equals(uris.main)
+                    x => x.Uri.ToUri().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
             }
@@ -564,8 +564,8 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.UpsertCompilation(uris.moduleA, 2, fileDict[uris.moduleA], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.Should().Equals(uris.main),
-                    x => x.Uri.Should().Equals(uris.moduleA)
+                    x => x.Uri.ToUri().Should().Be(uris.moduleA),
+                    x => x.Uri.ToUri().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
 
@@ -584,8 +584,8 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.UpsertCompilation(uris.moduleC, 2, fileDict[uris.moduleC], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.Should().Equals(uris.main),
-                    x => x.Uri.Should().Equals(uris.moduleC)
+                    x => x.Uri.ToUri().Should().Be(uris.moduleC),
+                    x => x.Uri.ToUri().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
 
@@ -597,7 +597,7 @@ module moduleB './moduleB.bicep' = {
                 compilationManager.UpsertCompilation(uris.main, 3, fileDict[uris.main], "bicep");
 
                 diagsReceieved.Should().SatisfyRespectively(
-                    x => x.Uri.Should().Equals(uris.main)
+                    x => x.Uri.ToUri().Should().Be(uris.main)
                 );
                 diagsReceieved.Clear();
 
