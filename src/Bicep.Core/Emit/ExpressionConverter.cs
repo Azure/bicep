@@ -826,16 +826,6 @@ namespace Bicep.Core.Emit
                         return integerExpression;
                     }
 
-
-                    /* 
-                     * if (convertedOperand is JTokenExpression literal && literal.Value.Type == JTokenType.Integer)
-                    {
-                        // invert the integer literal
-                        int literalValue = literal.Value.Value<int>();
-                        return new JTokenExpression(-literalValue);
-                    }
-                    */
-
                     return CreateFunction(
                         "sub",
                         new JTokenExpression(0),
@@ -846,22 +836,16 @@ namespace Bicep.Core.Emit
             }
         }
 
+        // for 32 bit integers, we return the integer value
+        // for values outside that range, return the FunctionExpression
         private LanguageExpression ConvertInteger(IntegerLiteralSyntax integerSyntax, bool minus)
         {
-            //at this point we have checked that the integer can only be from -8 to 8
-            // integerSyntax.Value is also always positive
-
-            // -8 -> 7
-            // integer is -8 and integerSyntaxValue is 8: int
-            // integer is -7 and integerSyntaxValue is 7: int
-            // integer is 7 and integerSyntaxValue is 7: int
-            // integer is 8 and integerSyntaxValue is 8: json 
-
-
             long integerValue = (long)integerSyntax.Value;
 
             if (minus)
             {
+                // integerSyntax.Value is always positive, so for the most negative signed 32 bit integer -2,147,483,648
+                // we would compare its positive token (2,147,483,648) to int.MaxValue (2,147,483,647) + 1
                 if (integerSyntax.Value > (ulong)int.MaxValue + 1)
                 {
                     long negativeIntegerValue = -1 * integerValue;
@@ -882,18 +866,6 @@ namespace Bicep.Core.Emit
                     return new JTokenExpression((int)integerSyntax.Value);
                 }
             }
-
-
-           /*
-            long integerValue = minus ? -1 * (long)integerSyntax.Value : (long)integerSyntax.Value;
-
-            if (integerSyntax.Value > int.MaxValue || -1 * (long)integerSyntax.Value < int.MinValue)
-            {
-                return CreateFunction("json", new JTokenExpression(integerValue.ToInvariantString()));
-            } else {
-                return new JTokenExpression((int)integerValue);
-            }
-            */
         }
 
         public LanguageExpression GenerateSymbolicReference(string symbolName, SyntaxBase? indexExpression)
