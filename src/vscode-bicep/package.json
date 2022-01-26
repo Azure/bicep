@@ -34,6 +34,7 @@
     "theme": "light"
   },
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
+  "$activationEvents.comment": "asdfg",
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
@@ -41,6 +42,8 @@
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
+    "onCommand:bicep.gettingStarted.createBicepFile",
+    "onCommand:bicep.gettingStarted.createSampleBicepFile",
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
@@ -142,6 +145,16 @@
       {
         "command": "bicep.insertResource",
         "title": "Insert Resource",
+        "category": "Bicep"
+      },
+      {
+        "command": "bicep.gettingStarted.createBicepFile",
+        "title": "Create Empty Bicep File",
+        "category": "Bicep"
+      },
+      {
+        "command": "bicep.gettingStarted.createSampleBicepFile",
+        "title": "Create Sample Bicep File",
         "category": "Bicep"
       }
     ],
@@ -268,13 +281,13 @@
           {
             "id": "openBicepFile",
             "title": "Open or create a Bicep file",
-            "description": "This step will run a command and check off once it has been run.\n[Run Command](command:getting-started-sample.runCommand)",
+            "description": "Open a bicep file to edit, or download a sample file.\n[Create Empty Bicep File](command:bicep.gettingStarted.createBicepFile)\n[Create Sample Bicep File](command:bicep.gettingStarted.createSampleBicepFile)",
             "media": {
               "image": "media/walkthroughs/bicep-logo-256.png",
               "altText": "TODO"
             },
             "completionEvents": [
-              "onCommand:getting-started-sample.runCommand"
+              "onCommand:asdfg need opened bicep file event"
             ]
           },
           {
