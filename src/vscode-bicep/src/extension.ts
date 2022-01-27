@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { ext } from './extensionVariables';
 import vscode from "vscode";
 import {
+    AzExtTreeDataProvider,
   createAzExtOutputChannel,
   registerUIExtensionVariables,
 } from "vscode-azureextensionui";
@@ -26,6 +28,7 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
+import { AzureAccountTreeItem } from './tree/AzureAccountTreeItem';
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -80,7 +83,11 @@ export async function activate(
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager)
-      );
+    );
+
+    const accountTreeItem: AzureAccountTreeItem = new AzureAccountTreeItem();
+    context.subscriptions.push(accountTreeItem);
+    ext.tree = new AzExtTreeDataProvider(accountTreeItem, '');
   });
 }
 

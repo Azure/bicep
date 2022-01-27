@@ -1,15 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import vscode from "vscode";
+import { ext } from '../extensionVariables';
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import { IActionContext, parseError } from "vscode-azureextensionui";
-import { AzureAccount, AzureSession } from "../azure-account.api";
-import { commands, window } from "vscode";
-import {
-  SubscriptionClient,
-  SubscriptionModels,
-} from "@azure/arm-subscriptions";
+import { AzureAccount } from "../azure-account.api";
+import { window } from "vscode";
+import { SubscriptionTreeItem } from '../tree/SubscriptionTreeItem';
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { appendToOutputChannel } from "../utils/logger";
 
@@ -39,21 +37,10 @@ export class DeployCommand implements Command {
     }
 
     try {
-      const azureAccount = vscode.extensions.getExtension<AzureAccount>(
-        "ms-vscode.azure-account"
-      )!.exports;
-
-      if (!(await azureAccount.waitForLogin())) {
-        return commands.executeCommand("azure-account.askForLogin");
-      }
-
-      const subscriptionItems = loadSubscriptionItems(azureAccount);
-      const subscription = await _context.ui.showQuickPick(subscriptionItems, {
-        placeHolder: "Please select subscription",
-      });
+      const subscription = await ext.tree.showTreeItemPicker<SubscriptionTreeItem>(SubscriptionTreeItem.contextValue, _context);
 
       if (subscription) {
-        const resourceGroupItems = loadResourceGroupItems(subscription);
+        const resourceGroupItems = loadResourceGroupItems(subscription.subscription.subscriptionId);
         const resourceGroup = await _context.ui.showQuickPick(resourceGroupItems, {
           placeHolder: "Please select resource group",
         });
@@ -62,29 +49,23 @@ export class DeployCommand implements Command {
           prompt: "Enter deployment name",
         });
 
-        for (const session of azureAccount.sessions) {
-          const credentials = session.credentials2;
+        const subscriptionId = subscription.subscription.subscriptionId;
+        const resourceGroupName = resourceGroup?.resourceGroup.id;
 
-          if (credentials) {
-            const subscriptionId = subscription.subscription.subscriptionId;
-            const resourceGroupName = resourceGroup?.resourceGroup.id;
-
-            if (subscriptionId && resourceGroupName) {
-              const deployOutput: string = await this.client.sendRequest(
-                "workspace/executeCommand",
-                {
-                  command: "deploy",
-                  arguments: [
-                    documentUri.fsPath,
-                    subscriptionId,
-                    resourceGroupName,
-                    deploymentName,
-                  ],
-                }
-              );
-              appendToOutputChannel(deployOutput);
+        if (subscriptionId) {
+          const deployOutput: string = await this.client.sendRequest(
+            "workspace/executeCommand",
+            {
+              command: "deploy",
+              arguments: [
+                documentUri.fsPath,
+                subscriptionId,
+                resourceGroupName,
+                deploymentName,
+              ],
             }
-          }
+          );
+          appendToOutputChannel(deployOutput);
         }
       }
     } catch (err) {
@@ -93,11 +74,15 @@ export class DeployCommand implements Command {
   }
 }
 
-async function loadResourceGroupItems(subscriptionItem: SubscriptionItem) {
-  const { session, subscription } = subscriptionItem;
+async function loadResourceGroupItems(subscriptionId: string) {
+  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
+    "ms-vscode.azure-account"
+  )!.exports;
+  const session = azureAccount.sessions[0];
+
   const resources = new ResourceManagementClient(
     session.credentials2,
-    subscription.subscriptionId!
+    subscriptionId
   );
   const resourceGroups = await listAll(
     resources.resourceGroups,
@@ -109,29 +94,6 @@ async function loadResourceGroupItems(subscriptionItem: SubscriptionItem) {
     description: resourceGroup.location,
     resourceGroup,
   }));
-}
-
-async function loadSubscriptionItems(api: AzureAccount) {
-  await api.waitForFilters();
-  const subscriptionItems: SubscriptionItem[] = [];
-  for (const session of api.sessions) {
-    const credentials = session.credentials2;
-    const subscriptionClient = new SubscriptionClient(credentials);
-    const subscriptions = await listAll(
-      subscriptionClient.subscriptions,
-      subscriptionClient.subscriptions.list()
-    );
-    subscriptionItems.push(
-      ...subscriptions.map((subscription) => ({
-        label: subscription.displayName || "",
-        description: subscription.subscriptionId || "",
-        session,
-        subscription,
-      }))
-    );
-  }
-  subscriptionItems.sort((a, b) => a.label.localeCompare(b.label));
-  return subscriptionItems;
 }
 
 async function listAll<T>(
@@ -153,9 +115,3 @@ export interface PartialList<T> extends Array<T> {
   nextLink?: string;
 }
 
-interface SubscriptionItem {
-  label: string;
-  description: string;
-  session: AzureSession;
-  subscription: SubscriptionModels.Subscription;
-}
