@@ -29,9 +29,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            if (model.Root.ResourceDeclarations.Count() > MaxNumber)
+            if (model.AllResources.Length > MaxNumber)
             {
-                return model.Root.ResourceDeclarations.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, MaxNumber));
+                return model.AllResources.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, MaxNumber));
             }
             return Enumerable.Empty<IDiagnostic>();
         }
