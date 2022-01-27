@@ -61,7 +61,7 @@ namespace Bicep.LangServer.IntegrationTests
                     // Assert.
                     quickFixes.Should().NotBeNull();
 
-                    var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
+                    var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix && x.CodeAction?.IsPreferred == true).ToList();
                     var bicepFixList = fixable.Fixes.ToList();
 
                     quickFixList.Should().HaveSameCount(bicepFixList);
@@ -188,8 +188,7 @@ namespace Bicep.LangServer.IntegrationTests
                 TextDocument = new TextDocumentIdentifier(documentUri),
                 Range = diagnostics.First().ToRange(lineStarts)
             });
-
-            codeActions.Should().SatisfyRespectively(
+            codeActions.Where(c => c.CodeAction?.Kind != CodeActionKind.QuickFix).Should().SatisfyRespectively(
                 x =>
                 {
                     x.CodeAction!.Title.Should().Be("Disable no-unused-params for this line");
