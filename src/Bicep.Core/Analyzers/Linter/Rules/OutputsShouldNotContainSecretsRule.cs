@@ -44,7 +44,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class OutputVisitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            public List<IDiagnostic> diagnostics = new();
 
             private readonly OutputsShouldNotContainSecretsRule parent;
             private readonly SemanticModel model;
@@ -73,7 +73,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private class OutputValueVisitor : SyntaxVisitor
         {
-            private List<IDiagnostic> diagnostics;
+            private readonly List<IDiagnostic> diagnostics;
 
             private readonly OutputsShouldNotContainSecretsRule parent;
             private readonly SemanticModel model;
@@ -131,7 +131,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     bool isFailure = false;
 
                     Symbol? baseSymbol = model.GetSymbolInfo(syntax.BaseExpression);
-                    if (baseSymbol is ResourceSymbol resource)
+                    if (baseSymbol is ResourceSymbol)
                     {
                         // It's a usage of a list*() member function for a resource value, e.g.:
                         //

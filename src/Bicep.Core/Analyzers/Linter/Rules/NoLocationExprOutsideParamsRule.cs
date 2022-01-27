@@ -36,22 +36,20 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            RuleVisitor visitor = new RuleVisitor(this, model);
+            RuleVisitor visitor = new(this);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
 
         private sealed class RuleVisitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            public List<IDiagnostic> diagnostics = new();
 
             private readonly NoLocationExprOutsideParamsRule parent;
-            private readonly SemanticModel model;
 
-            public RuleVisitor(NoLocationExprOutsideParamsRule parent, SemanticModel model)
+            public RuleVisitor(NoLocationExprOutsideParamsRule parent)
             {
                 this.parent = parent;
-                this.model = model;
             }
 
             public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)

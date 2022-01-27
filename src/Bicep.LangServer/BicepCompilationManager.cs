@@ -375,6 +375,7 @@ namespace Bicep.LanguageServer
             int parameters = 0;
             int resources = 0;
             int variables = 0;
+            int lineCount = 0;
 
             foreach (var sourceFile in sourceFiles)
             {
@@ -385,6 +386,7 @@ namespace Bicep.LanguageServer
                     parameters += declarations.Count(x => x is ParameterDeclarationSyntax);
                     resources += declarations.Count(x => x is ResourceDeclarationSyntax);
                     variables += declarations.Count(x => x is VariableDeclarationSyntax);
+                    lineCount += bicepFile.LineStarts.Length;
                 }
             }
 
@@ -392,6 +394,7 @@ namespace Bicep.LanguageServer
             properties.Add("ParentResourcesInReferencedFiles", resources.ToString());
             properties.Add("ParametersInReferencedFiles", parameters.ToString());
             properties.Add("VariablesInReferencedFiles", variables.ToString());
+            properties.Add("LineCountOfReferencedFiles", lineCount.ToString());
 
             return properties;
         }

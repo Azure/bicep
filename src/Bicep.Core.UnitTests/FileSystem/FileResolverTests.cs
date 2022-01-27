@@ -96,7 +96,7 @@ namespace Bicep.Core.UnitTests.FileSystem
 
             File.WriteAllText(tempFile, "abcd\r\ndef\r\n\r\nghi");
             fileResolver.TryReadAsBase64(tempFileUri, out var fileContents, out var failureMessage).Should().BeTrue();
-            fileContents.Should().Equals("YWJjZA0KZGVmDQoNCmdoaQ==");
+            fileContents.Should().Be("YWJjZA0KZGVmDQoNCmdoaQ==");
             failureMessage.Should().BeNull();
 
             fileResolver.TryReadAsBase64(tempFileUri, out fileContents, out failureMessage, 8).Should().BeFalse();

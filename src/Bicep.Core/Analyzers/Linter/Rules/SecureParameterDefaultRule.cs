@@ -70,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             }
         }
 
-        private bool ExpressionContainsNewGuid(ExpressionSyntax expression)
+        private static bool ExpressionContainsNewGuid(ExpressionSyntax expression)
         {
             var visitor = new NewGuidVisitor();
             expression.Accept(visitor);

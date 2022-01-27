@@ -87,7 +87,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 yield break;
             }
 
-            var matchIndex = -1;
+            int matchIndex;
             for (var startIndex = 0; startIndex <= srcText.Length - hostname.Length; startIndex = matchIndex + hostname.Length)
             {
                 matchIndex = srcText.IndexOf(hostname, startIndex, StringComparison.OrdinalIgnoreCase);
@@ -108,7 +108,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private sealed class Visitor : SyntaxVisitor
         {
-            public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new Dictionary<TextSpan, string>();
+            public readonly Dictionary<TextSpan, string> DisallowedHostSpans = new();
             private readonly ImmutableArray<string> disallowedHosts;
             private readonly int minHostLen;
             private readonly ImmutableArray<string> excludedHosts;
@@ -120,7 +120,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 this.excludedHosts = excludedHosts;
             }
 
-            public IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
+            public static IEnumerable<(TextSpan RelativeSpan, string Value)> RemoveOverlapping(IEnumerable<(TextSpan RelativeSpan, string Value)> matches)
             {
                 TextSpan? prevSpan = null;
                 foreach (var match in matches.OrderBy(x => x.RelativeSpan.Position).ThenByDescending(x => x.RelativeSpan.Length))
@@ -159,17 +159,17 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                                 .SelectMany(host => FindHostnameMatches(host, token.Text))
                                 .ToImmutableArray();
 
-                            foreach (var match in RemoveOverlapping(disallowedMatches))
+                            foreach (var (RelativeSpan, Value) in RemoveOverlapping(disallowedMatches))
                             {
                                 // exclusion is found containing the host match
                                 var hasExclusion = exclusionMatches.Any(exclusionMatch =>
-                                    TextSpan.AreOverlapping(exclusionMatch.RelativeSpan, match.RelativeSpan));
+                                    TextSpan.AreOverlapping(exclusionMatch.RelativeSpan, RelativeSpan));
 
                                 if (!hasExclusion)
                                 {
                                     // create a span for the specific identified instance
                                     // to allow for multiple instances in a single syntax
-                                    this.DisallowedHostSpans[new TextSpan(token.Span.Position + match.RelativeSpan.Position, match.RelativeSpan.Length)] = match.Value;
+                                    this.DisallowedHostSpans[new TextSpan(token.Span.Position + RelativeSpan.Position, RelativeSpan.Length)] = Value;
                                 }
                             }
                         }

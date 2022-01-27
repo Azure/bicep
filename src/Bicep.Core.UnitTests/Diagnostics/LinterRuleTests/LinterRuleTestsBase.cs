@@ -52,7 +52,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                   assertAction);
         }
 
-        private void RunWithDiagnosticAnnotations(string bicepText, Func<IDiagnostic, bool> filterFunc, OnCompileErrors onCompileErrors, Action<IEnumerable<IDiagnostic>> assertAction)
+        private static void RunWithDiagnosticAnnotations(string bicepText, Func<IDiagnostic, bool> filterFunc, OnCompileErrors onCompileErrors, Action<IEnumerable<IDiagnostic>> assertAction)
         {
             var result = CompilationHelper.Compile(bicepText);
             using (new AssertionScope().WithFullSource(result.BicepFile))

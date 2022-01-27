@@ -344,7 +344,8 @@ var useDefaultSettings = true";
                 { "modulesInReferencedFiles", "0" },
                 { "parentResourcesInReferencedFiles", "2" },
                 { "parametersInReferencedFiles", "2" },
-                { "variablesInReferencedFiles", "1" }
+                { "variablesInReferencedFiles", "1" },
+                { "lineCountOfReferencedFiles", "12" }
             };
 
             bicepTelemetryEvent = await telemetryEventsListener.WaitNext();

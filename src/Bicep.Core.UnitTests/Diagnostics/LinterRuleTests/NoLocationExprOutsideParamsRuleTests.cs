@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -34,11 +34,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
 
         protected void ExpectPass(string bicepText, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
-        {
-            AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { }, onCompileErrors);
-        }
-
-        protected void ExpectPass(string bicepText, string module1Text, OnCompileErrors onCompileErrors = OnCompileErrors.Fail)
         {
             AssertLinterRuleDiagnostics(NoLocationExprOutsideParamsRule.Code, bicepText, new string[] { }, onCompileErrors);
         }

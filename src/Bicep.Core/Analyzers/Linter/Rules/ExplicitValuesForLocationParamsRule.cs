@@ -35,17 +35,17 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         public override IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            Visitor visitor = new Visitor(this, model);
+            Visitor visitor = new(this, model);
             visitor.Visit(model.SourceFile.ProgramSyntax);
             return visitor.diagnostics;
         }
 
         private sealed class Visitor : SyntaxVisitor
         {
-            public List<IDiagnostic> diagnostics = new List<IDiagnostic>();
+            public List<IDiagnostic> diagnostics = new();
 
-            private ExplicitValuesForLocationParamsRule parent;
-            private SemanticModel model;
+            private readonly ExplicitValuesForLocationParamsRule parent;
+            private readonly SemanticModel model;
 
             public Visitor(ExplicitValuesForLocationParamsRule parent, SemanticModel model)
             {
@@ -64,9 +64,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     .TryGetPropertyByName(LanguageConstants.ModuleParamsPropertyName) as ObjectPropertySyntax;
                 var errorSpan = moduleParamsPropertyObject?.Span ?? moduleDeclarationSyntax.Name.Span;
 
-                foreach (var parameter in locationParametersActualValues)
+                foreach (var (parameterName, actualValue) in locationParametersActualValues)
                 {
-                    if (parameter.actualValue is null)
+                    if (actualValue is null)
                     {
                         // No value being passed in - this is a failure
                         string moduleName = moduleDeclarationSyntax.Name.IdentifierName;
@@ -74,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                             parent.CreateDiagnosticForSpan(errorSpan,
                                 String.Format(
                                     CoreResources.NoHardcodedLocation_ModuleLocationNeedsExplicitValue,
-                                    parameter.parameterName,
+                                    parameterName,
                                     moduleName)));
                     }
                 }

@@ -26,9 +26,9 @@ namespace Bicep.Core.Analyzers.Linter
 
         private readonly LinterRulesProvider linterRulesProvider;
 
-        private ImmutableArray<IBicepAnalyzerRule> ruleSet;
+        private readonly ImmutableArray<IBicepAnalyzerRule> ruleSet;
 
-        private ImmutableArray<IDiagnostic> ruleCreationErrors;
+        private readonly ImmutableArray<IDiagnostic> ruleCreationErrors;
 
         // TODO: This should be controlled by a core component, not an analyzer
         public const string LinterRuleInternalError = "linter-internal-error";
