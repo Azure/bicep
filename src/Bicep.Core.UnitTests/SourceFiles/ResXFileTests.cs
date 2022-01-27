@@ -51,7 +51,7 @@ namespace Bicep.Core.UnitTests.SourceFiles
                     AssertDoesNotContainTabs(resXRelativePath, GetRelativeFileContents(resXRelativePath));
                 }
 
-                string designerRelativePath = Path.ChangeExtension(resXRelativePath, ".designer.cs");
+                string designerRelativePath = Path.ChangeExtension(resXRelativePath, ".Designer.cs");
                 using (new AssertionScope(designerRelativePath))
                 {
                     string designerFileContents = GetRelativeFileContents(designerRelativePath);
