@@ -12,6 +12,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class MaxNumberParametersRule : LinterRuleBase
     {
         public new const string Code = "max-params";
+        public const int MaxNumber = 256;
+
         public MaxNumberParametersRule() : base(
             code: Code,
             description: CoreResources.MaxNumberParametersRuleDescription,
@@ -27,8 +29,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            if (model.Root.ParameterDeclarations.Count() > 256) {
-                return model.Root.ParameterDeclarations.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, param.Name));
+            if (model.Root.ParameterDeclarations.Count() > MaxNumber)
+            {
+                return model.Root.ParameterDeclarations.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, MaxNumber));
             }
             return Enumerable.Empty<IDiagnostic>();
         }

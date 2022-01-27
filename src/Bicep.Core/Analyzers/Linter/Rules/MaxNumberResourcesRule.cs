@@ -12,6 +12,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class MaxNumberResourcesRule : LinterRuleBase
     {
         public new const string Code = "max-resources";
+        public const int MaxNumber = 800;
+
         public MaxNumberResourcesRule() : base(
             code: Code,
             description: CoreResources.MaxNumberResourcesRuleDescription,
@@ -27,8 +29,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            if (model.Root.ResourceDeclarations.Count() > 800) {
-                return model.Root.ResourceDeclarations.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, param.Name));
+            if (model.Root.ResourceDeclarations.Count() > MaxNumber)
+            {
+                return model.Root.ResourceDeclarations.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, MaxNumber));
             }
             return Enumerable.Empty<IDiagnostic>();
         }

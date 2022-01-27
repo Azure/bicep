@@ -151,7 +151,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Too many outputs. Number of outputs is limited to 64..
+        ///   Looks up a localized string similar to Too many outputs. Number of outputs is limited to {0}..
         /// </summary>
         internal static string MaxNumberOutputsRuleMessageFormat {
             get {
@@ -169,7 +169,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Too many parameters. Number of parameters is limited to 256..
+        ///   Looks up a localized string similar to Too many parameters. Number of parameters is limited to {0}..
         /// </summary>
         internal static string MaxNumberParametersRuleMessageFormat {
             get {
@@ -187,7 +187,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Too many resources. Number of resources is limited to 800..
+        ///   Looks up a localized string similar to Too many resources. Number of resources is limited to {0}..
         /// </summary>
         internal static string MaxNumberResourcesRuleMessageFormat {
             get {
@@ -205,7 +205,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Too many variables. Number of variables is limited to 256..
+        ///   Looks up a localized string similar to Too many variables. Number of variables is limited to {0}..
         /// </summary>
         internal static string MaxNumberVariablesRuleMessageFormat {
             get {

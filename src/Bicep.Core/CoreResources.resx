@@ -266,24 +266,24 @@
     <value>Maximum number of parameters used.</value>
   </data>
   <data name="MaxNumberParametersRuleMessageFormat" xml:space="preserve">
-    <value>Too many parameters. Number of parameters is limited to 256.</value>
+    <value>Too many parameters. Number of parameters is limited to {0}.</value>
   </data>
   <data name="MaxNumberVariablesRuleDescription" xml:space="preserve">
     <value>Maximum number of variables used.</value>
   </data>
   <data name="MaxNumberVariablesRuleMessageFormat" xml:space="preserve">
-    <value>Too many variables. Number of variables is limited to 256.</value>
+    <value>Too many variables. Number of variables is limited to {0}.</value>
   </data>
   <data name="MaxNumberOutputsRuleDescription" xml:space="preserve">
     <value>Maximum number of outputs used.</value>
   </data>
   <data name="MaxNumberOutputsRuleMessageFormat" xml:space="preserve">
-    <value>Too many outputs. Number of outputs is limited to 64.</value>
+    <value>Too many outputs. Number of outputs is limited to {0}.</value>
   </data>
   <data name="MaxNumberResourcesRuleDescription" xml:space="preserve">
     <value>Maximum number of resources used.</value>
   </data>
   <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
-    <value>Too many resources. Number of resources is limited to 800.</value>
+    <value>Too many resources. Number of resources is limited to {0}.</value>
   </data>
 </root>

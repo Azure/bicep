@@ -12,6 +12,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class MaxNumberOutputsRule : LinterRuleBase
     {
         public new const string Code = "max-outputs";
+        public const int MaxNumber = 64;
+
         public MaxNumberOutputsRule() : base(
             code: Code,
             description: CoreResources.MaxNumberOutputsRuleDescription,
@@ -27,8 +29,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            if (model.Root.OutputDeclarations.Count() > 64) {
-                return model.Root.OutputDeclarations.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, param.Name));
+            if (model.Root.OutputDeclarations.Count() > MaxNumber)
+            {
+                return model.Root.OutputDeclarations.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, MaxNumber));
             }
             return Enumerable.Empty<IDiagnostic>();
         }

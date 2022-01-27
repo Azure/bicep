@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ParameterNameInFormattedMessage()
         {
             var ruleToTest = new MaxNumberParametersRule();
-            ruleToTest.GetMessage(nameof(ruleToTest)).Should().Be("Too many parameters. Number of parameters is limited to 256.");
+            ruleToTest.GetMessage(1).Should().Be("Too many parameters. Number of parameters is limited to 1.");
         }
 
         private void CompileAndTest(string text, params string[] unusedParams)
@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 if (unusedParams.Any())
                 {
                     var rule = new MaxNumberParametersRule();
-                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(p)).ToArray();
+                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberParametersRule.MaxNumber)).ToArray();
                     diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
                 }
                 else

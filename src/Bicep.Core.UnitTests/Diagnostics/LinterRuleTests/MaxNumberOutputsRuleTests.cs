@@ -16,7 +16,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         public void ParameterNameInFormattedMessage()
         {
             var ruleToTest = new MaxNumberOutputsRule();
-            ruleToTest.GetMessage(nameof(ruleToTest)).Should().Be("Too many outputs. Number of outputs is limited to 64.");
+            ruleToTest.GetMessage(1).Should().Be("Too many outputs. Number of outputs is limited to 1.");
         }
 
         private void CompileAndTest(string text, params string[] unusedParams)
@@ -26,7 +26,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 if (unusedParams.Any())
                 {
                     var rule = new MaxNumberOutputsRule();
-                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(p)).ToArray();
+                    string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberOutputsRule.MaxNumber)).ToArray();
                     diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
                 }
                 else
