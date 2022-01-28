@@ -57,7 +57,10 @@ export class DeployCommand implements Command {
           }
         );
 
-        const parameterFilePath = await selectParameterFile(_context, documentUri);
+        const parameterFilePath = await selectParameterFile(
+          _context,
+          documentUri
+        );
 
         const subscriptionId = subscription.subscription.subscriptionId;
         const resourceGroupName = resourceGroup?.resourceGroup.id;
@@ -139,9 +142,8 @@ export async function selectParameterFile(
     });
 
   if (result === quickPickList.none) {
-    return '';
-  } 
-  else if (result === quickPickList.browse) {
+    return "";
+  } else if (result === quickPickList.browse) {
     const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog({
       canSelectMany: false,
       defaultUri: sourceUri,
@@ -149,10 +151,10 @@ export async function selectParameterFile(
     });
     if (paramsPaths && paramsPaths.length == 1) {
       return paramsPaths[0].fsPath;
-    } 
+    }
   }
 
-  return '';
+  return "";
 }
 
 async function createParameterFileQuickPickList(): Promise<IQuickPickList> {

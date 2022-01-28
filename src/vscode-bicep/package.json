@@ -72,6 +72,11 @@
           "default": "Off",
           "description": "Configure tracing of messages sent to the Bicep language server.",
           "scope": "window"
+        },
+        "bicep.enableOutputTimestamps": {
+          "type": "boolean",
+          "description": "%bicep.enableOutputTimestamps%",
+          "default": true
         }
       }
     },

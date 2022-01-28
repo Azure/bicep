@@ -5,6 +5,7 @@ import * as winston from "winston";
 import Transport from "winston-transport";
 import * as path from "path";
 import { MESSAGE } from "triple-beam";
+import { createAzExtOutputChannel } from "vscode-azureextensionui";
 
 export interface Logger extends vscode.Disposable {
   debug(message: string): void;
@@ -112,12 +113,12 @@ export function getLogger(): Logger {
   return logger;
 }
 
-const outputChannel = vscode.window.createOutputChannel("Bicep Operations");
+const outputChannel = createAzExtOutputChannel("Bicep Operations", "bicep");
 
 export function appendToOutputChannel(text: string): void {
   outputChannel.clear();
   outputChannel.show();
-  outputChannel.appendLine(text);
+  outputChannel.appendLog(text);
 }
 
 export function resetLogger(): void {
