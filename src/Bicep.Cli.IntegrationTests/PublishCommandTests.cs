@@ -132,6 +132,16 @@ namespace Bicep.Cli.IntegrationTests
             // we should still only have 1 module
             expectedCompiledStream.Position = 0;
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
+
+            // publish the compiled file
+            var (output3, error3, result3) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
+            result3.Should().Be(0);
+            output3.Should().BeEmpty();
+            AssertNoErrors(error2);
+
+            // we should still only have 1 module
+            expectedCompiledStream.Position = 0;
+            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
         }
 
         [DataTestMethod]

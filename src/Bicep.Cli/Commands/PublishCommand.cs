@@ -4,6 +4,7 @@
 using Bicep.Cli.Arguments;
 using Bicep.Cli.Logging;
 using Bicep.Cli.Services;
+using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Exceptions;
@@ -13,6 +14,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Registry;
 using System;
 using System.IO;
+using System.IO.Abstractions;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.Commands
@@ -24,19 +26,22 @@ namespace Bicep.Cli.Commands
         private readonly CompilationWriter compilationWriter;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly IConfigurationManager configurationManager;
+        private readonly IFileSystem fileSystem;
 
         public PublishCommand(
             IDiagnosticLogger diagnosticLogger,
             CompilationService compilationService,
             CompilationWriter compilationWriter,
             IModuleDispatcher moduleDispatcher,
-            IConfigurationManager configurationManager)
+            IConfigurationManager configurationManager,
+            IFileSystem fileSystem)
         {
             this.diagnosticLogger = diagnosticLogger;
             this.compilationService = compilationService;
             this.compilationWriter = compilationWriter;
             this.moduleDispatcher = moduleDispatcher;
             this.configurationManager = configurationManager;
+            this.fileSystem = fileSystem;
         }
 
         public async Task<int> RunAsync(PublishArguments args)
@@ -45,6 +50,18 @@ namespace Bicep.Cli.Commands
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
             var moduleReference = ValidateReference(args.TargetModuleReference, configuration);
+
+            if (PathHelper.HasExtension(inputUri, LanguageConstants.JsonFileExtension) ||
+                PathHelper.HasExtension(inputUri, LanguageConstants.JsoncFileExtension) ||
+                PathHelper.HasExtension(inputUri, LanguageConstants.ArmTemplateFileExtension))
+            {
+                // Publishing an ARM template file.
+                using var armTemplateStream = this.fileSystem.FileStream.Create(inputPath, FileMode.Open, FileAccess.Read);
+                await this.moduleDispatcher.PublishModule(configuration, moduleReference, armTemplateStream);
+                
+                return 0;
+            }
+
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
             if (diagnosticLogger.ErrorCount > 0)
