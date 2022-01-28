@@ -1,13 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
-import { ext } from '../extensionVariables';
+import vscode, { Uri } from "vscode";
+import { ext } from "../extensionVariables";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext, parseError } from "vscode-azureextensionui";
+import {
+  IActionContext,
+  IAzureQuickPickItem,
+  parseError,
+} from "vscode-azureextensionui";
 import { AzureAccount } from "../azure-account.api";
-import { window } from "vscode";
-import { SubscriptionTreeItem } from '../tree/SubscriptionTreeItem';
+import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { appendToOutputChannel } from "../utils/logger";
 
@@ -37,31 +40,38 @@ export class DeployCommand implements Command {
     }
 
     try {
-      const subscription = await ext.tree.showTreeItemPicker<SubscriptionTreeItem>(SubscriptionTreeItem.contextValue, _context);
+      const subscription =
+        await ext.tree.showTreeItemPicker<SubscriptionTreeItem>(
+          SubscriptionTreeItem.contextValue,
+          _context
+        );
 
       if (subscription) {
-        const resourceGroupItems = loadResourceGroupItems(subscription.subscription.subscriptionId);
-        const resourceGroup = await _context.ui.showQuickPick(resourceGroupItems, {
-          placeHolder: "Please select resource group",
-        });
+        const resourceGroupItems = loadResourceGroupItems(
+          subscription.subscription.subscriptionId
+        );
+        const resourceGroup = await _context.ui.showQuickPick(
+          resourceGroupItems,
+          {
+            placeHolder: "Please select resource group",
+          }
+        );
 
-        const deploymentName = await window.showInputBox({
-          prompt: "Enter deployment name",
-        });
+        const parameterFilePath = await selectParameterFile(_context, documentUri);
 
         const subscriptionId = subscription.subscription.subscriptionId;
         const resourceGroupName = resourceGroup?.resourceGroup.id;
 
-        if (subscriptionId) {
+        if (subscriptionId && resourceGroupName) {
           const deployOutput: string = await this.client.sendRequest(
             "workspace/executeCommand",
             {
               command: "deploy",
               arguments: [
                 documentUri.fsPath,
+                parameterFilePath,
                 subscriptionId,
                 resourceGroupName,
-                deploymentName,
               ],
             }
           );
@@ -115,3 +125,66 @@ export interface PartialList<T> extends Array<T> {
   nextLink?: string;
 }
 
+export async function selectParameterFile(
+  _context: IActionContext,
+  sourceUri: Uri | undefined
+): Promise<string> {
+  const quickPickList: IQuickPickList =
+    await createParameterFileQuickPickList();
+  const result: IAzureQuickPickItem<IPossibleParameterFile | undefined> =
+    await _context.ui.showQuickPick(quickPickList.items, {
+      canPickMany: false,
+      placeHolder: `Select a parameter file`,
+      suppressPersistence: true,
+    });
+
+  if (result === quickPickList.none) {
+    return '';
+  } 
+  else if (result === quickPickList.browse) {
+    const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog({
+      canSelectMany: false,
+      defaultUri: sourceUri,
+      openLabel: "Select Parameter File",
+    });
+    if (paramsPaths && paramsPaths.length == 1) {
+      return paramsPaths[0].fsPath;
+    } 
+  }
+
+  return '';
+}
+
+async function createParameterFileQuickPickList(): Promise<IQuickPickList> {
+  const none: IAzureQuickPickItem<IPossibleParameterFile | undefined> = {
+    label: "$(circle-slash) None",
+    data: undefined,
+  };
+  const browse: IAzureQuickPickItem<IPossibleParameterFile | undefined> = {
+    label: "$(file-directory) Browse...",
+    data: undefined,
+  };
+
+  const pickItems: IAzureQuickPickItem<IPossibleParameterFile | undefined>[] = [
+    none,
+  ].concat([browse]);
+
+  return {
+    items: pickItems,
+    none,
+    browse,
+  };
+}
+
+interface IQuickPickList {
+  items: IAzureQuickPickItem<IPossibleParameterFile | undefined>[];
+  none: IAzureQuickPickItem<IPossibleParameterFile | undefined>;
+  browse: IAzureQuickPickItem<IPossibleParameterFile | undefined>;
+}
+
+interface IPossibleParameterFile {
+  uri: Uri;
+  friendlyPath: string;
+  isCloseNameMatch: boolean;
+  fileNotFound?: boolean;
+}

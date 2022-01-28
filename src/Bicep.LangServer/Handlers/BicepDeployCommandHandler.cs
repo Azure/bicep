@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer.Handlers
             this.credentialFactory = credentialFactory;
         }
 
-        public override async Task<string> Handle(string bicepFilePath, string subscriptionId, string resourceId, string deploymentName, CancellationToken cancellationToken)
+        public override async Task<string> Handle(string bicepFilePath, string parameterFilePath, string subscriptionId, string resourceId, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
@@ -66,12 +66,26 @@ namespace Bicep.LanguageServer.Handlers
             DeploymentCollection deploymentCollection = resourceGroup.GetDeployments();
             string template = GetCompiledFile(documentUri);
 
+            JsonElement parameters;
+
+            if (string.IsNullOrWhiteSpace(parameterFilePath))
+            {
+                parameters = JsonDocument.Parse("{}").RootElement;
+            }
+            else
+            {
+                string text = File.ReadAllText(parameterFilePath);
+                parameters = JsonDocument.Parse(text).RootElement;
+            }
+
             var input = new DeploymentInput(new DeploymentProperties(DeploymentMode.Incremental)
             {
                 Template = JsonDocument.Parse(template).RootElement,
-                Parameters = string.Empty
+                Parameters = parameters
             });
-            DeploymentCreateOrUpdateAtScopeOperation deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(deploymentName, input);
+
+            string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHmmffff");
+            DeploymentCreateOrUpdateAtScopeOperation deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(deployment, input);
 
             if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
                 deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)
