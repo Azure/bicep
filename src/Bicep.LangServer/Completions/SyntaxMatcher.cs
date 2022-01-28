@@ -3,9 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
@@ -154,18 +152,6 @@ namespace Bicep.LanguageServer.Completions
             });
 
             return nodes;
-        }
-
-        public static ImmutableArray<SyntaxBase> FindNodesInRange(ProgramSyntax syntax, int startOffset, int endOffset)
-        {
-            var startNodes = FindNodesMatchingOffset(syntax, startOffset);
-            var endNodes = FindNodesMatchingOffset(syntax, endOffset);
-
-            return startNodes
-                .Zip(endNodes, (x, y) => object.ReferenceEquals(x, y) ? x : null)
-                .TakeWhile(x => x is not null)
-                .WhereNotNull()
-                .ToImmutableArray();
         }
 
         public static List<SyntaxBase> FindNodesMatchingOffsetExclusive(ProgramSyntax syntax, int offset)
