@@ -132,11 +132,42 @@ namespace Bicep.Cli.IntegrationTests
             // we should still only have 1 module
             expectedCompiledStream.Position = 0;
             testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
+        }
 
-            // publish the compiled file
-            var (output3, error3, result3) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
-            result3.Should().Be(0);
-            output3.Should().BeEmpty();
+        [DataTestMethod]
+        [DynamicData(nameof(GetValidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
+        public async Task Publish_ValidArmTemplteFile_ShouldSucceed(DataSet dataSet)
+        {
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+
+            var registryStr = "example.com";
+            var registryUri = new Uri($"https://{registryStr}");
+            var repository = $"test/{dataSet.Name}".ToLowerInvariant();
+
+            var clientFactory = dataSet.CreateMockRegistryClients(TestContext, (registryUri, repository));
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
+            var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
+
+            // mock client factory caches the clients
+            var testClient = (MockRegistryBlobClient)clientFactory.CreateBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+
+            var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory, templateSpecRepositoryFactory);
+
+            var (output, error, result) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
+            result.Should().Be(0);
+            output.Should().BeEmpty();
+            AssertNoErrors(error);
+
+            using var expectedCompiledStream = new FileStream(compiledFilePath, FileMode.Open, FileAccess.Read);
+
+            // verify the module was published
+            testClient.Should().OnlyHaveModule("v1", expectedCompiledStream);
+
+            // publish the same content again
+            var (output2, error2, result2) = await Bicep(settings, "publish", compiledFilePath, "--target", $"br:{registryStr}/{repository}:v1");
+            result2.Should().Be(0);
+            output2.Should().BeEmpty();
             AssertNoErrors(error2);
 
             // we should still only have 1 module
