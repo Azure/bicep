@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
                     fixable.Span.ContainsInclusive(requestEndOffset) ||
                     (requestStartOffset <= fixable.Span.Position && fixable.GetEndPosition() <= requestEndOffset))
                 .OfType<IFixable>()
-                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix)));
+                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix)));
 
             List<CommandOrCodeAction> commandOrCodeActions = new();
 
@@ -109,7 +109,7 @@ namespace Bicep.LanguageServer.Handlers
             var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
             var codeFixes = codeFixProviders
                 .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
-                .Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix));
+                .Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix));
             commandOrCodeActions.AddRange(codeFixes);
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
@@ -173,11 +173,17 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(request);
         }
 
-        private static CommandOrCodeAction CreateQuickFix(DocumentUri uri, CompilationContext context, CodeFix fix)
+        private static CommandOrCodeAction CreateCodeFix(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
+            var codeActionKind = fix.Kind switch {
+                CodeFixKind.QuickFix => CodeActionKind.QuickFix,
+                CodeFixKind.Refactor => CodeActionKind.Refactor,
+                _ => CodeActionKind.Empty,
+            };
+
             return new CodeAction
             {
-                Kind = CodeActionKind.QuickFix,
+                Kind = codeActionKind,
                 Title = fix.Description,
                 IsPreferred = fix.IsPreferred,
                 Edit = new WorkspaceEdit
