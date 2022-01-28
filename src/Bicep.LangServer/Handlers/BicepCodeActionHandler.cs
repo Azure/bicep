@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
+using Bicep.Core.Analyzers;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -79,6 +80,16 @@ namespace Bicep.LanguageServer.Handlers
             List<CommandOrCodeAction> commandOrCodeActions = new();
 
             commandOrCodeActions.AddRange(quickFixes);
+
+            var analyzerDiagnostics = diagnostics
+                .Where(analyzerDiagnostic =>
+                    analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                    analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                    (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
+                .OfType<AnalyzerDiagnostic>()
+                .Select(analyzerDiagnostic => DisableLinterRule(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ConfigurationPath));
+
+            commandOrCodeActions.AddRange(analyzerDiagnostics);
 
             var coreCompilerErrors = diagnostics
                 .Where(diagnostic => !diagnostic.CanBeSuppressed());
@@ -166,6 +177,17 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
+        private static CommandOrCodeAction DisableLinterRule(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
+        {
+            var command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty);
+
+            return new CodeAction
+            {
+                Title = LangServerResources.DisableLinterRule,
+                Command = command
+            };
+        }
+
         public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)
         {
             // we are currently precomputing our quickfixes, so there's no need to resolve them after they are chosen
@@ -175,7 +197,8 @@ namespace Bicep.LanguageServer.Handlers
 
         private static CommandOrCodeAction CreateCodeFix(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
-            var codeActionKind = fix.Kind switch {
+            var codeActionKind = fix.Kind switch
+            {
                 CodeFixKind.QuickFix => CodeActionKind.QuickFix,
                 CodeFixKind.Refactor => CodeActionKind.Refactor,
                 _ => CodeActionKind.Empty,
