@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.CodeFixes
         {
             if (matchingNodes.OfType<ParameterDeclarationSyntax>().FirstOrDefault() is not {} parameterSyntax ||
                 semanticModel.GetSymbolInfo(parameterSyntax) is not ParameterSymbol parameterSymbol ||
-                parameterSymbol.HasDecorator(decoratorName)) 
+                parameterSymbol.HasDecorator(decoratorName))
             {
                 yield break;
             }
@@ -48,6 +48,7 @@ namespace Bicep.LanguageServer.CodeFixes
             yield return new CodeFix(
                 $"Add @{decoratorName}",
                 false,
+                CodeFixKind.Refactor,
                 codeReplacement);
         }
     }

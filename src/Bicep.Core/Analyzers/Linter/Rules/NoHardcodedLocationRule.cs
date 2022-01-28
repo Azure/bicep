@@ -107,6 +107,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 CodeFix fix = new(
                     String.Format(CoreResources.NoHardcodedLocation_FixChangeVarToParam, definingVariable.Name),
                     true,
+                    CodeFixKind.QuickFix,
                     new CodeReplacement(
                         definingVariable.DeclaringSyntax.Span,
                         $"param {definingVariable.Name} string = {definingVariable.Value.ToTextPreserveFormatting()}"));
@@ -133,6 +134,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     // Create new parameter '{0}' with default value {1}
                     String.Format(CoreResources.NoHardcodedLocation_FixNewParam, newParamName, newDefaultValue),
                     false, // isPreferred
+                    CodeFixKind.QuickFix,
                     replacementWithNewParam,
                     insertNewParamDefinition);
 
