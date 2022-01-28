@@ -48,20 +48,20 @@ namespace Bicep.LangServer.IntegrationTests
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
             var fixables = compilation.GetEntrypointSemanticModel().GetAllDiagnostics().OfType<IFixable>();
 
-            foreach (IFixable fixable in fixables)
+            foreach (var fixable in fixables)
             {
                 foreach (var span in GetOverlappingSpans(fixable.Span))
                 {
-                    CommandOrCodeActionContainer? quickFixes = await client.RequestCodeAction(new CodeActionParams
+                    var quickFixes = await client.RequestCodeAction(new CodeActionParams
                     {
                         TextDocument = new TextDocumentIdentifier(uri),
-                        Range = span.ToRange(lineStarts)
+                        Range = span.ToRange(lineStarts),
                     });
 
                     // Assert.
                     quickFixes.Should().NotBeNull();
 
-                    var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix && x.CodeAction?.IsPreferred == true).ToList();
+                    var quickFixList = quickFixes.Where(x => x.CodeAction?.Kind == CodeActionKind.QuickFix).ToList();
                     var bicepFixList = fixable.Fixes.ToList();
 
                     quickFixList.Should().HaveSameCount(bicepFixList);
