@@ -116,7 +116,6 @@ export function getLogger(): Logger {
 const outputChannel = createAzExtOutputChannel("Bicep Operations", "bicep");
 
 export function appendToOutputChannel(text: string): void {
-  outputChannel.clear();
   outputChannel.show();
   outputChannel.appendLog(text);
 }

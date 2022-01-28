@@ -64,7 +64,17 @@ namespace Bicep.LanguageServer.Handlers
             ArmClient armClient = new ArmClient(tokenCredential);
             var resourceGroup = armClient.GetResourceGroup(resourceId);
             DeploymentCollection deploymentCollection = resourceGroup.GetDeployments();
-            string template = GetCompiledFile(documentUri);
+
+            string template = string.Empty;
+
+            try
+            {
+                template = GetCompiledFile(documentUri);
+            }
+            catch(Exception e)
+            {
+                return "Deployment failed. " + e.Message;
+            }
 
             JsonElement parameters;
 
@@ -85,15 +95,23 @@ namespace Bicep.LanguageServer.Handlers
             });
 
             string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHmmffff");
-            DeploymentCreateOrUpdateAtScopeOperation deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(deployment, input);
 
-            if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
-                deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)
+            try
             {
-                return "Deployment successful!!";
+                DeploymentCreateOrUpdateAtScopeOperation deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(deployment, input);
+
+                if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
+                    deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)
+                {
+                    return "Deployment successful.";
+                }
+            }
+            catch (Exception e)
+            {
+                return e.Message;
             }
 
-            return "Deployment failed!!";
+            return "Deployment failed.";
         }
 
         private string GetCompiledFile(DocumentUri documentUri)

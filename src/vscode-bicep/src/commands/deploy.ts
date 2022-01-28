@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import * as path from "path";
 import vscode, { Uri } from "vscode";
 import { ext } from "../extensionVariables";
 import { Command } from "./types";
@@ -27,6 +28,10 @@ export class DeployCommand implements Command {
     if (!documentUri) {
       return;
     }
+
+    appendToOutputChannel(
+      `Started deployment of "${path.basename(documentUri.fsPath)}"`
+    );
 
     if (documentUri.scheme === "output") {
       // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
@@ -141,18 +146,24 @@ export async function selectParameterFile(
       suppressPersistence: true,
     });
 
-  if (result === quickPickList.none) {
-    return "";
-  } else if (result === quickPickList.browse) {
+  if (result === quickPickList.browse) {
     const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog({
       canSelectMany: false,
       defaultUri: sourceUri,
       openLabel: "Select Parameter File",
     });
     if (paramsPaths && paramsPaths.length == 1) {
-      return paramsPaths[0].fsPath;
+      const parameterFilePath = paramsPaths[0].fsPath;
+      appendToOutputChannel(
+        `Parameter file used in deployment: "${path.basename(
+          parameterFilePath
+        )}"`
+      );
+      return parameterFilePath;
     }
   }
+
+  appendToOutputChannel(`Parameter file was not provided`);
 
   return "";
 }

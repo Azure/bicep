@@ -6,12 +6,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
-using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -24,48 +21,21 @@ using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
-namespace Bicep.LanguageServer.Handlers
+namespace Bicep.LanguageServer.Utils
 {
-    // This handler is used to generate compiled .json file for given a bicep file path.
-    // It returns build succeeded/failed message, which can be displayed approriately in IDE output window
-    public class BicepBuildCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
+    public static class CompiledFileGenerator
     {
-        private readonly ICompilationManager compilationManager;
-        private readonly EmitterSettings emitterSettings;
-        private readonly IFileResolver fileResolver;
-        private readonly IModuleDispatcher moduleDispatcher;
-        private readonly INamespaceProvider namespaceProvider;
-        private readonly IConfigurationManager configurationManager;
-
-        public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
-            : base(LanguageConstants.Build, serializer)
-        {
-            this.compilationManager = compilationManager;
-            this.emitterSettings = emitterSettings;
-            this.namespaceProvider = namespaceProvider;
-            this.fileResolver = fileResolver;
-            this.moduleDispatcher = moduleDispatcher;
-            this.configurationManager = configurationManager;
-        }
-
-        public override Task<string> Handle(string bicepFilePath, CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(bicepFilePath))
-            {
-                throw new ArgumentException("Invalid input file");
-            }
-
-            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            string buildOutput = GenerateCompiledFileAndReturnBuildOutputMessage(bicepFilePath, documentUri);
-
-            return Task.FromResult(buildOutput);
-        }
-
-        private string GenerateCompiledFileAndReturnBuildOutputMessage(string bicepFilePath, DocumentUri documentUri)
+        public static string GenerateCompiledFileAndReturnBuildOutputMessage(
+            string bicepFilePath,
+            DocumentUri documentUri,
+            EmitterSettings emitterSettings,
+            ICompilationManager compilationManager,
+            IConfigurationManager configurationManager,
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            INamespaceProvider namespaceProvider)
         {
             string compiledFilePath = PathHelper.GetDefaultBuildOutputPath(bicepFilePath);
             string compiledFile = Path.GetFileName(compiledFilePath);
@@ -82,7 +52,7 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                configuration = this.configurationManager.GetConfiguration(fileUri);
+                configuration = configurationManager.GetConfiguration(fileUri);
             }
             catch (ConfigurationException exception)
             {
@@ -95,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (context is null)
             {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
+                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, moduleDispatcher, new Workspace(), fileUri, configuration);
                 compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
             }
             else
@@ -138,8 +108,7 @@ namespace Bicep.LanguageServer.Handlers
             return sb.ToString();
         }
 
-        // Returns true if the template contains bicep _generator metadata, false otherwise
-        public bool TemplateContainsBicepGeneratorMetadata(string template)
+        public static bool TemplateContainsBicepGeneratorMetadata(string template)
         {
             try
             {
@@ -162,5 +131,6 @@ namespace Bicep.LanguageServer.Handlers
 
             return false;
         }
+
     }
 }
