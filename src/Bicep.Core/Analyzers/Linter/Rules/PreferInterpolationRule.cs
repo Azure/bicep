@@ -75,7 +75,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (GetCodeReplacement(functionCallSyntax) is CodeReplacement cr)
                 {
                     string title = string.Format(CoreResources.InterpolateNotConcatFixTitle, cr.Text);
-                    return new CodeFix(title, true, cr);
+                    return new CodeFix(title, true, CodeFixKind.QuickFix, cr);
                 }
                 return null;
             }
