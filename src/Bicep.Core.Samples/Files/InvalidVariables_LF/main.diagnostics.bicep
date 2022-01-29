@@ -6,12 +6,10 @@ bad
 // incomplete variable declaration #completionTest(0,1,2) -> declarations
 var
 //@[3:3) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
-//@[3:3) [no-unused-vars (Warning)] Variable "<missing>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) ||
 
 // missing identifier #completionTest(4) -> empty
 var 
 //@[4:4) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) ||
-//@[4:4) [no-unused-vars (Warning)] Variable "<missing>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) ||
 
 // incomplete keyword
 // #completionTest(0,1) -> declarations

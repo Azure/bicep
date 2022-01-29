@@ -62,22 +62,23 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private AnalyzerFixableDiagnostic GetFixableDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
         {
-            var span = GetSpanForRow(declaringSyntax, lineStarts);
+            var span = GetSpanForRow(declaringSyntax, nameSyntax, lineStarts);
             var codeFix = new CodeFix("Remove unused variable", true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
             var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(nameSyntax.Span, codeFix, name);
             return fixableDiagnosticForSpan;
         }
 
-        private static TextSpan GetSpanForRow(SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
+        private static TextSpan GetSpanForRow(SyntaxBase declaringSyntax, IdentifierSyntax identifierSyntax, ImmutableArray<int> lineStarts)
         {
-            (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, declaringSyntax.Span.Position);
-            if (lineStarts.Length <= line +1)
+            var spanPosition = declaringSyntax.Span.Position;
+            var (line, _) = TextCoordinateConverter.GetPosition(lineStarts, identifierSyntax.Span.Position);
+            if (lineStarts.Length <= line + 1)
             {
                 return declaringSyntax.Span;
             }
 
             var nextLineStart = lineStarts[line + 1];
-            var span = new TextSpan(declaringSyntax.Span.Position, nextLineStart - declaringSyntax.Span.Position);
+            var span = new TextSpan(spanPosition, nextLineStart - spanPosition);
             return span;
         }
     }

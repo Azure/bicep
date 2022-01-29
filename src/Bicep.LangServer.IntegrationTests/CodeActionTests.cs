@@ -43,6 +43,7 @@ namespace Bicep.LangServer.IntegrationTests
         private const string MinValueTitle = "Add @minValue";
         private const string MaxValueTitle = "Add @maxValue";
         private const string RemoveUnusedVariableTitle = "Remove unused variable";
+        private const string RemoveUnusedParameterTitle = "Remove unused parameter";
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -427,6 +428,23 @@ var foo2 = 'foo2'", "var foo2 = 'foo2'")]
             codeActions.First(x => x.Title == RemoveUnusedVariableTitle).Kind.Should().Be(CodeActionKind.QuickFix);
 
             var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == RemoveUnusedVariableTitle));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow(@"param fo|o string
+param foo2 string", "param foo2 string")]
+        [DataRow(@"param fo|o string", "")]
+        [DataRow(@"@secure()
+param fo|o string
+param foo2 string", "param foo2 string")]
+        [DataTestMethod]
+        public async Task Unused_parameter_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == RemoveUnusedParameterTitle);
+            codeActions.First(x => x.Title == RemoveUnusedParameterTitle).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == RemoveUnusedParameterTitle));
             updatedFile.Should().HaveSourceText(expectedText);
         }
 
