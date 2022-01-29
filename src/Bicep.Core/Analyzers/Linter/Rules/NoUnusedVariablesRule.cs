@@ -39,7 +39,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()
-                                    .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
+                .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
+                .Where(sym => sym.Name != "<missing>");
             foreach (var sym in unreferencedVariables)
             {
                 yield return GetFixableDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts);
@@ -50,7 +51,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // local variables must have a reference of type VariableAccessSyntax
             var unreferencedLocalVariables = model.Root.Declarations.OfType<LocalVariableSymbol>()
-                        .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
+                        .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
+                        .Where(sym => sym.Name != "<missing>");
 
             foreach (var sym in unreferencedLocalVariables)
             {
@@ -69,7 +71,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         private static TextSpan GetSpanForRow(SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
         {
             (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, declaringSyntax.Span.Position);
-            if (lineStarts.Length <= line)
+            if (lineStarts.Length <= line +1)
             {
                 return declaringSyntax.Span;
             }

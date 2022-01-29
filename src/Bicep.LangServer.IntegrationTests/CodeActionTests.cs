@@ -42,6 +42,7 @@ namespace Bicep.LangServer.IntegrationTests
         private const string MaxLengthTitle = "Add @maxLength";
         private const string MinValueTitle = "Add @minValue";
         private const string MaxValueTitle = "Add @maxValue";
+        private const string RemoveUnusedVariableTitle = "Remove unused variable";
 
         [NotNull]
         public TestContext? TestContext { get; set; }
@@ -414,6 +415,30 @@ param foo {type}
             codeActions.Should().NotContain(x => x.Title == title);
         }
 
+
+        [DataRow(@"var fo|o = 'foo'
+var foo2 = 'foo2'", "var foo2 = 'foo2'")]
+        [DataRow(@"var fo|o = 'foo'", "")]
+        [DataTestMethod]
+        public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == RemoveUnusedVariableTitle);
+            codeActions.First(x => x.Title == RemoveUnusedVariableTitle).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == RemoveUnusedVariableTitle));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow("var|")]
+        [DataRow("var |")]
+        [DataTestMethod]
+        public async Task Unused_variable_actions_are_not_suggested_for_invalid_variables(string fileWithCursors)
+        {
+            var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == RemoveUnusedVariableTitle);
+        }
+
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
         {
             string fileWithCursors = @$"
@@ -426,7 +451,11 @@ param fo|o {paramType}
 param fo|o {paramType}
 ";
             }
+            return await RunSyntaxTest(fileWithCursors);
+        }
 
+        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunSyntaxTest(string fileWithCursors)
+        {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri);
