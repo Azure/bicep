@@ -244,7 +244,7 @@ namespace Bicep.Core.Diagnostics
                     properties.Select(p => SyntaxFactory.CreateObjectProperty(p, SyntaxFactory.EmptySkippedTrivia))
                 );
 
-                var codeFix = new CodeFix("Add required properties", true, new CodeReplacement(objectSyntax.Span, newSyntax.ToTextPreserveFormatting()));
+                var codeFix = new CodeFix("Add required properties", true, CodeFixKind.QuickFix, new CodeReplacement(objectSyntax.Span, newSyntax.ToTextPreserveFormatting()));
 
                 return new FixableDiagnostic(
                     TextSpan,
@@ -551,7 +551,7 @@ namespace Bicep.Core.Diagnostics
                 $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?",
                 null,
                 null,
-                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
+                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public FixableDiagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new(
                 TextSpan,
@@ -560,7 +560,7 @@ namespace Bicep.Core.Diagnostics
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
                 null,
                 null,
-                new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
+                new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
             public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new(
                 TextSpan,
@@ -589,7 +589,7 @@ namespace Bicep.Core.Diagnostics
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?",
                 null,
                 null,
-                new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeManipulator.Replace(TextSpan, suggestedStringLiteral)));
+                new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedStringLiteral)));
 
             public FixableDiagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => new(
                 TextSpan,
@@ -598,7 +598,7 @@ namespace Bicep.Core.Diagnostics
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
                 null,
                 null,
-                new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeManipulator.Replace(TextSpan, suggestedProperty)));
+                new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
             public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new(
                 TextSpan,
@@ -696,7 +696,7 @@ namespace Bicep.Core.Diagnostics
                 $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?",
                 null,
                 null,
-                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
+                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new(
                 TextSpan,
@@ -709,7 +709,7 @@ namespace Bicep.Core.Diagnostics
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
                 null,
                 null,
-                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeManipulator.Replace(TextSpan, suggestedName)));
+                new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public ErrorDiagnostic FilePathContainsControlChars() => new(
                 TextSpan,

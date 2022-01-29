@@ -506,8 +506,7 @@ namespace Bicep.Core.Emit
             return AppendProperties(
                 CreateFunction(
                     "reference",
-                    GetFullyQualifiedResourceId(moduleSymbol),
-                    new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
+                    GetFullyQualifiedResourceId(moduleSymbol)),
                 new JTokenExpression("outputs"));
         }
 
