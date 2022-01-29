@@ -457,6 +457,15 @@ param foo2 string", "param foo2 string")]
             codeActions.Should().NotContain(x => x.Title == RemoveUnusedVariableTitle);
         }
 
+        [DataRow("param|")]
+        [DataRow("param |")]
+        [DataTestMethod]
+        public async Task Unused_parameter_actions_are_not_suggested_for_invalid_parameters(string fileWithCursors)
+        {
+            var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == RemoveUnusedParameterTitle);
+        }
+
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
         {
             string fileWithCursors = @$"

@@ -11,7 +11,6 @@ param myInt int
 //@[6:11) [no-unused-params (Warning)] Parameter "myInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt|
 param
 //@[5:5) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) ||
-//@[5:5) [no-unused-params (Warning)] Parameter "<missing>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) ||
 
 param 3
 //@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |3|
@@ -341,7 +340,6 @@ param paramAccessingOutput string = sampleOutput
 // #completionTest(6) -> empty
 param 
 //@[6:6) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) ||
-//@[6:6) [no-unused-params (Warning)] Parameter "<missing>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) ||
 
 // #completionTest(46,47) -> justSymbols
 param defaultValueOneLinerCompletions string = 

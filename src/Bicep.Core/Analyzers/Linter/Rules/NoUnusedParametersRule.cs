@@ -13,6 +13,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
     public sealed class NoUnusedParametersRule : NoUnusedRuleBase
     {
         public new const string Code = "no-unused-params";
+
         public NoUnusedParametersRule() : base(
             "parameter",
             code: Code,
@@ -32,7 +33,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             //  1) One reference will be the the paramater syntax declaration
             //  2) VariableAccessSyntax indicates a reference to the parameter
             var unreferencedParams = model.Root.ParameterDeclarations
-                                    .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
+                .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
+                .Where(sym => sym.Name != MissingName);
 
             return unreferencedParams.Select(param => GetFixableDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.LineStarts));
         }

@@ -13,6 +13,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 
 public abstract class NoUnusedRuleBase : LinterRuleBase
 {
+    protected const string MissingName = "<missing>";
     private readonly string type;
 
     protected NoUnusedRuleBase(string type, string code, string description, Uri? docUri = null, DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning, DiagnosticLabel? diagnosticLabel = null) :
