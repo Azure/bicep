@@ -6,19 +6,16 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
-using Bicep.Core.CodeAction;
-using Bicep.Core.Parsing;
-using Bicep.Core.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class NoUnusedVariablesRule : LinterRuleBase
+    public sealed class NoUnusedVariablesRule : NoUnusedRuleBase
     {
         public new const string Code = "no-unused-vars";
 
         public NoUnusedVariablesRule() : base(
+            "variable",
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
@@ -58,28 +55,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 yield return GetFixableDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts);
             }
-        }
-
-        private AnalyzerFixableDiagnostic GetFixableDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
-        {
-            var span = GetSpanForRow(declaringSyntax, nameSyntax, lineStarts);
-            var codeFix = new CodeFix("Remove unused variable", true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
-            var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(nameSyntax.Span, codeFix, name);
-            return fixableDiagnosticForSpan;
-        }
-
-        private static TextSpan GetSpanForRow(SyntaxBase declaringSyntax, IdentifierSyntax identifierSyntax, ImmutableArray<int> lineStarts)
-        {
-            var spanPosition = declaringSyntax.Span.Position;
-            var (line, _) = TextCoordinateConverter.GetPosition(lineStarts, identifierSyntax.Span.Position);
-            if (lineStarts.Length <= line + 1)
-            {
-                return declaringSyntax.Span;
-            }
-
-            var nextLineStart = lineStarts[line + 1];
-            var span = new TextSpan(spanPosition, nextLineStart - spanPosition);
-            return span;
         }
     }
 }
