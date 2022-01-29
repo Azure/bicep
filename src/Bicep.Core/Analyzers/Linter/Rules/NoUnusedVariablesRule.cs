@@ -6,7 +6,11 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using Bicep.Core.CodeAction;
+using Bicep.Core.Parsing;
+using Bicep.Core.Text;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -36,10 +40,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()
                                     .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
-
             foreach (var sym in unreferencedVariables)
             {
-                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span, sym.Name);
+                yield return GetFixableDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts);
             }
 
             // TODO: This will not find local variables because they are not in the top-level scope.
@@ -49,11 +52,31 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             var unreferencedLocalVariables = model.Root.Declarations.OfType<LocalVariableSymbol>()
                         .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
 
-
             foreach (var sym in unreferencedLocalVariables)
             {
-                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span, sym.Name);
+                yield return GetFixableDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts);
             }
+        }
+
+        private AnalyzerFixableDiagnostic GetFixableDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
+        {
+            var span = GetSpanForRow(declaringSyntax, lineStarts);
+            var codeFix = new CodeFix("Remove unused variable", true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
+            var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(nameSyntax.Span, codeFix, name);
+            return fixableDiagnosticForSpan;
+        }
+
+        private static TextSpan GetSpanForRow(SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
+        {
+            (var line, _) = TextCoordinateConverter.GetPosition(lineStarts, declaringSyntax.Span.Position);
+            if (lineStarts.Length <= line)
+            {
+                return declaringSyntax.Span;
+            }
+
+            var nextLineStart = lineStarts[line + 1];
+            var span = new TextSpan(declaringSyntax.Span.Position, nextLineStart - declaringSyntax.Span.Position);
+            return span;
         }
     }
 }
