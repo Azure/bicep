@@ -51,9 +51,7 @@ namespace Bicep.Cli.Commands
             var configuration = this.configurationManager.GetConfiguration(inputUri);
             var moduleReference = ValidateReference(args.TargetModuleReference, configuration);
 
-            if (PathHelper.HasExtension(inputUri, LanguageConstants.JsonFileExtension) ||
-                PathHelper.HasExtension(inputUri, LanguageConstants.JsoncFileExtension) ||
-                PathHelper.HasExtension(inputUri, LanguageConstants.ArmTemplateFileExtension))
+            if (PathHelper.HasArmTemplateLikeExtension(inputUri))
             {
                 // Publishing an ARM template file.
                 using var armTemplateStream = this.fileSystem.FileStream.Create(inputPath, FileMode.Open, FileAccess.Read);
