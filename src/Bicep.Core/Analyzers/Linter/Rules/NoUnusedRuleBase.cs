@@ -22,7 +22,7 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
         this.type = type;
     }
 
-    protected AnalyzerFixableDiagnostic GetFixableDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
+    protected AnalyzerFixableDiagnostic CreateRemoveUnusedDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts)
     {
         var span = GetSpanForRow(declaringSyntax, nameSyntax, lineStarts);
         var codeFix = new CodeFix($"Remove unused {type}", true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
