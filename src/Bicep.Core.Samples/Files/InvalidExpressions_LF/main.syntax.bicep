@@ -627,7 +627,7 @@ var complex = test(2 + 3*4, true || false && null)
 //@[14:18)   IdentifierSyntax
 //@[14:18)    Identifier |test|
 //@[18:19)   LeftParen |(|
-//@[19:27)   FunctionArgumentSyntax
+//@[19:26)   FunctionArgumentSyntax
 //@[19:26)    BinaryOperationSyntax
 //@[19:20)     IntegerLiteralSyntax
 //@[19:20)      Integer |2|
@@ -638,7 +638,7 @@ var complex = test(2 + 3*4, true || false && null)
 //@[24:25)      Asterisk |*|
 //@[25:26)      IntegerLiteralSyntax
 //@[25:26)       Integer |4|
-//@[26:27)    Comma |,|
+//@[26:27)   Comma |,|
 //@[28:49)   FunctionArgumentSyntax
 //@[28:49)    BinaryOperationSyntax
 //@[28:32)     BooleanLiteralSyntax
@@ -1220,11 +1220,11 @@ var fakeVar = concat(totallyFakeVar, 's')
 //@[14:20)   IdentifierSyntax
 //@[14:20)    Identifier |concat|
 //@[20:21)   LeftParen |(|
-//@[21:36)   FunctionArgumentSyntax
+//@[21:35)   FunctionArgumentSyntax
 //@[21:35)    VariableAccessSyntax
 //@[21:35)     IdentifierSyntax
 //@[21:35)      Identifier |totallyFakeVar|
-//@[35:36)    Comma |,|
+//@[35:36)   Comma |,|
 //@[37:40)   FunctionArgumentSyntax
 //@[37:40)    StringSyntax
 //@[37:40)     StringComplete |'s'|
@@ -1270,21 +1270,21 @@ var takeTooMany = take([
 //@[18:22)   IdentifierSyntax
 //@[18:22)    Identifier |take|
 //@[22:23)   LeftParen |(|
-//@[23:27)   FunctionArgumentSyntax
+//@[23:26)   FunctionArgumentSyntax
 //@[23:26)    ArraySyntax
 //@[23:24)     LeftSquare |[|
 //@[24:25)     NewLine |\n|
 ],1,2,'s')
 //@[0:1)     RightSquare |]|
-//@[1:2)    Comma |,|
-//@[2:4)   FunctionArgumentSyntax
+//@[1:2)   Comma |,|
+//@[2:3)   FunctionArgumentSyntax
 //@[2:3)    IntegerLiteralSyntax
 //@[2:3)     Integer |1|
-//@[3:4)    Comma |,|
-//@[4:6)   FunctionArgumentSyntax
+//@[3:4)   Comma |,|
+//@[4:5)   FunctionArgumentSyntax
 //@[4:5)    IntegerLiteralSyntax
 //@[4:5)     Integer |2|
-//@[5:6)    Comma |,|
+//@[5:6)   Comma |,|
 //@[6:9)   FunctionArgumentSyntax
 //@[6:9)    StringSyntax
 //@[6:9)     StringComplete |'s'|
@@ -1303,10 +1303,10 @@ var trailingArgumentComma = format('s',)
 //@[28:34)   IdentifierSyntax
 //@[28:34)    Identifier |format|
 //@[34:35)   LeftParen |(|
-//@[35:39)   FunctionArgumentSyntax
+//@[35:38)   FunctionArgumentSyntax
 //@[35:38)    StringSyntax
 //@[35:38)     StringComplete |'s'|
-//@[38:39)    Comma |,|
+//@[38:39)   Comma |,|
 //@[39:39)   FunctionArgumentSyntax
 //@[39:39)    SkippedTriviaSyntax
 //@[39:40)   RightParen |)|
@@ -1321,9 +1321,9 @@ var onlyArgumentComma = concat(,)
 //@[24:30)   IdentifierSyntax
 //@[24:30)    Identifier |concat|
 //@[30:31)   LeftParen |(|
-//@[31:32)   FunctionArgumentSyntax
+//@[31:31)   FunctionArgumentSyntax
 //@[31:31)    SkippedTriviaSyntax
-//@[31:32)    Comma |,|
+//@[31:32)   Comma |,|
 //@[32:32)   FunctionArgumentSyntax
 //@[32:32)    SkippedTriviaSyntax
 //@[32:33)   RightParen |)|
@@ -1338,21 +1338,21 @@ var multipleArgumentCommas = concat(,,,,,)
 //@[29:35)   IdentifierSyntax
 //@[29:35)    Identifier |concat|
 //@[35:36)   LeftParen |(|
-//@[36:37)   FunctionArgumentSyntax
+//@[36:36)   FunctionArgumentSyntax
 //@[36:36)    SkippedTriviaSyntax
-//@[36:37)    Comma |,|
-//@[37:38)   FunctionArgumentSyntax
+//@[36:37)   Comma |,|
+//@[37:37)   FunctionArgumentSyntax
 //@[37:37)    SkippedTriviaSyntax
-//@[37:38)    Comma |,|
-//@[38:39)   FunctionArgumentSyntax
+//@[37:38)   Comma |,|
+//@[38:38)   FunctionArgumentSyntax
 //@[38:38)    SkippedTriviaSyntax
-//@[38:39)    Comma |,|
-//@[39:40)   FunctionArgumentSyntax
+//@[38:39)   Comma |,|
+//@[39:39)   FunctionArgumentSyntax
 //@[39:39)    SkippedTriviaSyntax
-//@[39:40)    Comma |,|
-//@[40:41)   FunctionArgumentSyntax
+//@[39:40)   Comma |,|
+//@[40:40)   FunctionArgumentSyntax
 //@[40:40)    SkippedTriviaSyntax
-//@[40:41)    Comma |,|
+//@[40:41)   Comma |,|
 //@[41:41)   FunctionArgumentSyntax
 //@[41:41)    SkippedTriviaSyntax
 //@[41:42)   RightParen |)|
@@ -1367,13 +1367,13 @@ var emptyArgInBetween = concat(true,,false)
 //@[24:30)   IdentifierSyntax
 //@[24:30)    Identifier |concat|
 //@[30:31)   LeftParen |(|
-//@[31:36)   FunctionArgumentSyntax
+//@[31:35)   FunctionArgumentSyntax
 //@[31:35)    BooleanLiteralSyntax
 //@[31:35)     TrueKeyword |true|
-//@[35:36)    Comma |,|
-//@[36:37)   FunctionArgumentSyntax
+//@[35:36)   Comma |,|
+//@[36:36)   FunctionArgumentSyntax
 //@[36:36)    SkippedTriviaSyntax
-//@[36:37)    Comma |,|
+//@[36:37)   Comma |,|
 //@[37:42)   FunctionArgumentSyntax
 //@[37:42)    BooleanLiteralSyntax
 //@[37:42)     FalseKeyword |false|
@@ -1389,9 +1389,9 @@ var leadingEmptyArg = concat(,[])
 //@[22:28)   IdentifierSyntax
 //@[22:28)    Identifier |concat|
 //@[28:29)   LeftParen |(|
-//@[29:30)   FunctionArgumentSyntax
+//@[29:29)   FunctionArgumentSyntax
 //@[29:29)    SkippedTriviaSyntax
-//@[29:30)    Comma |,|
+//@[29:30)   Comma |,|
 //@[30:32)   FunctionArgumentSyntax
 //@[30:32)    ArraySyntax
 //@[30:31)     LeftSquare |[|
@@ -1408,13 +1408,13 @@ var leadingAndTrailingEmptyArg = concat(,'s',)
 //@[33:39)   IdentifierSyntax
 //@[33:39)    Identifier |concat|
 //@[39:40)   LeftParen |(|
-//@[40:41)   FunctionArgumentSyntax
+//@[40:40)   FunctionArgumentSyntax
 //@[40:40)    SkippedTriviaSyntax
-//@[40:41)    Comma |,|
-//@[41:45)   FunctionArgumentSyntax
+//@[40:41)   Comma |,|
+//@[41:44)   FunctionArgumentSyntax
 //@[41:44)    StringSyntax
 //@[41:44)     StringComplete |'s'|
-//@[44:45)    Comma |,|
+//@[44:45)   Comma |,|
 //@[45:45)   FunctionArgumentSyntax
 //@[45:45)    SkippedTriviaSyntax
 //@[45:46)   RightParen |)|
@@ -1450,10 +1450,10 @@ var concatWrongTypesContradiction = concat('s', [
 //@[36:42)   IdentifierSyntax
 //@[36:42)    Identifier |concat|
 //@[42:43)   LeftParen |(|
-//@[43:47)   FunctionArgumentSyntax
+//@[43:46)   FunctionArgumentSyntax
 //@[43:46)    StringSyntax
 //@[43:46)     StringComplete |'s'|
-//@[46:47)    Comma |,|
+//@[46:47)   Comma |,|
 //@[48:51)   FunctionArgumentSyntax
 //@[48:51)    ArraySyntax
 //@[48:49)     LeftSquare |[|
@@ -1472,10 +1472,10 @@ var indexOfWrongTypes = indexOf(1,1)
 //@[24:31)   IdentifierSyntax
 //@[24:31)    Identifier |indexOf|
 //@[31:32)   LeftParen |(|
-//@[32:34)   FunctionArgumentSyntax
+//@[32:33)   FunctionArgumentSyntax
 //@[32:33)    IntegerLiteralSyntax
 //@[32:33)     Integer |1|
-//@[33:34)    Comma |,|
+//@[33:34)   Comma |,|
 //@[34:35)   FunctionArgumentSyntax
 //@[34:35)    IntegerLiteralSyntax
 //@[34:35)     Integer |1|
@@ -1512,10 +1512,10 @@ var test2 = lsitKeys('abcd', '2020-01-01')
 //@[12:20)   IdentifierSyntax
 //@[12:20)    Identifier |lsitKeys|
 //@[20:21)   LeftParen |(|
-//@[21:28)   FunctionArgumentSyntax
+//@[21:27)   FunctionArgumentSyntax
 //@[21:27)    StringSyntax
 //@[21:27)     StringComplete |'abcd'|
-//@[27:28)    Comma |,|
+//@[27:28)   Comma |,|
 //@[29:41)   FunctionArgumentSyntax
 //@[29:41)    StringSyntax
 //@[29:41)     StringComplete |'2020-01-01'|
@@ -1534,10 +1534,10 @@ var test3 = lis('abcd', '2020-01-01')
 //@[12:15)   IdentifierSyntax
 //@[12:15)    Identifier |lis|
 //@[15:16)   LeftParen |(|
-//@[16:23)   FunctionArgumentSyntax
+//@[16:22)   FunctionArgumentSyntax
 //@[16:22)    StringSyntax
 //@[16:22)     StringComplete |'abcd'|
-//@[22:23)    Comma |,|
+//@[22:23)   Comma |,|
 //@[24:36)   FunctionArgumentSyntax
 //@[24:36)    StringSyntax
 //@[24:36)     StringComplete |'2020-01-01'|
@@ -2017,10 +2017,10 @@ var bannedFunctions = {
 //@[10:12)     IdentifierSyntax
 //@[10:12)      Identifier |if|
 //@[12:13)     LeftParen |(|
-//@[13:18)     FunctionArgumentSyntax
+//@[13:17)     FunctionArgumentSyntax
 //@[13:17)      NullLiteralSyntax
 //@[13:17)       NullKeyword |null|
-//@[17:18)      Comma |,|
+//@[17:18)     Comma |,|
 //@[18:22)     FunctionArgumentSyntax
 //@[18:22)      NullLiteralSyntax
 //@[18:22)       NullKeyword |null|
@@ -2086,10 +2086,10 @@ var bannedFunctions = {
 //@[28:31)         IdentifierSyntax
 //@[28:31)          Identifier |sub|
 //@[31:32)         LeftParen |(|
-//@[32:34)         FunctionArgumentSyntax
+//@[32:33)         FunctionArgumentSyntax
 //@[32:33)          IntegerLiteralSyntax
 //@[32:33)           Integer |2|
-//@[33:34)          Comma |,|
+//@[33:34)         Comma |,|
 //@[34:35)         FunctionArgumentSyntax
 //@[34:35)          IntegerLiteralSyntax
 //@[34:35)           Integer |3|
@@ -2103,10 +2103,10 @@ var bannedFunctions = {
 //@[43:46)        IdentifierSyntax
 //@[43:46)         Identifier |mul|
 //@[46:47)        LeftParen |(|
-//@[47:49)        FunctionArgumentSyntax
+//@[47:48)        FunctionArgumentSyntax
 //@[47:48)         IntegerLiteralSyntax
 //@[47:48)          Integer |8|
-//@[48:49)         Comma |,|
+//@[48:49)        Comma |,|
 //@[49:52)        FunctionArgumentSyntax
 //@[49:52)         StringSyntax
 //@[49:52)          StringComplete |'s'|
@@ -2133,10 +2133,10 @@ var bannedFunctions = {
 //@[76:79)      IdentifierSyntax
 //@[76:79)       Identifier |mod|
 //@[79:80)      LeftParen |(|
-//@[80:85)      FunctionArgumentSyntax
+//@[80:84)      FunctionArgumentSyntax
 //@[80:84)       NullLiteralSyntax
 //@[80:84)        NullKeyword |null|
-//@[84:85)       Comma |,|
+//@[84:85)      Comma |,|
 //@[86:91)      FunctionArgumentSyntax
 //@[86:91)       BooleanLiteralSyntax
 //@[86:91)        FalseKeyword |false|

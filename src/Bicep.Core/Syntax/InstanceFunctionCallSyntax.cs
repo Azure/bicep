@@ -8,8 +8,8 @@ namespace Bicep.Core.Syntax
 {
     public class InstanceFunctionCallSyntax : FunctionCallSyntaxBase, ISymbolReference
     {
-        public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
-            : base(name, openParen, arguments, closeParen)
+        public InstanceFunctionCallSyntax(SyntaxBase baseExpression, Token dot, IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, Token closeParen)
+            : base(name, openParen, children, closeParen)
         {
             AssertTokenType(dot, nameof(dot), TokenType.Dot);
 

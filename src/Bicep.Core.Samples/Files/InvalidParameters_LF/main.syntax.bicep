@@ -1171,11 +1171,11 @@ param paramAccessingVar string = concat(sampleVar, 's')
 //@[33:39)    IdentifierSyntax
 //@[33:39)     Identifier |concat|
 //@[39:40)    LeftParen |(|
-//@[40:50)    FunctionArgumentSyntax
+//@[40:49)    FunctionArgumentSyntax
 //@[40:49)     VariableAccessSyntax
 //@[40:49)      IdentifierSyntax
 //@[40:49)       Identifier |sampleVar|
-//@[49:50)     Comma |,|
+//@[49:50)    Comma |,|
 //@[51:54)    FunctionArgumentSyntax
 //@[51:54)     StringSyntax
 //@[51:54)      StringComplete |'s'|
@@ -1345,10 +1345,10 @@ param incompleteDecorators string
 //@[1:7)    IdentifierSyntax
 //@[1:7)     Identifier |concat|
 //@[7:8)    LeftParen |(|
-//@[8:10)    FunctionArgumentSyntax
+//@[8:9)    FunctionArgumentSyntax
 //@[8:9)     IntegerLiteralSyntax
 //@[8:9)      Integer |1|
-//@[9:10)     Comma |,|
+//@[9:10)    Comma |,|
 //@[11:12)    FunctionArgumentSyntax
 //@[11:12)     IntegerLiteralSyntax
 //@[11:12)      Integer |2|
@@ -1365,10 +1365,10 @@ param incompleteDecorators string
 //@[5:11)    IdentifierSyntax
 //@[5:11)     Identifier |concat|
 //@[11:12)    LeftParen |(|
-//@[12:16)    FunctionArgumentSyntax
+//@[12:15)    FunctionArgumentSyntax
 //@[12:15)     StringSyntax
 //@[12:15)      StringComplete |'a'|
-//@[15:16)     Comma |,|
+//@[15:16)    Comma |,|
 //@[17:20)    FunctionArgumentSyntax
 //@[17:20)     StringSyntax
 //@[17:20)      StringComplete |'b'|
@@ -1485,16 +1485,16 @@ param someInteger int = 20
 //@[1:8)    IdentifierSyntax
 //@[1:8)     Identifier |allowed|
 //@[8:9)    LeftParen |(|
-//@[9:12)    FunctionArgumentSyntax
+//@[9:11)    FunctionArgumentSyntax
 //@[9:11)     ArraySyntax
 //@[9:10)      LeftSquare |[|
 //@[10:11)      RightSquare |]|
-//@[11:12)     Comma |,|
-//@[13:16)    FunctionArgumentSyntax
+//@[11:12)    Comma |,|
+//@[13:15)    FunctionArgumentSyntax
 //@[13:15)     ArraySyntax
 //@[13:14)      LeftSquare |[|
 //@[14:15)      RightSquare |]|
-//@[15:16)     Comma |,|
+//@[15:16)    Comma |,|
 //@[17:18)    FunctionArgumentSyntax
 //@[17:18)     IntegerLiteralSyntax
 //@[17:18)      Integer |2|
@@ -1533,16 +1533,16 @@ param tooManyArguments1 int = 20
 //@[1:9)    IdentifierSyntax
 //@[1:9)     Identifier |metadata|
 //@[9:10)    LeftParen |(|
-//@[10:13)    FunctionArgumentSyntax
+//@[10:12)    FunctionArgumentSyntax
 //@[10:12)     ObjectSyntax
 //@[10:11)      LeftBrace |{|
 //@[11:12)      RightBrace |}|
-//@[12:13)     Comma |,|
-//@[14:17)    FunctionArgumentSyntax
+//@[12:13)    Comma |,|
+//@[14:16)    FunctionArgumentSyntax
 //@[14:16)     ObjectSyntax
 //@[14:15)      LeftBrace |{|
 //@[15:16)      RightBrace |}|
-//@[16:17)     Comma |,|
+//@[16:17)    Comma |,|
 //@[18:22)    FunctionArgumentSyntax
 //@[18:22)     BooleanLiteralSyntax
 //@[18:22)      TrueKeyword |true|

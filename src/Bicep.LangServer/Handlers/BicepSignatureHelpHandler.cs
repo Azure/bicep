@@ -64,7 +64,8 @@ namespace Bicep.LanguageServer.Handlers
 
             // suppress ErrorType in arguments because the code is being written
             // this prevents function signature mismatches due to errors
-            var normalizedArgumentTypes = NormalizeArgumentTypes(functionCall.Arguments, semanticModel);
+            var arguments = functionCall.Arguments.ToImmutableArray();
+            var normalizedArgumentTypes = NormalizeArgumentTypes(arguments, semanticModel);
 
             // do not include return type in signatures for decorator functions
             // because the return type on decorators is currently an internal implementation detail
@@ -72,7 +73,7 @@ namespace Bicep.LanguageServer.Handlers
             // (can revisit if we add decorator extensibility in the future)
             var includeReturnType = semanticModel.Binder.GetParent(functionCall) is not DecoratorSyntax;
 
-            var signatureHelp = CreateSignatureHelp(functionCall.Arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
+            var signatureHelp = CreateSignatureHelp(arguments, normalizedArgumentTypes, functionSymbol, offset, includeReturnType);
             signatureHelp = TryReuseActiveSignature(request.Context, signatureHelp);
 
             return Task.FromResult<SignatureHelp?>(signatureHelp);

@@ -71,9 +71,7 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[9:12) [BCP028 (Error)] Identifier "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[9:12) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name". (CodeDescription: none) |foo|
 //@[13:50) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[58:58) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
 //@[63:64) [BCP057 (Error)] The name "b" does not exist in the current context. (CodeDescription: none) |b|
-//@[65:65) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
 }
 
 // simulate typing if condition

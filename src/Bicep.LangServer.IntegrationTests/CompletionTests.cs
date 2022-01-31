@@ -1314,23 +1314,16 @@ var outTest = abc.listWithInput('2020-01-01'|)
         [TestMethod]
         public async Task List_functions_accepting_inputs_suggest_required_properties()
         {
-            var fileWithCursors = @"
+            await ApplyCompletionAndAssertResult(
+                fileWithCursor: @"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
 
 var outTest = abc.listWithInput('2020-01-01', |)
-";
-
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var completions = await RequestCompletion(client, bicepFile, cursors.Single());
-            completions.Should().Contain(x => x.Label == "required-properties");
-
-            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "required-properties"), "foo");
-            updatedFile.Should().HaveSourceText(@"
+",
+                completionLabel: "required-properties",
+                expectedResult: @"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
@@ -1338,13 +1331,67 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 var outTest = abc.listWithInput('2020-01-01', {
   withInputInputVal: foo
 }|)
-");
+",
+                tabStops: new [] { "foo" });
+        }
+
+        [TestMethod]
+        public async Task List_functions_accepting_inputs_suggest_required_properties_no_space()
+        {
+            await ApplyCompletionAndAssertResult(
+                fileWithCursor: @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01',|)
+",
+                completionLabel: "required-properties",
+                expectedResult: @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01',{
+  withInputInputVal: foo
+}|)
+",
+                tabStops: new [] { "foo" });
+        }
+
+        [TestMethod]
+        public async Task List_functions_accepting_inputs_suggest_required_properties_multi_line()
+        {
+            await ApplyCompletionAndAssertResult(
+                fileWithCursor: @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput(
+  '2020-01-01'
+  |)
+",
+                completionLabel: "required-properties",
+                expectedResult: @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput(
+  '2020-01-01'
+  {
+  withInputInputVal: foo
+}|)
+",
+                tabStops: new [] { "foo" });
         }
 
         [TestMethod]
         public async Task List_functions_accepting_inputs_permit_object_key_completions()
         {
-            var fileWithCursors = @"
+            await ApplyCompletionAndAssertResult(
+                fileWithCursor: @"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
@@ -1353,17 +1400,9 @@ var outTest = abc.listWithInput('2020-01-01', {
   withInputInputVal: 'hello'
   |
 })
-";
-
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var completions = await RequestCompletion(client, bicepFile, cursors.Single());
-            completions.Should().Contain(x => x.Label == "optionalVal");
-
-            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "optionalVal"));
-            updatedFile.Should().HaveSourceText(@"
+",
+                completionLabel: "optionalVal",
+                expectedResult: @"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
@@ -1378,7 +1417,8 @@ var outTest = abc.listWithInput('2020-01-01', {
         [TestMethod]
         public async Task List_functions_accepting_inputs_permit_object_value_completions()
         {
-            var fileWithCursors = @"
+            await ApplyCompletionAndAssertResult(
+                fileWithCursor: @"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
@@ -1387,18 +1427,9 @@ var outTest = abc.listWithInput('2020-01-01', {
   withInputInputVal: 'hello'
   optionalLiteralVal: |
 })
-";
-
-            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var completions = await RequestCompletion(client, bicepFile, cursors.Single());
-            completions.Should().Contain(x => x.Label == "'either'");
-            completions.Should().Contain(x => x.Label == "'or'");
-
-            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "'either'"));
-            updatedFile.Should().HaveSourceText(@"
+",
+                completionLabel: "'either'",
+                expectedResult: @"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
@@ -2176,6 +2207,23 @@ Returns the unique identifier of a resource. You use this function when the reso
             var replaced = originalFile.Substring(0, start) + textToInsert + originalFile.Substring(end);
 
             return SourceFileFactory.CreateBicepFile(bicepFile.FileUri, replaced);
+        }
+
+        private async Task ApplyCompletionAndAssertResult(string fileWithCursor, string completionLabel, string expectedResult, IEnumerable<string>? tabStops = null)
+        {
+            var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursor);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
+
+            cursors.Should().HaveCount(1, "this assertion only works with a single cursor");
+            var cursor = cursors.Single();
+
+            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
+            var completions = await RequestCompletion(helper.Client, bicepFile, cursor);
+
+            completions.Should().Contain(x => x.Label == completionLabel, $"expected completions to contain completion with label \"{completionLabel}\"");
+
+            var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == completionLabel), tabStops?.ToArray() ?? Array.Empty<string>());
+            updatedFile.Should().HaveSourceText(expectedResult);
         }
     }
 }

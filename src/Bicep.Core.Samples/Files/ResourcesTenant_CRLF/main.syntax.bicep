@@ -226,7 +226,7 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (m
 //@[8:14)      IdentifierSyntax
 //@[8:14)       Identifier |concat|
 //@[14:15)      LeftParen |(|
-//@[15:23)      FunctionArgumentSyntax
+//@[15:22)      FunctionArgumentSyntax
 //@[15:22)       PropertyAccessSyntax
 //@[15:17)        VariableAccessSyntax
 //@[15:17)         IdentifierSyntax
@@ -234,11 +234,11 @@ resource anotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for (m
 //@[17:18)        Dot |.|
 //@[18:22)        IdentifierSyntax
 //@[18:22)         Identifier |name|
-//@[22:23)       Comma |,|
-//@[24:32)      FunctionArgumentSyntax
+//@[22:23)      Comma |,|
+//@[24:31)      FunctionArgumentSyntax
 //@[24:31)       StringSyntax
 //@[24:31)        StringComplete |'-one-'|
-//@[31:32)       Comma |,|
+//@[31:32)      Comma |,|
 //@[33:38)      FunctionArgumentSyntax
 //@[33:38)       VariableAccessSyntax
 //@[33:38)        IdentifierSyntax
@@ -341,7 +341,7 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
 //@[8:14)      IdentifierSyntax
 //@[8:14)       Identifier |concat|
 //@[14:15)      LeftParen |(|
-//@[15:23)      FunctionArgumentSyntax
+//@[15:22)      FunctionArgumentSyntax
 //@[15:22)       PropertyAccessSyntax
 //@[15:17)        VariableAccessSyntax
 //@[15:17)         IdentifierSyntax
@@ -349,7 +349,7 @@ resource yetAnotherSet 'Microsoft.Management/managementGroups@2020-05-01' = [for
 //@[17:18)        Dot |.|
 //@[18:22)        IdentifierSyntax
 //@[18:22)         Identifier |name|
-//@[22:23)       Comma |,|
+//@[22:23)      Comma |,|
 //@[24:30)      FunctionArgumentSyntax
 //@[24:30)       StringSyntax
 //@[24:30)        StringComplete |'-two'|
@@ -440,10 +440,10 @@ output managementGroupIds array = [for i in range(0, length(managementGroups)): 
 //@[44:49)    IdentifierSyntax
 //@[44:49)     Identifier |range|
 //@[49:50)    LeftParen |(|
-//@[50:52)    FunctionArgumentSyntax
+//@[50:51)    FunctionArgumentSyntax
 //@[50:51)     IntegerLiteralSyntax
 //@[50:51)      Integer |0|
-//@[51:52)     Comma |,|
+//@[51:52)    Comma |,|
 //@[53:77)    FunctionArgumentSyntax
 //@[53:77)     FunctionCallSyntax
 //@[53:59)      IdentifierSyntax

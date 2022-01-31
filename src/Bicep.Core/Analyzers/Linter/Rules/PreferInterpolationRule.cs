@@ -49,7 +49,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 // must have more than 1 argument to use interpolation
                 if (syntax.NameEquals(concatFunction)
-                   && syntax.Arguments.Length > 1
+                   && syntax.Arguments.Count() > 1
                    && !syntax.GetParseDiagnostics().Any())
                 {
                     // We should only suggest rewriting concat() calls that result in a string (concat can also operate on and

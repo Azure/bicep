@@ -8,8 +8,8 @@ namespace Bicep.Core.Syntax
 {
     public class FunctionCallSyntax : FunctionCallSyntaxBase, ISymbolReference
     {
-        public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<FunctionArgumentSyntax> arguments, Token closeParen)
-            : base(name, openParen, arguments, closeParen)
+        public FunctionCallSyntax(IdentifierSyntax name, Token openParen, IEnumerable<SyntaxBase> children, Token closeParen)
+            : base(name, openParen, children, closeParen)
         {
         }
 

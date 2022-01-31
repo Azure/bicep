@@ -210,12 +210,12 @@ param someString string
 @sys.   
 param someInteger int = 20
 
-@allowed([], [], 2)
+@allowed([],  [],  2)
 // #completionTest(4) -> empty
 @az.
 param tooManyArguments1 int = 20
 
-@metadata({}, {}, true)
+@metadata({},  {},  true)
 // #completionTest(2) -> stringParameterDecoratorsPlusNamespace
 @m
 // #completionTest(1, 2, 3) -> stringParameterDecoratorsPlusNamespace

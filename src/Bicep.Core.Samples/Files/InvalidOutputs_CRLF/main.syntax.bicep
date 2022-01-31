@@ -787,10 +787,10 @@ output noInnerLoopsInOutputs object = {
 //@[15:20)      IdentifierSyntax
 //@[15:20)       Identifier |range|
 //@[20:21)      LeftParen |(|
-//@[21:23)      FunctionArgumentSyntax
+//@[21:22)      FunctionArgumentSyntax
 //@[21:22)       IntegerLiteralSyntax
 //@[21:22)        Integer |0|
-//@[22:23)       Comma |,|
+//@[22:23)      Comma |,|
 //@[23:25)      FunctionArgumentSyntax
 //@[23:25)       IntegerLiteralSyntax
 //@[23:25)        Integer |10|
@@ -831,10 +831,10 @@ output noInnerLoopsInOutputs2 object = {
 //@[15:20)      IdentifierSyntax
 //@[15:20)       Identifier |range|
 //@[20:21)      LeftParen |(|
-//@[21:23)      FunctionArgumentSyntax
+//@[21:22)      FunctionArgumentSyntax
 //@[21:22)       IntegerLiteralSyntax
 //@[21:22)        Integer |0|
-//@[22:23)       Comma |,|
+//@[22:23)      Comma |,|
 //@[23:25)      FunctionArgumentSyntax
 //@[23:25)       IntegerLiteralSyntax
 //@[23:25)        Integer |10|
@@ -859,10 +859,10 @@ output noInnerLoopsInOutputs2 object = {
 //@[17:22)         IdentifierSyntax
 //@[17:22)          Identifier |range|
 //@[22:23)         LeftParen |(|
-//@[23:25)         FunctionArgumentSyntax
+//@[23:24)         FunctionArgumentSyntax
 //@[23:24)          IntegerLiteralSyntax
 //@[23:24)           Integer |0|
-//@[24:25)          Comma |,|
+//@[24:25)         Comma |,|
 //@[25:27)         FunctionArgumentSyntax
 //@[25:27)          IntegerLiteralSyntax
 //@[25:27)           Integer |10|

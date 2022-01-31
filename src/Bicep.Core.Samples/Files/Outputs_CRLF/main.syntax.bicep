@@ -463,20 +463,20 @@ var secondaryKeyIntermediateVar = listKeys(resourceId('Mock.RP/type', 'steve'), 
 //@[34:42)    IdentifierSyntax
 //@[34:42)     Identifier |listKeys|
 //@[42:43)    LeftParen |(|
-//@[43:79)    FunctionArgumentSyntax
+//@[43:78)    FunctionArgumentSyntax
 //@[43:78)     FunctionCallSyntax
 //@[43:53)      IdentifierSyntax
 //@[43:53)       Identifier |resourceId|
 //@[53:54)      LeftParen |(|
-//@[54:69)      FunctionArgumentSyntax
+//@[54:68)      FunctionArgumentSyntax
 //@[54:68)       StringSyntax
 //@[54:68)        StringComplete |'Mock.RP/type'|
-//@[68:69)       Comma |,|
+//@[68:69)      Comma |,|
 //@[70:77)      FunctionArgumentSyntax
 //@[70:77)       StringSyntax
 //@[70:77)        StringComplete |'steve'|
 //@[77:78)      RightParen |)|
-//@[78:79)     Comma |,|
+//@[78:79)    Comma |,|
 //@[80:92)    FunctionArgumentSyntax
 //@[80:92)     StringSyntax
 //@[80:92)      StringComplete |'2020-01-01'|
@@ -499,20 +499,20 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[27:35)    IdentifierSyntax
 //@[27:35)     Identifier |listKeys|
 //@[35:36)    LeftParen |(|
-//@[36:72)    FunctionArgumentSyntax
+//@[36:71)    FunctionArgumentSyntax
 //@[36:71)     FunctionCallSyntax
 //@[36:46)      IdentifierSyntax
 //@[36:46)       Identifier |resourceId|
 //@[46:47)      LeftParen |(|
-//@[47:62)      FunctionArgumentSyntax
+//@[47:61)      FunctionArgumentSyntax
 //@[47:61)       StringSyntax
 //@[47:61)        StringComplete |'Mock.RP/type'|
-//@[61:62)       Comma |,|
+//@[61:62)      Comma |,|
 //@[63:70)      FunctionArgumentSyntax
 //@[63:70)       StringSyntax
 //@[63:70)        StringComplete |'nigel'|
 //@[70:71)      RightParen |)|
-//@[71:72)     Comma |,|
+//@[71:72)    Comma |,|
 //@[73:85)    FunctionArgumentSyntax
 //@[73:85)     StringSyntax
 //@[73:85)      StringComplete |'2020-01-01'|
@@ -598,10 +598,10 @@ output generatedArray array = [for i in range(0,10): i]
 //@[40:45)    IdentifierSyntax
 //@[40:45)     Identifier |range|
 //@[45:46)    LeftParen |(|
-//@[46:48)    FunctionArgumentSyntax
+//@[46:47)    FunctionArgumentSyntax
 //@[46:47)     IntegerLiteralSyntax
 //@[46:47)      Integer |0|
-//@[47:48)     Comma |,|
+//@[47:48)    Comma |,|
 //@[48:50)    FunctionArgumentSyntax
 //@[48:50)     IntegerLiteralSyntax
 //@[48:50)      Integer |10|

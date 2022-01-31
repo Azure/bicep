@@ -22,11 +22,11 @@ var q = base64(q, !q)
 //@[8:14)   IdentifierSyntax
 //@[8:14)    Identifier |base64|
 //@[14:15)   LeftParen |(|
-//@[15:17)   FunctionArgumentSyntax
+//@[15:16)   FunctionArgumentSyntax
 //@[15:16)    VariableAccessSyntax
 //@[15:16)     IdentifierSyntax
 //@[15:16)      Identifier |q|
-//@[16:17)    Comma |,|
+//@[16:17)   Comma |,|
 //@[18:20)   FunctionArgumentSyntax
 //@[18:20)    UnaryOperationSyntax
 //@[18:19)     Exclamation |!|
@@ -58,11 +58,11 @@ var b = max(a,1)
 //@[8:11)   IdentifierSyntax
 //@[8:11)    Identifier |max|
 //@[11:12)   LeftParen |(|
-//@[12:14)   FunctionArgumentSyntax
+//@[12:13)   FunctionArgumentSyntax
 //@[12:13)    VariableAccessSyntax
 //@[12:13)     IdentifierSyntax
 //@[12:13)      Identifier |a|
-//@[13:14)    Comma |,|
+//@[13:14)   Comma |,|
 //@[14:15)   FunctionArgumentSyntax
 //@[14:15)    IntegerLiteralSyntax
 //@[14:15)     Integer |1|

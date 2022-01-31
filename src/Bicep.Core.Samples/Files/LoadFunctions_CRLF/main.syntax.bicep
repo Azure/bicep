@@ -42,10 +42,10 @@ var loadedTextEncoding1 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii
 //@[26:41)   IdentifierSyntax
 //@[26:41)    Identifier |loadTextContent|
 //@[41:42)   LeftParen |(|
-//@[42:70)   FunctionArgumentSyntax
+//@[42:69)   FunctionArgumentSyntax
 //@[42:69)    StringSyntax
 //@[42:69)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[69:70)    Comma |,|
+//@[69:70)   Comma |,|
 //@[71:81)   FunctionArgumentSyntax
 //@[71:81)    StringSyntax
 //@[71:81)     StringComplete |'us-ascii'|
@@ -61,10 +61,10 @@ var loadedTextEncoding2 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
 //@[26:41)   IdentifierSyntax
 //@[26:41)    Identifier |loadTextContent|
 //@[41:42)   LeftParen |(|
-//@[42:69)   FunctionArgumentSyntax
+//@[42:68)   FunctionArgumentSyntax
 //@[42:68)    StringSyntax
 //@[42:68)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[68:69)    Comma |,|
+//@[68:69)   Comma |,|
 //@[70:77)   FunctionArgumentSyntax
 //@[70:77)    StringSyntax
 //@[70:77)     StringComplete |'utf-8'|
@@ -80,10 +80,10 @@ var loadedTextEncoding3 = loadTextContent('Assets/encoding-utf16.txt', 'utf-16')
 //@[26:41)   IdentifierSyntax
 //@[26:41)    Identifier |loadTextContent|
 //@[41:42)   LeftParen |(|
-//@[42:70)   FunctionArgumentSyntax
+//@[42:69)   FunctionArgumentSyntax
 //@[42:69)    StringSyntax
 //@[42:69)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[69:70)    Comma |,|
+//@[69:70)   Comma |,|
 //@[71:79)   FunctionArgumentSyntax
 //@[71:79)    StringSyntax
 //@[71:79)     StringComplete |'utf-16'|
@@ -99,10 +99,10 @@ var loadedTextEncoding4 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-16
 //@[26:41)   IdentifierSyntax
 //@[26:41)    Identifier |loadTextContent|
 //@[41:42)   LeftParen |(|
-//@[42:72)   FunctionArgumentSyntax
+//@[42:71)   FunctionArgumentSyntax
 //@[42:71)    StringSyntax
 //@[42:71)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[71:72)    Comma |,|
+//@[71:72)   Comma |,|
 //@[73:83)   FunctionArgumentSyntax
 //@[73:83)    StringSyntax
 //@[73:83)     StringComplete |'utf-16BE'|
@@ -118,10 +118,10 @@ var loadedTextEncoding5 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1
 //@[26:41)   IdentifierSyntax
 //@[26:41)    Identifier |loadTextContent|
 //@[41:42)   LeftParen |(|
-//@[42:68)   FunctionArgumentSyntax
+//@[42:67)   FunctionArgumentSyntax
 //@[42:67)    StringSyntax
 //@[42:67)     StringComplete |'Assets/encoding-iso.txt'|
-//@[67:68)    Comma |,|
+//@[67:68)   Comma |,|
 //@[69:81)   FunctionArgumentSyntax
 //@[69:81)    StringSyntax
 //@[69:81)     StringComplete |'iso-8859-1'|
@@ -598,10 +598,10 @@ var loadWithEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1'
 //@[25:40)   IdentifierSyntax
 //@[25:40)    Identifier |loadTextContent|
 //@[40:41)   LeftParen |(|
-//@[41:67)   FunctionArgumentSyntax
+//@[41:66)   FunctionArgumentSyntax
 //@[41:66)    StringSyntax
 //@[41:66)     StringComplete |'Assets/encoding-iso.txt'|
-//@[66:67)    Comma |,|
+//@[66:67)   Comma |,|
 //@[68:80)   FunctionArgumentSyntax
 //@[68:80)    StringSyntax
 //@[68:80)     StringComplete |'iso-8859-1'|
@@ -617,10 +617,10 @@ var loadWithEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii'
 //@[25:40)   IdentifierSyntax
 //@[25:40)    Identifier |loadTextContent|
 //@[40:41)   LeftParen |(|
-//@[41:69)   FunctionArgumentSyntax
+//@[41:68)   FunctionArgumentSyntax
 //@[41:68)    StringSyntax
 //@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[68:69)    Comma |,|
+//@[68:69)   Comma |,|
 //@[70:80)   FunctionArgumentSyntax
 //@[70:80)    StringSyntax
 //@[70:80)     StringComplete |'us-ascii'|
@@ -636,10 +636,10 @@ var loadWithEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-
 //@[25:40)   IdentifierSyntax
 //@[25:40)    Identifier |loadTextContent|
 //@[40:41)   LeftParen |(|
-//@[41:69)   FunctionArgumentSyntax
+//@[41:68)   FunctionArgumentSyntax
 //@[41:68)    StringSyntax
 //@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[68:69)    Comma |,|
+//@[68:69)   Comma |,|
 //@[70:82)   FunctionArgumentSyntax
 //@[70:82)    StringSyntax
 //@[70:82)     StringComplete |'iso-8859-1'|
@@ -655,10 +655,10 @@ var loadWithEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
 //@[25:40)   IdentifierSyntax
 //@[25:40)    Identifier |loadTextContent|
 //@[40:41)   LeftParen |(|
-//@[41:69)   FunctionArgumentSyntax
+//@[41:68)   FunctionArgumentSyntax
 //@[41:68)    StringSyntax
 //@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[68:69)    Comma |,|
+//@[68:69)   Comma |,|
 //@[70:77)   FunctionArgumentSyntax
 //@[70:77)    StringSyntax
 //@[70:77)     StringComplete |'utf-8'|
@@ -674,10 +674,10 @@ var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
 //@[25:40)   IdentifierSyntax
 //@[25:40)    Identifier |loadTextContent|
 //@[40:41)   LeftParen |(|
-//@[41:68)   FunctionArgumentSyntax
+//@[41:67)   FunctionArgumentSyntax
 //@[41:67)    StringSyntax
 //@[41:67)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[67:68)    Comma |,|
+//@[67:68)   Comma |,|
 //@[69:76)   FunctionArgumentSyntax
 //@[69:76)    StringSyntax
 //@[69:76)     StringComplete |'utf-8'|
@@ -693,10 +693,10 @@ var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8'
 //@[25:40)   IdentifierSyntax
 //@[25:40)    Identifier |loadTextContent|
 //@[40:41)   LeftParen |(|
-//@[41:72)   FunctionArgumentSyntax
+//@[41:71)   FunctionArgumentSyntax
 //@[41:71)    StringSyntax
 //@[41:71)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[71:72)    Comma |,|
+//@[71:72)   Comma |,|
 //@[73:80)   FunctionArgumentSyntax
 //@[73:80)    StringSyntax
 //@[73:80)     StringComplete |'utf-8'|

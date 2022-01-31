@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Text;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Semantics;
@@ -130,7 +131,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // remove trailing argument separator (if any)
-            if (functionCall.Arguments.Length > 0)
+            if (functionCall.Arguments.Count() > 0)
             {
                 buffer.Remove(buffer.Length - argumentSeparator.Length, argumentSeparator.Length);
             }

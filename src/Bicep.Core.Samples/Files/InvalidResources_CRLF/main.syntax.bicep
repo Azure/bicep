@@ -228,7 +228,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[56:68)     PropertyAccessSyntax
 //@[56:66)      ObjectSyntax
 //@[56:57)       LeftBrace |{|
-//@[58:58)       SkippedTriviaSyntax
 //@[58:64)       ObjectPropertySyntax
 //@[58:61)        StringSyntax
 //@[58:61)         StringComplete |'a'|
@@ -236,7 +235,6 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
 //@[63:64)        VariableAccessSyntax
 //@[63:64)         IdentifierSyntax
 //@[63:64)          Identifier |b|
-//@[65:65)       SkippedTriviaSyntax
 //@[65:66)       RightBrace |}|
 //@[66:67)      Dot |.|
 //@[67:68)      IdentifierSyntax
@@ -465,10 +463,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[57:66)       IdentifierSyntax
 //@[57:66)        Identifier |reference|
 //@[66:67)       LeftParen |(|
-//@[67:110)       FunctionArgumentSyntax
+//@[67:109)       FunctionArgumentSyntax
 //@[67:109)        StringSyntax
 //@[67:109)         StringComplete |'Micorosft.Management/managementGroups/MG'|
-//@[109:110)        Comma |,|
+//@[109:110)       Comma |,|
 //@[111:123)       FunctionArgumentSyntax
 //@[111:123)        StringSyntax
 //@[111:123)         StringComplete |'2020-05-01'|
@@ -513,10 +511,10 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-0
 //@[57:65)       IdentifierSyntax
 //@[57:65)        Identifier |listKeys|
 //@[65:66)       LeftParen |(|
-//@[66:72)       FunctionArgumentSyntax
+//@[66:71)       FunctionArgumentSyntax
 //@[66:71)        StringSyntax
 //@[66:71)         StringComplete |'foo'|
-//@[71:72)        Comma |,|
+//@[71:72)       Comma |,|
 //@[73:85)       FunctionArgumentSyntax
 //@[73:85)        StringSyntax
 //@[73:85)         StringComplete |'2020-05-01'|
@@ -1387,12 +1385,12 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[8:14)     IdentifierSyntax
 //@[8:14)      Identifier |concat|
 //@[14:15)     LeftParen |(|
-//@[15:66)     FunctionArgumentSyntax
+//@[15:65)     FunctionArgumentSyntax
 //@[15:65)      FunctionCallSyntax
 //@[15:21)       IdentifierSyntax
 //@[15:21)        Identifier |concat|
 //@[21:22)       LeftParen |(|
-//@[22:42)       FunctionArgumentSyntax
+//@[22:41)       FunctionArgumentSyntax
 //@[22:41)        PropertyAccessSyntax
 //@[22:38)         VariableAccessSyntax
 //@[22:38)          IdentifierSyntax
@@ -1400,7 +1398,7 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[38:39)         Dot |.|
 //@[39:41)         IdentifierSyntax
 //@[39:41)          Identifier |id|
-//@[41:42)        Comma |,|
+//@[41:42)       Comma |,|
 //@[43:64)       FunctionArgumentSyntax
 //@[43:64)        PropertyAccessSyntax
 //@[43:59)         VariableAccessSyntax
@@ -1410,7 +1408,7 @@ resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
 //@[60:64)         IdentifierSyntax
 //@[60:64)          Identifier |name|
 //@[64:65)       RightParen |)|
-//@[65:66)      Comma |,|
+//@[65:66)     Comma |,|
 //@[67:88)     FunctionArgumentSyntax
 //@[67:88)      PropertyAccessSyntax
 //@[67:83)       VariableAccessSyntax
@@ -1528,7 +1526,7 @@ resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[8:14)     IdentifierSyntax
 //@[8:14)      Identifier |concat|
 //@[14:15)     LeftParen |(|
-//@[15:35)     FunctionArgumentSyntax
+//@[15:34)     FunctionArgumentSyntax
 //@[15:34)      ArrayAccessSyntax
 //@[15:26)       VariableAccessSyntax
 //@[15:26)        IdentifierSyntax
@@ -1537,7 +1535,7 @@ resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[27:33)       StringSyntax
 //@[27:33)        StringComplete |'name'|
 //@[33:34)       RightSquare |]|
-//@[34:35)      Comma |,|
+//@[34:35)     Comma |,|
 //@[36:40)     FunctionArgumentSyntax
 //@[36:40)      StringSyntax
 //@[36:40)       StringComplete |'v1'|
@@ -2021,7 +2019,7 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[8:14)     IdentifierSyntax
 //@[8:14)      Identifier |concat|
 //@[14:15)     LeftParen |(|
-//@[15:41)     FunctionArgumentSyntax
+//@[15:40)     FunctionArgumentSyntax
 //@[15:40)      PropertyAccessSyntax
 //@[15:31)       VariableAccessSyntax
 //@[15:31)        IdentifierSyntax
@@ -2029,8 +2027,8 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[31:32)       Dot |.|
 //@[32:40)       IdentifierSyntax
 //@[32:40)        Identifier |location|
-//@[40:41)      Comma |,|
-//@[42:71)     FunctionArgumentSyntax
+//@[40:41)     Comma |,|
+//@[42:70)     FunctionArgumentSyntax
 //@[42:70)      ArrayAccessSyntax
 //@[42:58)       VariableAccessSyntax
 //@[42:58)        IdentifierSyntax
@@ -2039,8 +2037,8 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[59:69)       StringSyntax
 //@[59:69)        StringComplete |'location'|
 //@[69:70)       RightSquare |]|
-//@[70:71)      Comma |,|
-//@[72:118)     FunctionArgumentSyntax
+//@[70:71)     Comma |,|
+//@[72:117)     FunctionArgumentSyntax
 //@[72:117)      PropertyAccessSyntax
 //@[72:104)       ArrayAccessSyntax
 //@[72:90)        VariableAccessSyntax
@@ -2053,7 +2051,7 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[104:105)       Dot |.|
 //@[105:117)       IdentifierSyntax
 //@[105:117)        Identifier |azCliVersion|
-//@[117:118)      Comma |,|
+//@[117:118)     Comma |,|
 //@[119:142)     FunctionArgumentSyntax
 //@[119:142)      PropertyAccessSyntax
 //@[119:137)       PropertyAccessSyntax
@@ -2466,7 +2464,7 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[8:14)     IdentifierSyntax
 //@[8:14)      Identifier |concat|
 //@[14:15)     LeftParen |(|
-//@[15:35)     FunctionArgumentSyntax
+//@[15:34)     FunctionArgumentSyntax
 //@[15:34)      PropertyAccessSyntax
 //@[15:29)       VariableAccessSyntax
 //@[15:29)        IdentifierSyntax
@@ -2474,8 +2472,8 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[29:30)       Dot |.|
 //@[30:34)       IdentifierSyntax
 //@[30:34)        Identifier |foo1|
-//@[34:35)      Comma |,|
-//@[36:80)     FunctionArgumentSyntax
+//@[34:35)     Comma |,|
+//@[36:79)     FunctionArgumentSyntax
 //@[36:79)      PropertyAccessSyntax
 //@[36:66)       ArrayAccessSyntax
 //@[36:52)        VariableAccessSyntax
@@ -2488,8 +2486,8 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[66:67)       Dot |.|
 //@[67:79)       IdentifierSyntax
 //@[67:79)        Identifier |azCliVersion|
-//@[79:80)      Comma |,|
-//@[81:112)     FunctionArgumentSyntax
+//@[79:80)     Comma |,|
+//@[81:111)     FunctionArgumentSyntax
 //@[81:111)      StringSyntax
 //@[81:84)       StringLeftPiece |'${|
 //@[84:109)       PropertyAccessSyntax
@@ -2500,7 +2498,7 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[101:109)        IdentifierSyntax
 //@[101:109)         Identifier |location|
 //@[109:111)       StringRightPiece |}'|
-//@[111:112)      Comma |,|
+//@[111:112)     Comma |,|
 //@[113:128)     FunctionArgumentSyntax
 //@[113:128)      PropertyAccessSyntax
 //@[113:124)       VariableAccessSyntax
@@ -6699,10 +6697,10 @@ resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01
 //@[1:7)    IdentifierSyntax
 //@[1:7)     Identifier |concat|
 //@[7:8)    LeftParen |(|
-//@[8:14)    FunctionArgumentSyntax
+//@[8:13)    FunctionArgumentSyntax
 //@[8:13)     StringSyntax
 //@[8:13)      StringComplete |'foo'|
-//@[13:14)     Comma |,|
+//@[13:14)    Comma |,|
 //@[15:20)    FunctionArgumentSyntax
 //@[15:20)     StringSyntax
 //@[15:20)      StringComplete |'bar'|
@@ -7468,11 +7466,11 @@ resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = 
 //@[96:101)    IdentifierSyntax
 //@[96:101)     Identifier |union|
 //@[101:102)    LeftParen |(|
-//@[102:105)    FunctionArgumentSyntax
+//@[102:104)    FunctionArgumentSyntax
 //@[102:104)     ArraySyntax
 //@[102:103)      LeftSquare |[|
 //@[103:104)      RightSquare |]|
-//@[104:105)     Comma |,|
+//@[104:105)    Comma |,|
 //@[106:107)    FunctionArgumentSyntax
 //@[106:107)     IntegerLiteralSyntax
 //@[106:107)      Integer |2|
@@ -7511,11 +7509,11 @@ resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' =
 //@[101:106)    IdentifierSyntax
 //@[101:106)     Identifier |union|
 //@[106:107)    LeftParen |(|
-//@[107:110)    FunctionArgumentSyntax
+//@[107:109)    FunctionArgumentSyntax
 //@[107:109)     ArraySyntax
 //@[107:108)      LeftSquare |[|
 //@[108:109)      RightSquare |]|
-//@[109:110)     Comma |,|
+//@[109:110)    Comma |,|
 //@[111:112)    FunctionArgumentSyntax
 //@[111:112)     IntegerLiteralSyntax
 //@[111:112)      Integer |2|
@@ -7830,10 +7828,10 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 //@[94:99)    IdentifierSyntax
 //@[94:99)     Identifier |range|
 //@[99:100)    LeftParen |(|
-//@[100:102)    FunctionArgumentSyntax
+//@[100:101)    FunctionArgumentSyntax
 //@[100:101)     IntegerLiteralSyntax
 //@[100:101)      Integer |0|
-//@[101:102)     Comma |,|
+//@[101:102)    Comma |,|
 //@[103:104)    FunctionArgumentSyntax
 //@[103:104)     IntegerLiteralSyntax
 //@[103:104)      Integer |3|
@@ -7878,10 +7876,10 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 //@[23:28)         IdentifierSyntax
 //@[23:28)          Identifier |range|
 //@[28:29)         LeftParen |(|
-//@[29:31)         FunctionArgumentSyntax
+//@[29:30)         FunctionArgumentSyntax
 //@[29:30)          IntegerLiteralSyntax
 //@[29:30)           Integer |0|
-//@[30:31)          Comma |,|
+//@[30:31)         Comma |,|
 //@[32:33)         FunctionArgumentSyntax
 //@[32:33)          IntegerLiteralSyntax
 //@[32:33)           Integer |4|
@@ -7951,10 +7949,10 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 //@[99:104)    IdentifierSyntax
 //@[99:104)     Identifier |range|
 //@[104:105)    LeftParen |(|
-//@[105:107)    FunctionArgumentSyntax
+//@[105:106)    FunctionArgumentSyntax
 //@[105:106)     IntegerLiteralSyntax
 //@[105:106)      Integer |0|
-//@[106:107)     Comma |,|
+//@[106:107)    Comma |,|
 //@[108:109)    FunctionArgumentSyntax
 //@[108:109)     IntegerLiteralSyntax
 //@[108:109)      Integer |3|
@@ -7999,10 +7997,10 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 //@[23:28)         IdentifierSyntax
 //@[23:28)          Identifier |range|
 //@[28:29)         LeftParen |(|
-//@[29:31)         FunctionArgumentSyntax
+//@[29:30)         FunctionArgumentSyntax
 //@[29:30)          IntegerLiteralSyntax
 //@[29:30)           Integer |0|
-//@[30:31)          Comma |,|
+//@[30:31)         Comma |,|
 //@[32:33)         FunctionArgumentSyntax
 //@[32:33)          IntegerLiteralSyntax
 //@[32:33)           Integer |4|
@@ -8976,11 +8974,11 @@ output directRefViaOutput array = union(premiumStorages, stuffs)
 //@[34:39)   IdentifierSyntax
 //@[34:39)    Identifier |union|
 //@[39:40)   LeftParen |(|
-//@[40:56)   FunctionArgumentSyntax
+//@[40:55)   FunctionArgumentSyntax
 //@[40:55)    VariableAccessSyntax
 //@[40:55)     IdentifierSyntax
 //@[40:55)      Identifier |premiumStorages|
-//@[55:56)    Comma |,|
+//@[55:56)   Comma |,|
 //@[57:63)   FunctionArgumentSyntax
 //@[57:63)    VariableAccessSyntax
 //@[57:63)     IdentifierSyntax
@@ -9090,11 +9088,11 @@ resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2
 //@[33:39)        IdentifierSyntax
 //@[33:39)         Identifier |concat|
 //@[39:40)        LeftParen |(|
-//@[40:56)        FunctionArgumentSyntax
+//@[40:55)        FunctionArgumentSyntax
 //@[40:55)         VariableAccessSyntax
 //@[40:55)          IdentifierSyntax
 //@[40:55)           Identifier |premiumStorages|
-//@[55:56)         Comma |,|
+//@[55:56)        Comma |,|
 //@[57:63)        FunctionArgumentSyntax
 //@[57:63)         VariableAccessSyntax
 //@[57:63)          IdentifierSyntax
@@ -9136,10 +9134,10 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 //@[103:108)    IdentifierSyntax
 //@[103:108)     Identifier |range|
 //@[108:109)    LeftParen |(|
-//@[109:111)    FunctionArgumentSyntax
+//@[109:110)    FunctionArgumentSyntax
 //@[109:110)     IntegerLiteralSyntax
 //@[109:110)      Integer |0|
-//@[110:111)     Comma |,|
+//@[110:111)    Comma |,|
 //@[112:113)    FunctionArgumentSyntax
 //@[112:113)     IntegerLiteralSyntax
 //@[112:113)      Integer |3|
@@ -9216,10 +9214,10 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
 //@[121:126)    IdentifierSyntax
 //@[121:126)     Identifier |range|
 //@[126:127)    LeftParen |(|
-//@[127:129)    FunctionArgumentSyntax
+//@[127:128)    FunctionArgumentSyntax
 //@[127:128)     IntegerLiteralSyntax
 //@[127:128)      Integer |0|
-//@[128:129)     Comma |,|
+//@[128:129)    Comma |,|
 //@[130:131)    FunctionArgumentSyntax
 //@[130:131)     IntegerLiteralSyntax
 //@[130:131)      Integer |3|
@@ -11374,17 +11372,17 @@ resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-1
 //@[9:22)      IdentifierSyntax
 //@[9:22)       Identifier |resourceGroup|
 //@[22:23)      LeftParen |(|
-//@[24:100)      FunctionArgumentSyntax
+//@[24:99)      FunctionArgumentSyntax
 //@[24:99)       PropertyAccessSyntax
 //@[24:84)        FunctionCallSyntax
 //@[24:29)         IdentifierSyntax
 //@[24:29)          Identifier |union|
 //@[29:30)         LeftParen |(|
-//@[31:60)         FunctionArgumentSyntax
+//@[31:59)         FunctionArgumentSyntax
 //@[31:59)          VariableAccessSyntax
 //@[31:59)           IdentifierSyntax
 //@[31:59)            Identifier |defaultLogAnalyticsWorkspace|
-//@[59:60)          Comma |,|
+//@[59:60)         Comma |,|
 //@[61:82)         FunctionArgumentSyntax
 //@[61:82)          VariableAccessSyntax
 //@[61:82)           IdentifierSyntax
@@ -11393,7 +11391,7 @@ resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-1
 //@[84:85)        Dot |.|
 //@[85:99)        IdentifierSyntax
 //@[85:99)         Identifier |subscriptionId|
-//@[99:100)       Comma |,|
+//@[99:100)      Comma |,|
 //@[101:136)      FunctionArgumentSyntax
 //@[101:136)       PropertyAccessSyntax
 //@[101:122)        VariableAccessSyntax
@@ -11498,7 +11496,7 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
 //@[18:23)       IdentifierSyntax
 //@[18:23)        Identifier |union|
 //@[23:24)       LeftParen |(|
-//@[24:215)       FunctionArgumentSyntax
+//@[24:214)       FunctionArgumentSyntax
 //@[24:214)        TernaryOperationSyntax
 //@[24:87)         FunctionCallSyntax
 //@[24:29)          IdentifierSyntax
@@ -11563,7 +11561,7 @@ resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-0
 //@[7:9)          NewLine |\r\n|
     },{
 //@[4:5)          RightBrace |}|
-//@[5:6)        Comma |,|
+//@[5:6)       Comma |,|
 //@[6:250)       FunctionArgumentSyntax
 //@[6:250)        ObjectSyntax
 //@[6:7)         LeftBrace |{|

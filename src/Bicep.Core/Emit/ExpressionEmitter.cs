@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
@@ -380,14 +381,14 @@ namespace Bicep.Core.Emit
                 writer.WriteEndObject(); // keyVault
 
                 writer.WritePropertyName("secretName");
-                var secretName = converter.ConvertExpression(instanceFunctionCall.Arguments[0].Expression);
+                var secretName = converter.ConvertExpression(instanceFunctionCall.GetArgumentByPosition(0).Expression);
                 var secretNameSerialised = ExpressionSerializer.SerializeExpression(secretName);
                 writer.WriteValue(secretNameSerialised);
 
-                if (instanceFunctionCall.Arguments.Length > 1)
+                if (instanceFunctionCall.Arguments.Count() > 1)
                 {
                     writer.WritePropertyName("secretVersion");
-                    var secretVersion = converter.ConvertExpression(instanceFunctionCall.Arguments[1].Expression);
+                    var secretVersion = converter.ConvertExpression(instanceFunctionCall.GetArgumentByPosition(1).Expression);
                     var secretVersionSerialised = ExpressionSerializer.SerializeExpression(secretVersion);
                     writer.WriteValue(secretVersionSerialised);
                 }

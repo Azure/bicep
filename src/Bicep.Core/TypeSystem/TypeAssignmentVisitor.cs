@@ -1216,7 +1216,7 @@ namespace Bicep.Core.TypeSystem
                         var parameterTypes = typeMismatches.Select(tm => tm.ParameterType).ToList();
                         var argumentType = typeMismatches[0].ArgumentType;
                         var signatures = typeMismatches.Select(tm => tm.Source.TypeSignature).ToList();
-                        var argumentSyntax = syntax.Arguments[typeMismatches[0].ArgumentIndex];
+                        var argumentSyntax = syntax.GetArgumentByPosition(typeMismatches[0].ArgumentIndex);
 
                         errors.Add(DiagnosticBuilder.ForPosition(argumentSyntax).CannotResolveFunctionOverload(signatures, argumentType, parameterTypes));
                     }
@@ -1225,7 +1225,7 @@ namespace Bicep.Core.TypeSystem
                         // Choose the type mismatch that has the largest index as the best one.
                         var (_, argumentIndex, argumentType, parameterType) = typeMismatches.OrderBy(tm => tm.ArgumentIndex).Last();
 
-                        errors.Add(DiagnosticBuilder.ForPosition(syntax.Arguments[argumentIndex]).ArgumentTypeMismatch(argumentType, parameterType));
+                        errors.Add(DiagnosticBuilder.ForPosition(syntax.GetArgumentByPosition(argumentIndex)).ArgumentTypeMismatch(argumentType, parameterType));
                     }
                 }
                 else
@@ -1250,7 +1250,7 @@ namespace Bicep.Core.TypeSystem
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
 
                 // return its type
-                return matchedOverload.ReturnTypeBuilder(binder, fileResolver, diagnosticWriter, syntax.Arguments, argumentTypes);
+                return matchedOverload.ReturnTypeBuilder(binder, fileResolver, diagnosticWriter, syntax.Arguments.ToImmutableArray(), argumentTypes);
             }
 
             // function arguments are ambiguous (due to "any" type)

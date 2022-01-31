@@ -624,10 +624,10 @@ var cosmosDbResourceId = resourceId('Microsoft.DocumentDB/databaseAccounts', cos
 //@[25:35)   IdentifierSyntax
 //@[25:35)    Identifier |resourceId|
 //@[35:36)   LeftParen |(|
-//@[36:76)   FunctionArgumentSyntax
+//@[36:75)   FunctionArgumentSyntax
 //@[36:75)    StringSyntax
 //@[36:75)     StringComplete |'Microsoft.DocumentDB/databaseAccounts'|
-//@[75:76)    Comma |,|
+//@[75:76)   Comma |,|
 //@[77:93)   FunctionArgumentSyntax
 //@[77:93)    PropertyAccessSyntax
 //@[77:85)     VariableAccessSyntax
@@ -807,11 +807,11 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 //@[17:25)              IdentifierSyntax
 //@[17:25)               Identifier |listKeys|
 //@[25:26)              LeftParen |(|
-//@[26:45)              FunctionArgumentSyntax
+//@[26:44)              FunctionArgumentSyntax
 //@[26:44)               VariableAccessSyntax
 //@[26:44)                IdentifierSyntax
 //@[26:44)                 Identifier |cosmosDbResourceId|
-//@[44:45)               Comma |,|
+//@[44:45)              Comma |,|
 //@[46:58)              FunctionArgumentSyntax
 //@[46:58)               StringSyntax
 //@[46:58)                StringComplete |'2020-04-01'|
@@ -2349,10 +2349,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[73:78)    IdentifierSyntax
 //@[73:78)     Identifier |range|
 //@[78:79)    LeftParen |(|
-//@[79:81)    FunctionArgumentSyntax
+//@[79:80)    FunctionArgumentSyntax
 //@[79:80)     IntegerLiteralSyntax
 //@[79:80)      Integer |0|
-//@[80:81)     Comma |,|
+//@[80:81)    Comma |,|
 //@[82:83)    FunctionArgumentSyntax
 //@[82:83)     IntegerLiteralSyntax
 //@[82:83)      Integer |3|
@@ -2397,10 +2397,10 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0
 //@[23:28)         IdentifierSyntax
 //@[23:28)          Identifier |range|
 //@[28:29)         LeftParen |(|
-//@[29:31)         FunctionArgumentSyntax
+//@[29:30)         FunctionArgumentSyntax
 //@[29:30)          IntegerLiteralSyntax
 //@[29:30)           Integer |0|
-//@[30:31)          Comma |,|
+//@[30:31)         Comma |,|
 //@[32:33)         FunctionArgumentSyntax
 //@[32:33)          IntegerLiteralSyntax
 //@[32:33)           Integer |4|
@@ -2464,10 +2464,10 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 //@[99:104)    IdentifierSyntax
 //@[99:104)     Identifier |range|
 //@[104:105)    LeftParen |(|
-//@[105:107)    FunctionArgumentSyntax
+//@[105:106)    FunctionArgumentSyntax
 //@[105:106)     IntegerLiteralSyntax
 //@[105:106)      Integer |0|
-//@[106:107)     Comma |,|
+//@[106:107)    Comma |,|
 //@[108:109)    FunctionArgumentSyntax
 //@[108:109)     IntegerLiteralSyntax
 //@[108:109)      Integer |3|
@@ -2512,10 +2512,10 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 //@[23:28)         IdentifierSyntax
 //@[23:28)          Identifier |range|
 //@[28:29)         LeftParen |(|
-//@[29:31)         FunctionArgumentSyntax
+//@[29:30)         FunctionArgumentSyntax
 //@[29:30)          IntegerLiteralSyntax
 //@[29:30)           Integer |0|
-//@[30:31)          Comma |,|
+//@[30:31)         Comma |,|
 //@[32:33)         FunctionArgumentSyntax
 //@[32:33)          IntegerLiteralSyntax
 //@[32:33)           Integer |4|
@@ -2582,10 +2582,10 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 //@[124:129)    IdentifierSyntax
 //@[124:129)     Identifier |range|
 //@[129:130)    LeftParen |(|
-//@[130:132)    FunctionArgumentSyntax
+//@[130:131)    FunctionArgumentSyntax
 //@[130:131)     IntegerLiteralSyntax
 //@[130:131)      Integer |0|
-//@[131:132)     Comma |,|
+//@[131:132)    Comma |,|
 //@[133:134)    FunctionArgumentSyntax
 //@[133:134)     IntegerLiteralSyntax
 //@[133:134)      Integer |3|
@@ -2630,10 +2630,10 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 //@[23:28)         IdentifierSyntax
 //@[23:28)          Identifier |range|
 //@[28:29)         LeftParen |(|
-//@[29:31)         FunctionArgumentSyntax
+//@[29:30)         FunctionArgumentSyntax
 //@[29:30)          IntegerLiteralSyntax
 //@[29:30)           Integer |0|
-//@[30:31)          Comma |,|
+//@[30:31)         Comma |,|
 //@[32:33)         FunctionArgumentSyntax
 //@[32:33)          IntegerLiteralSyntax
 //@[32:33)           Integer |4|
@@ -2700,10 +2700,10 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 //@[116:121)    IdentifierSyntax
 //@[116:121)     Identifier |range|
 //@[121:122)    LeftParen |(|
-//@[122:124)    FunctionArgumentSyntax
+//@[122:123)    FunctionArgumentSyntax
 //@[122:123)     IntegerLiteralSyntax
 //@[122:123)      Integer |0|
-//@[123:124)     Comma |,|
+//@[123:124)    Comma |,|
 //@[125:126)    FunctionArgumentSyntax
 //@[125:126)     IntegerLiteralSyntax
 //@[125:126)      Integer |3|
@@ -2748,10 +2748,10 @@ resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06
 //@[42:47)         IdentifierSyntax
 //@[42:47)          Identifier |range|
 //@[47:48)         LeftParen |(|
-//@[48:50)         FunctionArgumentSyntax
+//@[48:49)         FunctionArgumentSyntax
 //@[48:49)          IntegerLiteralSyntax
 //@[48:49)           Integer |0|
-//@[49:50)          Comma |,|
+//@[49:50)         Comma |,|
 //@[51:52)         FunctionArgumentSyntax
 //@[51:52)          IntegerLiteralSyntax
 //@[51:52)           Integer |4|
@@ -2807,10 +2807,10 @@ resource dnsZones 'Microsoft.Network/dnsZones@2018-05-01' = [for zone in range(0
 //@[73:78)    IdentifierSyntax
 //@[73:78)     Identifier |range|
 //@[78:79)    LeftParen |(|
-//@[79:81)    FunctionArgumentSyntax
+//@[79:80)    FunctionArgumentSyntax
 //@[79:80)     IntegerLiteralSyntax
 //@[79:80)      Integer |0|
-//@[80:81)     Comma |,|
+//@[80:81)    Comma |,|
 //@[81:82)    FunctionArgumentSyntax
 //@[81:82)     IntegerLiteralSyntax
 //@[81:82)      Integer |4|
@@ -2863,10 +2863,10 @@ resource locksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for lock in 
 //@[80:85)    IdentifierSyntax
 //@[80:85)     Identifier |range|
 //@[85:86)    LeftParen |(|
-//@[86:88)    FunctionArgumentSyntax
+//@[86:87)    FunctionArgumentSyntax
 //@[86:87)     IntegerLiteralSyntax
 //@[86:87)      Integer |0|
-//@[87:88)     Comma |,|
+//@[87:88)    Comma |,|
 //@[88:89)    FunctionArgumentSyntax
 //@[88:89)     IntegerLiteralSyntax
 //@[88:89)      Integer |2|
@@ -2952,10 +2952,10 @@ resource moreLocksOnZones 'Microsoft.Authorization/locks@2016-09-01' = [for (loc
 //@[89:94)    IdentifierSyntax
 //@[89:94)     Identifier |range|
 //@[94:95)    LeftParen |(|
-//@[95:97)    FunctionArgumentSyntax
+//@[95:96)    FunctionArgumentSyntax
 //@[95:96)     IntegerLiteralSyntax
 //@[95:96)      Integer |0|
-//@[96:97)     Comma |,|
+//@[96:97)    Comma |,|
 //@[97:98)    FunctionArgumentSyntax
 //@[97:98)     IntegerLiteralSyntax
 //@[97:98)      Integer |3|

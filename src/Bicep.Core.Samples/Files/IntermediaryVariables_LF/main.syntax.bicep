@@ -133,10 +133,10 @@ var ipConfigurations = [for i in range(0, 2): {
 //@[33:38)    IdentifierSyntax
 //@[33:38)     Identifier |range|
 //@[38:39)    LeftParen |(|
-//@[39:41)    FunctionArgumentSyntax
+//@[39:40)    FunctionArgumentSyntax
 //@[39:40)     IntegerLiteralSyntax
 //@[39:40)      Integer |0|
-//@[40:41)     Comma |,|
+//@[40:41)    Comma |,|
 //@[42:43)    FunctionArgumentSyntax
 //@[42:43)     IntegerLiteralSyntax
 //@[42:43)      Integer |2|
@@ -260,10 +260,10 @@ resource nicLoop 'Microsoft.Network/networkInterfaces@2020-11-01' = [for i in ra
 //@[78:83)    IdentifierSyntax
 //@[78:83)     Identifier |range|
 //@[83:84)    LeftParen |(|
-//@[84:86)    FunctionArgumentSyntax
+//@[84:85)    FunctionArgumentSyntax
 //@[84:85)     IntegerLiteralSyntax
 //@[84:85)      Integer |0|
-//@[85:86)     Comma |,|
+//@[85:86)    Comma |,|
 //@[87:88)    FunctionArgumentSyntax
 //@[87:88)     IntegerLiteralSyntax
 //@[87:88)      Integer |2|

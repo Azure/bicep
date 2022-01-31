@@ -426,10 +426,10 @@ var mySum = az.add(1,2)
 //@[15:18)   IdentifierSyntax
 //@[15:18)    Identifier |add|
 //@[18:19)   LeftParen |(|
-//@[19:21)   FunctionArgumentSyntax
+//@[19:20)   FunctionArgumentSyntax
 //@[19:20)    IntegerLiteralSyntax
 //@[19:20)     Integer |1|
-//@[20:21)    Comma |,|
+//@[20:21)   Comma |,|
 //@[21:22)   FunctionArgumentSyntax
 //@[21:22)    IntegerLiteralSyntax
 //@[21:22)     Integer |2|
@@ -449,10 +449,10 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[19:25)   IdentifierSyntax
 //@[19:25)    Identifier |concat|
 //@[25:26)   LeftParen |(|
-//@[26:30)   FunctionArgumentSyntax
+//@[26:29)   FunctionArgumentSyntax
 //@[26:29)    StringSyntax
 //@[26:29)     StringComplete |'a'|
-//@[29:30)    Comma |,|
+//@[29:30)   Comma |,|
 //@[31:50)   FunctionArgumentSyntax
 //@[31:50)    InstanceFunctionCallSyntax
 //@[31:33)     VariableAccessSyntax
@@ -462,10 +462,10 @@ var myConcat = sys.concat('a', az.concat('b', 'c'))
 //@[34:40)     IdentifierSyntax
 //@[34:40)      Identifier |concat|
 //@[40:41)     LeftParen |(|
-//@[41:45)     FunctionArgumentSyntax
+//@[41:44)     FunctionArgumentSyntax
 //@[41:44)      StringSyntax
 //@[41:44)       StringComplete |'b'|
-//@[44:45)      Comma |,|
+//@[44:45)     Comma |,|
 //@[46:49)     FunctionArgumentSyntax
 //@[46:49)      StringSyntax
 //@[46:49)       StringComplete |'c'|
@@ -1145,10 +1145,10 @@ var innerPropertyLoop = {
 //@[15:20)      IdentifierSyntax
 //@[15:20)       Identifier |range|
 //@[20:21)      LeftParen |(|
-//@[21:23)      FunctionArgumentSyntax
+//@[21:22)      FunctionArgumentSyntax
 //@[21:22)       IntegerLiteralSyntax
 //@[21:22)        Integer |0|
-//@[22:23)       Comma |,|
+//@[22:23)      Comma |,|
 //@[23:25)      FunctionArgumentSyntax
 //@[23:25)       IntegerLiteralSyntax
 //@[23:25)        Integer |10|
@@ -1195,10 +1195,10 @@ var innerPropertyLoop2 = {
 //@[17:22)        IdentifierSyntax
 //@[17:22)         Identifier |range|
 //@[22:23)        LeftParen |(|
-//@[23:25)        FunctionArgumentSyntax
+//@[23:24)        FunctionArgumentSyntax
 //@[23:24)         IntegerLiteralSyntax
 //@[23:24)          Integer |0|
-//@[24:25)         Comma |,|
+//@[24:25)        Comma |,|
 //@[25:27)        FunctionArgumentSyntax
 //@[25:27)         IntegerLiteralSyntax
 //@[25:27)          Integer |10|
@@ -1228,10 +1228,10 @@ var keys = listKeys('fake','fake')
 //@[11:19)   IdentifierSyntax
 //@[11:19)    Identifier |listKeys|
 //@[19:20)   LeftParen |(|
-//@[20:27)   FunctionArgumentSyntax
+//@[20:26)   FunctionArgumentSyntax
 //@[20:26)    StringSyntax
 //@[20:26)     StringComplete |'fake'|
-//@[26:27)    Comma |,|
+//@[26:27)   Comma |,|
 //@[27:33)   FunctionArgumentSyntax
 //@[27:33)    StringSyntax
 //@[27:33)     StringComplete |'fake'|
@@ -1509,10 +1509,10 @@ var notRuntime = concat('a','b')
 //@[17:23)   IdentifierSyntax
 //@[17:23)    Identifier |concat|
 //@[23:24)   LeftParen |(|
-//@[24:28)   FunctionArgumentSyntax
+//@[24:27)   FunctionArgumentSyntax
 //@[24:27)    StringSyntax
 //@[24:27)     StringComplete |'a'|
-//@[27:28)    Comma |,|
+//@[27:28)   Comma |,|
 //@[28:31)   FunctionArgumentSyntax
 //@[28:31)    StringSyntax
 //@[28:31)     StringComplete |'b'|
@@ -1528,11 +1528,11 @@ var evenMoreIndirection = concat(notRuntime, string(moreIndirection))
 //@[26:32)   IdentifierSyntax
 //@[26:32)    Identifier |concat|
 //@[32:33)   LeftParen |(|
-//@[33:44)   FunctionArgumentSyntax
+//@[33:43)   FunctionArgumentSyntax
 //@[33:43)    VariableAccessSyntax
 //@[33:43)     IdentifierSyntax
 //@[33:43)      Identifier |notRuntime|
-//@[43:44)    Comma |,|
+//@[43:44)   Comma |,|
 //@[45:68)   FunctionArgumentSyntax
 //@[45:68)    FunctionCallSyntax
 //@[45:51)     IdentifierSyntax
@@ -1555,14 +1555,14 @@ var moreIndirection = reference('s','s', 'Full')
 //@[22:31)   IdentifierSyntax
 //@[22:31)    Identifier |reference|
 //@[31:32)   LeftParen |(|
-//@[32:36)   FunctionArgumentSyntax
+//@[32:35)   FunctionArgumentSyntax
 //@[32:35)    StringSyntax
 //@[32:35)     StringComplete |'s'|
-//@[35:36)    Comma |,|
-//@[36:40)   FunctionArgumentSyntax
+//@[35:36)   Comma |,|
+//@[36:39)   FunctionArgumentSyntax
 //@[36:39)    StringSyntax
 //@[36:39)     StringComplete |'s'|
-//@[39:40)    Comma |,|
+//@[39:40)   Comma |,|
 //@[41:47)   FunctionArgumentSyntax
 //@[41:47)    StringSyntax
 //@[41:47)     StringComplete |'Full'|
@@ -1628,7 +1628,7 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[21:26)   IdentifierSyntax
 //@[21:26)    Identifier |union|
 //@[26:27)   LeftParen |(|
-//@[27:51)   FunctionArgumentSyntax
+//@[27:50)   FunctionArgumentSyntax
 //@[27:50)    ForSyntax
 //@[27:28)     LeftSquare |[|
 //@[28:31)     Identifier |for|
@@ -1643,7 +1643,7 @@ var loopExpression = union([for thing in stuff: 4], [for thing in stuff: true])
 //@[48:49)     IntegerLiteralSyntax
 //@[48:49)      Integer |4|
 //@[49:50)     RightSquare |]|
-//@[50:51)    Comma |,|
+//@[50:51)   Comma |,|
 //@[52:78)   FunctionArgumentSyntax
 //@[52:78)    ForSyntax
 //@[52:53)     LeftSquare |[|

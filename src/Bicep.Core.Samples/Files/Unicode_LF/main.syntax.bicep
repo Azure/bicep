@@ -101,14 +101,14 @@ output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
 //@[37:43)   IdentifierSyntax
 //@[37:43)    Identifier |concat|
 //@[43:44)   LeftParen |(|
-//@[44:49)   FunctionArgumentSyntax
+//@[44:48)   FunctionArgumentSyntax
 //@[44:48)    StringSyntax
 //@[44:48)     StringComplete |'Θμ'|
-//@[48:49)    Comma |,|
-//@[50:56)   FunctionArgumentSyntax
+//@[48:49)   Comma |,|
+//@[50:55)   FunctionArgumentSyntax
 //@[50:55)    StringSyntax
 //@[50:55)     StringComplete |'二头肌'|
-//@[55:56)    Comma |,|
+//@[55:56)   Comma |,|
 //@[57:60)   FunctionArgumentSyntax
 //@[57:60)    StringSyntax
 //@[57:60)     StringComplete |'α'|

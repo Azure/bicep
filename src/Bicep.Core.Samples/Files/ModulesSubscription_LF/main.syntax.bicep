@@ -61,11 +61,11 @@ var scripts = take(groups, 2)
 //@[14:18)   IdentifierSyntax
 //@[14:18)    Identifier |take|
 //@[18:19)   LeftParen |(|
-//@[19:26)   FunctionArgumentSyntax
+//@[19:25)   FunctionArgumentSyntax
 //@[19:25)    VariableAccessSyntax
 //@[19:25)     IdentifierSyntax
 //@[19:25)      Identifier |groups|
-//@[25:26)    Comma |,|
+//@[25:26)   Comma |,|
 //@[27:28)   FunctionArgumentSyntax
 //@[27:28)    IntegerLiteralSyntax
 //@[27:28)     Integer |2|
@@ -301,11 +301,11 @@ module scopedToResourceGroupFunction 'hello.bicep' = [for (name, i) in scripts: 
 //@[23:29)        IdentifierSyntax
 //@[23:29)         Identifier |concat|
 //@[29:30)        LeftParen |(|
-//@[30:35)        FunctionArgumentSyntax
+//@[30:34)        FunctionArgumentSyntax
 //@[30:34)         VariableAccessSyntax
 //@[30:34)          IdentifierSyntax
 //@[30:34)           Identifier |name|
-//@[34:35)         Comma |,|
+//@[34:35)        Comma |,|
 //@[36:44)        FunctionArgumentSyntax
 //@[36:44)         StringSyntax
 //@[36:44)          StringComplete |'-extra'|

@@ -52,10 +52,10 @@ resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
 //@[8:12)     IdentifierSyntax
 //@[8:12)      Identifier |guid|
 //@[12:13)     LeftParen |(|
-//@[13:21)     FunctionArgumentSyntax
+//@[13:20)     FunctionArgumentSyntax
 //@[13:20)      StringSyntax
 //@[13:20)       StringComplete |'owner'|
-//@[20:21)      Comma |,|
+//@[20:21)     Comma |,|
 //@[22:38)     FunctionArgumentSyntax
 //@[22:38)      VariableAccessSyntax
 //@[22:38)       IdentifierSyntax
@@ -125,10 +125,10 @@ resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-previe
 //@[8:12)      IdentifierSyntax
 //@[8:12)       Identifier |guid|
 //@[12:13)      LeftParen |(|
-//@[13:27)      FunctionArgumentSyntax
+//@[13:26)      FunctionArgumentSyntax
 //@[13:26)       StringSyntax
 //@[13:26)        StringComplete |'contributor'|
-//@[26:27)       Comma |,|
+//@[26:27)      Comma |,|
 //@[28:39)      FunctionArgumentSyntax
 //@[28:39)       VariableAccessSyntax
 //@[28:39)        IdentifierSyntax
@@ -216,10 +216,10 @@ resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = 
 //@[8:12)      IdentifierSyntax
 //@[8:12)       Identifier |guid|
 //@[12:13)      LeftParen |(|
-//@[13:22)      FunctionArgumentSyntax
+//@[13:21)      FunctionArgumentSyntax
 //@[13:21)       StringSyntax
 //@[13:21)        StringComplete |'reader'|
-//@[21:22)       Comma |,|
+//@[21:22)      Comma |,|
 //@[23:29)      FunctionArgumentSyntax
 //@[23:29)       VariableAccessSyntax
 //@[23:29)        IdentifierSyntax

@@ -127,8 +127,6 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[7:17) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |modANoName|
-//@[44:44) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
-//@[51:51) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) ||
 
 }
 

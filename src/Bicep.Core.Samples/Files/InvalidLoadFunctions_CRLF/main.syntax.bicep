@@ -195,10 +195,10 @@ var textLoadUnsupportedEncoding = loadTextContent('Assets/TextFile.txt', 'window
 //@[34:49)   IdentifierSyntax
 //@[34:49)    Identifier |loadTextContent|
 //@[49:50)   LeftParen |(|
-//@[50:72)   FunctionArgumentSyntax
+//@[50:71)   FunctionArgumentSyntax
 //@[50:71)    StringSyntax
 //@[50:71)     StringComplete |'Assets/TextFile.txt'|
-//@[71:72)    Comma |,|
+//@[71:72)   Comma |,|
 //@[73:87)   FunctionArgumentSyntax
 //@[73:87)    StringSyntax
 //@[73:87)     StringComplete |'windows-1250'|
@@ -215,10 +215,10 @@ var textLoadWrongEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'us-asc
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
+//@[46:71)   FunctionArgumentSyntax
 //@[46:71)    StringSyntax
 //@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
+//@[71:72)   Comma |,|
 //@[73:83)   FunctionArgumentSyntax
 //@[73:83)    StringSyntax
 //@[73:83)     StringComplete |'us-ascii'|
@@ -234,10 +234,10 @@ var textLoadWrongEncoding02 = loadTextContent('Assets/encoding-iso.txt', 'utf-8'
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
+//@[46:71)   FunctionArgumentSyntax
 //@[46:71)    StringSyntax
 //@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
+//@[71:72)   Comma |,|
 //@[73:80)   FunctionArgumentSyntax
 //@[73:80)    StringSyntax
 //@[73:80)     StringComplete |'utf-8'|
@@ -253,10 +253,10 @@ var textLoadWrongEncoding03 = loadTextContent('Assets/encoding-iso.txt', 'utf-16
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
+//@[46:71)   FunctionArgumentSyntax
 //@[46:71)    StringSyntax
 //@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
+//@[71:72)   Comma |,|
 //@[73:83)   FunctionArgumentSyntax
 //@[73:83)    StringSyntax
 //@[73:83)     StringComplete |'utf-16BE'|
@@ -272,10 +272,10 @@ var textLoadWrongEncoding04 = loadTextContent('Assets/encoding-iso.txt', 'utf-16
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:72)   FunctionArgumentSyntax
+//@[46:71)   FunctionArgumentSyntax
 //@[46:71)    StringSyntax
 //@[46:71)     StringComplete |'Assets/encoding-iso.txt'|
-//@[71:72)    Comma |,|
+//@[71:72)   Comma |,|
 //@[73:81)   FunctionArgumentSyntax
 //@[73:81)    StringSyntax
 //@[73:81)     StringComplete |'utf-16'|
@@ -291,10 +291,10 @@ var textLoadWrongEncoding05 = loadTextContent('Assets/encoding-ascii.txt', 'iso-
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:87)   FunctionArgumentSyntax
 //@[75:87)    StringSyntax
 //@[75:87)     StringComplete |'iso-8859-1'|
@@ -310,10 +310,10 @@ var textLoadWrongEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:82)   FunctionArgumentSyntax
 //@[75:82)    StringSyntax
 //@[75:82)     StringComplete |'utf-8'|
@@ -329,10 +329,10 @@ var textLoadWrongEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:85)   FunctionArgumentSyntax
 //@[75:85)    StringSyntax
 //@[75:85)     StringComplete |'utf-16BE'|
@@ -348,10 +348,10 @@ var textLoadWrongEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:83)   FunctionArgumentSyntax
 //@[75:83)    StringSyntax
 //@[75:83)     StringComplete |'utf-16'|
@@ -367,10 +367,10 @@ var textLoadWrongEncoding09 = loadTextContent('Assets/encoding-utf16.txt', 'iso-
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:87)   FunctionArgumentSyntax
 //@[75:87)    StringSyntax
 //@[75:87)     StringComplete |'iso-8859-1'|
@@ -386,10 +386,10 @@ var textLoadWrongEncoding10 = loadTextContent('Assets/encoding-utf16.txt', 'utf-
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:82)   FunctionArgumentSyntax
 //@[75:82)    StringSyntax
 //@[75:82)     StringComplete |'utf-8'|
@@ -405,10 +405,10 @@ var textLoadWrongEncoding11 = loadTextContent('Assets/encoding-utf16.txt', 'utf-
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:85)   FunctionArgumentSyntax
 //@[75:85)    StringSyntax
 //@[75:85)     StringComplete |'utf-16BE'|
@@ -424,10 +424,10 @@ var textLoadWrongEncoding12 = loadTextContent('Assets/encoding-utf16.txt', 'us-a
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:74)   FunctionArgumentSyntax
+//@[46:73)   FunctionArgumentSyntax
 //@[46:73)    StringSyntax
 //@[46:73)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[73:74)    Comma |,|
+//@[73:74)   Comma |,|
 //@[75:85)   FunctionArgumentSyntax
 //@[75:85)    StringSyntax
 //@[75:85)     StringComplete |'us-ascii'|
@@ -443,10 +443,10 @@ var textLoadWrongEncoding13 = loadTextContent('Assets/encoding-utf16be.txt', 'ut
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
+//@[46:75)   FunctionArgumentSyntax
 //@[46:75)    StringSyntax
 //@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
+//@[75:76)   Comma |,|
 //@[77:85)   FunctionArgumentSyntax
 //@[77:85)    StringSyntax
 //@[77:85)     StringComplete |'utf-16'|
@@ -462,10 +462,10 @@ var textLoadWrongEncoding14 = loadTextContent('Assets/encoding-utf16be.txt', 'ut
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
+//@[46:75)   FunctionArgumentSyntax
 //@[46:75)    StringSyntax
 //@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
+//@[75:76)   Comma |,|
 //@[77:84)   FunctionArgumentSyntax
 //@[77:84)    StringSyntax
 //@[77:84)     StringComplete |'utf-8'|
@@ -481,10 +481,10 @@ var textLoadWrongEncoding15 = loadTextContent('Assets/encoding-utf16be.txt', 'us
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
+//@[46:75)   FunctionArgumentSyntax
 //@[46:75)    StringSyntax
 //@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
+//@[75:76)   Comma |,|
 //@[77:87)   FunctionArgumentSyntax
 //@[77:87)    StringSyntax
 //@[77:87)     StringComplete |'us-ascii'|
@@ -500,10 +500,10 @@ var textLoadWrongEncoding16 = loadTextContent('Assets/encoding-utf16be.txt', 'is
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:76)   FunctionArgumentSyntax
+//@[46:75)   FunctionArgumentSyntax
 //@[46:75)    StringSyntax
 //@[46:75)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[75:76)    Comma |,|
+//@[75:76)   Comma |,|
 //@[77:89)   FunctionArgumentSyntax
 //@[77:89)    StringSyntax
 //@[77:89)     StringComplete |'iso-8859-1'|
@@ -519,10 +519,10 @@ var textLoadWrongEncoding17 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
+//@[46:79)   FunctionArgumentSyntax
 //@[46:79)    StringSyntax
 //@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
+//@[79:80)   Comma |,|
 //@[81:91)   FunctionArgumentSyntax
 //@[81:91)    StringSyntax
 //@[81:91)     StringComplete |'utf-16BE'|
@@ -538,10 +538,10 @@ var textLoadWrongEncoding18 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
+//@[46:79)   FunctionArgumentSyntax
 //@[46:79)    StringSyntax
 //@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
+//@[79:80)   Comma |,|
 //@[81:89)   FunctionArgumentSyntax
 //@[81:89)    StringSyntax
 //@[81:89)     StringComplete |'utf-16'|
@@ -557,10 +557,10 @@ var textLoadWrongEncoding19 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
+//@[46:79)   FunctionArgumentSyntax
 //@[46:79)    StringSyntax
 //@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
+//@[79:80)   Comma |,|
 //@[81:88)   FunctionArgumentSyntax
 //@[81:88)    StringSyntax
 //@[81:88)     StringComplete |'utf-8'|
@@ -576,10 +576,10 @@ var textLoadWrongEncoding20 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
+//@[46:79)   FunctionArgumentSyntax
 //@[46:79)    StringSyntax
 //@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
+//@[79:80)   Comma |,|
 //@[81:91)   FunctionArgumentSyntax
 //@[81:91)    StringSyntax
 //@[81:91)     StringComplete |'us-ascii'|
@@ -595,10 +595,10 @@ var textLoadWrongEncoding21 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:80)   FunctionArgumentSyntax
+//@[46:79)   FunctionArgumentSyntax
 //@[46:79)    StringSyntax
 //@[46:79)     StringComplete |'Assets/encoding-windows1250.txt'|
-//@[79:80)    Comma |,|
+//@[79:80)   Comma |,|
 //@[81:93)   FunctionArgumentSyntax
 //@[81:93)    StringSyntax
 //@[81:93)     StringComplete |'iso-8859-1'|
@@ -614,10 +614,10 @@ var textLoadWrongEncoding22 = loadTextContent('Assets/encoding-utf8.txt', 'iso-8
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
+//@[46:72)   FunctionArgumentSyntax
 //@[46:72)    StringSyntax
 //@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
+//@[72:73)   Comma |,|
 //@[74:86)   FunctionArgumentSyntax
 //@[74:86)    StringSyntax
 //@[74:86)     StringComplete |'iso-8859-1'|
@@ -633,10 +633,10 @@ var textLoadWrongEncoding23 = loadTextContent('Assets/encoding-utf8.txt', 'utf-1
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
+//@[46:72)   FunctionArgumentSyntax
 //@[46:72)    StringSyntax
 //@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
+//@[72:73)   Comma |,|
 //@[74:82)   FunctionArgumentSyntax
 //@[74:82)    StringSyntax
 //@[74:82)     StringComplete |'utf-16'|
@@ -652,10 +652,10 @@ var textLoadWrongEncoding24 = loadTextContent('Assets/encoding-utf8.txt', 'utf-1
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
+//@[46:72)   FunctionArgumentSyntax
 //@[46:72)    StringSyntax
 //@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
+//@[72:73)   Comma |,|
 //@[74:84)   FunctionArgumentSyntax
 //@[74:84)    StringSyntax
 //@[74:84)     StringComplete |'utf-16BE'|
@@ -671,10 +671,10 @@ var textLoadWrongEncoding25 = loadTextContent('Assets/encoding-utf8.txt', 'us-as
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:73)   FunctionArgumentSyntax
+//@[46:72)   FunctionArgumentSyntax
 //@[46:72)    StringSyntax
 //@[46:72)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[72:73)    Comma |,|
+//@[72:73)   Comma |,|
 //@[74:84)   FunctionArgumentSyntax
 //@[74:84)    StringSyntax
 //@[74:84)     StringComplete |'us-ascii'|
@@ -690,10 +690,10 @@ var textLoadWrongEncoding26 = loadTextContent('Assets/encoding-utf8-bom.txt', 'i
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
+//@[46:76)   FunctionArgumentSyntax
 //@[46:76)    StringSyntax
 //@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
+//@[76:77)   Comma |,|
 //@[78:90)   FunctionArgumentSyntax
 //@[78:90)    StringSyntax
 //@[78:90)     StringComplete |'iso-8859-1'|
@@ -709,10 +709,10 @@ var textLoadWrongEncoding27 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
+//@[46:76)   FunctionArgumentSyntax
 //@[46:76)    StringSyntax
 //@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
+//@[76:77)   Comma |,|
 //@[78:86)   FunctionArgumentSyntax
 //@[78:86)    StringSyntax
 //@[78:86)     StringComplete |'utf-16'|
@@ -728,10 +728,10 @@ var textLoadWrongEncoding28 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
+//@[46:76)   FunctionArgumentSyntax
 //@[46:76)    StringSyntax
 //@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
+//@[76:77)   Comma |,|
 //@[78:88)   FunctionArgumentSyntax
 //@[78:88)    StringSyntax
 //@[78:88)     StringComplete |'utf-16BE'|
@@ -747,10 +747,10 @@ var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[30:45)   IdentifierSyntax
 //@[30:45)    Identifier |loadTextContent|
 //@[45:46)   LeftParen |(|
-//@[46:77)   FunctionArgumentSyntax
+//@[46:76)   FunctionArgumentSyntax
 //@[46:76)    StringSyntax
 //@[46:76)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[76:77)    Comma |,|
+//@[76:77)   Comma |,|
 //@[78:88)   FunctionArgumentSyntax
 //@[78:88)    StringSyntax
 //@[78:88)     StringComplete |'us-ascii'|

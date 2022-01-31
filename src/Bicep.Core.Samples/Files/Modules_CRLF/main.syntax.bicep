@@ -709,7 +709,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@[20:26)       IdentifierSyntax
 //@[20:26)        Identifier |concat|
 //@[26:27)       LeftParen |(|
-//@[27:50)       FunctionArgumentSyntax
+//@[27:49)       FunctionArgumentSyntax
 //@[27:49)        PropertyAccessSyntax
 //@[27:46)         VariableAccessSyntax
 //@[27:46)          IdentifierSyntax
@@ -717,7 +717,7 @@ module optionalWithImplicitDependency './child/optionalParams.bicep'= {
 //@[46:47)         Dot |.|
 //@[47:49)         IdentifierSyntax
 //@[47:49)          Identifier |id|
-//@[49:50)        Comma |,|
+//@[49:50)       Comma |,|
 //@[51:96)       FunctionArgumentSyntax
 //@[51:96)        PropertyAccessSyntax
 //@[51:91)         VariableAccessSyntax
@@ -809,7 +809,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@[20:26)       IdentifierSyntax
 //@[20:26)        Identifier |concat|
 //@[26:27)       LeftParen |(|
-//@[27:50)       FunctionArgumentSyntax
+//@[27:49)       FunctionArgumentSyntax
 //@[27:49)        PropertyAccessSyntax
 //@[27:46)         VariableAccessSyntax
 //@[27:46)          IdentifierSyntax
@@ -817,7 +817,7 @@ module moduleWithCalculatedName './child/optionalParams.bicep'= {
 //@[46:47)         Dot |.|
 //@[47:49)         IdentifierSyntax
 //@[47:49)          Identifier |id|
-//@[49:50)        Comma |,|
+//@[49:50)       Comma |,|
 //@[51:96)       FunctionArgumentSyntax
 //@[51:96)        PropertyAccessSyntax
 //@[51:91)         VariableAccessSyntax
@@ -1306,10 +1306,10 @@ module storageResourcesWithIndex 'modulea.bicep' = [for (module, i) in myModules
 //@[18:24)        IdentifierSyntax
 //@[18:24)         Identifier |concat|
 //@[24:25)        LeftParen |(|
-//@[25:29)        FunctionArgumentSyntax
+//@[25:28)        FunctionArgumentSyntax
 //@[25:28)         StringSyntax
 //@[25:28)          StringComplete |'a'|
-//@[28:29)         Comma |,|
+//@[28:29)        Comma |,|
 //@[30:31)        FunctionArgumentSyntax
 //@[30:31)         VariableAccessSyntax
 //@[30:31)          IdentifierSyntax
@@ -1385,10 +1385,10 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[26:31)         IdentifierSyntax
 //@[26:31)          Identifier |range|
 //@[31:32)         LeftParen |(|
-//@[32:34)         FunctionArgumentSyntax
+//@[32:33)         FunctionArgumentSyntax
 //@[32:33)          IntegerLiteralSyntax
 //@[32:33)           Integer |0|
-//@[33:34)          Comma |,|
+//@[33:34)         Comma |,|
 //@[34:35)         FunctionArgumentSyntax
 //@[34:35)          IntegerLiteralSyntax
 //@[34:35)           Integer |3|
@@ -1398,19 +1398,19 @@ module nestedModuleLoop 'modulea.bicep' = [for module in myModules: {
 //@[38:44)         IdentifierSyntax
 //@[38:44)          Identifier |concat|
 //@[44:45)         LeftParen |(|
-//@[45:53)         FunctionArgumentSyntax
+//@[45:52)         FunctionArgumentSyntax
 //@[45:52)          StringSyntax
 //@[45:52)           StringComplete |'test-'|
-//@[52:53)          Comma |,|
-//@[54:56)         FunctionArgumentSyntax
+//@[52:53)         Comma |,|
+//@[54:55)         FunctionArgumentSyntax
 //@[54:55)          VariableAccessSyntax
 //@[54:55)           IdentifierSyntax
 //@[54:55)            Identifier |i|
-//@[55:56)          Comma |,|
-//@[57:61)         FunctionArgumentSyntax
+//@[55:56)         Comma |,|
+//@[57:60)         FunctionArgumentSyntax
 //@[57:60)          StringSyntax
 //@[57:60)           StringComplete |'-'|
-//@[60:61)          Comma |,|
+//@[60:61)         Comma |,|
 //@[62:73)         FunctionArgumentSyntax
 //@[62:73)          PropertyAccessSyntax
 //@[62:68)           VariableAccessSyntax
@@ -1821,10 +1821,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[19:24)          IdentifierSyntax
 //@[19:24)           Identifier |range|
 //@[24:25)          LeftParen |(|
-//@[25:27)          FunctionArgumentSyntax
+//@[25:26)          FunctionArgumentSyntax
 //@[25:26)           IntegerLiteralSyntax
 //@[25:26)            Integer |0|
-//@[26:27)           Comma |,|
+//@[26:27)          Comma |,|
 //@[27:29)          FunctionArgumentSyntax
 //@[27:29)           IntegerLiteralSyntax
 //@[27:29)            Integer |10|
@@ -1851,10 +1851,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[19:24)          IdentifierSyntax
 //@[19:24)           Identifier |range|
 //@[24:25)          LeftParen |(|
-//@[25:27)          FunctionArgumentSyntax
+//@[25:26)          FunctionArgumentSyntax
 //@[25:26)           IntegerLiteralSyntax
 //@[25:26)            Integer |1|
-//@[26:27)           Comma |,|
+//@[26:27)          Comma |,|
 //@[27:28)          FunctionArgumentSyntax
 //@[27:28)           IntegerLiteralSyntax
 //@[27:28)            Integer |2|
@@ -1889,10 +1889,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[21:26)            IdentifierSyntax
 //@[21:26)             Identifier |range|
 //@[26:27)            LeftParen |(|
-//@[27:29)            FunctionArgumentSyntax
+//@[27:28)            FunctionArgumentSyntax
 //@[27:28)             IntegerLiteralSyntax
 //@[27:28)              Integer |2|
-//@[28:29)             Comma |,|
+//@[28:29)            Comma |,|
 //@[29:30)            FunctionArgumentSyntax
 //@[29:30)             IntegerLiteralSyntax
 //@[29:30)              Integer |3|
@@ -1922,10 +1922,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[19:24)          IdentifierSyntax
 //@[19:24)           Identifier |range|
 //@[24:25)          LeftParen |(|
-//@[25:27)          FunctionArgumentSyntax
+//@[25:26)          FunctionArgumentSyntax
 //@[25:26)           IntegerLiteralSyntax
 //@[25:26)            Integer |4|
-//@[26:27)           Comma |,|
+//@[26:27)          Comma |,|
 //@[27:28)          FunctionArgumentSyntax
 //@[27:28)           IntegerLiteralSyntax
 //@[27:28)            Integer |4|
@@ -1987,10 +1987,10 @@ module propertyLoopInsideParameterValue 'modulea.bicep' = {
 //@[21:26)            IdentifierSyntax
 //@[21:26)             Identifier |range|
 //@[26:27)            LeftParen |(|
-//@[27:29)            FunctionArgumentSyntax
+//@[27:28)            FunctionArgumentSyntax
 //@[27:28)             IntegerLiteralSyntax
 //@[27:28)              Integer |7|
-//@[28:29)             Comma |,|
+//@[28:29)            Comma |,|
 //@[29:30)            FunctionArgumentSyntax
 //@[29:30)             IntegerLiteralSyntax
 //@[29:30)              Integer |7|
@@ -2072,10 +2072,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[25:30)          IdentifierSyntax
 //@[25:30)           Identifier |range|
 //@[30:31)          LeftParen |(|
-//@[31:33)          FunctionArgumentSyntax
+//@[31:32)          FunctionArgumentSyntax
 //@[31:32)           IntegerLiteralSyntax
 //@[31:32)            Integer |0|
-//@[32:33)           Comma |,|
+//@[32:33)          Comma |,|
 //@[33:35)          FunctionArgumentSyntax
 //@[33:35)           IntegerLiteralSyntax
 //@[33:35)            Integer |10|
@@ -2114,10 +2114,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[25:30)          IdentifierSyntax
 //@[25:30)           Identifier |range|
 //@[30:31)          LeftParen |(|
-//@[31:33)          FunctionArgumentSyntax
+//@[31:32)          FunctionArgumentSyntax
 //@[31:32)           IntegerLiteralSyntax
 //@[31:32)            Integer |1|
-//@[32:33)           Comma |,|
+//@[32:33)          Comma |,|
 //@[33:34)          FunctionArgumentSyntax
 //@[33:34)           IntegerLiteralSyntax
 //@[33:34)            Integer |2|
@@ -2164,10 +2164,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[27:32)            IdentifierSyntax
 //@[27:32)             Identifier |range|
 //@[32:33)            LeftParen |(|
-//@[33:35)            FunctionArgumentSyntax
+//@[33:34)            FunctionArgumentSyntax
 //@[33:34)             IntegerLiteralSyntax
 //@[33:34)              Integer |2|
-//@[34:35)             Comma |,|
+//@[34:35)            Comma |,|
 //@[35:36)            FunctionArgumentSyntax
 //@[35:36)             IntegerLiteralSyntax
 //@[35:36)              Integer |3|
@@ -2209,10 +2209,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[25:30)          IdentifierSyntax
 //@[25:30)           Identifier |range|
 //@[30:31)          LeftParen |(|
-//@[31:33)          FunctionArgumentSyntax
+//@[31:32)          FunctionArgumentSyntax
 //@[31:32)           IntegerLiteralSyntax
 //@[31:32)            Integer |4|
-//@[32:33)           Comma |,|
+//@[32:33)          Comma |,|
 //@[33:34)          FunctionArgumentSyntax
 //@[33:34)           IntegerLiteralSyntax
 //@[33:34)            Integer |4|
@@ -2283,10 +2283,10 @@ module propertyLoopInsideParameterValueWithIndexes 'modulea.bicep' = {
 //@[21:26)            IdentifierSyntax
 //@[21:26)             Identifier |range|
 //@[26:27)            LeftParen |(|
-//@[27:29)            FunctionArgumentSyntax
+//@[27:28)            FunctionArgumentSyntax
 //@[27:28)             IntegerLiteralSyntax
 //@[27:28)              Integer |7|
-//@[28:29)             Comma |,|
+//@[28:29)            Comma |,|
 //@[29:30)            FunctionArgumentSyntax
 //@[29:30)             IntegerLiteralSyntax
 //@[29:30)              Integer |7|
@@ -2329,10 +2329,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[88:93)    IdentifierSyntax
 //@[88:93)     Identifier |range|
 //@[93:94)    LeftParen |(|
-//@[94:96)    FunctionArgumentSyntax
+//@[94:95)    FunctionArgumentSyntax
 //@[94:95)     IntegerLiteralSyntax
 //@[94:95)      Integer |0|
-//@[95:96)     Comma |,|
+//@[95:96)    Comma |,|
 //@[96:97)    FunctionArgumentSyntax
 //@[96:97)     IntegerLiteralSyntax
 //@[96:97)      Integer |1|
@@ -2381,10 +2381,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[19:24)           IdentifierSyntax
 //@[19:24)            Identifier |range|
 //@[24:25)           LeftParen |(|
-//@[25:27)           FunctionArgumentSyntax
+//@[25:26)           FunctionArgumentSyntax
 //@[25:26)            IntegerLiteralSyntax
 //@[25:26)             Integer |0|
-//@[26:27)            Comma |,|
+//@[26:27)           Comma |,|
 //@[27:29)           FunctionArgumentSyntax
 //@[27:29)            IntegerLiteralSyntax
 //@[27:29)             Integer |10|
@@ -2416,10 +2416,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[19:24)           IdentifierSyntax
 //@[19:24)            Identifier |range|
 //@[24:25)           LeftParen |(|
-//@[25:27)           FunctionArgumentSyntax
+//@[25:26)           FunctionArgumentSyntax
 //@[25:26)            IntegerLiteralSyntax
 //@[25:26)             Integer |1|
-//@[26:27)            Comma |,|
+//@[26:27)           Comma |,|
 //@[27:28)           FunctionArgumentSyntax
 //@[27:28)            IntegerLiteralSyntax
 //@[27:28)             Integer |2|
@@ -2459,10 +2459,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[21:26)             IdentifierSyntax
 //@[21:26)              Identifier |range|
 //@[26:27)             LeftParen |(|
-//@[27:29)             FunctionArgumentSyntax
+//@[27:28)             FunctionArgumentSyntax
 //@[27:28)              IntegerLiteralSyntax
 //@[27:28)               Integer |2|
-//@[28:29)              Comma |,|
+//@[28:29)             Comma |,|
 //@[29:30)             FunctionArgumentSyntax
 //@[29:30)              IntegerLiteralSyntax
 //@[29:30)               Integer |3|
@@ -2492,10 +2492,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[19:24)           IdentifierSyntax
 //@[19:24)            Identifier |range|
 //@[24:25)           LeftParen |(|
-//@[25:27)           FunctionArgumentSyntax
+//@[25:26)           FunctionArgumentSyntax
 //@[25:26)            IntegerLiteralSyntax
 //@[25:26)             Integer |4|
-//@[26:27)            Comma |,|
+//@[26:27)           Comma |,|
 //@[27:28)           FunctionArgumentSyntax
 //@[27:28)            IntegerLiteralSyntax
 //@[27:28)             Integer |4|
@@ -2562,10 +2562,10 @@ module propertyLoopInsideParameterValueInsideModuleLoop 'modulea.bicep' = [for t
 //@[21:26)             IdentifierSyntax
 //@[21:26)              Identifier |range|
 //@[26:27)             LeftParen |(|
-//@[27:29)             FunctionArgumentSyntax
+//@[27:28)             FunctionArgumentSyntax
 //@[27:28)              IntegerLiteralSyntax
 //@[27:28)               Integer |7|
-//@[28:29)              Comma |,|
+//@[28:29)             Comma |,|
 //@[29:30)             FunctionArgumentSyntax
 //@[29:30)              IntegerLiteralSyntax
 //@[29:30)               Integer |7|
@@ -2681,10 +2681,10 @@ module secureModule1 'child/secureParams.bicep' = {
 //@[27:36)       IdentifierSyntax
 //@[27:36)        Identifier |getSecret|
 //@[36:37)       LeftParen |(|
-//@[37:48)       FunctionArgumentSyntax
+//@[37:47)       FunctionArgumentSyntax
 //@[37:47)        StringSyntax
 //@[37:47)         StringComplete |'mySecret'|
-//@[47:48)        Comma |,|
+//@[47:48)       Comma |,|
 //@[48:63)       FunctionArgumentSyntax
 //@[48:63)        StringSyntax
 //@[48:63)         StringComplete |'secretVersion'|
@@ -2793,10 +2793,10 @@ module secureModule2 'child/secureParams.bicep' = {
 //@[33:42)       IdentifierSyntax
 //@[33:42)        Identifier |getSecret|
 //@[42:43)       LeftParen |(|
-//@[43:54)       FunctionArgumentSyntax
+//@[43:53)       FunctionArgumentSyntax
 //@[43:53)        StringSyntax
 //@[43:53)         StringComplete |'mySecret'|
-//@[53:54)        Comma |,|
+//@[53:54)       Comma |,|
 //@[54:69)       FunctionArgumentSyntax
 //@[54:69)        StringSyntax
 //@[54:69)         StringComplete |'secretVersion'|
@@ -2993,7 +2993,7 @@ resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault i
 //@[9:22)      IdentifierSyntax
 //@[9:22)       Identifier |resourceGroup|
 //@[22:23)      LeftParen |(|
-//@[23:38)      FunctionArgumentSyntax
+//@[23:37)      FunctionArgumentSyntax
 //@[23:37)       PropertyAccessSyntax
 //@[23:28)        VariableAccessSyntax
 //@[23:28)         IdentifierSyntax
@@ -3001,7 +3001,7 @@ resource loopedKv 'Microsoft.KeyVault/vaults@2019-09-01' existing = [for vault i
 //@[28:29)        Dot |.|
 //@[29:37)        IdentifierSyntax
 //@[29:37)         Identifier |vaultSub|
-//@[37:38)       Comma |,|
+//@[37:38)      Comma |,|
 //@[39:52)      FunctionArgumentSyntax
 //@[39:52)       PropertyAccessSyntax
 //@[39:44)        VariableAccessSyntax
@@ -3114,7 +3114,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@[36:45)        IdentifierSyntax
 //@[36:45)         Identifier |getSecret|
 //@[45:46)        LeftParen |(|
-//@[46:58)        FunctionArgumentSyntax
+//@[46:57)        FunctionArgumentSyntax
 //@[46:57)         PropertyAccessSyntax
 //@[46:52)          VariableAccessSyntax
 //@[46:52)           IdentifierSyntax
@@ -3122,7 +3122,7 @@ module secureModuleLooped 'child/secureParams.bicep' = [for (secret, i) in secre
 //@[52:53)          Dot |.|
 //@[53:57)          IdentifierSyntax
 //@[53:57)           Identifier |name|
-//@[57:58)         Comma |,|
+//@[57:58)        Comma |,|
 //@[59:73)        FunctionArgumentSyntax
 //@[59:73)         PropertyAccessSyntax
 //@[59:65)          VariableAccessSyntax

@@ -28,8 +28,9 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = {}
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (name == 'value') {}
 
-resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
-}
+resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if ({
+  'a': b
+}.a == 'foo') {}
 
 // simulate typing if condition
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if

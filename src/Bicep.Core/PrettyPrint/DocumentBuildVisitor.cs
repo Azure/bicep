@@ -196,31 +196,46 @@ namespace Bicep.Core.PrettyPrint
              });
 
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
-            this.Build(() => base.VisitFunctionCallSyntax(syntax), children =>
+            this.BuildWithConcat(() =>
             {
-                Debug.Assert(children.Length >= 3);
-
-                ILinkedDocument name = children[0];
-                ILinkedDocument openParen = children[1];
-                ILinkedDocument arguments = Spread(children.Skip(2).SkipLast(1));
-                ILinkedDocument closeParen = children[^1];
-
-                return Concat(name, openParen, arguments, closeParen);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.OpenParen);
+                foreach (var child in syntax.Children)
+                {
+                    if (child is Token { Type: TokenType.Comma })
+                    {
+                        this.Visit(child);
+                        this.documentStack.Push(Space);
+                    }
+                    else
+                    {
+                        this.Visit(child);
+                    }
+                }
+                this.Visit(syntax.CloseParen);
             });
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
-            this.Build(() => base.VisitInstanceFunctionCallSyntax(syntax), children =>
+            this.BuildWithConcat(() =>
             {
-                Debug.Assert(children.Length >= 5);
-
-                ILinkedDocument baseExpression = children[0];
-                ILinkedDocument dot = children[1];
-                ILinkedDocument name = children[2];
-                ILinkedDocument openParen = children[3];
-                ILinkedDocument arguments = Spread(children.Skip(4).SkipLast(1));
-                ILinkedDocument closeParen = children[^1];
-
-                return Concat(baseExpression, dot, name, openParen, arguments, closeParen);
+                //TODO: check if there's a better way to do this
+                this.Visit(syntax.BaseExpression);
+                this.Visit(syntax.Dot);
+                this.Visit(syntax.Name);
+                this.Visit(syntax.OpenParen);
+                foreach (var child in syntax.Children)
+                {
+                    if (child is Token { Type: TokenType.Comma })
+                    {
+                        this.Visit(child);
+                        this.documentStack.Push(Space);
+                    }
+                    else
+                    {
+                        this.Visit(child);
+                    }
+                }
+                this.Visit(syntax.CloseParen);
             });
 
         public override void VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax) =>

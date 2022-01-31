@@ -443,10 +443,10 @@ module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Man
 //@[56:65)       IdentifierSyntax
 //@[56:65)        Identifier |reference|
 //@[65:66)       LeftParen |(|
-//@[66:109)       FunctionArgumentSyntax
+//@[66:108)       FunctionArgumentSyntax
 //@[66:108)        StringSyntax
 //@[66:108)         StringComplete |'Micorosft.Management/managementGroups/MG'|
-//@[108:109)        Comma |,|
+//@[108:109)       Comma |,|
 //@[110:122)       FunctionArgumentSyntax
 //@[110:122)        StringSyntax
 //@[110:122)         StringComplete |'2020-05-01'|
@@ -484,10 +484,10 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 //@[55:63)       IdentifierSyntax
 //@[55:63)        Identifier |listKeys|
 //@[63:64)       LeftParen |(|
-//@[64:70)       FunctionArgumentSyntax
+//@[64:69)       FunctionArgumentSyntax
 //@[64:69)        StringSyntax
 //@[64:69)         StringComplete |'foo'|
-//@[69:70)        Comma |,|
+//@[69:70)       Comma |,|
 //@[71:83)       FunctionArgumentSyntax
 //@[71:83)        StringSyntax
 //@[71:83)         StringComplete |'2020-05-01'|
@@ -524,7 +524,6 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[42:54)     PropertyAccessSyntax
 //@[42:52)      ObjectSyntax
 //@[42:43)       LeftBrace |{|
-//@[44:44)       SkippedTriviaSyntax
 //@[44:50)       ObjectPropertySyntax
 //@[44:47)        StringSyntax
 //@[44:47)         StringComplete |'a'|
@@ -532,7 +531,6 @@ module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[49:50)        VariableAccessSyntax
 //@[49:50)         IdentifierSyntax
 //@[49:50)          Identifier |b|
-//@[51:51)       SkippedTriviaSyntax
 //@[51:52)       RightBrace |}|
 //@[52:53)      Dot |.|
 //@[53:54)      IdentifierSyntax
@@ -1266,12 +1264,12 @@ module runtimeValidModule1 'empty.bicep' = {
 //@[8:14)     IdentifierSyntax
 //@[8:14)      Identifier |concat|
 //@[14:15)     LeftParen |(|
-//@[15:66)     FunctionArgumentSyntax
+//@[15:65)     FunctionArgumentSyntax
 //@[15:65)      FunctionCallSyntax
 //@[15:21)       IdentifierSyntax
 //@[15:21)        Identifier |concat|
 //@[21:22)       LeftParen |(|
-//@[22:42)       FunctionArgumentSyntax
+//@[22:41)       FunctionArgumentSyntax
 //@[22:41)        PropertyAccessSyntax
 //@[22:38)         VariableAccessSyntax
 //@[22:38)          IdentifierSyntax
@@ -1279,7 +1277,7 @@ module runtimeValidModule1 'empty.bicep' = {
 //@[38:39)         Dot |.|
 //@[39:41)         IdentifierSyntax
 //@[39:41)          Identifier |id|
-//@[41:42)        Comma |,|
+//@[41:42)       Comma |,|
 //@[43:64)       FunctionArgumentSyntax
 //@[43:64)        PropertyAccessSyntax
 //@[43:59)         VariableAccessSyntax
@@ -1289,7 +1287,7 @@ module runtimeValidModule1 'empty.bicep' = {
 //@[60:64)         IdentifierSyntax
 //@[60:64)          Identifier |name|
 //@[64:65)       RightParen |)|
-//@[65:66)      Comma |,|
+//@[65:66)     Comma |,|
 //@[67:88)     FunctionArgumentSyntax
 //@[67:88)      PropertyAccessSyntax
 //@[67:83)       VariableAccessSyntax
@@ -1681,7 +1679,7 @@ module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[8:14)      IdentifierSyntax
 //@[8:14)       Identifier |concat|
 //@[14:15)      LeftParen |(|
-//@[15:66)      FunctionArgumentSyntax
+//@[15:65)      FunctionArgumentSyntax
 //@[15:65)       PropertyAccessSyntax
 //@[15:51)        PropertyAccessSyntax
 //@[15:43)         ArrayAccessSyntax
@@ -1698,7 +1696,7 @@ module moduleLoopForRuntimeCheck3 'modulea.bicep' = [for thing in []: {
 //@[51:52)        Dot |.|
 //@[52:65)        IdentifierSyntax
 //@[52:65)         Identifier |stringOutputB|
-//@[65:66)       Comma |,|
+//@[65:66)      Comma |,|
 //@[67:117)      FunctionArgumentSyntax
 //@[67:117)       PropertyAccessSyntax
 //@[67:103)        PropertyAccessSyntax
@@ -3216,11 +3214,11 @@ module directRefToCollectionViaSingleBody 'modulea.bicep' = {
 //@[16:22)       IdentifierSyntax
 //@[16:22)        Identifier |concat|
 //@[22:23)       LeftParen |(|
-//@[23:50)       FunctionArgumentSyntax
+//@[23:49)       FunctionArgumentSyntax
 //@[23:49)        VariableAccessSyntax
 //@[23:49)         IdentifierSyntax
 //@[23:49)          Identifier |wrongModuleParameterInLoop|
-//@[49:50)        Comma |,|
+//@[49:50)       Comma |,|
 //@[51:68)       FunctionArgumentSyntax
 //@[51:68)        VariableAccessSyntax
 //@[51:68)         IdentifierSyntax
@@ -3294,11 +3292,11 @@ module directRefToCollectionViaSingleConditionalBody 'modulea.bicep' = if(true) 
 //@[16:22)        IdentifierSyntax
 //@[16:22)         Identifier |concat|
 //@[22:23)        LeftParen |(|
-//@[23:50)        FunctionArgumentSyntax
+//@[23:49)        FunctionArgumentSyntax
 //@[23:49)         VariableAccessSyntax
 //@[23:49)          IdentifierSyntax
 //@[23:49)           Identifier |wrongModuleParameterInLoop|
-//@[49:50)         Comma |,|
+//@[49:50)        Comma |,|
 //@[51:68)        FunctionArgumentSyntax
 //@[51:68)         VariableAccessSyntax
 //@[51:68)          IdentifierSyntax
@@ -3376,11 +3374,11 @@ module directRefToCollectionViaLoopBody 'modulea.bicep' = [for test in []: {
 //@[16:22)        IdentifierSyntax
 //@[16:22)         Identifier |concat|
 //@[22:23)        LeftParen |(|
-//@[23:50)        FunctionArgumentSyntax
+//@[23:49)        FunctionArgumentSyntax
 //@[23:49)         VariableAccessSyntax
 //@[23:49)          IdentifierSyntax
 //@[23:49)           Identifier |wrongModuleParameterInLoop|
-//@[49:50)         Comma |,|
+//@[49:50)        Comma |,|
 //@[51:68)        FunctionArgumentSyntax
 //@[51:68)         VariableAccessSyntax
 //@[51:68)          IdentifierSyntax
@@ -3459,11 +3457,11 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
 //@[16:22)        IdentifierSyntax
 //@[16:22)         Identifier |concat|
 //@[22:23)        LeftParen |(|
-//@[23:50)        FunctionArgumentSyntax
+//@[23:49)        FunctionArgumentSyntax
 //@[23:49)         VariableAccessSyntax
 //@[23:49)          IdentifierSyntax
 //@[23:49)           Identifier |wrongModuleParameterInLoop|
-//@[49:50)         Comma |,|
+//@[49:50)        Comma |,|
 //@[51:68)        FunctionArgumentSyntax
 //@[51:68)         VariableAccessSyntax
 //@[51:68)          IdentifierSyntax

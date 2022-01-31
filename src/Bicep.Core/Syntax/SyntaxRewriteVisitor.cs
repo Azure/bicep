@@ -572,7 +572,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.Arguments, out var arguments);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var arguments);
             hasChanges |= TryRewriteStrict(syntax.CloseParen, out var closeParen);
 
             if (!hasChanges)
@@ -590,7 +590,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= TryRewriteStrict(syntax.Dot, out var dot);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.Arguments, out var arguments);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var arguments);
             hasChanges |= TryRewriteStrict(syntax.CloseParen, out var closeParen);
 
             if (!hasChanges)
@@ -606,14 +606,13 @@ namespace Bicep.Core.Syntax
         protected virtual SyntaxBase ReplaceFunctionArgumentSyntax(FunctionArgumentSyntax syntax)
         {
             var hasChanges = TryRewrite(syntax.Expression, out var expression);
-            hasChanges |= TryRewriteStrict(syntax.Comma, out var comma);
 
             if (!hasChanges)
             {
                 return syntax;
             }
 
-            return new FunctionArgumentSyntax(expression, comma);
+            return new FunctionArgumentSyntax(expression);
         }
         void ISyntaxVisitor.VisitFunctionArgumentSyntax(FunctionArgumentSyntax syntax) => ReplaceCurrent(syntax, ReplaceFunctionArgumentSyntax);
 

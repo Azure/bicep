@@ -1343,6 +1343,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP226",
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
+
+            public ErrorDiagnostic ExpectedNewLineOrComma() => new(
+                TextSpan,
+                "BCP227",
+                "Expected a new line or comma character at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

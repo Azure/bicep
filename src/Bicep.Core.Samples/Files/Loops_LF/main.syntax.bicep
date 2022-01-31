@@ -402,10 +402,10 @@ resource extensionCollection 'Microsoft.Authorization/locks@2016-09-01' = [for i
 //@[84:89)    IdentifierSyntax
 //@[84:89)     Identifier |range|
 //@[89:90)    LeftParen |(|
-//@[90:92)    FunctionArgumentSyntax
+//@[90:91)    FunctionArgumentSyntax
 //@[90:91)     IntegerLiteralSyntax
 //@[90:91)      Integer |0|
-//@[91:92)     Comma |,|
+//@[91:92)    Comma |,|
 //@[92:93)    FunctionArgumentSyntax
 //@[92:93)     IntegerLiteralSyntax
 //@[92:93)      Integer |1|
@@ -504,10 +504,10 @@ resource lockTheLocks 'Microsoft.Authorization/locks@2016-09-01' = [for i in ran
 //@[77:82)    IdentifierSyntax
 //@[77:82)     Identifier |range|
 //@[82:83)    LeftParen |(|
-//@[83:85)    FunctionArgumentSyntax
+//@[83:84)    FunctionArgumentSyntax
 //@[83:84)     IntegerLiteralSyntax
 //@[83:84)      Integer |0|
-//@[84:85)     Comma |,|
+//@[84:85)    Comma |,|
 //@[85:86)    FunctionArgumentSyntax
 //@[85:86)     IntegerLiteralSyntax
 //@[85:86)      Integer |1|
@@ -976,10 +976,10 @@ resource firstSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ran
 //@[77:82)    IdentifierSyntax
 //@[77:82)     Identifier |range|
 //@[82:83)    LeftParen |(|
-//@[83:85)    FunctionArgumentSyntax
+//@[83:84)    FunctionArgumentSyntax
 //@[83:84)     IntegerLiteralSyntax
 //@[83:84)      Integer |0|
-//@[84:85)     Comma |,|
+//@[84:85)    Comma |,|
 //@[86:102)    FunctionArgumentSyntax
 //@[86:102)     FunctionCallSyntax
 //@[86:92)      IdentifierSyntax
@@ -1077,10 +1077,10 @@ resource secondSet 'Microsoft.Storage/storageAccounts@2019-06-01' = [for i in ra
 //@[78:83)    IdentifierSyntax
 //@[78:83)     Identifier |range|
 //@[83:84)    LeftParen |(|
-//@[84:86)    FunctionArgumentSyntax
+//@[84:85)    FunctionArgumentSyntax
 //@[84:85)     IntegerLiteralSyntax
 //@[84:85)      Integer |0|
-//@[85:86)     Comma |,|
+//@[85:86)    Comma |,|
 //@[87:103)    FunctionArgumentSyntax
 //@[87:103)     FunctionCallSyntax
 //@[87:93)      IdentifierSyntax
@@ -1916,7 +1916,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[13:19)       IdentifierSyntax
 //@[13:19)        Identifier |concat|
 //@[19:20)       LeftParen |(|
-//@[20:87)       FunctionArgumentSyntax
+//@[20:86)       FunctionArgumentSyntax
 //@[20:86)        PropertyAccessSyntax
 //@[20:77)         PropertyAccessSyntax
 //@[20:69)          ArrayAccessSyntax
@@ -1934,7 +1934,7 @@ module singleModuleWithIndexedDependencies 'passthrough.bicep' = {
 //@[77:78)         Dot |.|
 //@[78:86)         IdentifierSyntax
 //@[78:86)          Identifier |myOutput|
-//@[86:87)        Comma |,|
+//@[86:87)       Comma |,|
 //@[88:136)       FunctionArgumentSyntax
 //@[88:136)        PropertyAccessSyntax
 //@[88:125)         PropertyAccessSyntax
@@ -2661,10 +2661,10 @@ resource propertyLoopDependencyOnModuleCollection 'Microsoft.Network/frontDoors@
 //@[34:39)              IdentifierSyntax
 //@[34:39)               Identifier |range|
 //@[39:40)              LeftParen |(|
-//@[40:42)              FunctionArgumentSyntax
+//@[40:41)              FunctionArgumentSyntax
 //@[40:41)               IntegerLiteralSyntax
 //@[40:41)                Integer |0|
-//@[41:42)               Comma |,|
+//@[41:42)              Comma |,|
 //@[43:58)              FunctionArgumentSyntax
 //@[43:58)               FunctionCallSyntax
 //@[43:49)                IdentifierSyntax
@@ -2803,10 +2803,10 @@ resource indexedModuleCollectionDependency 'Microsoft.Network/frontDoors@2020-05
 //@[101:106)    IdentifierSyntax
 //@[101:106)     Identifier |range|
 //@[106:107)    LeftParen |(|
-//@[107:109)    FunctionArgumentSyntax
+//@[107:108)    FunctionArgumentSyntax
 //@[107:108)     IntegerLiteralSyntax
 //@[107:108)      Integer |0|
-//@[108:109)     Comma |,|
+//@[108:109)    Comma |,|
 //@[110:125)    FunctionArgumentSyntax
 //@[110:125)     FunctionCallSyntax
 //@[110:116)      IdentifierSyntax
@@ -3082,10 +3082,10 @@ resource propertyLoopDependencyOnResourceCollection 'Microsoft.Network/frontDoor
 //@[34:39)              IdentifierSyntax
 //@[34:39)               Identifier |range|
 //@[39:40)              LeftParen |(|
-//@[40:42)              FunctionArgumentSyntax
+//@[40:41)              FunctionArgumentSyntax
 //@[40:41)               IntegerLiteralSyntax
 //@[40:41)                Integer |0|
-//@[41:42)               Comma |,|
+//@[41:42)              Comma |,|
 //@[43:59)              FunctionArgumentSyntax
 //@[43:59)               FunctionCallSyntax
 //@[43:49)                IdentifierSyntax
@@ -3240,10 +3240,10 @@ resource indexedResourceCollectionDependency 'Microsoft.Network/frontDoors@2020-
 //@[103:108)    IdentifierSyntax
 //@[103:108)     Identifier |range|
 //@[108:109)    LeftParen |(|
-//@[109:111)    FunctionArgumentSyntax
+//@[109:110)    FunctionArgumentSyntax
 //@[109:110)     IntegerLiteralSyntax
 //@[109:110)      Integer |0|
-//@[110:111)     Comma |,|
+//@[110:111)    Comma |,|
 //@[112:128)    FunctionArgumentSyntax
 //@[112:128)     FunctionCallSyntax
 //@[112:118)      IdentifierSyntax
@@ -3473,10 +3473,10 @@ resource filteredZones 'Microsoft.Network/dnsZones@2018-05-01' = [for i in range
 //@[75:80)    IdentifierSyntax
 //@[75:80)     Identifier |range|
 //@[80:81)    LeftParen |(|
-//@[81:83)    FunctionArgumentSyntax
+//@[81:82)    FunctionArgumentSyntax
 //@[81:82)     IntegerLiteralSyntax
 //@[81:82)      Integer |0|
-//@[82:83)     Comma |,|
+//@[82:83)    Comma |,|
 //@[83:85)    FunctionArgumentSyntax
 //@[83:85)     IntegerLiteralSyntax
 //@[83:85)      Integer |10|
@@ -3552,10 +3552,10 @@ module filteredModules 'passthrough.bicep' = [for i in range(0,6): if(i % 2 == 0
 //@[55:60)    IdentifierSyntax
 //@[55:60)     Identifier |range|
 //@[60:61)    LeftParen |(|
-//@[61:63)    FunctionArgumentSyntax
+//@[61:62)    FunctionArgumentSyntax
 //@[61:62)     IntegerLiteralSyntax
 //@[61:62)      Integer |0|
-//@[62:63)     Comma |,|
+//@[62:63)    Comma |,|
 //@[63:64)    FunctionArgumentSyntax
 //@[63:64)     IntegerLiteralSyntax
 //@[63:64)      Integer |6|
