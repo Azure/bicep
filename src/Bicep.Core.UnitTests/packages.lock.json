@@ -1673,7 +1673,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "bicep.core": {
+      "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "0.1.331",
@@ -1698,7 +1698,7 @@
       "bicep.langserver": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "OmniSharp.Extensions.LanguageServer": "0.19.2"
         }
       }

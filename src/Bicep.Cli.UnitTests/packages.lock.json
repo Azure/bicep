@@ -1383,16 +1383,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "bicep": {
-        "type": "Project",
-        "dependencies": {
-          "Bicep.Core": "1.0.0",
-          "Bicep.Decompiler": "1.0.0",
-          "Microsoft.Extensions.Logging": "6.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
-        }
-      },
-      "bicep.core": {
+      "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "0.1.331",
@@ -1414,12 +1405,21 @@
           "System.IO.Abstractions": "13.2.47"
         }
       },
-      "bicep.decompiler": {
+      "Azure.Bicep.Decompiler": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "Newtonsoft.Json": "13.0.1",
           "System.Collections.Immutable": "6.0.0"
+        }
+      },
+      "bicep": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "1.0.0",
+          "Azure.Bicep.Decompiler": "1.0.0",
+          "Microsoft.Extensions.Logging": "6.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
         }
       }
     },
