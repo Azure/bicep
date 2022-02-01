@@ -4,9 +4,9 @@
     "net6.0": {
       "FluentAssertions": {
         "type": "Direct",
-        "requested": "[6.2.0, )",
-        "resolved": "6.2.0",
-        "contentHash": "5YOZLB0Tay1bw+wEYZTAZlPThQ/Yntk1HSPJYluMd5PW/Xg9E8I1mRC03AKRsnuANBR0kYaHq0NX1fg7RgrGNA==",
+        "requested": "[6.4.0, )",
+        "resolved": "6.4.0",
+        "contentHash": "KOJE1UD7ndxoZAdmOraiUFLdcdGTArGQW8WYN+vwrC3mdt2G/B7gmsMOozgXKiNSh3fpD/Xp/0mhonRh8vrZKw==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -199,6 +199,14 @@
         "contentHash": "fEODh5RsZ1cd4Cfg/f6NoVZ1v3a0iZ5XtshIsdWPnuIMMwxuN07/v8QJ7wyIQI+0MASa1l3v0k7XN9FjypaY3A==",
         "dependencies": {
           "System.Text.Json": "4.7.2"
+        }
+      },
+      "JsonPath.Net": {
+        "type": "Transitive",
+        "resolved": "0.1.14",
+        "contentHash": "NKaq/Sna+/u/3rdxJzbV0evKxjtiICn2ceS3DmK4TZ3c+6Y9UP5xbTumY4P1KKyy92hx5hjLup6F3HvOgM7HnA==",
+        "dependencies": {
+          "JsonPointer.Net": "2.0.0"
         }
       },
       "JsonPointer.Net": {
@@ -1681,6 +1689,8 @@
           "Azure.Deployments.Templates": "1.0.546",
           "Azure.Identity": "1.5.0",
           "Azure.ResourceManager.Resources": "1.0.0-beta.3",
+          "JsonPatch.Net": "1.1.2",
+          "JsonPath.Net": "0.1.14",
           "Microsoft.Extensions.Configuration": "6.0.0",
           "Microsoft.Extensions.Configuration.Binder": "6.0.0",
           "Microsoft.Extensions.Configuration.Json": "6.0.0",
@@ -1694,7 +1704,8 @@
         "dependencies": {
           "Bicep.Core": "1.0.0",
           "DiffPlex": "1.7.0",
-          "FluentAssertions": "6.2.0",
+          "FluentAssertions": "6.4.0",
+          "JsonPath.Net": "0.1.14",
           "JsonSchema.Net": "1.12.0",
           "Microsoft.Extensions.Logging": "6.0.0",
           "Microsoft.Extensions.Logging.Console": "6.0.0",

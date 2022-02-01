@@ -6,9 +6,9 @@ using System;
 
 namespace Bicep.RegistryModuleTool.Exceptions
 {
-    public class InvalidModuleFileException : Exception
+    public class InvalidModuleException : Exception
     {
-        public InvalidModuleFileException(string message, Exception? innerException = null)
+        public InvalidModuleException(string message, Exception? innerException = null)
             : base(message, innerException)
         {
         }

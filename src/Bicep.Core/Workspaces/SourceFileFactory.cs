@@ -25,9 +25,7 @@ namespace Bicep.Core.Workspaces
 
         public static ISourceFile CreateSourceFile(Uri fileUri, string fileContents, ModuleReference? moduleReference = null)
         {
-            if (PathHelper.HasExtension(fileUri, LanguageConstants.JsonFileExtension) ||
-                PathHelper.HasExtension(fileUri, LanguageConstants.JsoncFileExtension) ||
-                PathHelper.HasExtension(fileUri, LanguageConstants.ArmTemplateFileExtension))
+            if (PathHelper.HasArmTemplateLikeExtension(fileUri))
             {
                 return moduleReference is TemplateSpecModuleReference
                     ? CreateTemplateSpecFile(fileUri, fileContents)

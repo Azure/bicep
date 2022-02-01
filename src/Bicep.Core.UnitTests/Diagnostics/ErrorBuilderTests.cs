@@ -219,21 +219,21 @@ namespace Bicep.Core.UnitTests.Diagnostics
        )]
         [DataRow(@"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                   location: 'westus2'
+                   location: 'global'
                  }",
             @"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                   location: 'westus2'
+                   location: 'global'
                    name:
                  }"
         )]
         [DataRow(@"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                               location: 'westus2'
+                               location: 'global'
                  }",
             @"
                  resource vnet 'Microsoft.Network/virtualNetworks@2018-10-01' = {
-                               location: 'westus2'
+                               location: 'global'
                                name:
                  }"
         )]

@@ -4,8 +4,6 @@
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
-using System;
-using System.CommandLine;
 using System.IO;
 using System.IO.Abstractions;
 
@@ -28,13 +26,6 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         public void Validate(MainArmTemplateFile file) => this.Validate(file.Path, file.Content, latestMainArmTemplateFile.Content);
 
-        public void Validate(MainArmTemplateParametersFile file)
-        {
-            var latestMainArmTemplateParametersFile = MainArmTemplateParametersFile.Generate(this.fileSystem, this.latestMainArmTemplateFile);
-
-            this.Validate(file.Path, file.Content, latestMainArmTemplateParametersFile.Content);
-        }
-
         public void Validate(ReadmeFile file)
         {
             var latestMetadataFile = MetadataFile.ReadFromFileSystem(this.fileSystem);
@@ -56,7 +47,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
             if (DiffLines(newContent, oldContent))
             {
-                throw new InvalidModuleFileException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+                throw new InvalidModuleException($"The file \"{filePath}\" is modified or outdated. Please regenerate the file to fix it.");
             }
         }
 

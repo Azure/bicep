@@ -12,7 +12,7 @@
             ],
             "env": {
                 "BICEP_TRACING_ENABLED": "true",
-                "DEBUGTELEMETRY": "", // "" or "0" or "false": send telemetry; "1": no telemetry; "verbose": telemetry in console, don't send (defined by vscode-azureextensionui)
+                "DEBUGTELEMETRY": "", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from vscode-azureextensionui)
             },
             "stopOnEntry": false,
             "sourceMaps": true,

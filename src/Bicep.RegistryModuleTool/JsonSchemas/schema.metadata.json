@@ -3,115 +3,33 @@
     "$schema": {
       "type": "string",
       "enum": [
-        "https://aka.ms/azure-quickstart-templates-metadata-schema#"
+        "https://aka.ms/bicep-registry-module-metadata-schema#"
       ],
-      "description": "JSON schema reference"
+      "description": "Bicep registry module JSON schema reference."
     },
-    "itemDisplayName": {
+    "name": {
       "type": "string",
       "minLength": 10,
-      "maxLength": 60
+      "maxLength": 60,
+      "description": "The name of the module."
     },
     "description": {
       "type": "string",
       "minLength": 10,
-      "maxLength": 1000
+      "maxLength": 1000,
+      "description": "The description of the module."
     },
-    "summary": {
+    "owner": {
       "type": "string",
-      "minLength": 10,
-      "maxLength": 200
-    },
-    "githubUsername": {
-      "type": "string",
-      "pattern": "^[a-zA-Z\\d](?:[a-zA-Z\\d]|-(?=[a-zA-Z\\d])){0,38}$"
-    },
-    "docOwner": {
-      "type": "string",
-      "pattern": "^[a-zA-Z\\d](?:[a-zA-Z\\d]|-(?=[a-zA-Z\\d])){0,38}$"
-    },
-    "dateUpdated": {
-      "type": "string",
-      "pattern": "^(20[1-9][0-9])-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$"
-    },
-    "validationType": {
-      "type": "string",
-      "enum": [
-        "Manual",
-        "Automated"
-      ]
-    },
-    "type": {
-      "type": "string",
-      "enum": [
-        "QuickStart",
-        "Application",
-        "ManagedApplication",
-        "Module",
-        "PolicyDefinition",
-        "Prereq",
-        "SubscriptionDeployment",
-        "ManagementGroupDeployment",
-        "TenantDeployment"
-      ]
-    },
-    "icon": {
-      "type": "string",
-      "enum": [
-        "api",
-        "blankTemplate",
-        "cdnStorage",
-        "cdnWebsite",
-        "docker",
-        "documentDB",
-        "logic",
-        "serviceFabric",
-        "ubuntu",
-        "vmss",
-        "windowsVM"
-      ]
-    },
-    "tags": {
-      "type": "object",
-      "additionalProperties": true,
-      "description": "Collection of tags or keywords for the sample"
-    },
-    "environments": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": [
-          "AzureUSGovernment",
-          "AzureCloud",
-          "AzureGermanCloud",
-          "AzureChinaCloud"
-        ]
-      },
-      "additionalItems": false,
-      "additionalProperties": false
-    },
-    "languages": {
-      "type": "array",
-      "items": {
-        "type": "string",
-        "enum": [
-          "json",
-          "bicep",
-          "terraform"
-        ]
-      },
-      "additionalItems": false,
-      "additionalProperties": false
+      "pattern": "^[a-zA-Z\\d](?:[a-zA-Z\\d]|-(?=[a-zA-Z\\d])){0,38}$",
+      "description": "The owner of the module. Must be a GitHub username or team under the Azure organization."
     }
   },
   "required": [
     "$schema",
-    "itemDisplayName",
+    "name",
     "description",
-    "summary",
-    "githubUsername",
-    "dateUpdated",
-    "type"
+    "owner"
   ],
   "additionalProperties": false
 }

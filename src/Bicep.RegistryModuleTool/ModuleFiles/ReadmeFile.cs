@@ -1,14 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using System;
 using System.Collections.Generic;
 using System.IO.Abstractions;
 using System.Linq;
-using System.Security;
 using System.Text;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
@@ -16,16 +13,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     public sealed class ReadmeFile : ModuleFile
     {
         public const string FileName = "README.md";
-
-        private const string BadgeBaseUrl = "https://azurequickstartsservice.blob.core.windows.net/badges/modules";
-
-        private const string QuickStartBaseUrl = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/modules";
-
-        private const string DeployToAzureButtonUrl = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true";
-
-        private const string DeployToAzureUSGovButtonUrl = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.svg?sanitize=true";
-
-        private const string VisualizeButtonUrl = "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/visualizebutton.svg?sanitize=true";
 
         public ReadmeFile(string path, string content)
             : base(path)
@@ -39,10 +26,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             var builder = new StringBuilder();
 
-            builder.AppendLine($"# {metadataFile.ItemDisplayName}");
+            builder.AppendLine($"# {metadataFile.Name}");
             builder.AppendLine();
-
-            BuildBadgesAndButtons(builder, fileSystem);
 
             builder.AppendLine(metadataFile.Description);
             builder.AppendLine();
@@ -69,57 +54,6 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         }
 
         protected override void ValidatedBy(IModuleFileValidator validator) => validator.Validate(this);
-
-        private static void BuildBadgesAndButtons(StringBuilder builder, IFileSystem fileSystem)
-        {
-            var stack = new Stack<string>();
-
-            try
-            {
-                var path = fileSystem.Path.GetFullPath(FileName);
-                var directoryPath = fileSystem.Path.GetDirectoryName(path);
-                var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
-
-                while (directoryInfo is not null && !directoryInfo.Name.Equals("modules", StringComparison.OrdinalIgnoreCase))
-                {
-                    stack.Push(directoryInfo.Name);
-
-                    directoryInfo = directoryInfo.Parent;
-                }
-
-                if (directoryInfo is null)
-                {
-                    throw new BicepException("Could not find the \"modules\" folder in the path.");
-                }
-            }
-            catch (SecurityException exception)
-            {
-                throw new BicepException(exception.Message, exception);
-            }
-
-            var relativePath = string.Join("/", stack.ToArray());
-            var badgeBaseUrl = $"{BadgeBaseUrl}/{relativePath}";
-            var mainArmTemplateUrlEscaped = Uri.EscapeDataString($"{QuickStartBaseUrl}/{relativePath}/azuredeploy.json");
-
-            // Badges.
-            builder.AppendLine($"![Azure Public Test Date]({badgeBaseUrl}/PublicLastTestDate.svg)");
-            builder.AppendLine($"![Azure Public Test Result]({badgeBaseUrl}/PublicDeployment.svg)");
-            builder.AppendLine();
-
-            builder.AppendLine($"![Azure US Gov Last Test Date]({badgeBaseUrl}/FairfaxLastTestDate.svg)");
-            builder.AppendLine($"![Azure US Gov Last Test Result]({badgeBaseUrl}/FairfaxDeployment.svg)");
-            builder.AppendLine();
-
-            builder.AppendLine($"![Best Practice Check]({badgeBaseUrl}/BestPracticeResult.svg)");
-            builder.AppendLine($"![Cred Scan Check]({badgeBaseUrl}/CredScanResult.svg)");
-            builder.AppendLine();
-
-            // Buttons.
-            builder.AppendLine($"[![Deploy To Azure]({DeployToAzureButtonUrl})](https://portal.azure.com/#create/Microsoft.Template/uri/{mainArmTemplateUrlEscaped})");
-            builder.AppendLine($"[![Deploy To Azure US Gov]({DeployToAzureUSGovButtonUrl})](https://portal.azure.us/#create/Microsoft.Template/uri/{mainArmTemplateUrlEscaped})");
-            builder.AppendLine($"[![Visualize]({VisualizeButtonUrl})](http://armviz.io/#/?load={mainArmTemplateUrlEscaped})");
-            builder.AppendLine();
-        }
 
         private static void BuildParametersTable(StringBuilder builder, IEnumerable<MainArmTemplateParameter> parameters)
         {

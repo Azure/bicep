@@ -150,6 +150,11 @@ namespace Bicep.Core.FileSystem
 
         public static bool HasBicepExtension(Uri uri) => HasExtension(uri, BicepExtension);
 
+        public static bool HasArmTemplateLikeExtension(Uri uri) =>
+                HasExtension(uri, LanguageConstants.JsonFileExtension) ||
+                HasExtension(uri, LanguageConstants.JsoncFileExtension) ||
+                HasExtension(uri, LanguageConstants.ArmTemplateFileExtension);
+
         private static string GetNormalizedPath(Uri uri) =>
             uri.Scheme != Uri.UriSchemeFile ? uri.AbsoluteUri.TrimEnd('/') : uri.AbsolutePath;
 

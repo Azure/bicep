@@ -1,10 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -50,39 +53,54 @@ namespace Bicep.LanguageServer.Handlers
             });
         }
 
+        private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
+        {
+            if (symbol.DeclaringSyntax is StatementSyntax statementSyntax &&
+                SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), statementSyntax) is {} description)
+            {
+                return description;
+            }
+
+            return null;
+        }
+
         private static string? GetMarkdown(HoverParams request, SymbolResolutionResult result)
         {
-            // all of the generated markdown includes the language id to avoid VS code rendering 
+            // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
             switch (result.Symbol)
             {
                 case ImportedNamespaceSymbol import:
                     return CodeBlockWithDescription(
-                        $"import {import.Name}", SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), import.DeclaringImport));
+                        $"import {import.Name}", TryGetDescriptionMarkdown(result, import));
 
                 case ParameterSymbol parameter:
                     return CodeBlockWithDescription(
-                        $"param {parameter.Name}: {parameter.Type}", SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), parameter.DeclaringParameter));
+                        $"param {parameter.Name}: {parameter.Type}", TryGetDescriptionMarkdown(result, parameter));
 
                 case VariableSymbol variable:
-                    return CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), variable.DeclaringVariable));
+                    return CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable));
 
                 case ResourceSymbol resource:
+                    var docsSuffix = TryGetTypeDocumentationLink(resource) is {} typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
+                    var description = TryGetDescriptionMarkdown(result, resource);
+
                     return CodeBlockWithDescription(
-                        $"resource {resource.Name}\n{resource.Type}", SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), resource.DeclaringResource));
+                        $"resource {resource.Name} {(resource.Type is ResourceType ? $"'{resource.Type}'" : resource.Type)}",
+                        description is {} ? $"{description}\n{docsSuffix}" : docsSuffix);
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
                     if (filePath != null)
                     {
-                        return CodeBlockWithDescription($"module {module.Name}\n'{filePath}'", SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), module.DeclaringModule));
+                        return CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module));
                     }
 
-                    return CodeBlockWithDescription($"module {module.Name}", SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), module.DeclaringModule));
+                    return CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module));
 
                 case OutputSymbol output:
                     return CodeBlockWithDescription(
-                        $"output {output.Name}: {output.Type}", SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), output.DeclaringOutput));
+                        $"output {output.Name}: {output.Type}", TryGetDescriptionMarkdown(result, output));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return CodeBlock($"{builtInNamespace.Name} namespace");
@@ -145,6 +163,21 @@ namespace Bicep.LanguageServer.Handlers
 
             // TODO fall back to displaying a more generic description if unable to resolve a particular overload, once https://github.com/Azure/bicep/issues/4588 has been implemented.
             return CodeBlock(buffer.ToString());
+        }
+
+        private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)
+        {
+            if (resource.TryGetResourceType() is {} resourceType &&
+                resourceType.DeclaringNamespace.ProviderNameEquals(AzNamespaceType.BuiltInName) &&
+                resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
+            {
+                var provider = resourceType.TypeReference.TypeSegments.First().ToLowerInvariant();
+                var typePath = resourceType.TypeReference.TypeSegments.Skip(1).Select(x => x.ToLowerInvariant());
+
+                return $"https://docs.microsoft.com/azure/templates/{provider}/{string.Join('/', typePath)}?tabs=bicep";
+            }
+
+            return null;
         }
 
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()

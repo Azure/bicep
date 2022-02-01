@@ -14,7 +14,7 @@ namespace Bicep.Core.Workspaces
             if ((template is null && templateObject is not null) ||
                 (template is not null && templateObject is null))
             {
-                throw new ArgumentException($"Expected {nameof(template)} and {nameof(templateObject)} to be both non-null or null.");
+                throw new ArgumentException($"Expected {nameof(template)} and {nameof(templateObject)} to both be non-null or both be null.");
             }
 
             this.FileUri = fileUri;
