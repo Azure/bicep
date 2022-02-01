@@ -51,7 +51,10 @@ namespace Bicep.Core.Emit
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).InvalidInteger());
                 }
 
-            } 
+            } else
+            {
+                base.VisitUnaryOperationSyntax(syntax);
+            }
         }
 
 
