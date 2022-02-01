@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Exceptions;
 using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
@@ -8,9 +9,12 @@ using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.Proxies;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO.Abstractions;
+using System.Linq;
+using System.Security;
 
 namespace Bicep.RegistryModuleTool.Commands
 {
@@ -38,6 +42,9 @@ namespace Bicep.RegistryModuleTool.Commands
             {
                 var valid = true;
 
+                this.Logger.LogInformation("Validting that the module path is in lowercase...");
+                valid &= Validate(context.Console, () => ValidateModulePathInLowercase(this.FileSystem));
+
                 this.Logger.LogInformation("Validating main Bicep file...");
 
                 var bicepCliProxy = new BicepCliProxy(this.environmentProxy, this.processProxy, this.FileSystem, this.Logger, context.Console);
@@ -49,14 +56,15 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 valid &= Validate(context.Console, () => mainBicepFile.ValidatedBy(descriptionsValidator));
 
-                var jsonSchemaValidator = new JsonSchemaValidator( this.Logger);
+                var testValidator = new TestValidator(this.FileSystem, this.Logger, bicepCliProxy, latestMainArmTemplateFile);
+                var jsonSchemaValidator = new JsonSchemaValidator(this.Logger);
                 var diffValidator = new DiffValidator(this.FileSystem, this.Logger, latestMainArmTemplateFile);
+
+                this.Logger.LogInformation("Validating main Bicep test file...");
+                valid &= Validate(context.Console, () => MainBicepTestFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(testValidator));
 
                 this.Logger.LogInformation("Validating main ARM template file...");
                 valid &= Validate(context.Console, () => MainArmTemplateFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
-
-                this.Logger.LogInformation("Validating main ARM template parameters file...");
-                valid &= Validate(context.Console, () => MainArmTemplateParametersFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator));
 
                 this.Logger.LogInformation("Validating metadata file...");
                 valid &= Validate(context.Console, () => MetadataFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator));
@@ -70,15 +78,57 @@ namespace Bicep.RegistryModuleTool.Commands
                 return valid ? 0 : 1;
             }
 
+            private static void ValidateModulePathInLowercase(IFileSystem fileSystem)
+            {
+                var directoryPath = fileSystem.Directory.GetCurrentDirectory();
+                var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
+                var directoryStack = new Stack<string>();
+
+                try
+                {
+
+                    while (directoryInfo is not null && !directoryInfo.Name.Equals("modules", StringComparison.OrdinalIgnoreCase))
+                    {
+                        directoryStack.Push(directoryInfo.Name);
+
+                        directoryInfo = directoryInfo.Parent;
+                    }
+
+                    if (directoryInfo is null)
+                    {
+                        throw new InvalidModuleException($"Could not find the \"modules\" folder in the path \"{directoryPath}\".");
+                    }
+                }
+                catch (SecurityException exception)
+                {
+                    throw new BicepException(exception.Message, exception);
+                }
+
+                var modulePath = string.Join(fileSystem.Path.DirectorySeparatorChar, directoryStack.ToArray());
+
+                if (modulePath.Any(char.IsUpper))
+                {
+                    throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" must be in lowercase.");
+                }
+            }
+
             private static bool Validate(IConsole console, Action validateAction)
             {
                 try
                 {
                     validateAction();
                 }
-                catch (InvalidModuleFileException exception)
+                catch (InvalidModuleException exception)
                 {
-                    console.WriteError(exception.Message);
+                    // Normalize the error message to make it always end with a new line.
+                    var normalizedErrorMessage = exception.Message.ReplaceLineEndings();
+
+                    if (!normalizedErrorMessage.EndsWith(Environment.NewLine))
+                    {
+                        normalizedErrorMessage = $"{normalizedErrorMessage}{Environment.NewLine}";
+                    }
+
+                    console.WriteError(normalizedErrorMessage);
 
                     return false;
                 }

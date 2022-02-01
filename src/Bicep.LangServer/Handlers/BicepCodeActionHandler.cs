@@ -1,5 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -10,9 +12,12 @@ using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
+using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
+using Bicep.LanguageServer.CodeFixes;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
@@ -20,12 +25,24 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Handlers
 {
     public class BicepCodeActionHandler : CodeActionHandlerBase
     {
         private readonly ICompilationManager compilationManager;
+
+        private static readonly ImmutableArray<ICodeFixProvider> codeFixProviders = new ICodeFixProvider[]
+        {
+            new ParameterCodeFixProvider("secure", new []{"string", "object"}, Array.Empty<SyntaxBase>()),
+            new ParameterCodeFixProvider("description", new []{"string", "object", "array", "bool", "int"}, new []{SyntaxFactory.CreateStringLiteral(String.Empty)}),
+            new ParameterCodeFixProvider("allowed", new []{"string", "object", "array", "bool", "int"}, new []{SyntaxFactory.CreateArray(Array.Empty<SyntaxBase>()) }),
+            new ParameterCodeFixProvider("minLength", new []{"string", "array"}, Array.Empty<SyntaxBase>()),
+            new ParameterCodeFixProvider("maxLength", new []{"string", "array"}, Array.Empty<SyntaxBase>()),
+            new ParameterCodeFixProvider("minValue", new []{"int"}, Array.Empty<SyntaxBase>()),
+            new ParameterCodeFixProvider("maxValue", new []{"int"}, Array.Empty<SyntaxBase>()),
+        }.ToImmutableArray<ICodeFixProvider>();
 
         public BicepCodeActionHandler(ICompilationManager compilationManager)
         {
@@ -57,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
                     fixable.Span.ContainsInclusive(requestEndOffset) ||
                     (requestStartOffset <= fixable.Span.Position && fixable.GetEndPosition() <= requestEndOffset))
                 .OfType<IFixable>()
-                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateQuickFix(request.TextDocument.Uri, compilationContext, fix)));
+                .SelectMany(fixable => fixable.Fixes.Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix)));
 
             List<CommandOrCodeAction> commandOrCodeActions = new();
 
@@ -88,6 +105,12 @@ namespace Bicep.LanguageServer.Handlers
                     }
                 }
             }
+
+            var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
+            var codeFixes = codeFixProviders
+                .SelectMany(provider => provider.GetFixes(semanticModel, matchingNodes))
+                .Select(fix => CreateCodeFix(request.TextDocument.Uri, compilationContext, fix));
+            commandOrCodeActions.AddRange(codeFixes);
 
             return Task.FromResult(new CommandOrCodeActionContainer(commandOrCodeActions));
         }
@@ -150,11 +173,17 @@ namespace Bicep.LanguageServer.Handlers
             return Task.FromResult(request);
         }
 
-        private static CommandOrCodeAction CreateQuickFix(DocumentUri uri, CompilationContext context, CodeFix fix)
+        private static CommandOrCodeAction CreateCodeFix(DocumentUri uri, CompilationContext context, CodeFix fix)
         {
+            var codeActionKind = fix.Kind switch {
+                CodeFixKind.QuickFix => CodeActionKind.QuickFix,
+                CodeFixKind.Refactor => CodeActionKind.Refactor,
+                _ => CodeActionKind.Empty,
+            };
+
             return new CodeAction
             {
-                Kind = CodeActionKind.QuickFix,
+                Kind = codeActionKind,
                 Title = fix.Description,
                 IsPreferred = fix.IsPreferred,
                 Edit = new WorkspaceEdit

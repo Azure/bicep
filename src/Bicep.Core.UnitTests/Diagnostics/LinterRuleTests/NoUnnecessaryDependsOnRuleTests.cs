@@ -61,7 +61,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
               OnCompileErrors.Fail,
-              new string[] { }
+              System.Array.Empty<string>()
             );
         }
 
@@ -387,8 +387,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }]
             ",
               OnCompileErrors.Fail,
-              new string[] {
-              }
+              System.Array.Empty<string>()
             );
         }
 
@@ -429,8 +428,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
               OnCompileErrors.Fail,
-              new string[] {
-              }
+              System.Array.Empty<string>()
             );
         }
 
@@ -451,8 +449,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }]
             ",
             OnCompileErrors.Fail,
-            new string[] {
-            }
+            System.Array.Empty<string>()
           );
         }
 
@@ -493,8 +490,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
             OnCompileErrors.Ignore,
-            new string[] {
-            }
+            System.Array.Empty<string>()
           );
         }
 
@@ -521,8 +517,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
               }
             ",
             OnCompileErrors.Ignore,
-            new string[] {
-            }
+            System.Array.Empty<string>()
           );
         }
 
@@ -563,8 +558,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                 }]
             ",
             OnCompileErrors.Ignore,
-            new string[] {
-            }
+            System.Array.Empty<string>()
           );
         }
     }

@@ -98,13 +98,13 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             private void AddCodeFix(TextSpan span, string name)
             {
                 var codeReplacement = new CodeReplacement(span, name);
-                var fix = new CodeFix(CoreResources.SimplifyInterpolationFixTitle, true, codeReplacement);
+                var fix = new CodeFix(CoreResources.SimplifyInterpolationFixTitle, true, CodeFixKind.QuickFix, codeReplacement);
                 spanFixes[span] = fix;
             }
 
-            private bool IsStrictlyAssignableToString(TypeSymbol typeSymbol)
+            private static bool IsStrictlyAssignableToString(TypeSymbol typeSymbol)
             {
-                return !(typeSymbol is AnyType)
+                return typeSymbol is not AnyType
                     && TypeValidator.AreTypesAssignable(typeSymbol, LanguageConstants.String);
             }
         }

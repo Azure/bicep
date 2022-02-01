@@ -14,16 +14,19 @@
 		<PackageReference Include="JetBrains.Annotations" Version="2021.2.0">
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+		<PackageReference Include="JsonPatch.Net" Version="1.1.2" />
+		<PackageReference Include="JsonPath.Net" Version="0.1.14" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 		<PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-		<PackageReference Include="Azure.Deployments.Core" Version="1.0.253" />
-		<PackageReference Include="Azure.Deployments.Templates" Version="1.0.253" />
-		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.253" />
+		<PackageReference Include="Azure.Deployments.Core" Version="1.0.546" />
+		<PackageReference Include="Azure.Deployments.Templates" Version="1.0.546" />
+		<PackageReference Include="Azure.Deployments.Expression" Version="1.0.546" />
 		<PackageReference Include="Azure.Bicep.Types" Version="0.1.331" />
 		<PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.331" />
+		<PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.11" />
 		<PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
 	</ItemGroup>
 	<ItemGroup>

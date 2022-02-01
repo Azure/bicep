@@ -14,9 +14,9 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         void Validate(MainBicepFile file) => throw new NotImplementedException();
 
-        void Validate(MainArmTemplateFile file) => throw new NotImplementedException();
+        void Validate(MainBicepTestFile file) => throw new NotImplementedException();
 
-        void Validate(MainArmTemplateParametersFile file) => throw new NotImplementedException();
+        void Validate(MainArmTemplateFile file) => throw new NotImplementedException();
 
         void Validate(ReadmeFile file) => throw new NotImplementedException();
     }

@@ -31,13 +31,18 @@ export class CommandManager extends Disposable {
   private registerCommand<T extends Command>(command: T): void {
     this.validateCommand(command);
 
+    // Prefix all command telemetry IDs with "command/" so we end up with telemetry IDs like "vscode-bicep/command/bicep.build"
+    const telemetryId = `command/${command.id}`;
+
     // The command will be added to the extension's subscriptions and therefore disposed automatically
     // when the extension is disposed.
     azureextensionui.registerCommand(
       command.id,
       async (context: azureextensionui.IActionContext, ...args: unknown[]) => {
         return await command.execute(context, ...args);
-      }
+      },
+      undefined,
+      telemetryId
     );
   }
 
@@ -58,6 +63,11 @@ export class CommandManager extends Disposable {
     assert(
       !!activation,
       `Code error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`
+    );
+
+    assert(
+      command.id.startsWith("bicep."),
+      `Command ID doesn't start with 'bicep.': ${command.id}`
     );
   }
 }
