@@ -1668,7 +1668,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "bicep.core": {
+      "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "0.1.331",
@@ -1690,10 +1690,18 @@
           "System.IO.Abstractions": "13.2.47"
         }
       },
+      "Azure.Bicep.Decompiler": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "1.0.0",
+          "Newtonsoft.Json": "13.0.1",
+          "System.Collections.Immutable": "6.0.0"
+        }
+      },
       "bicep.core.unittests": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "Bicep.LangServer": "1.0.0",
           "DiffPlex": "1.7.0",
           "FluentAssertions": "6.4.0",
@@ -1706,18 +1714,10 @@
           "System.IO.Abstractions.TestingHelpers": "13.2.47"
         }
       },
-      "bicep.decompiler": {
-        "type": "Project",
-        "dependencies": {
-          "Bicep.Core": "1.0.0",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Collections.Immutable": "6.0.0"
-        }
-      },
       "bicep.langserver": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "OmniSharp.Extensions.LanguageServer": "0.19.2"
         }
       }

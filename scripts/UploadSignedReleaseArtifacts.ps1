@@ -107,6 +107,14 @@ $artifacts = @(
         relativePath = 'bicep-Release-win-x64/bicep.exe';
       },
       @{
+        assetName = "Azure.Bicep.Core.$buildVersion.nupkg";
+        relativePath = "Azure.Bicep.Core.$buildVersion.nupkg";
+      },
+      @{
+        assetName = "Azure.Bicep.Decompiler.$buildVersion.snupkg";
+        relativePath = "Azure.Bicep.Decompiler.$buildVersion.snupkg";
+      },
+      @{
         assetName = "Azure.Bicep.MSBuild.$buildVersion.nupkg";
         relativePath = "Azure.Bicep.MSBuild.$buildVersion.nupkg";
       },

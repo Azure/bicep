@@ -1755,7 +1755,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "bicep.core": {
+      "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "0.1.331",
@@ -1780,7 +1780,7 @@
       "bicep.registrymoduletool": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "DiffPlex": "1.7.0",
           "FluentAssertions": "6.4.0",
           "JsonPath.Net": "0.1.14",
