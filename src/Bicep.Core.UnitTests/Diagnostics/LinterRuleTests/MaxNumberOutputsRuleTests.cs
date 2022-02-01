@@ -25,6 +25,8 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             {
                 if (unusedParams.Any())
                 {
+                    diags.Should().HaveCount(unusedParams.Count());
+
                     var rule = new MaxNumberOutputsRule();
                     string[] expectedMessages = unusedParams.Select(p => rule.GetMessage(MaxNumberOutputsRule.MaxNumber)).ToArray();
                     diags.Select(e => e.Message).Should().ContainInOrder(expectedMessages);
@@ -169,7 +171,7 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             output o64 string
             output o65 string
             ",
-            "o1","o2","o3","o4","o5","o6","o7","o8","o9","o10","o11","o12","o13","o14","o15","o16","o17","o18","o19","o20","o21","o22","o23","o24","o25","o26","o27","o28","o29","o30","o31","o32","o33","o34","o35","o36","o37","o38","o39","o40","o41","o42","o43","o44","o45","o46","o47","o48","o49","o50","o51","o52","o53","o54","o55","o56","o57","o58","o59","o60","o61","o62","o63","o64","o65")]
+            "o1")]
         [DataTestMethod]
         public void TestRule(string text, params string[] unusedParams)
         {
