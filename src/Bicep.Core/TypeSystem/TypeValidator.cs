@@ -503,7 +503,8 @@ namespace Bicep.Core.TypeSystem
                         }
                         else
                         {
-                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(ShouldWarn(targetType), declaredProperty.Name));
+                            var resourceTypeInaccuracy = !declaredProperty.Flags.HasFlag(TypePropertyFlags.SystemProperty) && config.IsResourceDeclaration;
+                            diagnosticWriter.Write(config.OriginSyntax ?? declaredPropertySyntax.Key, x => x.CannotAssignToReadOnlyProperty(resourceTypeInaccuracy || ShouldWarn(targetType), declaredProperty.Name, resourceTypeInaccuracy));
                         }
 
                         narrowedProperties.Add(new TypeProperty(declaredProperty.Name, declaredProperty.TypeReference.Type, declaredProperty.Flags));
@@ -549,7 +550,8 @@ namespace Bicep.Core.TypeSystem
                 var validUnspecifiedProperties = targetType.Properties.Values
                     .Where(p => !p.Flags.HasFlag(TypePropertyFlags.ReadOnly) && !p.Flags.HasFlag(TypePropertyFlags.FallbackProperty) && !namedPropertyMap.ContainsKey(p.Name))
                     .Select(p => p.Name)
-                    .OrderBy(x => x);
+                    .OrderBy(x => x)
+                    .ToList();
 
                 foreach (var extraProperty in extraProperties)
                 {
@@ -558,7 +560,7 @@ namespace Bicep.Core.TypeSystem
                     {
                         var sourceDeclaration = TryGetSourceDeclaration(config);
 
-                        if (extraProperty.TryGetKeyText() is not string keyName)
+                        if (extraProperty.TryGetKeyText() is not { } keyName)
                         {
                             return x.DisallowedInterpolatedKeyProperty(shouldWarn, sourceDeclaration, targetType, validUnspecifiedProperties);
                         }
@@ -591,7 +593,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     TypeMismatchDiagnosticWriter? onTypeMismatch = null;
-                    if (extraProperty.TryGetKeyText() is string keyName)
+                    if (extraProperty.TryGetKeyText() is { } keyName)
                     {
                         onTypeMismatch = GetPropertyMismatchDiagnosticWriter(config, ShouldWarn(targetType), keyName);
                     }

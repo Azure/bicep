@@ -268,6 +268,24 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[2:12) [BCP073 (Error)] The property "apiVersion" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |apiVersion|
 }
 
+resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  name: 'vnet-bicep'
+  location: 'westeurope'
+//@[12:24) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'westeurope' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'westeurope'|
+  etag: 'assigning-to-read-only-value'
+//@[2:6) [BCP073 (Warning)] The property "etag" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |etag|
+  properties: {
+    resourceGuid: 'assigning-to-read-only-value'
+//@[4:16) [BCP073 (Warning)] The property "resourceGuid" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |resourceGuid|
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
+    }
+    subnets: []
+  }
+}
+
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[20:57) [BCP081 (Warning)] Resource type "Microsoft.Foo/foos@2020-02-02-alpha" does not have types available. (CodeDescription: none) |'Microsoft.Foo/foos@2020-02-02-alpha'|
   name: 'test'

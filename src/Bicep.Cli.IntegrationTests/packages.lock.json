@@ -33,6 +33,16 @@
           "Microsoft.TestPlatform.TestHost": "16.10.0"
         }
       },
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "IaJGnOv/M7UQjRJks7B6p7pbPnOwisYGOIzqCz5ilGFTApZ3ktOR+6zJ12ZRPInulBmdAf1SrGdDG2MU8g6XTw==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        }
+      },
       "MSTest.TestAdapter": {
         "type": "Direct",
         "requested": "[2.2.3, )",
@@ -241,6 +251,11 @@
         "resolved": "1.1.1",
         "contentHash": "yuvf07qFWFqtK3P/MRkEKLhn5r2UbSpVueRziSqj0yJQIKFwG1pq9mOayK3zE5qZCTs0CbrwL9M6R8VwqyGy2w=="
       },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "AT3HlgTjsqHnWpBHSNeR0KxbLZD7bztlZVj7I8vgeYG9SYqbeFGh0TM/KVtC6fg53nrWHl3VfZFvb5BiQFcY6Q=="
+      },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
         "resolved": "16.10.0",
@@ -400,6 +415,11 @@
         "type": "Transitive",
         "resolved": "1.1.0",
         "contentHash": "aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "WMcGpWKrmJmzrNeuaEb23bEMnbtR/vLmvZtkAP5qWu7vQsY59GqfRJd65sFpBszbd2k/bQ8cs8eWawQKAabkVg=="
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
@@ -1674,26 +1694,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "bicep": {
-        "type": "Project",
-        "dependencies": {
-          "Bicep.Core": "1.0.0",
-          "Bicep.Decompiler": "1.0.0",
-          "Microsoft.Extensions.Logging": "6.0.0",
-          "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
-        }
-      },
-      "bicep.cli.unittests": {
-        "type": "Project",
-        "dependencies": {
-          "FluentAssertions": "6.4.0",
-          "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.5",
-          "Microsoft.NET.Test.Sdk": "16.10.0",
-          "bicep": "1.0.0"
-        }
-      },
-      "bicep.core": {
+      "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "0.1.331",
@@ -1715,10 +1716,37 @@
           "System.IO.Abstractions": "13.2.47"
         }
       },
+      "Azure.Bicep.Decompiler": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "1.0.0",
+          "Newtonsoft.Json": "13.0.1",
+          "System.Collections.Immutable": "6.0.0"
+        }
+      },
+      "bicep": {
+        "type": "Project",
+        "dependencies": {
+          "Azure.Bicep.Core": "1.0.0",
+          "Azure.Bicep.Decompiler": "1.0.0",
+          "Microsoft.Extensions.Logging": "6.0.0",
+          "Microsoft.Extensions.Logging.Abstractions": "6.0.0"
+        }
+      },
+      "bicep.cli.unittests": {
+        "type": "Project",
+        "dependencies": {
+          "FluentAssertions": "6.4.0",
+          "MSTest.TestAdapter": "2.2.3",
+          "MSTest.TestFramework": "2.2.5",
+          "Microsoft.NET.Test.Sdk": "16.10.0",
+          "bicep": "1.0.0"
+        }
+      },
       "bicep.core.samples": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "Bicep.Core.UnitTests": "1.0.0",
           "FluentAssertions": "6.4.0",
           "MSTest.TestAdapter": "2.2.3",
@@ -1730,7 +1758,7 @@
       "bicep.core.unittests": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "Bicep.LangServer": "1.0.0",
           "DiffPlex": "1.7.0",
           "FluentAssertions": "6.4.0",
@@ -1743,18 +1771,10 @@
           "System.IO.Abstractions.TestingHelpers": "13.2.47"
         }
       },
-      "bicep.decompiler": {
-        "type": "Project",
-        "dependencies": {
-          "Bicep.Core": "1.0.0",
-          "Newtonsoft.Json": "13.0.1",
-          "System.Collections.Immutable": "6.0.0"
-        }
-      },
       "bicep.langserver": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "OmniSharp.Extensions.LanguageServer": "0.19.2"
         }
       }

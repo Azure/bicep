@@ -780,3 +780,8 @@ module jsonModMissingParam 'moduled.json' = {
   }
 }
 
+module assignToOutput 'empty.bicep' = {
+  name: 'assignToOutput'
+  outputs: {}
+//@[2:9) [BCP073 (Error)] The property "outputs" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |outputs|
+}

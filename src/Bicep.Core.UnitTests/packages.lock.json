@@ -48,6 +48,16 @@
           "Microsoft.TestPlatform.TestHost": "16.10.0"
         }
       },
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "IaJGnOv/M7UQjRJks7B6p7pbPnOwisYGOIzqCz5ilGFTApZ3ktOR+6zJ12ZRPInulBmdAf1SrGdDG2MU8g6XTw==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        }
+      },
       "Moq": {
         "type": "Direct",
         "requested": "[4.16.1, )",
@@ -268,6 +278,11 @@
         "resolved": "1.1.1",
         "contentHash": "yuvf07qFWFqtK3P/MRkEKLhn5r2UbSpVueRziSqj0yJQIKFwG1pq9mOayK3zE5qZCTs0CbrwL9M6R8VwqyGy2w=="
       },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "AT3HlgTjsqHnWpBHSNeR0KxbLZD7bztlZVj7I8vgeYG9SYqbeFGh0TM/KVtC6fg53nrWHl3VfZFvb5BiQFcY6Q=="
+      },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
         "resolved": "16.10.0",
@@ -424,6 +439,11 @@
         "type": "Transitive",
         "resolved": "1.1.0",
         "contentHash": "aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "WMcGpWKrmJmzrNeuaEb23bEMnbtR/vLmvZtkAP5qWu7vQsY59GqfRJd65sFpBszbd2k/bQ8cs8eWawQKAabkVg=="
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
@@ -1673,7 +1693,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "bicep.core": {
+      "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "0.1.331",
@@ -1698,7 +1718,7 @@
       "bicep.langserver": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "OmniSharp.Extensions.LanguageServer": "0.19.2"
         }
       }
