@@ -15,7 +15,6 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
-using Microsoft.Identity.Client;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -515,17 +514,7 @@ namespace Bicep.Core.TypeSystem
             });
 
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
-            => AssignType(syntax, () =>
-            {
-                //if (syntax.Literal)
-
-                if (syntax.Value > long.MaxValue)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax).InvalidInteger());
-                }
-
-                return LanguageConstants.Int;
-            });
+            => AssignType(syntax, () => LanguageConstants.Int);
 
         public override void VisitNullLiteralSyntax(NullLiteralSyntax syntax)
             => AssignType(syntax, () => LanguageConstants.Null);
@@ -727,12 +716,6 @@ namespace Bicep.Core.TypeSystem
                     UnaryOperator.Minus => LanguageConstants.Int,
                     _ => throw new NotImplementedException()
                 };
-
-                //if minus and value > 8, (ex: -9 with integerValue of 9), then this is invalid 64 bit int
-                if (syntax.Operator == UnaryOperator.Minus && syntax.Expression is IntegerLiteralSyntax integerLiteral && integerLiteral.Value > (ulong)long.MaxValue + 1)
-                {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Expression).InvalidInteger());
-                }
 
                 var operandType = typeManager.GetTypeInfo(syntax.Expression);
                 CollectErrors(errors, operandType);

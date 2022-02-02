@@ -25,11 +25,6 @@ namespace Bicep.Core.Emit
             visitor.Visit(semanticModel.SourceFile.ProgramSyntax);
         }
 
-        protected override void VisitInternal(SyntaxBase node)
-        {
-            base.VisitInternal(node);
-        }
-
         public override void VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax)
         {
             // syntax.Value is always positive and can't be greater than the greatest 64 bit integer
@@ -50,13 +45,10 @@ namespace Bicep.Core.Emit
                 {
                     diagnosticWriter.Write(DiagnosticBuilder.ForPosition(syntax).InvalidInteger());
                 }
-
             } else
             {
                 base.VisitUnaryOperationSyntax(syntax);
             }
         }
-
-
     }
 }
