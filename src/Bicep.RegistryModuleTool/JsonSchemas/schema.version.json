@@ -12,7 +12,7 @@
       "pattern": "^v?(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)(-(?:[\\da-z\\-]+)(?:\\.(?:[\\da-z\\-]+))*)?$",
       "description": "The major.minor-pre version to use as the basis for version calculations."
     },
-    "pathFilter": {
+    "pathFilters": {
       "type": "array",
       "items": {
         "type": "string",
@@ -25,7 +25,7 @@
   "required": [
     "$schema",
     "version",
-    "pathFilter"
+    "pathFilters"
   ],
   "additionalProperties": false
 }

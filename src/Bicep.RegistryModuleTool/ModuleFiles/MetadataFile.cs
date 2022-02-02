@@ -70,7 +70,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
                 if (jsonElement.ValueKind != JsonValueKind.Object)
                 {
-                    throw new BicepException($"The metadata file \"{path}\" must be a JSON object at the root level.");
+                    throw new BicepException($"The metadata file \"{path}\" must contain a JSON object at the root level.");
                 }
 
                 return new(path, jsonElement);

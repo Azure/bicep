@@ -92,7 +92,8 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please regenerate the file to fix it.
 ".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is modified or outdated. Please regenerate the file to fix it.
+                $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is invalid:
+  #: Required properties [$schema, version, pathFilters] were not present
 ".ReplaceLineEndings());
 
             Invoke(fileSystem, processProxy, console);

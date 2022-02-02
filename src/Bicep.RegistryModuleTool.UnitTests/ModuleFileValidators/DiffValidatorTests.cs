@@ -49,7 +49,6 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
                 .WithMessage($"The file \"{fileToValidate.Path}\" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
-
         [TestMethod]
         public void Validate_ValidReadmeFile_Succeeds()
         {
@@ -81,7 +80,13 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
         [TestMethod]
         public void Validate_ModifiedVersionFile_Succeeds()
         {
-            this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(VersionFile.FileName), "modified");
+            this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(VersionFile.FileName), @"{
+  ""$schema"": ""https://aka.ms/bicep-registry-module-version-file-schema#"",
+  ""version"": ""1.1"",
+  ""pathFilters"": [
+    ""./main.json""
+  ]
+}");
 
             var fileToValidate = VersionFile.ReadFromFileSystem(this.fileSystem);
 

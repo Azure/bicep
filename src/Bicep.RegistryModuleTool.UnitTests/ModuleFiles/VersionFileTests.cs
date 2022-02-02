@@ -10,43 +10,43 @@ using System.IO.Abstractions.TestingHelpers;
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
 {
     [TestClass]
-    public class MetadataFileTests
+    public class VersionFileTests
     {
         [TestMethod]
         public void ReadFromFileSystem_InvalidJson_ThrowsException()
         {
             var fileSystem = new MockFileSystem();
-            var path = fileSystem.Path.GetFullPath(MetadataFile.FileName);
+            var path = fileSystem.Path.GetFullPath(VersionFile.FileName);
 
             fileSystem.AddFile(path, "######");
 
-            FluentActions.Invoking(() => MetadataFile.ReadFromFileSystem(fileSystem)).Should()
+            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should()
                 .Throw<BicepException>()
-                .WithMessage($"The metadata file \"{path}\" is not a valid JSON file.*");
+                .WithMessage($"The version file \"{path}\" is not a valid JSON file.*");
         }
 
         [TestMethod]
         public void ReadFromFileSystem_RootIsNotObject_ThrowsException()
         {
             var fileSystem = new MockFileSystem();
-            var path = fileSystem.Path.GetFullPath(MetadataFile.FileName);
+            var path = fileSystem.Path.GetFullPath(VersionFile.FileName);
 
             fileSystem.AddFile(path, "[]");
 
-            FluentActions.Invoking(() => MetadataFile.ReadFromFileSystem(fileSystem)).Should()
+            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should()
                 .Throw<BicepException>()
-                .WithMessage($"The metadata file \"{path}\" must contain a JSON object at the root level.");
+                .WithMessage($"The version file \"{path}\" must contain a JSON object at the root level.");
         }
 
         [TestMethod]
         public void ReadFromFileSystem_ValidJson_Succeeds()
         {
             var fileSystem = new MockFileSystem();
-            var path = fileSystem.Path.GetFullPath(MetadataFile.FileName);
+            var path = fileSystem.Path.GetFullPath(VersionFile.FileName);
 
             fileSystem.AddFile(path, "{}");
 
-            FluentActions.Invoking(() => MetadataFile.ReadFromFileSystem(fileSystem)).Should().NotThrow();
+            FluentActions.Invoking(() => VersionFile.ReadFromFileSystem(fileSystem)).Should().NotThrow();
         }
     }
 }

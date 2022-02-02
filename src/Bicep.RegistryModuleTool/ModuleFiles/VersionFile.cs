@@ -20,7 +20,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         {
             ["$schema"] = "https://aka.ms/bicep-registry-module-version-file-schema#",
             ["version"] = "",
-            ["pathFilter"] = new[]
+            ["pathFilters"] = new[]
             {
                 "./main.json",
                 "./metadata.json"
