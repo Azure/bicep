@@ -144,7 +144,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
             yield return new object[]
             {
                 fileSystem,
-                $@"The module path ""FOO\BAR"" in the path ""{moduleDirectory}"" is invalid. All characters in the module path must be in lowercase.{Environment.NewLine}"
+                $@"The module path ""FOO{fileSystem.Path.DirectorySeparatorChar}BAR"" in the path ""{moduleDirectory}"" is invalid. All characters in the module path must be in lowercase.{Environment.NewLine}"
             };
 
             moduleDirectory = fileSystem.Path.GetFullPath("/modules/mymodule");
@@ -154,7 +154,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
             yield return new object[]
             {
                 fileSystem,
-                $@"The module path ""mymodule"" in the path ""{moduleDirectory}"" is invalid. The module path must be in the format of ""<module-folder>\<module-name>"".{Environment.NewLine}"
+                $@"The module path ""mymodule"" in the path ""{moduleDirectory}"" is invalid. The module path must be in the format of ""<module-folder>{fileSystem.Path.DirectorySeparatorChar}<module-name>"".{Environment.NewLine}"
             };
         }
 
