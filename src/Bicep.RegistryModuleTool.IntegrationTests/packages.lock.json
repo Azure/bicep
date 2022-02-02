@@ -24,6 +24,16 @@
           "Microsoft.TestPlatform.TestHost": "16.11.0"
         }
       },
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "IaJGnOv/M7UQjRJks7B6p7pbPnOwisYGOIzqCz5ilGFTApZ3ktOR+6zJ12ZRPInulBmdAf1SrGdDG2MU8g6XTw==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        }
+      },
       "MSTest.TestAdapter": {
         "type": "Direct",
         "requested": "[2.2.7, )",
@@ -191,8 +201,8 @@
       },
       "FluentAssertions": {
         "type": "Transitive",
-        "resolved": "6.2.0",
-        "contentHash": "5YOZLB0Tay1bw+wEYZTAZlPThQ/Yntk1HSPJYluMd5PW/Xg9E8I1mRC03AKRsnuANBR0kYaHq0NX1fg7RgrGNA==",
+        "resolved": "6.4.0",
+        "contentHash": "KOJE1UD7ndxoZAdmOraiUFLdcdGTArGQW8WYN+vwrC3mdt2G/B7gmsMOozgXKiNSh3fpD/Xp/0mhonRh8vrZKw==",
         "dependencies": {
           "System.Configuration.ConfigurationManager": "4.4.0"
         }
@@ -251,6 +261,11 @@
         "type": "Transitive",
         "resolved": "1.0.0",
         "contentHash": "K63Y4hORbBcKLWH5wnKgzyn7TOfYzevIEwIedQHBIkmkEBA9SCqgvom+XTuE+fAFGvINGkhFItaZ2dvMGdT5iw=="
+      },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "AT3HlgTjsqHnWpBHSNeR0KxbLZD7bztlZVj7I8vgeYG9SYqbeFGh0TM/KVtC6fg53nrWHl3VfZFvb5BiQFcY6Q=="
       },
       "Microsoft.CodeCoverage": {
         "type": "Transitive",
@@ -524,6 +539,11 @@
         "type": "Transitive",
         "resolved": "1.1.0",
         "contentHash": "aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "WMcGpWKrmJmzrNeuaEb23bEMnbtR/vLmvZtkAP5qWu7vQsY59GqfRJd65sFpBszbd2k/bQ8cs8eWawQKAabkVg=="
       },
       "Microsoft.TestPlatform.ObjectModel": {
         "type": "Transitive",
@@ -1755,7 +1775,7 @@
           "System.Xml.ReaderWriter": "4.3.0"
         }
       },
-      "bicep.core": {
+      "Azure.Bicep.Core": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Types": "0.1.331",
@@ -1780,9 +1800,9 @@
       "bicep.registrymoduletool": {
         "type": "Project",
         "dependencies": {
-          "Bicep.Core": "1.0.0",
+          "Azure.Bicep.Core": "1.0.0",
           "DiffPlex": "1.7.0",
-          "FluentAssertions": "6.2.0",
+          "FluentAssertions": "6.4.0",
           "JsonPath.Net": "0.1.14",
           "JsonSchema.Net": "1.12.0",
           "Microsoft.Extensions.Logging": "6.0.0",
@@ -1800,7 +1820,7 @@
         "type": "Project",
         "dependencies": {
           "Bicep.RegistryModuleTool": "1.0.0",
-          "FluentAssertions": "6.2.0",
+          "FluentAssertions": "6.4.0",
           "JsonPatch.Net": "1.1.2",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
           "Moq": "4.16.1",

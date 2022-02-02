@@ -54,7 +54,8 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
         public void Type_validation_runs_on_compilation_common_failures(TypeSymbolValidationFlags validationFlags, DiagnosticLevel expectedDiagnosticLevel)
         {
             var customTypes = new[] {
-                TestTypeHelper.CreateCustomResourceType("My.Rp/myType", "2020-01-01", validationFlags,
+                TestTypeHelper.CreateCustomResourceTypeWithTopLevelProperties("My.Rp/myType", "2020-01-01", validationFlags,
+                    new [] { new TypeProperty("readOnlyTopLevelProp", LanguageConstants.String, TypePropertyFlags.ReadOnly) },
                     new TypeProperty("readOnlyProp", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     new TypeProperty("writeOnlyProp", LanguageConstants.String, TypePropertyFlags.WriteOnly | TypePropertyFlags.AllowImplicitNull),
                     new TypeProperty("requiredProp", LanguageConstants.String, TypePropertyFlags.Required),
@@ -81,6 +82,10 @@ resource myRes 'My.Rp/myType@2020-01-01' = {
             var program = @"
 resource myRes 'My.Rp/myType@2020-01-01' = {
   name: 'steve'
+  id: '/subscriptions/guid/resourceGroups/rg/My.Rp/myType/steve'
+  type: 'My.Rp/myType'
+  apiVersion: '2020-01-01'
+  readOnlyTopLevelProp: 'abcd'
   properties: {
     readOnlyProp: 123
     writeOnlyProp: 456
@@ -104,13 +109,17 @@ output incorrectTypeOutput2 int = myRes.properties.nestedObj.readOnlyProp
 
             var model = GetSemanticModelForTest(program, customTypes);
             model.GetAllDiagnostics().Should().SatisfyRespectively(
+                x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"id\" is read-only. Expressions cannot be assigned to read-only properties."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"type\" is read-only. Expressions cannot be assigned to read-only properties."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"apiVersion\" is read-only. Expressions cannot be assigned to read-only properties."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyTopLevelProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 x => x.Should().HaveCodeAndSeverity("BCP035", expectedDiagnosticLevel).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"requiredProp\"."),
-                x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"readOnlyProp\" is read-only. Expressions cannot be assigned to read-only properties."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"writeOnlyProp\" expected a value of type \"null | string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP035", expectedDiagnosticLevel).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"propA\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"propB\" expected a value of type \"null | string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP035", expectedDiagnosticLevel).And.HaveMessage("The specified \"object\" declaration is missing the following required properties: \"requiredNestedProp\"."),
-                x => x.Should().HaveCodeAndSeverity("BCP073", expectedDiagnosticLevel).And.HaveMessage("The property \"readOnlyNestedProp\" is read-only. Expressions cannot be assigned to read-only properties."),
+                x => x.Should().HaveCodeAndSeverity("BCP073", DiagnosticLevel.Warning).And.HaveMessage("The property \"readOnlyNestedProp\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 x => x.Should().HaveCodeAndSeverity("BCP036", expectedDiagnosticLevel).And.HaveMessage("The property \"writeOnlyNestedProp\" expected a value of type \"null | string\" but the provided value is of type \"int\"."),
                 x => x.Should().HaveCodeAndSeverity("BCP077", expectedDiagnosticLevel).And.HaveMessage("The property \"writeOnlyProp\" on type \"properties\" is write-only. Write-only properties cannot be accessed."),
                 x => x.Should().HaveCodeAndSeverity("BCP053", expectedDiagnosticLevel).And.HaveMessage("The type \"nestedObj\" does not contain property \"writeOnlyProp\". Available properties include \"readOnlyNestedProp\", \"requiredNestedProp\"."),

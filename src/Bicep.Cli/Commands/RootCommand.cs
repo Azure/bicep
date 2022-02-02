@@ -44,11 +44,12 @@ $@"
     Publishes the .bicep file to the module registry.
 
     Arguments:
-      <file>        The input file
+      <file>        The input file (can be a Bicep file or an ARM template file)
       <ref>         The module reference
 
     Examples:
       bicep publish file.bicep --target br:example.azurecr.io/hello/world:v1
+      bicep publish file.json --target br:example.azurecr.io/hello/world:v1
 
   {exeName} restore <file>
     Restores external modules from the specified Bicep file to the local module cache.
