@@ -82,6 +82,20 @@
     }
   },
   {
+    "label": "assignToOutput",
+    "kind": "module",
+    "detail": "assignToOutput",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_assignToOutput",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "assignToOutput"
+    }
+  },
+  {
     "label": "az",
     "kind": "folder",
     "detail": "az",

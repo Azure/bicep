@@ -2860,5 +2860,61 @@ var myValue = 9223372036854775808
                 ("BCP010", DiagnosticLevel.Error, "Expected a valid 64-bit signed integer.")
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5456
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5456_1()
+        {
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                    new TypeProperty("tags", LanguageConstants.Array, TypePropertyFlags.ReadOnly, "tags property"),
+                    new TypeProperty("properties", new ObjectType("properties",TypeSymbolValidationFlags.Default, new []
+                    {
+                        new TypeProperty("prop1", LanguageConstants.String, TypePropertyFlags.ReadOnly, "prop1")
+                    },null), TypePropertyFlags.ReadOnly, "properties property"),
+                }, null))
+            });
+
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+  tags: [
+    'tag1'
+  ]
+  properties: {
+    prop1: 'value'
+  }
+}
+"));
+            result.Should().GenerateATemplate().And.HaveDiagnostics(new []
+            {
+                ("BCP073", DiagnosticLevel.Warning, "The property \"tags\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
+                ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            });
+        }
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5456
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5456_2()
+        {
+
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(("module.bicep", @""), ("main.bicep", @"
+module mod 'module.bicep' = {
+  name: 'module'
+  outputs: {}
+}
+"));
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new []
+            {
+                ("BCP073", DiagnosticLevel.Error, "The property \"outputs\" is read-only. Expressions cannot be assigned to read-only properties.")
+            });
+        }
     }
 }

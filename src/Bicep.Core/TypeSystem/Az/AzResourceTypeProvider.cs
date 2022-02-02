@@ -112,10 +112,10 @@ namespace Bicep.Core.TypeSystem.Az
             // We don't expect any Az resource types without an API version
             var apiVersion = reference.ApiVersion ?? throw new ArgumentException($"Resource reference {reference.FormatName()} contains null API Version", nameof(reference));
 
-            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource id");
-            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "The resource name");
-            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource type");
-            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource api version");
+            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource id");
+            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty, "The resource name");
+            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource type");
+            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource api version");
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)

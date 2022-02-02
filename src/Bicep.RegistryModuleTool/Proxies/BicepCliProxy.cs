@@ -49,7 +49,7 @@ namespace Bicep.RegistryModuleTool.Proxies
             var bicepCliPath = this.LocateBicepCli();
             var command = $"build \"{bicepFilePath}\" --outfile \"{outputFilePath}\"";
 
-            this.logger.LogDebug("Running Bicep CLI command: {Command}", command);
+            this.logger.LogInformation("Running Bicep CLI command: {Command}", command);
             var (exitCode, _, standardError) = this.processProxy.Start(bicepCliPath, command);
 
             if (exitCode is 0)
@@ -105,7 +105,7 @@ namespace Bicep.RegistryModuleTool.Proxies
 
                 if (this.fileSystem.File.Exists(bicepCliPath))
                 {
-                    this.logger.LogDebug("Found Bicep CLI at \"{BicepCliPath}\".", bicepCliPath);
+                    this.logger.LogInformation("Found Bicep CLI at \"{BicepCliPath}\".", bicepCliPath);
 
                     return bicepCliPath;
                 }

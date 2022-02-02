@@ -669,6 +669,70 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[0:1) RightBrace |}|
 //@[1:5) NewLine |\r\n\r\n|
 
+resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+//@[0:8) Identifier |resource|
+//@[9:35) Identifier |readOnlyPropertyAssignment|
+//@[36:82) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[83:84) Assignment |=|
+//@[85:86) LeftBrace |{|
+//@[86:88) NewLine |\r\n|
+  name: 'vnet-bicep'
+//@[2:6) Identifier |name|
+//@[6:7) Colon |:|
+//@[8:20) StringComplete |'vnet-bicep'|
+//@[20:22) NewLine |\r\n|
+  location: 'westeurope'
+//@[2:10) Identifier |location|
+//@[10:11) Colon |:|
+//@[12:24) StringComplete |'westeurope'|
+//@[24:26) NewLine |\r\n|
+  etag: 'assigning-to-read-only-value'
+//@[2:6) Identifier |etag|
+//@[6:7) Colon |:|
+//@[8:38) StringComplete |'assigning-to-read-only-value'|
+//@[38:40) NewLine |\r\n|
+  properties: {
+//@[2:12) Identifier |properties|
+//@[12:13) Colon |:|
+//@[14:15) LeftBrace |{|
+//@[15:17) NewLine |\r\n|
+    resourceGuid: 'assigning-to-read-only-value'
+//@[4:16) Identifier |resourceGuid|
+//@[16:17) Colon |:|
+//@[18:48) StringComplete |'assigning-to-read-only-value'|
+//@[48:50) NewLine |\r\n|
+    addressSpace: {
+//@[4:16) Identifier |addressSpace|
+//@[16:17) Colon |:|
+//@[18:19) LeftBrace |{|
+//@[19:21) NewLine |\r\n|
+      addressPrefixes: [
+//@[6:21) Identifier |addressPrefixes|
+//@[21:22) Colon |:|
+//@[23:24) LeftSquare |[|
+//@[24:26) NewLine |\r\n|
+        '10.0.0.0/16'
+//@[8:21) StringComplete |'10.0.0.0/16'|
+//@[21:23) NewLine |\r\n|
+      ]
+//@[6:7) RightSquare |]|
+//@[7:9) NewLine |\r\n|
+    }
+//@[4:5) RightBrace |}|
+//@[5:7) NewLine |\r\n|
+    subnets: []
+//@[4:11) Identifier |subnets|
+//@[11:12) Colon |:|
+//@[13:14) LeftSquare |[|
+//@[14:15) RightSquare |]|
+//@[15:17) NewLine |\r\n|
+  }
+//@[2:3) RightBrace |}|
+//@[3:5) NewLine |\r\n|
+}
+//@[0:1) RightBrace |}|
+//@[1:5) NewLine |\r\n\r\n|
+
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
 //@[0:8) Identifier |resource|
 //@[9:19) Identifier |badDepends|
