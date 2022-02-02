@@ -85,7 +85,7 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 if (modulePath.Count(x => x == fileSystem.Path.DirectorySeparatorChar) != 1)
                 {
-                    string modulePathFormat = $"<resource-provider>{fileSystem.Path.DirectorySeparatorChar}<module-name>";
+                    string modulePathFormat = $"<module-folder>{fileSystem.Path.DirectorySeparatorChar}<module-name>";
 
                     throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" is invalid. The module path must be in the format of \"{modulePathFormat}\".");
                 }
