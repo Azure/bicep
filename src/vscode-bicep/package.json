@@ -317,7 +317,7 @@
     "triple-beam": "^1.3.0",
     "vscode-azureextensionui": "^0.49.2",
     "vscode-languageclient": "^7.0.0",
-    "winston": "^3.3.3",
+    "winston": "^3.5.1",
     "winston-transport": "^4.4.0"
   },
   "extensionDependencies": [
