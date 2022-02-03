@@ -276,7 +276,7 @@ resource resourceB 'My.Rp/myResource@2020-01-01' = {
 "));
 
             diags.Should().HaveDiagnostics(new[] {
-                ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
             });
         }
 
