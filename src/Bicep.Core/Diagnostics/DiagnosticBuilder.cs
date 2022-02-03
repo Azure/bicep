@@ -1344,10 +1344,15 @@ namespace Bicep.Core.Diagnostics
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
 
-            public ErrorDiagnostic ExpectedNewLineOrComma() => new(
+            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
                 TextSpan,
                 "BCP227",
                 "Expected a new line or comma character at this location.");
+
+            public ErrorDiagnostic ExpectedCommaSeparator() => new(
+                TextSpan,
+                "BCP228",
+                "Expected a comma character at this location.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -656,9 +656,8 @@ namespace Bicep.Core.Parsing
         {
             var openParen = this.Expect(TokenType.LeftParen, b => b.ExpectedCharacter("("));
 
-            var itemsOrTokens = HandleMultilineOrCommas(
+            var itemsOrTokens = HandleFunctionElements(
                 closingTokenType: TokenType.RightParen,
-                permitCommas: true,
                 parseChildElement: () => FunctionArgument(expressionFlags));
 
             var closeParen = this.Expect(TokenType.RightParen, b => b.ExpectedCharacter(")"));
@@ -959,13 +958,8 @@ namespace Bicep.Core.Parsing
             };
         }
 
-        private IEnumerable<SyntaxBase> HandleMultilineOrCommas(TokenType closingTokenType, bool permitCommas, Func<SyntaxBase> parseChildElement)
+        private IEnumerable<SyntaxBase> HandleArrayOrObjectElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
         {
-            // TODO: check for:
-            // - comma AND newline between args
-            // - mixing of commas and newlines
-            // - empty item after a comma (ensure we skipped syntax for this)
-
             if (Check(closingTokenType))
             {
                 // always allow a close on the same line
@@ -987,9 +981,68 @@ namespace Bicep.Core.Parsing
                     {
                         itemsOrTokens.AddRange(NewLines());
                     }
-                    else if (permitCommas && Check(TokenType.Comma))
+                    else if (Check(TokenType.Comma))
                     {
                         itemsOrTokens.Add(reader.Read());
+                        if (Check(TokenType.NewLine))
+                        {
+                            // newlines are optional after commas
+                            itemsOrTokens.AddRange(NewLines());
+                        }
+                    }
+                    else
+                    {
+                        itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLineOrCommaSeparator()));
+                    }
+
+                    expectElement = true;
+                    continue;
+                }
+
+                var itemOrToken = parseChildElement();
+                itemsOrTokens.Add(itemOrToken);
+                expectElement = false;
+            }
+
+            return itemsOrTokens;
+        }
+
+        private IEnumerable<SyntaxBase> HandleFunctionElements(TokenType closingTokenType, Func<SyntaxBase> parseChildElement)
+        {
+            if (Check(closingTokenType))
+            {
+                // always allow a close on the same line
+                return ImmutableArray<SyntaxBase>.Empty;
+            }
+
+            var itemsOrTokens = new List<SyntaxBase>();
+
+            itemsOrTokens.AddRange(NewLines());
+
+            var expectElement = true;
+            while (!this.IsAtEnd() && this.reader.Peek().Type != closingTokenType)
+            {
+                if (!expectElement)
+                {
+                    // every element should be separated by AT MOST one set of new lines, or one comma
+                    // we don't want to allow mixing and matching, and we want to insert dummy elements between commas
+                    if (Check(TokenType.NewLine))
+                    {
+                        if (!Check(this.reader.PeekAhead(), closingTokenType))
+                        {
+                            itemsOrTokens.Add(SkipEmpty(x => x.ExpectedCommaSeparator()));
+                        }
+
+                        itemsOrTokens.AddRange(NewLines());
+                    }
+                    else if (Check(TokenType.Comma))
+                    {
+                        itemsOrTokens.Add(reader.Read());
+                        if (Check(TokenType.NewLine))
+                        {
+                            // newlines are optional after commas
+                            itemsOrTokens.AddRange(NewLines());
+                        }
                         if (Check(closingTokenType))
                         {
                             // trailing commas not supported - try to parse a child element before we exit the while loop,
@@ -1000,7 +1053,7 @@ namespace Bicep.Core.Parsing
                     }
                     else
                     {
-                        itemsOrTokens.Add(SkipEmpty(x => permitCommas ? x.ExpectedNewLineOrComma() : x.ExpectedNewLine()));
+                        itemsOrTokens.Add(SkipEmpty(x => x.ExpectedNewLineOrCommaSeparator()));
                     }
 
                     expectElement = true;
@@ -1010,15 +1063,6 @@ namespace Bicep.Core.Parsing
                 var itemOrToken = parseChildElement();
                 itemsOrTokens.Add(itemOrToken);
                 expectElement = false;
-
-                if (!permitCommas)
-                {
-                    if (Check(TokenType.Comma))
-                    {
-                        var skippedSyntax = SynchronizeAndReturnTrivia(reader.Position, RecoveryFlags.None, b => b.UnexpectedCommaSeparator(), TokenType.NewLine, closingTokenType);
-                        itemsOrTokens.Add(skippedSyntax);
-                    }
-                }
             }
 
             return itemsOrTokens;
@@ -1028,9 +1072,8 @@ namespace Bicep.Core.Parsing
         {
             var openBracket = Expect(TokenType.LeftSquare, b => b.ExpectedCharacter("["));
 
-            var itemsOrTokens = HandleMultilineOrCommas(
+            var itemsOrTokens = HandleArrayOrObjectElements(
                 closingTokenType: TokenType.RightSquare,
-                permitCommas: false,
                 parseChildElement: () => ArrayItem());
 
             var closeBracket = Expect(TokenType.RightSquare, b => b.ExpectedCharacter("]"));
@@ -1052,9 +1095,8 @@ namespace Bicep.Core.Parsing
         {
             var openBrace = Expect(TokenType.LeftBrace, b => b.ExpectedCharacter("{"));
 
-            var itemsOrTokens = HandleMultilineOrCommas(
+            var itemsOrTokens = HandleArrayOrObjectElements(
                 closingTokenType: TokenType.RightBrace,
-                permitCommas: false,
                 parseChildElement: () => ObjectProperty(expressionFlags));
 
             var closeBrace = Expect(TokenType.RightBrace, b => b.ExpectedCharacter("}"));
