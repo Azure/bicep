@@ -354,7 +354,6 @@ param defaultValueOneLinerCompletions string =
 })
 @allowed([
   'abc',
-//@[7:8) [BCP106 (Error)] Expected a new line character at this location. Commas are not used as separator delimiters. (CodeDescription: none) |,|
   'def'
 ])
 param commaOne string

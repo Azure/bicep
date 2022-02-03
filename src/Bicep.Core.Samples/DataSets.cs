@@ -25,6 +25,8 @@ namespace Bicep.Core.Samples
 
         public static DataSet InvalidExpressions_LF => CreateDataSet();
 
+        public static DataSet InvalidNewlineSensitivity_LF => CreateDataSet();
+
         public static DataSet InvalidOutputs_CRLF => CreateDataSet();
 
         public static DataSet InvalidParameters_LF => CreateDataSet();
@@ -40,6 +42,8 @@ namespace Bicep.Core.Samples
         public static DataSet Loops_LF => CreateDataSet();
 
         public static DataSet LoopsIndexed_LF => CreateDataSet();
+
+        public static DataSet NewlineSensitivity_LF => CreateDataSet();
 
         public static DataSet Outputs_CRLF => CreateDataSet();
 

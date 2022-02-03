@@ -1275,8 +1275,7 @@ param defaultValueOneLinerCompletions string =
 //@[2:7)      ArrayItemSyntax
 //@[2:7)       StringSyntax
 //@[2:7)        StringComplete |'abc'|
-//@[7:8)      SkippedTriviaSyntax
-//@[7:8)       Comma |,|
+//@[7:8)      Comma |,|
 //@[8:9)      NewLine |\n|
   'def'
 //@[2:7)      ArrayItemSyntax
