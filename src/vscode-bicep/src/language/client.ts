@@ -34,6 +34,52 @@ export async function launchLanguageServiceWithProgressReport(
   );
 }
 
+function getServerStartupOptions(
+  dotnetCommandPath: string,
+  languageServerPath: string,
+  transportKind: TransportKind,
+  waitForDebugger: boolean
+): lsp.ServerOptions {
+  const args = [];
+  if (waitForDebugger) {
+    // pause language server startup until a dotnet debugger has been attached
+    args.push(`--wait-for-debugger`);
+  }
+
+  switch (transportKind) {
+    case TransportKind.stdio: {
+      const executable = {
+        command: dotnetCommandPath,
+        args: [languageServerPath, ...args],
+        options: {
+          env: process.env,
+        },
+      };
+      return {
+        run: executable,
+        debug: executable,
+      };
+    }
+    case TransportKind.pipe: {
+      const module = {
+        runtime: dotnetCommandPath,
+        module: languageServerPath,
+        transport: transportKind,
+        args,
+        options: {
+          env: process.env,
+        },
+      };
+      return {
+        run: module,
+        debug: module,
+      };
+    }
+  }
+
+  throw new Error(`TransportKind '${transportKind}' is not supported.`);
+}
+
 async function launchLanguageService(
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
@@ -46,23 +92,14 @@ async function launchLanguageService(
   const languageServerPath = ensureLanguageServerExists(context);
   getLogger().debug(`Found language server at '${languageServerPath}'.`);
 
-  const serverExecutable: lsp.NodeModule = {
-    runtime: dotnetCommandPath,
-    module: languageServerPath,
-    transport: TransportKind.pipe,
-    args: [
-      // uncomment the next line to pause server startup until a dotnet debugger has been attached
-      // '--wait-for-debugger'
-    ],
-    options: {
-      env: process.env,
-    },
-  };
-
-  const serverOptions: lsp.ServerOptions = {
-    run: serverExecutable,
-    debug: serverExecutable,
-  };
+  const serverOptions = getServerStartupOptions(
+    dotnetCommandPath,
+    languageServerPath,
+    // Use named pipe transport for LSP comms
+    TransportKind.pipe,
+    // Set to true to pause server startup until a dotnet debugger is attached
+    false
+  );
 
   const clientOptions: lsp.LanguageClientOptions = {
     documentSelector: [{ language: "bicep" }],
