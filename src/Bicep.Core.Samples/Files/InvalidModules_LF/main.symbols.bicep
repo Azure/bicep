@@ -747,3 +747,8 @@ module jsonModMissingParam 'moduled.json' = {
   }
 }
 
+module assignToOutput 'empty.bicep' = {
+//@[7:21) Module assignToOutput. Type: module. Declaration start char: 0, length: 80
+  name: 'assignToOutput'
+  outputs: {}
+}
