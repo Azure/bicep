@@ -43,7 +43,11 @@ async function launchLanguageService(
 
   const serverExecutable: lsp.Executable = {
     command: dotnetCommandPath,
-    args: [languageServerPath],
+    args: [
+      languageServerPath,
+      // uncomment the next line to pause server startup until a dotnet debugger has been attached
+      // '--wait-for-debugger'
+    ],
     options: {
       env: process.env,
     },
