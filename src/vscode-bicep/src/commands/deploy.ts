@@ -52,9 +52,9 @@ export class DeployCommand implements Command {
         );
 
       if (subscription) {
-        const resourceGroupItems = loadResourceGroupItems(
-          subscription.subscription.subscriptionId
-        );
+        const subscriptionId = subscription.subscription.subscriptionId;
+
+        const resourceGroupItems = loadResourceGroupItems(subscriptionId);
         const resourceGroup = await _context.ui.showQuickPick(
           resourceGroupItems,
           {
@@ -62,15 +62,24 @@ export class DeployCommand implements Command {
           }
         );
 
+        const deploymentScopes: IAzureQuickPickItem<string | undefined>[] =
+          await createScopesQuickPickList();
+
+        const deploymentScope: IAzureQuickPickItem<string | undefined> =
+          await _context.ui.showQuickPick(deploymentScopes, {
+            canPickMany: false,
+            placeHolder: `Select a deployment scope`,
+            suppressPersistence: true,
+          });
+
         const parameterFilePath = await selectParameterFile(
           _context,
           documentUri
         );
 
-        const subscriptionId = subscription.subscription.subscriptionId;
         const resourceGroupName = resourceGroup?.resourceGroup.id;
 
-        if (subscriptionId && resourceGroupName) {
+        if (subscriptionId && resourceGroupName && deploymentScope) {
           const deployOutput: string = await this.client.sendRequest(
             "workspace/executeCommand",
             {
@@ -80,6 +89,7 @@ export class DeployCommand implements Command {
                 parameterFilePath,
                 subscriptionId,
                 resourceGroupName,
+                deploymentScope.label,
               ],
             }
           );
@@ -187,6 +197,29 @@ async function createParameterFileQuickPickList(): Promise<IQuickPickList> {
     none,
     browse,
   };
+}
+
+async function createScopesQuickPickList(): Promise<
+  IAzureQuickPickItem<string | undefined>[]
+> {
+  const managementGroup: IAzureQuickPickItem<string | undefined> = {
+    label: "ManagementGroup",
+    data: undefined,
+  };
+  const resourceGroup: IAzureQuickPickItem<string | undefined> = {
+    label: "ResourceGroup",
+    data: undefined,
+  };
+  const subscription: IAzureQuickPickItem<string | undefined> = {
+    label: "Subscription",
+    data: undefined,
+  };
+
+  const scopes: IAzureQuickPickItem<string | undefined>[] = [managementGroup]
+    .concat([resourceGroup])
+    .concat([subscription]);
+
+  return scopes;
 }
 
 interface IQuickPickList {

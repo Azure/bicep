@@ -114,10 +114,16 @@ export function getLogger(): Logger {
 }
 
 const outputChannel = createAzExtOutputChannel("Bicep Operations", "bicep");
+const terminal = vscode.window.createTerminal("Bicep Deploy");
 
 export function appendToOutputChannel(text: string): void {
   outputChannel.show();
   outputChannel.appendLog(text);
+}
+
+export function appendToTerminal(text: string): void {
+  terminal.show();
+  terminal.sendText(text, true);
 }
 
 export function resetLogger(): void {

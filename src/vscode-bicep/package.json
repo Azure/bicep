@@ -352,7 +352,6 @@
     "winston-transport": "^4.4.0"
   },
   "extensionDependencies": [
-    "ms-dotnettools.vscode-dotnet-runtime",
-    "ms-vscode.azure-account"
+    "ms-dotnettools.vscode-dotnet-runtime"
   ]
 }
