@@ -186,7 +186,7 @@ param foo string = 123 // trigger a type error
 param foo string = 123 // trigger a type error
 ";
 
-            var pipeName = $"mrPipey-{Guid.NewGuid()}";
+            var pipeName = Guid.NewGuid().ToString();
             using var pipeStream = new NamedPipeServerStream(pipeName, PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
             using var process = StartServerProcessWithNamedPipeIo(pipeName);
             try
@@ -223,7 +223,7 @@ param foo string = 123 // trigger a type error
 param foo string = 123 // trigger a type error
 ";
 
-            var tcpListener = new TcpListener(IPAddress.Any, 0);
+            var tcpListener = new TcpListener(IPAddress.Loopback, 0);
             tcpListener.Start();
             var tcpPort = (tcpListener.LocalEndpoint as IPEndPoint)!.Port;
 

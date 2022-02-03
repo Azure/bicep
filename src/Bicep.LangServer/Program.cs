@@ -23,7 +23,7 @@ namespace Bicep.LanguageServer
             public string? Pipe { get; set; }
 
             [Option("socket", Required = false, HelpText = "The TCP port to connect to for LSP communication")]
-            public short? Socket { get; set; }
+            public int? Socket { get; set; }
 
             [Option("stdio", Required = false, HelpText = "If set, use stdin/stdout for LSP communication")]
             public bool Stdio { get; set; }
