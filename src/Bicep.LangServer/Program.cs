@@ -22,8 +22,8 @@ namespace Bicep.LanguageServer
             [Option("pipe", Required = false, HelpText = "The named pipe to connect to for LSP communication")]
             public string? Pipe { get; set; }
 
-            [Option("socket", Required = false, HelpText = "The TCP socket to connect to for LSP communication")]
-            public string? Socket { get; set; }
+            [Option("socket", Required = false, HelpText = "The TCP port to connect to for LSP communication")]
+            public short? Socket { get; set; }
 
             [Option("stdio", Required = false, HelpText = "If set, use stdin/stdout for LSP communication")]
             public bool Stdio { get; set; }
@@ -52,20 +52,25 @@ namespace Bicep.LanguageServer
         {
             if (options.WaitForDebugger)
             {
+                // exit if we don't have a debugger attached within 5 minutes
+                var debuggerTimeoutToken = CancellationTokenSource.CreateLinkedTokenSource(
+                    cancellationToken,
+                    new CancellationTokenSource(TimeSpan.FromMinutes(5)).Token).Token;
+
                 while (!Debugger.IsAttached)
                 {
-                    await Task.Delay(100, cancellationToken);
+                    await Task.Delay(100, debuggerTimeoutToken);
                 }
 
                 Debugger.Break();
             }
 
             Server server;
-            if (options.Pipe is not null)
+            if (options.Pipe is { } pipeName)
             {
-                var pipeName = options.Pipe;
                 if (pipeName.StartsWith(@"\\.\pipe\"))
                 {
+                    // VSCode on Windows prefixes the pipe with \\.\pipe\
                     pipeName = pipeName.Substring(@"\\.\pipe\".Length);
                 }
 
@@ -79,9 +84,8 @@ namespace Bicep.LanguageServer
                         .WithInput(clientPipe)
                         .WithOutput(clientPipe));
             }
-            else if (options.Socket is not null)
+            else if (options.Socket is { } port)
             {
-                var port = short.Parse(options.Socket);
                 var tcpClient = new TcpClient();
 
                 await tcpClient.ConnectAsync(IPAddress.Loopback, port, cancellationToken);
