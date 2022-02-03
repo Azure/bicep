@@ -284,7 +284,8 @@ namespace Bicep.LanguageServer.Handlers
                         if (intValue >= 0)
                         {
                             return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
-                        } else
+                        }
+                        else
                         {
                             return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
                         }

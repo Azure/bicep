@@ -690,8 +690,8 @@ namespace Bicep.Core.Semantics.Namespaces
                 // if integerLiteralSyntax.Value is outside the range, return null. it should have already been caught by a different validation
                 UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
                     when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value switch { 
-                        _ when integerLiteralSyntax.Value <= long.MaxValue => -(long)integerLiteralSyntax.Value,
-                        _ when integerLiteralSyntax.Value == (ulong)long.MaxValue + 1 => long.MinValue,
+                        <= long.MaxValue => -(long)integerLiteralSyntax.Value,
+                        (ulong)long.MaxValue + 1 => long.MinValue,
                         _ => null
                     },
                 

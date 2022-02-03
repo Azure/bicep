@@ -855,7 +855,8 @@ namespace Bicep.Core.Emit
                     var longValue = -(long)integerSyntax.Value;
                     return new JTokenExpression((int)longValue);
                 }
-            } else
+            }
+            else
             {
                 if (integerSyntax.Value > int.MaxValue)
                 {
