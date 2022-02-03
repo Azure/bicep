@@ -80,12 +80,7 @@ namespace Bicep.LanguageServer.Handlers
                 var subscription = armClient.GetSubscription(resourceIdentifier);
                 deploymentCollection = subscription.GetDeployments();
             }
-            //else if (scope == DeploymentScope.ManagementGroup)
-            //{
-            //    var managementGroup = armClient.GetManagementGroup(resourceIdentifier);
-            //    deploymentCollection = managementGroup.GetDeployments();
-            //}
-  
+
             if (deploymentCollection is not null)
             {
                 string template = string.Empty;
@@ -116,6 +111,11 @@ namespace Bicep.LanguageServer.Handlers
                     Template = JsonDocument.Parse(template).RootElement,
                     Parameters = parameters
                 });
+
+                if (scope == DeploymentScope.Subscription)
+                {
+                    input.Location = "centralus";
+                }
 
                 string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHmmffff");
 

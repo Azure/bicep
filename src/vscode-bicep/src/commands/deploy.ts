@@ -54,32 +54,23 @@ export class DeployCommand implements Command {
       if (subscription) {
         const subscriptionId = subscription.subscription.subscriptionId;
 
-        const resourceGroupItems = loadResourceGroupItems(subscriptionId);
-        const resourceGroup = await _context.ui.showQuickPick(
-          resourceGroupItems,
-          {
-            placeHolder: "Please select resource group",
-          }
-        );
-
-        const deploymentScopes: IAzureQuickPickItem<string | undefined>[] =
-          await createScopesQuickPickList();
-
-        const deploymentScope: IAzureQuickPickItem<string | undefined> =
-          await _context.ui.showQuickPick(deploymentScopes, {
-            canPickMany: false,
-            placeHolder: `Select a deployment scope`,
-            suppressPersistence: true,
-          });
-
         const parameterFilePath = await selectParameterFile(
           _context,
           documentUri
         );
 
-        const resourceGroupName = resourceGroup?.resourceGroup.id;
+        const deploymentScope = await getDeploymentScope(_context);
 
-        if (subscriptionId && resourceGroupName && deploymentScope) {
+        if (deploymentScope == "ResourceGroup") {
+          await handleResourceGroupDeployment(
+            _context,
+            subscriptionId,
+            documentUri.fsPath,
+            parameterFilePath,
+            deploymentScope,
+            this.client
+          );
+        } else if (deploymentScope == "Subscription") {
           const deployOutput: string = await this.client.sendRequest(
             "workspace/executeCommand",
             {
@@ -88,8 +79,8 @@ export class DeployCommand implements Command {
                 documentUri.fsPath,
                 parameterFilePath,
                 subscriptionId,
-                resourceGroupName,
-                deploymentScope.label,
+                "",
+                deploymentScope,
               ],
             }
           );
@@ -100,6 +91,53 @@ export class DeployCommand implements Command {
       this.client.error("Deploy failed", parseError(err).message, true);
     }
   }
+}
+
+async function handleResourceGroupDeployment(
+  context: IActionContext,
+  subscriptionId: string,
+  documentPath: string,
+  parameterFilePath: string,
+  deploymentScope: string,
+  client: LanguageClient
+) {
+  const resourceGroupItems = loadResourceGroupItems(subscriptionId);
+  const resourceGroup = await context.ui.showQuickPick(resourceGroupItems, {
+    placeHolder: "Please select resource group",
+  });
+
+  const resourceGroupName = resourceGroup?.resourceGroup.id;
+
+  if (resourceGroupName) {
+    const deployOutput: string = await client.sendRequest(
+      "workspace/executeCommand",
+      {
+        command: "deploy",
+        arguments: [
+          documentPath,
+          parameterFilePath,
+          "",
+          resourceGroupName,
+          deploymentScope,
+        ],
+      }
+    );
+    appendToOutputChannel(deployOutput);
+  }
+}
+
+async function getDeploymentScope(context: IActionContext) {
+  const deploymentScopes: IAzureQuickPickItem<string | undefined>[] =
+    await createScopesQuickPickList();
+
+  const deploymentScope: IAzureQuickPickItem<string | undefined> =
+    await context.ui.showQuickPick(deploymentScopes, {
+      canPickMany: false,
+      placeHolder: `Select a deployment scope`,
+      suppressPersistence: true,
+    });
+
+  return deploymentScope.label;
 }
 
 async function loadResourceGroupItems(subscriptionId: string) {
