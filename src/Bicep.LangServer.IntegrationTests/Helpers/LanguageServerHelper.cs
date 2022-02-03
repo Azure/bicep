@@ -48,7 +48,11 @@ namespace Bicep.LangServer.IntegrationTests
                 ModuleRestoreScheduler = creationOptions.ModuleRestoreScheduler ?? BicepTestConstants.ModuleRestoreScheduler
             };
 
-            var server = new Server(serverPipe.Reader, clientPipe.Writer, creationOptions);
+            var server = new Server(
+                creationOptions,
+                options => options
+                    .WithInput(serverPipe.Reader)
+                    .WithOutput(clientPipe.Writer));
             var _ = server.RunAsync(CancellationToken.None); // do not wait on this async method, or you'll be waiting a long time!
 
             var client = LanguageClient.PreInit(options =>
