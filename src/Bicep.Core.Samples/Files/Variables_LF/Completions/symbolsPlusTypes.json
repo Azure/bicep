@@ -2430,6 +2430,20 @@
     }
   },
   {
+    "label": "templateContentVersion",
+    "kind": "variable",
+    "detail": "templateContentVersion",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_templateContentVersion",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "templateContentVersion"
+    }
+  },
+  {
     "label": "templateLinkId",
     "kind": "variable",
     "detail": "templateLinkId",

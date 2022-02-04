@@ -185,7 +185,7 @@ var invalidEnvironmentVar = environment().aosdufhsad
 //@[42:52) [BCP053 (Error)] The type "environment" does not contain property "aosdufhsad". Available properties include "activeDirectoryDataLake", "authentication", "batch", "gallery", "graph", "graphAudience", "media", "name", "portal", "resourceManager", "sqlManagement", "suffixes", "vmImageAliasDoc". (CodeDescription: none) |aosdufhsad|
 var invalidEnvAuthVar = environment().authentication.asdgdsag
 //@[4:21) [no-unused-vars (Warning)] Variable "invalidEnvAuthVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidEnvAuthVar|
-//@[53:61) [BCP053 (Error)] The type "authentication" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". (CodeDescription: none) |asdgdsag|
+//@[53:61) [BCP053 (Error)] The type "authenticationProperties" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". (CodeDescription: none) |asdgdsag|
 
 // invalid use of reserved namespace
 var az = 1
