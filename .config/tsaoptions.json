@@ -1,6 +1,6 @@
 {
   "areaPath": "One\\Azure-ARM\\Deployments",
-  "iterationPath": "One\\Azure-ARM",
+  "iterationPath": "One\\Custom\\Azure-ARM",
   "notificationAliases": [
     "azuregovenglt@microsoft.com"
   ]
