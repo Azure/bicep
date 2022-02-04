@@ -373,7 +373,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new IntegerLiteralSyntax(literal, long.Parse(literal.Text));
+            return new IntegerLiteralSyntax(literal, ulong.Parse(literal.Text));
         }
         void ISyntaxVisitor.VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceIntegerLiteralSyntax);
 

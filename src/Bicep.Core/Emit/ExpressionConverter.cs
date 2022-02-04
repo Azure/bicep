@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
@@ -12,6 +13,7 @@ using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -52,7 +54,7 @@ namespace Bicep.Core.Emit
                     return CreateFunction(boolSyntax.Value ? "true" : "false");
 
                 case IntegerLiteralSyntax integerSyntax:
-                    return integerSyntax.Value > int.MaxValue || integerSyntax.Value < int.MinValue ? CreateFunction("json", new JTokenExpression(integerSyntax.Value.ToInvariantString())) : new JTokenExpression((int)integerSyntax.Value);
+                    return ConvertInteger(integerSyntax, false);
 
                 case StringSyntax stringSyntax:
                     // using the throwing method to get semantic value of the string because
@@ -810,28 +812,60 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertUnary(UnaryOperationSyntax syntax)
         {
-            LanguageExpression convertedOperand = ConvertExpression(syntax.Expression);
-
             switch (syntax.Operator)
             {
                 case UnaryOperator.Not:
+                    LanguageExpression convertedOperand = ConvertExpression(syntax.Expression);
                     return CreateFunction("not", convertedOperand);
 
                 case UnaryOperator.Minus:
-                    if (convertedOperand is JTokenExpression literal && literal.Value.Type == JTokenType.Integer)
+                    if (syntax.Expression is IntegerLiteralSyntax integerLiteral)
                     {
-                        // invert the integer literal
-                        int literalValue = literal.Value.Value<int>();
-                        return new JTokenExpression(-literalValue);
+                        // shortcutting the integer parsing logic here because we need to return either the literal 32 bit integer or the FunctionExpression of an integer outside the 32 bit range
+                        return ConvertInteger(integerLiteral, true);
                     }
 
                     return CreateFunction(
                         "sub",
                         new JTokenExpression(0),
-                        convertedOperand);
+                        ConvertExpression(syntax.Expression));
 
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected unary operator '{syntax.Operator}.");
+            }
+        }
+
+        // the deployment engine can only handle 32 bit integers expressed as literal values, so for 32 bit integers, we return the literal integer value
+        // for values outside that signed 32 bit integer range, we return the FunctionExpression
+        private LanguageExpression ConvertInteger(IntegerLiteralSyntax integerSyntax, bool minus)
+        {
+            if (minus)
+            {
+                // integerSyntax.Value is always positive, so for the most negative signed 32 bit integer -2,147,483,648
+                // we would compare its positive token (2,147,483,648) to int.MaxValue (2,147,483,647) + 1
+                if (integerSyntax.Value > (ulong)int.MaxValue + 1)
+                {
+                    return CreateFunction("json", new JTokenExpression($"-{integerSyntax.Value.ToString(CultureInfo.InvariantCulture)}"));
+                }
+                else
+                {
+                    // the integerSyntax.Value is a valid negative 32 bit integer.
+                    // because integerSyntax.Value is a ulong type, it is always positive. we need to first cast it to a long in order to negate it.
+                    // after negating, cast it to a int type because that is what represents a signed 32 bit integer.
+                    var longValue = -(long)integerSyntax.Value;
+                    return new JTokenExpression((int)longValue);
+                }
+            }
+            else
+            {
+                if (integerSyntax.Value > int.MaxValue)
+                {
+                    return CreateFunction("json", new JTokenExpression(integerSyntax.Value.ToString(CultureInfo.InvariantCulture)));
+                }
+                else
+                {
+                    return new JTokenExpression((int)integerSyntax.Value);
+                }
             }
         }
 

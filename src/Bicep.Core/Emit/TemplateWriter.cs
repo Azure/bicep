@@ -358,7 +358,7 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private long? GetBatchSize(StatementSyntax statement)
+        private ulong? GetBatchSize(StatementSyntax statement)
         {
             var decorator = SemanticModelHelper.TryGetDecoratorInNamespace(
                 context.SemanticModel,
