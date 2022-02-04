@@ -13,6 +13,10 @@ import {
 import { AzureAccount } from "../azure-account.api";
 import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
 import { ResourceManagementClient } from "@azure/arm-resources";
+import {
+  SubscriptionClientContext,
+  Subscriptions,
+} from "@azure/arm-subscriptions";
 import { appendToOutputChannel } from "../utils/logger";
 
 export class DeployCommand implements Command {
@@ -71,26 +75,70 @@ export class DeployCommand implements Command {
             this.client
           );
         } else if (deploymentScope == "Subscription") {
-          const deployOutput: string = await this.client.sendRequest(
-            "workspace/executeCommand",
-            {
-              command: "deploy",
-              arguments: [
-                documentUri.fsPath,
-                parameterFilePath,
-                subscriptionId,
-                "",
-                deploymentScope,
-              ],
-            }
+          await handleSubscriptionDeployment(
+            _context,
+            subscriptionId,
+            documentUri.fsPath,
+            parameterFilePath,
+            deploymentScope,
+            this.client
           );
-          appendToOutputChannel(deployOutput);
         }
       }
     } catch (err) {
       this.client.error("Deploy failed", parseError(err).message, true);
     }
   }
+}
+
+async function handleSubscriptionDeployment(
+  context: IActionContext,
+  subscriptionId: string,
+  documentPath: string,
+  parameterFilePath: string,
+  deploymentScope: string,
+  client: LanguageClient
+) {
+  const locations = await loadLocationItems(subscriptionId);
+  const location = await context.ui.showQuickPick(locations, {
+    placeHolder: "Please select location",
+  });
+
+  if (location) {
+    const deployOutput: string = await client.sendRequest(
+      "workspace/executeCommand",
+      {
+        command: "deploy",
+        arguments: [
+          documentPath,
+          parameterFilePath,
+          subscriptionId,
+          "",
+          deploymentScope,
+          location.label,
+        ],
+      }
+    );
+    appendToOutputChannel(deployOutput);
+  }
+}
+
+async function loadLocationItems(subscriptionId: string) {
+  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
+    "ms-vscode.azure-account"
+  )!.exports;
+  const session = azureAccount.sessions[0];
+  const subscriptionClientContext = new SubscriptionClientContext(
+    session.credentials2
+  );
+  const subscription = new Subscriptions(subscriptionClientContext);
+  const locations = await subscription.listLocations(subscriptionId);
+
+  locations.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  return locations.map((location) => ({
+    label: location.name || "",
+    location,
+  }));
 }
 
 async function handleResourceGroupDeployment(
@@ -119,6 +167,7 @@ async function handleResourceGroupDeployment(
           "",
           resourceGroupName,
           deploymentScope,
+          ""
         ],
       }
     );

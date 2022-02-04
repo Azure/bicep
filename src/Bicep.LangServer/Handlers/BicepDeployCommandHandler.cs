@@ -10,7 +10,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
@@ -33,7 +32,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, string, string, string>
+    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, string, string, string, string>
     {
         private readonly ICompilationManager compilationManager;
         private readonly EmitterSettings emitterSettings;
@@ -55,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             this.credentialFactory = credentialFactory;
         }
 
-        public override async Task<string> Handle(string bicepFilePath, string parameterFilePath, string subscriptionId, string resourceId, string scope, CancellationToken cancellationToken)
+        public override async Task<string> Handle(string bicepFilePath, string parameterFilePath, string subscriptionId, string resourceId, string scope, string location, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
@@ -114,6 +113,10 @@ namespace Bicep.LanguageServer.Handlers
 
                 if (scope == DeploymentScope.Subscription)
                 {
+                    if (location is null)
+                    {
+                        return "Deployment failed. Location was not provided";
+                    }
                     input.Location = "centralus";
                 }
 

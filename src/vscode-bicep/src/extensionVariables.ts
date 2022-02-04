@@ -9,5 +9,5 @@ import { AzExtTreeDataProvider } from "vscode-azureextensionui";
  * Namespace for common variables used throughout the extension. They must be initialized in the activate() method of extension.ts
  */
 export namespace ext {
-    export let tree: AzExtTreeDataProvider;
+  export let tree: AzExtTreeDataProvider;
 }
