@@ -17,7 +17,7 @@ namespace Bicep.Core.IntegrationTests
         {
             var result = CompilationHelper.Compile(@"
 output test1 string = concat(
-  'foo'
+  'foo',
   'bar'
 )
 ");
@@ -32,7 +32,7 @@ output test1 string = concat(
             var result = CompilationHelper.Compile(@"
 output test1 string = concat(
   // this is the foo parameter!
-  'foo'
+  'foo',
 
   // this is the bar parameter!
   'bar'
@@ -48,7 +48,7 @@ output test1 string = concat(
         public void Function_argument_leading_and_trailing_newlines_can_be_dropped()
         {
             var result = CompilationHelper.Compile(@"
-output test1 string = concat('foo'
+output test1 string = concat('foo',
   'bar')
 ");
 
@@ -68,7 +68,7 @@ output test1 string = concat('foo', 'bar')
         }
 
         [TestMethod]
-        public void Function_arguments_must_be_separated_by_either_a_comma_or_newline()
+        public void Function_arguments_must_be_separated_by_a_comma()
         {
             var result = CompilationHelper.Compile(@"
 output test1 string = concat('foo' 'bar')
@@ -230,30 +230,31 @@ output test1 array = ['foo'
         }
 
         [TestMethod]
-        public void Array_item_commas_are_not_permitted()
+        public void Array_item_commas_are_permitted_on_single_line_definition()
         {
             var result = CompilationHelper.Compile(@"
 output test1 array = ['foo', 'bar']
+output test2 array = ['foo', 'bar',]
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP106", DiagnosticLevel.Error, "Expected a new line character at this location. Commas are not used as separator delimiters."),
-            });
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
-        public void Array_item_single_diagnostic_raised_for_extraneous_comma()
+        public void Array_item_commas_are_permitted_on_multi_line_definition()
         {
             var result = CompilationHelper.Compile(@"
 output test1 array = [
   'abc',
   'def'
 ]
+output test2 array = [
+  'abc',
+  'def',
+]
 ");
 
-            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP106", DiagnosticLevel.Error, "Expected a new line character at this location. Commas are not used as separator delimiters."),
-            });
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
 
         [TestMethod]
@@ -265,6 +266,100 @@ output test1 array = ['foo', 'bar'
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"]\" character at this location."),
+            });
+        }
+
+
+        [TestMethod]
+        public void Object_item_newlines_are_permitted()
+        {
+            var result = CompilationHelper.Compile(@"
+output test1 object = {
+  abc: 'foo'
+  def: 'bar'
+}
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject {
+                ["abc"] = "foo",
+                ["def"] = "bar"
+            });
+        }
+
+        [TestMethod]
+        public void Object_item_multiple_newlines_are_permitted()
+        {
+            var result = CompilationHelper.Compile(@"
+output test1 object = {
+  // this is the foo parameter!
+  abc: 'foo'
+
+  // this is the bar parameter!
+  def: 'bar'
+
+}
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject {
+                ["abc"] = "foo",
+                ["def"] = "bar"
+            });
+        }
+
+        [TestMethod]
+        public void Object_item_leading_and_trailing_newlines_can_be_dropped()
+        {
+            var result = CompilationHelper.Compile(@"
+output test1 object = { abc: 'foo'
+  def: 'bar' }
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.outputs['test1'].value", new JObject {
+                ["abc"] = "foo",
+                ["def"] = "bar"
+            });
+        }
+
+        [TestMethod]
+        public void Object_item_commas_are_permitted_on_single_line_definition()
+        {
+            var result = CompilationHelper.Compile(@"
+output test1 object = {abc: 'foo', def: 'bar'}
+output test2 object = {abc: 'foo', def: 'bar',}
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Object_item_commas_are_permitted_on_multi_line_definition()
+        {
+            var result = CompilationHelper.Compile(@"
+output test1 object = {
+  abc: 'abc',
+  def: 'def'
+}
+output test2 object = {
+  abc: 'abc',
+  def: 'def',
+}
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        [TestMethod]
+        public void Object_item_error_recovery_works()
+        {
+            var result = CompilationHelper.Compile(@"
+output test1 object = { abc: 'foo', def: 'bar'
+");
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"}\" character at this location."),
             });
         }
     }

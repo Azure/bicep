@@ -195,46 +195,38 @@ namespace Bicep.Core.PrettyPrint
                  return Spread(Concat(openParen, itemVariable, comma), Concat(indexVariable, closeParen));
              });
 
+        private void PushCommaSeparatedList(ImmutableArray<SyntaxBase> children)
+        {
+            for (var i = 0; i < children.Length; i++)
+            {
+                this.Visit(children[i]);
+
+                if (i < children.Length - 1 &&
+                    children[i] is Token { Type: TokenType.Comma } &&
+                    children[i + 1] is not Token { Type: TokenType.NewLine })
+                {
+                    this.PushDocument(Space);
+                }
+            }
+        }
+
         public override void VisitFunctionCallSyntax(FunctionCallSyntax syntax) =>
             this.BuildWithConcat(() =>
             {
                 this.Visit(syntax.Name);
                 this.Visit(syntax.OpenParen);
-                foreach (var child in syntax.Children)
-                {
-                    if (child is Token { Type: TokenType.Comma })
-                    {
-                        this.Visit(child);
-                        this.documentStack.Push(Space);
-                    }
-                    else
-                    {
-                        this.Visit(child);
-                    }
-                }
+                this.PushCommaSeparatedList(syntax.Children);
                 this.Visit(syntax.CloseParen);
             });
 
         public override void VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) =>
             this.BuildWithConcat(() =>
             {
-                //TODO: check if there's a better way to do this
                 this.Visit(syntax.BaseExpression);
                 this.Visit(syntax.Dot);
                 this.Visit(syntax.Name);
                 this.Visit(syntax.OpenParen);
-                foreach (var child in syntax.Children)
-                {
-                    if (child is Token { Type: TokenType.Comma })
-                    {
-                        this.Visit(child);
-                        this.documentStack.Push(Space);
-                    }
-                    else
-                    {
-                        this.Visit(child);
-                    }
-                }
+                this.PushCommaSeparatedList(syntax.Children);
                 this.Visit(syntax.CloseParen);
             });
 
@@ -334,7 +326,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.OpenBrace);
                 this.visitingBlockOpenSyntax = false;
 
-                this.VisitNodes(syntax.Children);
+                this.PushCommaSeparatedList(syntax.Children);
 
                 this.visitingBlockCloseSyntax = true;
                 this.Visit(syntax.CloseBrace);
@@ -360,7 +352,7 @@ namespace Bicep.Core.PrettyPrint
                 this.Visit(syntax.OpenBracket);
                 this.visitingBlockOpenSyntax = false;
 
-                this.VisitNodes(syntax.Children);
+                this.PushCommaSeparatedList(syntax.Children);
 
                 this.visitingBlockCloseSyntax = true;
                 this.Visit(syntax.CloseBracket);

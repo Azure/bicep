@@ -1,15 +1,15 @@
 var singleLineFunction = concat('abc', 'def')
 
 var multiLineFunction = concat(
-'abc', 
+'abc',
 'def'
 )
 
 var singleLineArray = [
-  'abc','def'
+  'abc', 'def'
 ]
 var singleLineArrayTrailingCommas = [
-  'abc','def',
+  'abc', 'def',
 ]
 
 var multiLineArray = [
@@ -22,16 +22,16 @@ var multiLineArrayCommas = [
 ]
 
 var mixedArray = [
-  'abc','def'
-  'ghi','jkl',
+  'abc', 'def'
+  'ghi', 'jkl',
   'lmn'
 ]
 
 var singleLineObject = {
-  abc: 'def',ghi: 'jkl'
+  abc: 'def', ghi: 'jkl'
 }
 var singleLineObjectTrailingCommas = {
-  abc: 'def',ghi: 'jkl',
+  abc: 'def', ghi: 'jkl',
 }
 var multiLineObject = {
   abc: 'def'
@@ -42,15 +42,15 @@ var multiLineObjectCommas = {
   ghi: 'jkl',
 }
 var mixedObject = {
-  abc: 'abc',def: 'def'
-  ghi: 'ghi',jkl: 'jkl',
+  abc: 'abc', def: 'def'
+  ghi: 'ghi', jkl: 'jkl',
   lmn: 'lmn'
 }
 
 var nestedMixed = {
   abc: {
-    'def': 'ghi',abc: 'def',foo: [
-      'bar','blah',
+    'def': 'ghi', abc: 'def', foo: [
+      'bar', 'blah',
     ]
   }
 }

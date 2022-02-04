@@ -19,7 +19,7 @@ namespace Bicep.Core.UnitTests.PrettyPrint
 ### blah blah blah
 
 
-   
+
 
 blah
 
@@ -82,8 +82,7 @@ var foo   = {
 }
 var   foo = [
     1,
-    2,
-    3
+    2 3
 ]")]
         // Broken module declarations.
         [DataRow(
@@ -161,7 +160,7 @@ key: value
 
 
 ] some trivia
-    
+
 
 // Broken.
     var  foo something
@@ -186,7 +185,7 @@ resource foo 'Foo' = {
 resource foo 'Foo' = {
     name: 'foo'
     properties: {
-    key: 
+    key:
 value
 }
 }
@@ -223,7 +222,6 @@ var foo = {
   3
   4
 ] some trivia
-    
 
 // Broken.
 var  foo something
@@ -244,7 +242,7 @@ resource foo 'Foo' = {
 resource foo 'Foo' = {
     name: 'foo'
     properties: {
-    key: 
+    key:
 value
 }
 }
