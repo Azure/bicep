@@ -2834,7 +2834,7 @@ var myValue = 9223372036854775807
 ");
 
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
-            result.Template.Should().HaveValueAtPath("$.variables.myValue", "[json('9223372036854775807')]");
+            result.Template.Should().HaveValueAtPath("$.variables.myValue", 9223372036854775807);
         }
 
         [TestMethod]
