@@ -695,9 +695,9 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
 
             result.Template.Should().NotHaveValue();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
-                ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
-                ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
+                ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
+                ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
             });
         }
 
@@ -2699,6 +2699,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
                 ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
             });
         }
+
         /// <summary>
         /// https://github.com/Azure/bicep/issues/5456
         /// </summary>
@@ -2717,6 +2718,19 @@ module mod 'module.bicep' = {
             {
                 ("BCP073", DiagnosticLevel.Error, "The property \"outputs\" is read-only. Expressions cannot be assigned to read-only properties.")
             });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3114
+        /// </summary>    
+        [TestMethod]
+        public void Test_Issue3114()
+        {
+            var result = CompilationHelper.Compile(@"
+output contentVersion string = deployment().properties.template.contentVersion
+");
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveValueAtPath("$.outputs['contentVersion'].value", "[deployment().properties.template.contentVersion]");
         }
     }
 }

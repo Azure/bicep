@@ -50,14 +50,14 @@ namespace Bicep.Core.Semantics.Namespaces
 
         private static ObjectType GetManagementGroupReturnType(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            var summary = new ObjectType("summary", TypeSymbolValidationFlags.Default, new[]
+            var summary = new ObjectType("summaryProperties", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("id", LanguageConstants.String),
                 new TypeProperty("name", LanguageConstants.String),
                 new TypeProperty("type", LanguageConstants.String),
             }, null);
 
-            var details = new ObjectType("details", TypeSymbolValidationFlags.Default, new[]
+            var details = new ObjectType("detailsProperties", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("version", LanguageConstants.String),
                 new TypeProperty("updatedTime", LanguageConstants.String),
@@ -137,7 +137,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return new ObjectType("environment", TypeSymbolValidationFlags.Default, new[]
             {
                 new TypeProperty("activeDirectoryDataLake", LanguageConstants.String),
-                new TypeProperty("authentication", new ObjectType("authentication", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("authentication", new ObjectType("authenticationProperties", TypeSymbolValidationFlags.Default, new []
                 {
                     new TypeProperty("audiences", new TypedArrayType(LanguageConstants.String, TypeSymbolValidationFlags.Default)),
                     new TypeProperty("identityProvider", LanguageConstants.String),
@@ -153,7 +153,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 new TypeProperty("portal", LanguageConstants.String),
                 new TypeProperty("resourceManager", LanguageConstants.String),
                 new TypeProperty("sqlManagement", LanguageConstants.String),
-                new TypeProperty("suffixes", new ObjectType("suffixes", TypeSymbolValidationFlags.Default, new []
+                new TypeProperty("suffixes", new ObjectType("suffixesProperties", TypeSymbolValidationFlags.Default, new []
                 {
                     new TypeProperty("acrLoginServer", LanguageConstants.String),
                     new TypeProperty("azureDatalakeAnalyticsCatalogAndJob", LanguageConstants.String),
@@ -172,12 +172,17 @@ namespace Bicep.Core.Semantics.Namespaces
             // Note: there are other properties which could be included here, but they allow you to break out of the bicep world.
             // We're going to omit them and only include what is truly necessary. If we get feature requests to expose more properties, we should discuss this further.
             // Properties such as 'template', 'templateHash', 'parameters' depend on the codegen, and feel like they could be fragile.
+            // template.contentVersion was requested in issue #3114
             IEnumerable<TypeProperty> properties = new[]
             {
                 new TypeProperty("name", LanguageConstants.String),
                 new TypeProperty("properties", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
                 {
-                    new TypeProperty("templateLink", new ObjectType("properties", TypeSymbolValidationFlags.Default, new []
+                    new TypeProperty("template", new ObjectType("templateProperties", TypeSymbolValidationFlags.Default, new []
+                    {
+                        new TypeProperty("contentVersion", LanguageConstants.String)
+                    }, null)),
+                    new TypeProperty("templateLink", new ObjectType("templateLinkProperties", TypeSymbolValidationFlags.Default, new []
                     {
                         new TypeProperty("id", LanguageConstants.String),
                         new TypeProperty("uri", LanguageConstants.String),

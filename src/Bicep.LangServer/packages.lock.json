@@ -2,6 +2,12 @@
   "version": 1,
   "dependencies": {
     "net6.0": {
+      "CommandLineParser": {
+        "type": "Direct",
+        "requested": "[2.8.0, )",
+        "resolved": "2.8.0",
+        "contentHash": "eco2HlKQBY4Joz9odHigzGpVzv6pjsXnY5lziioMveQxr+i2Z7xYcIOMeZTgYiqnMtMAbXMXsVhrNfWO5vJS8Q=="
+      },
       "Microsoft.CodeAnalysis.BannedApiAnalyzers": {
         "type": "Direct",
         "requested": "[3.3.3, )",

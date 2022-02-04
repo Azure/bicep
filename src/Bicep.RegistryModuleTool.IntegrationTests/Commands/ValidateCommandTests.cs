@@ -10,6 +10,8 @@ using Bicep.RegistryModuleTool.TestFixtures.Mocks;
 using Bicep.RegistryModuleTool.UnitTests.TestFixtures.Mocks;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.IO.Abstractions;
 using System.IO.Abstractions.TestingHelpers;
@@ -92,12 +94,68 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please regenerate the file to fix it.
 ".ReplaceLineEndings(),
-                $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is modified or outdated. Please regenerate the file to fix it.
+                $@"The file ""{fileSystem.Path.GetFullPath(VersionFile.FileName)}"" is invalid:
+  #: Required properties [$schema, version, pathFilters] were not present
 ".ReplaceLineEndings());
 
             Invoke(fileSystem, processProxy, console);
 
             console.Verify();
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetInvalidModulePathData), DynamicDataSourceType.Method)]
+        public void Invoke_InvalidModulePath_ReturnsOne(MockFileSystem fileSystem, string error)
+        {
+            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
+            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
+                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
+
+            var exitCode = Invoke(fileSystem, processProxy);
+
+            exitCode.Should().Be(1);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetInvalidModulePathData), DynamicDataSourceType.Method)]
+        public void Invoke_InvalidModulePath_WritesErrorsToConsole(MockFileSystem fileSystem, string error)
+        {
+            var mockMainArmTemplateFileData = fileSystem.GetFile(MainArmTemplateFile.FileName);
+            var processProxy = MockProcessProxyFactory.CreateProcessProxy(
+                (args => args.Contains(MainBicepFile.FileName),  () => fileSystem.SetTempFile(mockMainArmTemplateFileData)),
+                (args => args.Contains(MainBicepTestFile.FileName), () => fileSystem.SetTempFile(MockValidMainTestArmTemplateData)));
+
+            var console = new MockConsole().ExpectErrorLines(error);
+
+            Invoke(fileSystem, processProxy, console);
+
+            console.Verify();
+        }
+
+        private static IEnumerable<object[]> GetInvalidModulePathData()
+        {
+            var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
+
+            var moduleDirectory = fileSystem.Path.GetFullPath("/modules/FOO/BAR");
+            fileSystem.MoveDirectory(fileSystem.Directory.GetCurrentDirectory(), moduleDirectory);
+            fileSystem.Directory.SetCurrentDirectory(moduleDirectory);
+
+            yield return new object[]
+            {
+                fileSystem,
+                $@"The module path ""FOO{fileSystem.Path.DirectorySeparatorChar}BAR"" in the path ""{moduleDirectory}"" is invalid. All characters in the module path must be in lowercase.{Environment.NewLine}"
+            };
+
+            moduleDirectory = fileSystem.Path.GetFullPath("/modules/mymodule");
+            fileSystem.MoveDirectory(fileSystem.Directory.GetCurrentDirectory(), moduleDirectory);
+            fileSystem.Directory.SetCurrentDirectory(moduleDirectory);
+
+            yield return new object[]
+            {
+                fileSystem,
+                $@"The module path ""mymodule"" in the path ""{moduleDirectory}"" is invalid. The module path must be in the format of ""<module-folder>{fileSystem.Path.DirectorySeparatorChar}<module-name>"".{Environment.NewLine}"
+            };
         }
 
         private static int Invoke(IFileSystem fileSystem, IProcessProxy processProxy, IConsole? console = null)

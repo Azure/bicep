@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6079751447973968942"
+      "templateHash": "12480395712152468332"
     }
   },
   "parameters": {
@@ -140,6 +140,7 @@
     "expressionIndexOnAny": "[createObject()[resourceGroup().location]]",
     "anyIndexOnAny": "[true()[false()]]",
     "deploymentName": "[deployment().name]",
+    "templateContentVersion": "[deployment().properties.template.contentVersion]",
     "templateLinkUri": "[deployment().properties.templateLink.uri]",
     "templateLinkId": "[deployment().properties.templateLink.id]",
     "portalEndpoint": "[environment().portal]",
