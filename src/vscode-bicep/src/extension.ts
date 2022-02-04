@@ -49,8 +49,9 @@ export async function activate(
   extension.register(createLogger(context, outputChannel));
   registerUIExtensionVariables({ context, outputChannel });
 
-  await activateWithTelemetryAndErrorHandling(async () => {
+  await activateWithTelemetryAndErrorHandling(async (actionContext) => {
     const languageClient = await launchLanguageServiceWithProgressReport(
+      actionContext,
       context,
       outputChannel
     );

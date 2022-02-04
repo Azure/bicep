@@ -22,6 +22,7 @@ const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
 
 export async function launchLanguageServiceWithProgressReport(
+  actionContext: IActionContext,
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
 ): Promise<lsp.LanguageClient> {
@@ -30,7 +31,8 @@ export async function launchLanguageServiceWithProgressReport(
       title: "Launching Bicep language service...",
       location: vscode.ProgressLocation.Notification,
     },
-    async () => await launchLanguageService(context, outputChannel)
+    async () =>
+      await launchLanguageService(actionContext, context, outputChannel)
   );
 }
 
@@ -81,12 +83,13 @@ function getServerStartupOptions(
 }
 
 async function launchLanguageService(
+  actionContext: IActionContext,
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
 ): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
 
-  const dotnetCommandPath = await ensureDotnetRuntimeInstalled();
+  const dotnetCommandPath = await ensureDotnetRuntimeInstalled(actionContext);
   getLogger().debug(`Found dotnet command at '${dotnetCommandPath}'.`);
 
   const languageServerPath = ensureLanguageServerExists(context);
@@ -158,7 +161,9 @@ async function launchLanguageService(
   return client;
 }
 
-async function ensureDotnetRuntimeInstalled(): Promise<string> {
+async function ensureDotnetRuntimeInstalled(
+  actionContext: IActionContext
+): Promise<string> {
   getLogger().info("Acquiring dotnet runtime...");
 
   const result = await vscode.commands.executeCommand<{ dotnetPath: string }>(
@@ -170,7 +175,10 @@ async function ensureDotnetRuntimeInstalled(): Promise<string> {
   );
 
   if (!result) {
-    const errorMessage = `Failed to install .NET runtime v${dotnetRuntimeVersion}.`;
+    // Suppress the 'Report Issue' button - we want people to use the dialog displayed by the .NET installer extension.
+    // It captures much more detail about the problem, and directs people to the correct repo (https://github.com/dotnet/vscode-dotnet-runtime).
+    actionContext.errorHandling.suppressReportIssue = true;
+    const errorMessage = `Failed to install .NET runtime v${dotnetRuntimeVersion}. Please see the .NET install tool error dialog for more detailed information, or to report an issue.`;
 
     getLogger().error(errorMessage);
     throw new Error(errorMessage);
