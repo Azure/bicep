@@ -3,8 +3,6 @@
 import { Context, Reporter, Test } from "@jest/reporters";
 import { AggregatedResult, TestResult } from "@jest/test-result";
 
-// Our reporter implements only the onRunComplete lifecycle
-// function, run after all tests have completed
 export default class TestReporter
   implements Pick<Reporter, "onTestResult" | "onRunComplete">
 {
