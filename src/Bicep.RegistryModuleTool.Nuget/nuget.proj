@@ -17,7 +17,7 @@
 
   <Target Name="RunTool" AfterTargets="Build" DependsOnTargets="GetBuildVersion">
     <ItemGroup>
-      <NuSpec Include="$(BUILD_SOURCESDIRECTORY)/src/Bicep.RegistryModuleTool/obj/$(BUILDCONFIGURATION)/Bicep.RegistryModuleTool.$(NugetPackageVersion).nuspec" />
+      <NuSpec Include="../Bicep.RegistryModuleTool/obj/$(BUILDCONFIGURATION)/Bicep.RegistryModuleTool.$(NugetPackageVersion).nuspec" />
     </ItemGroup>
 
     <Exec Command="$(NugetExePath) pack @(NuSpec) -Version $(NuGetPackageVersion) -Symbols -SymbolPackageFormat snupkg -NonInteractive"
