@@ -695,9 +695,9 @@ resource rgReader 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' =
 
             result.Template.Should().NotHaveValue();
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
-                ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
-                ("BCP139", DiagnosticLevel.Error, "The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module."),
+                ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
+                ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
+                ("BCP139", DiagnosticLevel.Error, "A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope."),
             });
         }
 
@@ -2813,6 +2813,67 @@ output productGroupsResourceIds array = [for rgName in rgNames: resourceId('Micr
             result.Template!.Should().HaveValueAtPath("$.outputs.productGroupsResourceIds.metadata.description", "The Resources Ids of the API management service product groups");
         }
 
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_positive_test()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = -9223372036854775808
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.variables.myValue", "[json('-9223372036854775808')]");
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_positive_test_2()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = 9223372036854775807
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.variables.myValue", 9223372036854775807);
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_positive_test_3()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = -2147483648
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.variables.myValue", -2147483648);
+        }
+
+        [TestMethod]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_positive_test_4()
+        {
+            var result = CompilationHelper.Compile(@"
+var myValue = 2147483647
+");
+
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.variables.myValue", 2147483647);
+        }
+
+        [DataTestMethod]
+        [DataRow("var myValue = -9223372036854775809")]
+        [DataRow("var myValue = 9223372036854775808")]
+        // https://github.com/Azure/bicep/issues/5371
+        public void Test_Issue5371_negative_tests(string fileContents)
+        {
+            var result = CompilationHelper.Compile(fileContents);
+
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP010", DiagnosticLevel.Error, "Expected a valid 64-bit signed integer.")
+            });
+        }
+
         /// <summary>
         /// https://github.com/Azure/bicep/issues/5456
         /// </summary>
@@ -2849,6 +2910,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
                 ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
             });
         }
+
         /// <summary>
         /// https://github.com/Azure/bicep/issues/5456
         /// </summary>
@@ -2867,6 +2929,19 @@ module mod 'module.bicep' = {
             {
                 ("BCP073", DiagnosticLevel.Error, "The property \"outputs\" is read-only. Expressions cannot be assigned to read-only properties.")
             });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3114
+        /// </summary>    
+        [TestMethod]
+        public void Test_Issue3114()
+        {
+            var result = CompilationHelper.Compile(@"
+output contentVersion string = deployment().properties.template.contentVersion
+");
+            result.Template.Should().NotBeNull();
+            result.Template.Should().HaveValueAtPath("$.outputs['contentVersion'].value", "[deployment().properties.template.contentVersion]");
         }
     }
 }

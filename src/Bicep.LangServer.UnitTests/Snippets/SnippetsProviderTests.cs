@@ -25,34 +25,25 @@ namespace Bicep.LangServer.UnitTests.Snippets
         private readonly NamespaceType azNamespaceType = BicepTestConstants.NamespaceProvider.TryGetNamespace("az", "az", ResourceScope.ResourceGroup)!;
 
         [TestMethod]
-        public void GetDescriptionAndText_WithEmptyInput_ReturnsEmptyDescriptionAndText()
+        public void GetDescriptionAndSnippetText_WithEmptyInput_ReturnsEmptyDescriptionAndText()
         {
-            (string description, string text) = snippetsProvider.GetDescriptionAndText(string.Empty, @"C:\foo.bicep");
+            (string description, string text) = snippetsProvider.GetDescriptionAndSnippetText(string.Empty, @"C:\foo.bicep");
 
-            Assert.IsTrue(description.Equals(string.Empty));
-            Assert.IsTrue(text.Equals(string.Empty));
+            description.Should().Be(string.Empty);
+            text.Should().Be(string.Empty);
         }
 
         [TestMethod]
-        public void GetDescriptionAndText_WithNullInput_ReturnsEmptyDescriptionAndText()
+        public void GetDescriptionAndSnippetText_WithOnlyWhitespaceInput_ReturnsEmptyDescriptionAndText()
         {
-            (string description, string text) = snippetsProvider.GetDescriptionAndText(null, @"C:\foo.bicep");
+            (string description, string text) = snippetsProvider.GetDescriptionAndSnippetText("   ", @"C:\foo.bicep");
 
-            Assert.IsTrue(description.Equals(string.Empty));
-            Assert.IsTrue(text.Equals(string.Empty));
+            description.Should().Be(string.Empty);
+            text.Should().Be(string.Empty);
         }
 
         [TestMethod]
-        public void GetDescriptionAndText_WithOnlyWhitespaceInput_ReturnsEmptyDescriptionAndText()
-        {
-            (string description, string text) = snippetsProvider.GetDescriptionAndText("   ", @"C:\foo.bicep");
-
-            Assert.IsTrue(description.Equals(string.Empty));
-            Assert.IsTrue(text.Equals(string.Empty));
-        }
-
-        [TestMethod]
-        public void GetDescriptionAndText_WithValidInput_ReturnsDescriptionAndText()
+        public void GetDescriptionAndSnippetText_WithValidInput_ReturnsDescriptionAndText()
         {
             string template = @"// DNS Zone
 resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
@@ -63,7 +54,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            (string description, string text) = snippetsProvider.GetDescriptionAndText(template, @"C:\foo.bicep");
+            (string description, string text) = snippetsProvider.GetDescriptionAndSnippetText(template, @"C:\foo.bicep");
 
             string expectedText = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -73,12 +64,12 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            Assert.AreEqual("DNS Zone", description);
-            Assert.AreEqual(expectedText, text);
+            description.Should().Be("DNS Zone");
+            expectedText.Should().Be(text);
         }
 
         [TestMethod]
-        public void GetDescriptionAndText_WithMissingCommentInInput_ReturnsEmptyDescriptionAndValidText()
+        public void GetDescriptionAndSnippetText_WithMissingCommentInInput_ReturnsEmptyDescriptionAndValidText()
         {
             string template = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -88,7 +79,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            (string description, string text) = snippetsProvider.GetDescriptionAndText(template, @"C:\foo.bicep");
+            (string description, string text) = snippetsProvider.GetDescriptionAndSnippetText(template, @"C:\foo.bicep");
 
             string expectedText = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   name: '${1:dnsZone}'
@@ -98,19 +89,19 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
   }
 }";
 
-            Assert.IsTrue(description.Equals(string.Empty));
-            Assert.AreEqual(expectedText, text);
+            description.Should().Be(string.Empty);
+            expectedText.Should().Be(text);
         }
 
         [TestMethod]
-        public void GetDescriptionAndText_WithCommentAndMissingDeclarations_ReturnsEmptyDescriptionAndText()
+        public void GetDescriptionAndSnippetText_WithCommentAndMissingDeclarations_ReturnsEmptyDescriptionAndText()
         {
             string template = @"// DNS Zone";
 
-            (string description, string text) = snippetsProvider.GetDescriptionAndText(template, @"C:\foo.bicep");
+            (string description, string text) = snippetsProvider.GetDescriptionAndSnippetText(template, @"C:\foo.bicep");
 
-            Assert.IsTrue(description.Equals(string.Empty));
-            Assert.IsTrue(text.Equals(string.Empty));
+            description.Should().Be(string.Empty);
+            text.Should().Be(string.Empty);
         }
 
         [TestMethod]
@@ -121,7 +112,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             foreach (Snippet snippet in snippets)
             {
-                Assert.AreEqual(CompletionPriority.High, snippet.CompletionPriority);
+                snippet.CompletionPriority.Should().Be(CompletionPriority.High);
             }
         }
 
@@ -134,7 +125,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             foreach (Snippet snippet in snippets)
             {
-                Assert.AreEqual(CompletionPriority.Medium, snippet.CompletionPriority);
+                snippet.CompletionPriority.Should().Be(CompletionPriority.Medium);
             }
         }
 
@@ -715,14 +706,13 @@ resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' 
         }
 
         [DataTestMethod]
-        [DataRow(null, null)]
         [DataRow("", "")]
         [DataRow("   ", "   ")]
         public void RemoveSnippetPlaceholderComments_WithInvalidInput_ReturnsInputTextAsIs(string input, string expected)
         {
             string actual = snippetsProvider.RemoveSnippetPlaceholderComments(input);
 
-            Assert.AreEqual(expected, actual);
+            actual.Should().Be(expected);
         }
 
         [TestMethod]

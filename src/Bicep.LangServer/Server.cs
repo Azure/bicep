@@ -48,17 +48,7 @@ namespace Bicep.LanguageServer
 
         private readonly OmnisharpLanguageServer server;
 
-        public Server(PipeReader input, PipeWriter output, CreationOptions creationOptions)
-            : this(creationOptions, options => options.WithInput(input).WithOutput(output))
-        {
-        }
-
-        public Server(Stream input, Stream output, CreationOptions creationOptions)
-            : this(creationOptions, options => options.WithInput(input).WithOutput(output))
-        {
-        }
-
-        private Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
+        public Server(CreationOptions creationOptions, Action<LanguageServerOptions> onOptionsFunc)
         {
             BicepDeploymentsInterop.Initialize();
             server = OmnisharpLanguageServer.PreInit(options =>

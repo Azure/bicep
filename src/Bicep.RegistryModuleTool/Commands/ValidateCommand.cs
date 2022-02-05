@@ -42,8 +42,8 @@ namespace Bicep.RegistryModuleTool.Commands
             {
                 var valid = true;
 
-                this.Logger.LogInformation("Validting that the module path is in lowercase...");
-                valid &= Validate(context.Console, () => ValidateModulePathInLowercase(this.FileSystem));
+                this.Logger.LogInformation("Validting module path...");
+                valid &= Validate(context.Console, () => ValidateModulePath(this.FileSystem));
 
                 this.Logger.LogInformation("Validating main Bicep file...");
 
@@ -73,14 +73,31 @@ namespace Bicep.RegistryModuleTool.Commands
                 valid &= Validate(context.Console, () => ReadmeFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
 
                 this.Logger.LogInformation("Validating version file...");
-                valid &= Validate(context.Console, () => VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(diffValidator));
+                valid &= Validate(context.Console, () => VersionFile.ReadFromFileSystem(this.FileSystem).ValidatedBy(jsonSchemaValidator, diffValidator));
 
                 return valid ? 0 : 1;
             }
 
-            private static void ValidateModulePathInLowercase(IFileSystem fileSystem)
+            private static void ValidateModulePath(IFileSystem fileSystem)
             {
                 var directoryPath = fileSystem.Directory.GetCurrentDirectory();
+                var modulePath = GetModulePath(fileSystem, directoryPath);
+
+                if (modulePath.Count(x => x == fileSystem.Path.DirectorySeparatorChar) != 1)
+                {
+                    string modulePathFormat = $"<module-folder>{fileSystem.Path.DirectorySeparatorChar}<module-name>";
+
+                    throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" is invalid. The module path must be in the format of \"{modulePathFormat}\".");
+                }
+
+                if (modulePath.Any(char.IsUpper))
+                {
+                    throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" is invalid. All characters in the module path must be in lowercase.");
+                }
+            }
+
+            private static string GetModulePath(IFileSystem fileSystem, string directoryPath)
+            {
                 var directoryInfo = fileSystem.DirectoryInfo.FromDirectoryName(directoryPath);
                 var directoryStack = new Stack<string>();
 
@@ -106,10 +123,7 @@ namespace Bicep.RegistryModuleTool.Commands
 
                 var modulePath = string.Join(fileSystem.Path.DirectorySeparatorChar, directoryStack.ToArray());
 
-                if (modulePath.Any(char.IsUpper))
-                {
-                    throw new InvalidModuleException($"The module path \"{modulePath}\" in the path \"{directoryPath}\" must be in lowercase.");
-                }
+                return modulePath;
             }
 
             private static bool Validate(IConsole console, Action validateAction)

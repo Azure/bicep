@@ -55,7 +55,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
                 throw;
             }
 
-            this.logger.LogDebug("Make sure the test file contains at least one test...");
+            this.logger.LogInformation("Making sure the test file contains at least one test...");
 
             using var tempFileStream = fileSystem.FileStream.CreateDeleteOnCloseStream(tempFilePath);
             var testTemplateElement = JsonElementFactory.CreateElement(tempFileStream);

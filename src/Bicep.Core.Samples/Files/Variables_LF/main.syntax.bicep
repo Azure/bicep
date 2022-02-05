@@ -745,6 +745,30 @@ var deploymentName = deployment().name
 //@[34:38)   IdentifierSyntax
 //@[34:38)    Identifier |name|
 //@[38:39) NewLine |\n|
+var templateContentVersion = deployment().properties.template.contentVersion
+//@[0:76) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:26)  IdentifierSyntax
+//@[4:26)   Identifier |templateContentVersion|
+//@[27:28)  Assignment |=|
+//@[29:76)  PropertyAccessSyntax
+//@[29:61)   PropertyAccessSyntax
+//@[29:52)    PropertyAccessSyntax
+//@[29:41)     FunctionCallSyntax
+//@[29:39)      IdentifierSyntax
+//@[29:39)       Identifier |deployment|
+//@[39:40)      LeftParen |(|
+//@[40:41)      RightParen |)|
+//@[41:42)     Dot |.|
+//@[42:52)     IdentifierSyntax
+//@[42:52)      Identifier |properties|
+//@[52:53)    Dot |.|
+//@[53:61)    IdentifierSyntax
+//@[53:61)     Identifier |template|
+//@[61:62)   Dot |.|
+//@[62:76)   IdentifierSyntax
+//@[62:76)    Identifier |contentVersion|
+//@[76:77) NewLine |\n|
 var templateLinkUri = deployment().properties.templateLink.uri
 //@[0:62) VariableDeclarationSyntax
 //@[0:3)  Identifier |var|

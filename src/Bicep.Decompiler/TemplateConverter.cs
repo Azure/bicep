@@ -193,7 +193,7 @@ namespace Bicep.Decompiler
             => expression.Value.Type switch
             {
                 JTokenType.String => SyntaxFactory.CreateStringLiteral(expression.Value.Value<string>()!),
-                JTokenType.Integer => new IntegerLiteralSyntax(SyntaxFactory.CreateToken(TokenType.Integer, expression.Value.ToString()), expression.Value.Value<long>()),
+                JTokenType.Integer => expression.Value.Value<long>() is long value && value >= 0 ? ParseIntegerJToken((JValue)value) : ParseIntegerJToken((JValue)(-value)),
                 JTokenType.Boolean => expression.Value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
@@ -592,8 +592,8 @@ namespace Bicep.Decompiler
 
         private static IntegerLiteralSyntax ParseIntegerJToken(JValue value)
         {
-            var longValue = value.Value<long>();
-            return SyntaxFactory.CreateIntegerLiteral(longValue);
+            var ulongValue = value.Value<ulong>();
+            return SyntaxFactory.CreateIntegerLiteral(ulongValue);
         }
 
         private SyntaxBase ParseJValue(JValue value)

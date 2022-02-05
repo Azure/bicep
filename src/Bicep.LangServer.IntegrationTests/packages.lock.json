@@ -216,6 +216,11 @@
           "System.Xml.XmlDocument": "4.3.0"
         }
       },
+      "CommandLineParser": {
+        "type": "Transitive",
+        "resolved": "2.8.0",
+        "contentHash": "eco2HlKQBY4Joz9odHigzGpVzv6pjsXnY5lziioMveQxr+i2Z7xYcIOMeZTgYiqnMtMAbXMXsVhrNfWO5vJS8Q=="
+      },
       "DiffPlex": {
         "type": "Transitive",
         "resolved": "1.7.0",
@@ -1778,6 +1783,7 @@
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "1.0.0",
+          "CommandLineParser": "2.8.0",
           "OmniSharp.Extensions.LanguageServer": "0.19.2"
         }
       }

@@ -1390,7 +1390,7 @@ resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
 //@[23:54) [BCP081 (Warning)] Resource type "My.Rp/mockResource@2020-12-01" does not have types available. (CodeDescription: none) |'My.Rp/mockResource@2020-12-01'|
   name: 'invalidScope3'
   scope: subscription()
-//@[9:23) [BCP139 (Error)] The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module. (CodeDescription: none) |subscription()|
+//@[9:23) [BCP139 (Error)] A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope. (CodeDescription: none) |subscription()|
 }
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
@@ -1854,7 +1854,7 @@ resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
 
 resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 //@[19:62) [BCP081 (Warning)] Resource type "Microsoft.Rp1/resource1/child1@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp1/resource1/child1@2020-06-01'|
-//@[65:106) [BCP165 (Error)] Cannot deploy a resource with ancestor under a different scope. Resource "p1_res1" has the "scope" property set. (CodeDescription: none) |{\r\n  parent: p1_res1\r\n  name: 'child1'\r\n}|
+//@[65:106) [BCP165 (Error)] A resource's computed scope must match that of the Bicep file for it to be deployable. This resource's scope is computed from the "scope" property value assigned to ancestor resource "p1_res1". You must use modules to deploy resources to a different scope. (CodeDescription: none) |{\r\n  parent: p1_res1\r\n  name: 'child1'\r\n}|
   parent: p1_res1
   name: 'child1'
 }
@@ -1874,7 +1874,7 @@ resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
 resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
 //@[22:65) [BCP081 (Warning)] Resource type "Microsoft.Rp2/resource2/child2@2020-06-01" does not have types available. (CodeDescription: none) |'Microsoft.Rp2/resource2/child2@2020-06-01'|
   scope: p2_res1
-//@[9:16) [BCP164 (Error)] The "scope" property is unsupported for a resource with a parent resource. This resource has "p2_res2" declared as its parent. (CodeDescription: none) |p2_res1|
+//@[9:16) [BCP164 (Error)] A child resource's scope is computed based on the scope of its ancestor resource. This means that using the "scope" property on a child resource is unsupported. (CodeDescription: none) |p2_res1|
   parent: p2_res2
   name: 'child2'
 }
