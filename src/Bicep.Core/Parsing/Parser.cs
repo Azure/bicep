@@ -811,7 +811,7 @@ namespace Bicep.Core.Parsing
         {
             var literal = Expect(TokenType.Integer, b => b.ExpectedNumericLiteral());
 
-            if (long.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out long value))
+            if (ulong.TryParse(literal.Text, NumberStyles.None, CultureInfo.InvariantCulture, out ulong value))
             {
                 return new IntegerLiteralSyntax(literal, value);
             }
