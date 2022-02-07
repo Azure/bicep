@@ -14,6 +14,9 @@ param FlowLogName string = 'FlowLog1'
 param existingNSG string
 
 @description('Retention period in days. Default is zero which stands for permanent retention. Can be any Integer from 0 to 365')
+@metadata({
+  range: 'From 0 to 365.'
+})
 @minValue(0)
 @maxValue(365)
 param RetentionDays int = 0

@@ -670,14 +670,15 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreateObject(properties);
         }
 
-        private IEnumerable<SyntaxBase> ProcessDecoratorsWithTransform(IEnumerable<string> functionNames, Func<string, JToken?> valueLookupFunc, Func<(string name, SyntaxBase value), (string name, SyntaxBase value)> transformFunc)
+        private IEnumerable<SyntaxBase> ProcessDecoratorsWithTransform(IEnumerable<string> functionNames, Func<string, JToken?> valueLookupFunc, Func<(string name, SyntaxBase value), (string name, SyntaxBase value)?> transformFunc)
         {
             foreach (var functionName in functionNames)
             {
                 var expressionValue = valueLookupFunc(functionName);
-                if (TryParseJToken(expressionValue) is SyntaxBase expression)
+                if (TryParseJToken(expressionValue) is SyntaxBase expression &&
+                    transformFunc((functionName, expression)) is {} transformOutput)
                 {
-                    var (newFunctionName, newExpression) = transformFunc((functionName, expression));
+                    var (newFunctionName, newExpression) = transformOutput;
 
                     yield return SyntaxFactory.CreateDecorator(newFunctionName, newExpression);
                     yield return SyntaxFactory.NewlineToken;
@@ -685,29 +686,50 @@ namespace Bicep.Decompiler
             }
         }
 
-        private IEnumerable<SyntaxBase> ProcessMetadataDecorator(Func<string, JToken?> valueLookupFunc)
+        private IEnumerable<SyntaxBase> ProcessMetadataDescription(Func<string, JToken?> valueLookupFunc)
             => ProcessDecoratorsWithTransform(
                 new[] { "metadata" },
                 valueLookupFunc,
                 input => {
                     var (name, expression) = input;
 
-                    if (name == "metadata" &&
-                        expression is ObjectSyntax metadataObject &&
+                    if (expression is ObjectSyntax metadataObject &&
                         metadataObject.TryGetPropertyByName("description") is {} descriptionProperty)
                     {
                         // Replace metadata decorator with description decorator if the metadata object only contains description.
-                        name = "description";
-                        expression = descriptionProperty.Value;
+                        return ("description", descriptionProperty.Value);
                     }
 
-                    return (name, expression);
+                    return null;
+                });
+
+        private IEnumerable<SyntaxBase> ProcessMetadataMiscProperties(Func<string, JToken?> valueLookupFunc)
+            => ProcessDecoratorsWithTransform(
+                new[] { "metadata" },
+                valueLookupFunc,
+                input => {
+                    var (name, expression) = input;
+
+                    if (expression is ObjectSyntax metadataObject &&
+                        metadataObject.Properties.Any(x => !LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), "description")))
+                    {
+                        expression = new ObjectSyntax(
+                            metadataObject.OpenBrace,
+                            metadataObject.Properties.Where(x => !LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), "description")),
+                            metadataObject.CloseBrace);
+
+                        // Replace metadata decorator with description decorator if the metadata object only contains description.
+                        return ("metadata", expression);
+                    }
+
+                    return null;
                 });
 
         public ParameterDeclarationSyntax ParseParam(JProperty value)
         {
             // Metadata/description should be first
-            var decoratorsAndNewLines = ProcessMetadataDecorator(name => value.Value?[name]).ToList();
+            var decoratorsAndNewLines = ProcessMetadataDescription(name => value.Value?[name]).ToList();
+            decoratorsAndNewLines.AddRange(ProcessMetadataMiscProperties(name => value.Value?[name]));
 
             decoratorsAndNewLines.AddRange(
                 ProcessDecoratorsWithTransform(
@@ -1170,7 +1192,7 @@ namespace Bicep.Decompiler
                 }
 
                 // Metadata/description should be first
-                var decoratorsAndNewLines = ProcessMetadataDecorator(name => resource[name]).ToList();
+                var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
 
                 var (nestedBody, resourceCopyDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
                 decoratorsAndNewLines.AddRange(resourceCopyDecorators);
@@ -1206,7 +1228,7 @@ namespace Bicep.Decompiler
                 }
 
                 // Metadata/description should be first
-                var decoratorsAndNewLines = ProcessMetadataDecorator(name => resource[name]).ToList();
+                var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
 
                 var (body, resourceCopyDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
                 decoratorsAndNewLines.AddRange(resourceCopyDecorators);
@@ -1310,7 +1332,7 @@ namespace Bicep.Decompiler
             }
 
             // Metadata/description should be first
-            var decoratorsAndNewLines = ProcessMetadataDecorator(name => resource[name]).ToList();
+            var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
 
             var (value, resourceCopyDecorators) = ProcessResourceCopy(resource, resource =>
             {
@@ -1409,7 +1431,7 @@ namespace Bicep.Decompiler
         public OutputDeclarationSyntax ParseOutput(JProperty value)
         {
             // Metadata/description should be first
-            var decoratorsAndNewLines = ProcessMetadataDecorator(name => value.Value?[name]).ToList();
+            var decoratorsAndNewLines = ProcessMetadataDescription(name => value.Value?[name]).ToList();
 
             var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for output '{value.Name}'", value);
             var identifier = nameResolver.TryLookupName(NameType.Output, value.Name) ?? throw new ConversionFailedException($"Unable to find output {value.Name}", value);
