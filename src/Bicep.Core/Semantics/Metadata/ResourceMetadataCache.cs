@@ -97,6 +97,8 @@ namespace Bicep.Core.Semantics.Metadata
 
                         break;
                     }
+                case VariableDeclarationSyntax variableDeclarationSyntax:
+                    return this.TryLookup(variableDeclarationSyntax.Value);
             }
 
             return null;

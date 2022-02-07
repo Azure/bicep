@@ -138,7 +138,7 @@ namespace Bicep.Core.Emit
                             return CreateFunction(
                                 instanceFunctionCall.Name.IdentifierName,
                                 instanceFunctionCall.Arguments.Select(a => ConvertExpression(a.Expression)));
-                        case ResourceSymbol resourceSymbol when context.SemanticModel.ResourceMetadata.TryLookup(resourceSymbol.DeclaringSyntax) is { } resource:
+                        case DeclaredSymbol declaredSymbol when context.SemanticModel.ResourceMetadata.TryLookup(declaredSymbol.DeclaringSyntax) is { } resource:
                             if (instanceFunctionCall.Name.IdentifierName.StartsWithOrdinalInsensitively("list"))
                             {
                                 var converter = indexExpression is not null ?
@@ -178,7 +178,7 @@ namespace Bicep.Core.Emit
             {
                 case 0:
                     // moving the name expression does not produce any inaccessible locals (no locals means no loops)
-                    // regardless if there is an index expression or not, we don't need to append replacements 
+                    // regardless if there is an index expression or not, we don't need to append replacements
                     return this;
 
                 case 1 when indexExpression != null:

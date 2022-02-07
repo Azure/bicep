@@ -2933,7 +2933,7 @@ module mod 'module.bicep' = {
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/3114
-        /// </summary>    
+        /// </summary>
         [TestMethod]
         public void Test_Issue3114()
         {
@@ -2942,6 +2942,28 @@ output contentVersion string = deployment().properties.template.contentVersion
 ");
             result.Template.Should().NotBeNull();
             result.Template.Should().HaveValueAtPath("$.outputs['contentVersion'].value", "[deployment().properties.template.contentVersion]");
+        }
+
+        // https://github.com/Azure/bicep/issues/4833
+        [TestMethod]
+        public void Test_Issue4833()
+        {
+            var result = CompilationHelper.Compile(@"
+param storageName string
+
+resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: storageName
+}
+
+var storage = stg
+
+output badResult object = {
+  value: storage.listAnything().keys[0].value
+}");
+
+            result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject {
+                ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
+            });
         }
     }
 }
