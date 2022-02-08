@@ -94,7 +94,6 @@ export class DeployCommand implements Command {
         } else if (deploymentScope == "ManagementGroup") {
           await handleManagementGroupDeployment(
             _context,
-            subscriptionId,
             documentUri.fsPath,
             parameterFilePath,
             deploymentScope,
@@ -141,11 +140,6 @@ async function handleSubscriptionDeployment(
 }
 
 async function loadManagementGroupItems() {
-  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
-    "ms-vscode.azure-account"
-  )!.exports;
-  const session = azureAccount.sessions[0];
-
   const managementGroupsAPI = new ManagementGroupsAPI(
     new DefaultAzureCredential()
   );
@@ -185,7 +179,6 @@ async function loadLocationItems(subscriptionId: string) {
 
 async function handleManagementGroupDeployment(
   context: IActionContext,
-  subscriptionId: string,
   documentPath: string,
   parameterFilePath: string,
   deploymentScope: string,
@@ -196,13 +189,12 @@ async function handleManagementGroupDeployment(
     placeHolder: "Please select management group",
   });
 
-  const locations = await loadLocationItems(subscriptionId);
-  const location = await context.ui.showQuickPick(locations, {
-    placeHolder: "Please select location",
+  const location = await vscode.window.showInputBox({
+    placeHolder: "Please enter location"
   });
 
   const managementGroupId = managementGroup?.mg.id;
-  if (managementGroupId) {
+  if (managementGroupId && location) {
     const deployOutput: string = await client.sendRequest(
       "workspace/executeCommand",
       {
@@ -212,7 +204,7 @@ async function handleManagementGroupDeployment(
           parameterFilePath,
           managementGroupId,
           deploymentScope,
-          location.label
+          location
         ],
       }
     );
