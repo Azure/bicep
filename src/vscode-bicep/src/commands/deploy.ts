@@ -13,6 +13,11 @@ import {
 import { AzureAccount } from "../azure-account.api";
 import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
 import { ResourceManagementClient } from "@azure/arm-resources";
+import { DefaultAzureCredential } from "@azure/identity";
+import {
+  ManagementGroupsAPI,
+  ManagementGroup,
+} from "@azure/arm-managementgroups";
 import {
   SubscriptionClientContext,
   Subscriptions,
@@ -75,7 +80,19 @@ export class DeployCommand implements Command {
             this.client
           );
         } else if (deploymentScope == "Subscription") {
+          const subscriptionPath = subscription.subscription.subscriptionPath;
+
           await handleSubscriptionDeployment(
+            _context,
+            subscriptionId,
+            subscriptionPath,
+            documentUri.fsPath,
+            parameterFilePath,
+            deploymentScope,
+            this.client
+          );
+        } else if (deploymentScope == "ManagementGroup") {
+          await handleManagementGroupDeployment(
             _context,
             subscriptionId,
             documentUri.fsPath,
@@ -94,6 +111,7 @@ export class DeployCommand implements Command {
 async function handleSubscriptionDeployment(
   context: IActionContext,
   subscriptionId: string,
+  subscriptionPath: string,
   documentPath: string,
   parameterFilePath: string,
   deploymentScope: string,
@@ -112,8 +130,7 @@ async function handleSubscriptionDeployment(
         arguments: [
           documentPath,
           parameterFilePath,
-          subscriptionId,
-          "",
+          subscriptionPath,
           deploymentScope,
           location.label,
         ],
@@ -121,6 +138,31 @@ async function handleSubscriptionDeployment(
     );
     appendToOutputChannel(deployOutput);
   }
+}
+
+async function loadManagementGroupItems() {
+  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
+    "ms-vscode.azure-account"
+  )!.exports;
+  const session = azureAccount.sessions[0];
+
+  const managementGroupsAPI = new ManagementGroupsAPI(
+    new DefaultAzureCredential()
+  );
+  const managementGroups = await managementGroupsAPI.managementGroups.list();
+  const managementGroupsArray: ManagementGroup[] = [];
+
+  for await (const managementGroup of managementGroups) {
+    managementGroupsArray.push(managementGroup);
+  }
+
+  managementGroupsArray.sort((a, b) =>
+    (a.name || "").localeCompare(b.name || "")
+  );
+  return managementGroupsArray.map((mg) => ({
+    label: mg.name || "",
+    mg,
+  }));
 }
 
 async function loadLocationItems(subscriptionId: string) {
@@ -141,6 +183,43 @@ async function loadLocationItems(subscriptionId: string) {
   }));
 }
 
+async function handleManagementGroupDeployment(
+  context: IActionContext,
+  subscriptionId: string,
+  documentPath: string,
+  parameterFilePath: string,
+  deploymentScope: string,
+  client: LanguageClient
+) {
+  const managementGroupItems = loadManagementGroupItems();
+  const managementGroup = await context.ui.showQuickPick(managementGroupItems, {
+    placeHolder: "Please select management group",
+  });
+
+  const locations = await loadLocationItems(subscriptionId);
+  const location = await context.ui.showQuickPick(locations, {
+    placeHolder: "Please select location",
+  });
+
+  const managementGroupId = managementGroup?.mg.id;
+  if (managementGroupId) {
+    const deployOutput: string = await client.sendRequest(
+      "workspace/executeCommand",
+      {
+        command: "deploy",
+        arguments: [
+          documentPath,
+          parameterFilePath,
+          managementGroupId,
+          deploymentScope,
+          location.label
+        ],
+      }
+    );
+    appendToOutputChannel(deployOutput);
+  }
+}
+
 async function handleResourceGroupDeployment(
   context: IActionContext,
   subscriptionId: string,
@@ -154,9 +233,9 @@ async function handleResourceGroupDeployment(
     placeHolder: "Please select resource group",
   });
 
-  const resourceGroupName = resourceGroup?.resourceGroup.id;
+  const resourceGroupId = resourceGroup?.resourceGroup.id;
 
-  if (resourceGroupName) {
+  if (resourceGroupId) {
     const deployOutput: string = await client.sendRequest(
       "workspace/executeCommand",
       {
@@ -164,10 +243,9 @@ async function handleResourceGroupDeployment(
         arguments: [
           documentPath,
           parameterFilePath,
-          "",
-          resourceGroupName,
+          resourceGroupId,
           deploymentScope,
-          ""
+          "",
         ],
       }
     );

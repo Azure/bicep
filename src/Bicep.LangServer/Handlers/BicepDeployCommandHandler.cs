@@ -32,7 +32,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, string, string, string, string>
+    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, string, string, string>
     {
         private readonly ICompilationManager compilationManager;
         private readonly EmitterSettings emitterSettings;
@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             this.credentialFactory = credentialFactory;
         }
 
-        public override async Task<string> Handle(string bicepFilePath, string parameterFilePath, string subscriptionId, string resourceId, string scope, string location, CancellationToken cancellationToken)
+        public override async Task<string> Handle(string bicepFilePath, string parameterFilePath, string id, string scope, string location, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
@@ -66,18 +66,22 @@ namespace Bicep.LanguageServer.Handlers
 
             ArmClient armClient = new ArmClient(credential);
             DeploymentCollection? deploymentCollection = null;
+            var resourceIdentifier = new ResourceIdentifier(id);
 
             if (scope == DeploymentScope.ResourceGroup)
             {
-                var resourceIdentifier = new ResourceIdentifier(resourceId);
                 var resourceGroup = armClient.GetResourceGroup(resourceIdentifier);
                 deploymentCollection = resourceGroup.GetDeployments();
             }
             else if (scope == DeploymentScope.Subscription)
             {
-                var resourceIdentifier = new ResourceIdentifier("/subscriptions/" + subscriptionId);
                 var subscription = armClient.GetSubscription(resourceIdentifier);
                 deploymentCollection = subscription.GetDeployments();
+            }
+            else if (scope == DeploymentScope.ManagementGroup)
+            {
+                var managementGroup = armClient.GetManagementGroup(resourceIdentifier);
+                deploymentCollection = managementGroup.GetDeployments();
             }
 
             if (deploymentCollection is not null)
@@ -111,13 +115,13 @@ namespace Bicep.LanguageServer.Handlers
                     Parameters = parameters
                 });
 
-                if (scope == DeploymentScope.Subscription)
+                if (scope == DeploymentScope.Subscription || scope == DeploymentScope.ManagementGroup)
                 {
                     if (location is null)
                     {
                         return "Deployment failed. Location was not provided";
                     }
-                    input.Location = "centralus";
+                    input.Location = location;
                 }
 
                 string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHmmffff");
