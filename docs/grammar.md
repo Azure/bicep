@@ -16,7 +16,9 @@ targetScopeDecl -> "targetScope" "=" expression
 
 importDecl -> decorator* "import" IDENTIFIER(providerName) "as" IDENTIFIER(aliasName) object? NL
 
-parameterDecl -> decorator* "parameter" IDENTIFIER(name) IDENTIFIER(type) parameterDefaultValue? NL
+parameterDecl -> 
+  decorator* "parameter" IDENTIFIER(name) IDENTIFIER(type) parameterDefaultValue? NL |
+  decorator* "parameter" IDENTIFIER(name) "resource" interpString(type) parameterDefaultValue? NL |
 parameterDefaultValue -> "=" expression
 
 variableDecl -> decorator* "variable" IDENTIFIER(name) "=" expression NL
@@ -25,8 +27,9 @@ resourceDecl -> decorator* "resource" IDENTIFIER(name) interpString(type) "exist
 
 moduleDecl -> decorator* "module" IDENTIFIER(name) interpString(type) "=" (ifCondition | object | forExpression) NL
 
-outputDecl -> decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
-
+outputDecl -> 
+  decorator* "output" IDENTIFIER(name) IDENTIFIER(type) "=" expression NL
+  decorator* "output" IDENTIFIER(name) "resource" interpString(type) "=" expression NL
 NL -> ("\n" | "\r")+
 
 decorator -> "@" decoratorExpression NL

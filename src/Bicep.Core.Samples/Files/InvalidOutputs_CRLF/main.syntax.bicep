@@ -48,7 +48,7 @@ output missingValue string =
 //@[0:6)  Identifier |output|
 //@[7:19)  IdentifierSyntax
 //@[7:19)   Identifier |missingValue|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[27:28)  Assignment |=|
 //@[29:29)  SkippedTriviaSyntax
@@ -61,7 +61,7 @@ output arrayCompletions array =
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |arrayCompletions|
-//@[24:29)  TypeSyntax
+//@[24:29)  SimpleTypeSyntax
 //@[24:29)   Identifier |array|
 //@[30:31)  Assignment |=|
 //@[32:32)  SkippedTriviaSyntax
@@ -74,7 +74,7 @@ output objectCompletions object =
 //@[0:6)  Identifier |output|
 //@[7:24)  IdentifierSyntax
 //@[7:24)   Identifier |objectCompletions|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |object|
 //@[32:33)  Assignment |=|
 //@[34:34)  SkippedTriviaSyntax
@@ -87,7 +87,7 @@ output boolCompletions bool =
 //@[0:6)  Identifier |output|
 //@[7:22)  IdentifierSyntax
 //@[7:22)   Identifier |boolCompletions|
-//@[23:27)  TypeSyntax
+//@[23:27)  SimpleTypeSyntax
 //@[23:27)   Identifier |bool|
 //@[28:29)  Assignment |=|
 //@[30:30)  SkippedTriviaSyntax
@@ -134,7 +134,7 @@ output partialType obj
 //@[0:6)  Identifier |output|
 //@[7:18)  IdentifierSyntax
 //@[7:18)   Identifier |partialType|
-//@[19:22)  TypeSyntax
+//@[19:22)  SimpleTypeSyntax
 //@[19:22)   Identifier |obj|
 //@[22:22)  SkippedTriviaSyntax
 //@[22:22)  SkippedTriviaSyntax
@@ -219,7 +219,7 @@ output foo fluffy
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |foo|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |fluffy|
 //@[17:17)  SkippedTriviaSyntax
 //@[17:17)  SkippedTriviaSyntax
@@ -232,7 +232,7 @@ output foo string
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |foo|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[17:17)  SkippedTriviaSyntax
 //@[17:17)  SkippedTriviaSyntax
@@ -245,7 +245,7 @@ output foo string =
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |foo|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
 //@[19:19)  SkippedTriviaSyntax
@@ -258,7 +258,7 @@ output str string = true
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |str|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
 //@[20:24)  BooleanLiteralSyntax
@@ -269,7 +269,7 @@ output str string = false
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |str|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
 //@[20:25)  BooleanLiteralSyntax
@@ -280,7 +280,7 @@ output str string = [
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |str|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
 //@[20:24)  ArraySyntax
@@ -294,7 +294,7 @@ output str string = {
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |str|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
 //@[20:24)  ObjectSyntax
@@ -308,7 +308,7 @@ output str string = 52
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |str|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
 //@[20:22)  IntegerLiteralSyntax
@@ -322,7 +322,7 @@ output i int = true
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |i|
-//@[9:12)  TypeSyntax
+//@[9:12)  SimpleTypeSyntax
 //@[9:12)   Identifier |int|
 //@[13:14)  Assignment |=|
 //@[15:19)  BooleanLiteralSyntax
@@ -333,7 +333,7 @@ output i int = false
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |i|
-//@[9:12)  TypeSyntax
+//@[9:12)  SimpleTypeSyntax
 //@[9:12)   Identifier |int|
 //@[13:14)  Assignment |=|
 //@[15:20)  BooleanLiteralSyntax
@@ -344,7 +344,7 @@ output i int = [
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |i|
-//@[9:12)  TypeSyntax
+//@[9:12)  SimpleTypeSyntax
 //@[9:12)   Identifier |int|
 //@[13:14)  Assignment |=|
 //@[15:19)  ArraySyntax
@@ -358,7 +358,7 @@ output i int = }
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |i|
-//@[9:12)  TypeSyntax
+//@[9:12)  SimpleTypeSyntax
 //@[9:12)   Identifier |int|
 //@[13:14)  Assignment |=|
 //@[15:16)  SkippedTriviaSyntax
@@ -373,7 +373,7 @@ output i int = 'test'
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |i|
-//@[9:12)  TypeSyntax
+//@[9:12)  SimpleTypeSyntax
 //@[9:12)   Identifier |int|
 //@[13:14)  Assignment |=|
 //@[15:21)  StringSyntax
@@ -387,7 +387,7 @@ output b bool = [
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |b|
-//@[9:13)  TypeSyntax
+//@[9:13)  SimpleTypeSyntax
 //@[9:13)   Identifier |bool|
 //@[14:15)  Assignment |=|
 //@[16:20)  ArraySyntax
@@ -401,7 +401,7 @@ output b bool = {
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |b|
-//@[9:13)  TypeSyntax
+//@[9:13)  SimpleTypeSyntax
 //@[9:13)   Identifier |bool|
 //@[14:15)  Assignment |=|
 //@[16:20)  ObjectSyntax
@@ -415,7 +415,7 @@ output b bool = 32
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |b|
-//@[9:13)  TypeSyntax
+//@[9:13)  SimpleTypeSyntax
 //@[9:13)   Identifier |bool|
 //@[14:15)  Assignment |=|
 //@[16:18)  IntegerLiteralSyntax
@@ -426,7 +426,7 @@ output b bool = 'str'
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |b|
-//@[9:13)  TypeSyntax
+//@[9:13)  SimpleTypeSyntax
 //@[9:13)   Identifier |bool|
 //@[14:15)  Assignment |=|
 //@[16:21)  StringSyntax
@@ -440,7 +440,7 @@ output arr array = 32
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |arr|
-//@[11:16)  TypeSyntax
+//@[11:16)  SimpleTypeSyntax
 //@[11:16)   Identifier |array|
 //@[17:18)  Assignment |=|
 //@[19:21)  IntegerLiteralSyntax
@@ -451,7 +451,7 @@ output arr array = true
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |arr|
-//@[11:16)  TypeSyntax
+//@[11:16)  SimpleTypeSyntax
 //@[11:16)   Identifier |array|
 //@[17:18)  Assignment |=|
 //@[19:23)  BooleanLiteralSyntax
@@ -462,7 +462,7 @@ output arr array = false
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |arr|
-//@[11:16)  TypeSyntax
+//@[11:16)  SimpleTypeSyntax
 //@[11:16)   Identifier |array|
 //@[17:18)  Assignment |=|
 //@[19:24)  BooleanLiteralSyntax
@@ -473,7 +473,7 @@ output arr array = {
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |arr|
-//@[11:16)  TypeSyntax
+//@[11:16)  SimpleTypeSyntax
 //@[11:16)   Identifier |array|
 //@[17:18)  Assignment |=|
 //@[19:23)  ObjectSyntax
@@ -487,7 +487,7 @@ output arr array = 'str'
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |arr|
-//@[11:16)  TypeSyntax
+//@[11:16)  SimpleTypeSyntax
 //@[11:16)   Identifier |array|
 //@[17:18)  Assignment |=|
 //@[19:24)  StringSyntax
@@ -501,7 +501,7 @@ output o object = 32
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |o|
-//@[9:15)  TypeSyntax
+//@[9:15)  SimpleTypeSyntax
 //@[9:15)   Identifier |object|
 //@[16:17)  Assignment |=|
 //@[18:20)  IntegerLiteralSyntax
@@ -512,7 +512,7 @@ output o object = true
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |o|
-//@[9:15)  TypeSyntax
+//@[9:15)  SimpleTypeSyntax
 //@[9:15)   Identifier |object|
 //@[16:17)  Assignment |=|
 //@[18:22)  BooleanLiteralSyntax
@@ -523,7 +523,7 @@ output o object = false
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |o|
-//@[9:15)  TypeSyntax
+//@[9:15)  SimpleTypeSyntax
 //@[9:15)   Identifier |object|
 //@[16:17)  Assignment |=|
 //@[18:23)  BooleanLiteralSyntax
@@ -534,7 +534,7 @@ output o object = [
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |o|
-//@[9:15)  TypeSyntax
+//@[9:15)  SimpleTypeSyntax
 //@[9:15)   Identifier |object|
 //@[16:17)  Assignment |=|
 //@[18:22)  ArraySyntax
@@ -548,7 +548,7 @@ output o object = 'str'
 //@[0:6)  Identifier |output|
 //@[7:8)  IdentifierSyntax
 //@[7:8)   Identifier |o|
-//@[9:15)  TypeSyntax
+//@[9:15)  SimpleTypeSyntax
 //@[9:15)   Identifier |object|
 //@[16:17)  Assignment |=|
 //@[18:23)  StringSyntax
@@ -562,7 +562,7 @@ output exp string = 2 + 3
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |exp|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[18:19)  Assignment |=|
 //@[20:25)  BinaryOperationSyntax
@@ -577,7 +577,7 @@ output union string = true ? 's' : 1
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |union|
-//@[13:19)  TypeSyntax
+//@[13:19)  SimpleTypeSyntax
 //@[13:19)   Identifier |string|
 //@[20:21)  Assignment |=|
 //@[22:36)  TernaryOperationSyntax
@@ -595,7 +595,7 @@ output bad int = true && !4
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |bad|
-//@[11:14)  TypeSyntax
+//@[11:14)  SimpleTypeSyntax
 //@[11:14)   Identifier |int|
 //@[15:16)  Assignment |=|
 //@[17:27)  BinaryOperationSyntax
@@ -612,7 +612,7 @@ output deeper bool = true ? -true : (14 && 's') + 10
 //@[0:6)  Identifier |output|
 //@[7:13)  IdentifierSyntax
 //@[7:13)   Identifier |deeper|
-//@[14:18)  TypeSyntax
+//@[14:18)  SimpleTypeSyntax
 //@[14:18)   Identifier |bool|
 //@[19:20)  Assignment |=|
 //@[21:52)  TernaryOperationSyntax
@@ -644,7 +644,7 @@ output myOutput string = 'hello'
 //@[0:6)  Identifier |output|
 //@[7:15)  IdentifierSyntax
 //@[7:15)   Identifier |myOutput|
-//@[16:22)  TypeSyntax
+//@[16:22)  SimpleTypeSyntax
 //@[16:22)   Identifier |string|
 //@[23:24)  Assignment |=|
 //@[25:32)  StringSyntax
@@ -694,7 +694,7 @@ output notAttachableDecorators int = 32
 //@[0:6)  Identifier |output|
 //@[7:30)  IdentifierSyntax
 //@[7:30)   Identifier |notAttachableDecorators|
-//@[31:34)  TypeSyntax
+//@[31:34)  SimpleTypeSyntax
 //@[31:34)   Identifier |int|
 //@[35:36)  Assignment |=|
 //@[37:39)  IntegerLiteralSyntax
@@ -708,7 +708,7 @@ output noNestedLoops array = [for thing in things: {
 //@[0:6)  Identifier |output|
 //@[7:20)  IdentifierSyntax
 //@[7:20)   Identifier |noNestedLoops|
-//@[21:26)  TypeSyntax
+//@[21:26)  SimpleTypeSyntax
 //@[21:26)   Identifier |array|
 //@[27:28)  Assignment |=|
 //@[29:110)  ForSyntax
@@ -765,7 +765,7 @@ output noInnerLoopsInOutputs object = {
 //@[0:6)  Identifier |output|
 //@[7:28)  IdentifierSyntax
 //@[7:28)   Identifier |noInnerLoopsInOutputs|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |object|
 //@[36:37)  Assignment |=|
 //@[38:74)  ObjectSyntax
@@ -809,7 +809,7 @@ output noInnerLoopsInOutputs2 object = {
 //@[0:6)  Identifier |output|
 //@[7:29)  IdentifierSyntax
 //@[7:29)   Identifier |noInnerLoopsInOutputs2|
-//@[30:36)  TypeSyntax
+//@[30:36)  SimpleTypeSyntax
 //@[30:36)   Identifier |object|
 //@[37:38)  Assignment |=|
 //@[39:116)  ObjectSyntax
@@ -917,7 +917,7 @@ output keyVaultSecretOutput string = kv.getSecret('mySecret')
 //@[0:6)  Identifier |output|
 //@[7:27)  IdentifierSyntax
 //@[7:27)   Identifier |keyVaultSecretOutput|
-//@[28:34)  TypeSyntax
+//@[28:34)  SimpleTypeSyntax
 //@[28:34)   Identifier |string|
 //@[35:36)  Assignment |=|
 //@[37:61)  InstanceFunctionCallSyntax
@@ -938,7 +938,7 @@ output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
 //@[0:6)  Identifier |output|
 //@[7:39)  IdentifierSyntax
 //@[7:39)   Identifier |keyVaultSecretInterpolatedOutput|
-//@[40:46)  TypeSyntax
+//@[40:46)  SimpleTypeSyntax
 //@[40:46)   Identifier |string|
 //@[47:48)  Assignment |=|
 //@[49:78)  StringSyntax
@@ -962,7 +962,7 @@ output keyVaultSecretObjectOutput object = {
 //@[0:6)  Identifier |output|
 //@[7:33)  IdentifierSyntax
 //@[7:33)   Identifier |keyVaultSecretObjectOutput|
-//@[34:40)  TypeSyntax
+//@[34:40)  SimpleTypeSyntax
 //@[34:40)   Identifier |object|
 //@[41:42)  Assignment |=|
 //@[43:83)  ObjectSyntax
@@ -994,7 +994,7 @@ output keyVaultSecretArrayOutput array = [
 //@[0:6)  Identifier |output|
 //@[7:32)  IdentifierSyntax
 //@[7:32)   Identifier |keyVaultSecretArrayOutput|
-//@[33:38)  TypeSyntax
+//@[33:38)  SimpleTypeSyntax
 //@[33:38)   Identifier |array|
 //@[39:40)  Assignment |=|
 //@[41:73)  ArraySyntax
@@ -1023,7 +1023,7 @@ output keyVaultSecretArrayInterpolatedOutput array = [
 //@[0:6)  Identifier |output|
 //@[7:44)  IdentifierSyntax
 //@[7:44)   Identifier |keyVaultSecretArrayInterpolatedOutput|
-//@[45:50)  TypeSyntax
+//@[45:50)  SimpleTypeSyntax
 //@[45:50)   Identifier |array|
 //@[51:52)  Assignment |=|
 //@[53:90)  ArraySyntax

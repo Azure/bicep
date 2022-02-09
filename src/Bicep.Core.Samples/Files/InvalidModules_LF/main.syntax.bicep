@@ -3172,7 +3172,7 @@ output directRefToCollectionViaOutput array = nonexistentArrays
 //@[0:6)  Identifier |output|
 //@[7:37)  IdentifierSyntax
 //@[7:37)   Identifier |directRefToCollectionViaOutput|
-//@[38:43)  TypeSyntax
+//@[38:43)  SimpleTypeSyntax
 //@[38:43)   Identifier |array|
 //@[44:45)  Assignment |=|
 //@[46:63)  VariableAccessSyntax

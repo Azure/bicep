@@ -30,12 +30,12 @@ namespace Bicep.Core.UnitTests
 
         public static readonly FileResolver FileResolver = new();
 
-        public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion).Object;
+        public static readonly IFeatureProvider Features = CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: false, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion).Object;
 
         public static readonly EmitterSettings EmitterSettings = new EmitterSettings(Features);
 
         public static readonly EmitterSettings EmitterSettingsWithSymbolicNames = new EmitterSettings(
-            CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: true, importsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion).Object);
+            CreateMockFeaturesProvider(registryEnabled: false, symbolicNameCodegenEnabled: true, importsEnabled: false, resourceTypedParamsAndOutputsEnabled: false, assemblyFileVersion: BicepTestConstants.DevAssemblyFileVersion).Object);
 
         public static readonly IAzResourceTypeLoader AzResourceTypeLoader = new AzResourceTypeLoader();
 
@@ -62,12 +62,14 @@ namespace Bicep.Core.UnitTests
             bool registryEnabled = false,
             bool symbolicNameCodegenEnabled = false,
             bool importsEnabled = false,
+            bool resourceTypedParamsAndOutputsEnabled = false,
             string assemblyFileVersion = DevAssemblyFileVersion)
         {
             var mock = CreateMockFeaturesProvider(
                 registryEnabled: registryEnabled,
                 symbolicNameCodegenEnabled: symbolicNameCodegenEnabled,
                 importsEnabled: importsEnabled,
+                resourceTypedParamsAndOutputsEnabled: resourceTypedParamsAndOutputsEnabled,
                 assemblyFileVersion: assemblyFileVersion);
 
             var testPath = FileHelper.GetCacheRootPath(testContext);
@@ -106,13 +108,19 @@ namespace Bicep.Core.UnitTests
             return RootConfiguration.Bind(element, configurationPath);
         }
 
-        private static Mock<IFeatureProvider> CreateMockFeaturesProvider(bool registryEnabled, bool symbolicNameCodegenEnabled, bool importsEnabled, string assemblyFileVersion)
+        private static Mock<IFeatureProvider> CreateMockFeaturesProvider(
+            bool registryEnabled,
+            bool symbolicNameCodegenEnabled,
+            bool importsEnabled,
+            bool resourceTypedParamsAndOutputsEnabled,
+            string assemblyFileVersion)
         {
             var mock = StrictMock.Of<IFeatureProvider>();
             mock.SetupGet(m => m.RegistryEnabled).Returns(registryEnabled);
             mock.SetupGet(m => m.SymbolicNameCodegenEnabled).Returns(symbolicNameCodegenEnabled);
             mock.SetupGet(m => m.ImportsEnabled).Returns(importsEnabled);
             mock.SetupGet(m => m.AssemblyVersion).Returns(assemblyFileVersion);
+            mock.SetupGet(m => m.ResourceTypedParamsAndOutputsEnabled).Returns(resourceTypedParamsAndOutputsEnabled);
 
             return mock;
         }

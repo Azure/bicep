@@ -15,6 +15,7 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -67,13 +68,15 @@ namespace Bicep.LanguageServer.Snippets
             "tags",
             "properties"
         };
+        private readonly IFeatureProvider features;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IFileResolver fileResolver;
         private readonly RootConfiguration configuration;
         private readonly LinterAnalyzer linterAnalyzer;
 
-        public SnippetsProvider(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager)
+        public SnippetsProvider(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IConfigurationManager configurationManager)
         {
+            this.features = features;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
 
@@ -228,7 +231,7 @@ namespace Bicep.LanguageServer.Snippets
                 ImmutableDictionary.Create<ModuleDeclarationSyntax, DiagnosticBuilder.ErrorBuilderDelegate>(),
                 ImmutableHashSet<ModuleDeclarationSyntax>.Empty);
 
-            Compilation compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
+            Compilation compilation = new Compilation(this.features, namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
 
             SemanticModel semanticModel = compilation.GetEntrypointSemanticModel();
 

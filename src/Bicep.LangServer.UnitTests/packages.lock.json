@@ -55,9 +55,9 @@
       },
       "MSTest.TestAdapter": {
         "type": "Direct",
-        "requested": "[2.2.3, )",
-        "resolved": "2.2.3",
-        "contentHash": "Xxc6+JyELKOmM46CYrHxL9f2LMZGnx1Neh0dr52THZbmVTwlJM1tj0U5RQ50G+wxsfsU8ZfR1HAUugc+64b6TA==",
+        "requested": "[2.2.8, )",
+        "resolved": "2.2.8",
+        "contentHash": "BzxcfLaOZ25g8usreCBwFvpzH9LcR56pSkMbERO718cTQyAChXBYVuNIU3uK9stCcUWdXxIYl4WloiIu/C/PMQ==",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
           "System.Diagnostics.TextWriterTraceListener": "4.3.0"
@@ -65,9 +65,9 @@
       },
       "MSTest.TestFramework": {
         "type": "Direct",
-        "requested": "[2.2.5, )",
-        "resolved": "2.2.5",
-        "contentHash": "7PQH0yJoQO6bp6kHgVoTowtQZyQilftL64/pxeDzi15vm3UewzRZz74QssTaOi1otA6j2/lxFTEMJk/+HY/apQ==",
+        "requested": "[2.2.8, )",
+        "resolved": "2.2.8",
+        "contentHash": "phUoHuGTuw9T5yekxPHLLLq8jE56yufmh2yPlJq1IfkT4a3tYZ2htkeTlnQmzmJP3hI5xYhlqwiHcy3JqVt/OA==",
         "dependencies": {
           "NETStandard.Library": "1.6.1",
           "System.Diagnostics.TextWriterTraceListener": "4.3.0"
@@ -1757,8 +1757,8 @@
           "Azure.Bicep.Core": "1.0.0",
           "Bicep.Core.UnitTests": "1.0.0",
           "FluentAssertions": "6.4.0",
-          "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.5",
+          "MSTest.TestAdapter": "2.2.8",
+          "MSTest.TestFramework": "2.2.8",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "bicep": "1.0.0"
         }
@@ -1771,8 +1771,8 @@
           "DiffPlex": "1.7.0",
           "FluentAssertions": "6.4.0",
           "JsonDiffPatch.Net": "2.3.0",
-          "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.5",
+          "MSTest.TestAdapter": "2.2.8",
+          "MSTest.TestFramework": "2.2.8",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "Moq": "4.16.1",
           "Newtonsoft.Json": "13.0.1",
@@ -1793,8 +1793,8 @@
           "Bicep.Core.Samples": "1.0.0",
           "Bicep.LangServer": "1.0.0",
           "FluentAssertions": "6.4.0",
-          "MSTest.TestAdapter": "2.2.3",
-          "MSTest.TestFramework": "2.2.5",
+          "MSTest.TestAdapter": "2.2.8",
+          "MSTest.TestFramework": "2.2.8",
           "Microsoft.NET.Test.Sdk": "16.10.0",
           "Moq": "4.16.1",
           "OmniSharp.Extensions.LanguageClient": "0.19.2"

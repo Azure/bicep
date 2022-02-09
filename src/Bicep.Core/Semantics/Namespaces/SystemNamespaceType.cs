@@ -699,9 +699,19 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
+                // if integerLiteralSyntax.Value is within the 64 bit integer range, negate it after casting to a long type
+                // long.MaxValue + 1 (9,223,372,036,854,775,808) is the only invalid 64 bit integer value that may be passed. we avoid casting to a long because this causes overflow. we need to just return long.MinValue (-9,223,372,036,854,775,808)
+                // if integerLiteralSyntax.Value is outside the range, return null. it should have already been caught by a different validation
                 UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
-                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => -1 * integerLiteralSyntax.Value,
-                IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value,
+                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value switch { 
+                        <= long.MaxValue => -(long)integerLiteralSyntax.Value,
+                        (ulong)long.MaxValue + 1 => long.MinValue,
+                        _ => null
+                    },
+                
+                // this ternary check is to make sure that the integer value is within the range of a signed 64 bit integer before casting to a long type
+                // if not, it would have been caught already by a different validation
+                IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value <= long.MaxValue ? (long)integerLiteralSyntax.Value : null,
                 _ => null,
             };
 

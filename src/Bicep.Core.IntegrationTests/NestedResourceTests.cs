@@ -9,6 +9,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
@@ -53,7 +54,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
@@ -65,7 +66,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
                 new { name = "sibling", type = "My.RP/parentType/childType@2020-01-02", },
             };
 
-            model.AllResources.Select(x => x.Symbol)
+            model.DeclaredResources.Select(x => x.Symbol)
               .Select(s => new { name = s.Name, type = (s.Type as ResourceType)?.TypeReference.FormatName(), })
               .OrderBy(n => n.name)
               .Should().BeEquivalentTo(expected);
@@ -91,7 +92,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
 
             // The property "resource" is not allowed ...
@@ -104,7 +105,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
                 new { name = "parent", type = "My.RP/parentType@2020-01-01", },
             };
 
-            model.AllResources.Select(x => x.Symbol)
+            model.DeclaredResources.Select(x => x.Symbol)
               .Select(s => new { name = s.Name, type = (s.Type as ResourceType)?.TypeReference.FormatName(), })
               .OrderBy(n => n.name)
               .Should().BeEquivalentTo(expected);
@@ -149,24 +150,24 @@ output fromChild string = parent::child.properties.style
 output fromGrandchild string = parent::child::grandchild.properties.style
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
-            var parent = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent");
+            var parent = model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "parent");
             var references = model.FindReferences(parent);
             references.Should().HaveCount(6);
 
-            var child = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "child");
+            var child = model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "child");
             references = model.FindReferences(child);
             references.Should().HaveCount(6);
 
-            var grandchild = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "grandchild");
+            var grandchild = model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "grandchild");
             references = model.FindReferences(grandchild);
             references.Should().HaveCount(4);
 
-            var sibling = model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "sibling");
+            var sibling = model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "sibling");
             references = model.FindReferences(sibling);
             references.Should().HaveCount(1);
 
@@ -209,7 +210,7 @@ output fromChildInvalid string = parent::child2.properties.style
 output fromGrandchildInvalid string = parent::child::cousin.properties.temperature
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
 
             model.GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[]{
@@ -244,7 +245,7 @@ resource other 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"child\" does not exist in the current context."),
@@ -269,7 +270,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
@@ -294,7 +295,7 @@ resource parent 'My.RP/parentType@invalid-version' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP029", DiagnosticLevel.Error, "The resource type is not valid. Specify a valid resource type of format \"<types>@<apiVersion>\"."),
@@ -326,7 +327,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var diagnostics = compilation.GetEntrypointSemanticModel().GetAllDiagnostics();
             diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP156", DiagnosticLevel.Error, "The resource type segment \"My.RP/parentType/childType@2020-01-01\" is invalid. Nested resources must specify a single type segment, and optionally can specify an api version using the format \"<type>@<apiVersion>\"."),
@@ -353,7 +354,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP080", DiagnosticLevel.Error, "The expression is involved in a cycle (\"child\" -> \"parent\")."),
             });
@@ -384,7 +385,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
                 ("BCP057", DiagnosticLevel.Error, "The name \"grandchild\" does not exist in the current context."),
             });
@@ -413,17 +414,17 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
-            var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
+            var parent = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
-            var child = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
+            var child = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
-            var grandchild = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "grandchild").DeclaringSyntax)!;
+            var grandchild = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "grandchild").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(grandchild).Select(x => x.Resource).Should().Equal(new[] { parent, child, }); // order matters
         }
 
@@ -462,23 +463,23 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 }
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
             model.GetAllDiagnostics().ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().BeEmpty();
 
-            var parent = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
+            var parent = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "parent").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(parent).Should().BeEmpty();
 
-            var child = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
+            var child = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "child").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
-            var childGrandChild = model.ResourceMetadata.TryLookup(child.Symbol.DeclaringResource.GetBody().Resources.Single())!;
+            var childGrandChild = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(child.Symbol.DeclaringResource.GetBody().Resources.Single())!;
             model.ResourceAncestors.GetAncestors(childGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, child, });
 
-            var sibling = model.ResourceMetadata.TryLookup(model.AllResources.Select(x => x.Symbol).Single(r => r.Name == "sibling").DeclaringSyntax)!;
+            var sibling = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(model.DeclaredResources.Select(x => x.Symbol).Single(r => r.Name == "sibling").DeclaringSyntax)!;
             model.ResourceAncestors.GetAncestors(child).Select(x => x.Resource).Should().Equal(new[] { parent, });
 
-            var siblingGrandChild = model.ResourceMetadata.TryLookup(sibling.Symbol.DeclaringResource.GetBody().Resources.Single())!;
+            var siblingGrandChild = (DeclaredResourceMetadata)model.ResourceMetadata.TryLookup(sibling.Symbol.DeclaringResource.GetBody().Resources.Single())!;
             model.ResourceAncestors.GetAncestors(siblingGrandChild).Select(x => x.Resource).Should().Equal(new[] { parent, sibling, });
         }
 
@@ -567,7 +568,7 @@ resource parent 'My.RP/parentType@2020-01-01' = {
 output hmmmm string = parent::child.properties
 ";
 
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), SourceFileGroupingFactory.CreateFromText(program, BicepTestConstants.FileResolver), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
             var model = compilation.GetEntrypointSemanticModel();
 
             var output = model.Root.OutputDeclarations.Single();

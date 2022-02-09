@@ -57,7 +57,7 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
+            return (new Compilation(BicepTestConstants.Features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)

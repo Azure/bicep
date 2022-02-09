@@ -152,15 +152,16 @@ namespace Bicep.Decompiler
             return ExpressionHelpers.FlattenStringOperations(inlined);
         }
 
-        private static TypeSyntax? TryParseType(JToken? value)
+        private static SimpleTypeSyntax? TryParseType(JToken? value)
         {
+            // ARM JSON always encodes the type as a simple type (not a resource type).
             var typeString = value?.Value<string>();
             if (typeString == null)
             {
                 return null;
             }
 
-            return new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, typeString.ToLowerInvariant()));
+            return new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, typeString.ToLowerInvariant()));
         }
 
         private string? TryLookupResource(LanguageExpression expression)
@@ -193,7 +194,7 @@ namespace Bicep.Decompiler
             => expression.Value.Type switch
             {
                 JTokenType.String => SyntaxFactory.CreateStringLiteral(expression.Value.Value<string>()!),
-                JTokenType.Integer => new IntegerLiteralSyntax(SyntaxFactory.CreateToken(TokenType.Integer, expression.Value.ToString()), expression.Value.Value<long>()),
+                JTokenType.Integer => expression.Value.Value<long>() is long value && value >= 0 ? ParseIntegerJToken((JValue)value) : ParseIntegerJToken((JValue)(-value)),
                 JTokenType.Boolean => expression.Value.Value<bool>() ?
                     new BooleanLiteralSyntax(SyntaxFactory.TrueKeywordToken, true) :
                     new BooleanLiteralSyntax(SyntaxFactory.FalseKeywordToken, false),
@@ -349,21 +350,20 @@ namespace Bicep.Decompiler
             var flattenedExpression = ExpressionHelpers.FlattenStringOperations(expression);
             if (flattenedExpression is JTokenExpression flattenedJTokenExpression)
             {
-                var stringVal = flattenedJTokenExpression.Value.Value<string>();
-                if (stringVal == null)
-                {
-                    return null;
-                }
-
-                return SyntaxFactory.CreateStringLiteral(stringVal);
+                return ParseJTokenExpression(flattenedJTokenExpression);
             }
 
             if (flattenedExpression is not FunctionExpression functionExpression)
             {
                 throw new InvalidOperationException($"Expected {nameof(FunctionExpression)}");
             }
-            expression = functionExpression;
 
+            if (!StringComparer.OrdinalIgnoreCase.Equals(functionExpression.Function, "concat"))
+            {
+                return ParseFunctionExpression(functionExpression);
+            }
+
+            // We have a 'concat' - let's simplify it using interpolation!
             var values = new List<string>();
             var expressions = new List<SyntaxBase>();
             for (var i = 0; i < functionExpression.Parameters.Length; i++)
@@ -592,8 +592,8 @@ namespace Bicep.Decompiler
 
         private static IntegerLiteralSyntax ParseIntegerJToken(JValue value)
         {
-            var longValue = value.Value<long>();
-            return SyntaxFactory.CreateIntegerLiteral(longValue);
+            var ulongValue = value.Value<ulong>();
+            return SyntaxFactory.CreateIntegerLiteral(ulongValue);
         }
 
         private SyntaxBase ParseJValue(JValue value)
@@ -671,52 +671,99 @@ namespace Bicep.Decompiler
             return SyntaxFactory.CreateObject(properties);
         }
 
-        public ParameterDeclarationSyntax ParseParam(JProperty value)
+        private IEnumerable<SyntaxBase> ProcessDecoratorsWithTransform(IEnumerable<string> functionNames, Func<string, JToken?> valueLookupFunc, Func<(string name, SyntaxBase value), (string name, SyntaxBase value)?> transformFunc)
         {
-            var decoratorsAndNewLines = new List<SyntaxBase>();
-
-            // Metadata/description should be first so users see what the parameter is for before
-            // seeing informationi such as a long list of allowed values
-            foreach (var parameterPropertyName in new[] { "metadata", "minValue", "maxValue", "minLength", "maxLength", "allowedValues" })
+            foreach (var functionName in functionNames)
             {
-                if (TryParseJToken(value.Value?[parameterPropertyName]) is SyntaxBase expression)
+                var expressionValue = valueLookupFunc(functionName);
+                if (TryParseJToken(expressionValue) is SyntaxBase expression &&
+                    transformFunc((functionName, expression)) is {} transformOutput)
                 {
-                    var functionName = parameterPropertyName == "allowedValues" ? LanguageConstants.ParameterAllowedPropertyName : parameterPropertyName;
+                    var (newFunctionName, newExpression) = transformOutput;
 
-                    if (parameterPropertyName == "metadata" &&
-                        expression is ObjectSyntax metadataObject &&
-                        metadataObject.Properties.Any() &&
-                        !metadataObject.Properties.Skip(1).Any() &&
-                        metadataObject.Properties.Single() is ObjectPropertySyntax metadataProperty &&
-                        metadataProperty.TryGetKeyText() == "description")
-                    {
-                        // Replace metadata decorator with description decorator if the metadata object only contains description.
-                        functionName = "description";
-                        expression = metadataProperty.Value;
-                    }
-
-                    decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(functionName, expression));
-                    decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
+                    yield return SyntaxFactory.CreateDecorator(newFunctionName, newExpression);
+                    yield return SyntaxFactory.NewlineToken;
                 }
             }
+        }
+
+        private IEnumerable<SyntaxBase> ProcessMetadataDescription(Func<string, JToken?> valueLookupFunc)
+            => ProcessDecoratorsWithTransform(
+                new[] { "metadata" },
+                valueLookupFunc,
+                input => {
+                    var (name, expression) = input;
+
+                    if (expression is ObjectSyntax metadataObject &&
+                        metadataObject.TryGetPropertyByName("description") is {} descriptionProperty)
+                    {
+                        // Replace metadata decorator with description decorator if the metadata object only contains description.
+                        return ("description", descriptionProperty.Value);
+                    }
+
+                    return null;
+                });
+
+        private IEnumerable<SyntaxBase> ProcessMetadataMiscProperties(Func<string, JToken?> valueLookupFunc)
+            => ProcessDecoratorsWithTransform(
+                new[] { "metadata" },
+                valueLookupFunc,
+                input => {
+                    var (name, expression) = input;
+
+                    if (expression is ObjectSyntax metadataObject &&
+                        metadataObject.Properties.Any(x => !LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), "description")))
+                    {
+                        expression = new ObjectSyntax(
+                            metadataObject.OpenBrace,
+                            metadataObject.Properties.Where(x => !LanguageConstants.IdentifierComparer.Equals(x.TryGetKeyText(), "description")),
+                            metadataObject.CloseBrace);
+
+                        // Replace metadata decorator with description decorator if the metadata object only contains description.
+                        return ("metadata", expression);
+                    }
+
+                    return null;
+                });
+
+        public ParameterDeclarationSyntax ParseParam(JProperty value)
+        {
+            // Metadata/description should be first
+            var decoratorsAndNewLines = ProcessMetadataDescription(name => value.Value?[name]).ToList();
+            decoratorsAndNewLines.AddRange(ProcessMetadataMiscProperties(name => value.Value?[name]));
+
+            decoratorsAndNewLines.AddRange(
+                ProcessDecoratorsWithTransform(
+                new[] { "minValue", "maxValue", "minLength", "maxLength", "allowedValues" },
+                name => value.Value?[name],
+                input => {
+                    var (name, expression) = input;
+
+                    if (name == "allowedValues")
+                    {
+                        name = LanguageConstants.ParameterAllowedPropertyName;
+                    }
+
+                    return (name, expression);
+                }));
 
             var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for parameter '{value.Name}'", value);
 
             switch (typeSyntax.TypeName)
             {
                 case "securestring":
-                    typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string"));
+                    typeSyntax = new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "string"));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "secureobject":
-                    typeSyntax = new TypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "object"));
+                    typeSyntax = new SimpleTypeSyntax(SyntaxFactory.CreateToken(TokenType.Identifier, "object"));
                     decoratorsAndNewLines.Add(SyntaxFactory.CreateDecorator(LanguageConstants.ParameterSecurePropertyName));
                     decoratorsAndNewLines.Add(SyntaxFactory.NewlineToken);
                     break;
                 case "__bicep_replace":
                     var fixupToken = SyntaxHelpers.CreatePlaceholderToken(TokenType.Identifier, "TODO: fill in correct type");
-                    typeSyntax = new TypeSyntax(fixupToken);
+                    typeSyntax = new SimpleTypeSyntax(fixupToken);
                     break;
             }
 
@@ -1145,7 +1192,11 @@ namespace Bicep.Decompiler
                         })));
                 }
 
-                var (nestedBody, nestedDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
+                // Metadata/description should be first
+                var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
+
+                var (nestedBody, resourceCopyDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
+                decoratorsAndNewLines.AddRange(resourceCopyDecorators);
                 var nestedValue = ProcessCondition(resource, nestedBody);
 
                 var filePath = $"./nested_{identifier}.bicep";
@@ -1160,44 +1211,50 @@ namespace Bicep.Decompiler
                 workspace.UpsertSourceFile(nestedBicepFile);
 
                 return new ModuleDeclarationSyntax(
-                    nestedDecorators,
+                    decoratorsAndNewLines,
                     SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
                     SyntaxFactory.CreateIdentifier(identifier),
                     SyntaxFactory.CreateStringLiteral(filePath),
                     SyntaxFactory.AssignmentToken,
                     nestedValue);
             }
-
-            var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") ??
-                TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
-
-            if (pathProperty?.Value<string>() is not string templatePathString)
+            else
             {
-                throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
+                var pathProperty = TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "uri") ??
+                    TemplateHelpers.GetNestedProperty(resource, "properties", "templateLink", "relativePath");
+
+                if (pathProperty?.Value<string>() is not string templatePathString)
+                {
+                    throw new ConversionFailedException($"Unable to find \"uri\" or \"relativePath\" properties under {resource["name"]}.properties.templateLink for linked template.", resource);
+                }
+
+                // Metadata/description should be first
+                var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
+
+                var (body, resourceCopyDecorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
+                decoratorsAndNewLines.AddRange(resourceCopyDecorators);
+                var value = ProcessCondition(resource, body);
+
+                var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
+                var module = new ModuleDeclarationSyntax(
+                    decoratorsAndNewLines,
+                    SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
+                    SyntaxFactory.CreateIdentifier(identifier),
+                    modulePath,
+                    SyntaxFactory.AssignmentToken,
+                    value);
+
+                /*
+                * We need to save jsonTemplateUri because it may not necessarily end with .json extension.
+                * When decompiling the module, jsonTemplateUri will be used to load the JSON template file.
+                */
+                if (jsonTemplateUri is not null)
+                {
+                    this.jsonTemplateUrisByModule[module] = jsonTemplateUri;
+                }
+
+                return module;
             }
-
-            var (body, decorators) = ProcessResourceCopy(resource, x => ProcessModuleBody(copyResourceLookup, x));
-            var value = ProcessCondition(resource, body);
-
-            var (modulePath, jsonTemplateUri) = GetModuleFilePath(templatePathString);
-            var module = new ModuleDeclarationSyntax(
-                decorators,
-                SyntaxFactory.CreateToken(TokenType.Identifier, LanguageConstants.ModuleKeyword),
-                SyntaxFactory.CreateIdentifier(identifier),
-                modulePath,
-                SyntaxFactory.AssignmentToken,
-                value);
-
-            /*
-             * We need to save jsonTemplateUri because it may not necessarily end with .json extension.
-             * When decompiling the module, jsonTemplateUri will be used to load the JSON template file.
-             */
-            if (jsonTemplateUri is not null)
-            {
-                this.jsonTemplateUrisByModule[module] = jsonTemplateUri;
-            }
-
-            return module;
         }
 
         private ObjectSyntax ProcessModuleBody(IReadOnlyDictionary<string, string> copyResourceLookup, JObject resource)
@@ -1275,17 +1332,22 @@ namespace Bicep.Decompiler
                 return ParseModule(copyResourceLookup, resource, typeString, nameString);
             }
 
-            var (value, decorators) = ProcessResourceCopy(resource, resource =>
+            // Metadata/description should be first
+            var decoratorsAndNewLines = ProcessMetadataDescription(name => resource[name]).ToList();
+
+            var (value, resourceCopyDecorators) = ProcessResourceCopy(resource, resource =>
             {
                 var body = ProcessResourceBody(copyResourceLookup, resource);
 
                 return ProcessCondition(resource, body);
             });
 
+            decoratorsAndNewLines.AddRange(resourceCopyDecorators);
+
             var identifier = nameResolver.TryLookupResourceName(typeString, ExpressionHelpers.ParseExpression(nameString)) ?? throw new ArgumentException($"Unable to find resource {typeString} {nameString}");
 
             return new ResourceDeclarationSyntax(
-                decorators,
+                decoratorsAndNewLines,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "resource"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 SyntaxFactory.CreateStringLiteral($"{typeString}@{apiVersionString}"),
@@ -1369,6 +1431,9 @@ namespace Bicep.Decompiler
 
         public OutputDeclarationSyntax ParseOutput(JProperty value)
         {
+            // Metadata/description should be first
+            var decoratorsAndNewLines = ProcessMetadataDescription(name => value.Value?[name]).ToList();
+
             var typeSyntax = TryParseType(value.Value?["type"]) ?? throw new ConversionFailedException($"Unable to locate 'type' for output '{value.Name}'", value);
             var identifier = nameResolver.TryLookupName(NameType.Output, value.Name) ?? throw new ConversionFailedException($"Unable to find output {value.Name}", value);
 
@@ -1392,7 +1457,7 @@ namespace Bicep.Decompiler
             }
 
             return new OutputDeclarationSyntax(
-                Enumerable.Empty<SyntaxBase>(),
+                decoratorsAndNewLines,
                 SyntaxFactory.CreateToken(TokenType.Identifier, "output"),
                 SyntaxFactory.CreateIdentifier(identifier),
                 typeSyntax,

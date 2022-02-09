@@ -426,7 +426,7 @@ output managementGroupIds array = [for i in range(0, length(managementGroups)): 
 //@[0:6)  Identifier |output|
 //@[7:25)  IdentifierSyntax
 //@[7:25)   Identifier |managementGroupIds|
-//@[26:31)  TypeSyntax
+//@[26:31)  SimpleTypeSyntax
 //@[26:31)   Identifier |array|
 //@[32:33)  Assignment |=|
 //@[34:172)  ForSyntax

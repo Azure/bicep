@@ -1143,7 +1143,7 @@ param funcvarparam bool = concat
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |funcvarparam|
-//@[19:23)  TypeSyntax
+//@[19:23)  SimpleTypeSyntax
 //@[19:23)   Identifier |bool|
 //@[24:32)  ParameterDefaultValueSyntax
 //@[24:25)   Assignment |=|
@@ -1156,7 +1156,7 @@ output funcvarout array = padLeft
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |funcvarout|
-//@[18:23)  TypeSyntax
+//@[18:23)  SimpleTypeSyntax
 //@[18:23)   Identifier |array|
 //@[24:25)  Assignment |=|
 //@[26:33)  VariableAccessSyntax
@@ -1197,7 +1197,7 @@ param fakeFuncP string = blue()
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |fakeFuncP|
-//@[16:22)  TypeSyntax
+//@[16:22)  SimpleTypeSyntax
 //@[16:22)   Identifier |string|
 //@[23:31)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|

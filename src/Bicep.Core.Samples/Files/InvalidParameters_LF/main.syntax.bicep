@@ -8,7 +8,7 @@ param myString string
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |myString|
-//@[15:21)  TypeSyntax
+//@[15:21)  SimpleTypeSyntax
 //@[15:21)   Identifier |string|
 //@[21:22) NewLine |\n|
 wrong
@@ -21,7 +21,7 @@ param myInt int
 //@[0:5)  Identifier |param|
 //@[6:11)  IdentifierSyntax
 //@[6:11)   Identifier |myInt|
-//@[12:15)  TypeSyntax
+//@[12:15)  SimpleTypeSyntax
 //@[12:15)   Identifier |int|
 //@[15:16) NewLine |\n|
 param
@@ -46,7 +46,7 @@ param % string
 //@[6:7)  IdentifierSyntax
 //@[6:7)   SkippedTriviaSyntax
 //@[6:7)    Modulo |%|
-//@[8:14)  TypeSyntax
+//@[8:14)  SimpleTypeSyntax
 //@[8:14)   Identifier |string|
 //@[14:15) NewLine |\n|
 param % string 3 = 's'
@@ -55,7 +55,7 @@ param % string 3 = 's'
 //@[6:7)  IdentifierSyntax
 //@[6:7)   SkippedTriviaSyntax
 //@[6:7)    Modulo |%|
-//@[8:14)  TypeSyntax
+//@[8:14)  SimpleTypeSyntax
 //@[8:14)   Identifier |string|
 //@[15:22)  SkippedTriviaSyntax
 //@[15:16)   Integer |3|
@@ -68,7 +68,7 @@ param myBool bool
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myBool|
-//@[13:17)  TypeSyntax
+//@[13:17)  SimpleTypeSyntax
 //@[13:17)   Identifier |bool|
 //@[17:19) NewLine |\n\n|
 
@@ -117,7 +117,7 @@ param partialType str
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |partialType|
-//@[18:21)  TypeSyntax
+//@[18:21)  SimpleTypeSyntax
 //@[18:21)   Identifier |str|
 //@[21:23) NewLine |\n\n|
 
@@ -174,7 +174,7 @@ param myString2 string = 'string value'
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |myString2|
-//@[16:22)  TypeSyntax
+//@[16:22)  SimpleTypeSyntax
 //@[16:22)   Identifier |string|
 //@[23:39)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
@@ -187,7 +187,7 @@ param wrongDefaultValue string = 42
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |wrongDefaultValue|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:35)  ParameterDefaultValueSyntax
 //@[31:32)   Assignment |=|
@@ -200,7 +200,7 @@ param myInt2 int = 42
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myInt2|
-//@[13:16)  TypeSyntax
+//@[13:16)  SimpleTypeSyntax
 //@[13:16)   Identifier |int|
 //@[17:21)  ParameterDefaultValueSyntax
 //@[17:18)   Assignment |=|
@@ -212,7 +212,7 @@ param noValueAfterColon int =
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |noValueAfterColon|
-//@[24:27)  TypeSyntax
+//@[24:27)  SimpleTypeSyntax
 //@[24:27)   Identifier |int|
 //@[28:32)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -224,7 +224,7 @@ param myTruth bool = 'not a boolean'
 //@[0:5)  Identifier |param|
 //@[6:13)  IdentifierSyntax
 //@[6:13)   Identifier |myTruth|
-//@[14:18)  TypeSyntax
+//@[14:18)  SimpleTypeSyntax
 //@[14:18)   Identifier |bool|
 //@[19:36)  ParameterDefaultValueSyntax
 //@[19:20)   Assignment |=|
@@ -236,7 +236,7 @@ param myFalsehood bool = 'false'
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |myFalsehood|
-//@[18:22)  TypeSyntax
+//@[18:22)  SimpleTypeSyntax
 //@[18:22)   Identifier |bool|
 //@[23:32)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
@@ -249,7 +249,7 @@ param wrongAssignmentToken string: 'hello'
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |wrongAssignmentToken|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[33:42)  SkippedTriviaSyntax
 //@[33:34)   Colon |:|
@@ -261,7 +261,7 @@ param WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWh
 //@[0:5)  Identifier |param|
 //@[6:267)  IdentifierSyntax
 //@[6:267)   Identifier |WhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLongWhySoLong|
-//@[268:274)  TypeSyntax
+//@[268:274)  SimpleTypeSyntax
 //@[268:274)   Identifier |string|
 //@[275:287)  ParameterDefaultValueSyntax
 //@[275:276)   Assignment |=|
@@ -276,7 +276,7 @@ param boolCompletions bool =
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |boolCompletions|
-//@[22:26)  TypeSyntax
+//@[22:26)  SimpleTypeSyntax
 //@[22:26)   Identifier |bool|
 //@[27:29)  ParameterDefaultValueSyntax
 //@[27:28)   Assignment |=|
@@ -290,7 +290,7 @@ param arrayCompletions array =
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |arrayCompletions|
-//@[23:28)  TypeSyntax
+//@[23:28)  SimpleTypeSyntax
 //@[23:28)   Identifier |array|
 //@[29:31)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -304,7 +304,7 @@ param objectCompletions object =
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |objectCompletions|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |object|
 //@[31:33)  ParameterDefaultValueSyntax
 //@[31:32)   Assignment |=|
@@ -318,7 +318,7 @@ param wrongType fluffyBunny = 'what's up doc?'
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:36)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -339,7 +339,7 @@ param wrongType fluffyBunny = 'what\s up doc?'
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -354,7 +354,7 @@ param wrongType fluffyBunny = 'what\'s up doc?
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -369,7 +369,7 @@ param wrongType fluffyBunny = 'what\'s ${
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:41)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -383,7 +383,7 @@ param wrongType fluffyBunny = 'what\'s ${up
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:43)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -399,7 +399,7 @@ param wrongType fluffyBunny = 'what\'s ${up}
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:44)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -415,7 +415,7 @@ param wrongType fluffyBunny = 'what\'s ${'up
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:44)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -433,7 +433,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -449,7 +449,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:46)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -465,7 +465,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:49)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -483,7 +483,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:50)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -502,7 +502,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:51)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -521,7 +521,7 @@ param wrongType fluffyBunny = 'what\'s ${'up${doc}'}?
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:53)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -543,7 +543,7 @@ param wrongType fluffyBunny = '${{this: doesnt}.work}'
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:54)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -569,7 +569,7 @@ param badInterpolatedString string = 'hello ${}!'
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |badInterpolatedString|
-//@[28:34)  TypeSyntax
+//@[28:34)  SimpleTypeSyntax
 //@[28:34)   Identifier |string|
 //@[35:49)  ParameterDefaultValueSyntax
 //@[35:36)   Assignment |=|
@@ -583,7 +583,7 @@ param badInterpolatedString2 string = 'hello ${a b c}!'
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |badInterpolatedString2|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |string|
 //@[36:55)  ParameterDefaultValueSyntax
 //@[36:37)   Assignment |=|
@@ -604,7 +604,7 @@ param wrongType fluffyBunny = 'what\'s up doc?'
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |wrongType|
-//@[16:27)  TypeSyntax
+//@[16:27)  SimpleTypeSyntax
 //@[16:27)   Identifier |fluffyBunny|
 //@[28:47)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -643,7 +643,7 @@ param someArray arra
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |someArray|
-//@[16:20)  TypeSyntax
+//@[16:20)  SimpleTypeSyntax
 //@[16:20)   Identifier |arra|
 //@[20:22) NewLine |\n\n|
 
@@ -685,7 +685,7 @@ param secureInt int
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |secureInt|
-//@[16:19)  TypeSyntax
+//@[16:19)  SimpleTypeSyntax
 //@[16:19)   Identifier |int|
 //@[19:21) NewLine |\n\n|
 
@@ -763,7 +763,7 @@ param wrongIntModifier int = true
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |wrongIntModifier|
-//@[23:26)  TypeSyntax
+//@[23:26)  SimpleTypeSyntax
 //@[23:26)   Identifier |int|
 //@[27:33)  ParameterDefaultValueSyntax
 //@[27:28)   Assignment |=|
@@ -846,7 +846,7 @@ param wrongMetadataSchema string
 //@[0:5)  Identifier |param|
 //@[6:25)  IdentifierSyntax
 //@[6:25)   Identifier |wrongMetadataSchema|
-//@[26:32)  TypeSyntax
+//@[26:32)  SimpleTypeSyntax
 //@[26:32)   Identifier |string|
 //@[32:34) NewLine |\n\n|
 
@@ -910,7 +910,7 @@ param expressionInModifier string = 2 + 3
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |expressionInModifier|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[34:41)  ParameterDefaultValueSyntax
 //@[34:35)   Assignment |=|
@@ -989,7 +989,7 @@ param nonCompileTimeConstant string
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |nonCompileTimeConstant|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |string|
 //@[35:38) NewLine |\n\n\n|
 
@@ -1012,7 +1012,7 @@ param emptyAllowedString string
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |emptyAllowedString|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |string|
 //@[31:33) NewLine |\n\n|
 
@@ -1034,7 +1034,7 @@ param emptyAllowedInt int
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |emptyAllowedInt|
-//@[22:25)  TypeSyntax
+//@[22:25)  SimpleTypeSyntax
 //@[22:25)   Identifier |int|
 //@[25:27) NewLine |\n\n|
 
@@ -1045,7 +1045,7 @@ param paramDefaultOneCycle string = paramDefaultOneCycle
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |paramDefaultOneCycle|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[34:56)  ParameterDefaultValueSyntax
 //@[34:35)   Assignment |=|
@@ -1061,7 +1061,7 @@ param paramDefaultTwoCycle1 string = paramDefaultTwoCycle2
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |paramDefaultTwoCycle1|
-//@[28:34)  TypeSyntax
+//@[28:34)  SimpleTypeSyntax
 //@[28:34)   Identifier |string|
 //@[35:58)  ParameterDefaultValueSyntax
 //@[35:36)   Assignment |=|
@@ -1074,7 +1074,7 @@ param paramDefaultTwoCycle2 string = paramDefaultTwoCycle1
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |paramDefaultTwoCycle2|
-//@[28:34)  TypeSyntax
+//@[28:34)  SimpleTypeSyntax
 //@[28:34)   Identifier |string|
 //@[35:58)  ParameterDefaultValueSyntax
 //@[35:36)   Assignment |=|
@@ -1109,7 +1109,7 @@ param paramModifierSelfCycle string
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramModifierSelfCycle|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |string|
 //@[35:37) NewLine |\n\n|
 
@@ -1151,7 +1151,7 @@ output sampleOutput string = 'hello'
 //@[0:6)  Identifier |output|
 //@[7:19)  IdentifierSyntax
 //@[7:19)   Identifier |sampleOutput|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[27:28)  Assignment |=|
 //@[29:36)  StringSyntax
@@ -1163,7 +1163,7 @@ param paramAccessingVar string = concat(sampleVar, 's')
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |paramAccessingVar|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:55)  ParameterDefaultValueSyntax
 //@[31:32)   Assignment |=|
@@ -1187,7 +1187,7 @@ param paramAccessingResource string = sampleResource
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |paramAccessingResource|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |string|
 //@[36:52)  ParameterDefaultValueSyntax
 //@[36:37)   Assignment |=|
@@ -1201,7 +1201,7 @@ param paramAccessingOutput string = sampleOutput
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |paramAccessingOutput|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[34:48)  ParameterDefaultValueSyntax
 //@[34:35)   Assignment |=|
@@ -1227,7 +1227,7 @@ param defaultValueOneLinerCompletions string =
 //@[0:5)  Identifier |param|
 //@[6:37)  IdentifierSyntax
 //@[6:37)   Identifier |defaultValueOneLinerCompletions|
-//@[38:44)  TypeSyntax
+//@[38:44)  SimpleTypeSyntax
 //@[38:44)   Identifier |string|
 //@[45:47)  ParameterDefaultValueSyntax
 //@[45:46)   Assignment |=|
@@ -1291,7 +1291,7 @@ param commaOne string
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |commaOne|
-//@[15:21)  TypeSyntax
+//@[15:21)  SimpleTypeSyntax
 //@[15:21)   Identifier |string|
 //@[21:23) NewLine |\n\n|
 
@@ -1333,7 +1333,7 @@ param incompleteDecorators string
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |incompleteDecorators|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[33:35) NewLine |\n\n|
 
@@ -1401,7 +1401,7 @@ param someString string
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |someString|
-//@[17:23)  TypeSyntax
+//@[17:23)  SimpleTypeSyntax
 //@[17:23)   Identifier |string|
 //@[23:25) NewLine |\n\n|
 
@@ -1469,7 +1469,7 @@ param someInteger int = 20
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |someInteger|
-//@[18:21)  TypeSyntax
+//@[18:21)  SimpleTypeSyntax
 //@[18:21)   Identifier |int|
 //@[22:26)  ParameterDefaultValueSyntax
 //@[22:23)   Assignment |=|
@@ -1517,7 +1517,7 @@ param tooManyArguments1 int = 20
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |tooManyArguments1|
-//@[24:27)  TypeSyntax
+//@[24:27)  SimpleTypeSyntax
 //@[24:27)   Identifier |int|
 //@[28:32)  ParameterDefaultValueSyntax
 //@[28:29)   Assignment |=|
@@ -1581,7 +1581,7 @@ param tooManyArguments2 string
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |tooManyArguments2|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[30:32) NewLine |\n\n|
 
@@ -1636,7 +1636,7 @@ param nonConstantInDecorator string
 //@[0:5)  Identifier |param|
 //@[6:28)  IdentifierSyntax
 //@[6:28)   Identifier |nonConstantInDecorator|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |string|
 //@[35:37) NewLine |\n\n|
 
@@ -1690,7 +1690,7 @@ param unaryMinusOnFunction int
 //@[0:5)  Identifier |param|
 //@[6:26)  IdentifierSyntax
 //@[6:26)   Identifier |unaryMinusOnFunction|
-//@[27:30)  TypeSyntax
+//@[27:30)  SimpleTypeSyntax
 //@[27:30)   Identifier |int|
 //@[30:32) NewLine |\n\n|
 
@@ -1756,7 +1756,7 @@ param duplicateDecorators string
 //@[0:5)  Identifier |param|
 //@[6:25)  IdentifierSyntax
 //@[6:25)   Identifier |duplicateDecorators|
-//@[26:32)  TypeSyntax
+//@[26:32)  SimpleTypeSyntax
 //@[26:32)   Identifier |string|
 //@[32:34) NewLine |\n\n|
 
@@ -1793,7 +1793,7 @@ param invalidLength string
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |invalidLength|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[26:28) NewLine |\n\n|
 
@@ -1852,7 +1852,7 @@ param invalidPermutation array = [
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |invalidPermutation|
-//@[25:30)  TypeSyntax
+//@[25:30)  SimpleTypeSyntax
 //@[25:30)   Identifier |array|
 //@[31:60)  ParameterDefaultValueSyntax
 //@[31:32)   Assignment |=|
@@ -1934,7 +1934,7 @@ param invalidDefaultWithAllowedArrayDecorator array = true
 //@[0:5)  Identifier |param|
 //@[6:45)  IdentifierSyntax
 //@[6:45)   Identifier |invalidDefaultWithAllowedArrayDecorator|
-//@[46:51)  TypeSyntax
+//@[46:51)  SimpleTypeSyntax
 //@[46:51)   Identifier |array|
 //@[52:58)  ParameterDefaultValueSyntax
 //@[52:53)   Assignment |=|
