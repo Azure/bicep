@@ -6,12 +6,14 @@ import { ext } from "../extensionVariables";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
+  //AzExtTreeItem,
   IActionContext,
   IAzureQuickPickItem,
   parseError,
 } from "vscode-azureextensionui";
 import { AzureAccount } from "../azure-account.api";
-import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
+//import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
+import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { DefaultAzureCredential } from "@azure/identity";
 import {
@@ -23,6 +25,8 @@ import {
   Subscriptions,
 } from "@azure/arm-subscriptions";
 import { appendToOutputChannel } from "../utils/logger";
+//import { EmptyTreeItem } from "../tree/EmptyTreeItem";
+import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
@@ -56,50 +60,41 @@ export class DeployCommand implements Command {
     try {
       const subscription =
         await ext.tree.showTreeItemPicker<SubscriptionTreeItem>(
-          SubscriptionTreeItem.contextValue,
+          '',
           _context
         );
 
-      if (subscription) {
-        const subscriptionId = subscription.subscription.subscriptionId;
+      const deploymentScope = await getDeploymentScope(_context);
 
-        const parameterFilePath = await selectParameterFile(
+      const parameterFilePath = await selectParameterFile(
+        _context,
+        documentUri
+      );
+
+      if (deploymentScope == "ResourceGroup") {
+        await handleResourceGroupDeployment(
           _context,
-          documentUri
+          documentUri.fsPath,
+          parameterFilePath,
+          deploymentScope,
+          this.client
         );
-
-        const deploymentScope = await getDeploymentScope(_context);
-
-        if (deploymentScope == "ResourceGroup") {
-          await handleResourceGroupDeployment(
-            _context,
-            subscriptionId,
-            documentUri.fsPath,
-            parameterFilePath,
-            deploymentScope,
-            this.client
-          );
-        } else if (deploymentScope == "Subscription") {
-          const subscriptionPath = subscription.subscription.subscriptionPath;
-
-          await handleSubscriptionDeployment(
-            _context,
-            subscriptionId,
-            subscriptionPath,
-            documentUri.fsPath,
-            parameterFilePath,
-            deploymentScope,
-            this.client
-          );
-        } else if (deploymentScope == "ManagementGroup") {
-          await handleManagementGroupDeployment(
-            _context,
-            documentUri.fsPath,
-            parameterFilePath,
-            deploymentScope,
-            this.client
-          );
-        }
+      } else if (deploymentScope == "Subscription") {
+        await handleSubscriptionDeployment(
+          _context,
+          documentUri.fsPath,
+          parameterFilePath,
+          deploymentScope,
+          this.client
+        );
+      } else if (deploymentScope == "ManagementGroup") {
+        await handleManagementGroupDeployment(
+          _context,
+          documentUri.fsPath,
+          parameterFilePath,
+          deploymentScope,
+          this.client
+        );
       }
     } catch (err) {
       this.client.error("Deploy failed", parseError(err).message, true);
@@ -109,33 +104,39 @@ export class DeployCommand implements Command {
 
 async function handleSubscriptionDeployment(
   context: IActionContext,
-  subscriptionId: string,
-  subscriptionPath: string,
   documentPath: string,
   parameterFilePath: string,
   deploymentScope: string,
   client: LanguageClient
 ) {
+  const subscriptions = await loadSubscriptionItems();
+  const subscription = await context.ui.showQuickPick(subscriptions, {
+    placeHolder: "Please select subscription",
+  });
+  const subscriptionId = subscription?.subscription.subscriptionId;
+
+  if (subscriptionId) {
   const locations = await loadLocationItems(subscriptionId);
   const location = await context.ui.showQuickPick(locations, {
     placeHolder: "Please select location",
   });
 
-  if (location) {
-    const deployOutput: string = await client.sendRequest(
-      "workspace/executeCommand",
-      {
-        command: "deploy",
-        arguments: [
-          documentPath,
-          parameterFilePath,
-          subscriptionPath,
-          deploymentScope,
-          location.label,
-        ],
-      }
-    );
-    appendToOutputChannel(deployOutput);
+    if (location) {
+      const deployOutput: string = await client.sendRequest(
+        "workspace/executeCommand",
+        {
+          command: "deploy",
+          arguments: [
+            documentPath,
+            parameterFilePath,
+            subscription.subscription.id,
+            deploymentScope,
+            location.label,
+          ],
+        }
+      );
+      appendToOutputChannel(deployOutput);
+    }
   }
 }
 
@@ -190,7 +191,7 @@ async function handleManagementGroupDeployment(
   });
 
   const location = await vscode.window.showInputBox({
-    placeHolder: "Please enter location"
+    placeHolder: "Please enter location",
   });
 
   const managementGroupId = managementGroup?.mg.id;
@@ -204,7 +205,7 @@ async function handleManagementGroupDeployment(
           parameterFilePath,
           managementGroupId,
           deploymentScope,
-          location
+          location,
         ],
       }
     );
@@ -214,34 +215,41 @@ async function handleManagementGroupDeployment(
 
 async function handleResourceGroupDeployment(
   context: IActionContext,
-  subscriptionId: string,
   documentPath: string,
   parameterFilePath: string,
   deploymentScope: string,
   client: LanguageClient
 ) {
-  const resourceGroupItems = loadResourceGroupItems(subscriptionId);
-  const resourceGroup = await context.ui.showQuickPick(resourceGroupItems, {
-    placeHolder: "Please select resource group",
+  const subscriptions = await loadSubscriptionItems();
+  const subscription = await context.ui.showQuickPick(subscriptions, {
+    placeHolder: "Please select subscription",
   });
+  const subscriptionId = subscription?.subscription.subscriptionId;
 
-  const resourceGroupId = resourceGroup?.resourceGroup.id;
+  if (subscriptionId) {
+    const resourceGroupItems = loadResourceGroupItems(subscriptionId);
+    const resourceGroup = await context.ui.showQuickPick(resourceGroupItems, {
+      placeHolder: "Please select resource group",
+    });
 
-  if (resourceGroupId) {
-    const deployOutput: string = await client.sendRequest(
-      "workspace/executeCommand",
-      {
-        command: "deploy",
-        arguments: [
-          documentPath,
-          parameterFilePath,
-          resourceGroupId,
-          deploymentScope,
-          "",
-        ],
-      }
-    );
-    appendToOutputChannel(deployOutput);
+    const resourceGroupId = resourceGroup?.resourceGroup.id;
+
+    if (resourceGroupId) {
+      const deployOutput: string = await client.sendRequest(
+        "workspace/executeCommand",
+        {
+          command: "deploy",
+          arguments: [
+            documentPath,
+            parameterFilePath,
+            resourceGroupId,
+            deploymentScope,
+            "",
+          ],
+        }
+      );
+      appendToOutputChannel(deployOutput);
+    }
   }
 }
 
@@ -278,6 +286,26 @@ async function loadResourceGroupItems(subscriptionId: string) {
     label: resourceGroup.name || "",
     description: resourceGroup.location,
     resourceGroup,
+  }));
+}
+
+async function loadSubscriptionItems() {
+  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
+    "ms-vscode.azure-account"
+  )!.exports;
+  const session = azureAccount.sessions[0];
+
+  const subscriptionClient = new SubscriptionClient(
+    session.credentials2,
+  );
+  const subscriptions = await listAll(
+    subscriptionClient.subscriptions,
+    subscriptionClient.subscriptions.list()
+  );
+  subscriptions.sort((a, b) => (a.displayName || "").localeCompare(b.displayName || ""));
+  return subscriptions.map((subscription) => ({
+    label: subscription.displayName || "",
+    subscription,
   }));
 }
 

@@ -86,6 +86,7 @@ export async function activate(
     );
 
     const accountTreeItem: AzureAccountTreeItem = new AzureAccountTreeItem();
+    ext.context = context;
     context.subscriptions.push(accountTreeItem);
     ext.tree = new AzExtTreeDataProvider(accountTreeItem, '');
   });
