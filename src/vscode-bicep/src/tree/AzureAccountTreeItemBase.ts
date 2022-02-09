@@ -7,8 +7,9 @@ import * as semver from 'semver';
 import { commands, Disposable, Extension, extensions, ThemeIcon } from 'vscode';
 import { AzureAccount } from '../azure-account.api';
 import { localize } from '../ui/localize';
-import { EmptyTreeItem } from './EmptyTreeItem';
+//import { EmptyTreeItem } from './EmptyTreeItem';
 import { registerEvent, AzExtTreeItem, AzExtParentTreeItem, GenericTreeItem, IActionContext } from 'vscode-azureextensionui';
+import { EmptyTreeItem } from './EmptyTreeItem';
 
 const signInLabel: string = localize('signInLabel', 'Sign in to Azure...');
 const createAccountLabel: string = localize('createAccountLabel', 'Create a Free Azure Account...');

@@ -23,7 +23,7 @@ import {
   Subscriptions,
 } from "@azure/arm-subscriptions";
 import { appendToOutputChannel } from "../utils/logger";
-import { EmptyTreeItem } from "../tree/EmptyTreeItem";
+import { AzureAccountTreeItem } from "../tree/AzureAccountTreeItem";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
@@ -55,83 +55,37 @@ export class DeployCommand implements Command {
     }
 
     try {
-        await ext.tree.showTreeItemPicker<EmptyTreeItem>(
+      await ext.tree.showTreeItemPicker<AzureAccountTreeItem>(
           '',
           _context
         );
 
       const deploymentScope = await getDeploymentScope(_context);
 
-      const parameterFilePath = await selectParameterFile(
-        _context,
-        documentUri
-      );
-
       if (deploymentScope == "ResourceGroup") {
         await handleResourceGroupDeployment(
           _context,
-          documentUri.fsPath,
-          parameterFilePath,
+          documentUri,
           deploymentScope,
           this.client
         );
       } else if (deploymentScope == "Subscription") {
         await handleSubscriptionDeployment(
           _context,
-          documentUri.fsPath,
-          parameterFilePath,
+          documentUri,
           deploymentScope,
           this.client
         );
       } else if (deploymentScope == "ManagementGroup") {
         await handleManagementGroupDeployment(
           _context,
-          documentUri.fsPath,
-          parameterFilePath,
+          documentUri,
           deploymentScope,
           this.client
         );
       }
     } catch (err) {
       this.client.error("Deploy failed", parseError(err).message, true);
-    }
-  }
-}
-
-async function handleSubscriptionDeployment(
-  context: IActionContext,
-  documentPath: string,
-  parameterFilePath: string,
-  deploymentScope: string,
-  client: LanguageClient
-) {
-  const subscriptions = await loadSubscriptionItems();
-  const subscription = await context.ui.showQuickPick(subscriptions, {
-    placeHolder: "Please select subscription",
-  });
-  const subscriptionId = subscription?.subscription.subscriptionId;
-
-  if (subscriptionId) {
-  const locations = await loadLocationItems(subscriptionId);
-  const location = await context.ui.showQuickPick(locations, {
-    placeHolder: "Please select location",
-  });
-
-    if (location) {
-      const deployOutput: string = await client.sendRequest(
-        "workspace/executeCommand",
-        {
-          command: "deploy",
-          arguments: [
-            documentPath,
-            parameterFilePath,
-            subscription.subscription.id,
-            deploymentScope,
-            location.label,
-          ],
-        }
-      );
-      appendToOutputChannel(deployOutput);
     }
   }
 }
@@ -154,113 +108,6 @@ async function loadManagementGroupItems() {
     label: mg.name || "",
     mg,
   }));
-}
-
-async function loadLocationItems(subscriptionId: string) {
-  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
-    "ms-vscode.azure-account"
-  )!.exports;
-  const session = azureAccount.sessions[0];
-  const subscriptionClientContext = new SubscriptionClientContext(
-    session.credentials2
-  );
-  const subscription = new Subscriptions(subscriptionClientContext);
-  const locations = await subscription.listLocations(subscriptionId);
-
-  locations.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  return locations.map((location) => ({
-    label: location.name || "",
-    location,
-  }));
-}
-
-async function handleManagementGroupDeployment(
-  context: IActionContext,
-  documentPath: string,
-  parameterFilePath: string,
-  deploymentScope: string,
-  client: LanguageClient
-) {
-  const managementGroupItems = loadManagementGroupItems();
-  const managementGroup = await context.ui.showQuickPick(managementGroupItems, {
-    placeHolder: "Please select management group",
-  });
-
-  const location = await vscode.window.showInputBox({
-    placeHolder: "Please enter location",
-  });
-
-  const managementGroupId = managementGroup?.mg.id;
-  if (managementGroupId && location) {
-    const deployOutput: string = await client.sendRequest(
-      "workspace/executeCommand",
-      {
-        command: "deploy",
-        arguments: [
-          documentPath,
-          parameterFilePath,
-          managementGroupId,
-          deploymentScope,
-          location,
-        ],
-      }
-    );
-    appendToOutputChannel(deployOutput);
-  }
-}
-
-async function handleResourceGroupDeployment(
-  context: IActionContext,
-  documentPath: string,
-  parameterFilePath: string,
-  deploymentScope: string,
-  client: LanguageClient
-) {
-  const subscriptions = await loadSubscriptionItems();
-  const subscription = await context.ui.showQuickPick(subscriptions, {
-    placeHolder: "Please select subscription",
-  });
-  const subscriptionId = subscription?.subscription.subscriptionId;
-
-  if (subscriptionId) {
-    const resourceGroupItems = loadResourceGroupItems(subscriptionId);
-    const resourceGroup = await context.ui.showQuickPick(resourceGroupItems, {
-      placeHolder: "Please select resource group",
-    });
-
-    const resourceGroupId = resourceGroup?.resourceGroup.id;
-
-    if (resourceGroupId) {
-      const deployOutput: string = await client.sendRequest(
-        "workspace/executeCommand",
-        {
-          command: "deploy",
-          arguments: [
-            documentPath,
-            parameterFilePath,
-            resourceGroupId,
-            deploymentScope,
-            "",
-          ],
-        }
-      );
-      appendToOutputChannel(deployOutput);
-    }
-  }
-}
-
-async function getDeploymentScope(context: IActionContext) {
-  const deploymentScopes: IAzureQuickPickItem<string | undefined>[] =
-    await createScopesQuickPickList();
-
-  const deploymentScope: IAzureQuickPickItem<string | undefined> =
-    await context.ui.showQuickPick(deploymentScopes, {
-      canPickMany: false,
-      placeHolder: `Select a deployment scope`,
-      suppressPersistence: true,
-    });
-
-  return deploymentScope.label;
 }
 
 async function loadResourceGroupItems(subscriptionId: string) {
@@ -303,6 +150,152 @@ async function loadSubscriptionItems() {
     label: subscription.displayName || "",
     subscription,
   }));
+}
+
+async function loadLocationItems(subscriptionId: string) {
+  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
+    "ms-vscode.azure-account"
+  )!.exports;
+  const session = azureAccount.sessions[0];
+  const subscriptionClientContext = new SubscriptionClientContext(
+    session.credentials2
+  );
+  const subscription = new Subscriptions(subscriptionClientContext);
+  const locations = await subscription.listLocations(subscriptionId);
+
+  locations.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+  return locations.map((location) => ({
+    label: location.name || "",
+    location,
+  }));
+}
+
+async function handleManagementGroupDeployment(
+  context: IActionContext,
+  documentUri: vscode.Uri,
+  deploymentScope: string,
+  client: LanguageClient
+) {
+  const managementGroupItems = loadManagementGroupItems();
+  const managementGroup = await context.ui.showQuickPick(managementGroupItems, {
+    placeHolder: "Please select management group",
+  });
+
+  const location = await vscode.window.showInputBox({
+    placeHolder: "Please enter location",
+  });
+
+  const managementGroupId = managementGroup?.mg.id;
+  if (managementGroupId && location) {
+    const parameterFilePath = await selectParameterFile(
+      context,
+      documentUri
+    );
+
+    await sendDeployCommand(documentUri.fsPath, parameterFilePath, managementGroupId, deploymentScope, location, client);
+  }
+}
+
+async function handleResourceGroupDeployment(
+  context: IActionContext,
+  documentUri: vscode.Uri,
+  deploymentScope: string,
+  client: LanguageClient
+) {
+  const subscription = await getSubscription(context);
+  const subscriptionId = subscription?.subscription.subscriptionId;
+
+  if (subscriptionId) {
+    const resourceGroupItems = loadResourceGroupItems(subscriptionId);
+    const resourceGroup = await context.ui.showQuickPick(resourceGroupItems, {
+      placeHolder: "Please select resource group",
+    });
+
+    const resourceGroupId = resourceGroup?.resourceGroup.id;
+
+    if (resourceGroupId) {
+      const parameterFilePath = await selectParameterFile(
+        context,
+        documentUri
+      );
+
+      await sendDeployCommand(documentUri.fsPath, parameterFilePath, resourceGroupId, deploymentScope, "", client);
+    }
+  }
+}
+
+async function handleSubscriptionDeployment(
+  context: IActionContext,
+  documentUri: vscode.Uri,
+  deploymentScope: string,
+  client: LanguageClient
+) {
+  const subscription = await getSubscription(context);
+  const subscriptionId = subscription?.subscription.subscriptionId;
+
+  if (subscriptionId) {
+    const parameterFilePath = await selectParameterFile(
+      context,
+      documentUri
+    );
+
+    const locations = await loadLocationItems(subscriptionId);
+    const location = await context.ui.showQuickPick(locations, {
+      placeHolder: "Please select location",
+    });
+
+    const id = subscription.subscription.id;
+    if (location && id) {
+      await sendDeployCommand(documentUri.fsPath, parameterFilePath, id, deploymentScope, location.label, client);
+    }
+  }
+}
+
+async function sendDeployCommand(
+  documentPath: string,
+  parameterFilePath: string,
+  id: string,
+  deploymentScope: string,
+  location: string,
+  client: LanguageClient
+) {
+  const deployOutput: string = await client.sendRequest(
+    "workspace/executeCommand",
+    {
+      command: "deploy",
+      arguments: [
+        documentPath,
+        parameterFilePath,
+        id,
+        deploymentScope,
+        location,
+      ],
+    }
+  );
+  appendToOutputChannel(deployOutput);
+}
+
+async function getSubscription(context: IActionContext) {
+  const subscriptions = await loadSubscriptionItems();
+  const subscription = await context.ui.showQuickPick(subscriptions, {
+    placeHolder: "Please select subscription",
+  });
+
+  return subscription;
+}
+
+async function getDeploymentScope(context: IActionContext) {
+  const deploymentScopes: IAzureQuickPickItem<string | undefined>[] =
+    await createScopesQuickPickList();
+
+  const deploymentScope: IAzureQuickPickItem<string | undefined> =
+    await context.ui.showQuickPick(deploymentScopes, {
+      canPickMany: false,
+      placeHolder: `Select a deployment scope`,
+      suppressPersistence: true,
+    });
+
+  return deploymentScope.label;
 }
 
 async function listAll<T>(
