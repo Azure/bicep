@@ -4,15 +4,9 @@
  *--------------------------------------------------------------------------------------------*/
 
 import { AzureAccountTreeItemBase } from './AzureAccountTreeItemBase';
-import { ISubscriptionContext } from 'vscode-azureextensionui';
-import { SubscriptionTreeItem } from './SubscriptionTreeItem';
 
 export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
-  public constructor(testAccount?: {}) {
+  public constructor() {
     super(undefined);
-  }
-
-  public createSubscriptionTreeItem(root: ISubscriptionContext): SubscriptionTreeItem {
-    return new SubscriptionTreeItem(this, root);
   }
 }

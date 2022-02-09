@@ -6,13 +6,11 @@ import { ext } from "../extensionVariables";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
-  //AzExtTreeItem,
   IActionContext,
   IAzureQuickPickItem,
   parseError,
 } from "vscode-azureextensionui";
 import { AzureAccount } from "../azure-account.api";
-//import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
 import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { DefaultAzureCredential } from "@azure/identity";
@@ -25,8 +23,7 @@ import {
   Subscriptions,
 } from "@azure/arm-subscriptions";
 import { appendToOutputChannel } from "../utils/logger";
-//import { EmptyTreeItem } from "../tree/EmptyTreeItem";
-import { SubscriptionTreeItem } from "../tree/SubscriptionTreeItem";
+import { EmptyTreeItem } from "../tree/EmptyTreeItem";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
@@ -58,8 +55,7 @@ export class DeployCommand implements Command {
     }
 
     try {
-      const subscription =
-        await ext.tree.showTreeItemPicker<SubscriptionTreeItem>(
+        await ext.tree.showTreeItemPicker<EmptyTreeItem>(
           '',
           _context
         );
