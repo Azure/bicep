@@ -14,9 +14,9 @@ namespace Bicep.Core.Emit
 
         public ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> ModuleScopeData { get; }
 
-        public ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData { get; }
+        public ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> ResourceScopeData { get; }
 
-        public EmitLimitationInfo(IReadOnlyList<IDiagnostic> diagnostics, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
+        public EmitLimitationInfo(IReadOnlyList<IDiagnostic> diagnostics, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
         {
             Diagnostics = diagnostics;
             ModuleScopeData = moduleScopeData;

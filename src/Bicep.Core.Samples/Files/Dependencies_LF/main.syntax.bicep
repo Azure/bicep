@@ -3,7 +3,7 @@ param deployTimeParam string = 'steve'
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |deployTimeParam|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:38)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -142,7 +142,7 @@ output resourceAType string = resA.type
 //@[0:6)  Identifier |output|
 //@[7:20)  IdentifierSyntax
 //@[7:20)   Identifier |resourceAType|
-//@[21:27)  TypeSyntax
+//@[21:27)  SimpleTypeSyntax
 //@[21:27)   Identifier |string|
 //@[28:29)  Assignment |=|
 //@[30:39)  PropertyAccessSyntax
@@ -209,7 +209,7 @@ output resourceBId string = resB.id
 //@[0:6)  Identifier |output|
 //@[7:18)  IdentifierSyntax
 //@[7:18)   Identifier |resourceBId|
-//@[19:25)  TypeSyntax
+//@[19:25)  SimpleTypeSyntax
 //@[19:25)   Identifier |string|
 //@[26:27)  Assignment |=|
 //@[28:35)  PropertyAccessSyntax
@@ -439,7 +439,7 @@ output resourceCProperties object = resC.properties
 //@[0:6)  Identifier |output|
 //@[7:26)  IdentifierSyntax
 //@[7:26)   Identifier |resourceCProperties|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |object|
 //@[34:35)  Assignment |=|
 //@[36:51)  PropertyAccessSyntax

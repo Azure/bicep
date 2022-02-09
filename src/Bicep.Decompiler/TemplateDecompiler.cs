@@ -9,6 +9,7 @@ using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Decompiler.Rewriters;
 using Bicep.Core.Extensions;
+using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Navigation;
@@ -26,12 +27,14 @@ namespace Bicep.Decompiler
     public class TemplateDecompiler
     {
         private readonly INamespaceProvider namespaceProvider;
+        private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleRegistryProvider registryProvider;
         private readonly IConfigurationManager configurationManager;
 
-        public TemplateDecompiler(INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
+        public TemplateDecompiler(IFeatureProvider features, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleRegistryProvider registryProvider, IConfigurationManager configurationManager)
         {
+            this.features = features;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
             this.registryProvider = registryProvider;
@@ -126,7 +129,7 @@ namespace Bicep.Decompiler
             var configuration = configurationManager.GetBuiltInConfiguration(disableAnalyzers: true);
             var linterAnalyzer = new LinterAnalyzer(configuration);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-            var compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
+            var compilation = new Compilation(this.features, namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
 
             // force enumeration here with .ToImmutableArray() as we're going to be modifying the sourceFileGrouping collection as we iterate
             var fileUris = sourceFileGrouping.SourceFiles.Select(x => x.FileUri).ToImmutableArray();
@@ -146,7 +149,7 @@ namespace Bicep.Decompiler
                     workspace.UpsertSourceFile(newFile);
 
                     sourceFileGrouping = SourceFileGroupingBuilder.Build(fileResolver, dispatcher, workspace, entryUri, configuration);
-                    compilation = new Compilation(namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
+                    compilation = new Compilation(this.features, namespaceProvider, sourceFileGrouping, configuration, linterAnalyzer);
                 }
             }
 

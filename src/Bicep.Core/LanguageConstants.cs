@@ -87,6 +87,7 @@ namespace Bicep.Core
         public const string ParameterMaxLengthPropertyName = "maxLength";
         public const string ParameterMetadataPropertyName = "metadata";
         public const string MetadataDescriptionPropertyName = "description";
+        public const string MetadataResourceTypePropertyName = "resourceType";
         public const string BatchSizePropertyName = "batchSize";
 
         // module properties

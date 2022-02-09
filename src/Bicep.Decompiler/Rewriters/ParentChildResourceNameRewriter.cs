@@ -6,6 +6,7 @@ using System.Linq;
 using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
@@ -17,7 +18,7 @@ namespace Bicep.Core.Decompiler.Rewriters
     //   resource resA 'My.Rp/resA@2020-01-01' = {
     //     name: parentName
     //   }
-    //   
+    //
     //   resource resB 'My.Rp/resA/childB@2020-01-01' = {
     //     name: '${parentName}/resB'
     //     dependsOn: [
@@ -91,7 +92,7 @@ namespace Bicep.Core.Decompiler.Rewriters
                 return syntax;
             }
 
-            foreach (var otherResource in semanticModel.AllResources)
+            foreach (var otherResource in semanticModel.DeclaredResources)
             {
                 var otherResourceSymbol = otherResource.Symbol;
 

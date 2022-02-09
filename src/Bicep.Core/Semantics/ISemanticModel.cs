@@ -3,6 +3,7 @@
 
 using System.Collections.Immutable;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Semantics.Metadata;
 
 namespace Bicep.Core.Semantics
 {
@@ -10,9 +11,9 @@ namespace Bicep.Core.Semantics
     {
         ResourceScope TargetScope { get; }
 
-        ImmutableArray<TypeProperty> ParameterTypeProperties { get; }
+        ImmutableArray<ParameterMetadata> Parameters { get; }
 
-        ImmutableArray<TypeProperty> OutputTypeProperties { get; }
+        ImmutableArray<OutputMetadata> Outputs { get; }
 
         bool HasErrors();
     }
