@@ -3,6 +3,7 @@
 
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
+using Bicep.Core.Deploy;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -138,6 +139,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
+            services.AddSingleton<IDeploymentManager, DeploymentManager>();
         }
 
         public void Dispose()
