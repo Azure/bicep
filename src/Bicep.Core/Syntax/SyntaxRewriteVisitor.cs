@@ -73,29 +73,6 @@ namespace Bicep.Core.Syntax
             return hasChanges;
         }
 
-        private bool TryRewriteStrict<TSyntax, TOut>(TSyntax? syntax, [NotNullIfNotNull("syntax")] out TOut? newSyntax)
-            where TSyntax : SyntaxBase
-            where TOut : SyntaxBase
-        {
-            if (syntax is null)
-            {
-                newSyntax = null;
-                return false;
-            }
-
-            var newSyntaxUntyped = RewriteInternal(syntax);
-            var hasChanges = !object.ReferenceEquals(syntax, newSyntaxUntyped);
-
-            if (newSyntaxUntyped is not TOut newSyntaxTyped)
-            {
-                throw new InvalidOperationException($"Expected {nameof(currentSyntax)} to be of type {typeof(TSyntax)}");
-            }
-
-            newSyntax = newSyntaxTyped;
-            return hasChanges;
-        }
-
-
         private bool TryRewrite(IEnumerable<SyntaxBase> syntaxes, out IEnumerable<SyntaxBase> newSyntaxes)
             => TryRewriteStrict<SyntaxBase>(syntaxes, out newSyntaxes);
 
