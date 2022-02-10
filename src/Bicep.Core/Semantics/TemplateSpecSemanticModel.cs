@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.Immutable;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 
@@ -21,9 +22,9 @@ namespace Bicep.Core.Semantics
 
         public ResourceScope TargetScope => this.mainTemplateSemanticModel.TargetScope;
 
-        public ImmutableArray<TypeProperty> ParameterTypeProperties => this.mainTemplateSemanticModel.ParameterTypeProperties;
+        public ImmutableArray<ParameterMetadata> Parameters => this.mainTemplateSemanticModel.Parameters;
 
-        public ImmutableArray<TypeProperty> OutputTypeProperties => this.mainTemplateSemanticModel.OutputTypeProperties;
+        public ImmutableArray<OutputMetadata> Outputs => this.mainTemplateSemanticModel.Outputs;
 
         public bool HasErrors() => this.SourceFile.HasErrors() || this.mainTemplateSemanticModel.HasErrors();
     }

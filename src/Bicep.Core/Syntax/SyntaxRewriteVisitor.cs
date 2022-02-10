@@ -304,7 +304,21 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitIdentifierSyntax(IdentifierSyntax syntax) => ReplaceCurrent(syntax, ReplaceIdentifierSyntax);
 
-        protected virtual SyntaxBase ReplaceTypeSyntax(TypeSyntax syntax)
+        protected virtual SyntaxBase ReplaceResourceTypeSyntax(ResourceTypeSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Type, out var type);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ResourceTypeSyntax(keyword, type);
+        }
+        void ISyntaxVisitor.VisitResourceTypeSyntax(ResourceTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceTypeSyntax);
+
+        protected virtual SyntaxBase ReplaceSimpleTypeSyntax(SimpleTypeSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Identifier, out var identifier);
 
@@ -313,9 +327,9 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new TypeSyntax(identifier);
+            return new SimpleTypeSyntax(identifier);
         }
-        void ISyntaxVisitor.VisitTypeSyntax(TypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypeSyntax);
+        void ISyntaxVisitor.VisitSimpleTypeSyntax(SimpleTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceSimpleTypeSyntax);
 
         protected virtual SyntaxBase ReplaceBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
@@ -373,7 +387,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new IntegerLiteralSyntax(literal, long.Parse(literal.Text));
+            return new IntegerLiteralSyntax(literal, ulong.Parse(literal.Text));
         }
         void ISyntaxVisitor.VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceIntegerLiteralSyntax);
 

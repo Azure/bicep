@@ -110,7 +110,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic InvalidInteger() => new(
                 TextSpan,
                 "BCP010",
-                "Expected a valid 32-bit signed integer.");
+                "Expected a valid 64-bit signed integer.");
 
             public ErrorDiagnostic InvalidType() => new(
                 TextSpan,
@@ -868,7 +868,7 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 DiagnosticLevel.Error,
                 "BCP139",
-                $"The root resource scope must match that of the Bicep file. To deploy a resource to a different root scope, use a module.");
+                $"A resource's scope must match the scope of the Bicep file for it to be deployable. You must use modules to deploy resources to a different scope.");
 
             public ErrorDiagnostic UnterminatedMultilineString() => new(
                 TextSpan,
@@ -988,12 +988,12 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic ScopeUnsupportedOnChildResource(string parentIdentifier) => new(
                 TextSpan,
                 "BCP164",
-                $"The \"{LanguageConstants.ResourceScopePropertyName}\" property is unsupported for a resource with a parent resource. This resource has \"{parentIdentifier}\" declared as its parent.");
+                $"A child resource's scope is computed based on the scope of its ancestor resource. This means that using the \"{LanguageConstants.ResourceScopePropertyName}\" property on a child resource is unsupported.");
 
             public ErrorDiagnostic ScopeDisallowedForAncestorResource(string ancestorIdentifier) => new(
                 TextSpan,
                 "BCP165",
-                $"Cannot deploy a resource with ancestor under a different scope. Resource \"{ancestorIdentifier}\" has the \"{LanguageConstants.ResourceScopePropertyName}\" property set.");
+                $"A resource's computed scope must match that of the Bicep file for it to be deployable. This resource's scope is computed from the \"{LanguageConstants.ResourceScopePropertyName}\" property value assigned to ancestor resource \"{ancestorIdentifier}\". You must use modules to deploy resources to a different scope.");
 
             public ErrorDiagnostic DuplicateDecorator(string decoratorName) => new(
                 TextSpan,
@@ -1343,6 +1343,32 @@ namespace Bicep.Core.Diagnostics
                 "BCP226",
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
+
+            public ErrorDiagnostic UnsupportedResourceTypeParameterType(string resourceType) => new(
+                TextSpan,
+                "BCP227",
+                $"The type \"{resourceType}\" cannot be used as a parameter type. Extensibility types are currently not supported as parameters or outputs.");
+
+            public ErrorDiagnostic UnsupportedResourceTypeOutputType(string resourceType) => new(
+                TextSpan,
+                "BCP228",
+                $"The type \"{resourceType}\" cannot be used as an output type. Extensibility types are currently not supported as parameters or outputs.");
+
+            public ErrorDiagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => new(
+                TextSpan,
+                "BCP229",
+                $"The parameter \"{parameterName}\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource.");
+
+            public Diagnostic ModuleParamOrOutputResourceTypeUnavailable(ResourceTypeReference resourceTypeReference) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP230",
+                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available.");
+
+            public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
+                TextSpan,
+                "BCP231",
+                "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

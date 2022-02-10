@@ -29,7 +29,7 @@ param myString string
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |myString|
-//@[15:21)  TypeSyntax
+//@[15:21)  SimpleTypeSyntax
 //@[15:21)   Identifier |string|
 //@[21:22) NewLine |\n|
 param myInt int
@@ -37,7 +37,7 @@ param myInt int
 //@[0:5)  Identifier |param|
 //@[6:11)  IdentifierSyntax
 //@[6:11)   Identifier |myInt|
-//@[12:15)  TypeSyntax
+//@[12:15)  SimpleTypeSyntax
 //@[12:15)   Identifier |int|
 //@[15:16) NewLine |\n|
 param myBool bool
@@ -45,7 +45,7 @@ param myBool bool
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myBool|
-//@[13:17)  TypeSyntax
+//@[13:17)  SimpleTypeSyntax
 //@[13:17)   Identifier |bool|
 //@[17:19) NewLine |\n\n|
 
@@ -95,7 +95,7 @@ param myString2 string = 'string value'
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |myString2|
-//@[16:22)  TypeSyntax
+//@[16:22)  SimpleTypeSyntax
 //@[16:22)   Identifier |string|
 //@[23:39)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
@@ -107,7 +107,7 @@ param myInt2 int = 42
 //@[0:5)  Identifier |param|
 //@[6:12)  IdentifierSyntax
 //@[6:12)   Identifier |myInt2|
-//@[13:16)  TypeSyntax
+//@[13:16)  SimpleTypeSyntax
 //@[13:16)   Identifier |int|
 //@[17:21)  ParameterDefaultValueSyntax
 //@[17:18)   Assignment |=|
@@ -119,7 +119,7 @@ param myTruth bool = true
 //@[0:5)  Identifier |param|
 //@[6:13)  IdentifierSyntax
 //@[6:13)   Identifier |myTruth|
-//@[14:18)  TypeSyntax
+//@[14:18)  SimpleTypeSyntax
 //@[14:18)   Identifier |bool|
 //@[19:25)  ParameterDefaultValueSyntax
 //@[19:20)   Assignment |=|
@@ -131,7 +131,7 @@ param myFalsehood bool = false
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |myFalsehood|
-//@[18:22)  TypeSyntax
+//@[18:22)  SimpleTypeSyntax
 //@[18:22)   Identifier |bool|
 //@[23:30)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
@@ -143,7 +143,7 @@ param myEscapedString string = 'First line\r\nSecond\ttabbed\tline'
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |myEscapedString|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:67)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -205,7 +205,7 @@ param foo object = {
 //@[0:5)  Identifier |param|
 //@[6:9)  IdentifierSyntax
 //@[6:9)   Identifier |foo|
-//@[10:16)  TypeSyntax
+//@[10:16)  SimpleTypeSyntax
 //@[10:16)   Identifier |object|
 //@[17:232)  ParameterDefaultValueSyntax
 //@[17:18)   Assignment |=|
@@ -337,7 +337,7 @@ param myArrayParam array = [
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |myArrayParam|
-//@[19:24)  TypeSyntax
+//@[19:24)  SimpleTypeSyntax
 //@[19:24)   Identifier |array|
 //@[25:48)  ParameterDefaultValueSyntax
 //@[25:26)   Assignment |=|
@@ -379,7 +379,7 @@ param password string
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |password|
-//@[15:21)  TypeSyntax
+//@[15:21)  SimpleTypeSyntax
 //@[15:21)   Identifier |string|
 //@[21:23) NewLine |\n\n|
 
@@ -399,7 +399,7 @@ param secretObject object
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |secretObject|
-//@[19:25)  TypeSyntax
+//@[19:25)  SimpleTypeSyntax
 //@[19:25)   Identifier |object|
 //@[25:27) NewLine |\n\n|
 
@@ -435,7 +435,7 @@ param storageSku string
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |storageSku|
-//@[17:23)  TypeSyntax
+//@[17:23)  SimpleTypeSyntax
 //@[17:23)   Identifier |string|
 //@[23:25) NewLine |\n\n|
 
@@ -470,7 +470,7 @@ param storageName string
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |storageName|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |string|
 //@[24:26) NewLine |\n\n|
 
@@ -505,7 +505,7 @@ param someArray array
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |someArray|
-//@[16:21)  TypeSyntax
+//@[16:21)  SimpleTypeSyntax
 //@[16:21)   Identifier |array|
 //@[21:23) NewLine |\n\n|
 
@@ -529,7 +529,7 @@ param emptyMetadata string
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |emptyMetadata|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[26:28) NewLine |\n\n|
 
@@ -563,7 +563,7 @@ param description string
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |description|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |string|
 //@[24:26) NewLine |\n\n|
 
@@ -588,7 +588,7 @@ param description2 string
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |description2|
-//@[19:25)  TypeSyntax
+//@[19:25)  SimpleTypeSyntax
 //@[19:25)   Identifier |string|
 //@[25:27) NewLine |\n\n|
 
@@ -668,7 +668,7 @@ param additionalMetadata string
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |additionalMetadata|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |string|
 //@[31:33) NewLine |\n\n|
 
@@ -765,7 +765,7 @@ param someParameter string
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |someParameter|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[26:28) NewLine |\n\n|
 
@@ -774,7 +774,7 @@ param defaultExpression bool = 18 != (true || false)
 //@[0:5)  Identifier |param|
 //@[6:23)  IdentifierSyntax
 //@[6:23)   Identifier |defaultExpression|
-//@[24:28)  TypeSyntax
+//@[24:28)  SimpleTypeSyntax
 //@[24:28)   Identifier |bool|
 //@[29:52)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -823,7 +823,7 @@ param stringLiteral string
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |stringLiteral|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[26:28) NewLine |\n\n|
 
@@ -862,7 +862,7 @@ param stringLiteralWithAllowedValuesSuperset string = stringLiteral
 //@[0:5)  Identifier |param|
 //@[6:44)  IdentifierSyntax
 //@[6:44)   Identifier |stringLiteralWithAllowedValuesSuperset|
-//@[45:51)  TypeSyntax
+//@[45:51)  SimpleTypeSyntax
 //@[45:51)   Identifier |string|
 //@[52:67)  ParameterDefaultValueSyntax
 //@[52:53)   Assignment |=|
@@ -934,7 +934,7 @@ param decoratedString string
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |decoratedString|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[28:30) NewLine |\n\n|
 
@@ -955,7 +955,7 @@ param decoratedInt int = 123
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |decoratedInt|
-//@[19:22)  TypeSyntax
+//@[19:22)  SimpleTypeSyntax
 //@[19:22)   Identifier |int|
 //@[23:28)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
@@ -998,7 +998,7 @@ param negativeValues int
 //@[0:5)  Identifier |param|
 //@[6:20)  IdentifierSyntax
 //@[6:20)   Identifier |negativeValues|
-//@[21:24)  TypeSyntax
+//@[21:24)  SimpleTypeSyntax
 //@[21:24)   Identifier |int|
 //@[24:26) NewLine |\n\n|
 
@@ -1081,7 +1081,7 @@ param decoratedBool bool = (true && false) != true
 //@[0:5)  Identifier |param|
 //@[6:19)  IdentifierSyntax
 //@[6:19)   Identifier |decoratedBool|
-//@[20:24)  TypeSyntax
+//@[20:24)  SimpleTypeSyntax
 //@[20:24)   Identifier |bool|
 //@[25:50)  ParameterDefaultValueSyntax
 //@[25:26)   Assignment |=|
@@ -1114,7 +1114,7 @@ param decoratedObject object = {
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |decoratedObject|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |object|
 //@[29:244)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -1303,7 +1303,7 @@ param decoratedArray array = [
 //@[0:5)  Identifier |param|
 //@[6:20)  IdentifierSyntax
 //@[6:20)   Identifier |decoratedArray|
-//@[21:26)  TypeSyntax
+//@[21:26)  SimpleTypeSyntax
 //@[21:26)   Identifier |array|
 //@[27:59)  ParameterDefaultValueSyntax
 //@[27:28)   Assignment |=|

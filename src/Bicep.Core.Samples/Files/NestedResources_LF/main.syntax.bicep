@@ -245,7 +245,7 @@ output referenceBasicChild string = basicParent::basicChild.properties.size
 //@[0:6)  Identifier |output|
 //@[7:26)  IdentifierSyntax
 //@[7:26)   Identifier |referenceBasicChild|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[34:35)  Assignment |=|
 //@[36:75)  PropertyAccessSyntax
@@ -271,7 +271,7 @@ output referenceBasicGrandchild string = basicParent::basicChild::basicGrandchil
 //@[0:6)  Identifier |output|
 //@[7:31)  IdentifierSyntax
 //@[7:31)   Identifier |referenceBasicGrandchild|
-//@[32:38)  TypeSyntax
+//@[32:38)  SimpleTypeSyntax
 //@[32:38)   Identifier |string|
 //@[39:40)  Assignment |=|
 //@[41:98)  PropertyAccessSyntax
@@ -416,7 +416,7 @@ param createParent bool
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |createParent|
-//@[19:23)  TypeSyntax
+//@[19:23)  SimpleTypeSyntax
 //@[19:23)   Identifier |bool|
 //@[23:24) NewLine |\n|
 param createChild bool
@@ -424,7 +424,7 @@ param createChild bool
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |createChild|
-//@[18:22)  TypeSyntax
+//@[18:22)  SimpleTypeSyntax
 //@[18:22)   Identifier |bool|
 //@[22:23) NewLine |\n|
 param createGrandchild bool
@@ -432,7 +432,7 @@ param createGrandchild bool
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |createGrandchild|
-//@[23:27)  TypeSyntax
+//@[23:27)  SimpleTypeSyntax
 //@[23:27)   Identifier |bool|
 //@[27:28) NewLine |\n|
 resource conditionParent 'My.Rp/parentType@2020-12-01' = if (createParent) {
@@ -658,7 +658,7 @@ output loopChildOutput string = loopParent::loopChild[0].name
 //@[0:6)  Identifier |output|
 //@[7:22)  IdentifierSyntax
 //@[7:22)   Identifier |loopChildOutput|
-//@[23:29)  TypeSyntax
+//@[23:29)  SimpleTypeSyntax
 //@[23:29)   Identifier |string|
 //@[30:31)  Assignment |=|
 //@[32:61)  PropertyAccessSyntax

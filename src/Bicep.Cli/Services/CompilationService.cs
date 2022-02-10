@@ -82,7 +82,7 @@ namespace Bicep.Cli.Services
                 }
             }
 
-            var compilation = new Compilation(this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
+            var compilation = new Compilation(this.invocationContext.Features, this.invocationContext.NamespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
             LogDiagnostics(compilation);
 
             return compilation;

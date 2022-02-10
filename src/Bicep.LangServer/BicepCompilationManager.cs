@@ -342,7 +342,7 @@ namespace Bicep.LanguageServer
             var declarationsInMainFile = bicepFile.ProgramSyntax.Declarations;
             properties.Add("Modules", declarationsInMainFile.Count(x => x is ModuleDeclarationSyntax).ToString());
             properties.Add("Parameters", declarationsInMainFile.Count(x => x is ParameterDeclarationSyntax).ToString());
-            properties.Add("Resources", sematicModel.AllResources.Length.ToString());
+            properties.Add("Resources", sematicModel.DeclaredResources.Length.ToString());
             properties.Add("Variables", declarationsInMainFile.Count(x => x is VariableDeclarationSyntax).ToString());
 
             var localPath = bicepFile.FileUri.LocalPath;

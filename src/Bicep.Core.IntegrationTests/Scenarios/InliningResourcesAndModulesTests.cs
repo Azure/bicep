@@ -55,7 +55,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                     },
                     "Referenced resource should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01', 'full').properties.allowBlobPublicAccess]",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).allowBlobPublicAccess]",
                     "Resource access should be in-lined");
             }
         }
@@ -103,7 +103,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                     },
                     "Referenced resource should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01', 'full').properties.allowBlobPublicAccess]",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).allowBlobPublicAccess]",
                     "Resource access should be in-lined");
             }
         }

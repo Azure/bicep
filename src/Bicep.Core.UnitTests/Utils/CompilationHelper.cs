@@ -62,7 +62,7 @@ namespace Bicep.Core.UnitTests.Utils
             var configuration = BicepTestConstants.BuiltInConfiguration;
             var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(uriDictionary, entryUri, fileResolver, configuration, context.GetFeatures());
 
-            return Compile(context, new Compilation(context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer));
+            return Compile(context, new Compilation(context.Features ?? BicepTestConstants.Features, context.GetNamespaceProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer));
         }
 
         public static CompilationResult Compile(IAzResourceTypeLoader resourceTypeLoader, params (string fileName, string fileContents)[] files)

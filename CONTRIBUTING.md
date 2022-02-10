@@ -40,7 +40,7 @@ Many of the bicep integration tests rely on baseline test assertion files that a
 
 * If you see a test failure with a message containing Windows and *nix copy commands, you have encountered such a test. You have the following options to fix the test:
   1. Manually execute the provided command in a shell. This makes sense for a single test, but is extremely tedious otherwise.
-  1. Run [`./scripts/SetBaseline.ps1`](./scripts/SetBaseline.ps1) (Windows) or [`./scripts/SetBaseline.sh`](./scripts/SetBaseline.sh) (Linux/OSX) to execute the tests in `SetBaseLine` mode. This automatically updates the baselines in bulk for failing tests.
+  1. Run [`./scripts/SetBaseline.ps1`](./scripts/SetBaseline.ps1) (Windows) or [`./scripts/set_baseline.sh`](./scripts/set_baseline.sh) (Linux/OSX) to execute the tests in `SetBaseLine` mode. This automatically updates the baselines in bulk for failing tests.
   1. You should see baseline file modifications in Git pending changes. (Make sure your Git pending changes are empty before doing so - your changes could get overwritten!).
 * Inspect the baseline assertion diffs to ensure changes are expected and match the code changes you have made. (If a pull request contains changes to baseline files that can't be explained, it will not be merged.)
 

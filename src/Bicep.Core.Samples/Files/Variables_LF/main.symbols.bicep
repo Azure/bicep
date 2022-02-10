@@ -119,6 +119,8 @@ var anyIndexOnAny = any(true)[any(false)]
 
 var deploymentName = deployment().name
 //@[4:18) Variable deploymentName. Type: string. Declaration start char: 0, length: 38
+var templateContentVersion = deployment().properties.template.contentVersion
+//@[4:26) Variable templateContentVersion. Type: string. Declaration start char: 0, length: 76
 var templateLinkUri = deployment().properties.templateLink.uri
 //@[4:19) Variable templateLinkUri. Type: string. Declaration start char: 0, length: 62
 var templateLinkId = deployment().properties.templateLink.id

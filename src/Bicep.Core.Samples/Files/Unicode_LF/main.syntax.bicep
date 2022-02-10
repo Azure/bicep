@@ -94,7 +94,7 @@ output concatUnicodeStrings string = concat('Θμ', '二头肌', 'α')
 //@[0:6)  Identifier |output|
 //@[7:27)  IdentifierSyntax
 //@[7:27)   Identifier |concatUnicodeStrings|
-//@[28:34)  TypeSyntax
+//@[28:34)  SimpleTypeSyntax
 //@[28:34)   Identifier |string|
 //@[35:36)  Assignment |=|
 //@[37:61)  FunctionCallSyntax
@@ -119,7 +119,7 @@ output interpolateUnicodeStrings string = 'Θμ二${emojis}头肌${ninjaCat}α'
 //@[0:6)  Identifier |output|
 //@[7:32)  IdentifierSyntax
 //@[7:32)   Identifier |interpolateUnicodeStrings|
-//@[33:39)  TypeSyntax
+//@[33:39)  SimpleTypeSyntax
 //@[33:39)   Identifier |string|
 //@[40:41)  Assignment |=|
 //@[42:70)  StringSyntax

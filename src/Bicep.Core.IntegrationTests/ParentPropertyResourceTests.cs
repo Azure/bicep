@@ -210,7 +210,7 @@ resource child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
 ");
 
             result.Diagnostics.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                ("BCP165", DiagnosticLevel.Error, "Cannot deploy a resource with ancestor under a different scope. Resource \"res1\" has the \"scope\" property set."),
+                ("BCP165", DiagnosticLevel.Error, "A resource's computed scope must match that of the Bicep file for it to be deployable. This resource's scope is computed from the \"scope\" property value assigned to ancestor resource \"res1\". You must use modules to deploy resources to a different scope."),
             });
         }
 
@@ -257,7 +257,7 @@ resource res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
             {
                 template.Should().NotHaveValue();
                 diags.ExcludingLinterDiagnostics().ExcludingMissingTypes().Should().HaveDiagnostics(new[] {
-                  ("BCP164", DiagnosticLevel.Error, "The \"scope\" property is unsupported for a resource with a parent resource. This resource has \"res2\" declared as its parent."),
+                  ("BCP164", DiagnosticLevel.Error, "A child resource's scope is computed based on the scope of its ancestor resource. This means that using the \"scope\" property on a child resource is unsupported."),
                 });
             }
         }
