@@ -9,6 +9,7 @@ import {
   IActionContext,
   IAzureQuickPickItem,
   parseError,
+  UserCancelledError,
 } from "vscode-azureextensionui";
 import { AzureAccount } from "../azure-account.api";
 import { SubscriptionClient } from "@azure/arm-subscriptions";
@@ -55,10 +56,7 @@ export class DeployCommand implements Command {
     }
 
     try {
-      await ext.tree.showTreeItemPicker<AzureAccountTreeItem>(
-          '',
-          _context
-        );
+      await ext.tree.showTreeItemPicker<AzureAccountTreeItem>("", _context);
 
       const deploymentScope = await getDeploymentScope(_context);
 
@@ -84,8 +82,12 @@ export class DeployCommand implements Command {
           this.client
         );
       }
-    } catch (err) {
-      this.client.error("Deploy failed", parseError(err).message, true);
+    } catch (exception) {
+      if (exception instanceof UserCancelledError) {
+        appendToOutputChannel("Deployment was cancelled.");
+      } else {
+        this.client.error("Deploy failed", parseError(exception).message, true);
+      }
     }
   }
 }
@@ -138,14 +140,14 @@ async function loadSubscriptionItems() {
   )!.exports;
   const session = azureAccount.sessions[0];
 
-  const subscriptionClient = new SubscriptionClient(
-    session.credentials2,
-  );
+  const subscriptionClient = new SubscriptionClient(session.credentials2);
   const subscriptions = await listAll(
     subscriptionClient.subscriptions,
     subscriptionClient.subscriptions.list()
   );
-  subscriptions.sort((a, b) => (a.displayName || "").localeCompare(b.displayName || ""));
+  subscriptions.sort((a, b) =>
+    (a.displayName || "").localeCompare(b.displayName || "")
+  );
   return subscriptions.map((subscription) => ({
     label: subscription.displayName || "",
     subscription,
@@ -187,12 +189,16 @@ async function handleManagementGroupDeployment(
 
   const managementGroupId = managementGroup?.mg.id;
   if (managementGroupId && location) {
-    const parameterFilePath = await selectParameterFile(
-      context,
-      documentUri
-    );
+    const parameterFilePath = await selectParameterFile(context, documentUri);
 
-    await sendDeployCommand(documentUri.fsPath, parameterFilePath, managementGroupId, deploymentScope, location, client);
+    await sendDeployCommand(
+      documentUri.fsPath,
+      parameterFilePath,
+      managementGroupId,
+      deploymentScope,
+      location,
+      client
+    );
   }
 }
 
@@ -214,12 +220,16 @@ async function handleResourceGroupDeployment(
     const resourceGroupId = resourceGroup?.resourceGroup.id;
 
     if (resourceGroupId) {
-      const parameterFilePath = await selectParameterFile(
-        context,
-        documentUri
-      );
+      const parameterFilePath = await selectParameterFile(context, documentUri);
 
-      await sendDeployCommand(documentUri.fsPath, parameterFilePath, resourceGroupId, deploymentScope, "", client);
+      await sendDeployCommand(
+        documentUri.fsPath,
+        parameterFilePath,
+        resourceGroupId,
+        deploymentScope,
+        "",
+        client
+      );
     }
   }
 }
@@ -234,10 +244,7 @@ async function handleSubscriptionDeployment(
   const subscriptionId = subscription?.subscription.subscriptionId;
 
   if (subscriptionId) {
-    const parameterFilePath = await selectParameterFile(
-      context,
-      documentUri
-    );
+    const parameterFilePath = await selectParameterFile(context, documentUri);
 
     const locations = await loadLocationItems(subscriptionId);
     const location = await context.ui.showQuickPick(locations, {
@@ -246,7 +253,14 @@ async function handleSubscriptionDeployment(
 
     const id = subscription.subscription.id;
     if (location && id) {
-      await sendDeployCommand(documentUri.fsPath, parameterFilePath, id, deploymentScope, location.label, client);
+      await sendDeployCommand(
+        documentUri.fsPath,
+        parameterFilePath,
+        id,
+        deploymentScope,
+        location.label,
+        client
+      );
     }
   }
 }
