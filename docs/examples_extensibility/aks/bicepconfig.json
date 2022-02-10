@@ -1,0 +1,63 @@
+{
+  "analyzers": {
+    "core": {
+      "enabled": true,
+      "rules": {
+        "adminusername-should-not-be-literal": {
+          "level": "warning"
+        },
+        "explicit-values-for-loc-params": {
+          "level": "off"
+        },
+        "no-hardcoded-env-urls": {
+          "level": "warning"
+        },
+        "no-hardcoded-location": {
+          "level": "warning"
+        },
+        "no-unnecessary-dependson": {
+          "level": "warning"
+        },
+        "no-loc-expr-outside-params": {
+          "level": "off"
+        },
+        "no-unused-params": {
+          "level": "warning"
+        },
+        "no-unused-vars": {
+          "level": "warning"
+        },
+        "outputs-should-not-contain-secrets": {
+          "level": "off"
+        },
+        "prefer-interpolation": {
+          "level": "warning"
+        },
+        "secure-parameter-default": {
+          "level": "warning"
+        },
+        "simplify-interpolation": {
+          "level": "warning"
+        },
+        "protect-commandtoexecute-secrets": {
+          "level": "warning"
+        },
+        "use-stable-vm-image": {
+          "level": "warning"
+        },
+        "max-variables": {
+          "level": "error"
+        },
+        "max-params": {
+          "level": "error"
+        },
+        "max-outputs": {
+          "level": "error"
+        },
+        "max-resources": {
+          "level": "error"
+        }
+      }
+    }
+  }
+}
