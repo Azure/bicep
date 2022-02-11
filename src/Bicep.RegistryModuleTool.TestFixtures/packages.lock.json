@@ -1719,7 +1719,7 @@
           "System.IO.Abstractions": "13.2.47"
         }
       },
-      "bicep.registrymoduletool": {
+      "Azure.Bicep.RegistryModuleTool": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "1.0.0",

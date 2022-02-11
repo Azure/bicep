@@ -1797,7 +1797,7 @@
           "System.IO.Abstractions": "13.2.47"
         }
       },
-      "bicep.registrymoduletool": {
+      "Azure.Bicep.RegistryModuleTool": {
         "type": "Project",
         "dependencies": {
           "Azure.Bicep.Core": "1.0.0",
@@ -1819,7 +1819,7 @@
       "bicep.registrymoduletool.testfixtures": {
         "type": "Project",
         "dependencies": {
-          "Bicep.RegistryModuleTool": "1.0.0",
+          "Azure.Bicep.RegistryModuleTool": "1.0.0",
           "FluentAssertions": "6.4.0",
           "JsonPatch.Net": "1.1.2",
           "Microsoft.Extensions.Logging.Abstractions": "6.0.0",
