@@ -2,35 +2,19 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Immutable;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
-using Bicep.Core.Configuration;
-using Bicep.Core.Registry.Auth;
 
 namespace Bicep.Core.Deploy
 {
-    public class DeploymentManager : IDeploymentManager
+    public class DeploymentHelper
     {
-        private readonly IConfigurationManager configurationManager;
-        private readonly ITokenCredentialFactory credentialFactory;
-
-        public DeploymentManager(IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory)
+        public static async Task<string> CreateDeployment(ArmClient armClient, string template, string parameterFilePath, string id, string scope, string location)
         {
-            this.configurationManager = configurationManager;
-            this.credentialFactory = credentialFactory;
-        }
-
-        public async Task<string> CreateDeployment(Uri uri, string template, string parameterFilePath, string id, string scope, string location)
-        {
-            var configuration = configurationManager.GetConfiguration(uri);
-            var credential = this.credentialFactory.CreateChain(ImmutableArray.Create(CredentialType.VisualStudioCode), configuration.Cloud.ActiveDirectoryAuthorityUri);
-
-            ArmClient armClient = new ArmClient(credential);
             DeploymentCollection? deploymentCollection = null;
             var resourceIdentifier = new ResourceIdentifier(id);
 
@@ -48,6 +32,10 @@ namespace Bicep.Core.Deploy
             {
                 var managementGroup = armClient.GetManagementGroup(resourceIdentifier);
                 deploymentCollection = managementGroup.GetDeployments();
+            }
+            else
+            {
+                return "Deployment failed. Please provide a valid scope.";
             }
 
             if (deploymentCollection is not null)

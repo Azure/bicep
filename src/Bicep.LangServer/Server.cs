@@ -139,7 +139,6 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
-            services.AddSingleton<IDeploymentManager, DeploymentManager>();
         }
 
         public void Dispose()

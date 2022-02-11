@@ -3,11 +3,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure.ResourceManager;
 using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
@@ -16,6 +18,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
+using Bicep.Core.Registry.Auth;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
@@ -29,19 +32,19 @@ namespace Bicep.LanguageServer.Handlers
 {
     public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, string, string, string>
     {
+        private readonly ITokenCredentialFactory credentialFactory;
         private readonly ICompilationManager compilationManager;
-        private readonly IDeploymentManager deploymentManager;
         private readonly EmitterSettings emitterSettings;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
         private readonly IConfigurationManager configurationManager;
 
-        public BicepDeployCommandHandler(ICompilationManager compilationManager, IDeploymentManager deploymentManager, ISerializer serializer, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
+        public BicepDeployCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager, ITokenCredentialFactory credentialFactory)
             : base(LanguageConstants.Deploy, serializer)
         {
             this.compilationManager = compilationManager;
-            this.deploymentManager = deploymentManager;
+            this.credentialFactory = credentialFactory;
             this.emitterSettings = emitterSettings;
             this.namespaceProvider = namespaceProvider;
             this.fileResolver = fileResolver;
@@ -68,7 +71,12 @@ namespace Bicep.LanguageServer.Handlers
                 return "Deployment failed. " + e.Message;
             }
 
-            string deploymentOutput = await deploymentManager.CreateDeployment(documentUri.ToUri(), template, parameterFilePath, id, scope, location);
+            var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
+            var credential = this.credentialFactory.CreateChain(ImmutableArray.Create(CredentialType.VisualStudioCode), configuration.Cloud.ActiveDirectoryAuthorityUri);
+
+            ArmClient armClient = new ArmClient(credential);
+
+            string deploymentOutput = await DeploymentHelper.CreateDeployment(armClient, template, parameterFilePath, id, scope, location);
 
             return deploymentOutput;
         }
