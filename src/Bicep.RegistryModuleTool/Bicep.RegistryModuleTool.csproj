@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Azure.Bicep.RegistryModuleTool</AssemblyName>
+    <RootNamespace>Bicep.RegistryModuleTool</RootNamespace>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>brm</ToolCommandName>
