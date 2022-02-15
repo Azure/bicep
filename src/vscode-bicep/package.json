@@ -339,6 +339,7 @@
   "dependencies": {
     "@azure/arm-appservice": "^9.0.0",
     "@azure/arm-managementgroups": "^2.0.0",
+    "@azure/arm-subscriptions": "=5.0.0",
     "@azure/identity": "^2.0.2",
     "cytoscape": "^3.20.0",
     "cytoscape-elk": "^2.0.2",

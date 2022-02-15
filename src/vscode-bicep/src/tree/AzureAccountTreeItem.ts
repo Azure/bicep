@@ -3,7 +3,8 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import { AzureAccountTreeItemBase } from './AzureAccountTreeItemBase';
+
+import { AzureAccountTreeItemBase } from "./AzureAccountTreeItemBase";
 
 export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
   public constructor() {
