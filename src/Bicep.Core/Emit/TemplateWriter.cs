@@ -21,7 +21,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Semantics.Metadata;
 using System.Diagnostics;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
