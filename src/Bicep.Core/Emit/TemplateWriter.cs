@@ -34,16 +34,6 @@ namespace Bicep.Core.Emit
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2020-10-01";
 
-        // these are top-level parameter modifier properties whose values can be emitted without any modifications
-        private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
-        {
-            "minValue",
-            "maxValue",
-            "minLength",
-            "maxLength",
-            "metadata"
-        }.ToImmutableArray();
-
         private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new[] {
             LanguageConstants.ResourceScopePropertyName,
             LanguageConstants.ResourceParentPropertyName,
@@ -900,24 +890,6 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteEndObject();
             }
             jsonWriter.WriteEndObject();
-        }
-
-        private static string GetTemplateTypeName(TypeSymbol type, bool secure)
-        {
-            if (secure)
-            {
-                if (ReferenceEquals(type, LanguageConstants.String))
-                {
-                    return "secureString";
-                }
-
-                if (ReferenceEquals(type, LanguageConstants.Object))
-                {
-                    return "secureObject";
-                }
-            }
-
-            return type.Name;
         }
     }
 }

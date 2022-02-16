@@ -50,7 +50,7 @@ namespace Bicep.Core.Registry
                     string scheme = parts[0];
                     string? aliasName = null;
 
-                    if (parts[0].Contains("/"))
+                    if (parts[0].Contains('/'))
                     {
                         // The sheme contains an alias.
                         var schemeParts = parts[0].Split('/', 2, StringSplitOptions.None);
