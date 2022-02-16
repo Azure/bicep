@@ -57,7 +57,12 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""moduleAliases"": {
     ""ts"": {},
-    ""br"": {}
+    ""br"": {
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
+      }
+    }
   },
   ""analyzers"": {
     ""core"": {
@@ -128,7 +133,12 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""moduleAliases"": {
     ""ts"": {},
-    ""br"": {}
+    ""br"": {
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
+      }
+    }
   },
   ""analyzers"": {}
 }");
@@ -384,6 +394,10 @@ namespace Bicep.Core.UnitTests.Configuration
       ""myRegistry"": {
         ""registry"": ""localhost:8000"",
         ""modulePath"": null
+      },
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
       }
     }
   },
