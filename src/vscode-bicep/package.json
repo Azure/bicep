@@ -280,7 +280,7 @@
         "steps": [
           {
             "id": "openBicepFile",
-            "title": "Open or create a Bicep file",
+            "title": "Open a Bicep File",
             "description": "Open a bicep file to edit, or download a sample file.\n[Create Empty Bicep File](command:bicep.gettingStarted.createBicepFile)\n[Create Sample Bicep File](command:bicep.gettingStarted.createSampleBicepFile)",
             "media": {
               "image": "media/walkthroughs/bicep-logo-256.png",
