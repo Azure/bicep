@@ -15,6 +15,7 @@ import {
   BuildCommand,
   CommandManager,
   InsertResourceCommand,
+  OpenBicepFileCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
@@ -80,7 +81,8 @@ export async function activate(
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager),
-        new CreateBicepFileCommand()
+        new CreateBicepFileCommand(),
+        new OpenBicepFileCommand()
       );
   });
 }

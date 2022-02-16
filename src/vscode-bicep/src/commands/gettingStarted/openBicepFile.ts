@@ -1,110 +1,82 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import * as os from "os";
-import * as fse from "fs-extra";
-import vscode, { TextDocument, Uri, window, workspace } from "vscode";
-import {
-  IActionContext,
-  IAzureQuickPickItem,
-  UserCancelledError,
-} from "vscode-azureextensionui";
+import path from "path";
+import { TextDocument, Uri, workspace, window, ViewColumn } from "vscode";
+import { IActionContext, IAzureQuickPickItem } from "vscode-azureextensionui";
 
 import { Command } from "../types";
 
 export class OpenBicepFileCommand implements Command {
   public readonly id = "bicep.gettingStarted.openBicepFile";
 
-  public async execute(): Promise<void> {
-    await openBicepFile();
+  public async execute(context: IActionContext): Promise<void> {
+    await queryAndOpenBicepFile(context);
   }
 }
 
-async function openBicepFile(): Promise<vscode.TextEditor | undefined> {
-  const folder: Uri =
-    (workspace.workspaceFolders
-      ? workspace.workspaceFolders[0].uri
-      : undefined) ?? Uri.file(os.tmpdir());
-  const uri: Uri | undefined = await window.showSaveDialog({
-    defaultUri: Uri.joinPath(folder, "main.bicep"),
-  });
-  if (!uri) {
-    throw new UserCancelledError("saveDialog");
-  }
-
-  const path = uri.fsPath;
-  if (!path) {
-    throw new Error(`Can't save file to location ${uri.toString()}`);
-  }
-
-  await fse.writeFile(path, fileContents, { encoding: "utf-8" });
-
+async function queryAndOpenBicepFile(context: IActionContext): Promise<void> {
+  const uri: Uri = await queryUserForBicepFile(context);
   const document: TextDocument = await workspace.openTextDocument(uri);
-  return await vscode.window.showTextDocument(
-    document,
-    vscode.ViewColumn.Beside
-  );
+  await window.showTextDocument(document, ViewColumn.Beside);
 }
 
-async function findBicepFilesInWorkspace(
-  context: IActionContext
-): Promise<string> {
+async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
   //asdfg time limit?
-  const foundBicepFiles = await workspace.findFiles(
-    "**/*.bicep",
-    undefined,
-    10
-  );
+  const foundBicepFiles = (
+    await workspace.findFiles("**/*.bicep", undefined, 10)
+  ).filter((f) => !!f.fsPath);
 
-  const entries: IAzureQuickPickItem<string | undefined>[] = foundBicepFiles
-    .map((f) => f.fsPath)
-    .filter((f) => !!f)
-    .map(
-      (f) =>
-        <IAzureQuickPickItem<string>>{
-          label: f,
-          data: f,
-        }
-    );
-  const browse: IAzureQuickPickItem<string | undefined> = {
+  if (foundBicepFiles.length === 0) {
+    return await browseForFile(context);
+  }
+
+  //asdfg
+  // // Find the common file prefix so we can display relative paths
+  // const prefix: string = foundBicepFiles[0].fsPath;
+  // for (const uri of foundBicepFiles) {
+  //   const a = path.relative(prefix, uri.fsPath);
+  //   const b = path.relative(uri.fsPath, prefix);
+  //   const c = a;
+  // }
+
+  const entries: IAzureQuickPickItem<Uri | undefined>[] = foundBicepFiles.map(
+    (u) => {
+      const workspaceRoot: string | undefined =
+        workspace.getWorkspaceFolder(u)?.uri.fsPath;
+      const relativePath = workspaceRoot
+        ? path.relative(workspaceRoot, u.fsPath)
+        : path.basename(u.fsPath);
+
+      return <IAzureQuickPickItem<Uri>>{
+        label: relativePath,
+        data: u,
+      };
+    }
+  );
+  const browse: IAzureQuickPickItem<Uri | undefined> = {
     label: "Browse...",
     data: undefined,
   };
   entries.push(browse);
 
-  const response = await context.ui.showQuickPick(entries, {});
-  let path: string;
+  const response = await context.ui.showQuickPick(entries, {
+    placeHolder: "Select a Bicep file to open",
+  });
 
   if (response === browse) {
-    const browsedFile: Uri = context.ui.showOpenDialog({
-      filters: { "Bicep files": ["bicep"] },
-      title: "Open a Bicep file",
-    });
-    path = browsedFile.fsPath;
+    return await browseForFile(context);
   } else {
-    path = response.data;
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return response.data!;
   }
+}
 
-  const folder: Uri = workspace.workspaceFolders
-    ? workspace.workspaceFolders[0].uri
-    : undefined;
-  const uri: Uri | undefined = await window.showSaveDialog({
-    defaultUri: Uri.joinPath(folder, "main.bicep"),
+async function browseForFile(context: IActionContext): Promise<Uri> {
+  const browsedFile: Uri[] = await context.ui.showOpenDialog({
+    filters: { "Bicep files": ["bicep"] },
+    title: "Open a Bicep file",
   });
-  if (!uri) {
-    throw new UserCancelledError("saveDialog");
-  }
 
-  const path = uri.fsPath;
-  if (!path) {
-    throw new Error(`Can't save file to location ${uri.toString()}`);
-  }
-
-  await fse.writeFile(path, fileContents, { encoding: "utf-8" });
-
-  const document: TextDocument = await workspace.openTextDocument(uri);
-  return await vscode.window.showTextDocument(
-    document,
-    vscode.ViewColumn.Beside
-  );
+  return browsedFile[0];
 }

@@ -24,7 +24,7 @@ async function createAndOpenBicepFile(
       ? workspace.workspaceFolders[0].uri
       : undefined) ?? Uri.file(os.tmpdir());
   const uri: Uri | undefined = await window.showSaveDialog({
-    defaultUri: Uri.joinPath(folder, "main.bicep"),
+    defaultUri: Uri.joinPath(folder, "untitled.bicep"),
   });
   if (!uri) {
     throw new UserCancelledError("saveDialog");

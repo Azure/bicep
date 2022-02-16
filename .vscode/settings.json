@@ -1,2 +1,4 @@
 {
+    "eslint.format.enable": true,
+    "eslint.lintTask.enable": true
 }

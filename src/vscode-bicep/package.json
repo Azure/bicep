@@ -148,7 +148,12 @@
         "category": "Bicep"
       },
       {
+        "$section": "================== Walkthrough commands ==================",
         "command": "bicep.gettingStarted.createBicepFile",
+        "title": "Create Empty Bicep File"
+      },
+      {
+        "command": "bicep.gettingStarted.openBicepFile",
         "title": "Create Empty Bicep File"
       }
     ],
@@ -255,6 +260,10 @@
         {
           "command": "bicep.gettingStarted.createBicepFile",
           "when": "never"
+        },
+        {
+          "command": "bicep.gettingStarted.openBicepFile",
+          "when": "never"
         }
       ]
     },
@@ -279,13 +288,14 @@
           {
             "id": "openBicepFile",
             "title": "Open a Bicep File",
-            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension). Split the Editor (CTRL/CMD + \\) to view the walkthrough and Bicep file side by side.\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)",
+            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension). [Split the Editor](command:workbench.action.splitEditor) (CTRL/CMD+\\) to view the walkthrough and Bicep file side by side.\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nHint: [close the side bar for more space](command:workbench.action.closeSidebar)",
             "media": {
-              "image": "media/walkthroughs/bicep-logo-256.png",
-              "altText": "TODO"
+              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
+              "altText": "Bicep logo"
             },
             "completionEvents": [
-              "onCommand:asdfg need opened bicep file event"
+              "onCommand:bicep.gettingStarted.createBicepFile",
+              "onCommand:bicep.gettingStarted.createBicepFile"
             ]
           },
           {
