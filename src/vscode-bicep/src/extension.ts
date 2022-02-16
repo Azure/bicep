@@ -25,7 +25,7 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
-import { CreateBicepFileCommand, CreateSampleBicepFileCommand } from "./commands/gettingStarted/createBicepFile";
+import { CreateBicepFileCommand } from "./commands/gettingStarted/createBicepFile";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -80,8 +80,7 @@ export async function activate(
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager),
-        new CreateBicepFileCommand(),
-        new CreateSampleBicepFileCommand()
+        new CreateBicepFileCommand()
       );
   });
 }

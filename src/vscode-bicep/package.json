@@ -1,4 +1,4 @@
-{
+ {
   "name": "vscode-bicep",
   "displayName": "Bicep",
   "description": "Bicep language support for Visual Studio Code",
@@ -43,7 +43,7 @@
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
     "onCommand:bicep.gettingStarted.createBicepFile",
-    "onCommand:bicep.gettingStarted.createSampleBicepFile",
+    "onCommand:bicep.gettingStarted.openBicepFile",
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
@@ -149,13 +149,7 @@
       },
       {
         "command": "bicep.gettingStarted.createBicepFile",
-        "title": "Create Empty Bicep File",
-        "category": "Bicep"
-      },
-      {
-        "command": "bicep.gettingStarted.createSampleBicepFile",
-        "title": "Create Sample Bicep File",
-        "category": "Bicep"
+        "title": "Create Empty Bicep File"
       }
     ],
     "keybindings": [
@@ -257,6 +251,10 @@
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus && commandsRegistered",
           "group": "navigation"
+        },
+        {
+          "command": "bicep.gettingStarted.createBicepFile",
+          "when": "never"
         }
       ]
     },
@@ -281,7 +279,7 @@
           {
             "id": "openBicepFile",
             "title": "Open a Bicep File",
-            "description": "Open a bicep file to edit, or download a sample file.\n[Create Empty Bicep File](command:bicep.gettingStarted.createBicepFile)\n[Create Sample Bicep File](command:bicep.gettingStarted.createSampleBicepFile)",
+            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension). Split the Editor (CTRL/CMD + \\) to view the walkthrough and Bicep file side by side.\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)",
             "media": {
               "image": "media/walkthroughs/bicep-logo-256.png",
               "altText": "TODO"
