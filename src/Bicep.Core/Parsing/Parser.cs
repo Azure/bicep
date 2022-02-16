@@ -735,21 +735,6 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private ImmutableArray<Token> NewLines()
-        {
-            var newLines = new List<Token>
-            {
-                this.NewLine()
-            };
-
-            while (Check(TokenType.NewLine))
-            {
-                newLines.Add(reader.Read());
-            }
-
-            return newLines.ToImmutableArray();
-        }
-
         private Token Assignment()
         {
             return this.Expect(TokenType.Assignment, b => b.ExpectedCharacter("="));
