@@ -22,7 +22,12 @@
   },
   "moduleAliases": {
     "ts": {},
-    "br": {}
+    "br": {
+      "public": {
+        "registry": "mcr.microsoft.com",
+        "modulePath": "bicep"
+      }
+    }
   },
   "analyzers": {
     "core": {
