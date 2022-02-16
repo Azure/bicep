@@ -718,17 +718,6 @@ output out string = p.properties.minimalTlsVersion
             return stringBuilder.ToString();
         }
 
-        private static IEnumerable<(BicepFile file, IDiagnostic diagnostic)> GetDiagnosticsByFile(IDictionary<BicepFile, List<IDiagnostic>> diagnosticsByFile)
-        {
-            foreach (var kvp in diagnosticsByFile)
-            {
-                foreach (var diagnostic in kvp.Value)
-                {
-                    yield return (kvp.Key, diagnostic);
-                }
-            }
-        }
-
         private static (bool success, IDictionary<Uri, IEnumerable<IDiagnostic>> diagnosticsByFile) GetSuccessAndDiagnosticsByFile(Compilation compilation)
         {
             var diagnosticsByFile = compilation.GetAllDiagnosticsByBicepFile().ToDictionary(kvp => kvp.Key.FileUri, kvp => kvp.Value);
