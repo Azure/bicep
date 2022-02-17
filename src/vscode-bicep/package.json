@@ -44,6 +44,7 @@
     "onCommand:bicep.showVisualizerToSide",
     "onCommand:bicep.gettingStarted.createBicepFile",
     "onCommand:bicep.gettingStarted.openBicepFile",
+    "onCommand:bicep.gettingStarted.openVisualizer",
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
@@ -155,6 +156,10 @@
       {
         "command": "bicep.gettingStarted.openBicepFile",
         "title": "Create Empty Bicep File"
+      },
+      {
+        "command": "bicep.gettingStarted.openVisualizer",
+        "title": "Open Visualizer to the Side"
       }
     ],
     "keybindings": [
@@ -264,6 +269,10 @@
         {
           "command": "bicep.gettingStarted.openBicepFile",
           "when": "never"
+        },
+        {
+          "command": "bicep.gettingStarted.openVisualizer",
+          "when": "never"
         }
       ]
     },
@@ -288,14 +297,14 @@
           {
             "id": "openBicepFile",
             "title": "Open a Bicep File",
-            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension). [Split the Editor](command:workbench.action.splitEditor) (CTRL/CMD+\\) to view the walkthrough and Bicep file side by side.\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nHint: [Close the side bar for more space](command:workbench.action.closeSidebar)",
+            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension).\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nHint: [Close the side bar for more space](command:workbench.action.closeSidebar)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
               "altText": "Bicep logo"
             },
             "completionEvents": [
               "onCommand:bicep.gettingStarted.createBicepFile",
-              "onCommand:bicep.gettingStarted.createBicepFile"
+              "onCommand:bicep.gettingStarted.openBicepFile"
             ]
           },
           {
@@ -331,7 +340,7 @@
           {
             "id": "visualizeYourResources",
             "title": "Visualize your resources",
-            "description": "The Visualizer gives you a representation of the resources in your Bicep file. In this example, `storageaccount` has an arrow towards `appServicePlan` because it depends on the name you declare for the App Service plan during deployment.\n[Open Visualizer to the Side](command:bicep.showVisualizerToSide)",
+            "description": "The Visualizer gives you a representation of the resources in your Bicep file. In this example, `storageaccount` has an arrow towards `appServicePlan` because it depends on the name you declare for the App Service plan during deployment.\n[Open Visualizer to the Side](command:bicep.gettingStarted.openVisualizer)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/4_Show_Visualizer.gif",
               "altText": "TODO"
@@ -352,6 +361,15 @@
             "completionEvents": [
               "onCommand:bicep.deploy"
             ]
+          },
+          {
+            "id": "writeFirstFile2",
+            "title": "Write your first file",
+            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes\n\nLet's author multiple Azure resources with Bicep.",
+            "media": {
+              "markdown": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes\n\nLet's author multiple Azure resources with Bicep. ![media/walkthroughs/gettingStarted/2_Type_Params.gif](media/walkthroughs/gettingStarted/2_Type_Params.gif)"
+            },
+            "completionEvents": []
           },
           {
             "id": "learnMore",

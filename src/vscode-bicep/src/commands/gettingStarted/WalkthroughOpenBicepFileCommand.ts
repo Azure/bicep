@@ -7,7 +7,7 @@ import { IActionContext, IAzureQuickPickItem } from "vscode-azureextensionui";
 
 import { Command } from "../types";
 
-export class OpenBicepFileCommand implements Command {
+export class WalkthroughOpenBicepFileCommand implements Command {
   public readonly id = "bicep.gettingStarted.openBicepFile";
 
   public async execute(context: IActionContext): Promise<void> {
@@ -24,7 +24,7 @@ async function queryAndOpenBicepFile(context: IActionContext): Promise<void> {
 async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
   //asdfg time limit?
   const foundBicepFiles = (
-    await workspace.findFiles("**/*.bicep", undefined, 10)
+    await workspace.findFiles("**/*.bicep", undefined)
   ).filter((f) => !!f.fsPath);
 
   if (foundBicepFiles.length === 0) {
@@ -58,7 +58,7 @@ async function queryUserForBicepFile(context: IActionContext): Promise<Uri> {
     label: "Browse...",
     data: undefined,
   };
-  entries.push(browse);
+  entries.unshift(browse);
 
   const response = await context.ui.showQuickPick(entries, {
     placeHolder: "Select a Bicep file to open",

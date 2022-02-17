@@ -8,7 +8,7 @@ import { UserCancelledError } from "vscode-azureextensionui";
 
 import { Command } from "../types";
 
-export class CreateBicepFileCommand implements Command {
+export class WalkthroughCreateBicepFileCommand implements Command {
   public readonly id = "bicep.gettingStarted.createBicepFile";
 
   public async execute(): Promise<void> {

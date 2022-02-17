@@ -15,10 +15,12 @@ import {
   BuildCommand,
   CommandManager,
   InsertResourceCommand,
-  OpenBicepFileCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
+  WalkthroughCreateBicepFileCommand,
+  WalkthroughOpenBicepFileCommand,
+  WalkthroughShowVisualizerCommand
 } from "./commands";
 import {
   createLogger,
@@ -26,7 +28,6 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
-import { CreateBicepFileCommand } from "./commands/gettingStarted/createBicepFile";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -81,8 +82,9 @@ export async function activate(
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager),
-        new CreateBicepFileCommand(),
-        new OpenBicepFileCommand()
+        new WalkthroughCreateBicepFileCommand(),
+        new WalkthroughOpenBicepFileCommand(),
+        new WalkthroughShowVisualizerCommand(),
       );
   });
 }
