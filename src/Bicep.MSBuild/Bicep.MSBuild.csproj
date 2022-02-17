@@ -22,4 +22,8 @@
     <PackageReference Include="Microsoft.Build.Framework" Version="16.10.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.10.0" PrivateAssets="All" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
+  </ItemGroup>
 </Project>
