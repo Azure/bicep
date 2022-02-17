@@ -1,4 +1,4 @@
- {
+{
   "name": "vscode-bicep",
   "displayName": "Bicep",
   "description": "Bicep language support for Visual Studio Code",
@@ -288,7 +288,7 @@
           {
             "id": "openBicepFile",
             "title": "Open a Bicep File",
-            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension). [Split the Editor](command:workbench.action.splitEditor) (CTRL/CMD+\\) to view the walkthrough and Bicep file side by side.\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nHint: [close the side bar for more space](command:workbench.action.closeSidebar)",
+            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension). [Split the Editor](command:workbench.action.splitEditor) (CTRL/CMD+\\) to view the walkthrough and Bicep file side by side.\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nHint: [Close the side bar for more space](command:workbench.action.closeSidebar)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
               "altText": "Bicep logo"
@@ -299,11 +299,41 @@
             ]
           },
           {
-            "id": "showVisualizer",
-            "title": "Show resource visualizer",
-            "description": "Show the visualizer to see relationships between the resources in your bicep file.\nSwitch to your bicep file and click TODO",
+            "id": "writeFirstFile",
+            "title": "Write your first file",
+            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes\n\nLet's author multiple Azure resources with Bicep.",
             "media": {
-              "image": "media/walkthroughs/bicep-logo-256.png",
+              "image": "media/walkthroughs/gettingStarted/2_Type_Params.gif",
+              "altText": "asdfg"
+            },
+            "completionEvents": []
+          },
+          {
+            "id": "addParameters",
+            "title": "Add parameters",
+            "description": "First, create a parameter named 'location'. Next, create a parameter named 'appPlanName'. These parameters will be used to fill attributes in your resources.\nYour code should looke like this:\n``param location string = resourceGroup().location``\n``param appPlanName string``",
+            "media": {
+              "image": "media/walkthroughs/gettingStarted/2_Type_Params.gif",
+              "altText": "asdfg"
+            },
+            "completionEvents": []
+          },
+          {
+            "id": "addResources",
+            "title": "Add resources",
+            "description": "Type 'appplan' to view the 'App Service Plan' resource snippet and press Tab or Enter. Press Tab to jump to the ``name`` attribute and replace its value with the parameter ``appPlanName``. Next, type 'storage' to view a 'Storage Account' resource snippet and press Tab or Enter. Replace the name attribute's value with ``'${appServicePlan.name}storage'`` and save the file. Feel free to search for other snippets that suit your needs.",
+            "media": {
+              "image": "media/walkthroughs/gettingStarted/3_Type_Resos.gif",
+              "altText": "asdfg"
+            },
+            "completionEvents": []
+          },
+          {
+            "id": "visualizeYourResources",
+            "title": "Visualize your resources",
+            "description": "The Visualizer gives you a representation of the resources in your Bicep file. In this example, `storageaccount` has an arrow towards `appServicePlan` because it depends on the name you declare for the App Service plan during deployment.\n[Open Visualizer to the Side](command:bicep.showVisualizerToSide)",
+            "media": {
+              "image": "media/walkthroughs/gettingStarted/4_Show_Visualizer.gif",
               "altText": "TODO"
             },
             "completionEvents": [
@@ -312,33 +342,25 @@
             ]
           },
           {
-            "id": "quickstarts",
-            "title": "Copy working bicep files from the Azure QuickStarts repo",
-            "description": "TODO.\n[Search for a bicep quickstart](https://azure.microsoft.com/resources/templates/?term=bicep)\nNavigate to [some quickstart](https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/)\nNavigate to [some other quickstart](https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/)",
+            "id": "deployToAzure",
+            "title": "Deploy to Azure",
+            "description": "It's time to get these resources in Azure. If you don't have the [Azure Account Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.azure-account) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy)",
             "media": {
-              "image": "media/walkthroughs/bicep-logo-256.png",
+              "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "TODO"
             },
-            "TODO:completionEvents": "",
             "completionEvents": [
-              "onLink:https://azure.microsoft.com/resources/templates",
-              "onLink:https://azure.microsoft.com/resources/templates/?term=bicep",
-              "onLink:https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/",
-              "onLink:https://azure.microsoft.com/resources/templates/machine-learning-end-to-end-secure/"
+              "onCommand:bicep.deploy"
             ]
           },
           {
-            "id": "build",
-            "title": "Build",
-            "description": "If you need to generate a JSON ARM template, you can do a Bicep build. This is not usually necessary, as many tools (such as the Azure CLI and Azure PowerShell) directly support .bicep files.TODO.\nNavigate to your bicep file and click TODO",
+            "id": "learnMore",
+            "title": "Learn More",
+            "description": "Great Job! You've completed Getting Started with Bicep. But don't stop now!\nCheck out our [Bicep Documentation](https://aka.ms/Bicep) to learn more about importing Bicep files as [modules](https://aka.ms/bicep/docs/modules) and [other extension features](https://aka.ms/bicep/docs/vscode).\nWanna take a deep dive into the Bicep language? Take a look at [Microsoft Learn - Bicep](https://aka.ms/microsoftlearnbicep).",
             "media": {
-              "image": "media/walkthroughs/bicep-logo-256.png",
-              "altText": "TODO"
-            },
-            "TODO:completionEvents": "",
-            "completionEvents": [
-              "onCommand:bicep.build"
-            ]
+              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
+              "altText": "Bicep logo"
+            }
           }
         ]
       }
