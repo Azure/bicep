@@ -9,7 +9,7 @@ import {
   callWithTelemetryAndErrorHandlingSync,
   IActionContext,
   parseError,
-} from "vscode-azureextensionui";
+} from "@microsoft/vscode-azext-utils";
 import { ErrorAction, Message, CloseAction } from "vscode-languageclient/node";
 
 const dotnetRuntimeVersion = "6.0";

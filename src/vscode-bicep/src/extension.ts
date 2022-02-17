@@ -2,12 +2,8 @@
 // Licensed under the MIT License.
 import { ext } from './extensionVariables';
 import vscode from "vscode";
-import {
-  createAzExtOutputChannel,
-  registerUIExtensionVariables,
-  AzExtTreeDataProvider,
-} from "vscode-azureextensionui";
-
+import { registerAzureUtilsExtensionVariables } from '@microsoft/vscode-azext-azureutils';
+import { AzExtTreeDataProvider, createAzExtOutputChannel, registerUIExtensionVariables } from '@microsoft/vscode-azext-utils';
 import {
   launchLanguageServiceWithProgressReport,
   BicepCacheContentProvider,
@@ -29,6 +25,7 @@ import {
   Disposable,
 } from "./utils";
 import { AzureAccountTreeItem } from './tree/AzureAccountTreeItem';
+import { AzTreeItem } from './tree/AzTreeItem';
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -51,7 +48,9 @@ export async function activate(
 
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
-  registerUIExtensionVariables({ context, outputChannel });
+
+  registerUIExtensionVariables({ context, outputChannel, ignoreBundle: false });
+  registerAzureUtilsExtensionVariables({ context, outputChannel, prefix: "bicep", ignoreBundle: false });
 
   await activateWithTelemetryAndErrorHandling(async () => {
     const languageClient = await launchLanguageServiceWithProgressReport(
@@ -87,6 +86,9 @@ export async function activate(
 
     const accountTreeItem: AzureAccountTreeItem = new AzureAccountTreeItem();
     ext.tree = new AzExtTreeDataProvider(accountTreeItem, '');
+
+    const azTreeItem: AzTreeItem = new AzTreeItem();
+    ext.azTree = new AzExtTreeDataProvider(azTreeItem, '');
   });
 }
 

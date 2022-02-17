@@ -6,31 +6,21 @@ import { ext } from "../extensionVariables";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import {
-  AzureWizard,
-  AzureWizardExecuteStep,
-  AzureWizardPromptStep,
-  ResourceGroupNameStep,
-  ResourceGroupCreateStep,
   IActionContext,
   IAzureQuickPickItem,
-  IResourceGroupWizardContext,
-  LocationListStep,
   parseError,
   UserCancelledError,
-} from "vscode-azureextensionui";
+} from "@microsoft/vscode-azext-utils";
 import { AzureAccount } from "../azure-account.api";
-import { ResourceManagementModels } from "@azure/arm-resources";
 import { DefaultAzureCredential } from "@azure/identity";
 import {
   ManagementGroupsAPI,
   ManagementGroup,
 } from "@azure/arm-managementgroups";
-import {
-  SubscriptionClient,
-} from "@azure/arm-subscriptions";
+import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { appendToOutputChannel } from "../utils/logger";
 import { AzureAccountTreeItem } from "../tree/AzureAccountTreeItem";
-import { loadResourceGroupItems } from "../deploy/loadResourceGroupItems";
+import { AzTreeItem } from "../tree/AzTreeItem";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
@@ -118,28 +108,6 @@ async function loadManagementGroupItems() {
   }));
 }
 
-//async function loadResourceGroupItems(subscriptionId: string) {
-//  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
-//    "ms-vscode.azure-account"
-//  )!.exports;
-//  const session = azureAccount.sessions[0];
-
-//  const resources = new ResourceManagementClient(
-//    session.credentials2,
-//    subscriptionId
-//  );
-//  const resourceGroups = await listAll(
-//    resources.resourceGroups,
-//    resources.resourceGroups.list()
-//  );
-//  resourceGroups.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-//  return resourceGroups.map((resourceGroup) => ({
-//    label: resourceGroup.name || "",
-//    description: resourceGroup.location,
-//    resourceGroup,
-//  }));
-//}
-
 async function loadSubscriptionItems() {
   const azureAccount = vscode.extensions.getExtension<AzureAccount>(
     "ms-vscode.azure-account"
@@ -216,58 +184,14 @@ async function handleResourceGroupDeployment(
   deploymentScope: string,
   client: LanguageClient
 ) {
-  const subscription = await getSubscription(context);
-  const subscriptionId = subscription?.subscription.subscriptionId;
+  const resourceGroupTreeItem = await ext.azTree.showTreeItemPicker<AzTreeItem>(
+    "",
+    context
+  );
+  const resourceGroupId = resourceGroupTreeItem.id;
+  const parameterFilePath = await selectParameterFile(context, documentUri);
 
-  if (subscriptionId) {
-    const resourceGroupItems = loadResourceGroupItems(context, subscriptionId);
-    const resourceGroup: IAzureQuickPickItem<string | ResourceManagementModels.ResourceGroup> =
-      await context.ui.showQuickPick(resourceGroupItems, {
-        placeHolder: "Please select resource group",
-      });
-
-    const resourceGroupId = resourceGroup.data;
-
-    if (resourceGroupId == "createResourceGroup") {
-      const title = "Create Resource Group";
-      const promptSteps: AzureWizardPromptStep<IResourceGroupWizardContext>[] =
-        [new ResourceGroupNameStep()];
-      LocationListStep.addStep(context, promptSteps);
-      const executeSteps: AzureWizardExecuteStep<IResourceGroupWizardContext>[] =
-        [new ResourceGroupCreateStep()];
-
-      const wizard = new AzureWizard(context, {
-        title,
-        promptSteps,
-        executeSteps,
-      });
-      await wizard.prompt();
-      await wizard.execute();
-    }
-    //  const wizardContext: IResourceGroupWizardContext = {
-    //    context,
-    //    subscription,
-    //    suppress403Handling: true,
-    //  };
-    //  const promptSteps: AzureWizardPromptStep<IResourceGroupWizardContext>[] =
-    //    [new ResourceGroupNameStep()];
-    //  LocationListStep.addStep(wizardContext, promptSteps);
-    //  const executeSteps: AzureWizardExecuteStep<IResourceGroupWizardContext>[] =
-    //    [new ResourceGroupCreateStep()];
-
-    //  const title = "Create Resource Group";
-    //  const wizard: AzureWizard<IResourceGroupWizardContext> = new AzureWizard(
-    //    wizardContext,
-    //    { title, promptSteps, executeSteps }
-    //  );
-    //  if (wizard) {
-    //    await wizard.prompt();
-    //    createChildImplContext.showCreatingTreeItem('newResourceGroupName');
-    //    await wizard.execute();
-    //  }
-    //} else {
-    const parameterFilePath = await selectParameterFile(context, documentUri);
-
+  if (resourceGroupId) {
     await sendDeployCommand(
       documentUri.fsPath,
       parameterFilePath,
@@ -276,7 +200,6 @@ async function handleResourceGroupDeployment(
       "",
       client
     );
-    //    }
   }
 }
 
@@ -356,21 +279,6 @@ async function getDeploymentScope(context: IActionContext) {
     });
 
   return deploymentScope.label;
-}
-
-async function listAll<T>(
-  client: { listNext(nextPageLink: string): Promise<PartialList<T>> },
-  first: Promise<PartialList<T>>
-): Promise<T[]> {
-  const all: T[] = [];
-  for (
-    let list = await first;
-    list.length || list.nextLink;
-    list = list.nextLink ? await client.listNext(list.nextLink) : []
-  ) {
-    all.push(...list);
-  }
-  return all;
 }
 
 export interface PartialList<T> extends Array<T> {

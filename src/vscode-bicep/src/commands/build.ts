@@ -3,7 +3,7 @@
 import vscode from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
-import { IActionContext, parseError } from "vscode-azureextensionui";
+import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import { appendToOutputChannel } from "../utils/logger";
 
 export class BuildCommand implements Command {

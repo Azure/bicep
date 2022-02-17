@@ -5,7 +5,7 @@ import * as winston from "winston";
 import Transport from "winston-transport";
 import * as path from "path";
 import { MESSAGE } from "triple-beam";
-import { createAzExtOutputChannel } from "vscode-azureextensionui";
+import { createAzExtOutputChannel } from "@microsoft/vscode-azext-utils";
 
 export interface Logger extends vscode.Disposable {
   debug(message: string): void;

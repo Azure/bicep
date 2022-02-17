@@ -5,7 +5,7 @@ import vscode, { ExtensionContext } from "vscode";
 import * as fse from "fs-extra";
 import { Disposable } from "../utils/disposable";
 import { Command } from "./types";
-import * as azureextensionui from "vscode-azureextensionui";
+import * as azureextensionui from "@microsoft/vscode-azext-utils";
 import assert from "assert";
 
 export class CommandManager extends Disposable {
