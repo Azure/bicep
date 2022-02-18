@@ -90,6 +90,9 @@ var doubleString = "bad string"
 var resourceGroup = ''
 var rgName = resourceGroup().name
 
+var subscription = ''
+var subName = subscription().name
+
 // this does not work at the resource group scope
 var invalidLocationVar = deployment().location
 

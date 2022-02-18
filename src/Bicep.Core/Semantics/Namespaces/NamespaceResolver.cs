@@ -81,6 +81,11 @@ namespace Bicep.Core.Semantics.Namespaces
             }
         }
 
+        public string? GetKnownFunctionNamespace(string functionName, bool includeDecorators)
+            => this.namespaceTypes.Values
+                .Where(type => type.MethodResolver.GetKnownFunctions().ContainsKey(functionName))
+                .FirstOrDefault()?.Name;
+
         public IEnumerable<string> GetKnownFunctionNames(bool includeDecorators)
             => this.namespaceTypes.Values
                 .SelectMany(type => includeDecorators

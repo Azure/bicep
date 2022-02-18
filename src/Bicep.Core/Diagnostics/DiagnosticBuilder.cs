@@ -468,6 +468,11 @@ namespace Bicep.Core.Diagnostics
                 "BCP070",
                 $"Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterType}\".");
 
+            public ErrorDiagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => new(
+                TextSpan,
+                "BCP071",
+                $"The name \"{name}\" is not a function. Did you mean {knownFunctionNamespace}.{knownFunctionName}()");
+
             public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
             {
                 string expected;

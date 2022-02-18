@@ -967,7 +967,20 @@ namespace Bicep.Core.TypeSystem
                     case FunctionSymbol function:
                         return GetFunctionSymbolType(function, syntax, errors, diagnostics);
 
+                    case Symbol symbolInfo:
+                        var knownFunctionNamespace = this.binder.NamespaceResolver.GetKnownFunctionNamespace(symbolInfo.Name);
+                        if (knownFunctionNamespace is not null)
+                        {
+                            return ErrorType.Create(
+                                errors.Append(
+                                    DiagnosticBuilder.ForPosition(syntax.Name.Span)
+                                    .SymbolicNameShadowsAKnownFunction(syntax.Name.IdentifierName, knownFunctionNamespace, symbolInfo.Name)));
+                        }
+
+                        return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
+
                     default:
+                        //this.binder.NamespaceResolver.GetKnownFunctionNames(false).FirstOrDefault(f => f.Equals());
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
                 }
             });

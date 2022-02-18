@@ -172,7 +172,13 @@ var resourceGroup = ''
 //@[4:17) [no-unused-vars (Warning)] Variable "resourceGroup" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceGroup|
 var rgName = resourceGroup().name
 //@[4:10) [no-unused-vars (Warning)] Variable "rgName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |rgName|
-//@[13:26) [BCP059 (Error)] The name "resourceGroup" is not a function. (CodeDescription: none) |resourceGroup|
+//@[13:26) [BCP071 (Error)] The name "resourceGroup" is not a function. Did you mean az.resourceGroup() (CodeDescription: none) |resourceGroup|
+
+var subscription = ''
+//@[4:16) [no-unused-vars (Warning)] Variable "subscription" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |subscription|
+var subName = subscription().name
+//@[4:11) [no-unused-vars (Warning)] Variable "subName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |subName|
+//@[14:26) [BCP071 (Error)] The name "subscription" is not a function. Did you mean az.subscription() (CodeDescription: none) |subscription|
 
 // this does not work at the resource group scope
 var invalidLocationVar = deployment().location
