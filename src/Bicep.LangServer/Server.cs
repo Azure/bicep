@@ -3,7 +3,6 @@
 
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Deploy;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
@@ -84,6 +83,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDeployCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
+                    .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 creationOptions.onRegisterServices?.Invoke(options.Services);

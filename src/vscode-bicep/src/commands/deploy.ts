@@ -4,7 +4,7 @@ import * as path from "path";
 import vscode, { Uri } from "vscode";
 import { ext } from "../extensionVariables";
 import { Command } from "./types";
-import { LanguageClient } from "vscode-languageclient/node";
+import { LanguageClient, TextDocumentIdentifier } from "vscode-languageclient/node";
 import {
   IActionContext,
   IAzureQuickPickItem,
@@ -21,6 +21,7 @@ import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { appendToOutputChannel } from "../utils/logger";
 import { AzureAccountTreeItem } from "../tree/AzureAccountTreeItem";
 import { AzTreeItem } from "../tree/AzTreeItem";
+import { deploymentScopeRequestType } from "../language";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
@@ -30,7 +31,8 @@ export class DeployCommand implements Command {
     _context: IActionContext,
     documentUri?: vscode.Uri | undefined
   ): Promise<void> {
-    documentUri ??= vscode.window.activeTextEditor?.document.uri;
+    const document = vscode.window.activeTextEditor?.document;
+    documentUri ??= document?.uri;
 
     if (!documentUri) {
       return;
@@ -52,9 +54,14 @@ export class DeployCommand implements Command {
     }
 
     try {
-      await ext.tree.showTreeItemPicker<AzureAccountTreeItem>("", _context);
+      const path = decodeURIComponent(documentUri.path.substring(1));;
+      const deploymentScopeResponse = await this.client.sendRequest(
+        deploymentScopeRequestType,
+        { textDocument: TextDocumentIdentifier.create(path) }
+      );
+      const deploymentScope = deploymentScopeResponse?.scope;
 
-      const deploymentScope = await getDeploymentScope(_context);
+      await ext.tree.showTreeItemPicker<AzureAccountTreeItem>("", _context);
 
       if (deploymentScope == "ResourceGroup") {
         await handleResourceGroupDeployment(

@@ -23,12 +23,6 @@ namespace Bicep.Core.UnitTests.Deploy
             result.Should().Be("Deployment failed. Please provide a valid scope.");
         }
 
-        [TestMethod]
-        public async Task CreateDeployment_WithSubscriptionScope_ReturnsDeploymentSuccessMessage()
-        {
-
-        }
-
         private static ArmClient CreateMockArmClient()
         {
             var clientMock = StrictMock.Of<ArmClient>();

@@ -39,29 +39,9 @@ export class SubscriptionTreeItem extends SubscriptionTreeItemBase {
     clearCache: boolean,
     context: IActionContext
   ): Promise<AzExtTreeItem[]> {
-    //if (clearCache) {
-    //  this._nextLink = undefined;
-    //}
-    //const client: ResourceManagementClient = await createResourceClient([
-    //  context,
-    //  this,
-    //]);
-    //const rgs: ResourceManagementModels.ResourceGroupListResult = this._nextLink
-    //  ? await client.resourceGroups.listNext(this._nextLink)
-    //  : await client.resourceGroups.list();
-    //this._nextLink = rgs.nextLink;
-    //const resourceTreeItems = await this.createTreeItemsWithErrorHandling(
-    //  rgs,
-    //  "invalidResourceGroup",
-    //  (rg) => new ResourceGroupTreeItem(this, rg),
-    //  (rg) => rg.name
-    //);
-    //return resourceTreeItems;
-
     if (clearCache) {
       this._nextLink = undefined;
     }
-
     const client: ResourceManagementClient = await createResourceClient([
       context,
       this,
