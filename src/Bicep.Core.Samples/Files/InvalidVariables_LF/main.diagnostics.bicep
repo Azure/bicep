@@ -1,4 +1,3 @@
-
 // unknown declaration
 bad
 //@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
@@ -417,4 +416,10 @@ var keyVaultSecretArrayInterpolatedVar = [
   '${kv.getSecret('mySecret')}'
 //@[5:29) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 ]
+
+var listSecrets= ''
+//@[4:15) [no-unused-vars (Warning)] Variable "listSecrets" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |listSecrets|
+var listSecretsVar = listSecrets()
+//@[4:18) [no-unused-vars (Warning)] Variable "listSecretsVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |listSecretsVar|
+//@[21:32) [BCP071 (Error)] The name "listSecrets" is not a function. Did you mean az.listSecrets() (CodeDescription: none) |listSecrets|
 

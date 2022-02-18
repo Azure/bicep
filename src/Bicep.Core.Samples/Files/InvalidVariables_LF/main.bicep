@@ -1,4 +1,3 @@
-
 // unknown declaration
 bad
 
@@ -243,3 +242,6 @@ var keyVaultSecretArrayVar = [
 var keyVaultSecretArrayInterpolatedVar = [
   '${kv.getSecret('mySecret')}'
 ]
+
+var listSecrets= ''
+var listSecretsVar = listSecrets()

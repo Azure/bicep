@@ -968,13 +968,13 @@ namespace Bicep.Core.TypeSystem
                         return GetFunctionSymbolType(function, syntax, errors, diagnostics);
 
                     case Symbol symbolInfo:
-                        var knownFunctionNamespace = this.binder.NamespaceResolver.GetKnownFunctionNamespace(symbolInfo.Name);
-                        if (knownFunctionNamespace is not null)
+                        var knownFunction = this.binder.NamespaceResolver.GetKnownFunction(symbolInfo.Name);
+                        if (knownFunction is not null)
                         {
                             return ErrorType.Create(
                                 errors.Append(
                                     DiagnosticBuilder.ForPosition(syntax.Name.Span)
-                                    .SymbolicNameShadowsAKnownFunction(syntax.Name.IdentifierName, knownFunctionNamespace, symbolInfo.Name)));
+                                    .SymbolicNameShadowsAKnownFunction(syntax.Name.IdentifierName, knownFunction.DeclaringObject.Name, knownFunction.Name)));
                         }
 
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
