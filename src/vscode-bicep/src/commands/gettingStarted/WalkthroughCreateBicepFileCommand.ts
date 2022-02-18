@@ -3,22 +3,23 @@
 
 import * as os from "os";
 import * as fse from "fs-extra";
-import vscode, { TextDocument, Uri, window, workspace } from "vscode";
+import vscode, { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
 import { UserCancelledError } from "vscode-azureextensionui";
 
 import { Command } from "../types";
 
 export class WalkthroughCreateBicepFileCommand implements Command {
-  public readonly id = "bicep.gettingStarted.createBicepFile";
+  public static id = "bicep.gettingStarted.createBicepFile";
+  public readonly id = WalkthroughCreateBicepFileCommand.id;
 
-  public async execute(): Promise<void> {
-    await createAndOpenBicepFile("");
+  public async execute(): Promise<TextEditor> {
+    return await createAndOpenBicepFile("");
   }
 }
 
 async function createAndOpenBicepFile(
   fileContents: string
-): Promise<vscode.TextEditor | undefined> {
+): Promise<vscode.TextEditor> {
   const folder: Uri =
     (workspace.workspaceFolders
       ? workspace.workspaceFolders[0].uri

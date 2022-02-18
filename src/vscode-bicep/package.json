@@ -308,16 +308,6 @@
             ]
           },
           {
-            "id": "writeFirstFile",
-            "title": "Write your first file",
-            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes\n\nLet's author multiple Azure resources with Bicep.",
-            "media": {
-              "image": "media/walkthroughs/gettingStarted/2_Type_Params.gif",
-              "altText": "asdfg"
-            },
-            "completionEvents": []
-          },
-          {
             "id": "addParameters",
             "title": "Add parameters",
             "description": "First, create a parameter named 'location'. Next, create a parameter named 'appPlanName'. These parameters will be used to fill attributes in your resources.\nYour code should looke like this:\n``param location string = resourceGroup().location``\n``param appPlanName string``",

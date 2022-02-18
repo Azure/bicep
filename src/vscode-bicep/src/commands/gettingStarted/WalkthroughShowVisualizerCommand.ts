@@ -5,19 +5,58 @@
 
 import * as os from "os";
 import * as fse from "fs-extra";
-import vscode, { commands, TextDocument, TextEdit, TextEditor, Uri, window, workspace } from "vscode";
-import { IActionContext, UserCancelledError } from "vscode-azureextensionui";
+import vscode, {
+  commands,
+  MessageItem,
+  QuickPickItem,
+  TextDocument,
+  TextEdit,
+  TextEditor,
+  TextEditorOptions,
+  Uri,
+  window,
+  workspace,
+} from "vscode";
+import {
+  AzExtTreeItem,
+  IActionContext,
+  IAzureQuickPickItem,
+  UserCancelledError,
+} from "vscode-azureextensionui";
 import { Command } from "../types";
+import { WalkthroughCreateBicepFileCommand, WalkthroughOpenBicepFileCommand } from "..";
 
-function findCurrentBicepFile(
+async function findCurrentBicepFile(
   context: IActionContext,
   documentUri?: vscode.Uri
-): TextEditor {
+): Promise<TextEditor | undefined> {
   const editors = window.visibleTextEditors.filter(
     (ed) => ed.document.languageId === "bicep"
   );
 
-  return editors[0];
+  const editor: TextEditor | undefined = editors[0];
+  if (editor) {
+    return editor;
+  }
+
+  const open: MessageItem = {
+    title: "Open",
+  };
+  const create: MessageItem = {
+    title: "Create",
+  };
+  const response = await context.ui.showWarningMessage(
+    "Please open or create a Bicep file in a visible editor tab to run this command. If necessary, use Ctrl+\\ (Windows) or CMD+\\ (MacOs) to display it to the side.",
+    open,
+    create
+  );
+  if (response === open) {
+    return await commands.executeCommand(WalkthroughOpenBicepFileCommand.id);
+  } else if (response === create) {
+    return await commands.executeCommand(WalkthroughCreateBicepFileCommand.id);
+  } else {
+    throw new Error(`Unexpected response ${response.title}`);
+  }
 }
 
 export class WalkthroughShowVisualizerCommand implements Command {
@@ -28,9 +67,8 @@ export class WalkthroughShowVisualizerCommand implements Command {
     documentUri?: Uri
   ): Promise<void> {
     // asdfg what if not visible?
-    const currentEditor = findCurrentBicepFile(context, documentUri);
+    const currentEditor = await findCurrentBicepFile(context, documentUri);
     if (currentEditor) {
-      window.activeTextEditor = currentEditor;
       await commands.executeCommand("bicep.showVisualizerToSide");
     }
   }
