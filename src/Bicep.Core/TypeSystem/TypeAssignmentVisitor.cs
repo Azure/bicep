@@ -368,7 +368,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     if (syntax.Type is ResourceTypeSyntax resourceTypeSyntax &&
-                        resourceTypeSyntax.Type is {} &&
+                        resourceTypeSyntax.Type is { } &&
                         !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                     {
                         diagnostics.Write(DiagnosticBuilder.ForPosition(resourceTypeSyntax.Type!).ResourceTypesUnavailable(resourceType.TypeReference));
@@ -1055,7 +1055,6 @@ namespace Bicep.Core.TypeSystem
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
 
                     default:
-                        //this.binder.NamespaceResolver.GetKnownFunctionNames(false).FirstOrDefault(f => f.Equals());
                         return ErrorType.Create(errors.Append(DiagnosticBuilder.ForPosition(syntax.Name.Span).SymbolicNameIsNotAFunction(syntax.Name.IdentifierName)));
                 }
             });
@@ -1471,7 +1470,7 @@ namespace Bicep.Core.TypeSystem
 
                 // As a special case of outputs, we don't want to double-up diagnostics on inferred resource types.
                 // The inference is based on another declaration in the file, and so the user should fix that instead.
-                if (resourceTypeSyntax.Type is {}
+                if (resourceTypeSyntax.Type is { }
                     && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(resourceTypeSyntax.Type!).ResourceTypesUnavailable(resourceType.TypeReference));
