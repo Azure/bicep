@@ -3,32 +3,17 @@
 
 //asdfg telemetry?
 
-import * as os from "os";
-import * as fse from "fs-extra";
-import vscode, {
-  commands,
-  MessageItem,
-  QuickPickItem,
-  TextDocument,
-  TextEdit,
-  TextEditor,
-  TextEditorOptions,
-  Uri,
-  window,
-  workspace,
-} from "vscode";
-import {
-  AzExtTreeItem,
-  IActionContext,
-  IAzureQuickPickItem,
-  UserCancelledError,
-} from "vscode-azureextensionui";
+import { commands, MessageItem, TextEditor, Uri, window } from "vscode";
+import { IActionContext } from "vscode-azureextensionui";
 import { Command } from "../types";
-import { WalkthroughCreateBicepFileCommand, WalkthroughOpenBicepFileCommand } from "..";
+import {
+  WalkthroughCreateBicepFileCommand,
+  WalkthroughOpenBicepFileCommand,
+} from "..";
 
-async function findCurrentBicepFile(
-  context: IActionContext,
-  documentUri?: vscode.Uri
+// Tries to find the visible bicep file that the user is editing alongside the walkthrough.
+async function findVisibleBicepFileEditor(
+  context: IActionContext
 ): Promise<TextEditor | undefined> {
   const editors = window.visibleTextEditors.filter(
     (ed) => ed.document.languageId === "bicep"
@@ -62,12 +47,9 @@ async function findCurrentBicepFile(
 export class WalkthroughShowVisualizerCommand implements Command {
   public readonly id = "bicep.gettingStarted.openVisualizer";
 
-  public async execute(
-    context: IActionContext,
-    documentUri?: Uri
-  ): Promise<void> {
+  public async execute(context: IActionContext): Promise<void> {
     // asdfg what if not visible?
-    const currentEditor = await findCurrentBicepFile(context, documentUri);
+    const currentEditor = await findVisibleBicepFileEditor(context);
     if (currentEditor) {
       await commands.executeCommand("bicep.showVisualizerToSide");
     }
