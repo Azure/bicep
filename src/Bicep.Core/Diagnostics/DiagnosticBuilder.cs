@@ -468,11 +468,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP070",
                 $"Argument of type \"{argumentType}\" is not assignable to parameter of type \"{parameterType}\".");
 
-            public ErrorDiagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => new(
-                TextSpan,
-                "BCP071",
-                $"The name \"{name}\" is not a function. Did you mean {knownFunctionNamespace}.{knownFunctionName}()");
-
             public ErrorDiagnostic ArgumentCountMismatch(int argumentCount, int minimumArgumentCount, int? maximumArgumentCount)
             {
                 string expected;
@@ -1348,6 +1343,14 @@ namespace Bicep.Core.Diagnostics
                 "BCP226",
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
+
+            public FixableErrorDiagnostic SymbolicNameShadowsAKnownFunction(string name, string knownFunctionNamespace, string knownFunctionName) => new(
+                TextSpan,
+                "BCP227",
+                $"The name \"{name}\" is not a function. Did you mean {knownFunctionNamespace}.{knownFunctionName}()",
+                null,
+                null,
+                new CodeFix($"Change \"{name}\" to \"{knownFunctionNamespace}.{knownFunctionName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, $"{knownFunctionNamespace}.{knownFunctionName}")));
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)
