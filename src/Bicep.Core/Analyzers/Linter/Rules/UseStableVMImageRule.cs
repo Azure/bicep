@@ -35,7 +35,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         {
             List<IDiagnostic> diagnostics = new();
 
-            foreach (ResourceMetadata resource in model.AllResources)
+            foreach (DeclaredResourceMetadata resource in model.DeclaredResources)
             {
                 ResourceDeclarationSyntax resourceSyntax = resource.Symbol.DeclaringResource;
                 if (resourceSyntax.TryGetBody()?.TryGetPropertyByNameRecursive("properties", "storageProfile", "imageReference") is ObjectPropertySyntax imageReferenceSyntax)

@@ -106,7 +106,7 @@ namespace Bicep.Core.UnitTests.Diagnostics
             foreach (var (key, rule) in ruleConfigs)
             {
                 key.Should().MatchRegex("^[a-z][a-z-]*[a-z]$", "all rule keys should be lower-cased with hyphens, and not start or end with hyphen");
-                key.Should().HaveLengthLessThanOrEqualTo(50, "rule ids should have a reasonable length");
+                key.Should().HaveLengthLessThanOrEqualTo(36, "rule ids should have a reasonable length");
             }
         }
 

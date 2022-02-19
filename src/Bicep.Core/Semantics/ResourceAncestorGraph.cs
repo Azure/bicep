@@ -5,7 +5,6 @@ using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
 {
@@ -20,7 +19,7 @@ namespace Bicep.Core.Semantics
 
         public class ResourceAncestor
         {
-            public ResourceAncestor(ResourceAncestorType ancestorType, ResourceMetadata resource, SyntaxBase? indexExpression)
+            public ResourceAncestor(ResourceAncestorType ancestorType, DeclaredResourceMetadata resource, SyntaxBase? indexExpression)
             {
                 AncestorType = ancestorType;
                 Resource = resource;
@@ -29,21 +28,21 @@ namespace Bicep.Core.Semantics
 
             public ResourceAncestorType AncestorType { get; }
 
-            public ResourceMetadata Resource { get; }
+            public DeclaredResourceMetadata Resource { get; }
 
             public SyntaxBase? IndexExpression { get; }
         }
 
-        private readonly ImmutableDictionary<ResourceMetadata, ImmutableArray<ResourceAncestor>> data;
+        private readonly ImmutableDictionary<DeclaredResourceMetadata, ImmutableArray<ResourceAncestor>> data;
 
-        public ResourceAncestorGraph(ImmutableDictionary<ResourceMetadata, ImmutableArray<ResourceAncestor>> data)
+        public ResourceAncestorGraph(ImmutableDictionary<DeclaredResourceMetadata, ImmutableArray<ResourceAncestor>> data)
         {
             this.data = data;
         }
 
         // Gets the ordered list of ancestors of this resource in order from 'oldest' to 'youngest'
         // this is the same order we need to compute the name of a resource using `/` separated segments in a string.
-        public ImmutableArray<ResourceAncestor> GetAncestors(ResourceMetadata resource)
+        public ImmutableArray<ResourceAncestor> GetAncestors(DeclaredResourceMetadata resource)
         {
             if (data.TryGetValue(resource, out var results))
             {
@@ -55,9 +54,9 @@ namespace Bicep.Core.Semantics
             }
         }
 
-        private static IEnumerable<ResourceAncestor> GetAncestorsYoungestToOldest(ImmutableDictionary<ResourceMetadata, ResourceAncestor> hierarchy, ResourceMetadata resource)
+        private static IEnumerable<ResourceAncestor> GetAncestorsYoungestToOldest(ImmutableDictionary<DeclaredResourceMetadata, ResourceAncestor> hierarchy, DeclaredResourceMetadata resource)
         {
-            var visited = new HashSet<ResourceMetadata>();
+            var visited = new HashSet<DeclaredResourceMetadata>();
             while (hierarchy.TryGetValue(resource, out var ancestor) && !visited.Contains(ancestor.Resource))
             {
                 visited.Add(ancestor.Resource);

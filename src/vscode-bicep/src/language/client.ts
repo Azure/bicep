@@ -10,13 +10,19 @@ import {
   IActionContext,
   parseError,
 } from "vscode-azureextensionui";
-import { ErrorAction, Message, CloseAction } from "vscode-languageclient/node";
+import {
+  ErrorAction,
+  Message,
+  CloseAction,
+  TransportKind,
+} from "vscode-languageclient/node";
 
 const dotnetRuntimeVersion = "6.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
 const extensionId = "ms-azuretools.vscode-bicep";
 
 export async function launchLanguageServiceWithProgressReport(
+  actionContext: IActionContext,
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
 ): Promise<lsp.LanguageClient> {
@@ -25,34 +31,78 @@ export async function launchLanguageServiceWithProgressReport(
       title: "Launching Bicep language service...",
       location: vscode.ProgressLocation.Notification,
     },
-    async () => await launchLanguageService(context, outputChannel)
+    async () =>
+      await launchLanguageService(actionContext, context, outputChannel)
   );
 }
 
+function getServerStartupOptions(
+  dotnetCommandPath: string,
+  languageServerPath: string,
+  transportKind: TransportKind,
+  waitForDebugger: boolean
+): lsp.ServerOptions {
+  const args = [];
+  if (waitForDebugger) {
+    // pause language server startup until a dotnet debugger has been attached
+    args.push(`--wait-for-debugger`);
+  }
+
+  switch (transportKind) {
+    case TransportKind.stdio: {
+      const executable = {
+        command: dotnetCommandPath,
+        args: [languageServerPath, ...args],
+        options: {
+          env: process.env,
+        },
+      };
+      return {
+        run: executable,
+        debug: executable,
+      };
+    }
+    case TransportKind.pipe: {
+      const module = {
+        runtime: dotnetCommandPath,
+        module: languageServerPath,
+        transport: transportKind,
+        args,
+        options: {
+          env: process.env,
+        },
+      };
+      return {
+        run: module,
+        debug: module,
+      };
+    }
+  }
+
+  throw new Error(`TransportKind '${transportKind}' is not supported.`);
+}
+
 async function launchLanguageService(
+  actionContext: IActionContext,
   context: vscode.ExtensionContext,
   outputChannel: vscode.OutputChannel
 ): Promise<lsp.LanguageClient> {
   getLogger().info("Launching Bicep language service...");
 
-  const dotnetCommandPath = await ensureDotnetRuntimeInstalled();
+  const dotnetCommandPath = await ensureDotnetRuntimeInstalled(actionContext);
   getLogger().debug(`Found dotnet command at '${dotnetCommandPath}'.`);
 
   const languageServerPath = ensureLanguageServerExists(context);
   getLogger().debug(`Found language server at '${languageServerPath}'.`);
 
-  const serverExecutable: lsp.Executable = {
-    command: dotnetCommandPath,
-    args: [languageServerPath],
-    options: {
-      env: process.env,
-    },
-  };
-
-  const serverOptions: lsp.ServerOptions = {
-    run: serverExecutable,
-    debug: serverExecutable,
-  };
+  const serverOptions = getServerStartupOptions(
+    dotnetCommandPath,
+    languageServerPath,
+    // Use named pipe transport for LSP comms
+    TransportKind.pipe,
+    // Set to true to pause server startup until a dotnet debugger is attached
+    false
+  );
 
   const clientOptions: lsp.LanguageClientOptions = {
     documentSelector: [{ language: "bicep" }],
@@ -111,7 +161,9 @@ async function launchLanguageService(
   return client;
 }
 
-async function ensureDotnetRuntimeInstalled(): Promise<string> {
+async function ensureDotnetRuntimeInstalled(
+  actionContext: IActionContext
+): Promise<string> {
   getLogger().info("Acquiring dotnet runtime...");
 
   const result = await vscode.commands.executeCommand<{ dotnetPath: string }>(
@@ -123,7 +175,10 @@ async function ensureDotnetRuntimeInstalled(): Promise<string> {
   );
 
   if (!result) {
-    const errorMessage = `Failed to install .NET runtime v${dotnetRuntimeVersion}.`;
+    // Suppress the 'Report Issue' button - we want people to use the dialog displayed by the .NET installer extension.
+    // It captures much more detail about the problem, and directs people to the correct repo (https://github.com/dotnet/vscode-dotnet-runtime).
+    actionContext.errorHandling.suppressReportIssue = true;
+    const errorMessage = `Failed to install .NET runtime v${dotnetRuntimeVersion}. Please see the .NET install tool error dialog for more detailed information, or to report an issue.`;
 
     getLogger().error(errorMessage);
     throw new Error(errorMessage);

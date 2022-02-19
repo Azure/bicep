@@ -23,6 +23,18 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
     {
         [DataTestMethod]
         [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
+        public void Invoke_OnSuccess_ReturnsZero(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
+        {
+            var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);
+            var processProxy = MockProcessProxyFactory.CreateProcessProxy(() => fileSystemBeforeGeneration.SetTempFile(mockMainArmTemplateFileData));
+
+            var exitCode = Invoke(fileSystemBeforeGeneration, processProxy);
+
+            exitCode.Should().Be(0);
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetSuccessData), DynamicDataSourceType.Method)]
         public void Invoke_OnSuccess_ProducesExpectedFiles(MockFileSystem fileSystemBeforeGeneration, MockFileSystem fileSystemAfterGeneration)
         {
             var mockMainArmTemplateFileData = fileSystemAfterGeneration.GetFile(MainArmTemplateFile.FileName);

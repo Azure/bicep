@@ -11,30 +11,30 @@ namespace Bicep.Core.Semantics
     public sealed class ResourceAncestorVisitor : SyntaxVisitor
     {
         private readonly SemanticModel semanticModel;
-        private readonly ImmutableDictionary<ResourceMetadata, ResourceAncestor>.Builder ancestry;
+        private readonly ImmutableDictionary<DeclaredResourceMetadata, ResourceAncestor>.Builder ancestry;
 
         public ResourceAncestorVisitor(SemanticModel semanticModel)
         {
             this.semanticModel = semanticModel;
-            this.ancestry = ImmutableDictionary.CreateBuilder<ResourceMetadata, ResourceAncestor>();
+            this.ancestry = ImmutableDictionary.CreateBuilder<DeclaredResourceMetadata, ResourceAncestor>();
         }
 
-        public ImmutableDictionary<ResourceMetadata, ResourceAncestor> Ancestry
+        public ImmutableDictionary<DeclaredResourceMetadata, ResourceAncestor> Ancestry
             => this.ancestry.ToImmutableDictionary();
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
             // Skip analysis for ErrorSymbol and similar cases, these are invalid cases, and won't be emitted.
-            if (semanticModel.ResourceMetadata.TryLookup(syntax) is not { } resource)
+            if (semanticModel.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resource)
             {
                 base.VisitResourceDeclarationSyntax(syntax);
                 return;
             }
 
-            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is { } nestedParentSyntax)
+            if (semanticModel.Binder.GetNearestAncestor<ResourceDeclarationSyntax>(syntax) is {} nestedParentSyntax)
             {
                 // nested resource parent syntax
-                if (semanticModel.ResourceMetadata.TryLookup(nestedParentSyntax) is { } parentResource)
+                if (semanticModel.ResourceMetadata.TryLookup(nestedParentSyntax) is DeclaredResourceMetadata parentResource)
                 {
                     this.ancestry.Add(resource, new ResourceAncestor(ResourceAncestorType.Nested, parentResource, null));
                 }
@@ -49,7 +49,10 @@ namespace Bicep.Core.Semantics
                 }
 
                 // parent property reference syntax
-                if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is { } parentResource)
+                //
+                // This check is safe because we don't allow resources declared as parameters to be used with the
+                // parent property. Resources provided as parameters have an unknown scope.
+                if (semanticModel.ResourceMetadata.TryLookup(referenceParentSyntax) is DeclaredResourceMetadata parentResource)
                 {
                     this.ancestry.Add(resource, new ResourceAncestor(ResourceAncestorType.ParentProperty, parentResource, indexExpression));
                 }

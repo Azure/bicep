@@ -482,6 +482,20 @@ var deploymentName = deployment().name
 //@[33:34) Dot |.|
 //@[34:38) Identifier |name|
 //@[38:39) NewLine |\n|
+var templateContentVersion = deployment().properties.template.contentVersion
+//@[0:3) Identifier |var|
+//@[4:26) Identifier |templateContentVersion|
+//@[27:28) Assignment |=|
+//@[29:39) Identifier |deployment|
+//@[39:40) LeftParen |(|
+//@[40:41) RightParen |)|
+//@[41:42) Dot |.|
+//@[42:52) Identifier |properties|
+//@[52:53) Dot |.|
+//@[53:61) Identifier |template|
+//@[61:62) Dot |.|
+//@[62:76) Identifier |contentVersion|
+//@[76:77) NewLine |\n|
 var templateLinkUri = deployment().properties.templateLink.uri
 //@[0:3) Identifier |var|
 //@[4:19) Identifier |templateLinkUri|

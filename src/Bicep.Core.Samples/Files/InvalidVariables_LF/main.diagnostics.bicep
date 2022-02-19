@@ -171,13 +171,13 @@ var resourceGroup = ''
 //@[4:17) [no-unused-vars (Warning)] Variable "resourceGroup" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |resourceGroup|
 var rgName = resourceGroup().name
 //@[4:10) [no-unused-vars (Warning)] Variable "rgName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |rgName|
-//@[13:26) [BCP227 (Error)] The name "resourceGroup" is not a function. Did you mean az.resourceGroup() (CodeDescription: none) |resourceGroup|
+//@[13:26) [BCP232 (Error)] The name "resourceGroup" is not a function. Did you mean az.resourceGroup() (CodeDescription: none) |resourceGroup|
 
 var subscription = ''
 //@[4:16) [no-unused-vars (Warning)] Variable "subscription" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |subscription|
 var subName = subscription().name
 //@[4:11) [no-unused-vars (Warning)] Variable "subName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |subName|
-//@[14:26) [BCP227 (Error)] The name "subscription" is not a function. Did you mean az.subscription() (CodeDescription: none) |subscription|
+//@[14:26) [BCP232 (Error)] The name "subscription" is not a function. Did you mean az.subscription() (CodeDescription: none) |subscription|
 
 // this does not work at the resource group scope
 var invalidLocationVar = deployment().location
@@ -190,7 +190,7 @@ var invalidEnvironmentVar = environment().aosdufhsad
 //@[42:52) [BCP053 (Error)] The type "environment" does not contain property "aosdufhsad". Available properties include "activeDirectoryDataLake", "authentication", "batch", "gallery", "graph", "graphAudience", "media", "name", "portal", "resourceManager", "sqlManagement", "suffixes", "vmImageAliasDoc". (CodeDescription: none) |aosdufhsad|
 var invalidEnvAuthVar = environment().authentication.asdgdsag
 //@[4:21) [no-unused-vars (Warning)] Variable "invalidEnvAuthVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidEnvAuthVar|
-//@[53:61) [BCP053 (Error)] The type "authentication" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". (CodeDescription: none) |asdgdsag|
+//@[53:61) [BCP053 (Error)] The type "authenticationProperties" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". (CodeDescription: none) |asdgdsag|
 
 // invalid use of reserved namespace
 var az = 1
@@ -421,5 +421,5 @@ var listSecrets= ''
 //@[4:15) [no-unused-vars (Warning)] Variable "listSecrets" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |listSecrets|
 var listSecretsVar = listSecrets()
 //@[4:18) [no-unused-vars (Warning)] Variable "listSecretsVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |listSecretsVar|
-//@[21:32) [BCP227 (Error)] The name "listSecrets" is not a function. Did you mean az.listSecrets() (CodeDescription: none) |listSecrets|
+//@[21:32) [BCP232 (Error)] The name "listSecrets" is not a function. Did you mean az.listSecrets() (CodeDescription: none) |listSecrets|
 

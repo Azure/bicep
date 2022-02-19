@@ -21,7 +21,7 @@ output myStr string = 'hello'
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myStr|
-//@[13:19)  TypeSyntax
+//@[13:19)  SimpleTypeSyntax
 //@[13:19)   Identifier |string|
 //@[20:21)  Assignment |=|
 //@[22:29)  StringSyntax
@@ -49,7 +49,7 @@ output myInt int = 7
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myInt|
-//@[13:16)  TypeSyntax
+//@[13:16)  SimpleTypeSyntax
 //@[13:16)   Identifier |int|
 //@[17:18)  Assignment |=|
 //@[19:20)  IntegerLiteralSyntax
@@ -60,7 +60,7 @@ output myOtherInt int = 20 / 13 + 80 % -4
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |myOtherInt|
-//@[18:21)  TypeSyntax
+//@[18:21)  SimpleTypeSyntax
 //@[18:21)   Identifier |int|
 //@[22:23)  Assignment |=|
 //@[24:41)  BinaryOperationSyntax
@@ -102,7 +102,7 @@ output myBool bool = !false
 //@[0:6)  Identifier |output|
 //@[7:13)  IdentifierSyntax
 //@[7:13)   Identifier |myBool|
-//@[14:18)  TypeSyntax
+//@[14:18)  SimpleTypeSyntax
 //@[14:18)   Identifier |bool|
 //@[19:20)  Assignment |=|
 //@[21:27)  UnaryOperationSyntax
@@ -115,7 +115,7 @@ output myOtherBool bool = true
 //@[0:6)  Identifier |output|
 //@[7:18)  IdentifierSyntax
 //@[7:18)   Identifier |myOtherBool|
-//@[19:23)  TypeSyntax
+//@[19:23)  SimpleTypeSyntax
 //@[19:23)   Identifier |bool|
 //@[24:25)  Assignment |=|
 //@[26:30)  BooleanLiteralSyntax
@@ -143,7 +143,7 @@ output suchEmpty array = [
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
 //@[7:16)   Identifier |suchEmpty|
-//@[17:22)  TypeSyntax
+//@[17:22)  SimpleTypeSyntax
 //@[17:22)   Identifier |array|
 //@[23:24)  Assignment |=|
 //@[25:29)  ArraySyntax
@@ -158,7 +158,7 @@ output suchEmpty2 object = {
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |suchEmpty2|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |object|
 //@[25:26)  Assignment |=|
 //@[27:31)  ObjectSyntax
@@ -189,7 +189,7 @@ output obj object = {
 //@[0:6)  Identifier |output|
 //@[7:10)  IdentifierSyntax
 //@[7:10)   Identifier |obj|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |object|
 //@[18:19)  Assignment |=|
 //@[20:178)  ObjectSyntax
@@ -302,7 +302,7 @@ output myArr array = [
 //@[0:6)  Identifier |output|
 //@[7:12)  IdentifierSyntax
 //@[7:12)   Identifier |myArr|
-//@[13:18)  TypeSyntax
+//@[13:18)  SimpleTypeSyntax
 //@[13:18)   Identifier |array|
 //@[19:20)  Assignment |=|
 //@[21:74)  ArraySyntax
@@ -339,7 +339,7 @@ output rgLocation string = resourceGroup().location
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |rgLocation|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |string|
 //@[25:26)  Assignment |=|
 //@[27:51)  PropertyAccessSyntax
@@ -358,7 +358,7 @@ output isWestUs bool = resourceGroup().location != 'westus' ? false : true
 //@[0:6)  Identifier |output|
 //@[7:15)  IdentifierSyntax
 //@[7:15)   Identifier |isWestUs|
-//@[16:20)  TypeSyntax
+//@[16:20)  SimpleTypeSyntax
 //@[16:20)   Identifier |bool|
 //@[21:22)  Assignment |=|
 //@[23:74)  TernaryOperationSyntax
@@ -388,7 +388,7 @@ output expressionBasedIndexer string = {
 //@[0:6)  Identifier |output|
 //@[7:29)  IdentifierSyntax
 //@[7:29)   Identifier |expressionBasedIndexer|
-//@[30:36)  TypeSyntax
+//@[30:36)  SimpleTypeSyntax
 //@[30:36)   Identifier |string|
 //@[37:38)  Assignment |=|
 //@[39:140)  PropertyAccessSyntax
@@ -491,7 +491,7 @@ output primaryKey string = listKeys(resourceId('Mock.RP/type', 'nigel'), '2020-0
 //@[0:6)  Identifier |output|
 //@[7:17)  IdentifierSyntax
 //@[7:17)   Identifier |primaryKey|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |string|
 //@[25:26)  Assignment |=|
 //@[27:97)  PropertyAccessSyntax
@@ -526,7 +526,7 @@ output secondaryKey string = secondaryKeyIntermediateVar
 //@[0:6)  Identifier |output|
 //@[7:19)  IdentifierSyntax
 //@[7:19)   Identifier |secondaryKey|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[27:28)  Assignment |=|
 //@[29:56)  VariableAccessSyntax
@@ -548,7 +548,7 @@ param paramWithOverlappingOutput string
 //@[0:5)  Identifier |param|
 //@[6:32)  IdentifierSyntax
 //@[6:32)   Identifier |paramWithOverlappingOutput|
-//@[33:39)  TypeSyntax
+//@[33:39)  SimpleTypeSyntax
 //@[33:39)   Identifier |string|
 //@[39:43) NewLine |\r\n\r\n|
 
@@ -557,7 +557,7 @@ output varWithOverlappingOutput string = varWithOverlappingOutput
 //@[0:6)  Identifier |output|
 //@[7:31)  IdentifierSyntax
 //@[7:31)   Identifier |varWithOverlappingOutput|
-//@[32:38)  TypeSyntax
+//@[32:38)  SimpleTypeSyntax
 //@[32:38)   Identifier |string|
 //@[39:40)  Assignment |=|
 //@[41:65)  VariableAccessSyntax
@@ -569,7 +569,7 @@ output paramWithOverlappingOutput string = paramWithOverlappingOutput
 //@[0:6)  Identifier |output|
 //@[7:33)  IdentifierSyntax
 //@[7:33)   Identifier |paramWithOverlappingOutput|
-//@[34:40)  TypeSyntax
+//@[34:40)  SimpleTypeSyntax
 //@[34:40)   Identifier |string|
 //@[41:42)  Assignment |=|
 //@[43:69)  VariableAccessSyntax
@@ -584,7 +584,7 @@ output generatedArray array = [for i in range(0,10): i]
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |generatedArray|
-//@[22:27)  TypeSyntax
+//@[22:27)  SimpleTypeSyntax
 //@[22:27)   Identifier |array|
 //@[28:29)  Assignment |=|
 //@[30:55)  ForSyntax

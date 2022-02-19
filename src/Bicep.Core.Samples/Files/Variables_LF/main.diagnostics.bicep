@@ -116,6 +116,8 @@ var anyIndexOnAny = any(true)[any(false)]
 
 var deploymentName = deployment().name
 //@[4:18) [no-unused-vars (Warning)] Variable "deploymentName" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |deploymentName|
+var templateContentVersion = deployment().properties.template.contentVersion
+//@[4:26) [no-unused-vars (Warning)] Variable "templateContentVersion" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |templateContentVersion|
 var templateLinkUri = deployment().properties.templateLink.uri
 //@[4:19) [no-unused-vars (Warning)] Variable "templateLinkUri" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |templateLinkUri|
 var templateLinkId = deployment().properties.templateLink.id

@@ -112,7 +112,7 @@ param storageAccount1 string = 'testStorageAccount'
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |storageAccount1|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:51)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -126,7 +126,7 @@ param storageAccount2 string = 'testStorageAccount'
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |storageAccount2|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:51)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -140,7 +140,7 @@ param storageAccount3 string = 'testStorageAccount'
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |storageAccount3|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:51)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -154,7 +154,7 @@ param storageAccount5 string = 'testStorageAccount'
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |storageAccount5|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:51)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|

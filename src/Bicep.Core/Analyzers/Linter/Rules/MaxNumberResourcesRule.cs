@@ -3,6 +3,7 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,9 +30,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            if (model.AllResources.Length > MaxNumber)
+            if (model.DeclaredResources.Length > MaxNumber)
             {
-                var firstItem = model.AllResources.Where(r => r.Parent is null).First();
+                var firstItem = model.DeclaredResources.Where(r => r.Parent is null).First();
                 return new IDiagnostic[] { CreateDiagnosticForSpan(firstItem.Symbol.NameSyntax.Span, MaxNumber) };
             }
             return Enumerable.Empty<IDiagnostic>();

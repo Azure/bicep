@@ -73,29 +73,6 @@ namespace Bicep.Core.Syntax
             return hasChanges;
         }
 
-        private bool TryRewriteStrict<TSyntax, TOut>(TSyntax? syntax, [NotNullIfNotNull("syntax")] out TOut? newSyntax)
-            where TSyntax : SyntaxBase
-            where TOut : SyntaxBase
-        {
-            if (syntax is null)
-            {
-                newSyntax = null;
-                return false;
-            }
-
-            var newSyntaxUntyped = RewriteInternal(syntax);
-            var hasChanges = !object.ReferenceEquals(syntax, newSyntaxUntyped);
-
-            if (newSyntaxUntyped is not TOut newSyntaxTyped)
-            {
-                throw new InvalidOperationException($"Expected {nameof(currentSyntax)} to be of type {typeof(TSyntax)}");
-            }
-
-            newSyntax = newSyntaxTyped;
-            return hasChanges;
-        }
-
-
         private bool TryRewrite(IEnumerable<SyntaxBase> syntaxes, out IEnumerable<SyntaxBase> newSyntaxes)
             => TryRewriteStrict<SyntaxBase>(syntaxes, out newSyntaxes);
 
@@ -304,7 +281,21 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitIdentifierSyntax(IdentifierSyntax syntax) => ReplaceCurrent(syntax, ReplaceIdentifierSyntax);
 
-        protected virtual SyntaxBase ReplaceTypeSyntax(TypeSyntax syntax)
+        protected virtual SyntaxBase ReplaceResourceTypeSyntax(ResourceTypeSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Type, out var type);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new ResourceTypeSyntax(keyword, type);
+        }
+        void ISyntaxVisitor.VisitResourceTypeSyntax(ResourceTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceResourceTypeSyntax);
+
+        protected virtual SyntaxBase ReplaceSimpleTypeSyntax(SimpleTypeSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Identifier, out var identifier);
 
@@ -313,9 +304,9 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new TypeSyntax(identifier);
+            return new SimpleTypeSyntax(identifier);
         }
-        void ISyntaxVisitor.VisitTypeSyntax(TypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceTypeSyntax);
+        void ISyntaxVisitor.VisitSimpleTypeSyntax(SimpleTypeSyntax syntax) => ReplaceCurrent(syntax, ReplaceSimpleTypeSyntax);
 
         protected virtual SyntaxBase ReplaceBooleanLiteralSyntax(BooleanLiteralSyntax syntax)
         {
@@ -373,7 +364,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new IntegerLiteralSyntax(literal, long.Parse(literal.Text));
+            return new IntegerLiteralSyntax(literal, ulong.Parse(literal.Text));
         }
         void ISyntaxVisitor.VisitIntegerLiteralSyntax(IntegerLiteralSyntax syntax) => ReplaceCurrent(syntax, ReplaceIntegerLiteralSyntax);
 

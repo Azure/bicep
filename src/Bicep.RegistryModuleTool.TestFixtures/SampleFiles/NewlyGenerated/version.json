@@ -1,7 +1,8 @@
 {
-  "$schema": "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json",
-  "version": "1.1",
+  "$schema": "https://aka.ms/bicep-registry-module-version-file-schema#",
+  "version": "",
   "pathFilters": [
-    "./main.json"
+    "./main.json",
+    "./metadata.json"
   ]
 }

@@ -9,6 +9,7 @@ using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
@@ -65,7 +66,7 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (model.ResourceMetadata.TryLookup(syntax) is not { } resource)
+            if (model.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resource)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;

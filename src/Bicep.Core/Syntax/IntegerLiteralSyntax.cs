@@ -6,7 +6,7 @@ namespace Bicep.Core.Syntax
 {
     public class IntegerLiteralSyntax : ExpressionSyntax
     {
-        public IntegerLiteralSyntax(Token literal, long value)
+        public IntegerLiteralSyntax(Token literal, ulong value)
         {
             Literal = literal;
             Value = value;
@@ -14,7 +14,7 @@ namespace Bicep.Core.Syntax
 
         public Token Literal { get; }
 
-        public long Value { get; }
+        public ulong Value { get; }
 
         public override void Accept(ISyntaxVisitor visitor)
             => visitor.VisitIntegerLiteralSyntax(this);

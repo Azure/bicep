@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
@@ -61,6 +62,32 @@ namespace Bicep.Decompiler.ArmHelpers
             }
         }
 
+        private static ImmutableArray<(int index, int position, int length)> GetFormatStringHoles(string formatString)
+        {
+            var formatHoleMatches = Regex.Matches(formatString, "{([0-9]+)}");
+            var formatHoles = formatHoleMatches
+                .Select(match => (
+                    index: int.Parse(match.Groups[1].Value),
+                    position: match.Groups[1].Index,
+                    length: match.Groups[1].Length
+                ));
+
+            return formatHoles.ToImmutableArray();
+        }
+
+        private static string UnescapeFormatString(string formatString)
+        {
+            var formatHoles = GetFormatStringHoles(formatString);
+
+            var maxIndex = formatHoles.Select(x => x.index).Aggregate(Math.Max);
+            var replacements = Enumerable.Range(0, maxIndex + 1).Select(index => $"{{{index}}}");
+
+            // Use string.Format to handle unescaping for us - by passing "{index}" for each hole.
+            // This will replace '{{' and '}}' with '{' and '}' as appropriate.
+            // This works because the deployment engine format uses the same algorithm (string.Format) to handle replacement.
+            return String.Format(formatString, replacements.ToArray());
+        }
+
         public static LanguageExpression FlattenStringOperations(LanguageExpression original)
         {
             if (original is not FunctionExpression functionExpression)
@@ -72,17 +99,14 @@ namespace Bicep.Decompiler.ArmHelpers
             if (functionExpression.NameEquals("format"))
             {
                 var formatString = (functionExpression.Parameters[0] as JTokenExpression)?.Value.Value<string>() ?? throw new ArgumentException($"Unable to read format statement {ExpressionsEngine.SerializeExpression(functionExpression)} as string");
-                var formatHoleMatches = Regex.Matches(formatString, "{([0-9]+)}");
+                formatString = UnescapeFormatString(formatString);
+
+                var formatHoles = GetFormatStringHoles(formatString);
 
                 var concatExpressions = new List<LanguageExpression>();
                 var nextStart = 0;
-                for (var i = 0; i < formatHoleMatches.Count; i++)
+                foreach (var (index, position, length) in formatHoles)
                 {
-                    var match = formatHoleMatches[i];
-                    var position = match.Groups[1].Index;
-                    var length = match.Groups[1].Length;
-                    var intValue = int.Parse(match.Groups[1].Value);
-
                     // compensate for the {
                     if (nextStart < position - 1)
                     {
@@ -91,7 +115,7 @@ namespace Bicep.Decompiler.ArmHelpers
                     }
 
                     // replace it with the appropriately-numbered expression
-                    concatExpressions.Add(functionExpression.Parameters[intValue + 1]);
+                    concatExpressions.Add(functionExpression.Parameters[index + 1]);
 
                     // compensate for the }
                     nextStart = position + length + 1;

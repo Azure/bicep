@@ -28,6 +28,7 @@ namespace Bicep.Core.Emit
             DeployTimeConstantValidator.Validate(model, diagnosticWriter);
             ForSyntaxValidatorVisitor.Validate(model, diagnosticWriter);
             FunctionPlacementValidatorVisitor.Validate(model, diagnosticWriter);
+            IntegerValidatorVisitor.Validate(model.SourceFile.ProgramSyntax, diagnosticWriter);
 
             DetectDuplicateNames(model, diagnosticWriter, resourceScopeData, moduleScopeData);
             DetectIncorrectlyFormattedNames(model, diagnosticWriter);
@@ -38,7 +39,7 @@ namespace Bicep.Core.Emit
             return new EmitLimitationInfo(diagnosticWriter.GetDiagnostics(), moduleScopeData, resourceScopeData);
         }
 
-        private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
+        private static void DetectDuplicateNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData, ImmutableDictionary<ModuleSymbol, ScopeHelper.ScopeData> moduleScopeData)
         {
             // TODO generalize or move into Az extension
 
@@ -93,9 +94,9 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<ResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
+        private static IEnumerable<ResourceDefinition> GetResourceDefinitions(SemanticModel semanticModel, ImmutableDictionary<DeclaredResourceMetadata, ScopeHelper.ScopeData> resourceScopeData)
         {
-            foreach (var resource in semanticModel.AllResources)
+            foreach (var resource in semanticModel.DeclaredResources)
             {
                 if (resource.IsExistingResource)
                 {
@@ -134,7 +135,7 @@ namespace Bicep.Core.Emit
         public static void DetectIncorrectlyFormattedNames(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
             // TODO move into Az extension
-            foreach (var resource in semanticModel.AllResources)
+            foreach (var resource in semanticModel.DeclaredResources)
             {
                 if (!resource.IsAzResource)
                 {
@@ -191,7 +192,7 @@ namespace Bicep.Core.Emit
 
         public static void DetectUnexpectedResourceLoopInvariantProperties(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            foreach (var resource in semanticModel.AllResources)
+            foreach (var resource in semanticModel.DeclaredResources)
             {
                 if (resource.IsExistingResource)
                 {

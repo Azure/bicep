@@ -43,7 +43,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         private void Validate(string filePath, string newContent, string oldContent)
         {
-            this.logger.LogDebug("Making sure the content of \"{FilePath}\" is up-to-date...", filePath);
+            this.logger.LogInformation("Making sure the content of \"{FilePath}\" is up-to-date...", filePath);
 
             if (DiffLines(newContent, oldContent))
             {
