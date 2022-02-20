@@ -17,6 +17,9 @@ namespace Bicep.Cli.Arguments
                     case "--stdout":
                         OutputToStdOut = true;
                         break;
+                    case "--allowoverwrite":
+                        allowOverwrite = true;
+                        break;
                     case "--outdir":
                         if (args.Length == i + 1)
                         {
@@ -64,7 +67,6 @@ namespace Bicep.Cli.Arguments
             {
                 throw new CommandLineException($"The --outdir and --stdout parameters cannot both be used");
             }
-
             if (OutputToStdOut && OutputFile is not null)
             {
                 throw new CommandLineException($"The --outfile and --stdout parameters cannot both be used");
@@ -84,6 +86,15 @@ namespace Bicep.Cli.Arguments
                     throw new CommandLineException(string.Format(CliResources.DirectoryDoesNotExistFormat, outputDir));
                 }
             }
+
+            var inputPath = PathHelper.ResolvePath(InputFile);
+            static string DefaultOutputPath(string path) => PathHelper.GetDefaultDecompileOutputPath(path);
+            var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, OutputDir, OutputFile, DefaultOutputPath);
+
+            if (!OutputToStdOut && !allowOverwrite && File.Exists(outputPath))
+            {
+                throw new CommandLineException($"The --allowoverwrite should be used to override file");
+            }
         }
 
         public bool OutputToStdOut { get; }
@@ -93,5 +104,7 @@ namespace Bicep.Cli.Arguments
         public string? OutputDir { get; }
 
         public string? OutputFile { get; }
+
+        public bool allowOverwrite { get; }
     }
 }
