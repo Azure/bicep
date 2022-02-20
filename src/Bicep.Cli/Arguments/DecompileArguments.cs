@@ -18,7 +18,7 @@ namespace Bicep.Cli.Arguments
                         OutputToStdOut = true;
                         break;
                     case "--allowoverwrite":
-                        allowOverwrite = true;
+                        AllowOverwrite = true;
                         break;
                     case "--outdir":
                         if (args.Length == i + 1)
@@ -91,7 +91,7 @@ namespace Bicep.Cli.Arguments
             static string DefaultOutputPath(string path) => PathHelper.GetDefaultDecompileOutputPath(path);
             var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, OutputDir, OutputFile, DefaultOutputPath);
 
-            if (!OutputToStdOut && !allowOverwrite && File.Exists(outputPath))
+            if (!OutputToStdOut && !AllowOverwrite && File.Exists(outputPath))
             {
                 throw new CommandLineException($"The --allowoverwrite should be used to override file");
             }
@@ -105,6 +105,6 @@ namespace Bicep.Cli.Arguments
 
         public string? OutputFile { get; }
 
-        public bool allowOverwrite { get; }
+        public bool AllowOverwrite { get; }
     }
 }
