@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
-using Bicep.Core.TypeSystem;
+using Bicep.Core;
 
 namespace Bicep.LanguageServer.Deploy
 {
@@ -22,25 +22,25 @@ namespace Bicep.LanguageServer.Deploy
             string scope,
             string location)
         {
-            DeploymentCollection? deploymentCollection = null;
+            DeploymentCollection? deploymentCollection;
             var resourceIdentifier = new ResourceIdentifier(id);
 
-            if (scope == ResourceScope.ResourceGroup.ToString())
+            if (scope == LanguageConstants.TargetScopeTypeResourceGroup)
             {
                 var resourceGroup = armClient.GetResourceGroup(resourceIdentifier);
                 deploymentCollection = resourceGroup.GetDeployments();
             }
-            else if (scope == ResourceScope.Subscription.ToString())
+            else if (scope == LanguageConstants.TargetScopeTypeSubscription)
             {
                 var subscription = armClient.GetSubscription(resourceIdentifier);
                 deploymentCollection = subscription.GetDeployments();
             }
-            else if (scope == ResourceScope.ManagementGroup.ToString())
+            else if (scope == LanguageConstants.TargetScopeTypeManagementGroup)
             {
                 var managementGroup = armClient.GetManagementGroup(resourceIdentifier);
                 deploymentCollection = managementGroup.GetDeployments();
             }
-            else if (scope == ResourceScope.Tenant.ToString())
+            else if (scope == LanguageConstants.TargetScopeTypeTenant)
             {
                 return "Tenant scope deployment is not supported.";
             }
@@ -69,7 +69,8 @@ namespace Bicep.LanguageServer.Deploy
                     Parameters = parameters
                 });
 
-                if (scope == DeploymentScope.Subscription || scope == DeploymentScope.ManagementGroup)
+                if (scope == LanguageConstants.TargetScopeTypeSubscription ||
+                    scope == LanguageConstants.TargetScopeTypeManagementGroup)
                 {
                     if (location is null)
                     {
@@ -98,13 +99,5 @@ namespace Bicep.LanguageServer.Deploy
 
             return "Deployment failed.";
         }
-    }
-
-    public static class DeploymentScope
-    {
-        public const string ManagementGroup = nameof(ManagementGroup);
-        public const string ResourceGroup = nameof(ResourceGroup);
-        public const string Subscription = nameof(Subscription);
-        public const string Tenant = nameof(Tenant);
     }
 }

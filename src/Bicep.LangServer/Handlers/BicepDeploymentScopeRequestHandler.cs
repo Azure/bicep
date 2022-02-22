@@ -102,7 +102,7 @@ namespace Bicep.LanguageServer.Handlers
         private Compilation GetCompilation(DocumentUri documentUri)
         {
             var fileUri = documentUri.ToUri();
-            RootConfiguration? configuration = null;
+            RootConfiguration? configuration;
 
             try
             {

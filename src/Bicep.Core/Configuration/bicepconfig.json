@@ -16,7 +16,6 @@
       }
     },
     "credentialPrecedence": [
-      //"VisualStudioCode",
       "AzureCLI",
       "AzurePowerShell"
     ]
