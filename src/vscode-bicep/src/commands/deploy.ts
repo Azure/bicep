@@ -77,7 +77,7 @@ export class DeployCommand implements Command {
 
       await ext.tree.showTreeItemPicker<AzureAccountTreeItem>("", _context);
 
-      if (deploymentScope == "ResourceGroup") {
+      if (deploymentScope == "resourceGroup") {
         await handleResourceGroupDeployment(
           _context,
           documentUri,
@@ -85,7 +85,7 @@ export class DeployCommand implements Command {
           template,
           this.client
         );
-      } else if (deploymentScope == "Subscription") {
+      } else if (deploymentScope == "subscription") {
         await handleSubscriptionDeployment(
           _context,
           documentUri,
@@ -93,7 +93,7 @@ export class DeployCommand implements Command {
           template,
           this.client
         );
-      } else if (deploymentScope == "ManagementGroup") {
+      } else if (deploymentScope == "managementGroup") {
         await handleManagementGroupDeployment(
           _context,
           documentUri,
@@ -101,7 +101,9 @@ export class DeployCommand implements Command {
           template,
           this.client
         );
-      } else if (deploymentScope == "None") {
+      } else if (deploymentScope == "tenant") {
+        appendToOutputChannel("Tenant scope deployment is not supported.");
+      } else {
         appendToOutputChannel(
           "Deployment failed. " + deploymentScopeResponse?.errorMessage
         );

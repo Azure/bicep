@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -67,13 +68,30 @@ namespace Bicep.LanguageServer.Handlers
             try
             {
                 compilation = GetCompilation(documentUri);
-                var compiledFile = GetCompiledFile(compilation, documentUri);
+                var deploymentScope = GetDeploymentScope(compilation.GetEntrypointSemanticModel().TargetScope);
 
-                return Task.FromResult(new BicepDeploymentScopeResponse(compilation.GetEntrypointSemanticModel().TargetScope.ToString(), compiledFile, null));
+                return Task.FromResult(new BicepDeploymentScopeResponse(deploymentScope, GetCompiledFile(compilation, documentUri), null));
             }
             catch (Exception exception)
             {
                 return Task.FromResult(new BicepDeploymentScopeResponse(ResourceScope.None.ToString(), null, exception.Message));
+            }
+        }
+
+        public static string GetDeploymentScope(ResourceScope resourceScope)
+        {
+            switch (resourceScope)
+            {
+                case ResourceScope.ResourceGroup:
+                    return LanguageConstants.TargetScopeTypeResourceGroup;
+                case ResourceScope.Subscription:
+                    return LanguageConstants.TargetScopeTypeSubscription;
+                case ResourceScope.ManagementGroup:
+                    return LanguageConstants.TargetScopeTypeManagementGroup;
+                case ResourceScope.Tenant:
+                    return LanguageConstants.TargetScopeTypeTenant;
+                default:
+                    return resourceScope.ToString();
             }
         }
 
@@ -97,7 +115,6 @@ namespace Bicep.LanguageServer.Handlers
 
             return stringBuilder.ToString();
         }
-
 
         private Compilation GetCompilation(DocumentUri documentUri)
         {

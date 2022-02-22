@@ -93,7 +93,7 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
-                    return e.Message;
+                    return "Deployment failed. " + e.Message;
                 }
             }
 
