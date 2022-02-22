@@ -6,7 +6,6 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
-using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Registry.Auth;
 using Bicep.LanguageServer.Deploy;
@@ -25,7 +24,7 @@ namespace Bicep.LanguageServer.Handlers
             ISerializer serializer,
             IConfigurationManager configurationManager,
             ITokenCredentialFactory credentialFactory)
-            : base(LanguageConstants.Deploy, serializer)
+            : base(LangServerConstants.Deploy, serializer)
         {
             this.credentialFactory = credentialFactory;
             this.configurationManager = configurationManager;

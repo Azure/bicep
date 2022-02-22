@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
-using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -41,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IConfigurationManager configurationManager;
 
         public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
-            : base(LanguageConstants.Build, serializer)
+            : base(LangServerConstants.Build, serializer)
         {
             this.compilationManager = compilationManager;
             this.emitterSettings = emitterSettings;
