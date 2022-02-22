@@ -4,7 +4,10 @@ import * as path from "path";
 import vscode, { Uri } from "vscode";
 import { ext } from "../extensionVariables";
 import { Command } from "./types";
-import { LanguageClient, TextDocumentIdentifier } from "vscode-languageclient/node";
+import {
+  LanguageClient,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node";
 import {
   IActionContext,
   IAzureQuickPickItem,
@@ -38,9 +41,8 @@ export class DeployCommand implements Command {
       return;
     }
 
-    appendToOutputChannel(
-      `Started deployment of "${path.basename(documentUri.fsPath)}"`
-    );
+    const fileName = path.basename(documentUri.fsPath);
+    appendToOutputChannel(`Started deployment of "${fileName}"`);
 
     if (documentUri.scheme === "output") {
       // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
@@ -54,12 +56,24 @@ export class DeployCommand implements Command {
     }
 
     try {
-      const path = decodeURIComponent(documentUri.path.substring(1));;
+      const path = decodeURIComponent(documentUri.path.substring(1));
       const deploymentScopeResponse = await this.client.sendRequest(
         deploymentScopeRequestType,
         { textDocument: TextDocumentIdentifier.create(path) }
       );
       const deploymentScope = deploymentScopeResponse?.scope;
+      const template = deploymentScopeResponse?.template;
+
+      if (!template) {
+        appendToOutputChannel(
+          "Deployment failed. " + deploymentScopeResponse?.errorMessage
+        );
+        return;
+      }
+
+      appendToOutputChannel(
+        `Scope specified in "${fileName}": "${deploymentScope}"`
+      );
 
       await ext.tree.showTreeItemPicker<AzureAccountTreeItem>("", _context);
 
@@ -68,6 +82,7 @@ export class DeployCommand implements Command {
           _context,
           documentUri,
           deploymentScope,
+          template,
           this.client
         );
       } else if (deploymentScope == "Subscription") {
@@ -75,6 +90,7 @@ export class DeployCommand implements Command {
           _context,
           documentUri,
           deploymentScope,
+          template,
           this.client
         );
       } else if (deploymentScope == "ManagementGroup") {
@@ -82,7 +98,12 @@ export class DeployCommand implements Command {
           _context,
           documentUri,
           deploymentScope,
+          template,
           this.client
+        );
+      } else if (deploymentScope == "None") {
+        appendToOutputChannel(
+          "Deployment failed. " + deploymentScopeResponse?.errorMessage
         );
       }
     } catch (exception) {
@@ -159,6 +180,7 @@ async function handleManagementGroupDeployment(
   context: IActionContext,
   documentUri: vscode.Uri,
   deploymentScope: string,
+  template: string,
   client: LanguageClient
 ) {
   const managementGroupItems = loadManagementGroupItems();
@@ -180,6 +202,7 @@ async function handleManagementGroupDeployment(
       managementGroupId,
       deploymentScope,
       location,
+      template,
       client
     );
   }
@@ -189,6 +212,7 @@ async function handleResourceGroupDeployment(
   context: IActionContext,
   documentUri: vscode.Uri,
   deploymentScope: string,
+  template: string,
   client: LanguageClient
 ) {
   const resourceGroupTreeItem = await ext.azTree.showTreeItemPicker<AzTreeItem>(
@@ -205,6 +229,7 @@ async function handleResourceGroupDeployment(
       resourceGroupId,
       deploymentScope,
       "",
+      template,
       client
     );
   }
@@ -214,6 +239,7 @@ async function handleSubscriptionDeployment(
   context: IActionContext,
   documentUri: vscode.Uri,
   deploymentScope: string,
+  template: string,
   client: LanguageClient
 ) {
   const subscription = await getSubscription(context);
@@ -235,6 +261,7 @@ async function handleSubscriptionDeployment(
         id,
         deploymentScope,
         location.label,
+        template,
         client
       );
     }
@@ -247,6 +274,7 @@ async function sendDeployCommand(
   id: string,
   deploymentScope: string,
   location: string,
+  template: string,
   client: LanguageClient
 ) {
   const deployOutput: string = await client.sendRequest(
@@ -259,6 +287,7 @@ async function sendDeployCommand(
         id,
         deploymentScope,
         location,
+        template,
       ],
     }
   );
@@ -272,20 +301,6 @@ async function getSubscription(context: IActionContext) {
   });
 
   return quickPickItem.subscription;
-}
-
-async function getDeploymentScope(context: IActionContext) {
-  const deploymentScopes: IAzureQuickPickItem<string | undefined>[] =
-    await createScopesQuickPickList();
-
-  const deploymentScope: IAzureQuickPickItem<string | undefined> =
-    await context.ui.showQuickPick(deploymentScopes, {
-      canPickMany: false,
-      placeHolder: `Select a deployment scope`,
-      suppressPersistence: true,
-    });
-
-  return deploymentScope.label;
 }
 
 export interface PartialList<T> extends Array<T> {
@@ -346,29 +361,6 @@ async function createParameterFileQuickPickList(): Promise<IQuickPickList> {
     none,
     browse,
   };
-}
-
-async function createScopesQuickPickList(): Promise<
-  IAzureQuickPickItem<string | undefined>[]
-> {
-  const managementGroup: IAzureQuickPickItem<string | undefined> = {
-    label: "ManagementGroup",
-    data: undefined,
-  };
-  const resourceGroup: IAzureQuickPickItem<string | undefined> = {
-    label: "ResourceGroup",
-    data: undefined,
-  };
-  const subscription: IAzureQuickPickItem<string | undefined> = {
-    label: "Subscription",
-    data: undefined,
-  };
-
-  const scopes: IAzureQuickPickItem<string | undefined>[] = [managementGroup]
-    .concat([resourceGroup])
-    .concat([subscription]);
-
-  return scopes;
 }
 
 interface IQuickPickList {

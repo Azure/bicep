@@ -16,6 +16,7 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
+using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
@@ -29,7 +30,7 @@ namespace Bicep.LanguageServer.Handlers
     [Method(BicepDeploymentScopeRequestHandler.BicepDeploymentScopeLspMethod, Direction.ClientToServer)]
     public record BicepDeploymentScopeParams(TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<BicepDeploymentScopeResponse>;
 
-    public record BicepDeploymentScopeResponse(string scope, string template);
+    public record BicepDeploymentScopeResponse(string scope, string? template, string? errorMessage);
 
     /// <summary>
     /// Handles textDocument/bicepCache LSP requests. These are sent by clients that are resolving contents of document URIs using the bicep-cache:// scheme.
@@ -66,15 +67,14 @@ namespace Bicep.LanguageServer.Handlers
             try
             {
                 compilation = GetCompilation(documentUri);
+                var compiledFile = GetCompiledFile(compilation, documentUri);
+
+                return Task.FromResult(new BicepDeploymentScopeResponse(compilation.GetEntrypointSemanticModel().TargetScope.ToString(), compiledFile, null));
             }
-            catch (ConfigurationException exception)
+            catch (Exception exception)
             {
-                throw exception;
+                return Task.FromResult(new BicepDeploymentScopeResponse(ResourceScope.None.ToString(), null, exception.Message));
             }
-
-            var compiledFile = GetCompiledFile(compilation, documentUri);
-
-            return Task.FromResult(new BicepDeploymentScopeResponse(compilation.GetEntrypointSemanticModel().TargetScope.ToString(), compiledFile));
         }
 
         private string GetCompiledFile(Compilation compilation, DocumentUri documentUri)

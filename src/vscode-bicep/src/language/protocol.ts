@@ -53,7 +53,7 @@ export interface BicepScopeParams {
 export interface BicepScopeResponse {
   scope: string;
   template: string | null;
-  errorMessage: string
+  errorMessage: string | null;
 }
 
 export const deploymentScopeRequestType = new ProtocolRequestType<

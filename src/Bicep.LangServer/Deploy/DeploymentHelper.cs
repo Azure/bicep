@@ -8,30 +8,41 @@ using System.Threading.Tasks;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
+using Bicep.Core.TypeSystem;
 
-namespace Bicep.Core.Deploy
+namespace Bicep.LanguageServer.Deploy
 {
     public class DeploymentHelper
     {
-        public static async Task<string> CreateDeployment(ArmClient armClient, string template, string parameterFilePath, string id, string scope, string location)
+        public static async Task<string> CreateDeployment(
+            ArmClient armClient,
+            string template,
+            string parameterFilePath,
+            string id,
+            string scope,
+            string location)
         {
             DeploymentCollection? deploymentCollection = null;
             var resourceIdentifier = new ResourceIdentifier(id);
 
-            if (scope == DeploymentScope.ResourceGroup)
+            if (scope == ResourceScope.ResourceGroup.ToString())
             {
                 var resourceGroup = armClient.GetResourceGroup(resourceIdentifier);
                 deploymentCollection = resourceGroup.GetDeployments();
             }
-            else if (scope == DeploymentScope.Subscription)
+            else if (scope == ResourceScope.Subscription.ToString())
             {
                 var subscription = armClient.GetSubscription(resourceIdentifier);
                 deploymentCollection = subscription.GetDeployments();
             }
-            else if (scope == DeploymentScope.ManagementGroup)
+            else if (scope == ResourceScope.ManagementGroup.ToString())
             {
                 var managementGroup = armClient.GetManagementGroup(resourceIdentifier);
                 deploymentCollection = managementGroup.GetDeployments();
+            }
+            else if (scope == ResourceScope.Tenant.ToString())
+            {
+                return "Tenant scope deployment is not supported.";
             }
             else
             {
@@ -87,7 +98,6 @@ namespace Bicep.Core.Deploy
 
             return "Deployment failed.";
         }
-
     }
 
     public static class DeploymentScope

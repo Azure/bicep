@@ -3,12 +3,12 @@
 
 using System.Threading.Tasks;
 using Azure.ResourceManager;
-using Bicep.Core.Deploy;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.LanguageServer.Deploy;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Bicep.Core.UnitTests.Deploy
+namespace Bicep.LangServer.UnitTests.Deploy
 {
     [TestClass]
 
