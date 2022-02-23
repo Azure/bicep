@@ -1,5 +1,3 @@
-
-//@[0:1) NewLine |\n|
 // unknown declaration
 //@[22:23) NewLine |\n|
 bad
@@ -336,6 +334,23 @@ var rgName = resourceGroup().name
 //@[4:10) Identifier |rgName|
 //@[11:12) Assignment |=|
 //@[13:26) Identifier |resourceGroup|
+//@[26:27) LeftParen |(|
+//@[27:28) RightParen |)|
+//@[28:29) Dot |.|
+//@[29:33) Identifier |name|
+//@[33:35) NewLine |\n\n|
+
+var subscription = ''
+//@[0:3) Identifier |var|
+//@[4:16) Identifier |subscription|
+//@[17:18) Assignment |=|
+//@[19:21) StringComplete |''|
+//@[21:22) NewLine |\n|
+var subName = subscription().name
+//@[0:3) Identifier |var|
+//@[4:11) Identifier |subName|
+//@[12:13) Assignment |=|
+//@[14:26) Identifier |subscription|
 //@[26:27) LeftParen |(|
 //@[27:28) RightParen |)|
 //@[28:29) Dot |.|
@@ -1181,6 +1196,21 @@ var keyVaultSecretArrayInterpolatedVar = [
 //@[31:32) NewLine |\n|
 ]
 //@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[1:3) NewLine |\n\n|
+
+var listSecrets= ''
+//@[0:3) Identifier |var|
+//@[4:15) Identifier |listSecrets|
+//@[15:16) Assignment |=|
+//@[17:19) StringComplete |''|
+//@[19:20) NewLine |\n|
+var listSecretsVar = listSecrets()
+//@[0:3) Identifier |var|
+//@[4:18) Identifier |listSecretsVar|
+//@[19:20) Assignment |=|
+//@[21:32) Identifier |listSecrets|
+//@[32:33) LeftParen |(|
+//@[33:34) RightParen |)|
+//@[34:35) NewLine |\n|
 
 //@[0:0) EndOfFile ||

@@ -1,4 +1,3 @@
-
 // unknown declaration
 bad
 
@@ -118,6 +117,11 @@ var resourceGroup = ''
 //@[4:17) Variable resourceGroup. Type: ''. Declaration start char: 0, length: 22
 var rgName = resourceGroup().name
 //@[4:10) Variable rgName. Type: error. Declaration start char: 0, length: 33
+
+var subscription = ''
+//@[4:16) Variable subscription. Type: ''. Declaration start char: 0, length: 21
+var subName = subscription().name
+//@[4:11) Variable subName. Type: error. Declaration start char: 0, length: 33
 
 // this does not work at the resource group scope
 var invalidLocationVar = deployment().location
@@ -337,4 +341,9 @@ var keyVaultSecretArrayInterpolatedVar = [
 //@[4:38) Variable keyVaultSecretArrayInterpolatedVar. Type: string[]. Declaration start char: 0, length: 76
   '${kv.getSecret('mySecret')}'
 ]
+
+var listSecrets= ''
+//@[4:15) Variable listSecrets. Type: ''. Declaration start char: 0, length: 19
+var listSecretsVar = listSecrets()
+//@[4:18) Variable listSecretsVar. Type: error. Declaration start char: 0, length: 34
 
