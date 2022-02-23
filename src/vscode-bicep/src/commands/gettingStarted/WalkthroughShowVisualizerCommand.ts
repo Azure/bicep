@@ -3,7 +3,7 @@
 
 //asdfg telemetry?
 
-import { commands, MessageItem, TextEditor, Uri, window } from "vscode";
+import { commands, MessageItem, TextEditor, window } from "vscode";
 import { IActionContext } from "vscode-azureextensionui";
 import { Command } from "../types";
 import {

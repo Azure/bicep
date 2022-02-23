@@ -42,6 +42,8 @@
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
+    "onCommand:bicep.gettingStarted.copyToClipboardParams",
+    "onCommand:bicep.gettingStarted.copyToClipboardResources",
     "onCommand:bicep.gettingStarted.createBicepFile",
     "onCommand:bicep.gettingStarted.openBicepFile",
     "onCommand:bicep.gettingStarted.openVisualizer",
@@ -149,7 +151,7 @@
         "category": "Bicep"
       },
       {
-        "$section": "================== Walkthrough commands ==================",
+        "$section": "================== Walkthrough commands (not visible to users) ==================",
         "command": "bicep.gettingStarted.createBicepFile",
         "title": "Create Empty Bicep File"
       },
@@ -160,6 +162,14 @@
       {
         "command": "bicep.gettingStarted.openVisualizer",
         "title": "Open Visualizer to the Side"
+      },
+      {
+        "command": "bicep.gettingStarted.copyToClipboardParams",
+        "title": "Copy code to the clipboard"
+      },
+      {
+        "command": "bicep.gettingStarted.copyToClipboardResources",
+        "title": "Copy code to the clipboard"
       }
     ],
     "keybindings": [
@@ -273,6 +283,14 @@
         {
           "command": "bicep.gettingStarted.openVisualizer",
           "when": "never"
+        },
+        {
+          "command": "bicep.gettingStarted.copyToClipboardParams",
+          "when": "never"
+        },
+        {
+          "command": "bicep.gettingStarted.copyToClipboardResources",
+          "when": "never"
         }
       ]
     },
@@ -310,7 +328,7 @@
           {
             "id": "addParameters",
             "title": "Add parameters",
-            "description": "First, create a parameter named 'location'. Next, create a parameter named 'appPlanName'. These parameters will be used to fill attributes in your resources.\nYour code should looke like this:\n``param location string = resourceGroup().location``\n``param appPlanName string``",
+            "description": "First, create a parameter named 'location'.\nNext, create a parameter named 'appPlanName'.\nThese parameters will be used to fill attributes in your resources.\n[Copy code to clipboard](command:bicep.gettingStarted.copyToClipboardParams)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/2_Type_Params.gif",
               "altText": "asdfg"
@@ -320,7 +338,7 @@
           {
             "id": "addResources",
             "title": "Add resources",
-            "description": "Type 'appplan' to view the 'App Service Plan' resource snippet and press Tab or Enter. Press Tab to jump to the ``name`` attribute and replace its value with the parameter ``appPlanName``. Next, type 'storage' to view a 'Storage Account' resource snippet and press Tab or Enter. Replace the name attribute's value with ``'${appServicePlan.name}storage'`` and save the file. Feel free to search for other snippets that suit your needs.",
+            "description": "Type 'appplan' to view the 'App Service plan' resource snippet and press Tab or Enter. Press Tab to jump to the ``name`` attribute and replace its value with the parameter ``appPlanName``.\nNext, type 'storage' to view the 'Storage Account' resource snippet and press Tab or Enter. Replace the name attribute's value with ``'${appServicePlan.name}storage'`` and save the file.\nFeel free to search for other snippets that suit your needs.\n[Copy code to clipboard](command:bicep.gettingStarted.copyToClipboardResources)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/3_Type_Resos.gif",
               "altText": "asdfg"
@@ -351,15 +369,6 @@
             "completionEvents": [
               "onCommand:bicep.deploy"
             ]
-          },
-          {
-            "id": "writeFirstFile2",
-            "title": "Write your first file",
-            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes\n\nLet's author multiple Azure resources with Bicep.",
-            "media": {
-              "markdown": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes\n\nLet's author multiple Azure resources with Bicep. ![media/walkthroughs/gettingStarted/2_Type_Params.gif](media/walkthroughs/gettingStarted/2_Type_Params.gif)"
-            },
-            "completionEvents": []
           },
           {
             "id": "learnMore",
@@ -404,8 +413,8 @@
     "@types/triple-beam": "^1.3.2",
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^4.33.0",
-    "@typescript-eslint/parser": "^4.31.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
     "@vscode/test-electron": "^2.1.2",
     "copy-webpack-plugin": "^9.0.1",
     "esbuild-loader": "^2.16.0",

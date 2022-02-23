@@ -2,7 +2,14 @@
 // Licensed under the MIT License.
 
 import path from "path";
-import { TextDocument, Uri, workspace, window, ViewColumn, TextEdit, TextEditor } from "vscode";
+import {
+  TextDocument,
+  Uri,
+  workspace,
+  window,
+  ViewColumn,
+  TextEditor,
+} from "vscode";
 import { IActionContext, IAzureQuickPickItem } from "vscode-azureextensionui";
 
 import { Command } from "../types";
@@ -16,7 +23,9 @@ export class WalkthroughOpenBicepFileCommand implements Command {
   }
 }
 
-async function queryAndOpenBicepFile(context: IActionContext): Promise<TextEditor> {
+async function queryAndOpenBicepFile(
+  context: IActionContext
+): Promise<TextEditor> {
   const uri: Uri = await queryUserForBicepFile(context);
   const document: TextDocument = await workspace.openTextDocument(uri);
   return await window.showTextDocument(document, ViewColumn.Beside);
