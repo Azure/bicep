@@ -34,8 +34,9 @@ namespace Bicep.LanguageServer.Handlers
     public record BicepDeploymentScopeResponse(string scope, string? template, string? errorMessage);
 
     /// <summary>
-    /// Handles textDocument/bicepCache LSP requests. These are sent by clients that are resolving contents of document URIs using the bicep-cache:// scheme.
-    /// The BicepDefinitionHandler returns such URIs when definitions are inside modules that reside in the local module cache.
+    /// Handles textDocument/deploymentScope LSP requests.
+    /// The BicepDeploymentScopeRequestHandler returns targetScope, template and error message.
+    /// Error message would be null if there we no validation errors in the provided bicep file.
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : IJsonRpcRequestHandler<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
@@ -48,8 +49,13 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IModuleDispatcher moduleDispatcher;
         private readonly INamespaceProvider namespaceProvider;
 
-
-        public BicepDeploymentScopeRequestHandler(ICompilationManager compilationManager, INamespaceProvider namespaceProvider, IModuleDispatcher moduleDispatcher, IFileResolver fileResolver, IConfigurationManager configurationManager, EmitterSettings emitterSettings)
+        public BicepDeploymentScopeRequestHandler(
+            EmitterSettings emitterSettings,
+            ICompilationManager compilationManager,
+            IConfigurationManager configurationManager,
+            IFileResolver fileResolver,
+            IModuleDispatcher moduleDispatcher,
+            INamespaceProvider namespaceProvider)
         {
             this.emitterSettings = emitterSettings;
             this.namespaceProvider = namespaceProvider;
@@ -78,7 +84,7 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        public static string GetDeploymentScope(ResourceScope resourceScope)
+        private static string GetDeploymentScope(ResourceScope resourceScope)
         {
             switch (resourceScope)
             {
