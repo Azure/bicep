@@ -15,6 +15,7 @@ namespace Bicep.LanguageServer.Deploy
     public class DeploymentHelper
     {
         public static async Task<string> CreateDeployment(
+            IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
             string template,
             string parameterFilePath,
@@ -22,31 +23,32 @@ namespace Bicep.LanguageServer.Deploy
             string scope,
             string location)
         {
+            if ((scope == LanguageConstants.TargetScopeTypeSubscription ||
+                scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
+                string.IsNullOrWhiteSpace(location))
+            {
+                return LangServerResources.MissingLocationDeploymentFailedMessage;
+            }
+
             DeploymentCollection? deploymentCollection;
             var resourceIdentifier = new ResourceIdentifier(id);
 
-            if (scope == LanguageConstants.TargetScopeTypeResourceGroup)
+            if (scope == LanguageConstants.TargetScopeTypeResourceGroup ||
+                scope == LanguageConstants.TargetScopeTypeSubscription ||
+                scope == LanguageConstants.TargetScopeTypeManagementGroup)
             {
-                var resourceGroup = armClient.GetResourceGroup(resourceIdentifier);
-                deploymentCollection = resourceGroup.GetDeployments();
-            }
-            else if (scope == LanguageConstants.TargetScopeTypeSubscription)
-            {
-                var subscription = armClient.GetSubscription(resourceIdentifier);
-                deploymentCollection = subscription.GetDeployments();
-            }
-            else if (scope == LanguageConstants.TargetScopeTypeManagementGroup)
-            {
-                var managementGroup = armClient.GetManagementGroup(resourceIdentifier);
-                deploymentCollection = managementGroup.GetDeployments();
-            }
-            else if (scope == LanguageConstants.TargetScopeTypeTenant)
-            {
-                return "Tenant scope deployment is not supported.";
+                try
+                {
+                    deploymentCollection = deploymentCollectionProvider.GetDeployments(armClient, resourceIdentifier, scope);
+                }
+                catch (Exception e)
+                {
+                    return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, e.Message);
+                }
             }
             else
             {
-                return "Deployment failed. Please provide a valid scope.";
+                return LangServerResources.UnsupportedScopeDeploymentFailedMessage;
             }
 
             if (deploymentCollection is not null)
@@ -63,21 +65,15 @@ namespace Bicep.LanguageServer.Deploy
                     parameters = JsonDocument.Parse(text).RootElement;
                 }
 
-                var input = new DeploymentInput(new DeploymentProperties(DeploymentMode.Incremental)
+                var deploymentProperties = new DeploymentProperties(DeploymentMode.Incremental)
                 {
                     Template = JsonDocument.Parse(template).RootElement,
                     Parameters = parameters
-                });
-
-                if (scope == LanguageConstants.TargetScopeTypeSubscription ||
-                    scope == LanguageConstants.TargetScopeTypeManagementGroup)
+                };
+                var input = new DeploymentInput(deploymentProperties)
                 {
-                    if (location is null)
-                    {
-                        return "Deployment failed. Location was not provided";
-                    }
-                    input.Location = location;
-                }
+                    Location = location,
+                };
 
                 string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHmmffff");
 
@@ -88,16 +84,16 @@ namespace Bicep.LanguageServer.Deploy
                     if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
                         deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)
                     {
-                        return "Deployment successful.";
+                        return LangServerResources.DeploymentSuccessfulMessage;
                     }
                 }
                 catch (Exception e)
                 {
-                    return "Deployment failed. " + e.Message;
+                    return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, e.Message);
                 }
             }
 
-            return "Deployment failed.";
+            return LangServerResources.DeploymentFailedMessage;
         }
     }
 }

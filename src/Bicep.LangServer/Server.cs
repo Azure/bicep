@@ -15,6 +15,7 @@ using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
@@ -139,6 +140,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
+            services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
         }
 
         public void Dispose()

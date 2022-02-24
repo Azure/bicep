@@ -19,15 +19,18 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly ITokenCredentialFactory credentialFactory;
         private readonly IConfigurationManager configurationManager;
+        private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
 
         public BicepDeployCommandHandler(
             ISerializer serializer,
             IConfigurationManager configurationManager,
-            ITokenCredentialFactory credentialFactory)
+            ITokenCredentialFactory credentialFactory,
+            IDeploymentCollectionProvider deploymentCollectionProvider)
             : base(LangServerConstants.Deploy, serializer)
         {
             this.credentialFactory = credentialFactory;
             this.configurationManager = configurationManager;
+            this.deploymentCollectionProvider = deploymentCollectionProvider;
         }
 
         public override async Task<string> Handle(
@@ -48,9 +51,9 @@ namespace Bicep.LanguageServer.Handlers
             var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
 
             var credential = this.credentialFactory.CreateChain(ImmutableArray.Create(CredentialType.VisualStudioCode), configuration.Cloud.ActiveDirectoryAuthorityUri);
-            ArmClient armClient = new ArmClient(credential);
+            var armClient = new ArmClient(credential);
 
-            string deploymentOutput = await DeploymentHelper.CreateDeployment(armClient, template, parameterFilePath, id, scope, location);
+            string deploymentOutput = await DeploymentHelper.CreateDeployment(deploymentCollectionProvider, armClient, template, parameterFilePath, id, scope, location);
 
             return deploymentOutput;
         }

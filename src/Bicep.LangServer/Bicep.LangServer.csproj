@@ -28,7 +28,7 @@
   <ItemGroup>
     <EmbeddedResource Update="LangServerResources.resx">
       <LastGenOutput>LangServerResources.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
   </ItemGroup>
 </Project>
