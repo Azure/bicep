@@ -187,7 +187,6 @@
       "type": "object",
       "default": {
         "core": {
-          "enabled": true,
           "rules": {
             "adminusername-should-not-be-literal": {
               "level": "warning"
