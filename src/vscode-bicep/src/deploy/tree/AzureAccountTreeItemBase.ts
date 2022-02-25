@@ -12,7 +12,7 @@ import {
   GenericTreeItem,
   IActionContext,
 } from "@microsoft/vscode-azext-utils";
-import { EmptyTreeItem } from "./EmptyTreeItem";
+import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 const signInLabel: string = localize("signInLabel", "Sign in to Azure...");
 const createAccountLabel: string = localize(
@@ -125,7 +125,7 @@ export abstract class AzureAccountTreeItemBase extends AzExtParentTreeItem {
       ];
     }
 
-    return [new EmptyTreeItem(this)];
+    return [new GenericAzExtTreeItem(this, "", "")];
   }
 
   private async loadAzureAccount(

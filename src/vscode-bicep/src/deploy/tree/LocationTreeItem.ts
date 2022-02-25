@@ -6,7 +6,7 @@ import { AzExtTreeItem, IActionContext } from "@microsoft/vscode-azext-utils";
 import { createSubscriptionClient } from "../utils/azureClients";
 import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
 import { localize } from "../../utils/localize";
-import { GenericTreeItem } from "./GenericTreeItem";
+import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 export class LocationTreeItem extends SubscriptionTreeItemBase {
   public readonly childTypeLabel: string = localize("location", "Location");
@@ -35,7 +35,7 @@ export class LocationTreeItem extends SubscriptionTreeItemBase {
     const locationItems = await this.createTreeItemsWithErrorHandling(
       locations,
       "invalidLocation",
-      (location) => new GenericTreeItem(this, location.id, location.name),
+      (location) => new GenericAzExtTreeItem(this, location.id, location.name),
       (location) => location.name
     );
 

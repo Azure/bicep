@@ -24,9 +24,9 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
-import { AzLocationTreeItem } from './tree/AzLocationTreeItem';
-import { AzLoginTreeItem } from './tree/AzLoginTreeItem';
-import { AzResourceGroupTreeItem } from './tree/AzResourceGroupTreeItem';
+import { AzLocationTreeItem } from './deploy/tree/AzLocationTreeItem';
+import { AzLoginTreeItem } from './deploy/tree/AzLoginTreeItem';
+import { AzResourceGroupTreeItem } from './deploy/tree/AzResourceGroupTreeItem';
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {

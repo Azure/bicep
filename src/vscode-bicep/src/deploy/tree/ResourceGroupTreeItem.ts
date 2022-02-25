@@ -21,7 +21,7 @@ import {
 } from "@microsoft/vscode-azext-utils";
 import { createResourceManagementClient } from "../../deploy/utils/azureClients";
 import { localize } from "../../utils/localize";
-import { GenericTreeItem } from "./GenericTreeItem";
+import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
   public readonly childTypeLabel: string = localize(
@@ -53,7 +53,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     const resourceGroupItems = await this.createTreeItemsWithErrorHandling(
       rgs,
       "invalidResourceGroup",
-      (rg) => new GenericTreeItem(this, rg.id, rg.name),
+      (rg) => new GenericAzExtTreeItem(this, rg.id, rg.name),
       (rg) => rg.name
     );
 
@@ -91,7 +91,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
 
     const azTreeItem = nonNullProp(wizardContext, "resourceGroup");
 
-    return new GenericTreeItem(
+    return new GenericAzExtTreeItem(
       this,
       azTreeItem.id,
       azTreeItem.name

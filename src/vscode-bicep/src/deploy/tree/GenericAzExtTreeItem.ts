@@ -6,7 +6,7 @@ import {
   AzExtTreeItem,
 } from "@microsoft/vscode-azext-utils";
 
-export class GenericTreeItem extends AzExtTreeItem {
+export class GenericAzExtTreeItem extends AzExtTreeItem {
   private _id: string | undefined;
   private _label: string | undefined;
 
