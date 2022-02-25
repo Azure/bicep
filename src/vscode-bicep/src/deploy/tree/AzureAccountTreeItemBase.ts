@@ -3,8 +3,8 @@
 
 import * as semver from "semver";
 import { commands, Disposable, Extension, extensions, ThemeIcon } from "vscode";
-import { AzureAccount } from "../azure-account.api";
-import { localize } from "../ui/localize";
+import { AzureAccount } from "../../azure-account.api";
+import { localize } from "../../utils/localize";
 import {
   registerEvent,
   AzExtTreeItem,

@@ -5,7 +5,7 @@ import { SubscriptionTreeItemBase } from "@microsoft/vscode-azext-azureutils";
 import { AzExtTreeItem, IActionContext } from "@microsoft/vscode-azext-utils";
 import { createSubscriptionClient } from "../utils/azureClients";
 import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
-import { localize } from "../utils/localize";
+import { localize } from "../../utils/localize";
 import { GenericTreeItem } from "./GenericTreeItem";
 
 export class LocationTreeItem extends SubscriptionTreeItemBase {

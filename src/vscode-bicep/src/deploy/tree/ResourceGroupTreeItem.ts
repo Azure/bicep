@@ -19,8 +19,8 @@ import {
   ICreateChildImplContext,
   nonNullProp,
 } from "@microsoft/vscode-azext-utils";
-import { createResourceClient } from "../utils/azureClients";
-import { localize } from "../utils/localize";
+import { createResourceManagementClient } from "../../deploy/utils/azureClients";
+import { localize } from "../../utils/localize";
 import { GenericTreeItem } from "./GenericTreeItem";
 
 export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
@@ -42,7 +42,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     if (clearCache) {
       this._nextLink = undefined;
     }
-    const client: ResourceManagementClient = await createResourceClient([
+    const client: ResourceManagementClient = await createResourceManagementClient([
       context,
       this,
     ]);

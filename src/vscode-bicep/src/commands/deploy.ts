@@ -20,10 +20,10 @@ import {
   ManagementGroup,
 } from "@azure/arm-managementgroups";
 import { appendToOutputChannel } from "../utils/logger";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
 import { deploymentScopeRequestType } from "../language";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem";
+import { AzLoginTreeItem } from "../deploy/tree/AzLoginTreeItem";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
