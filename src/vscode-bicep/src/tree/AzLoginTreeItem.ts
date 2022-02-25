@@ -6,7 +6,7 @@
 
 import { AzureAccountTreeItemBase } from "./AzureAccountTreeItemBase";
 
-export class AzureAccountTreeItem extends AzureAccountTreeItemBase {
+export class AzLoginTreeItem extends AzureAccountTreeItemBase {
   public constructor() {
     super(undefined);
   }

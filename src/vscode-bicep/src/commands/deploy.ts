@@ -14,17 +14,16 @@ import {
   parseError,
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
-import { AzureAccount } from "../azure-account.api";
 import { DefaultAzureCredential } from "@azure/identity";
 import {
   ManagementGroupsAPI,
   ManagementGroup,
 } from "@azure/arm-managementgroups";
-import { SubscriptionClient } from "@azure/arm-subscriptions";
 import { appendToOutputChannel } from "../utils/logger";
-import { AzureAccountTreeItem } from "../tree/AzureAccountTreeItem";
-import { AzTreeItem } from "../tree/AzTreeItem";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { deploymentScopeRequestType } from "../language";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
@@ -75,7 +74,10 @@ export class DeployCommand implements Command {
         `Scope specified in "${fileName}": "${deploymentScope}"`
       );
 
-      await ext.tree.showTreeItemPicker<AzureAccountTreeItem>("", _context);
+      await ext.azLoginTreeItem.showTreeItemPicker<AzLoginTreeItem>(
+        "",
+        _context
+      );
 
       if (deploymentScope == "resourceGroup") {
         await handleResourceGroupDeployment(
@@ -138,46 +140,6 @@ async function loadManagementGroupItems() {
   }));
 }
 
-async function loadSubscriptionItems() {
-  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
-    "ms-vscode.azure-account"
-  )!.exports;
-
-  const subscriptions = azureAccount.subscriptions;
-
-  subscriptions.sort((a, b) =>
-    (a.subscription.displayName || "").localeCompare(
-      b.subscription.displayName || ""
-    )
-  );
-  return subscriptions.map((subscription) => ({
-    label: subscription.subscription.displayName || "",
-    subscription,
-  }));
-}
-
-async function loadLocationItems(subscriptionId: string) {
-  const azureAccount = vscode.extensions.getExtension<AzureAccount>(
-    "ms-vscode.azure-account"
-  )!.exports;
-  const session = azureAccount.sessions[0];
-  const subscriptionClient = new SubscriptionClient(session.credentials2);
-  const locations = await subscriptionClient.subscriptions.listLocations(
-    subscriptionId
-  );
-
-  const locationArray = [];
-  for await (const location of locations) {
-    locationArray.push(location);
-  }
-
-  locationArray.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
-  return locationArray.map((location) => ({
-    label: location.name || "",
-    location,
-  }));
-}
-
 async function handleManagementGroupDeployment(
   context: IActionContext,
   documentUri: vscode.Uri,
@@ -217,10 +179,11 @@ async function handleResourceGroupDeployment(
   template: string,
   client: LanguageClient
 ) {
-  const resourceGroupTreeItem = await ext.azTree.showTreeItemPicker<AzTreeItem>(
-    "",
-    context
-  );
+  const resourceGroupTreeItem =
+    await ext.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
+      "",
+      context
+    );
   const resourceGroupId = resourceGroupTreeItem.id;
   const parameterFilePath = await selectParameterFile(context, documentUri);
 
@@ -244,29 +207,23 @@ async function handleSubscriptionDeployment(
   template: string,
   client: LanguageClient
 ) {
-  const subscription = await getSubscription(context);
-  const subscriptionId = subscription?.subscription.subscriptionId;
+  const locationTreeItem =
+    await ext.azLocationTree.showTreeItemPicker<LocationTreeItem>("", context);
+  const location = locationTreeItem.label;
+  const subscriptionId = locationTreeItem.subscription.subscriptionPath;
 
-  if (subscriptionId) {
+  if (location && subscriptionId) {
     const parameterFilePath = await selectParameterFile(context, documentUri);
 
-    const locations = await loadLocationItems(subscriptionId);
-    const location = await context.ui.showQuickPick(locations, {
-      placeHolder: "Please select location",
-    });
-
-    const id = subscription.subscription.id;
-    if (location && id) {
-      await sendDeployCommand(
-        documentUri.fsPath,
-        parameterFilePath,
-        id,
-        deploymentScope,
-        location.label,
-        template,
-        client
-      );
-    }
+    await sendDeployCommand(
+      documentUri.fsPath,
+      parameterFilePath,
+      subscriptionId,
+      deploymentScope,
+      location,
+      template,
+      client
+    );
   }
 }
 
@@ -294,15 +251,6 @@ async function sendDeployCommand(
     }
   );
   appendToOutputChannel(deployOutput);
-}
-
-async function getSubscription(context: IActionContext) {
-  const subscriptions = await loadSubscriptionItems();
-  const quickPickItem = await context.ui.showQuickPick(subscriptions, {
-    placeHolder: "Please select subscription",
-  });
-
-  return quickPickItem.subscription;
 }
 
 export interface PartialList<T> extends Array<T> {

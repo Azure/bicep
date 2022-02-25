@@ -24,8 +24,9 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
-import { AzureAccountTreeItem } from './tree/AzureAccountTreeItem';
-import { AzTreeItem } from './tree/AzTreeItem';
+import { AzLocationTreeItem } from './tree/AzLocationTreeItem';
+import { AzLoginTreeItem } from './tree/AzLoginTreeItem';
+import { AzResourceGroupTreeItem } from './tree/AzResourceGroupTreeItem';
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -84,11 +85,14 @@ export async function activate(
         new ShowSourceCommand(viewManager)
     );
 
-    const accountTreeItem: AzureAccountTreeItem = new AzureAccountTreeItem();
-    ext.tree = new AzExtTreeDataProvider(accountTreeItem, '');
+    const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
+    ext.azLoginTreeItem = new AzExtTreeDataProvider(azLoginTreeItem, '');
 
-    const azTreeItem: AzTreeItem = new AzTreeItem();
-    ext.azTree = new AzExtTreeDataProvider(azTreeItem, '');
+    const azResourceGroupTreeItem: AzResourceGroupTreeItem = new AzResourceGroupTreeItem();
+    ext.azResourceGroupTreeItem = new AzExtTreeDataProvider(azResourceGroupTreeItem, '');
+
+    const azLocationTreeItem: AzLocationTreeItem = new AzLocationTreeItem();
+    ext.azLocationTree = new AzExtTreeDataProvider(azLocationTreeItem, '');
   });
 }
 
