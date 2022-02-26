@@ -100,6 +100,15 @@ namespace Bicep.Core.UnitTests.Configuration
         }
 
         [TestMethod]
+        public void GetBuiltInConfiguration_CoreLinterShouldDefaultToEnabled()
+        {
+            var sut = new ConfigurationManager(new IOFileSystem());
+            var configuration = sut.GetBuiltInConfiguration();
+
+            configuration.Analyzers.GetValue<bool>("core.enabled", false).Should().Be(true, "Core linters should default to enabled");
+        }
+
+        [TestMethod]
         public void GetBuiltInConfiguration_DisableAnalyzers_ReturnsBuiltInConfigurationWithoutAnalyzerSettings()
         {
             // Arrange.
