@@ -16,7 +16,7 @@ resource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {
     dnsSettings: {
       enableProxy: true
     }
-    threatIntelMode: ''Alert''
+    threatIntelMode: 'Alert'
 //@[23:28) [BCP019 (Error)] Expected a new line character at this location. (CodeDescription: none) |Alert|
   }
 }
