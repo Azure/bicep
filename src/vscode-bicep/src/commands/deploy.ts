@@ -253,10 +253,6 @@ async function sendDeployCommand(
   appendToOutputChannel(deployOutput);
 }
 
-export interface PartialList<T> extends Array<T> {
-  nextLink?: string;
-}
-
 export async function selectParameterFile(
   _context: IActionContext,
   sourceUri: Uri | undefined
