@@ -3,14 +3,11 @@
 using System;
 using System.Linq;
 using System.Security.Cryptography;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -2904,7 +2901,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
   }
 }
 "));
-            result.Should().GenerateATemplate().And.HaveDiagnostics(new []
+            result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
             {
                 ("BCP073", DiagnosticLevel.Warning, "The property \"tags\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
@@ -2925,7 +2922,7 @@ module mod 'module.bicep' = {
   outputs: {}
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new []
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
             {
                 ("BCP073", DiagnosticLevel.Error, "The property \"outputs\" is read-only. Expressions cannot be assigned to read-only properties.")
             });
@@ -2961,9 +2958,135 @@ output badResult object = {
   value: storage.listAnything().keys[0].value
 }");
 
-            result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject {
+            result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
+            {
                 ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
             });
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5960
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5960_case1()
+        {
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                    new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
+                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                }, null))
+            });
+
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+  systemRequired: 'value'
+}
+"));
+            result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
+            {
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"required\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5960
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5960_case2()
+        {
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                    new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
+                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                }, null))
+            });
+
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+  required: 'value'
+}
+"));
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
+            {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"systemRequired\".")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5960
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5960_case3()
+        {
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("name", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant, "name property"),
+                    new TypeProperty("required", LanguageConstants.String, TypePropertyFlags.Required, "required property"),
+                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                }, null))
+            });
+
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+  name: 'resourceA'
+}
+"));
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
+            {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"required\", \"systemRequired\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5960
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5960_case4()
+        {
+            var typeReference = ResourceTypeReference.Parse("My.Rp/myResource@2020-01-01");
+            var typeLoader = TestTypeHelper.CreateAzResourceTypeLoaderWithTypes(new[] {
+                new ResourceTypeComponents(typeReference, ResourceScope.ResourceGroup, new ObjectType(typeReference.FormatName(), TypeSymbolValidationFlags.Default, new [] {
+                    new TypeProperty("systemRequired", LanguageConstants.String, TypePropertyFlags.SystemProperty | TypePropertyFlags.Required, "system required property")
+                }, null))
+            });
+
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(typeLoader, ("main.bicep", @"
+resource resourceA 'My.Rp/myResource@2020-01-01' = {
+}
+"));
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
+            {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"systemRequired\".")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5960
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue5960_case5()
+        {
+            // explicitly pass a valid scope
+            var result = CompilationHelper.Compile(("main.bicep", @"
+module mod 'mod.bicep' = {
+}
+"), ("mod.bicep", ""));
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
+            {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"module\" declaration is missing the following required properties: \"name\".")
+            });
+        }
+
     }
 }

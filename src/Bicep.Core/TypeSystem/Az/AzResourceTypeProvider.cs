@@ -8,7 +8,6 @@ using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
 using Bicep.Core.Emit;
-using Bicep.Core.Semantics.Namespaces;
 using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.Az
@@ -208,7 +207,7 @@ namespace Bicep.Core.TypeSystem.Az
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
+                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags | TypePropertyFlags.SystemProperty)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
                             bodyObjectType.MethodResolver.CopyToObject);
@@ -314,10 +313,10 @@ namespace Bicep.Core.TypeSystem.Az
                 }
             }
 
-            // add the loop variant flag to the name property (if it exists)
+            // add the loop variant and system flags to the name property (if it exists)
             if (properties.TryGetValue(ResourceNamePropertyName, out var nameProperty))
             {
-                properties = properties.SetItem(ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
+                properties = properties.SetItem(ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty));
             }
 
             // add the 'parent' property for child resource types that are not nested inside a parent resource

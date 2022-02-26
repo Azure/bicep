@@ -215,7 +215,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (var moduleFormalParameter in moduleFormalParameters)
             {
                 SyntaxBase? defaultValue = (moduleFormalParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue;
-                if (defaultValue is not null && ContainsCallToRgOrDeploymentLocation(defaultValue, out string _))
+                if (defaultValue is not null && ContainsCallToRgOrDeploymentLocation(defaultValue, out _))
                 {
                     locationParameters.Add(moduleFormalParameter.Name.IdentifierName);
                 }

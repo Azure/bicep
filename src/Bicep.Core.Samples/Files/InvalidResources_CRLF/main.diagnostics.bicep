@@ -584,13 +584,13 @@ resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for oth
 }]
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". (CodeDescription: none) |missingTopLevelProperties|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |missingTopLevelProperties|
   // #completionTest(0, 1, 2) -> topLevelProperties
   
 }
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[9:44) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". (CodeDescription: none) |missingTopLevelPropertiesExceptName|
+//@[9:44) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "location", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |missingTopLevelPropertiesExceptName|
   // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
   name: 'me'
   // do not remove whitespace before the closing curly
@@ -760,12 +760,12 @@ var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissi
 Discriminator value set 1
 */
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetOne|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetOne|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
   }
@@ -788,12 +788,12 @@ var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
 Discriminator value set 1 (conditional)
 */
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetOne_if|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetOne_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
   }
@@ -816,12 +816,12 @@ var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties
 Discriminator value set 1 (loop)
 */
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetOne_for|
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetOne_for|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
   }
@@ -844,12 +844,12 @@ var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].prope
 Discriminator value set 1 (filtered loop)
 */
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
-//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetOne_for_if|
+//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetOne_for_if|
   kind: 'AzureCLI'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azCliVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
     
   }
@@ -873,12 +873,12 @@ var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1]
 Discriminator value set 2
 */
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetTwo|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetTwo|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
   }
@@ -905,12 +905,12 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['pro
 Discriminator value set 2 (conditional)
 */
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetTwo_if|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetTwo_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
   }
@@ -938,12 +938,12 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_i
 Discriminator value set 2 (loops)
 */
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetTwo_for|
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetTwo_for|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
   }
@@ -971,12 +971,12 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_
 Discriminator value set 2 (filtered loops)
 */
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |discriminatorKeySetTwo_for_if|
+//@[9:38) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |discriminatorKeySetTwo_for_if|
   kind: 'AzurePowerShell'
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
   
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "azPowerShellVersion", "retentionInterval". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
     
   }
@@ -1002,7 +1002,7 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name", "properties". (CodeDescription: none) |incorrectPropertiesKey|
+//@[9:31) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name", "properties". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |incorrectPropertiesKey|
   kind: 'AzureCLI'
 
   propertes: {
@@ -1065,7 +1065,7 @@ resource startedTypingTypeWithoutQuotes virma
 //@[45:45) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
-//@[9:30) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". (CodeDescription: none) |dashesInPropertyNames|
+//@[9:30) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "location", "name". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |dashesInPropertyNames|
 }
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
@@ -1193,7 +1193,7 @@ resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-p
   location: 'l'
 //@[12:15) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
 
   }
@@ -1229,7 +1229,7 @@ resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-0
   location: 'l'
 //@[12:15) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
 
   }
@@ -1267,7 +1267,7 @@ resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-
   location: 'l'
 //@[12:15) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
 
   }
@@ -1305,7 +1305,7 @@ resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-
   location: 'l'
 //@[12:15) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'l' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'l'|
   properties: {
-//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". (CodeDescription: none) |properties|
+//@[2:12) [BCP035 (Warning)] The specified "object" declaration is missing the following required properties: "databaseAccountOfferType", "locations". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |properties|
     createMode: 'Default'
 
   }
@@ -1560,25 +1560,25 @@ resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (
 
 // wrong filter expression type
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". (CodeDescription: none) |wrongFilterExpressionType|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |wrongFilterExpressionType|
 //@[114:117) [BCP046 (Error)] Expected a value of type "bool". (CodeDescription: none) |(4)|
 }]
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". (CodeDescription: none) |wrongFilterExpressionType2|
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |wrongFilterExpressionType2|
 //@[119:132) [BCP046 (Error)] Expected a value of type "bool". (CodeDescription: none) |(concat('s'))|
 }]
 
 // missing required properties
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". (CodeDescription: none) |missingRequiredProperties|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |missingRequiredProperties|
 }]
 resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
-//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". (CodeDescription: none) |missingRequiredProperties2|
+//@[9:35) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "location", "name", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |missingRequiredProperties2|
 }]
 
 // fewer missing required properties and a wrong property
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[9:39) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "kind", "sku". (CodeDescription: none) |missingFewerRequiredProperties|
+//@[9:39) [BCP035 (Warning)] The specified "resource" declaration is missing the following required properties: "kind", "sku". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |missingFewerRequiredProperties|
   name: account
   location: 'eastus42'
 //@[12:22) [no-hardcoded-location (Warning)] A resource location should not use a hard-coded string or variable value. Please use a parameter value, an expression, or the string 'global'. Found: 'eastus42' (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-hardcoded-location)) |'eastus42'|
@@ -2000,13 +2000,13 @@ resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [fo
 }]
 
 resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
-//@[9:23) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". (CodeDescription: none) |anyTypeInScope|
+//@[9:23) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |anyTypeInScope|
   scope: any(invalidExistingLocationRef)
 //@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(invalidExistingLocationRef)|
 }
 
 resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
-//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". (CodeDescription: none) |anyTypeInScopeConditional|
+//@[9:34) [BCP035 (Error)] The specified "resource" declaration is missing the following required properties: "name", "properties". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |anyTypeInScopeConditional|
   scope: any(invalidExistingLocationRef)
 //@[9:40) [BCP176 (Error)] Values of the "any" type are not allowed here. (CodeDescription: none) |any(invalidExistingLocationRef)|
 }

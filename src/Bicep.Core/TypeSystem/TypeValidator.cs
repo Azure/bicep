@@ -467,16 +467,22 @@ namespace Bicep.Core.TypeSystem
 
             var missingRequiredProperties = targetType.Properties.Values
                 .Where(p => p.Flags.HasFlag(TypePropertyFlags.Required) && !namedPropertyMap.ContainsKey(p.Name))
-                .Select(p => p.Name)
-                .OrderBy(p => p);
+                .ToList();
+                
 
-            if (missingRequiredProperties.Any())
+            if (missingRequiredProperties.Count > 0)
             {
                 var (positionable, blockName) = GetMissingPropertyContext(expression);
 
+                var shouldWarn = (config.IsResourceDeclaration && missingRequiredProperties.All(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty)))
+                                 || ShouldWarn(targetType);
+
+                var missingRequiredPropertiesNames = missingRequiredProperties.Select(p => p.Name).OrderBy(p => p).ToList();
+                var showTypeInaccuracy = config.IsResourceDeclaration && missingRequiredProperties.Any(p => !p.Flags.HasFlag(TypePropertyFlags.SystemProperty));
+
                 diagnosticWriter.Write(
                     config.OriginSyntax ?? positionable,
-                    x => x.MissingRequiredProperties(ShouldWarn(targetType), TryGetSourceDeclaration(config), expression, missingRequiredProperties, blockName));
+                    x => x.MissingRequiredProperties(shouldWarn, TryGetSourceDeclaration(config), expression, missingRequiredPropertiesNames, blockName, showTypeInaccuracy));
             }
 
             var narrowedProperties = new List<TypeProperty>();
