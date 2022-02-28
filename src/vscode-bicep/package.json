@@ -328,7 +328,7 @@
           },
           {
             "id": "addParameters",
-            "title": "Write your first file",
+            "title": "Add parameters",
             "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes.",
             "media": {
               "markdown": "media/walkthroughs/gettingStarted/2_Type_Params.md"
@@ -338,20 +338,18 @@
           {
             "id": "addResources",
             "title": "Add resources",
-            "description": "Type 'appplan' to view the 'App Service plan' resource snippet and press Tab or Enter. Press Tab to jump to the ``name`` attribute and replace its value with the parameter ``appPlanName``.\nNext, type 'storage' to view the 'Storage Account' resource snippet and press Tab or Enter. Replace the name attribute's value with ``'${appServicePlan.name}storage'`` and save the file.\nFeel free to search for other snippets that suit your needs.\n[Copy code to clipboard](command:bicep.gettingStarted.copyToClipboardResources)",
+            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes.",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/3_Type_Resos.gif",
-              "altText": "asdfg"
+              "markdown": "media/walkthroughs/gettingStarted/3_Type_Resources.md"
             },
             "completionEvents": []
           },
           {
             "id": "visualizeYourResources",
             "title": "Visualize your resources",
-            "description": "The Visualizer gives you a representation of the resources in your Bicep file. In this example, `storageaccount` has an arrow towards `appServicePlan` because it depends on the name you declare for the App Service plan during deployment.\n[Open Visualizer to the Side](command:bicep.gettingStarted.openVisualizer)",
+            "description": "The Visualizer gives you a representation of the resources in your Bicep file.",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/4_Show_Visualizer.gif",
-              "altText": "TODO"
+              "markdown": "media/walkthroughs/gettingStarted/4_Show_Visualizer.md"
             },
             "completionEvents": [
               "onCommand:bicep.showVisualizerToSide",
@@ -361,7 +359,7 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources in Azure. If you don't have the [Azure Account Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.azure-account) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy)",
+            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.azure-account) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "TODO"

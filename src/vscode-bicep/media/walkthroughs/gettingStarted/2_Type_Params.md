@@ -1,14 +1,16 @@
-# Let's author multiple Azure resources with Bicep.
+# Add parameters to your Bicep file
 
-First, create a parameter named location:
+* First, create a parameter named location:
 ```bicep
 param location string = resourceGroup().location
 ```
-Next, create a parameter named 'appPlanName':
+* Next, create a parameter named 'appPlanName':
 ```bicep
 param appPlanName string
 ```
 
-These parameters will be used to fill attributes in your resources.
+These parameters will be used to fill in attributes in your resources.
 
-![Image of typing parameters code into Bicep](2_Type_Params.gif)
+[Copy code to clipboard](command:bicep.gettingStarted.copyToClipboardParams)
+
+![Typing parameters into Bicep](2_Type_Params.gif)
