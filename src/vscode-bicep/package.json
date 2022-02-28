@@ -333,6 +333,7 @@
             "media": {
               "markdown": "media/walkthroughs/gettingStarted/2_Type_Params.md"
             },
+            "asdfg": "completion events?",
             "completionEvents": []
           },
           {
@@ -342,16 +343,18 @@
             "media": {
               "markdown": "media/walkthroughs/gettingStarted/3_Type_Resources.md"
             },
+            "asdfg": "completion events?",
             "completionEvents": []
           },
           {
             "id": "visualizeYourResources",
             "title": "Visualize your resources",
-            "description": "The Visualizer gives you a representation of the resources in your Bicep file.",
+            "description": "The Visualizer gives you a representation of the resources in your Bicep file.\n[Open Visualizer to the Side](command:bicep.gettingStarted.openVisualizer)",            
             "media": {
               "markdown": "media/walkthroughs/gettingStarted/4_Show_Visualizer.md"
             },
             "completionEvents": [
+              "onCommand:bicep.gettingStarted.openVisualizer",
               "onCommand:bicep.showVisualizerToSide",
               "onCommand:bicep.showVisualizer"
             ]

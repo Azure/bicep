@@ -3,8 +3,8 @@
 
 //asdfg telemetry?
 
-import { commands, MessageItem, TextEditor, window } from "vscode";
-import { IActionContext } from "vscode-azureextensionui";
+import { commands, MessageItem, TextEditor, ViewColumn, window } from "vscode";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 import { Command } from "../types";
 import {
   WalkthroughCreateBicepFileCommand,
@@ -12,16 +12,16 @@ import {
 } from "..";
 
 // Tries to find the visible bicep file that the user is editing alongside the walkthrough.
-async function findVisibleBicepFileEditor(
+async function findAndActivateVisibleBicepFileEditor(
   context: IActionContext
 ): Promise<TextEditor | undefined> {
-  const editors = window.visibleTextEditors.filter(
+  const visibleBicepEditors = window.visibleTextEditors.filter(
     (ed) => ed.document.languageId === "bicep"
   );
 
-  const editor: TextEditor | undefined = editors[0];
+  const editor: TextEditor | undefined = visibleBicepEditors[0];
   if (editor) {
-    return editor;
+    return window.showTextDocument(editor.document, ViewColumn.Beside);
   }
 
   const open: MessageItem = {
@@ -49,7 +49,7 @@ export class WalkthroughShowVisualizerCommand implements Command {
 
   public async execute(context: IActionContext): Promise<void> {
     // asdfg what if not visible?
-    const currentEditor = await findVisibleBicepFileEditor(context);
+    const currentEditor = await findAndActivateVisibleBicepFileEditor(context);
     if (currentEditor) {
       await commands.executeCommand("bicep.showVisualizerToSide");
     }

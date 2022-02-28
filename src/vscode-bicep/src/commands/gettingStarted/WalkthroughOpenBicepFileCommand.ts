@@ -10,7 +10,10 @@ import {
   ViewColumn,
   TextEditor,
 } from "vscode";
-import { IActionContext, IAzureQuickPickItem } from "vscode-azureextensionui";
+import {
+  IActionContext,
+  IAzureQuickPickItem,
+} from "@microsoft/vscode-azext-utils";
 
 import { Command } from "../types";
 
