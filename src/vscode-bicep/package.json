@@ -317,8 +317,7 @@
             "title": "Open a Bicep File",
             "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension).\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nHint: [Close the side bar for more space](command:workbench.action.closeSidebar)",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
-              "altText": "Bicep logo"
+              "markdown": "media/walkthroughs/gettingStarted/1_FirstStep.md"
             },
             "completionEvents": [
               "onCommand:bicep.gettingStarted.createBicepFile",
