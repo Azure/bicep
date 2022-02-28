@@ -129,6 +129,9 @@
   <data name="DisableDiagnosticForThisLine" xml:space="preserve">
     <value>Disable {0} for this line</value>
   </data>
+  <data name="InvalidParameterFileDeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed. Please fix following issues in parameter file: {0}</value>
+  </data>
   <data name="MissingLocationDeploymentFailedMessage" xml:space="preserve">
     <value>Deployment failed. Please provide a valid location.</value>
   </data>

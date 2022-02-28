@@ -70,9 +70,9 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepDeployCommandHandler>()
+                    .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
-                    .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 creationOptions.onRegisterServices?.Invoke(options.Services);

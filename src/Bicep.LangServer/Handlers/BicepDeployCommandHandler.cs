@@ -49,7 +49,6 @@ namespace Bicep.LanguageServer.Handlers
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
-
             var credential = this.credentialFactory.CreateChain(ImmutableArray.Create(CredentialType.VisualStudioCode), configuration.Cloud.ActiveDirectoryAuthorityUri);
             var armClient = new ArmClient(credential);
 

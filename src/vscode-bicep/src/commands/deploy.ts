@@ -33,8 +33,7 @@ export class DeployCommand implements Command {
     _context: IActionContext,
     documentUri?: vscode.Uri | undefined
   ): Promise<void> {
-    const document = vscode.window.activeTextEditor?.document;
-    documentUri ??= document?.uri;
+    documentUri ??= vscode.window.activeTextEditor?.document.uri;
 
     if (!documentUri) {
       return;
@@ -55,10 +54,9 @@ export class DeployCommand implements Command {
     }
 
     try {
-      const path = decodeURIComponent(documentUri.path.substring(1));
       const deploymentScopeResponse = await this.client.sendRequest(
         deploymentScopeRequestType,
-        { textDocument: TextDocumentIdentifier.create(path) }
+        { textDocument: TextDocumentIdentifier.create(documentUri.fsPath) }
       );
       const deploymentScope = deploymentScopeResponse?.scope;
       const template = deploymentScopeResponse?.template;

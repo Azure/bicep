@@ -4,7 +4,7 @@ import * as path from "path";
 import vscode, { Uri } from "vscode";
 import {
   IActionContext,
-  IAzureQuickPickItem
+  IAzureQuickPickItem,
 } from "@microsoft/vscode-azext-utils";
 import { appendToOutputChannel } from "../utils/logger";
 
@@ -30,7 +30,9 @@ export async function selectParameterFile(
     if (paramsPaths && paramsPaths.length == 1) {
       const parameterFilePath = paramsPaths[0].fsPath;
       appendToOutputChannel(
-        `Parameter file used in deployment -> ${path.basename(parameterFilePath)}`
+        `Parameter file used in deployment -> ${path.basename(
+          parameterFilePath
+        )}`
       );
       return parameterFilePath;
     }

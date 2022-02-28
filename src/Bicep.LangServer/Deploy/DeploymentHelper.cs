@@ -61,8 +61,15 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 else
                 {
-                    string text = File.ReadAllText(parameterFilePath);
-                    parameters = JsonDocument.Parse(text).RootElement;
+                    try
+                    {
+                        string text = File.ReadAllText(parameterFilePath);
+                        parameters = JsonDocument.Parse(text).RootElement;
+                    }
+                    catch(Exception e)
+                    {
+                        return string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, e.Message);
+                    }
                 }
 
                 var deploymentProperties = new DeploymentProperties(DeploymentMode.Incremental)

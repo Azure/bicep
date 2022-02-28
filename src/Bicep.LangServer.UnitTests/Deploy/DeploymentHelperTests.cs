@@ -1,20 +1,22 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
+using Azure;
 using Azure.ResourceManager;
+using Azure.ResourceManager.Resources;
+using Azure.ResourceManager.Resources.Models;
+using Bicep.Core;
 using Bicep.Core.UnitTests.Mock;
+using Bicep.Core.UnitTests.Utils;
+using Bicep.LanguageServer;
 using Bicep.LanguageServer.Deploy;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Bicep.LanguageServer;
-using Bicep.Core;
 using Moq;
-using Azure.ResourceManager.Resources;
-using Azure.ResourceManager.Resources.Models;
-using System.Threading;
-using Azure;
-using System;
 
 namespace Bicep.LangServer.UnitTests.Deploy
 {
@@ -22,12 +24,15 @@ namespace Bicep.LangServer.UnitTests.Deploy
 
     public class DeploymentHelperTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
         [DataRow("invalid_scope")]
         [DataTestMethod]
-        public async Task CreateDeployment_WithInvalidScope_ReturnsDeploymentFailureMessage(string scope)
+        public async Task CreateDeployment_WithInvalidScope_ReturnsDeploymentFailedMessage(string scope)
         {
             var armClient = CreateMockArmClient();
             var result = await DeploymentHelper.CreateDeployment(
@@ -100,7 +105,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [DataRow(LanguageConstants.TargetScopeTypeResourceGroup, "")]
         [DataRow(LanguageConstants.TargetScopeTypeSubscription, "eastus")]
         [DataTestMethod]
-        public async Task CreateDeployment_WithValidScopeAndInput_ReturnsSucceededMessage(string scope, string location)
+        public async Task CreateDeployment_WithValidScopeAndInput_ReturnsDeploymentSucceededMessage(string scope, string location)
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -130,6 +135,73 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 location);
 
             result.Should().Be(LangServerResources.DeploymentSuccessfulMessage);
+        }
+
+        [TestMethod]
+        public async Task CreateDeployment_WithInvalidValidParameterFilePath_ReturnsDeploymentFailesMessage()
+        {
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Storage/storageAccounts"",
+      ""apiVersion"": ""2021-06-01"",
+      ""name"": ""storageaccount"",
+      ""location"": ""[resourceGroup().location]"",
+      ""properties"": {}
+    }
+  ]
+}";
+            var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
+            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
+            deploymentCollectionProvider
+                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
+                .Returns(deploymentCollection);
+
+            var result = await DeploymentHelper.CreateDeployment(
+                deploymentCollectionProvider.Object,
+                CreateMockArmClient(),
+                template,
+                @"c:\parameter.json",
+                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
+                LanguageConstants.TargetScopeTypeSubscription,
+                "eastus");
+
+            result.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, @"Could not find file 'c:\parameter.json'."));
+        }
+
+        [TestMethod]
+        public async Task CreateDeployment_WithInvalidValidParameterFileContents_ReturnsDeploymentFailesMessage()
+        {
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Storage/storageAccounts"",
+      ""apiVersion"": ""2021-06-01"",
+      ""name"": ""storageaccount"",
+      ""location"": ""[resourceGroup().location]"",
+      ""properties"": {}
+    }
+  ]
+}";
+            var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
+            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
+            deploymentCollectionProvider
+                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
+                .Returns(deploymentCollection);
+            string parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
+
+            var result = await DeploymentHelper.CreateDeployment(
+                deploymentCollectionProvider.Object,
+                CreateMockArmClient(),
+                template,
+                parametersFilePath,
+                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
+                LanguageConstants.TargetScopeTypeSubscription,
+                "eastus");
+
+            result.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
         }
 
         [TestMethod]
