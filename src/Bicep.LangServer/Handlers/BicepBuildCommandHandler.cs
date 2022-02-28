@@ -109,7 +109,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))
             {
-                return "Build Failed " + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
+                return "Build failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite);

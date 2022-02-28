@@ -14,8 +14,6 @@ namespace Bicep.LanguageServer.Utils
         public static string GetDiagnosticsMessage(KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile)
         {
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Please fix below errors:");
-
             IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;
 
             foreach (IDiagnostic diagnostic in diagnosticsByFile.Value)
