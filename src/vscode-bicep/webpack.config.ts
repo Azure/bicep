@@ -18,7 +18,7 @@ const extensionConfig: webpack.Configuration = {
   externals: {
     // the vscode-module is created on-the-fly and must be excluded. Add other modules that cannot be webpack'ed, 📖 -> https://webpack.js.org/configuration/externals/
     vscode: "commonjs vscode",
-    // The following are optional dependencies of microsoft/vscode-azext-utils that cannot be resolved.
+    // The following are optional dependencies of @microsoft/vscode-azext-utils that cannot be resolved.
     "applicationinsights-native-metrics":
       "commonjs applicationinsights-native-metrics",
     "@opentelemetry/tracing": "commonjs @opentelemetry/tracing",
@@ -30,7 +30,7 @@ const extensionConfig: webpack.Configuration = {
         loader: "esbuild-loader",
         options: {
           loader: "ts",
-          target: "es2016",
+          target: "es2018",
         },
         exclude: [/node_modules/, /visualizer\/app/, /test/],
       },
@@ -71,7 +71,7 @@ const visualizerConfig: webpack.Configuration = {
         loader: "esbuild-loader",
         options: {
           loader: "tsx",
-          target: "es2016",
+          target: "es2018",
         },
         exclude: /node_modules/,
       },

@@ -5,13 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
-using Bicep.Core;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -21,9 +19,9 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.Text;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -44,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IConfigurationManager configurationManager;
 
         public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
-            : base(LanguageConstants.Build, serializer)
+            : base(LangServerConstants.Build, serializer)
         {
             this.compilationManager = compilationManager;
             this.emitterSettings = emitterSettings;
@@ -111,7 +109,7 @@ namespace Bicep.LanguageServer.Handlers
 
             if (diagnosticsByFile.Value.Any(x => x.Level == DiagnosticLevel.Error))
             {
-                return GetDiagnosticsMessage(diagnosticsByFile);
+                return "Build Failed " + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
             using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite);
@@ -120,27 +118,6 @@ namespace Bicep.LanguageServer.Handlers
 
             return "Build succeeded. Created file " + compiledFile;
         }
-
-        private static string GetDiagnosticsMessage(KeyValuePair<BicepFile, IEnumerable<IDiagnostic>> diagnosticsByFile)
-        {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Build failed. Please fix below errors:");
-
-            IReadOnlyList<int> lineStarts = diagnosticsByFile.Key.LineStarts;
-
-            foreach (IDiagnostic diagnostic in diagnosticsByFile.Value)
-            {
-                (int line, int character) = TextCoordinateConverter.GetPosition(lineStarts, diagnostic.Span.Position);
-
-                // Build a code description link if the Uri is assigned
-                var codeDescription = diagnostic.Uri == null ? string.Empty : $" [{diagnostic.Uri.AbsoluteUri}]";
-
-                sb.AppendLine($"{diagnosticsByFile.Key.FileUri.LocalPath}({line + 1},{character + 1}) : {diagnostic.Level} {diagnostic.Code}: {diagnostic.Message}{codeDescription}");
-            }
-
-            return sb.ToString();
-        }
-
 
         // Returns true if the template contains bicep _generator metadata, false otherwise
         public bool TemplateContainsBicepGeneratorMetadata(string template)

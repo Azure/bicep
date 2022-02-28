@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { ext } from './extensionVariables';
 import vscode from "vscode";
-import {
-  createAzExtOutputChannel,
-  registerUIExtensionVariables,
-} from "@microsoft/vscode-azext-utils";
-
+import { registerAzureUtilsExtensionVariables } from '@microsoft/vscode-azext-azureutils';
+import { AzExtTreeDataProvider, createAzExtOutputChannel, registerUIExtensionVariables } from '@microsoft/vscode-azext-utils';
 import {
   launchLanguageServiceWithProgressReport,
   BicepCacheContentProvider,
@@ -14,6 +12,7 @@ import { BicepVisualizerViewManager } from "./visualizer";
 import {
   BuildCommand,
   CommandManager,
+  DeployCommand,
   InsertResourceCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
@@ -25,6 +24,9 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
+import { AzLocationTreeItem } from './deploy/tree/AzLocationTreeItem';
+import { AzLoginTreeItem } from './deploy/tree/AzLoginTreeItem';
+import { AzResourceGroupTreeItem } from './deploy/tree/AzResourceGroupTreeItem';
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -47,7 +49,9 @@ export async function activate(
 
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
-  registerUIExtensionVariables({ context, outputChannel });
+
+  registerUIExtensionVariables({ context, outputChannel, ignoreBundle: false });
+  registerAzureUtilsExtensionVariables({ context, outputChannel, prefix: "bicep", ignoreBundle: false });
 
   await activateWithTelemetryAndErrorHandling(async (actionContext) => {
     const languageClient = await launchLanguageServiceWithProgressReport(
@@ -75,11 +79,21 @@ export async function activate(
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient),
+        new DeployCommand(languageClient),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager)
-      );
+    );
+
+    const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
+    ext.azLoginTreeItem = new AzExtTreeDataProvider(azLoginTreeItem, '');
+
+    const azResourceGroupTreeItem: AzResourceGroupTreeItem = new AzResourceGroupTreeItem();
+    ext.azResourceGroupTreeItem = new AzExtTreeDataProvider(azResourceGroupTreeItem, '');
+
+    const azLocationTreeItem: AzLocationTreeItem = new AzLocationTreeItem();
+    ext.azLocationTree = new AzExtTreeDataProvider(azLocationTreeItem, '');
   });
 }
 

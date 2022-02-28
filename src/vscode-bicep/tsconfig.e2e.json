@@ -1,8 +1,8 @@
 // We need to compile the e2e tests until https://github.com/microsoft/vscode-test/issues/92 is closed.
 {
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["es2016"],
+    "target": "es2018",
+    "lib": ["es2018"],
     "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,

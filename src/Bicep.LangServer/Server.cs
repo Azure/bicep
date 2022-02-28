@@ -15,6 +15,7 @@ using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Handlers;
 using Bicep.LanguageServer.Providers;
@@ -27,9 +28,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using System;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Abstractions;
-using System.IO.Pipelines;
 using System.Threading;
 using System.Threading.Tasks;
 using OmnisharpLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
@@ -70,8 +69,10 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSemanticTokensHandler>()
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
+                    .WithHandler<BicepDeployCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
+                    .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));
 
                 creationOptions.onRegisterServices?.Invoke(options.Services);
@@ -127,6 +128,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IAzResourceProvider, AzResourceProvider>();
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
+            services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
         }
 
         public void Dispose()
