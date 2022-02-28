@@ -20,6 +20,7 @@ import {
   nonNullProp,
 } from "@microsoft/vscode-azext-utils";
 import { createResourceManagementClient } from "../../deploy/utils/azureClients";
+import { appendToOutputChannel } from "../../utils";
 import { localize } from "../../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
@@ -42,10 +43,8 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     if (clearCache) {
       this._nextLink = undefined;
     }
-    const client: ResourceManagementClient = await createResourceManagementClient([
-      context,
-      this,
-    ]);
+    const client: ResourceManagementClient =
+      await createResourceManagementClient([context, this]);
     // Load more currently broken https://github.com/Azure/azure-sdk-for-js/issues/20380
     const rgs: ResourceGroup[] = await uiUtils.listAllIterator(
       client.resourceGroups.list()
@@ -90,11 +89,11 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     await wizard.execute();
 
     const azTreeItem = nonNullProp(wizardContext, "resourceGroup");
+    const newResourceGroupItemName = azTreeItem.name;
+    const newResourceGroupItem = new GenericAzExtTreeItem(this, azTreeItem.id, newResourceGroupItemName);
 
-    return new GenericAzExtTreeItem(
-      this,
-      azTreeItem.id,
-      azTreeItem.name
-    );
+    appendToOutputChannel(`Created resource group -> ${newResourceGroupItemName}`)
+
+    return newResourceGroupItem;
   }
 }

@@ -41,7 +41,7 @@ export class DeployCommand implements Command {
     }
 
     const fileName = path.basename(documentUri.fsPath);
-    appendToOutputChannel(`Started deployment of "${fileName}"`);
+    appendToOutputChannel(`Started deployment of ${fileName}`);
 
     if (documentUri.scheme === "output") {
       // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
@@ -71,7 +71,7 @@ export class DeployCommand implements Command {
       }
 
       appendToOutputChannel(
-        `Scope specified in "${fileName}": "${deploymentScope}"`
+        `Scope specified in ${fileName} -> ${deploymentScope}`
       );
 
       await ext.azLoginTreeItem.showTreeItemPicker<AzLoginTreeItem>(
@@ -112,7 +112,7 @@ export class DeployCommand implements Command {
       }
     } catch (exception) {
       if (exception instanceof UserCancelledError) {
-        appendToOutputChannel("Deployment was cancelled.");
+        appendToOutputChannel("Deployment was canceled.");
       } else {
         this.client.error("Deploy failed", parseError(exception).message, true);
       }
@@ -275,9 +275,7 @@ export async function selectParameterFile(
     if (paramsPaths && paramsPaths.length == 1) {
       const parameterFilePath = paramsPaths[0].fsPath;
       appendToOutputChannel(
-        `Parameter file used in deployment: "${path.basename(
-          parameterFilePath
-        )}"`
+        `Parameter file used in deployment -> ${path.basename(parameterFilePath)}`
       );
       return parameterFilePath;
     }
