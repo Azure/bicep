@@ -187,7 +187,6 @@
       "type": "object",
       "default": {
         "core": {
-          "enabled": true,
           "rules": {
             "adminusername-should-not-be-literal": {
               "level": "warning"
@@ -251,9 +250,7 @@
           "title": "Core Bicep Analyzer",
           "description": "Core analyzer built into bicep",
           "type": "object",
-          "required": [
-            "enabled"
-          ],
+          "required": [],
           "properties": {
             "verbose": {
               "type": "boolean",

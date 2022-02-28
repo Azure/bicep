@@ -11,15 +11,15 @@ namespace Bicep.Core.Diagnostics
         private readonly CodeFix fix;
         private readonly IEnumerable<CodeFix>? additionalFixes;
 
-        public FixableErrorDiagnostic(Parsing.TextSpan span, string code, string message, Uri? documentationUri, DiagnosticLabel? label, CodeFix fix)
-            : base(span, code, message, documentationUri, label)
+        public FixableErrorDiagnostic(Parsing.TextSpan span, string code, string message, Uri? documentationUri, DiagnosticStyling styling, CodeFix fix)
+            : base(span, code, message, documentationUri, styling)
         {
             this.fix = fix;
             this.additionalFixes = null;
         }
 
-        public FixableErrorDiagnostic(Parsing.TextSpan span, string code, string message, Uri? documentationUri, DiagnosticLabel? label, CodeFix fix, params CodeFix[] additionalFixes)
-            : this(span, code, message, documentationUri, label, fix)
+        public FixableErrorDiagnostic(Parsing.TextSpan span, string code, string message, Uri? documentationUri, DiagnosticStyling styling, CodeFix fix, params CodeFix[] additionalFixes)
+            : this(span, code, message, documentationUri, styling, fix)
         {
             this.additionalFixes = additionalFixes;
         }

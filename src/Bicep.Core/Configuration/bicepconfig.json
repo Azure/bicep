@@ -1,4 +1,5 @@
 {
+  // This is the base configuration which provides the defaults for all values (end users don't see this file).
   "cloud": {
     "currentProfile": "AzureCloud",
     "profiles": {
