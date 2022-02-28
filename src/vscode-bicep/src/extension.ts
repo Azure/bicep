@@ -31,7 +31,7 @@ import {
 import {
   WalkthroughCopyToClipboardCommandParams,
   WalkthroughCopyToClipboardCommandResources,
-} from "./commands/gettingStarted/WalkthroughCopyToClipboardCommand";
+} from "./commands/gettingStarted/WalkthroughCopyToClipboardCommands";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {

@@ -328,11 +328,10 @@
           },
           {
             "id": "addParameters",
-            "title": "Add parameters",
-            "description": "First, create a parameter named 'location'.\nNext, create a parameter named 'appPlanName'.\nThese parameters will be used to fill attributes in your resources.\n[Copy code to clipboard](command:bicep.gettingStarted.copyToClipboardParams)",
+            "title": "Write your first file",
+            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes.",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/2_Type_Params.gif",
-              "altText": "asdfg"
+              "markdown": "media/walkthroughs/gettingStarted/2_Type_Params.md"
             },
             "completionEvents": []
           },

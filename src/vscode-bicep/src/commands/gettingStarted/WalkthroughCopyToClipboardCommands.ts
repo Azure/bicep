@@ -10,7 +10,8 @@ export class WalkthroughCopyToClipboardCommandParams implements Command {
   public async execute(): Promise<void> {
     vscode.env.clipboard.writeText(
       "param location string = resourceGroup().location\n" +
-        "param appPlanName string\n"
+        "param appPlanName string\n" +
+        "\n"
     );
   }
 }
