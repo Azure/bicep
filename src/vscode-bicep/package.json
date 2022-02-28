@@ -322,7 +322,8 @@
             },
             "completionEvents": [
               "onCommand:bicep.gettingStarted.createBicepFile",
-              "onCommand:bicep.gettingStarted.openBicepFile"
+              "onCommand:bicep.gettingStarted.openBicepFile",
+              "$asdfg:Completion for create not working"
             ]
           },
           {

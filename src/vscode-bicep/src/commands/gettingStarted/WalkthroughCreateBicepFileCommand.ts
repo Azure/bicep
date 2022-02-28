@@ -3,8 +3,14 @@
 
 import * as os from "os";
 import * as fse from "fs-extra";
-import vscode, { TextDocument, TextEditor, Uri, window, workspace } from "vscode";
-import { UserCancelledError } from "vscode-azureextensionui";
+import vscode, {
+  TextDocument,
+  TextEditor,
+  Uri,
+  window,
+  workspace,
+} from "vscode";
+import { UserCancelledError } from "@microsoft/vscode-azext-utils";
 
 import { Command } from "../types";
 
