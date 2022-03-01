@@ -16,12 +16,14 @@ export async function selectParameterFile(
 ): Promise<string> {
   const quickPickItems: IAzureQuickPickItem[] =
     await createParameterFileQuickPickList();
-  const result: IAzureQuickPickItem =
-    await _context.ui.showQuickPick(quickPickItems, {
+  const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+    quickPickItems,
+    {
       canPickMany: false,
       placeHolder: `Select a parameter file`,
       suppressPersistence: true,
-    });
+    }
+  );
 
   if (result.label.includes("Browse...")) {
     const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog({
@@ -45,7 +47,9 @@ export async function selectParameterFile(
   return "";
 }
 
-async function createParameterFileQuickPickList(): Promise<IAzureQuickPickItem[]> {
+async function createParameterFileQuickPickList(): Promise<
+  IAzureQuickPickItem[]
+> {
   const none: IAzureQuickPickItem = {
     label: "$(circle-slash) None",
     data: undefined,
@@ -55,7 +59,5 @@ async function createParameterFileQuickPickList(): Promise<IAzureQuickPickItem[]
     data: undefined,
   };
 
-  return [
-    none,
-  ].concat([browse]);
+  return [none].concat([browse]);
 }
