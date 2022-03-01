@@ -1,12 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 import { ResourceManagementClient } from "@azure/arm-resources";
 import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
 import {
   AzExtClientContext,
   createAzureClient,
-  createAzureSubscriptionClient
+  createAzureSubscriptionClient,
 } from "@microsoft/vscode-azext-azureutils";
 
 // Lazy-load @azure packages to improve startup performance.

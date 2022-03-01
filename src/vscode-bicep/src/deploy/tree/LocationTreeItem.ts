@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
+import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
 import { SubscriptionTreeItemBase } from "@microsoft/vscode-azext-azureutils";
 import { AzExtTreeItem, IActionContext } from "@microsoft/vscode-azext-utils";
-import { createSubscriptionClient } from "../utils/azureClients";
-import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
+
 import { localize } from "../../utils/localize";
+import { createSubscriptionClient } from "../azureClients";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 // Represents an Azure subscription. Used to display locations related to the subscription

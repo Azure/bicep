@@ -1,17 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 import * as semver from "semver";
 import { commands, Disposable, Extension, extensions, ThemeIcon } from "vscode";
-import { AzureAccount, AzureLoginStatus } from "../../azure-account.api";
-import { localize } from "../../utils/localize";
+
 import {
-  registerEvent,
-  AzExtTreeItem,
   AzExtParentTreeItem,
+  AzExtTreeItem,
   GenericTreeItem,
   IActionContext,
+  registerEvent,
 } from "@microsoft/vscode-azext-utils";
+
+import { AzureAccount, AzureLoginStatus } from "../../azure-account.api";
+import { localize } from "../../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 const signInLabel: string = localize("signInLabel", "Sign in to Azure...");

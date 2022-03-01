@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 import {
   AzExtParentTreeItem,
   AzExtTreeItem,
@@ -10,7 +9,11 @@ export class GenericAzExtTreeItem extends AzExtTreeItem {
   private _id: string | undefined;
   private _label: string | undefined;
 
-  constructor(parent: AzExtParentTreeItem, id: string | undefined, label: string | undefined) {
+  constructor(
+    parent: AzExtParentTreeItem,
+    id: string | undefined,
+    label: string | undefined
+  ) {
     super(parent);
     this._id = id;
     this._label = label;
@@ -20,7 +23,7 @@ export class GenericAzExtTreeItem extends AzExtTreeItem {
     return this._id;
   }
 
-  public get label(): string  {
+  public get label(): string {
     const name = this._label;
 
     if (name) {

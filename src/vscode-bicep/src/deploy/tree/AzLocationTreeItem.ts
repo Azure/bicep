@@ -1,11 +1,9 @@
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+import { AzureAccountTreeItemBase } from "@microsoft/vscode-azext-azureutils";
+import { ISubscriptionContext } from "@microsoft/vscode-azext-utils";
 
-import { AzureAccountTreeItemBase } from '@microsoft/vscode-azext-azureutils';
-import { ISubscriptionContext } from '@microsoft/vscode-azext-utils';
-import { LocationTreeItem } from './LocationTreeItem';
+import { LocationTreeItem } from "./LocationTreeItem";
 
 // The root of treeview used in subscription scope deployment, represents an Azure account
 export class AzLocationTreeItem extends AzureAccountTreeItemBase {
@@ -13,7 +11,9 @@ export class AzLocationTreeItem extends AzureAccountTreeItemBase {
     super(undefined, testAccount);
   }
 
-  public createSubscriptionTreeItem(root: ISubscriptionContext): LocationTreeItem {
+  public createSubscriptionTreeItem(
+    root: ISubscriptionContext
+  ): LocationTreeItem {
     return new LocationTreeItem(this, root);
   }
 }

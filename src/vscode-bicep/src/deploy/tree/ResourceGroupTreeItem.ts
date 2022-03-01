@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 import { ResourceGroup, ResourceManagementClient } from "@azure/arm-resources";
 import {
   IResourceGroupWizardContext,
@@ -19,9 +18,10 @@ import {
   ICreateChildImplContext,
   nonNullProp,
 } from "@microsoft/vscode-azext-utils";
-import { createResourceManagementClient } from "../../deploy/utils/azureClients";
+
 import { appendToOutputChannel } from "../../utils";
 import { localize } from "../../utils/localize";
+import { createResourceManagementClient } from "../azureClients";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 // Represents an Azure subscription. Used to display resource groups related to the subscription
@@ -93,9 +93,15 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
 
     const azTreeItem = nonNullProp(wizardContext, "resourceGroup");
     const newResourceGroupItemName = azTreeItem.name;
-    const newResourceGroupItem = new GenericAzExtTreeItem(this, azTreeItem.id, newResourceGroupItemName);
+    const newResourceGroupItem = new GenericAzExtTreeItem(
+      this,
+      azTreeItem.id,
+      newResourceGroupItemName
+    );
 
-    appendToOutputChannel(`Created resource group -> ${newResourceGroupItemName}`)
+    appendToOutputChannel(
+      `Created resource group -> ${newResourceGroupItemName}`
+    );
 
     return newResourceGroupItem;
   }

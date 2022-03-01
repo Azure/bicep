@@ -2,23 +2,25 @@
 // Licensed under the MIT License.
 import * as path from "path";
 import vscode from "vscode";
-import { ext } from "../extensionVariables";
-import { Command } from "./types";
 import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
+
 import {
   IActionContext,
   parseError,
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
-import { appendToOutputChannel } from "../utils/logger";
-import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
-import { deploymentScopeRequestType } from "../language";
-import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem";
+
 import { selectParameterFile } from "../deploy/selectParameterFile";
 import { AzLoginTreeItem } from "../deploy/tree/AzLoginTreeItem";
+import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem";
+import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
+import { ext } from "../extensionVariables";
+import { deploymentScopeRequestType } from "../language";
+import { appendToOutputChannel } from "../utils/logger";
+import { Command } from "./types";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";

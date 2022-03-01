@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 import * as path from "path";
 import vscode, { Uri } from "vscode";
+
 import {
   IActionContext,
   IAzureQuickPickItem,
 } from "@microsoft/vscode-azext-utils";
+
 import { appendToOutputChannel } from "../utils/logger";
 
 export async function selectParameterFile(
