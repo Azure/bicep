@@ -24,6 +24,7 @@ import { appendToOutputChannel } from "../../utils";
 import { localize } from "../../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
+// Represents an Azure subscription. Used to display resource groups related to the subscription
 export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
   public readonly childTypeLabel: string = localize(
     "resourceGroup",
@@ -36,6 +37,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     return !!this._nextLink;
   }
 
+  // Loads resource group
   public async loadMoreChildrenImpl(
     clearCache: boolean,
     context: IActionContext
@@ -59,6 +61,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     return resourceGroupItems;
   }
 
+  // Adds 'create' option in the resource group tree picker
   public async createChildImpl(
     context: ICreateChildImplContext
   ): Promise<AzExtTreeItem> {

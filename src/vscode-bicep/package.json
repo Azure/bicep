@@ -42,8 +42,7 @@
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
-    "onWebviewPanel:bicep.visualizer",
-    "onCommand:azure-account-sample.showSubscriptions"
+    "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
   "enabledApiProposals": [],
@@ -123,11 +122,6 @@
       }
     ],
     "commands": [
-      {
-        "command": "azure-account-sample.showSubscriptions",
-        "title": "Show Subscriptions",
-        "category": "Azure Example"
-      },
       {
         "command": "bicep.showVisualizer",
         "title": "Open Visualizer",
@@ -339,16 +333,15 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
-    "@azure/arm-appservice": "^9.0.0",
-    "@azure/arm-managementgroups": "^2.0.0",
-    "@azure/arm-subscriptions": "=5.0.0",
-    "@azure/arm-resources": "5.0.0",
-    "@azure/identity": "^2.0.2",
+    "@azure/identity": "^2.0.4",
+    "@azure/arm-managementgroups": "2.0.0",
+    "@azure/arm-resources": "^5.0.0",
+    "@azure/arm-subscriptions": "^5.0.0",
+    "@microsoft/vscode-azext-azureutils": "^0.1.2",
+    "@microsoft/vscode-azext-utils": "^0.1.0",
     "cytoscape": "^3.20.0",
     "cytoscape-elk": "^2.0.2",
     "fs-extra": "^10.0.0",
-    "@microsoft/vscode-azext-azureutils": "^0.1.1",
-    "@microsoft/vscode-azext-utils": "^0.1.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^4.3.1",

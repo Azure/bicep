@@ -1,9 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import { ext } from './extensionVariables';
 import vscode from "vscode";
-import { registerAzureUtilsExtensionVariables } from '@microsoft/vscode-azext-azureutils';
-import { AzExtTreeDataProvider, createAzExtOutputChannel, registerUIExtensionVariables } from '@microsoft/vscode-azext-utils';
+import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
+import {
+  createAzExtOutputChannel,
+  registerUIExtensionVariables,
+} from "@microsoft/vscode-azext-utils";
 import {
   launchLanguageServiceWithProgressReport,
   BicepCacheContentProvider,
@@ -24,9 +26,7 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
-import { AzLocationTreeItem } from './deploy/tree/AzLocationTreeItem';
-import { AzLoginTreeItem } from './deploy/tree/AzLoginTreeItem';
-import { AzResourceGroupTreeItem } from './deploy/tree/AzResourceGroupTreeItem';
+import { registerTrees } from "./deploy/tree/registerTrees";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -51,7 +51,12 @@ export async function activate(
   extension.register(createLogger(context, outputChannel));
 
   registerUIExtensionVariables({ context, outputChannel, ignoreBundle: false });
-  registerAzureUtilsExtensionVariables({ context, outputChannel, prefix: "bicep", ignoreBundle: false });
+  registerAzureUtilsExtensionVariables({
+    context,
+    outputChannel,
+    prefix: "bicep",
+    ignoreBundle: false,
+  });
 
   await activateWithTelemetryAndErrorHandling(async (actionContext) => {
     const languageClient = await launchLanguageServiceWithProgressReport(
@@ -84,16 +89,9 @@ export async function activate(
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager)
-    );
+      );
 
-    const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
-    ext.azLoginTreeItem = new AzExtTreeDataProvider(azLoginTreeItem, '');
-
-    const azResourceGroupTreeItem: AzResourceGroupTreeItem = new AzResourceGroupTreeItem();
-    ext.azResourceGroupTreeItem = new AzExtTreeDataProvider(azResourceGroupTreeItem, '');
-
-    const azLocationTreeItem: AzLocationTreeItem = new AzLocationTreeItem();
-    ext.azLocationTree = new AzExtTreeDataProvider(azLocationTreeItem, '');
+    registerTrees();
   });
 }
 

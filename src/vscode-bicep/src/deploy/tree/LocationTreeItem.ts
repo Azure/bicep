@@ -8,6 +8,7 @@ import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
 import { localize } from "../../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
+// Represents an Azure subscription. Used to display locations related to the subscription
 export class LocationTreeItem extends SubscriptionTreeItemBase {
   public readonly childTypeLabel: string = localize("location", "Location");
 
@@ -17,6 +18,7 @@ export class LocationTreeItem extends SubscriptionTreeItemBase {
     return !!this._nextLink;
   }
 
+  // Loads locations
   public async loadMoreChildrenImpl(
     clearCache: boolean,
     context: IActionContext

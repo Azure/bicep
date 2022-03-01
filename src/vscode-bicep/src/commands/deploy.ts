@@ -13,17 +13,12 @@ import {
   parseError,
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
-import { DefaultAzureCredential } from "@azure/identity";
-import {
-  ManagementGroupsAPI,
-  ManagementGroup,
-} from "@azure/arm-managementgroups";
 import { appendToOutputChannel } from "../utils/logger";
 import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
 import { deploymentScopeRequestType } from "../language";
 import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem";
-import { AzLoginTreeItem } from "../deploy/tree/AzLoginTreeItem";
 import { selectParameterFile } from "../deploy/selectParameterFile";
+import { AzLoginTreeItem } from "../deploy/tree/AzLoginTreeItem";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
@@ -118,26 +113,6 @@ export class DeployCommand implements Command {
   }
 }
 
-async function loadManagementGroupItems() {
-  const managementGroupsAPI = new ManagementGroupsAPI(
-    new DefaultAzureCredential()
-  );
-  const managementGroups = await managementGroupsAPI.managementGroups.list();
-  const managementGroupsArray: ManagementGroup[] = [];
-
-  for await (const managementGroup of managementGroups) {
-    managementGroupsArray.push(managementGroup);
-  }
-
-  managementGroupsArray.sort((a, b) =>
-    (a.name || "").localeCompare(b.name || "")
-  );
-  return managementGroupsArray.map((mg) => ({
-    label: mg.name || "",
-    mg,
-  }));
-}
-
 async function handleManagementGroupDeployment(
   context: IActionContext,
   documentUri: vscode.Uri,
@@ -145,28 +120,31 @@ async function handleManagementGroupDeployment(
   template: string,
   client: LanguageClient
 ) {
-  const managementGroupItems = loadManagementGroupItems();
-  const managementGroup = await context.ui.showQuickPick(managementGroupItems, {
-    placeHolder: "Please select management group",
-  });
-
-  const location = await vscode.window.showInputBox({
-    placeHolder: "Please enter location",
-  });
-
-  const managementGroupId = managementGroup?.mg.id;
-  if (managementGroupId && location) {
-    const parameterFilePath = await selectParameterFile(context, documentUri);
-
-    await sendDeployCommand(
-      documentUri.fsPath,
-      parameterFilePath,
-      managementGroupId,
-      deploymentScope,
-      location,
-      template,
-      client
+  const managementGroupTreeItem =
+    await ext.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
+      "",
+      context
     );
+  const managementGroupId = managementGroupTreeItem.id;
+
+  if (managementGroupId) {
+    const location = await vscode.window.showInputBox({
+      placeHolder: "Please enter location",
+    });
+
+    if (location) {
+      const parameterFilePath = await selectParameterFile(context, documentUri);
+
+      await sendDeployCommand(
+        documentUri.fsPath,
+        parameterFilePath,
+        managementGroupId,
+        deploymentScope,
+        location,
+        template,
+        client
+      );
+    }
   }
 }
 
