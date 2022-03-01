@@ -167,7 +167,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus");
 
-            result.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, @"Could not find file 'c:\parameter.json'."));
+            result.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, @"Could not find file"));
         }
 
         [TestMethod]
