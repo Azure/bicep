@@ -1,12 +1,16 @@
 {
+  "$comment1": "=========================================================================================================",
+  "$comment2": "IMPORTANT: This file is for intellisense only, it does *not* affect the actual bicepconfig.json defaults.",
+  "$comment3": "  Actual defaults picked up by configuration are in src/Bicep.Core/Configuration/bicepconfig.json",
+  "$comment4": "If you make changes to this file, remember to update the rule documentation.",
+  "$comment5": "=========================================================================================================",
   "$schema": "http://json-schema.org/schema#",
   "title": "Bicep Configuration",
   "definitions": {
     "level": {
       "title": "Diagnostic Level",
-      "description": "Type of diagnostic to display, defaults to warning",
+      "description": "Type of diagnostic to display, most rules default to warning",
       "type": "string",
-      "default": "warning",
       "enum": [
         "off",
         "info",
@@ -18,6 +22,20 @@
       "type": "object",
       "default": {
         "level": "warning"
+      },
+      "properties": {
+        "level": {
+          "$ref": "#/definitions/level"
+        }
+      },
+      "required": [
+        "level"
+      ]
+    },
+    "rule-def-error-level": {
+      "type": "object",
+      "default": {
+        "level": "error"
       },
       "properties": {
         "level": {
@@ -187,62 +205,7 @@
       "type": "object",
       "default": {
         "core": {
-          "rules": {
-            "adminusername-should-not-be-literal": {
-              "level": "warning"
-            },
-            "explicit-values-for-loc-params": {
-              "level": "warning"
-            },
-            "no-hardcoded-env-urls": {
-              "level": "warning"
-            },
-            "no-hardcoded-location": {
-              "level": "warning"
-            },
-            "no-unnecessary-dependson": {
-              "level": "warning"
-            },
-            "no-loc-expr-outside-params": {
-              "level": "warning"
-            },
-            "no-unused-params": {
-              "level": "warning"
-            },
-            "no-unused-vars": {
-              "level": "warning"
-            },
-            "outputs-should-not-contain-secrets": {
-              "level": "warning"
-            },
-            "prefer-interpolation": {
-              "level": "warning"
-            },
-            "secure-parameter-default": {
-              "level": "warning"
-            },
-            "simplify-interpolation": {
-              "level": "warning"
-            },
-            "protect-commandtoexecute-secrets": {
-              "level": "warning"
-            },
-            "use-stable-vm-image": {
-              "level": "warning"
-            },
-            "max-variables": {
-              "level": "error"
-            },
-            "max-params": {
-              "level": "error"
-            },
-            "max-outputs": {
-              "level": "error"
-            },
-            "max-resources": {
-              "level": "error"
-            }
-          }
+          "rules": {}
         }
       },
       "properties": {
@@ -289,26 +252,26 @@
                       "description": "Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. See https://aka.ms/bicep/linter/no-hardcoded-env-urls",
                       "type": "object",
                       "properties": {
-                        "disallowedHosts": {
+                        "disallowedhosts": {
                           "description": "Customize the list of hosts to disallow",
                           "type": "array",
                           "default": [
-                            "gallery.azure.com",
-                            "management.core.windows.net",
-                            "management.azure.com",
-                            "database.windows.net",
-                            "core.windows.net",
-                            "login.microsoftonline.com",
-                            "graph.windows.net",
-                            "trafficmanager.net",
-                            "datalake.azure.net",
-                            "azuredatalakestore.net",
-                            "azuredatalakeanalytics.net",
-                            "vault.azure.net",
                             "api.loganalytics.io",
                             "asazure.windows.net",
+                            "azuredatalakeanalytics.net",
+                            "azuredatalakestore.net",
+                            "batch.core.windows.net",
+                            "core.windows.net",
+                            "database.windows.net",
+                            "datalake.azure.net",
+                            "gallery.azure.com",
+                            "graph.windows.net",
+                            "login.microsoftonline.com",
+                            "management.azure.com",
+                            "management.core.windows.net",
                             "region.asazure.windows.net",
-                            "batch.core.windows.net"
+                            "trafficmanager.net",
+                            "vault.azure.net"
                           ],
                           "items": {
                             "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/disallowedhosts/items",
@@ -316,6 +279,20 @@
                             "type": "string",
                             "default": "",
                             "minLength": 1
+                          }
+                        },
+                        "excludedhosts": {
+                          "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
+                          "type": "array",
+                          "default": [
+                            "schema.management.azure.com"
+                          ],
+                          "items": {
+                            "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
+                            "title": "Items",
+                            "type": "string",
+                            "default": "",
+                            "minLength": 0
                           }
                         }
                       }
@@ -441,7 +418,7 @@
                       "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-error-level"
                     }
                   ]
                 },
@@ -451,7 +428,7 @@
                       "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-error-level"
                     }
                   ]
                 },
@@ -461,7 +438,7 @@
                       "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-error-level"
                     }
                   ]
                 },
@@ -471,7 +448,7 @@
                       "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
                     },
                     {
-                      "$ref": "#/definitions/rule"
+                      "$ref": "#/definitions/rule-def-error-level"
                     }
                   ]
                 }
