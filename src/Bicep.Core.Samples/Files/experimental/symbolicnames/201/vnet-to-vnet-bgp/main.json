@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "365740299004534431"
+      "templateHash": "9212782169356668947"
     }
   },
   "parameters": {
@@ -70,13 +70,53 @@
           {
             "name": "[variables('vnet1cfg').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('vnet1cfg').subnetPrefix]"
+              "addressPrefix": "[variables('vnet1cfg').subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           },
           {
             "name": "GatewaySubnet",
             "properties": {
-              "addressPrefix": "[variables('vnet1cfg').gatewaySubnetPrefix]"
+              "addressPrefix": "[variables('vnet1cfg').gatewaySubnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -97,13 +137,53 @@
           {
             "name": "[variables('vnet2cfg').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('vnet2cfg').subnetPrefix]"
+              "addressPrefix": "[variables('vnet2cfg').subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           },
           {
             "name": "GatewaySubnet",
             "properties": {
-              "addressPrefix": "[variables('vnet2cfg').gatewaySubnetPrefix]"
+              "addressPrefix": "[variables('vnet2cfg').gatewaySubnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
