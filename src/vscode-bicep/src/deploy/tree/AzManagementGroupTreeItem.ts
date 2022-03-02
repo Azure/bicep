@@ -8,7 +8,6 @@ import { DefaultAzureCredential } from "@azure/identity";
 import {
   AzExtParentTreeItem,
   AzExtTreeItem,
-  IActionContext,
 } from "@microsoft/vscode-azext-utils";
 
 import { localize } from "../../utils/localize";
@@ -26,10 +25,7 @@ export class AzManagementGroupTreeItem extends AzExtParentTreeItem {
     super(undefined);
   }
 
-  public async loadMoreChildrenImpl(
-    _clearCache: boolean,
-    _context: IActionContext
-  ): Promise<AzExtTreeItem[]> {
+  public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
     const managementGroupsAPI = new ManagementGroupsAPI(
       new DefaultAzureCredential()
     );

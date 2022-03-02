@@ -7,10 +7,6 @@ import { ResourceGroupTreeItem } from "./ResourceGroupTreeItem";
 
 // The root of treeview used in resource group scope deployment, represents an Azure account
 export class AzResourceGroupTreeItem extends AzureAccountTreeItemBase {
-  public constructor(testAccount?: {}) {
-    super(undefined, testAccount);
-  }
-
   public createSubscriptionTreeItem(
     root: ISubscriptionContext
   ): ResourceGroupTreeItem {

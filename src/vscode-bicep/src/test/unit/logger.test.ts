@@ -30,7 +30,7 @@ const mockWorkspaceState: vscode.Memento = {
   update: jest.fn(),
   keys: function (): readonly string[] {
     throw new Error("Function not implemented.");
-  }
+  },
 };
 const mockGlobalstate = { ...mockWorkspaceState, setKeysForSync: jest.fn() };
 const mockContext = {
@@ -51,9 +51,9 @@ const mockOutputChannel: vscode.OutputChannel = {
   dispose: jest.fn(),
   hide: jest.fn(),
   show: jest.fn(),
-  replace: function (value: string): void {
+  replace: function (): void {
     throw new Error("Function not implemented.");
-  }
+  },
 };
 
 const { createLogger, getLogger, resetLogger, WinstonLogger } =

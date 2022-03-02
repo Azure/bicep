@@ -96,6 +96,14 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
+                    var errorMessage = e.Message;
+                    var indexOfHeader = errorMessage.IndexOf("Headers:");
+
+                    if (indexOfHeader > 0)
+                    {
+                        return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, errorMessage.Substring(0, indexOfHeader));
+                    }
+
                     return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, e.Message);
                 }
             }

@@ -53,10 +53,7 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
     return false;
   }
 
-  public async loadMoreChildrenImpl(
-    _clearCache: boolean,
-    context: IActionContext
-  ): Promise<AzExtTreeItem[]> {
+  public async loadMoreChildrenImpl(): Promise<AzExtTreeItem[]> {
     let azureAccount: AzureAccountResult = await this._azureAccountTask;
     if (typeof azureAccount === "string") {
       // Refresh the AzureAccount, to handle Azure account extension installation after the previous refresh
