@@ -526,6 +526,41 @@ output out string = p.properties.accessTier
             result.Template.Should().HaveValueAtPath("$.resources[0].properties.parameters.p.value", "[resourceId('Microsoft.Storage/storageAccounts', 'test')]");
         }
 
+        // Regression test for https://github.com/Azure/bicep/issues/6038
+        //
+        // Object-typed parameters should work the same way regardless of whether resource-typed parameters are enabled.
+        [DataTestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public void Module_can_pass_resource_body_as_object_typed_parameter(bool enableResourceTypeParameters)
+        {
+            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext :  new CompilationHelper.CompilationHelperContext();
+            var result = CompilationHelper.Compile(
+                context,
+("main.bicep", @"
+resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' existing = {
+  name: 'test'
+}
+
+module mod './module.bicep' = {
+    name: 'test'
+    params: {
+        p: resource
+    }
+}
+
+"),
+("module.bicep", @"
+param p object
+output out string = p.properties.accessTier
+
+"));
+            result.Should().NotHaveAnyDiagnostics();
+
+            var model = result.Compilation.GetEntrypointSemanticModel();
+            result.Template.Should().HaveValueAtPath("$.resources[0].properties.parameters.p.value", "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01', 'full')]");
+        }
+
         [TestMethod]
         public void Module_with_resource_type_output_can_be_evaluated()
         {

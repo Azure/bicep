@@ -562,7 +562,10 @@ namespace Bicep.Core.Emit
                         jsonWriter.WriteEndArray();
                     });
                 }
-                else if (this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is {} resourceMetadata)
+                else if (
+                    this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is {} resourceMetadata &&
+                    moduleSymbol.TryGetModuleType() is ModuleType moduleType &&
+                    moduleType.TryGetParameterType(keyName) is ResourceParameterType parameterType)
                 {
                     // This is a resource being passed into a module, we actually want to pass in its id
                     // rather than the whole resource.
