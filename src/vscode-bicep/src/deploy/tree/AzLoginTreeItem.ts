@@ -9,10 +9,11 @@ import {
   GenericTreeItem,
   IActionContext,
   registerEvent,
+  TreeItemIconPath,
 } from "@microsoft/vscode-azext-utils";
 
-import { AzureAccount, AzureLoginStatus } from "../../azure-account.api";
 import { localize } from "../../utils/localize";
+import { AzureAccount, AzureLoginStatus } from "../azure-account";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 const signInLabel: string = localize("signInLabel", "Sign in to Azure...");
@@ -28,8 +29,11 @@ const extensionOpenCommand = "extension.open";
 type AzureAccountResult = AzureAccount | "notInstalled" | "needsUpdate";
 const minAccountExtensionVersion = "0.9.0";
 
+// Inspired from https://github.com/microsoft/vscode-azuretools/blob/main/azure/src/tree/AzureAccountTreeItemBase.ts,
+// without - list all subscription support
 export class AzLoginTreeItem extends AzExtParentTreeItem {
-  public readonly contextValue: string = "";
+  public static contextValue = "azureextensionui.azureAccount";
+  public readonly contextValue: string = AzLoginTreeItem.contextValue;
   public readonly label: string = "Azure";
   public childTypeLabel: string = localize("subscription", "subscription");
   public autoSelectInTreeItemPicker = true;
@@ -66,18 +70,20 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
         azureAccount === "notInstalled"
           ? localize(
               "installAzureAccount",
-              "Install Azure Account Extension..."
+              "Install Azure Account Extension and try deploy again..."
             )
           : localize(
               "updateAzureAccount",
               'Update Azure Account Extension to at least version "{0}"...',
               minAccountExtensionVersion
             );
+      const iconPath: TreeItemIconPath = new ThemeIcon("warning");
       const result: AzExtTreeItem = new GenericTreeItem(this, {
         label,
         commandId: extensionOpenCommand,
         contextValue: "azureAccount" + azureAccount,
         includeInTreeItemPicker: true,
+        iconPath,
       });
       result.commandArgs = [azureAccountExtensionId];
       return [result];
@@ -169,14 +175,6 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
     }
 
     if (azureAccount) {
-      registerEvent(
-        "azureAccount.onFiltersChanged",
-        azureAccount.onFiltersChanged,
-        async (context) => {
-          context.errorHandling.suppressDisplay = true;
-          await this.refresh(context);
-        }
-      );
       registerEvent(
         "azureAccount.onStatusChanged",
         azureAccount.onStatusChanged,
