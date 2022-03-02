@@ -44,7 +44,7 @@
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
-  "enableProposedApi": true,
+  "enabledApiProposals": [],
   "contributes": {
     "configurationDefaults": {
       "[bicep]": {
