@@ -3,6 +3,7 @@
 import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
+  parseError,
 } from "@microsoft/vscode-azext-utils";
 
 import { getLogger } from "./logger";
@@ -19,7 +20,7 @@ export async function activateWithTelemetryAndErrorHandling(
       try {
         await activateCallback(actionContext);
       } catch (e) {
-        getLogger().error(e.message ?? e);
+        getLogger().error(parseError(e).message ?? e);
         throw e;
       }
 
