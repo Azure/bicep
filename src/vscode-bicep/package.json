@@ -230,6 +230,16 @@
       ],
       "editor/context": [
         {
+          "command": "bicep.build",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_open"
