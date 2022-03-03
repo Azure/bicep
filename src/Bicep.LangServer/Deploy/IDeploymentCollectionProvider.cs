@@ -8,6 +8,6 @@ namespace Bicep.LanguageServer.Deploy
 {
     public interface IDeploymentCollectionProvider
     {
-        DeploymentCollection? GetDeployments(ArmClient armClient, ResourceIdentifier resourceIdentifier, string scope);
+        DeploymentCollection? GetDeploymentCollection(ArmClient armClient, ResourceIdentifier resourceIdentifier, string scope);
     }
 }

@@ -39,7 +39,7 @@ namespace Bicep.LanguageServer.Deploy
             {
                 try
                 {
-                    deploymentCollection = deploymentCollectionProvider.GetDeployments(armClient, resourceIdentifier, scope);
+                    deploymentCollection = deploymentCollectionProvider.GetDeploymentCollection(armClient, resourceIdentifier, scope);
                 }
                 catch (Exception e)
                 {

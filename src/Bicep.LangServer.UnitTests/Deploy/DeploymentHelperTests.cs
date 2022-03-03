@@ -122,7 +122,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var deploymentCollection = CreateDeploymentCollection(scope);
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
-                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), scope))
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), scope))
                 .Returns(deploymentCollection);
 
             var result = await DeploymentHelper.CreateDeployment(
@@ -138,7 +138,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         }
 
         [TestMethod]
-        public async Task CreateDeployment_WithInvalidValidParameterFilePath_ReturnsDeploymentFailesMessage()
+        public async Task CreateDeployment_WithInvalidValidParameterFilePath_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -155,7 +155,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
-                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
                 .Returns(deploymentCollection);
 
             var result = await DeploymentHelper.CreateDeployment(
@@ -188,7 +188,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
-                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
                 .Returns(deploymentCollection);
             string parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
 
@@ -221,7 +221,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
 }";
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
-                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
                 .Returns<DeploymentCollection>(null);
 
             var result = await DeploymentHelper.CreateDeployment(
@@ -254,7 +254,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             var errorMessage = "Encountered error while fetching deployments";
             deploymentCollectionProvider
-                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
                 .Throws(new Exception(errorMessage));
 
             var result = await DeploymentHelper.CreateDeployment(
@@ -295,7 +295,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Throws(new Exception(errorMessage));
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
-                .Setup(m => m.GetDeployments(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
                 .Returns(deploymentCollection.Object);
 
             var result = await DeploymentHelper.CreateDeployment(

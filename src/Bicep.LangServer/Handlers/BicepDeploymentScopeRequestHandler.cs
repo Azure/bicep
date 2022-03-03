@@ -35,9 +35,9 @@ namespace Bicep.LanguageServer.Handlers
     public record BicepDeploymentScopeResponse(string scope, string? template, string? errorMessage);
 
     /// <summary>
-    /// Handles textDocument/deploymentScope LSP requests.
+    /// Handles textDocument/deploymentScope LSP request.
     /// The BicepDeploymentScopeRequestHandler returns targetScope, template and error message.
-    /// Error message would be null if there we no validation errors in the provided bicep file.
+    /// Error message would be null if provided bicep file was error free.
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : IJsonRpcRequestHandler<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
