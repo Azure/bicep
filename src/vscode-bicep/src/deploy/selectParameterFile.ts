@@ -8,7 +8,7 @@ import {
   IAzureQuickPickItem,
 } from "@microsoft/vscode-azext-utils";
 
-import { appendToOutputChannel } from "../utils/logger";
+import { appendToOutputChannel } from "../utils/appendToOutputChannel";
 
 export async function selectParameterFile(
   _context: IActionContext,

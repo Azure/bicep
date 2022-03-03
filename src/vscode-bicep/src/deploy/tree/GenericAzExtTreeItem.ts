@@ -24,10 +24,10 @@ export class GenericAzExtTreeItem extends AzExtTreeItem {
   }
 
   public get label(): string {
-    const name = this._label;
+    const label = this._label;
 
-    if (name) {
-      return name;
+    if (label) {
+      return label;
     }
 
     return "";

@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-
 import { Event } from "vscode";
 
 // https://github.com/microsoft/vscode-azure-account/blob/main/src/azure-account.api.d.ts

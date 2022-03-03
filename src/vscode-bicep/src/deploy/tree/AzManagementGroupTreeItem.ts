@@ -1,10 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import {
-  ManagementGroup,
+  ManagementGroupInfo,
   ManagementGroupsAPI,
 } from "@azure/arm-managementgroups";
 import { DefaultAzureCredential } from "@azure/identity";
+import { uiUtils } from "@microsoft/vscode-azext-azureutils";
 import {
   AzExtParentTreeItem,
   AzExtTreeItem,
@@ -29,15 +30,14 @@ export class AzManagementGroupTreeItem extends AzExtParentTreeItem {
     const managementGroupsAPI = new ManagementGroupsAPI(
       new DefaultAzureCredential()
     );
-    const managementGroups = await managementGroupsAPI.managementGroups.list();
-    const managementGroupsArray: ManagementGroup[] = [];
 
-    for await (const managementGroup of managementGroups) {
-      managementGroupsArray.push(managementGroup);
-    }
+    const managementGroupInfos =
+      await managementGroupsAPI.managementGroups.list();
+    const managementGroupInfoList: ManagementGroupInfo[] =
+      await uiUtils.listAllIterator(managementGroupInfos);
 
     return await this.createTreeItemsWithErrorHandling(
-      managementGroupsArray,
+      managementGroupInfoList,
       "invalidManagementGroup",
       (mg) => new GenericAzExtTreeItem(this, mg.id, mg.name),
       (mg) => mg.name

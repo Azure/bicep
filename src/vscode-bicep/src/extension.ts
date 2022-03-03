@@ -27,6 +27,7 @@ import {
   Disposable,
 } from "./utils";
 import { registerTrees } from "./deploy/tree/registerTrees";
+import { ext } from "./extensionVariables";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -90,6 +91,11 @@ export async function activate(
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager)
       );
+
+    ext.bicepOperationsOutputChannel = createAzExtOutputChannel(
+      "Bicep Operations",
+      "bicep"
+    );
 
     registerTrees();
   });

@@ -5,7 +5,6 @@ import * as winston from "winston";
 import Transport from "winston-transport";
 import * as path from "path";
 import { MESSAGE } from "triple-beam";
-import { createAzExtOutputChannel } from "@microsoft/vscode-azext-utils";
 
 export interface Logger extends vscode.Disposable {
   debug(message: string): void;
@@ -111,19 +110,6 @@ export function getLogger(): Logger {
   }
 
   return logger;
-}
-
-const outputChannel = createAzExtOutputChannel("Bicep Operations", "bicep");
-const terminal = vscode.window.createTerminal("Bicep Deploy");
-
-export function appendToOutputChannel(text: string): void {
-  outputChannel.show();
-  outputChannel.appendLog(text);
-}
-
-export function appendToTerminal(text: string): void {
-  terminal.show();
-  terminal.sendText(text, true);
 }
 
 export function resetLogger(): void {

@@ -8,9 +8,6 @@ import {
   createAzureSubscriptionClient,
 } from "@microsoft/vscode-azext-azureutils";
 
-// Lazy-load @azure packages to improve startup performance.
-// NOTE: The client is the only import that matters, the rest of the types disappear when compiled to JavaScript
-
 export async function createResourceManagementClient(
   context: AzExtClientContext
 ): Promise<ResourceManagementClient> {

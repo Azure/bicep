@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as semver from "semver";
-import { commands, Disposable, Extension, extensions, ThemeIcon } from "vscode";
+import { commands, Disposable, Extension, extensions } from "vscode";
 
 import {
   AzExtParentTreeItem,
@@ -9,7 +9,6 @@ import {
   GenericTreeItem,
   IActionContext,
   registerEvent,
-  TreeItemIconPath,
 } from "@microsoft/vscode-azext-utils";
 
 import { localize } from "../../utils/localize";
@@ -77,13 +76,11 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
               'Update Azure Account Extension to at least version "{0}"...',
               minAccountExtensionVersion
             );
-      const iconPath: TreeItemIconPath = new ThemeIcon("warning");
       const result: AzExtTreeItem = new GenericTreeItem(this, {
         label,
         commandId: extensionOpenCommand,
         contextValue: "azureAccount" + azureAccount,
         includeInTreeItemPicker: true,
-        iconPath,
       });
       result.commandArgs = [azureAccountExtensionId];
       return [result];
@@ -103,7 +100,6 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
           commandId: signInCommandId,
           contextValue,
           id: signInCommandId,
-          iconPath: new ThemeIcon("loading~spin"),
         }),
       ];
     } else if (azureAccount.status === "LoggedOut") {
@@ -113,7 +109,6 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
           commandId: signInCommandId,
           contextValue,
           id: signInCommandId,
-          iconPath: new ThemeIcon("sign-in"),
           includeInTreeItemPicker: true,
         }),
         new GenericTreeItem(this, {
@@ -121,7 +116,6 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
           commandId: createAccountCommandId,
           contextValue,
           id: createAccountCommandId,
-          iconPath: new ThemeIcon("add"),
           includeInTreeItemPicker: true,
         }),
       ];

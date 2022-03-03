@@ -19,7 +19,7 @@ import {
   nonNullProp,
 } from "@microsoft/vscode-azext-utils";
 
-import { appendToOutputChannel } from "../../utils";
+import { appendToOutputChannel } from "../../utils/appendToOutputChannel";
 import { localize } from "../../utils/localize";
 import { createResourceManagementClient } from "../azureClients";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
@@ -47,7 +47,6 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
     }
     const client: ResourceManagementClient =
       await createResourceManagementClient([context, this]);
-    // Load more currently broken https://github.com/Azure/azure-sdk-for-js/issues/20380
     const rgs: ResourceGroup[] = await uiUtils.listAllIterator(
       client.resourceGroups.list()
     );

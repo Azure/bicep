@@ -19,12 +19,12 @@ import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem"
 import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
 import { ext } from "../extensionVariables";
 import { deploymentScopeRequestType } from "../language";
-import { appendToOutputChannel } from "../utils/logger";
+import { appendToOutputChannel } from "../utils/appendToOutputChannel";
 import { Command } from "./types";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
-  public constructor(private readonly client: LanguageClient) {}
+  public constructor(private readonly client: LanguageClient) { }
 
   public async execute(
     _context: IActionContext,
@@ -36,19 +36,20 @@ export class DeployCommand implements Command {
       return;
     }
 
-    const fileName = path.basename(documentUri.fsPath);
-    appendToOutputChannel(`Started deployment of ${fileName}`);
-
     if (documentUri.scheme === "output") {
       // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
       // it won't be fixed in VS Code, so we need to handle it on our side.
       // See https://github.com/microsoft/vscode/issues/58869#issuecomment-422322972 for details.
       vscode.window.showInformationMessage(
-        "We are unable to get the Bicep file to build when the output panel is focused. Please focus a text editor first when running the command."
+        "Unable to locate an active Bicep file, as the output panel is focused. Please focus a text editor first before running the command."
       );
 
       return;
     }
+
+    const documentPath = documentUri.fsPath;
+    const fileName = path.basename(documentPath);
+    appendToOutputChannel(`Started deployment of ${fileName}`);
 
     try {
       const deploymentScopeResponse = await this.client.sendRequest(
@@ -69,6 +70,7 @@ export class DeployCommand implements Command {
         `Scope specified in ${fileName} -> ${deploymentScope}`
       );
 
+      // Shows a treeView that allows user to log in to Azure. If the user is already logged in, then does nothing.
       await ext.azLoginTreeItem.showTreeItemPicker<AzLoginTreeItem>(
         "",
         _context
@@ -163,9 +165,10 @@ async function handleResourceGroupDeployment(
       context
     );
   const resourceGroupId = resourceGroupTreeItem.id;
-  const parameterFilePath = await selectParameterFile(context, documentUri);
 
   if (resourceGroupId) {
+    const parameterFilePath = await selectParameterFile(context, documentUri);
+
     await sendDeployCommand(
       documentUri.fsPath,
       parameterFilePath,
@@ -189,20 +192,17 @@ async function handleSubscriptionDeployment(
     await ext.azLocationTree.showTreeItemPicker<LocationTreeItem>("", context);
   const location = locationTreeItem.label;
   const subscriptionId = locationTreeItem.subscription.subscriptionPath;
+  const parameterFilePath = await selectParameterFile(context, documentUri);
 
-  if (location && subscriptionId) {
-    const parameterFilePath = await selectParameterFile(context, documentUri);
-
-    await sendDeployCommand(
-      documentUri.fsPath,
-      parameterFilePath,
-      subscriptionId,
-      deploymentScope,
-      location,
-      template,
-      client
-    );
-  }
+  await sendDeployCommand(
+    documentUri.fsPath,
+    parameterFilePath,
+    subscriptionId,
+    deploymentScope,
+    location,
+    template,
+    client
+  );
 }
 
 async function sendDeployCommand(
