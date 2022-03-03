@@ -5,7 +5,7 @@ import { ISubscriptionContext } from "@microsoft/vscode-azext-utils";
 
 import { LocationTreeItem } from "./LocationTreeItem";
 
-// The root of treeview used in subscription scope deployment, represents an Azure account
+// The root of treeview used in subscription scope deployment. Represents an Azure account
 export class AzLocationTreeItem extends AzureAccountTreeItemBase {
   public createSubscriptionTreeItem(
     root: ISubscriptionContext

@@ -7,7 +7,6 @@ import {
 
 class ExtensionVariables {
   public azLocationTree!: AzExtTreeDataProvider;
-  public azLoginTreeItem!: AzExtTreeDataProvider;
   public azManagementGroupTreeItem!: AzExtTreeDataProvider;
   public azResourceGroupTreeItem!: AzExtTreeDataProvider;
   public bicepOperationsOutputChannel!: IAzExtOutputChannel;

@@ -5,7 +5,7 @@ import { ISubscriptionContext } from "@microsoft/vscode-azext-utils";
 
 import { ResourceGroupTreeItem } from "./ResourceGroupTreeItem";
 
-// The root of treeview used in resource group scope deployment, represents an Azure account
+// The root of treeview used in resource group scope deployment. Represents an Azure account
 export class AzResourceGroupTreeItem extends AzureAccountTreeItemBase {
   public createSubscriptionTreeItem(
     root: ISubscriptionContext
