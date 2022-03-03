@@ -55,7 +55,11 @@ param enableRbacAuthorization bool = false
 param softDeleteRetentionInDays int = 90
 
 param keyName string = 'prodKey'
+
+@secure()
 param secretName string = 'bankAccountPassword'
+
+@secure()
 param secretValue string = '12345'
 
 param networkAcls object = {

@@ -32,6 +32,26 @@ resource vnet1 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: vnet1Config.subnetName
         properties: {
           addressPrefix: vnet1Config.subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]
@@ -66,6 +86,26 @@ resource vnet2 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: vnet2Config.subnetName
         properties: {
           addressPrefix: vnet2Config.subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]

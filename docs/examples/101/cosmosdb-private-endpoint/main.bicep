@@ -27,6 +27,26 @@ resource subNet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   properties: {
     addressPrefix: '172.20.0.0/24'
     privateEndpointNetworkPolicies: 'Disabled'
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
 }
 

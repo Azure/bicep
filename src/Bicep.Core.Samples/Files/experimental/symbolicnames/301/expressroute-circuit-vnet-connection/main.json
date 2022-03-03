@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16893944642504668302"
+      "templateHash": "2989674012846211674"
     }
   },
   "parameters": {
@@ -63,7 +63,27 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', resourceInfo('virtualNetwork').name, parameters('subnetName'))]",
       "properties": {
-        "addressPrefix": "[parameters('subnetPrefix')]"
+        "addressPrefix": "[parameters('subnetPrefix')]",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "virtualNetwork"
@@ -74,7 +94,27 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/GatewaySubnet', resourceInfo('virtualNetwork').name)]",
       "properties": {
-        "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+        "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "virtualNetwork"

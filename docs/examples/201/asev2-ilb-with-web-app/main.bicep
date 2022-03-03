@@ -36,6 +36,26 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   name: '${virtualNetwork.name}/subnet-01'
   properties: {
     addressPrefix: '10.0.1.0/24'
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
 }
 resource hostingEnvironment 'Microsoft.Web/hostingEnvironments@2020-06-01' = {

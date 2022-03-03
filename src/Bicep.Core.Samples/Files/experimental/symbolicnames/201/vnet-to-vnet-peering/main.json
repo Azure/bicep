@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9639800809061920471"
+      "templateHash": "17434590342093239272"
     }
   },
   "parameters": {
@@ -61,7 +61,27 @@
           {
             "name": "[variables('vnet1Config').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('vnet1Config').subnetPrefix]"
+              "addressPrefix": "[variables('vnet1Config').subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -100,7 +120,27 @@
           {
             "name": "[variables('vnet2Config').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('vnet2Config').subnetPrefix]"
+              "addressPrefix": "[variables('vnet2Config').subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
