@@ -260,6 +260,22 @@ module apimGroups 'groups.bicep' = if (deployGroups) {
 
 param location string = 'testLocation'
 
+var vmProperties = {
+  diagnosticsProfile: {
+    bootDiagnostics: {
+      enabled: 123
+      storageUri: true
+    }
+  }
+  evictionPolicy: 'Deallocate'
+}
+resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
+  name: 'vm'
+#disable-next-line no-hardcoded-location
+  location: 'West US'
+  properties: vmProperties
+}
+
 #disable-next-line";
             var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", mainBicepFileContents, testOutputPath);
             var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);

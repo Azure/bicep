@@ -23,6 +23,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using static Bicep.Core.Diagnostics.DisabledDiagnosticsCache;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer
@@ -365,7 +366,33 @@ namespace Bicep.LanguageServer
             properties.Add("Errors", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Error).ToString());
             properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
 
+            var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
+
+            if (disableNextLineDirectiveEndPositionAndCodes.Any())
+            {
+                properties.Add("DisableNextLineDirectivesCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
+                properties.Add("DiagnosticCodesInDisableNextLineDirectives", string.Join(",", GetDiagnosticCodes(disableNextLineDirectiveEndPositionAndCodes)));
+            }
+
             return properties;
+        }
+
+        private string GetDiagnosticCodes(IEnumerable<DisableNextLineDirectiveEndPositionAndCodes> diagnosticCodes)
+        {
+            HashSet<string> diagnosticsCodes = new HashSet<string>();
+
+            foreach (var disableNextLineDirectiveEndPositionAndCodes in diagnosticCodes)
+            {
+                foreach (string diagnosticCode in disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes)
+                {
+                    if (!diagnosticsCodes.Contains(diagnosticCode))
+                    {
+                        diagnosticsCodes.Add(diagnosticCode);
+                    }
+                }
+            }
+
+            return string.Join(",", diagnosticsCodes);
         }
 
         private Dictionary<string, string> GetTelemetryPropertiesForReferencedFiles(IEnumerable<ISourceFile> sourceFiles)
@@ -376,6 +403,8 @@ namespace Bicep.LanguageServer
             int resources = 0;
             int variables = 0;
             int lineCount = 0;
+            int disableNextLineDirectivesCount = 0;
+            List<DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDirectiveEndPositionAndCodesInReferencedFiles = new List<DisableNextLineDirectiveEndPositionAndCodes>();
 
             foreach (var sourceFile in sourceFiles)
             {
@@ -387,6 +416,14 @@ namespace Bicep.LanguageServer
                     resources += declarations.Count(x => x is ResourceDeclarationSyntax);
                     variables += declarations.Count(x => x is VariableDeclarationSyntax);
                     lineCount += bicepFile.LineStarts.Length;
+
+                    var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
+
+                    if (disableNextLineDirectiveEndPositionAndCodes.Any())
+                    {
+                        disableNextLineDirectivesCount += disableNextLineDirectiveEndPositionAndCodes.Count();
+                        disableNextLineDirectiveEndPositionAndCodesInReferencedFiles.AddRange(disableNextLineDirectiveEndPositionAndCodes);
+                    }
                 }
             }
 
@@ -395,6 +432,12 @@ namespace Bicep.LanguageServer
             properties.Add("ParametersInReferencedFiles", parameters.ToString());
             properties.Add("VariablesInReferencedFiles", variables.ToString());
             properties.Add("LineCountOfReferencedFiles", lineCount.ToString());
+
+            if (disableNextLineDirectivesCount > 0)
+            {
+                properties.Add("DisableNextLineDirectivesCountInReferencedFiles", disableNextLineDirectivesCount.ToString());
+                properties.Add("DiagnosticCodesInDisableNextLineDirectivesInReferencedFiles", string.Join(",", GetDiagnosticCodes(disableNextLineDirectiveEndPositionAndCodesInReferencedFiles)));
+            }
 
             return properties;
         }
