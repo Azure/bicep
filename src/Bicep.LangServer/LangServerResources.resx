@@ -117,7 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed.</value>
+  </data>
+  <data name="DeploymentFailedWithExceptionMessage" xml:space="preserve">
+    <value>Deployment failed. {0}</value>
+  </data>
+  <data name="DeploymentSuccessfulMessage" xml:space="preserve">
+    <value>Deployment successful.</value>
+  </data>
   <data name="DisableDiagnosticForThisLine" xml:space="preserve">
     <value>Disable {0} for this line</value>
+  </data>
+  <data name="InvalidParameterFileDeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed. Please fix following issues in parameter file: {0}</value>
+  </data>
+  <data name="MissingLocationDeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed. Please provide a valid location.</value>
+  </data>
+  <data name="UnsupportedScopeDeploymentFailedMessage" xml:space="preserve">
+    <value>Deployment failed. Unsupported scope {0}.</value>
   </data>
 </root>

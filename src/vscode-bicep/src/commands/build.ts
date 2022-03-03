@@ -4,12 +4,10 @@ import vscode from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
+import { appendToOutputChannel } from "../utils/appendToOutputChannel";
 
 export class BuildCommand implements Command {
   public readonly id = "bicep.build";
-  public readonly outputChannel =
-    vscode.window.createOutputChannel("Bicep Operations");
-
   public constructor(private readonly client: LanguageClient) {}
 
   public async execute(
@@ -41,18 +39,9 @@ export class BuildCommand implements Command {
           arguments: [documentUri.fsPath],
         }
       );
-      appendToOutputChannel(this.outputChannel, buildOutput);
+      appendToOutputChannel(buildOutput);
     } catch (err) {
       this.client.error("Build failed", parseError(err).message, true);
     }
   }
-}
-
-function appendToOutputChannel(
-  outputChannel: vscode.OutputChannel,
-  text: string
-) {
-  outputChannel.clear();
-  outputChannel.show();
-  outputChannel.appendLine(text);
 }

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Parsing;
-using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core
@@ -24,8 +23,6 @@ namespace Bicep.Core
         public const string JsonFileExtension = ".json";
         public const string JsoncFileExtension = ".jsonc";
         public const string ArmTemplateFileExtension = ".arm";
-
-        public const string Build = "build";
 
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;

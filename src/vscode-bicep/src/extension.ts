@@ -1,11 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import vscode from "vscode";
+import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
 import {
   createAzExtOutputChannel,
   registerUIExtensionVariables,
 } from "@microsoft/vscode-azext-utils";
-
 import {
   launchLanguageServiceWithProgressReport,
   BicepCacheContentProvider,
@@ -14,6 +14,7 @@ import { BicepVisualizerViewManager } from "./visualizer";
 import {
   BuildCommand,
   CommandManager,
+  DeployCommand,
   InsertResourceCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
@@ -25,6 +26,8 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
+import { registerTrees } from "./deploy/tree/registerTrees";
+import { ext } from "./extensionVariables";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -47,7 +50,14 @@ export async function activate(
 
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
-  registerUIExtensionVariables({ context, outputChannel });
+
+  registerUIExtensionVariables({ context, outputChannel, ignoreBundle: false });
+  registerAzureUtilsExtensionVariables({
+    context,
+    outputChannel,
+    prefix: "bicep",
+    ignoreBundle: false,
+  });
 
   await activateWithTelemetryAndErrorHandling(async (actionContext) => {
     const languageClient = await launchLanguageServiceWithProgressReport(
@@ -75,11 +85,19 @@ export async function activate(
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient),
+        new DeployCommand(languageClient),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager)
       );
+
+    ext.bicepOperationsOutputChannel = createAzExtOutputChannel(
+      "Bicep Operations",
+      "bicep"
+    );
+
+    registerTrees();
   });
 }
 

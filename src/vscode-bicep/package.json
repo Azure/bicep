@@ -37,6 +37,7 @@
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
+    "onCommand:bicep.deploy",
     "onCommand:bicep.insertResource",
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
@@ -70,6 +71,11 @@
           "default": "Off",
           "description": "Configure tracing of messages sent to the Bicep language server.",
           "scope": "window"
+        },
+        "bicep.enableOutputTimestamps": {
+          "type": "boolean",
+          "description": "%bicep.enableOutputTimestamps%",
+          "default": true
         }
       }
     },
@@ -140,6 +146,11 @@
         "category": "Bicep"
       },
       {
+        "command": "bicep.deploy",
+        "title": "Deploy",
+        "category": "Bicep"
+      },
+      {
         "command": "bicep.insertResource",
         "title": "Insert Resource",
         "category": "Bicep"
@@ -188,6 +199,11 @@
           "command": "bicep.build",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
         }
       ],
       "editor/title/context": [
@@ -205,9 +221,24 @@
           "command": "bicep.build",
           "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_build"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "1_build"
         }
       ],
       "editor/context": [
+        {
+          "command": "bicep.build",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.deploy",
+          "when": "resourceLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep && commandsRegistered",
@@ -222,6 +253,11 @@
       "commandPalette": [
         {
           "command": "bicep.build",
+          "when": "editorLangId == bicep && commandsRegistered",
+          "group": "navigation"
+        },
+        {
+          "command": "bicep.deploy",
           "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
@@ -307,6 +343,11 @@
     "webpack-cli": "^4.8.0"
   },
   "dependencies": {
+    "@azure/arm-managementgroups": "2.0.0",
+    "@azure/arm-resources": "^5.0.0",
+    "@azure/arm-subscriptions": "^5.0.0",
+    "@azure/identity": "^2.0.4",
+    "@microsoft/vscode-azext-azureutils": "^0.1.2",
     "@microsoft/vscode-azext-utils": "^0.1.0",
     "cytoscape": "^3.20.0",
     "cytoscape-elk": "^2.0.2",

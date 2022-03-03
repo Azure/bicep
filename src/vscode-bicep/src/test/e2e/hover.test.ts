@@ -149,13 +149,10 @@ describe("hover", (): void => {
       );
       expect(hover.contents).toHaveLength(contents.length);
       hover.contents.forEach((content, contentIndex) => {
-        expect(normalizeMarkedString(content)).toBe(contents[contentIndex]);
+        const markdownString = new vscode.MarkdownString(content.toString());
+        expect(markdownString.value).toBe(contents.toString()[contentIndex]);
       });
     });
-  }
-
-  function normalizeMarkedString(markedString: vscode.MarkedString): string {
-    return typeof markedString === "string" ? markedString : markedString.value;
   }
 
   function codeblock(rawString: string): string {

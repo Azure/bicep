@@ -46,6 +46,24 @@ export interface BicepCacheParams {
   target: string;
 }
 
+export interface BicepDeploymentScopeParams {
+  textDocument: TextDocumentIdentifier;
+}
+
+export interface BicepDeploymentScopeResponse {
+  scope: string;
+  template: string | null;
+  errorMessage: string | null;
+}
+
+export const deploymentScopeRequestType = new ProtocolRequestType<
+  BicepDeploymentScopeParams,
+  BicepDeploymentScopeResponse | null,
+  never,
+  void,
+  void
+>("textDocument/deploymentScope");
+
 export interface BicepCacheResponse {
   content: string;
 }
