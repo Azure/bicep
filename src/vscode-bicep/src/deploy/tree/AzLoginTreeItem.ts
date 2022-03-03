@@ -69,11 +69,11 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
         azureAccount === "notInstalled"
           ? localize(
               "installAzureAccount",
-              "Install Azure Account Extension and try deploy again..."
+              "$(warning) Install Azure Account Extension and try deploy again"
             )
           : localize(
               "updateAzureAccount",
-              'Update Azure Account Extension to at least version "{0}"...',
+              '$(warning) Update Azure Account Extension to at least version "{0}"',
               minAccountExtensionVersion
             );
       const result: AzExtTreeItem = new GenericTreeItem(this, {
@@ -91,14 +91,14 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
     if (azureAccount.status != "LoggedIn") {
       return [
         new GenericTreeItem(this, {
-          label: signInLabel,
+          label: "$(sign-in) " + signInLabel,
           commandId: signInCommandId,
           contextValue,
           id: signInCommandId,
           includeInTreeItemPicker: true,
         }),
         new GenericTreeItem(this, {
-          label: createAccountLabel,
+          label: "$(add) " + createAccountLabel,
           commandId: createAccountCommandId,
           contextValue,
           id: createAccountCommandId,
