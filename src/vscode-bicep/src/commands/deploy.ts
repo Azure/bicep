@@ -8,6 +8,7 @@ import {
 } from "vscode-languageclient/node";
 
 import {
+  AzExtTreeDataProvider,
   IActionContext,
   parseError,
   UserCancelledError,
@@ -24,7 +25,7 @@ import { Command } from "./types";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
-  public constructor(private readonly client: LanguageClient) { }
+  public constructor(private readonly client: LanguageClient) {}
 
   public async execute(
     _context: IActionContext,
@@ -71,7 +72,12 @@ export class DeployCommand implements Command {
       );
 
       // Shows a treeView that allows user to log in to Azure. If the user is already logged in, then does nothing.
-      await ext.azLoginTreeItem.showTreeItemPicker<AzLoginTreeItem>(
+      const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
+      const azExtTreeDataProvider = new AzExtTreeDataProvider(
+        azLoginTreeItem,
+        ""
+      );
+      await azExtTreeDataProvider.showTreeItemPicker<AzLoginTreeItem>(
         "",
         _context
       );

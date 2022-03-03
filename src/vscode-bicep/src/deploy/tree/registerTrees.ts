@@ -4,16 +4,12 @@ import { AzExtTreeDataProvider } from "@microsoft/vscode-azext-utils";
 
 import { ext } from "../../extensionVariables";
 import { AzLocationTreeItem } from "./AzLocationTreeItem";
-import { AzLoginTreeItem } from "./AzLoginTreeItem";
 import { AzManagementGroupTreeItem } from "./AzManagementGroupTreeItem";
 import { AzResourceGroupTreeItem } from "./AzResourceGroupTreeItem";
 
 export function registerTrees(): void {
   const azLocationTreeItem: AzLocationTreeItem = new AzLocationTreeItem();
   ext.azLocationTree = new AzExtTreeDataProvider(azLocationTreeItem, "");
-
-  const azLoginTreeItem: AzLoginTreeItem = new AzLoginTreeItem();
-  ext.azLoginTreeItem = new AzExtTreeDataProvider(azLoginTreeItem, "");
 
   const azManagementGroupTreeItem: AzManagementGroupTreeItem =
     new AzManagementGroupTreeItem();

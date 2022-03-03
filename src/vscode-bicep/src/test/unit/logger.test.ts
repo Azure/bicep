@@ -28,9 +28,7 @@ const mockWinstonLogger = {
 const mockWorkspaceState: vscode.Memento = {
   get: jest.fn(),
   update: jest.fn(),
-  keys: function (): readonly string[] {
-    throw new Error("Function not implemented.");
-  }
+  keys: jest.fn(),
 };
 const mockGlobalstate = { ...mockWorkspaceState, setKeysForSync: jest.fn() };
 const mockContext = {

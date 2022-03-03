@@ -87,22 +87,8 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
     }
 
     const contextValue = "azureCommand";
-    if (
-      azureAccount.status === "Initializing" ||
-      azureAccount.status === "LoggingIn"
-    ) {
-      return [
-        new GenericTreeItem(this, {
-          label:
-            azureAccount.status === "Initializing"
-              ? localize("loadingTreeItem", "Loading...")
-              : localize("signingIn", "Waiting for Azure sign-in..."),
-          commandId: signInCommandId,
-          contextValue,
-          id: signInCommandId,
-        }),
-      ];
-    } else if (azureAccount.status === "LoggedOut") {
+
+    if (azureAccount.status != "LoggedIn") {
       return [
         new GenericTreeItem(this, {
           label: signInLabel,
