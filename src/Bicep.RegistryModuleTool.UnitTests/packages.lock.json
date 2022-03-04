@@ -257,6 +257,11 @@
           "System.Text.Json": "4.7.2"
         }
       },
+      "Markdig": {
+        "type": "Transitive",
+        "resolved": "0.27.0",
+        "contentHash": "0nX9KT/sxKpuYc6tjnCP8FQhrFCUe438c4CcXPgwJkri1SEi9iHfvMkYmI44l1Djp+ThhC2KNfmRBpXN72Z/Mw=="
+      },
       "Microsoft.Bcl.AsyncInterfaces": {
         "type": "Transitive",
         "resolved": "1.0.0",
@@ -1793,6 +1798,7 @@
           "FluentAssertions": "6.5.1",
           "JsonPath.Net": "0.1.14",
           "JsonSchema.Net": "1.12.0",
+          "Markdig": "0.27.0",
           "Microsoft.Extensions.Logging": "6.0.0",
           "Microsoft.Extensions.Logging.Console": "6.0.0",
           "Serilog.Extensions.Hosting": "4.2.0",

@@ -8,7 +8,9 @@ using Bicep.RegistryModuleTool.TestFixtures.MockFactories;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.Collections.Generic;
 using System.IO.Abstractions.TestingHelpers;
+using System.Text.RegularExpressions;
 using static FluentAssertions.FluentActions;
 
 namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
@@ -69,6 +71,19 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetEmptyExamplesSectionData), DynamicDataSourceType.Method)]
+        public void Validate_EmptyExamplesSectionInReadmeFile_ThrowsException(string readmeFileContents)
+        {
+            this.fileSystem.AddFile(this.fileSystem.Path.GetFullPath(ReadmeFile.FileName), readmeFileContents);
+
+            var fileToValidate = ReadmeFile.ReadFromFileSystem(this.fileSystem);
+
+            Invoking(() => this.sut.Validate(fileToValidate)).Should()
+                .Throw<InvalidModuleException>()
+                .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+        }
+
         [TestMethod]
         public void Validate_ValidVersionFile_Succeeds()
         {
@@ -93,6 +108,29 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             Invoking(() => this.sut.Validate(fileToValidate)).Should()
                 .Throw<InvalidModuleException>()
                 .WithMessage($@"The file ""{fileToValidate.Path}"" is modified or outdated. Please regenerate the file to fix it.{Environment.NewLine}");
+        }
+
+        private static IEnumerable<object[]> GetEmptyExamplesSectionData()
+        {
+            var fileSystem = MockFileSystemFactory.CreateFileSystemWithValidFiles();
+            var validReadmeFile = ReadmeFile.ReadFromFileSystem(fileSystem);
+
+            var emptyExamplesSections = new string[]
+            {
+                "## Examples",
+                "## Examples\r\n\r\n",
+                "## Examples\r\n\t   ",
+                "## Examples\n  \n",
+            };
+
+
+            foreach (var section in emptyExamplesSections)
+            {
+                yield return new object[]
+                {
+                    Regex.Replace(validReadmeFile.Content, "## Examples.+", section, RegexOptions.Singleline)
+                };
+            }
         }
     }
 }
