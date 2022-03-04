@@ -19,13 +19,13 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "README.md";
 
-        public ReadmeFile(string path, string content)
+        public ReadmeFile(string path, string contents)
             : base(path)
         {
-            this.Content = content;
+            this.Contents = contents;
         }
 
-        public string Content { get; }
+        public string Contents { get; }
 
         public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metadataFile, MainArmTemplateFile mainArmTemplateFile)
         {
@@ -40,7 +40,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             try
             {
                 var existingFile = ReadFromFileSystem(fileSystem);
-                var existingExamplesSection = TryReadSection(existingFile.Content, 2, "Examples");
+                var existingExamplesSection = TryReadSection(existingFile.Contents, 2, "Examples");
 
                 if (existingExamplesSection is not null && !existingExamplesSection.Equals("## Examples", StringComparison.Ordinal))
                 {
@@ -82,7 +82,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public ReadmeFile WriteToFileSystem(IFileSystem fileSystem)
         {
-            fileSystem.File.WriteAllText(FileName, this.Content);
+            fileSystem.File.WriteAllText(FileName, this.Contents);
 
             return this;
         }

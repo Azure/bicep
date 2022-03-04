@@ -128,7 +128,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
             {
                 yield return new object[]
                 {
-                    Regex.Replace(validReadmeFile.Content, "## Examples.+", section, RegexOptions.Singleline)
+                    Regex.Replace(validReadmeFile.Contents, "## Examples.+", section, RegexOptions.Singleline)
                 };
             }
         }
