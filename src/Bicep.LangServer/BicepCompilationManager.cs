@@ -19,6 +19,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Registry;
 using Bicep.LanguageServer.Telemetry;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -367,32 +368,32 @@ namespace Bicep.LanguageServer
             properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
 
             var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
-
-            if (disableNextLineDirectiveEndPositionAndCodes.Any())
-            {
-                properties.Add("DisableNextLineDirectivesCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
-                properties.Add("DiagnosticCodesInDisableNextLineDirectives", string.Join(",", GetDiagnosticCodes(disableNextLineDirectiveEndPositionAndCodes)));
-            }
+            properties.Add("DisableNextLineDirectivesCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
+            properties.Add("DiagnosticCodesInDisableNextLineDirectives", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodes));
 
             return properties;
         }
 
-        private string GetDiagnosticCodes(IEnumerable<DisableNextLineDirectiveEndPositionAndCodes> diagnosticCodes)
+        private string GetDiagnosticCodesWithCount(IEnumerable<DisableNextLineDirectiveEndPositionAndCodes> disableNextLineDirectiveEndPositionAndCodes)
         {
-            HashSet<string> diagnosticsCodes = new HashSet<string>();
+            var diagnosticsCodesMap = new Dictionary<string, int>();
 
-            foreach (var disableNextLineDirectiveEndPositionAndCodes in diagnosticCodes)
+            foreach (var disableNextLineDirectiveEndPositionAndCode in disableNextLineDirectiveEndPositionAndCodes)
             {
-                foreach (string diagnosticCode in disableNextLineDirectiveEndPositionAndCodes.diagnosticCodes)
+                foreach (string diagnosticCode in disableNextLineDirectiveEndPositionAndCode.diagnosticCodes)
                 {
-                    if (!diagnosticsCodes.Contains(diagnosticCode))
+                    if (diagnosticsCodesMap.ContainsKey(diagnosticCode))
                     {
-                        diagnosticsCodes.Add(diagnosticCode);
+                        diagnosticsCodesMap[diagnosticCode] += 1;
+                    }
+                    else
+                    {
+                        diagnosticsCodesMap.Add(diagnosticCode, 1);
                     }
                 }
             }
 
-            return string.Join(",", diagnosticsCodes);
+            return JsonConvert.SerializeObject(diagnosticsCodesMap);
         }
 
         private Dictionary<string, string> GetTelemetryPropertiesForReferencedFiles(IEnumerable<ISourceFile> sourceFiles)
@@ -433,11 +434,8 @@ namespace Bicep.LanguageServer
             properties.Add("VariablesInReferencedFiles", variables.ToString());
             properties.Add("LineCountOfReferencedFiles", lineCount.ToString());
 
-            if (disableNextLineDirectivesCount > 0)
-            {
-                properties.Add("DisableNextLineDirectivesCountInReferencedFiles", disableNextLineDirectivesCount.ToString());
-                properties.Add("DiagnosticCodesInDisableNextLineDirectivesInReferencedFiles", string.Join(",", GetDiagnosticCodes(disableNextLineDirectiveEndPositionAndCodesInReferencedFiles)));
-            }
+            properties.Add("DisableNextLineDirectivesCountInReferencedFiles", disableNextLineDirectivesCount.ToString());
+            properties.Add("DiagnosticCodesInDisableNextLineDirectivesInReferencedFiles", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodesInReferencedFiles));
 
             return properties;
         }

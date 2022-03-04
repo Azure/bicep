@@ -244,7 +244,8 @@ var deployGroups = true
 
 resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
   name: appInsightsName
-  location: resourceGroup().location
+#disable-next-line no-hardcoded-location
+  location: 'West US'
   kind: 'web'
   properties: {
     Application_Type: 'web'
@@ -265,6 +266,7 @@ var vmProperties = {
     bootDiagnostics: {
       enabled: 123
       storageUri: true
+      unknownProp: 'asdf'
     }
   }
   evictionPolicy: 'Deallocate'
@@ -273,6 +275,7 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
   name: 'vm'
 #disable-next-line no-hardcoded-location
   location: 'West US'
+#disable-next-line BCP036 BCP037
   properties: vmProperties
 }
 
@@ -361,7 +364,11 @@ var useDefaultSettings = true";
                 { "parentResourcesInReferencedFiles", "2" },
                 { "parametersInReferencedFiles", "2" },
                 { "variablesInReferencedFiles", "1" },
-                { "lineCountOfReferencedFiles", "12" }
+                { "lineCountOfReferencedFiles", "12" },
+                { "disableNextLineDirectivesCount", "3" },
+                { "diagnosticCodesInDisableNextLineDirectives", "{\"no-hardcoded-location\":1,\"BCP036\":1,\"BCP037\":1}" },
+                { "disableNextLineDirectivesCountInReferencedFiles", "0" },
+                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{}" }
             };
 
             bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
