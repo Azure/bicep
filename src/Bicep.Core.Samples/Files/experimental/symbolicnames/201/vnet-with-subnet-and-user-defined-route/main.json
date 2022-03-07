@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "16639371633903290676"
+      "templateHash": "5400906025083706341"
     }
   },
   "parameters": {
@@ -103,6 +103,26 @@
               "addressPrefix": "[parameters('subnetaddressPrefix')]",
               "routeTable": {
                 "id": "[resourceInfo('udr').id]"
+              },
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
               }
             }
           }

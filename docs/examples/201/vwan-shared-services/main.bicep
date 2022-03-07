@@ -84,6 +84,26 @@ resource vnet_shared_services 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: vnet_shared_services_cfg.subnetName
         properties: {
           addressPrefix: vnet_shared_services_cfg.subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]
@@ -104,6 +124,26 @@ resource vnet_isolated_1 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: vnet_isolated_1_cfg.subnetName
         properties: {
           addressPrefix: vnet_isolated_1_cfg.subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]
@@ -124,6 +164,26 @@ resource vnet_isolated_2 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: vnet_isolated_2_cfg.subnetName
         properties: {
           addressPrefix: vnet_isolated_2_cfg.subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]

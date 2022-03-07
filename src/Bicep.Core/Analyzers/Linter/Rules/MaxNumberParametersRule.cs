@@ -18,7 +18,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: Code,
             description: CoreResources.MaxNumberParametersRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-            diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary,
             diagnosticLevel: DiagnosticLevel.Error)
         { }
 

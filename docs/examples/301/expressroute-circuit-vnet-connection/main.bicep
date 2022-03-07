@@ -24,12 +24,52 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   name: '${virtualNetwork.name}/${subnetName}'
   properties: {
     addressPrefix: subnetPrefix
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
 }
 resource gatewaySubnet 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   name: '${virtualNetwork.name}/GatewaySubnet'
   properties: {
     addressPrefix: gatewaySubnetPrefix
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
 }
 resource publicIP 'Microsoft.Network/publicIPAddresses@2020-06-01' = {

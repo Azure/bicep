@@ -40,7 +40,7 @@ namespace Bicep.Core.Analyzers.Linter
             (this.ruleSet, this.ruleCreationErrors) = CreateLinterRules();
         }
 
-        private bool LinterEnabled => this.configuration.Analyzers.GetValue(LinterEnabledSetting, false);
+        private bool LinterEnabled => this.configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
 
         private bool LinterVerbose => this.configuration.Analyzers.GetValue(LinterVerboseSetting, false);
 

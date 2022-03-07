@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14722846075836206922"
+      "templateHash": "1900123565039237162"
     }
   },
   "parameters": {
@@ -90,7 +90,27 @@
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName'))]",
       "properties": {
         "addressPrefix": "[parameters('subnetCIDR')]",
-        "privateEndpointNetworkPolicies": "Disabled"
+        "privateEndpointNetworkPolicies": "Disabled",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"

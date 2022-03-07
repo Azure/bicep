@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Linq;
-using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Semantics

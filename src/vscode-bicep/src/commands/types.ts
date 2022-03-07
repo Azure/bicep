@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 
 export interface Command {
   readonly id: string;

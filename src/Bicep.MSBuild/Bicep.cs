@@ -45,6 +45,12 @@ namespace Azure.Bicep.MSBuild
                 return;
             }
 
+            if (singleLine.StartsWith("WARNING: "))
+            {
+                this.Log.LogWarning(singleLine);
+                return;
+            }
+
             // diagnostics emitted during compilation follow the canonical msbuild format and don't require re-parsing
             // however startup errors simply write a message to StdErr
             if (singleLine.Contains(") : "))

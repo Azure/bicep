@@ -3,7 +3,7 @@
 import {
   callWithTelemetryAndErrorHandling,
   IActionContext,
-} from "vscode-azureextensionui";
+} from "@microsoft/vscode-azext-utils";
 
 import { getLogger } from "./logger";
 

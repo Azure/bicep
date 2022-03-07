@@ -109,7 +109,7 @@ namespace Bicep.Cli.IntegrationTests
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
             // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
             var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 
@@ -150,7 +150,7 @@ namespace Bicep.Cli.IntegrationTests
             var compiledFilePath = Path.Combine(outputDirectory, DataSet.TestFileMainCompiled);
 
             // mock client factory caches the clients
-            var testClient = (MockRegistryBlobClient)clientFactory.CreateBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
+            var testClient = (MockRegistryBlobClient)clientFactory.CreateAuthenticatedBlobClient(BicepTestConstants.BuiltInConfiguration, registryUri, repository);
 
             var settings = new InvocationSettings(BicepTestConstants.CreateFeaturesProvider(TestContext, registryEnabled: true), clientFactory, templateSpecRepositoryFactory);
 

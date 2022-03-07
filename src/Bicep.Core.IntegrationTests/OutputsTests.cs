@@ -113,6 +113,39 @@ output out resource 'Microsoft.Storage/storageAccounts@2019-06-01' = resource
             });
         }
 
+        // Object-typed outputs should work the same way regardless of whether resource-typed outputs are enabled.
+        [DataTestMethod]
+        [DataRow(true)]
+        [DataRow(false)]
+        public void Output_can_have_object_type(bool enableResourceTypeParameters)
+        {
+            var context = enableResourceTypeParameters ? ResourceTypedFeatureContext :  new CompilationHelper.CompilationHelperContext();
+            var result = CompilationHelper.Compile(context, @"
+resource resource 'Microsoft.Storage/storageAccounts@2019-06-01' = {
+  name: 'test'
+  location: 'eastus'
+  kind: 'StorageV2'
+  sku: {
+    name: 'Standard_LRS'
+  }
+  identity: {
+    type: 'SystemAssigned'
+  }
+  properties:{
+    accessTier: 'Cool'
+  }
+}
+output out object = resource
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+
+            result.Template.Should().HaveValueAtPath("$.outputs.out", new JObject()
+            {
+                ["type"] = "object",
+                ["value"] = "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01', 'full')]",
+            });
+        }
+
         [TestMethod]
         public void Output_can_have_decorators()
         {

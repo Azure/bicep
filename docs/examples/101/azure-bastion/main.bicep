@@ -49,6 +49,26 @@ resource newVirtualNetwork 'Microsoft.Network/virtualNetworks@2020-05-01' = if (
         name: bastionSubnetName
         properties: {
           addressPrefix: bastionSubnetIpPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]
@@ -64,6 +84,26 @@ resource subnet 'Microsoft.Network/virtualNetworks/subnets@2020-05-01' = if (vne
   name: bastionSubnetName
   properties: {
     addressPrefix: bastionSubnetIpPrefix
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
 }
 
