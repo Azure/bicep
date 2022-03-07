@@ -29,14 +29,14 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private static readonly JsonElement NoVersionFileElement = EmptyFileElement.Patch(JsonPatchOperations.Remove("/version"));
 
-        public VersionFile(string path, string content, JsonElement rootElement)
+        public VersionFile(string path, string contents, JsonElement rootElement)
             : base(path)
         {
-            this.Content = content;
+            this.Contents = contents;
             this.RootElement = rootElement;
         }
 
-        public string Content { get; }
+        public string Contents { get; }
 
         public JsonElement RootElement { get; }
 
@@ -89,7 +89,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public VersionFile WriteToFileSystem(IFileSystem fileSystem)
         {
-            fileSystem.File.WriteAllText(this.Path, this.Content);
+            fileSystem.File.WriteAllText(this.Path, this.Contents);
 
             return this;
         }
