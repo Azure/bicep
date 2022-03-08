@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17608560117045014269"
+      "templateHash": "3051020952527793145"
     }
   },
   "parameters": {
@@ -79,8 +79,8 @@
       "apiVersion": "2020-12-01",
       "name": "[format('{0}/{1}/{2}', 'conditionParent', 'conditionChild', 'conditionGrandchild')]",
       "properties": {
-        "size": "[reference(resourceId('My.Rp/parentType', 'conditionParent')).size]",
-        "style": "[reference(resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild')).style]"
+        "size": "[reference(resourceId('My.Rp/parentType', 'conditionParent'), '2020-12-01').size]",
+        "style": "[reference(resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild'), '2020-12-01').style]"
       },
       "dependsOn": [
         "[resourceId('My.Rp/parentType/childType', 'conditionParent', 'conditionChild')]",

@@ -698,7 +698,11 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
-            if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
+            var shouldIncludeApiVersion =
+                resource.IsExistingResource ||
+                resource is DeclaredResourceMetadata { Symbol.DeclaringResource.Value: IfConditionSyntax };
+
+            if (!context.Settings.EnableSymbolicNames && shouldIncludeApiVersion)
             {
                 var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
 
