@@ -213,8 +213,6 @@ namespace Bicep.LangServer.IntegrationTests
         [TestMethod]
         public async Task BicepFileOpen_ShouldFireTelemetryEvent()
         {
-            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
-
             var bicepConfigFileContents = @"{
   ""analyzers"": {
     ""core"": {
@@ -234,9 +232,6 @@ namespace Bicep.LangServer.IntegrationTests
     }
   }
 }";
-            FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
-
-            var fileSystemDict = new Dictionary<Uri, string>();
 
             var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
 
@@ -280,9 +275,6 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
 }
 
 #disable-next-line";
-            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", mainBicepFileContents, testOutputPath);
-            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
-            fileSystemDict[mainUri.ToUri()] = mainBicepFileContents;
 
             var referencedBicepFileContents = @"resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
   name: 'testApimInstanceName'
@@ -296,6 +288,182 @@ param storageAccount string = 'testStorageAccount'
 param location string = 'testLocation'
 
 var useDefaultSettings = true";
+            var linterRuleStateOnBicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "enabled", "true" },
+                { "simplify-interpolation", "warning" },
+                { "no-unused-vars", "info" },
+                { "no-hardcoded-env-urls", "warning" },
+                { "no-unused-params", "warning" },
+                { "prefer-interpolation", "warning" },
+                { "protect-commandtoexecute-secrets", "warning" },
+                { "no-unnecessary-dependson", "warning" },
+                { "adminusername-should-not-be-literal", "warning" },
+                { "use-stable-vm-image", "warning" },
+                { "secure-parameter-default", "warning" },
+                { "outputs-should-not-contain-secrets", "warning" },
+                { "explicit-values-for-loc-params", "warning" },
+                { "no-loc-expr-outside-params", "none" },
+                { "no-hardcoded-location", "warning" }
+            };
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "modules", "1" },
+                { "parameters", "2" },
+                { "resources", "3" },
+                { "variables", "2" },
+                { "fileSizeInBytes", "895" },
+                { "lineCount", "42" },
+                {
+                    // #disable-next-line
+                    //   => Expected at least one diagnostic code at this location. Valid format is "#disable-next-line diagnosticCode1 diagnosticCode2 ..."bicep(BCP226)
+                    // resource favorites 'favorites@2015-05-01'{
+                    //   => Expected the "=" character at this location.
+                    "errors", "2"
+                },
+                {
+                    // param location string = 'testLocation'
+                    //   => Parameter "location" is declared but never used.
+                    // location: resourceGroup().location
+                    //   => Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.
+                    "warnings",
+                    "1"
+                },
+                { "modulesInReferencedFiles", "0" },
+                { "parentResourcesInReferencedFiles", "2" },
+                { "parametersInReferencedFiles", "2" },
+                { "variablesInReferencedFiles", "1" },
+                { "lineCountOfReferencedFiles", "12" },
+                { "disableNextLineDirectivesCount", "4" },
+                { "diagnosticCodesInDisableNextLineDirectives", "{\"no-hardcoded-location\":2,\"BCP036\":1,\"BCP037\":1}" },
+                { "disableNextLineDirectivesCountInReferencedFiles", "0" },
+                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{}" }
+            };
+            await VerifyBicepFileOpenTelemetry(
+                bicepConfigFileContents,
+                mainBicepFileContents,
+                referencedBicepFileContents,
+                linterRuleStateOnBicepFileOpenTelemetryEventProperties,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_VerifyDisableNextLineDirectivesTelemetryInReferencedFiles()
+        {
+            var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
+
+var deployGroups = true
+
+resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
+  name: appInsightsName
+#disable-next-line no-hardcoded-location
+  location: 'West US'
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+  resource favorites 'favorites@2015-05-01'{
+    name: 'testName'
+  }
+}
+
+module apimGroups 'groups.bicep' = if (deployGroups) {
+  name: 'apimGroups'
+}";
+            var referencedBicepFileContents = @"resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
+  name: 'testApimInstanceName'
+}
+
+resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = {
+  name: 'apiManagement/groups'
+}
+
+#disable-next-line no-unused-params
+param storageAccount string = 'testStorageAccount'
+#disable-next-line no-unused-params
+param location string = 'testLocation'
+
+#disable-next-line no-unused-vars
+var useDefaultSettings = true";
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "disableNextLineDirectivesCount", "1" },
+                { "diagnosticCodesInDisableNextLineDirectives", "{\"no-hardcoded-location\":1}" },
+                { "disableNextLineDirectivesCountInReferencedFiles", "3" },
+                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{\"no-unused-params\":2,\"no-unused-vars\":1}" }
+            };
+            await VerifyBicepFileOpenTelemetry(
+                null,
+                mainBicepFileContents,
+                referencedBicepFileContents,
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_WithNoDisableNextLineDirectives_VerifyTelemetryProperties()
+        {
+            var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
+
+var deployGroups = true
+
+resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
+  name: appInsightsName
+  location: 'West US'
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+  resource favorites 'favorites@2015-05-01'{
+    name: 'testName'
+  }
+}
+
+module apimGroups 'groups.bicep' = if (deployGroups) {
+  name: 'apimGroups'
+}";
+            var referencedBicepFileContents = @"resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
+  name: 'testApimInstanceName'
+}
+
+resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = {
+  name: 'apiManagement/groups'
+}";
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "disableNextLineDirectivesCount", "0" },
+                { "diagnosticCodesInDisableNextLineDirectives", "{}" },
+                { "disableNextLineDirectivesCountInReferencedFiles", "0" },
+                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{}" }
+            };
+            await VerifyBicepFileOpenTelemetry(
+                null,
+                mainBicepFileContents,
+                referencedBicepFileContents,
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        private async Task VerifyBicepFileOpenTelemetry(
+            string? bicepConfigFileContents,
+            string mainBicepFileContents,
+            string referencedBicepFileContents,
+            IDictionary<string, string>? linterRuleStateOnBicepFileOpenTelemetryEventProperties,
+            IDictionary<string, string> bicepFileOpenTelemetryEventProperties)
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            if (bicepConfigFileContents is not null)
+            {
+                FileHelper.SaveResultFile(TestContext, "bicepconfig.json", bicepConfigFileContents, testOutputPath);
+            }
+
+            var fileSystemDict = new Dictionary<Uri, string>();
+
+            var mainBicepFilePath = FileHelper.SaveResultFile(TestContext, "main.bicep", mainBicepFileContents, testOutputPath);
+            var mainUri = DocumentUri.FromFileSystemPath(mainBicepFilePath);
+            fileSystemDict[mainUri.ToUri()] = mainBicepFileContents;
+
             var referencedBicepFilePath = FileHelper.SaveResultFile(TestContext, "groups.bicep", referencedBicepFileContents, testOutputPath);
             var moduleUri = DocumentUri.FromFileSystemPath(referencedBicepFilePath);
             fileSystemDict[moduleUri.ToUri()] = referencedBicepFileContents;
@@ -315,65 +483,15 @@ var useDefaultSettings = true";
 
             var bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
 
-            IDictionary<string, string> properties = new Dictionary<string, string>
+            if (linterRuleStateOnBicepFileOpenTelemetryEventProperties is not null)
             {
-                { "enabled", "true" },
-                { "simplify-interpolation", "warning" },
-                { "no-unused-vars", "info" },
-                { "no-hardcoded-env-urls", "warning" },
-                { "no-unused-params", "warning" },
-                { "prefer-interpolation", "warning" },
-                { "protect-commandtoexecute-secrets", "warning" },
-                { "no-unnecessary-dependson", "warning" },
-                { "adminusername-should-not-be-literal", "warning" },
-                { "use-stable-vm-image", "warning" },
-                { "secure-parameter-default", "warning" },
-                { "outputs-should-not-contain-secrets", "warning" },
-                { "explicit-values-for-loc-params", "warning" },
-                { "no-loc-expr-outside-params", "none" },
-                { "no-hardcoded-location", "warning" }
-            };
-
-            bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
-            bicepTelemetryEvent.Properties.Should().Contain(properties);
-
-            properties = new Dictionary<string, string>
-            {
-                { "modules", "1" },
-                { "parameters", "2" },
-                { "resources", "2" },
-                { "variables", "1" },
-                { "fileSizeInBytes", "488" },
-                { "lineCount", "23" },
-                {
-                    // #disable-next-line
-                    //   => Expected at least one diagnostic code at this location. Valid format is "#disable-next-line diagnosticCode1 diagnosticCode2 ..."bicep(BCP226)
-                    // resource favorites 'favorites@2015-05-01'{
-                    //   => Expected the "=" character at this location.
-                    "errors", "2"
-                },
-                {
-                    // param location string = 'testLocation'
-                    //   => Parameter "location" is declared but never used.
-                    // location: resourceGroup().location
-                    //   => Use a parameter here instead of 'resourceGroup().location'. 'resourceGroup().location' and 'deployment().location' should only be used as a default value for parameters.
-                    "warnings",
-                    "2"
-                },
-                { "modulesInReferencedFiles", "0" },
-                { "parentResourcesInReferencedFiles", "2" },
-                { "parametersInReferencedFiles", "2" },
-                { "variablesInReferencedFiles", "1" },
-                { "lineCountOfReferencedFiles", "12" },
-                { "disableNextLineDirectivesCount", "3" },
-                { "diagnosticCodesInDisableNextLineDirectives", "{\"no-hardcoded-location\":1,\"BCP036\":1,\"BCP037\":1}" },
-                { "disableNextLineDirectivesCountInReferencedFiles", "0" },
-                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{}" }
-            };
+                bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.LinterRuleStateOnBicepFileOpen);
+                bicepTelemetryEvent.Properties.Should().Contain(linterRuleStateOnBicepFileOpenTelemetryEventProperties);
+            }
 
             bicepTelemetryEvent = await telemetryEventsListener.WaitNext();
             bicepTelemetryEvent.EventName.Should().Be(TelemetryConstants.EventNames.BicepFileOpen);
-            bicepTelemetryEvent.Properties.Should().Contain(properties);
+            bicepTelemetryEvent.Properties.Should().Contain(bicepFileOpenTelemetryEventProperties);
         }
 
         private async Task<BicepTelemetryEvent> ResolveCompletionAsync(string text, string prefix, Position position)
