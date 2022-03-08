@@ -111,6 +111,26 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: subnet1Name
         properties: {
           addressPrefix: '10.0.0.0/24'
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
       {
