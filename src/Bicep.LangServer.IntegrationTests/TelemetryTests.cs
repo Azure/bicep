@@ -348,7 +348,7 @@ var useDefaultSettings = true";
         }
 
         [TestMethod]
-        public async Task BicepFileOpen_VerifyDisableNextLineDirectivesTelemetryInReferencedFiles()
+        public async Task BicepFileOpen_VerifyDisableNextLineDirectivesTelemetryPropertiesInReferencedFiles()
         {
             var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
 
