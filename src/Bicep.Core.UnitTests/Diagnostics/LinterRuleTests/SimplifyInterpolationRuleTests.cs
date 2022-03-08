@@ -119,6 +119,29 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectDiagnosticWithFix(text, expectedFix);
         }
 
+        [DataRow(
+            @"
+            var s = '${concat('a', 'b')}'
+            ",
+            "concat('a', 'b')"
+        )]
+        [DataRow(
+            @"
+                resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                    name: 'name'
+                    location: '${resourceGroup().location}'
+                    properties: {
+                        encryption: 'a'
+                    }
+                }",
+            "resourceGroup().location"
+        )]
+        [DataTestMethod]
+        public void StringExpression(string text, string expectedFix)
+        {
+            ExpectDiagnosticWithFix(text, expectedFix);
+        }
+
         [DataRow(@"
                     param AutomationAccountName string
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
@@ -146,11 +169,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         name: '${AutomationAccountName}${AutomationAccountName}'
                         location: resourceGroup().location
                     }"
-        )]
-        [DataRow(
-            @"
-            var s = '${concat('a','b')}'
-            "
         )]
         [DataTestMethod]
         public void InterpolationMoreThanJustParamOrVar_Passes(string text)
@@ -258,4 +276,3 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
     }
 }
-
