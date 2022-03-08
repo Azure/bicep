@@ -49,7 +49,7 @@ namespace Bicep.Core.Diagnostics
 
             public override void VisitSyntaxTrivia(SyntaxTrivia syntaxTrivia)
             {
-                if (syntaxTrivia is DisableNextLineDiagnosticsSyntaxTrivia disableNextLineDiagnosticsSyntaxTrivia)
+                if (syntaxTrivia is DisableNextLineOrFileDiagnosticsSyntaxTrivia disableNextLineDiagnosticsSyntaxTrivia)
                 {
                     var codes = disableNextLineDiagnosticsSyntaxTrivia.DiagnosticCodes.Select(x => x.Text).ToImmutableArray();
                     (int line, _) = TextCoordinateConverter.GetPosition(lineStarts, syntaxTrivia.Span.Position);

@@ -317,7 +317,13 @@ namespace Bicep.Core.Parsing
                     CheckAdjacentText(LanguageConstants.DisableNextLineDiagnosticsKeyword) &&
                     string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
                 {
-                    yield return ScanDisableNextLineDiagnosticsDirective();
+                    yield return ScanDisableNextLineOrFileDiagnosticsDirective(LanguageConstants.DisableNextLineDiagnosticsKeyword);
+                }
+                else if (textWindow.Peek() == '#' &&
+                    CheckAdjacentText(LanguageConstants.DisableFileDiagnosticsKeyword) &&
+                    string.IsNullOrWhiteSpace(textWindow.GetTextBetweenLineStartAndCurrentPosition()))
+                {
+                    yield return ScanDisableNextLineOrFileDiagnosticsDirective(LanguageConstants.DisableFileDiagnosticsKeyword);
                 }
                 else
                 {
@@ -326,10 +332,10 @@ namespace Bicep.Core.Parsing
             }
         }
 
-        private SyntaxTrivia ScanDisableNextLineDiagnosticsDirective()
+        private SyntaxTrivia ScanDisableNextLineOrFileDiagnosticsDirective(string keyword)
         {
             textWindow.Reset();
-            textWindow.Advance(LanguageConstants.DisableNextLineDiagnosticsKeyword.Length + 1); // Length of disable next statement plus #
+            textWindow.Advance(keyword.Length + 1); // Length of disable next statement plus #
 
             var span = textWindow.GetSpan();
             int start = span.Position;
@@ -385,7 +391,7 @@ namespace Bicep.Core.Parsing
                 else
                 {
                     // Handle scenario where nextChar is not one of the following: identifier, '-', space, tab
-                    // Eg: '|' in #disable-next-line BCP037|
+                    // Eg: '|' in #disable-next-line BCP037| or '|' in #disable-file BCP037|
                     if (GetToken() is { } token)
                     {
                         codes.Add(token);
@@ -399,10 +405,10 @@ namespace Bicep.Core.Parsing
 
             if (codes.Count == 0)
             {
-                AddDiagnostic(b => b.MissingDiagnosticCodes());
+                AddDiagnostic(b => b.MissingDiagnosticCodes("#" + keyword));
             }
 
-            return GetDisableNextLineDiagnosticsSyntaxTrivia(codes, start, end, sb.ToString());
+            return GetDisableNextLineOrFileDiagnosticsSyntaxTrivia(keyword, codes, start, end, sb.ToString());
         }
 
         private bool CheckAdjacentText(string text)
@@ -422,7 +428,7 @@ namespace Bicep.Core.Parsing
             return true;
         }
 
-        private DisableNextLineDiagnosticsSyntaxTrivia GetDisableNextLineDiagnosticsSyntaxTrivia(List<Token> codes, int start, int end, string text)
+        private DisableNextLineOrFileDiagnosticsSyntaxTrivia GetDisableNextLineOrFileDiagnosticsSyntaxTrivia(string keyword, List<Token> codes, int start, int end, string text)
         {
             if (codes.Any())
             {
@@ -436,11 +442,19 @@ namespace Bicep.Core.Parsing
                     var delta = end - lastCodeSpanEnd;
                     textWindow.Rewind(delta);
 
-                    return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes);
+                    if (keyword == LanguageConstants.DisableNextLineDiagnosticsKeyword)
+                    {
+                        return new DisableNextLineOrFileDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes);
+                    }
+                    return new DisableNextLineOrFileDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableFileDiagnosticsDirective, new TextSpan(start, lastCodeSpanEnd - start), text[0..^delta], codes);
                 }
             }
 
-            return new DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, end - start), text, codes);
+            if (keyword == LanguageConstants.DisableNextLineDiagnosticsKeyword)
+            {
+                return new DisableNextLineOrFileDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableNextLineDiagnosticsDirective, new TextSpan(start, end - start), text, codes);
+            }
+            return new DisableNextLineOrFileDiagnosticsSyntaxTrivia(SyntaxTriviaType.DisableFileDiagnosticsDirective, new TextSpan(start, end - start), text, codes);
         }
 
         private Token? GetToken()

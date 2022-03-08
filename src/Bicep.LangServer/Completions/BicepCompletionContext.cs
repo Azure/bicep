@@ -109,7 +109,7 @@ namespace Bicep.LanguageServer.Completions
                     {
                         var previousTrivia = FindTriviaMatchingOffset(bicepFile.ProgramSyntax, position - 1);
 
-                        if (previousTrivia is DisableNextLineDiagnosticsSyntaxTrivia)
+                        if (previousTrivia is DisableNextLineOrFileDiagnosticsSyntaxTrivia)
                         {
                             return new BicepCompletionContext(BicepCompletionContextKind.DisableNextLineDiagnosticsCodes, replacementRange, null, null, null, null, null, null, null, null, null, null, ImmutableArray<ILanguageScope>.Empty);
                         }

@@ -1338,10 +1338,10 @@ namespace Bicep.Core.Diagnostics
                 "BCP225",
                 $"The discriminator property \"{propertyName}\" value cannot be determined at compilation time. Type checking for this object is disabled.");
 
-            public ErrorDiagnostic MissingDiagnosticCodes() => new(
+            public ErrorDiagnostic MissingDiagnosticCodes(string disableDirective) => new(
                 TextSpan,
                 "BCP226",
-                "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
+                "Expected at least one diagnostic code at this location. Valid format is \"" + disableDirective + " diagnosticCode1 diagnosticCode2 ...\""
             );
 
             public ErrorDiagnostic UnsupportedResourceTypeParameterType(string resourceType) => new(

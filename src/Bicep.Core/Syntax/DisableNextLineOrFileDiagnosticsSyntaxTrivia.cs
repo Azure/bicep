@@ -7,9 +7,9 @@ using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Syntax
 {
-    public class DisableNextLineDiagnosticsSyntaxTrivia : SyntaxTrivia
+    public class DisableNextLineOrFileDiagnosticsSyntaxTrivia : SyntaxTrivia
     {
-        public DisableNextLineDiagnosticsSyntaxTrivia(SyntaxTriviaType type, TextSpan span, string text, IEnumerable<Token> diagnosticCodes)
+        public DisableNextLineOrFileDiagnosticsSyntaxTrivia(SyntaxTriviaType type, TextSpan span, string text, IEnumerable<Token> diagnosticCodes)
             : base(type, span, text)
         {
             DiagnosticCodes = diagnosticCodes.ToImmutableArray();
