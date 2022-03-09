@@ -19,7 +19,11 @@ import { AzLoginTreeItem } from "../deploy/tree/AzLoginTreeItem";
 import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem";
 import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
 import { ext } from "../extensionVariables";
-import { deploymentScopeRequestType } from "../language";
+import {
+  BicepDeployParams,
+  bicepDeployRequestType,
+  deploymentScopeRequestType,
+} from "../language";
 import { appendToOutputChannel } from "../utils/appendToOutputChannel";
 import { Command } from "./types";
 
@@ -49,13 +53,14 @@ export class DeployCommand implements Command {
     }
 
     const documentPath = documentUri.fsPath;
+    const textDocument = TextDocumentIdentifier.create(documentUri.fsPath);
     const fileName = path.basename(documentPath);
     appendToOutputChannel(`Started deployment of ${fileName}`);
 
     try {
       const deploymentScopeResponse = await this.client.sendRequest(
         deploymentScopeRequestType,
-        { textDocument: TextDocumentIdentifier.create(documentUri.fsPath) }
+        { textDocument: textDocument }
       );
       const deploymentScope = deploymentScopeResponse?.scope;
       const template = deploymentScopeResponse?.template;
@@ -85,6 +90,7 @@ export class DeployCommand implements Command {
       if (deploymentScope == "resourceGroup") {
         await handleResourceGroupDeployment(
           _context,
+          textDocument,
           documentUri,
           deploymentScope,
           template,
@@ -93,6 +99,7 @@ export class DeployCommand implements Command {
       } else if (deploymentScope == "subscription") {
         await handleSubscriptionDeployment(
           _context,
+          textDocument,
           documentUri,
           deploymentScope,
           template,
@@ -101,6 +108,7 @@ export class DeployCommand implements Command {
       } else if (deploymentScope == "managementGroup") {
         await handleManagementGroupDeployment(
           _context,
+          textDocument,
           documentUri,
           deploymentScope,
           template,
@@ -125,6 +133,7 @@ export class DeployCommand implements Command {
 
 async function handleManagementGroupDeployment(
   context: IActionContext,
+  textDocument: TextDocumentIdentifier,
   documentUri: vscode.Uri,
   deploymentScope: string,
   template: string,
@@ -146,7 +155,7 @@ async function handleManagementGroupDeployment(
       const parameterFilePath = await selectParameterFile(context, documentUri);
 
       await sendDeployCommand(
-        documentUri.fsPath,
+        textDocument,
         parameterFilePath,
         managementGroupId,
         deploymentScope,
@@ -160,6 +169,7 @@ async function handleManagementGroupDeployment(
 
 async function handleResourceGroupDeployment(
   context: IActionContext,
+  textDocument: TextDocumentIdentifier,
   documentUri: vscode.Uri,
   deploymentScope: string,
   template: string,
@@ -176,7 +186,7 @@ async function handleResourceGroupDeployment(
     const parameterFilePath = await selectParameterFile(context, documentUri);
 
     await sendDeployCommand(
-      documentUri.fsPath,
+      textDocument,
       parameterFilePath,
       resourceGroupId,
       deploymentScope,
@@ -189,6 +199,7 @@ async function handleResourceGroupDeployment(
 
 async function handleSubscriptionDeployment(
   context: IActionContext,
+  textDocument: TextDocumentIdentifier,
   documentUri: vscode.Uri,
   deploymentScope: string,
   template: string,
@@ -201,7 +212,7 @@ async function handleSubscriptionDeployment(
   const parameterFilePath = await selectParameterFile(context, documentUri);
 
   await sendDeployCommand(
-    documentUri.fsPath,
+    textDocument,
     parameterFilePath,
     subscriptionId,
     deploymentScope,
@@ -212,7 +223,7 @@ async function handleSubscriptionDeployment(
 }
 
 async function sendDeployCommand(
-  documentPath: string,
+  textDocument: TextDocumentIdentifier,
   parameterFilePath: string,
   id: string,
   deploymentScope: string,
@@ -220,19 +231,18 @@ async function sendDeployCommand(
   template: string,
   client: LanguageClient
 ) {
-  const deployOutput: string = await client.sendRequest(
-    "workspace/executeCommand",
-    {
-      command: "deploy",
-      arguments: [
-        documentPath,
-        parameterFilePath,
-        id,
-        deploymentScope,
-        location,
-        template,
-      ],
-    }
+  const bicepDeployParams: BicepDeployParams = {
+    textDocument,
+    parameterFilePath,
+    id,
+    deploymentScope,
+    location,
+    template,
+  };
+  const deploymentResponse: string = await client.sendRequest(
+    bicepDeployRequestType,
+    bicepDeployParams
   );
-  appendToOutputChannel(deployOutput);
+
+  appendToOutputChannel(deploymentResponse);
 }
