@@ -368,8 +368,8 @@ namespace Bicep.LanguageServer
             properties.Add("Warnings", diagnostics.Count(x => x.Severity == DiagnosticSeverity.Warning).ToString());
 
             var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
-            properties.Add("DisableNextLineDirectivesCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
-            properties.Add("DiagnosticCodesInDisableNextLineDirectives", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodes));
+            properties.Add("DisableNextLineCount", disableNextLineDirectiveEndPositionAndCodes.Count().ToString());
+            properties.Add("DisableNextLineCodes", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodes));
 
             return properties;
         }
@@ -380,7 +380,8 @@ namespace Bicep.LanguageServer
 
             foreach (var disableNextLineDirectiveEndPositionAndCode in disableNextLineDirectiveEndPositionAndCodes)
             {
-                foreach (string diagnosticCode in disableNextLineDirectiveEndPositionAndCode.diagnosticCodes)
+                var diagnosticCodes = disableNextLineDirectiveEndPositionAndCode.diagnosticCodes.Distinct();
+                foreach (string diagnosticCode in diagnosticCodes)
                 {
                     if (diagnosticsCodesMap.ContainsKey(diagnosticCode))
                     {
@@ -419,12 +420,8 @@ namespace Bicep.LanguageServer
                     lineCount += bicepFile.LineStarts.Length;
 
                     var disableNextLineDirectiveEndPositionAndCodes = bicepFile.DisabledDiagnosticsCache.GetDisableNextLineDiagnosticDirectivesCache().Values;
-
-                    if (disableNextLineDirectiveEndPositionAndCodes.Any())
-                    {
-                        disableNextLineDirectivesCount += disableNextLineDirectiveEndPositionAndCodes.Count();
-                        disableNextLineDirectiveEndPositionAndCodesInReferencedFiles.AddRange(disableNextLineDirectiveEndPositionAndCodes);
-                    }
+                    disableNextLineDirectivesCount += disableNextLineDirectiveEndPositionAndCodes.Count();
+                    disableNextLineDirectiveEndPositionAndCodesInReferencedFiles.AddRange(disableNextLineDirectiveEndPositionAndCodes);
                 }
             }
 
@@ -434,8 +431,8 @@ namespace Bicep.LanguageServer
             properties.Add("VariablesInReferencedFiles", variables.ToString());
             properties.Add("LineCountOfReferencedFiles", lineCount.ToString());
 
-            properties.Add("DisableNextLineDirectivesCountInReferencedFiles", disableNextLineDirectivesCount.ToString());
-            properties.Add("DiagnosticCodesInDisableNextLineDirectivesInReferencedFiles", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodesInReferencedFiles));
+            properties.Add("DisableNextLineCountInReferencedFiles", disableNextLineDirectivesCount.ToString());
+            properties.Add("DisableNextLineCodesInReferencedFiles", GetDiagnosticCodesWithCount(disableNextLineDirectiveEndPositionAndCodesInReferencedFiles));
 
             return properties;
         }

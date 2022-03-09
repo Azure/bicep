@@ -334,10 +334,10 @@ var useDefaultSettings = true";
                 { "parametersInReferencedFiles", "2" },
                 { "variablesInReferencedFiles", "1" },
                 { "lineCountOfReferencedFiles", "12" },
-                { "disableNextLineDirectivesCount", "4" },
-                { "diagnosticCodesInDisableNextLineDirectives", "{\"no-hardcoded-location\":2,\"BCP036\":1,\"BCP037\":1}" },
-                { "disableNextLineDirectivesCountInReferencedFiles", "0" },
-                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{}" }
+                { "disableNextLineCount", "4" },
+                { "disableNextLineCodes", "{\"no-hardcoded-location\":2,\"BCP036\":1,\"BCP037\":1}" },
+                { "disableNextLineCountInReferencedFiles", "0" },
+                { "disableNextLineCodesInReferencedFiles", "{}" }
             };
             await VerifyBicepFileOpenTelemetry(
                 bicepConfigFileContents,
@@ -348,7 +348,7 @@ var useDefaultSettings = true";
         }
 
         [TestMethod]
-        public async Task BicepFileOpen_VerifyDisableNextLineDirectivesTelemetryPropertiesInReferencedFiles()
+        public async Task BicepFileOpen_VerifyDisableNextLineTelemetryPropertiesInReferencedFiles()
         {
             var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
 
@@ -387,10 +387,61 @@ param location string = 'testLocation'
 var useDefaultSettings = true";
             var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
             {
-                { "disableNextLineDirectivesCount", "1" },
-                { "diagnosticCodesInDisableNextLineDirectives", "{\"no-hardcoded-location\":1}" },
-                { "disableNextLineDirectivesCountInReferencedFiles", "3" },
-                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{\"no-unused-params\":2,\"no-unused-vars\":1}" }
+                { "disableNextLineCount", "1" },
+                { "disableNextLineCodes", "{\"no-hardcoded-location\":1}" },
+                { "disableNextLineCountInReferencedFiles", "3" },
+                { "disableNextLineCodesInReferencedFiles", "{\"no-unused-params\":2,\"no-unused-vars\":1}" }
+            };
+            await VerifyBicepFileOpenTelemetry(
+                null,
+                mainBicepFileContents,
+                referencedBicepFileContents,
+                null,
+                bicepFileOpenTelemetryEventProperties);
+        }
+
+        [TestMethod]
+        public async Task BicepFileOpen_WithDuplicateCodesInDisableNextLineDirectives_VerifyTelemetryProperties()
+        {
+            var mainBicepFileContents = @"param appInsightsName string = 'testAppInsightsName'
+
+var deployGroups = true
+
+resource applicationInsights 'Microsoft.Insights/components@2015-05-01' = {
+  name: appInsightsName
+#disable-next-line no-hardcoded-location no-hardcoded-location
+  location: 'West US'
+  kind: 'web'
+  properties: {
+    Application_Type: 'web'
+  }
+  resource favorites 'favorites@2015-05-01'{
+    name: 'testName'
+  }
+}
+
+module apimGroups 'groups.bicep' = if (deployGroups) {
+  name: 'apimGroups'
+}";
+            var referencedBicepFileContents = @"resource parentAPIM 'Microsoft.ApiManagement/service@2019-01-01' existing = {
+  name: 'testApimInstanceName'
+}
+
+resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' = {
+  name: 'apiManagement/groups'
+}
+
+#disable-next-line no-unused-params no-unused-params
+param storageAccount string = 'testStorageAccount'
+
+#disable-next-line no-unused-vars
+var useDefaultSettings = true";
+            var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
+            {
+                { "disableNextLineCount", "1" },
+                { "disableNextLineCodes", "{\"no-hardcoded-location\":1}" },
+                { "disableNextLineCountInReferencedFiles", "2" },
+                { "disableNextLineCodesInReferencedFiles", "{\"no-unused-params\":1,\"no-unused-vars\":1}" }
             };
             await VerifyBicepFileOpenTelemetry(
                 null,
@@ -431,10 +482,10 @@ resource apimGroup 'Microsoft.ApiManagement/service/groups@2020-06-01-preview' =
 }";
             var bicepFileOpenTelemetryEventProperties = new Dictionary<string, string>
             {
-                { "disableNextLineDirectivesCount", "0" },
-                { "diagnosticCodesInDisableNextLineDirectives", "{}" },
-                { "disableNextLineDirectivesCountInReferencedFiles", "0" },
-                { "diagnosticCodesInDisableNextLineDirectivesInReferencedFiles", "{}" }
+                { "disableNextLineCount", "0" },
+                { "disableNextLineCodes", "{}" },
+                { "disableNextLineCountInReferencedFiles", "0" },
+                { "disableNextLineCodesInReferencedFiles", "{}" }
             };
             await VerifyBicepFileOpenTelemetry(
                 null,
