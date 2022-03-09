@@ -639,7 +639,7 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("outputs"));
             }
 
-            if (moduleSymbol.DeclaringModule.Value is IfConditionSyntax)
+            if (moduleSymbol.DeclaringModule.HasCondition())
             {
                 return AppendProperties(
                     CreateFunction(
@@ -699,10 +699,11 @@ namespace Bicep.Core.Emit
             }
 
             var shouldIncludeApiVersion =
-                resource.IsExistingResource ||
-                resource is DeclaredResourceMetadata { Symbol.DeclaringResource.Value: IfConditionSyntax };
+                !context.Settings.EnableSymbolicNames &&
+                (resource.IsExistingResource ||
+                (resource is DeclaredResourceMetadata { Symbol.DeclaringResource: var declaringResource } && declaringResource.HasCondition()));
 
-            if (!context.Settings.EnableSymbolicNames && shouldIncludeApiVersion)
+            if (shouldIncludeApiVersion)
             {
                 var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
 

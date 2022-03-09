@@ -67,5 +67,7 @@ namespace Bicep.Core.Syntax
 
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid module body is not available on this module due to errors. Use {nameof(TryGetBody)}() instead.");
+
+        public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
     }
 }
