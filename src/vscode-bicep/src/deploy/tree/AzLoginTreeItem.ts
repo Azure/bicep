@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as semver from "semver";
-import { commands, Disposable, Extension, extensions } from "vscode";
+import { commands, Extension, extensions } from "vscode";
 
 import {
   AzExtParentTreeItem,
@@ -36,7 +36,6 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
   public readonly label: string = "Azure";
   public childTypeLabel: string = localize("subscription", "subscription");
   public autoSelectInTreeItemPicker = true;
-  public disposables: Disposable[] = [];
   public suppressMaskLabel = true;
 
   private _azureAccountTask: Promise<AzureAccountResult>;
@@ -46,10 +45,6 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
     super(parent);
     this._testAccount = testAccount;
     this._azureAccountTask = this.loadAzureAccount(testAccount);
-  }
-
-  public dispose(): void {
-    Disposable.from(...this.disposables).dispose();
   }
 
   public hasMoreChildrenImpl(): boolean {
