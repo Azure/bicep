@@ -31,8 +31,7 @@ export class AzManagementGroupTreeItem extends AzExtParentTreeItem {
       new DefaultAzureCredential()
     );
 
-    const managementGroupInfos =
-      await managementGroupsAPI.managementGroups.list();
+    const managementGroupInfos = managementGroupsAPI.managementGroups.list();
     const managementGroupInfoList: ManagementGroupInfo[] =
       await uiUtils.listAllIterator(managementGroupInfos);
 
