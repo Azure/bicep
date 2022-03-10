@@ -10,28 +10,37 @@ import {
   uiUtils,
 } from "@microsoft/vscode-azext-azureutils";
 import {
+  AzExtParentTreeItem,
   AzExtTreeItem,
   AzureWizard,
   AzureWizardExecuteStep,
   AzureWizardPromptStep,
   IActionContext,
   ICreateChildImplContext,
+  ISubscriptionContext,
   nonNullProp,
 } from "@microsoft/vscode-azext-utils";
 
-import { appendToOutputChannel } from "../../utils/appendToOutputChannel";
 import { localize } from "../../utils/localize";
+import { OutputChannelManager } from "../../utils/OutputChannelManager";
 import { createResourceManagementClient } from "../azureClients";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 // Represents an Azure subscription. Used to display resource groups related to the subscription
 export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
+
+  constructor(parent: AzExtParentTreeItem, subscription: ISubscriptionContext, outputChannelManager: OutputChannelManager) {
+    super(parent, subscription);
+    this._outputChannelManager = outputChannelManager;
+  }
+
   public readonly childTypeLabel: string = localize(
     "resourceGroup",
     "Resource Group"
   );
 
   private _nextLink: string | undefined;
+  private _outputChannelManager: OutputChannelManager;
 
   public hasMoreChildrenImpl(): boolean {
     return !!this._nextLink;
@@ -98,7 +107,7 @@ export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
       newResourceGroupItemName
     );
 
-    appendToOutputChannel(
+    this._outputChannelManager.appendToOutputChannel(
       `Created resource group -> ${newResourceGroupItemName}`
     );
 

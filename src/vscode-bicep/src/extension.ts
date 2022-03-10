@@ -1,16 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import vscode from "vscode";
+
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
 import {
   createAzExtOutputChannel,
   registerUIExtensionVariables,
 } from "@microsoft/vscode-azext-utils";
-import {
-  launchLanguageServiceWithProgressReport,
-  BicepCacheContentProvider,
-} from "./language";
-import { BicepVisualizerViewManager } from "./visualizer";
+
 import {
   BuildCommand,
   CommandManager,
@@ -20,14 +17,19 @@ import {
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
 } from "./commands";
+import { TreeManager } from "./deploy/tree/TreeManager";
 import {
-  createLogger,
-  resetLogger,
+  BicepCacheContentProvider,
+  launchLanguageServiceWithProgressReport,
+} from "./language";
+import {
   activateWithTelemetryAndErrorHandling,
+  createLogger,
   Disposable,
+  resetLogger,
 } from "./utils";
-import { registerTrees } from "./deploy/tree/registerTrees";
-import { ext } from "./extensionVariables";
+import { BicepVisualizerViewManager } from "./visualizer";
+import { OutputChannelManager } from "./utils/OutputChannelManager";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -80,24 +82,19 @@ export async function activate(
       new BicepVisualizerViewManager(extension.extensionUri, languageClient)
     );
 
+    const outputChannelManager = new OutputChannelManager("Bicep Operations", "bicep");
+
     // Register commands.
     await extension
       .register(new CommandManager(context))
       .registerCommands(
-        new BuildCommand(languageClient),
-        new DeployCommand(languageClient),
+        new BuildCommand(languageClient, outputChannelManager),
+        new DeployCommand(languageClient, outputChannelManager, new TreeManager()),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager)
       );
-
-    ext.bicepOperationsOutputChannel = createAzExtOutputChannel(
-      "Bicep Operations",
-      "bicep"
-    );
-
-    registerTrees();
   });
 }
 

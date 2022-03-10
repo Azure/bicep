@@ -18,18 +18,23 @@ import {
 import { AzLoginTreeItem } from "../deploy/tree/AzLoginTreeItem";
 import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem";
 import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
-import { ext } from "../extensionVariables";
+import { TreeManager } from "../deploy/tree/TreeManager";
 import {
   BicepDeployParams,
   bicepDeployRequestType,
   deploymentScopeRequestType,
 } from "../language";
-import { appendToOutputChannel } from "../utils/appendToOutputChannel";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { Command } from "./types";
 
 export class DeployCommand implements Command {
   public readonly id = "bicep.deploy";
-  public constructor(private readonly client: LanguageClient) {}
+
+  public constructor(
+    private readonly client: LanguageClient,
+    private readonly outputChannelManager: OutputChannelManager,
+    private readonly treeManager: TreeManager
+  ) {}
 
   public async execute(
     _context: IActionContext,
@@ -55,7 +60,9 @@ export class DeployCommand implements Command {
     const documentPath = documentUri.fsPath;
     const textDocument = TextDocumentIdentifier.create(documentUri.fsPath);
     const fileName = path.basename(documentPath);
-    appendToOutputChannel(`Started deployment of ${fileName}`);
+    this.outputChannelManager.appendToOutputChannel(
+      `Started deployment of ${fileName}`
+    );
 
     try {
       const deploymentScopeResponse = await this.client.sendRequest(
@@ -66,13 +73,13 @@ export class DeployCommand implements Command {
       const template = deploymentScopeResponse?.template;
 
       if (!template) {
-        appendToOutputChannel(
+        this.outputChannelManager.appendToOutputChannel(
           "Deployment failed. " + deploymentScopeResponse?.errorMessage
         );
         return;
       }
 
-      appendToOutputChannel(
+      this.outputChannelManager.appendToOutputChannel(
         `Scope specified in ${fileName} -> ${deploymentScope}`
       );
 
@@ -88,213 +95,223 @@ export class DeployCommand implements Command {
       );
 
       if (deploymentScope == "resourceGroup") {
-        await handleResourceGroupDeployment(
+        await this.handleResourceGroupDeployment(
           _context,
           textDocument,
           documentUri,
           deploymentScope,
-          template,
-          this.client
+          template
         );
       } else if (deploymentScope == "subscription") {
-        await handleSubscriptionDeployment(
+        await this.handleSubscriptionDeployment(
           _context,
           textDocument,
           documentUri,
           deploymentScope,
-          template,
-          this.client
+          template
         );
       } else if (deploymentScope == "managementGroup") {
-        await handleManagementGroupDeployment(
+        await this.handleManagementGroupDeployment(
           _context,
           textDocument,
           documentUri,
           deploymentScope,
-          template,
-          this.client
+          template
         );
       } else if (deploymentScope == "tenant") {
-        appendToOutputChannel("Tenant scope deployment is not supported.");
+        this.outputChannelManager.appendToOutputChannel(
+          "Tenant scope deployment is not supported."
+        );
       } else {
-        appendToOutputChannel(
+        this.outputChannelManager.appendToOutputChannel(
           "Deployment failed. " + deploymentScopeResponse?.errorMessage
         );
       }
     } catch (exception) {
       if (exception instanceof UserCancelledError) {
-        appendToOutputChannel("Deployment was canceled.");
+        this.outputChannelManager.appendToOutputChannel(
+          "Deployment was canceled."
+        );
       } else {
         this.client.error("Deploy failed", parseError(exception).message, true);
       }
     }
   }
-}
 
-async function handleManagementGroupDeployment(
-  context: IActionContext,
-  textDocument: TextDocumentIdentifier,
-  documentUri: vscode.Uri,
-  deploymentScope: string,
-  template: string,
-  client: LanguageClient
-) {
-  const managementGroupTreeItem =
-    await ext.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
-      "",
-      context
-    );
-  const managementGroupId = managementGroupTreeItem.id;
+  private async handleManagementGroupDeployment(
+    context: IActionContext,
+    textDocument: TextDocumentIdentifier,
+    documentUri: vscode.Uri,
+    deploymentScope: string,
+    template: string
+  ) {
+    const managementGroupTreeItem =
+      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
+        "",
+        context
+      );
+    const managementGroupId = managementGroupTreeItem.id;
 
-  if (managementGroupId) {
-    const location = await vscode.window.showInputBox({
-      placeHolder: "Please enter location",
-    });
+    if (managementGroupId) {
+      const location = await vscode.window.showInputBox({
+        placeHolder: "Please enter location",
+      });
 
-    if (location) {
-      const parameterFilePath = await selectParameterFile(context, documentUri);
+      if (location) {
+        const parameterFilePath = await this.selectParameterFile(
+          context,
+          documentUri
+        );
 
-      await sendDeployCommand(
+        await this.sendDeployCommand(
+          textDocument,
+          parameterFilePath,
+          managementGroupId,
+          deploymentScope,
+          location,
+          template
+        );
+      }
+    }
+  }
+
+  private async handleResourceGroupDeployment(
+    context: IActionContext,
+    textDocument: TextDocumentIdentifier,
+    documentUri: vscode.Uri,
+    deploymentScope: string,
+    template: string
+  ) {
+    const resourceGroupTreeItem =
+      await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
+        "",
+        context
+      );
+    const resourceGroupId = resourceGroupTreeItem.id;
+
+    if (resourceGroupId) {
+      const parameterFilePath = await this.selectParameterFile(
+        context,
+        documentUri
+      );
+
+      await this.sendDeployCommand(
         textDocument,
         parameterFilePath,
-        managementGroupId,
+        resourceGroupId,
         deploymentScope,
-        location,
-        template,
-        client
+        "",
+        template
       );
     }
   }
-}
 
-async function handleResourceGroupDeployment(
-  context: IActionContext,
-  textDocument: TextDocumentIdentifier,
-  documentUri: vscode.Uri,
-  deploymentScope: string,
-  template: string,
-  client: LanguageClient
-) {
-  const resourceGroupTreeItem =
-    await ext.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
-      "",
-      context
+  private async handleSubscriptionDeployment(
+    context: IActionContext,
+    textDocument: TextDocumentIdentifier,
+    documentUri: vscode.Uri,
+    deploymentScope: string,
+    template: string
+  ) {
+    const locationTreeItem =
+      await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
+        "",
+        context
+      );
+    const location = locationTreeItem.label;
+    const subscriptionId = locationTreeItem.subscription.subscriptionPath;
+    const parameterFilePath = await this.selectParameterFile(
+      context,
+      documentUri
     );
-  const resourceGroupId = resourceGroupTreeItem.id;
 
-  if (resourceGroupId) {
-    const parameterFilePath = await selectParameterFile(context, documentUri);
-
-    await sendDeployCommand(
+    await this.sendDeployCommand(
       textDocument,
       parameterFilePath,
-      resourceGroupId,
+      subscriptionId,
       deploymentScope,
-      "",
-      template,
-      client
+      location,
+      template
     );
   }
-}
 
-async function handleSubscriptionDeployment(
-  context: IActionContext,
-  textDocument: TextDocumentIdentifier,
-  documentUri: vscode.Uri,
-  deploymentScope: string,
-  template: string,
-  client: LanguageClient
-) {
-  const locationTreeItem =
-    await ext.azLocationTree.showTreeItemPicker<LocationTreeItem>("", context);
-  const location = locationTreeItem.label;
-  const subscriptionId = locationTreeItem.subscription.subscriptionPath;
-  const parameterFilePath = await selectParameterFile(context, documentUri);
+  private async sendDeployCommand(
+    textDocument: TextDocumentIdentifier,
+    parameterFilePath: string,
+    id: string,
+    deploymentScope: string,
+    location: string,
+    template: string
+  ) {
+    const bicepDeployParams: BicepDeployParams = {
+      textDocument,
+      parameterFilePath,
+      id,
+      deploymentScope,
+      location,
+      template,
+    };
+    const deploymentResponse: string = await this.client.sendRequest(
+      bicepDeployRequestType,
+      bicepDeployParams
+    );
 
-  await sendDeployCommand(
-    textDocument,
-    parameterFilePath,
-    subscriptionId,
-    deploymentScope,
-    location,
-    template,
-    client
-  );
-}
-
-async function sendDeployCommand(
-  textDocument: TextDocumentIdentifier,
-  parameterFilePath: string,
-  id: string,
-  deploymentScope: string,
-  location: string,
-  template: string,
-  client: LanguageClient
-) {
-  const bicepDeployParams: BicepDeployParams = {
-    textDocument,
-    parameterFilePath,
-    id,
-    deploymentScope,
-    location,
-    template,
-  };
-  const deploymentResponse: string = await client.sendRequest(
-    bicepDeployRequestType,
-    bicepDeployParams
-  );
-
-  appendToOutputChannel(deploymentResponse);
-}
-
-async function selectParameterFile(
-  _context: IActionContext,
-  sourceUri: Uri | undefined
-): Promise<string> {
-  const quickPickItems: IAzureQuickPickItem[] =
-    await createParameterFileQuickPickList();
-  const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
-    quickPickItems,
-    {
-      canPickMany: false,
-      placeHolder: `Select a parameter file`,
-      suppressPersistence: true,
-    }
-  );
-
-  if (result.label.includes("Browse...")) {
-    const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog({
-      canSelectMany: false,
-      defaultUri: sourceUri,
-      openLabel: "Select Parameter File",
-    });
-    if (paramsPaths && paramsPaths.length == 1) {
-      const parameterFilePath = paramsPaths[0].fsPath;
-      appendToOutputChannel(
-        `Parameter file used in deployment -> ${path.basename(
-          parameterFilePath
-        )}`
-      );
-      return parameterFilePath;
-    }
+    this.outputChannelManager.appendToOutputChannel(deploymentResponse);
   }
 
-  appendToOutputChannel(`Parameter file was not provided`);
+  private async selectParameterFile(
+    _context: IActionContext,
+    sourceUri: Uri | undefined
+  ): Promise<string> {
+    const quickPickItems: IAzureQuickPickItem[] =
+      await this.createParameterFileQuickPickList();
+    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+      quickPickItems,
+      {
+        canPickMany: false,
+        placeHolder: `Select a parameter file`,
+        suppressPersistence: true,
+      }
+    );
 
-  return "";
-}
+    if (result.label.includes("Browse...")) {
+      const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
+        {
+          canSelectMany: false,
+          defaultUri: sourceUri,
+          openLabel: "Select Parameter File",
+        }
+      );
+      if (paramsPaths && paramsPaths.length == 1) {
+        const parameterFilePath = paramsPaths[0].fsPath;
+        this.outputChannelManager.appendToOutputChannel(
+          `Parameter file used in deployment -> ${path.basename(
+            parameterFilePath
+          )}`
+        );
+        return parameterFilePath;
+      }
+    }
 
-async function createParameterFileQuickPickList(): Promise<
-  IAzureQuickPickItem[]
-> {
-  const none: IAzureQuickPickItem = {
-    label: "$(circle-slash) None",
-    data: undefined,
-  };
-  const browse: IAzureQuickPickItem = {
-    label: "$(file-directory) Browse...",
-    data: undefined,
-  };
+    this.outputChannelManager.appendToOutputChannel(
+      `Parameter file was not provided`
+    );
 
-  return [none].concat([browse]);
+    return "";
+  }
+
+  private async createParameterFileQuickPickList(): Promise<
+    IAzureQuickPickItem[]
+  > {
+    const none: IAzureQuickPickItem = {
+      label: "$(circle-slash) None",
+      data: undefined,
+    };
+    const browse: IAzureQuickPickItem = {
+      label: "$(file-directory) Browse...",
+      data: undefined,
+    };
+
+    return [none].concat([browse]);
+  }
 }
