@@ -135,9 +135,9 @@ namespace Bicep.LanguageServer.Handlers
             {
                 configuration = this.configurationManager.GetConfiguration(fileUri);
             }
-            catch (ConfigurationException exception)
+            catch (ConfigurationException)
             {
-                throw exception;
+                throw;
             }
 
             CompilationContext? context = compilationManager.GetCompilation(fileUri);
