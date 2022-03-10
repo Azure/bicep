@@ -15,12 +15,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    [Method(BicepDeployCommandHandler.BicepDeployLspMethod, Direction.ClientToServer)]
+    [Method(BicepDeployCommandHandler.MethodName, Direction.ClientToServer)]
     public record BicepDeployParams(TextDocumentIdentifier textDocument, string parameterFilePath, string id, string deploymentScope, string location, string template) : IRequest<string>;
 
     public class BicepDeployCommandHandler : IJsonRpcRequestHandler<BicepDeployParams, string>
     {
-        public const string BicepDeployLspMethod = "bicep/deploy";
+        public const string MethodName = "bicep/deploy";
 
         private readonly ITokenCredentialFactory credentialFactory;
         private readonly IConfigurationManager configurationManager;

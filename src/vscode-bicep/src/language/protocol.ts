@@ -62,7 +62,7 @@ export const deploymentScopeRequestType = new ProtocolRequestType<
   never,
   void,
   void
->("textDocument/deploymentScope");
+>("bicep/getDeploymentScope");
 
 export interface BicepDeployParams {
   textDocument: TextDocumentIdentifier;

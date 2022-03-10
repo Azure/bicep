@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly IConfigurationManager configurationManager;
 
         public BicepBuildCommandHandler(ICompilationManager compilationManager, ISerializer serializer, IFeatureProvider features, EmitterSettings emitterSettings, INamespaceProvider namespaceProvider, IFileResolver fileResolver, IModuleDispatcher moduleDispatcher, IConfigurationManager configurationManager)
-            : base(LangServerConstants.Build, serializer)
+            : base(LangServerConstants.BuildCommand, serializer)
         {
             this.compilationManager = compilationManager;
             this.emitterSettings = emitterSettings;

@@ -29,19 +29,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    [Method(BicepDeploymentScopeRequestHandler.BicepDeploymentScopeLspMethod, Direction.ClientToServer)]
+    [Method(BicepDeploymentScopeRequestHandler.MethodName, Direction.ClientToServer)]
     public record BicepDeploymentScopeParams(TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<BicepDeploymentScopeResponse>;
 
     public record BicepDeploymentScopeResponse(string scope, string? template, string? errorMessage);
 
     /// <summary>
-    /// Handles textDocument/deploymentScope LSP request.
+    /// Handles bicep/getDeploymentScope LSP request.
     /// The BicepDeploymentScopeRequestHandler returns targetScope, template and error message.
     /// Error message would be null if provided bicep file was error free.
     /// </summary>
     public class BicepDeploymentScopeRequestHandler : IJsonRpcRequestHandler<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
-        public const string BicepDeploymentScopeLspMethod = "textDocument/deploymentScope";
+        public const string MethodName = "bicep/getDeploymentScope";
 
         private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;

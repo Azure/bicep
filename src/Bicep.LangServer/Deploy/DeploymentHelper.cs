@@ -9,11 +9,23 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
+using Bicep.Core.Json;
 
 namespace Bicep.LanguageServer.Deploy
 {
     public class DeploymentHelper
     {
+        /// <summary>
+        /// Creates a deployment at provided target scope and returns deployment succeeded/failed message.
+        /// </summary>
+        /// <param name="deploymentCollectionProvider">deployment collection provider</param>
+        /// <param name="armClient">arm client</param>
+        /// <param name="template">template used in deployment</param>
+        /// <param name="parameterFilePath">path to parameter file used in deployment</param>
+        /// <param name="id">id string to create the ResourceIdentifier from</param>
+        /// <param name="scope">target scope</param>
+        /// <param name="location">location to store the deployment data</param>
+        /// <returns>deployment succeeded/failed message</returns>
         public static async Task<string> CreateDeployment(
             IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
@@ -33,43 +45,26 @@ namespace Bicep.LanguageServer.Deploy
             DeploymentCollection? deploymentCollection;
             var resourceIdentifier = new ResourceIdentifier(id);
 
-            if (scope == LanguageConstants.TargetScopeTypeResourceGroup ||
-                scope == LanguageConstants.TargetScopeTypeSubscription ||
-                scope == LanguageConstants.TargetScopeTypeManagementGroup)
+            try
             {
-                try
-                {
-                    deploymentCollection = deploymentCollectionProvider.GetDeploymentCollection(armClient, resourceIdentifier, scope);
-                }
-                catch (Exception e)
-                {
-                    return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, e.Message);
-                }
+                deploymentCollection = deploymentCollectionProvider.GetDeploymentCollection(armClient, resourceIdentifier, scope);
             }
-            else
+            catch (Exception e)
             {
-                return LangServerResources.UnsupportedScopeDeploymentFailedMessage;
+                return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, e.Message);
             }
 
             if (deploymentCollection is not null)
             {
                 JsonElement parameters;
 
-                if (string.IsNullOrWhiteSpace(parameterFilePath))
+                try
                 {
-                    parameters = JsonDocument.Parse("{}").RootElement;
+                    parameters = GetParameters(parameterFilePath);
                 }
-                else
+                catch (Exception e)
                 {
-                    try
-                    {
-                        string text = File.ReadAllText(parameterFilePath);
-                        parameters = JsonDocument.Parse(text).RootElement;
-                    }
-                    catch(Exception e)
-                    {
-                        return string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, e.Message);
-                    }
+                    return e.Message;
                 }
 
                 var deploymentProperties = new DeploymentProperties(DeploymentMode.Incremental)
@@ -82,7 +77,7 @@ namespace Bicep.LanguageServer.Deploy
                     Location = location,
                 };
 
-                string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHmmffff");
+                string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
                 try
                 {
@@ -91,7 +86,7 @@ namespace Bicep.LanguageServer.Deploy
                     if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
                         deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)
                     {
-                        return LangServerResources.DeploymentSuccessfulMessage;
+                        return LangServerResources.DeploymentSucceededMessage;
                     }
                 }
                 catch (Exception e)
@@ -109,6 +104,26 @@ namespace Bicep.LanguageServer.Deploy
             }
 
             return LangServerResources.DeploymentFailedMessage;
+        }
+
+        private static JsonElement GetParameters(string parameterFilePath)
+        {
+            if (string.IsNullOrWhiteSpace(parameterFilePath))
+            {
+                return JsonElementFactory.CreateElement("{}");
+            }
+            else
+            {
+                try
+                {
+                    string text = File.ReadAllText(parameterFilePath);
+                    return JsonElementFactory.CreateElement(text);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, e.Message));
+                }
+            }
         }
     }
 }

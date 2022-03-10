@@ -35,8 +35,13 @@ namespace Bicep.LangServer.UnitTests.Deploy
         public async Task CreateDeployment_WithInvalidScope_ReturnsDeploymentFailedMessage(string scope)
         {
             var armClient = CreateMockArmClient();
+            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
+            deploymentCollectionProvider
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), scope))
+                .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope)));
+
             var result = await DeploymentHelper.CreateDeployment(
-                CreateDeploymentCollectionProvider(),
+                deploymentCollectionProvider.Object,
                 armClient,
                 string.Empty,
                 string.Empty,
@@ -44,7 +49,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope,
                 string.Empty);
 
-            result.Should().Be(LangServerResources.UnsupportedScopeDeploymentFailedMessage);
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage,
+                string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
+
+            result.Should().Be(expectedDeploymentOutputMessage);
         }
 
         [DataRow(null)]
@@ -89,8 +97,13 @@ namespace Bicep.LangServer.UnitTests.Deploy
         public async Task CreateDeployment_WithTenantScope_ReturnsDeploymentNotSupportedMessage()
         {
             var armClient = CreateMockArmClient();
+            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
+            deploymentCollectionProvider
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeTenant))
+                .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant)));
+
             var result = await DeploymentHelper.CreateDeployment(
-                CreateDeploymentCollectionProvider(),
+                deploymentCollectionProvider.Object,
                 armClient,
                 string.Empty,
                 string.Empty,
@@ -98,7 +111,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeTenant,
                 string.Empty);
 
-            result.Should().Be(LangServerResources.UnsupportedScopeDeploymentFailedMessage);
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage,
+                string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
+
+            result.Should().Be(expectedDeploymentOutputMessage);
         }
 
         [DataRow(LanguageConstants.TargetScopeTypeManagementGroup, "eastus")]
@@ -134,7 +150,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope,
                 location);
 
-            result.Should().Be(LangServerResources.DeploymentSuccessfulMessage);
+            result.Should().Be(LangServerResources.DeploymentSucceededMessage);
         }
 
         [TestMethod]

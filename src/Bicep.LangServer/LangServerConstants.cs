@@ -5,7 +5,7 @@ namespace Bicep.LanguageServer
 {
     public static class LangServerConstants
     {
-        public const string Build = "build";
-        public const string Deploy = "deploy";
+        public const string BuildCommand = "build";
+        public const string DeployCommand = "deploy";
     }
 }
