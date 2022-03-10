@@ -88,22 +88,14 @@ namespace Bicep.LanguageServer.Handlers
             }
         }
 
-        private static string GetDeploymentScope(ResourceScope resourceScope)
+        private static string GetDeploymentScope(ResourceScope resourceScope) => resourceScope switch
         {
-            switch (resourceScope)
-            {
-                case ResourceScope.ResourceGroup:
-                    return LanguageConstants.TargetScopeTypeResourceGroup;
-                case ResourceScope.Subscription:
-                    return LanguageConstants.TargetScopeTypeSubscription;
-                case ResourceScope.ManagementGroup:
-                    return LanguageConstants.TargetScopeTypeManagementGroup;
-                case ResourceScope.Tenant:
-                    return LanguageConstants.TargetScopeTypeTenant;
-                default:
-                    return resourceScope.ToString();
-            }
-        }
+            ResourceScope.ResourceGroup => LanguageConstants.TargetScopeTypeResourceGroup,
+            ResourceScope.Subscription => LanguageConstants.TargetScopeTypeSubscription,
+            ResourceScope.ManagementGroup => LanguageConstants.TargetScopeTypeManagementGroup,
+            ResourceScope.Tenant => LanguageConstants.TargetScopeTypeTenant,
+            _ => resourceScope.ToString()
+        };
 
         private string GetCompiledFile(Compilation compilation, DocumentUri documentUri)
         {
