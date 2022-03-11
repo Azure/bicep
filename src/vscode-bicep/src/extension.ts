@@ -21,8 +21,6 @@ import {
   BicepCacheContentProvider,
   launchLanguageServiceWithProgressReport,
 } from "./language";
-import { AzLocationTreeItem } from "./tree/AzLocationTreeItem";
-import { AzResourceGroupTreeItem } from "./tree/AzResourceGroupTreeItem";
 import { TreeManager } from "./tree/TreeManager";
 import {
   activateWithTelemetryAndErrorHandling,
@@ -89,21 +87,16 @@ export async function activate(
       "bicep"
     );
 
-    // AzLocationTreeItem and AzResourceGroupTreeItem extend AzureAccountTreeItemBase which implements Disposable.
-    // Registering them here:
-    extension.register(new AzLocationTreeItem());
-    extension.register(new AzResourceGroupTreeItem(outputChannelManager));
+    const treeManager = extension.register(
+      new TreeManager(outputChannelManager)
+    );
 
     // Register commands.
     await extension
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient, outputChannelManager),
-        new DeployCommand(
-          languageClient,
-          outputChannelManager,
-          new TreeManager(outputChannelManager)
-        ),
+        new DeployCommand(languageClient, outputChannelManager, treeManager),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),

@@ -2,18 +2,22 @@
 // Licensed under the MIT License.
 import { AzExtTreeDataProvider } from "@microsoft/vscode-azext-utils";
 
+import { Disposable } from "../utils/disposable";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { AzLocationTreeItem } from "./AzLocationTreeItem";
 import { AzManagementGroupTreeItem } from "./AzManagementGroupTreeItem";
 import { AzResourceGroupTreeItem } from "./AzResourceGroupTreeItem";
 
-export class TreeManager {
+export class TreeManager extends Disposable {
   private _azLocationTree: AzExtTreeDataProvider;
   private _azManagementGroupTreeItem: AzExtTreeDataProvider;
   private _azResourceGroupTreeItem: AzExtTreeDataProvider;
 
   constructor(private readonly outputChannelManager: OutputChannelManager) {
-    const azLocationTreeItem: AzLocationTreeItem = new AzLocationTreeItem();
+    super();
+    const azLocationTreeItem: AzLocationTreeItem = this.register(
+      new AzLocationTreeItem()
+    );
     this._azLocationTree = new AzExtTreeDataProvider(azLocationTreeItem, "");
 
     const azManagementGroupTreeItem: AzManagementGroupTreeItem =
@@ -23,8 +27,9 @@ export class TreeManager {
       ""
     );
 
-    const azResourceGroupTreeItem: AzResourceGroupTreeItem =
-      new AzResourceGroupTreeItem(this.outputChannelManager);
+    const azResourceGroupTreeItem: AzResourceGroupTreeItem = this.register(
+      new AzResourceGroupTreeItem(this.outputChannelManager)
+    );
     this._azResourceGroupTreeItem = new AzExtTreeDataProvider(
       azResourceGroupTreeItem,
       ""
