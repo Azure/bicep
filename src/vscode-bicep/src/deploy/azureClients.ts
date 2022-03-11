@@ -8,6 +8,8 @@ import {
   createAzureSubscriptionClient,
 } from "@microsoft/vscode-azext-azureutils";
 
+// Lazy-load @azure packages to improve startup performance.
+
 export async function createResourceManagementClient(
   context: AzExtClientContext
 ): Promise<ResourceManagementClient> {
