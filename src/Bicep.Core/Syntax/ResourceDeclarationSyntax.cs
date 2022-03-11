@@ -4,12 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Resources;
-using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
