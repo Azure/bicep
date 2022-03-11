@@ -11,7 +11,7 @@ import {
   AzExtTreeItem,
 } from "@microsoft/vscode-azext-utils";
 
-import { localize } from "../../utils/localize";
+import { localize } from "../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 export class AzManagementGroupTreeItem extends AzExtParentTreeItem {

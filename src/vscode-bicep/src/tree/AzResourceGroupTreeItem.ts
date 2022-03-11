@@ -3,7 +3,7 @@
 import { AzureAccountTreeItemBase } from "@microsoft/vscode-azext-azureutils";
 import { ISubscriptionContext } from "@microsoft/vscode-azext-utils";
 
-import { OutputChannelManager } from "../../utils/OutputChannelManager";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { ResourceGroupTreeItem } from "./ResourceGroupTreeItem";
 
 // The root of treeview used in resource group scope deployment. Represents an Azure account

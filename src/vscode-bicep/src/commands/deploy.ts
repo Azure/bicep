@@ -15,15 +15,15 @@ import {
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 
-import { AzLoginTreeItem } from "../deploy/tree/AzLoginTreeItem";
-import { AzResourceGroupTreeItem } from "../deploy/tree/AzResourceGroupTreeItem";
-import { LocationTreeItem } from "../deploy/tree/LocationTreeItem";
-import { TreeManager } from "../deploy/tree/TreeManager";
 import {
   BicepDeployParams,
   bicepDeployRequestType,
   deploymentScopeRequestType,
 } from "../language";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { TreeManager } from "../tree/TreeManager";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { Command } from "./types";
 

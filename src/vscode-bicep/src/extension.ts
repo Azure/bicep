@@ -17,13 +17,13 @@ import {
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
 } from "./commands";
-import { AzLocationTreeItem } from "./deploy/tree/AzLocationTreeItem";
-import { AzResourceGroupTreeItem } from "./deploy/tree/AzResourceGroupTreeItem";
-import { TreeManager } from "./deploy/tree/TreeManager";
 import {
   BicepCacheContentProvider,
   launchLanguageServiceWithProgressReport,
 } from "./language";
+import { AzLocationTreeItem } from "./tree/AzLocationTreeItem";
+import { AzResourceGroupTreeItem } from "./tree/AzResourceGroupTreeItem";
+import { TreeManager } from "./tree/TreeManager";
 import {
   activateWithTelemetryAndErrorHandling,
   createLogger,

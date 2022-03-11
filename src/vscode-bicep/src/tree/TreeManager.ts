@@ -1,8 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import { AzExtTreeDataProvider } from "@microsoft/vscode-azext-utils";
-import { OutputChannelManager } from "../../utils/OutputChannelManager";
 
+import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { AzLocationTreeItem } from "./AzLocationTreeItem";
 import { AzManagementGroupTreeItem } from "./AzManagementGroupTreeItem";
 import { AzResourceGroupTreeItem } from "./AzResourceGroupTreeItem";
