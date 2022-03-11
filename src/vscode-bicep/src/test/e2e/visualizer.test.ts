@@ -25,7 +25,7 @@ describe("visualizer", (): void => {
     const document = await vscode.workspace.openTextDocument(examplePath);
     const editor = await vscode.window.showTextDocument(document);
 
-    // Give the language server sometime to finish compilation.
+    // Give the language server some time to finish compilation.
     await sleep(2000);
 
     const viewColumn = await retryWhile(

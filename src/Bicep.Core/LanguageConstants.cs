@@ -55,7 +55,8 @@ namespace Bicep.Core
 
         public const string BicepConfigurationFileName = "bicepconfig.json";
 
-        public const string DisableLinterRuleCommandName = "bicep.DisableLinterRule";
+        // An internal-only command used in code actions to edit a particular rule in the bicepconfig.json file
+        public const string EditLinterRuleCommandName = "bicep.EditLinterRule";
 
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
 

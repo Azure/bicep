@@ -25,6 +25,7 @@ import {
   activateWithTelemetryAndErrorHandling,
   Disposable,
 } from "./utils";
+import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -75,6 +76,7 @@ export async function activate(
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient),
+        new CreateBicepConfigurationFile(languageClient),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),

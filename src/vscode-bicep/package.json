@@ -37,6 +37,7 @@
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
+    "onCommand:bicep.createConfigFile",
     "onCommand:bicep.insertResource",
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
@@ -142,6 +143,11 @@
       {
         "command": "bicep.insertResource",
         "title": "Insert Resource",
+        "category": "Bicep"
+      },
+      {
+        "command": "bicep.createConfigFile",
+        "title": "Create Bicep Configuration File",
         "category": "Bicep"
       }
     ],

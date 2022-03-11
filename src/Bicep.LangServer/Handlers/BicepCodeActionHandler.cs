@@ -30,6 +30,7 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Bicep.LanguageServer.Handlers
 {
+    // Provides code actions/fixes for a range in a Bicep document
     public class BicepCodeActionHandler : CodeActionHandlerBase
     {
         private readonly ICompilationManager compilationManager;
@@ -81,16 +82,6 @@ namespace Bicep.LanguageServer.Handlers
 
             commandOrCodeActions.AddRange(quickFixes);
 
-            var analyzerDiagnostics = diagnostics
-                .Where(analyzerDiagnostic =>
-                    analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
-                    analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
-                    (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
-                .OfType<AnalyzerDiagnostic>()
-                .Select(analyzerDiagnostic => DisableLinterRule(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ConfigurationPath));
-
-            commandOrCodeActions.AddRange(analyzerDiagnostics);
-
             var coreCompilerErrors = diagnostics
                 .Where(diagnostic => !diagnostic.CanBeSuppressed());
             var diagnosticsThatCanBeSuppressed = diagnostics
@@ -101,7 +92,6 @@ namespace Bicep.LanguageServer.Handlers
                 .Except(coreCompilerErrors);
 
             HashSet<string> diagnosticCodesToSuppressInline = new();
-
             foreach (IDiagnostic diagnostic in diagnosticsThatCanBeSuppressed)
             {
                 if (!diagnosticCodesToSuppressInline.Contains(diagnostic.Code))
@@ -109,13 +99,22 @@ namespace Bicep.LanguageServer.Handlers
                     diagnosticCodesToSuppressInline.Add(diagnostic.Code);
 
                     var commandOrCodeAction = DisableDiagnostic(documentUri, diagnostic.Code, semanticModel.SourceFile, diagnostic.Span, compilationContext.LineStarts);
-
                     if (commandOrCodeAction is not null)
                     {
                         commandOrCodeActions.Add(commandOrCodeAction);
                     }
                 }
             }
+
+            // Add "Edit <rule> in bicep.config" for all linter failures
+            var editLinterRuleActions = diagnostics
+                .Where(analyzerDiagnostic =>
+                    analyzerDiagnostic.Span.ContainsInclusive(requestStartOffset) ||
+                    analyzerDiagnostic.Span.ContainsInclusive(requestEndOffset) ||
+                    (requestStartOffset <= analyzerDiagnostic.Span.Position && analyzerDiagnostic.GetEndPosition() <= requestEndOffset))
+                .OfType<AnalyzerDiagnostic>()
+                .Select(analyzerDiagnostic => CreateEditLinterRuleAction(documentUri, analyzerDiagnostic.Code, compilation.Configuration.ConfigurationPath));
+            commandOrCodeActions.AddRange(editLinterRuleActions);
 
             var matchingNodes = SyntaxMatcher.FindNodesInRange(compilationContext.ProgramSyntax, requestStartOffset, requestEndOffset);
             var codeFixes = codeFixProviders
@@ -177,15 +176,13 @@ namespace Bicep.LanguageServer.Handlers
             };
         }
 
-        private static CommandOrCodeAction DisableLinterRule(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
+        private static CommandOrCodeAction CreateEditLinterRuleAction(DocumentUri documentUri, string ruleName, string? bicepConfigFilePath)
         {
-            var command = Command.Create(LanguageConstants.DisableLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty);
-
             return new CodeAction
             {
-                Title = LangServerResources.DisableLinterRule,
-                Command = command
-            };
+                Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
+                Command = Command.Create(LanguageConstants.EditLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */)
+        };
         }
 
         public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)

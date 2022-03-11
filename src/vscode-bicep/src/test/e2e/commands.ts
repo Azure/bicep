@@ -55,3 +55,13 @@ export async function executeBuildCommand(
 ): Promise<void> {
   return await vscode.commands.executeCommand("bicep.build", documentUri);
 }
+
+export async function executeCreateConfigFileCommand(
+  documentUri?: vscode.Uri
+): Promise<string | undefined> {
+  return await vscode.commands.executeCommand<string>(
+    "bicep.createConfigFile",
+    documentUri,
+    true // suppressUi
+  );
+}
