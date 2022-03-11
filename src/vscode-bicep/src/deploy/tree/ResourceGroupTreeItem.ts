@@ -28,8 +28,11 @@ import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 // Represents an Azure subscription. Used to display resource groups related to the subscription
 export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
-
-  constructor(parent: AzExtParentTreeItem, subscription: ISubscriptionContext, outputChannelManager: OutputChannelManager) {
+  constructor(
+    parent: AzExtParentTreeItem,
+    subscription: ISubscriptionContext,
+    outputChannelManager: OutputChannelManager
+  ) {
     super(parent, subscription);
     this._outputChannelManager = outputChannelManager;
   }

@@ -82,14 +82,21 @@ export async function activate(
       new BicepVisualizerViewManager(extension.extensionUri, languageClient)
     );
 
-    const outputChannelManager = new OutputChannelManager("Bicep Operations", "bicep");
+    const outputChannelManager = new OutputChannelManager(
+      "Bicep Operations",
+      "bicep"
+    );
 
     // Register commands.
     await extension
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient, outputChannelManager),
-        new DeployCommand(languageClient, outputChannelManager, new TreeManager()),
+        new DeployCommand(
+          languageClient,
+          outputChannelManager,
+          new TreeManager(outputChannelManager)
+        ),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
