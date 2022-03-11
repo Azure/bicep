@@ -85,7 +85,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                     && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
                     && strSyntax.Expressions.First() is ExpressionSyntax expression)
                 {
-                    // We only want to trigger if the var or param is of type string (because interpolation
+                    // We only want to trigger if the expression is of type string (because interpolation
                     // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')
                     var type = model.GetTypeInfo(expression);
                     if (IsStrictlyAssignableToString(type))
