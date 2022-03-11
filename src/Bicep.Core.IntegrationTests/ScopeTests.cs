@@ -8,6 +8,8 @@ using FluentAssertions.Execution;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Resources;
+using Bicep.Core.UnitTests;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -18,6 +20,9 @@ namespace Bicep.Core.IntegrationTests
         private const string ExpectedMgSchema = "https://schema.management.azure.com/schemas/2019-08-01/managementGroupDeploymentTemplate.json#";
         private const string ExpectedSubSchema = "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#";
         private const string ExpectedRgSchema = "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#";
+
+        [NotNull]
+        public TestContext? TestContext { get; set; }
 
         [DataRow("tenant", "tenant()", "tenant", ExpectedTenantSchema, "[reference(tenantResourceId('Microsoft.Resources/deployments', 'myMod')).outputs.hello.value]", "[tenantResourceId('Microsoft.Resources/deployments', 'myMod')]")]
         [DataRow("tenant", "managementGroup('abc')", "managementGroup", ExpectedTenantSchema, "[reference(extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod')).outputs.hello.value]", "[extensionResourceId(tenantResourceId('Microsoft.Management/managementGroups', 'abc'), 'Microsoft.Resources/deployments', 'myMod')]")]
@@ -347,6 +352,44 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
                 {
                     template.Should().NotHaveValueAtPath(path);
                 }
+            }
+        }
+
+        [TestMethod]
+        public void Existing_resource_with_symbolic_names_enabled_includes_scope_properties()
+        {
+            var context = new CompilationHelper.CompilationHelperContext(Features: BicepTestConstants.CreateFeaturesProvider(this.TestContext, symbolicNameCodegenEnabled: true));
+            var (template, diagnostics, _) = CompilationHelper.Compile(context, @"
+targetScope = 'subscription'
+
+var accounts = [
+  {
+    name: 'majastrzcri'
+    rg: 'majastrz-cri'
+  }
+  {
+    name: 'majastrzcri2'
+    rg: 'majastrz-cri2'
+  }
+]
+
+resource storage 'Microsoft.Storage/storageAccounts@2021-08-01' existing = [for account in accounts: {
+  name: account.name
+  scope: resourceGroup(account.rg)
+}]
+
+#disable-next-line outputs-should-not-contain-secrets
+output keys array = [for (account, i) in accounts: storage[i].listKeys().keys[0].value]
+output tiers array = [for (account, i) in accounts: storage[i].properties.accessTier]
+
+");
+            using(new AssertionScope())
+            {
+                diagnostics.Should().BeEmpty();
+                template.Should().NotBeNull();
+
+                template.Should().HaveValueAtPath("$.resources.storage.existing", true);
+                template.Should().HaveValueAtPath("$.resources.storage.resourceGroup", "[variables('accounts')[copyIndex()].rg]");
             }
         }
     }

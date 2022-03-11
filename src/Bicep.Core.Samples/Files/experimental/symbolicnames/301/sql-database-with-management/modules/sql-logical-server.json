@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11627375028675542139"
+      "templateHash": "17481587090364955512"
     }
   },
   "parameters": {
@@ -134,6 +134,7 @@
       "existing": true,
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2021-04-01",
+      "resourceGroup": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName]",
       "name": "[parameters('sqlLogicalServer').azureDefender.vulnerabilityAssessments.storageAccount.name]"
     },
     "vulnerabilityAssessments": {
@@ -211,6 +212,8 @@
       "existing": true,
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2020-10-01",
+      "subscriptionId": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.subscriptionId]",
+      "resourceGroup": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.resourceGroupName]",
       "name": "[parameters('sqlLogicalServer').diagnosticLogsAndMetrics.name]"
     },
     "auditDiagnosticSettings": {
@@ -369,7 +372,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "174370743240355342"
+              "templateHash": "13476748154905990322"
             }
           },
           "parameters": {
@@ -444,6 +447,7 @@
               "existing": true,
               "type": "Microsoft.Storage/storageAccounts",
               "apiVersion": "2021-04-01",
+              "resourceGroup": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.resourceGroupName]",
               "name": "[parameters('sqlDatabase').azureDefender.vulnerabilityAssessments.storageAccount.name]"
             },
             "vulnerabilityAssessments": {
@@ -471,6 +475,8 @@
               "existing": true,
               "type": "Microsoft.OperationalInsights/workspaces",
               "apiVersion": "2020-10-01",
+              "subscriptionId": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.subscriptionId]",
+              "resourceGroup": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.resourceGroupName]",
               "name": "[parameters('sqlDatabase').diagnosticLogsAndMetrics.name]"
             },
             "auditDiagnosticSettings": {
