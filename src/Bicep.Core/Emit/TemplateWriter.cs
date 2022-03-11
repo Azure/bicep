@@ -113,10 +113,8 @@ namespace Bicep.Core.Emit
 
         private (Template, JToken) GenerateTemplateWithoutHash()
         {
-            // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
-            // instead of writing to a JsonWriter and converting it to JToken at the end
             using var stringWriter = new StringWriter();
-            using var jsonWriter = new ArmJsonTextWriter(stringWriter);
+            using var jsonWriter = PositionTrackingJsonTextWriter.Create(stringWriter);
             var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
@@ -330,7 +328,7 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteEndObject();
         }
 
-        private void EmitResources(ArmJsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitResources(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             jsonWriter.WritePropertyName("resources");
             if (context.Settings.EnableSymbolicNames)
@@ -394,7 +392,7 @@ namespace Bicep.Core.Emit
             return null;
         }
 
-        private void EmitResource(ArmJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
+        private void EmitResource(PositionTrackingJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
         {
             // Save current line (start of resource) for source map
             int startLine = jsonWriter.CurrentLine;
