@@ -17,6 +17,8 @@ import {
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
 } from "./commands";
+import { AzLocationTreeItem } from "./deploy/tree/AzLocationTreeItem";
+import { AzResourceGroupTreeItem } from "./deploy/tree/AzResourceGroupTreeItem";
 import { TreeManager } from "./deploy/tree/TreeManager";
 import {
   BicepCacheContentProvider,
@@ -28,8 +30,8 @@ import {
   Disposable,
   resetLogger,
 } from "./utils";
-import { BicepVisualizerViewManager } from "./visualizer";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
+import { BicepVisualizerViewManager } from "./visualizer";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -86,6 +88,11 @@ export async function activate(
       "Bicep Operations",
       "bicep"
     );
+
+    // AzLocationTreeItem and AzResourceGroupTreeItem extend AzureAccountTreeItemBase which implements Disposable.
+    // Registering them here:
+    extension.register(new AzLocationTreeItem());
+    extension.register(new AzResourceGroupTreeItem(outputChannelManager));
 
     // Register commands.
     await extension
