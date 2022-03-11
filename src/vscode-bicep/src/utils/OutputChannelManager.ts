@@ -5,11 +5,16 @@ import {
   IAzExtOutputChannel,
 } from "@microsoft/vscode-azext-utils";
 
-export class OutputChannelManager {
+import { Disposable } from "./disposable";
+
+export class OutputChannelManager extends Disposable {
   private _azExtOutputChannel: IAzExtOutputChannel;
 
   constructor(name: string, extensionPrefix: string) {
-    this._azExtOutputChannel = createAzExtOutputChannel(name, extensionPrefix);
+    super();
+    this._azExtOutputChannel = this.register(
+      createAzExtOutputChannel(name, extensionPrefix)
+    );
   }
 
   appendToOutputChannel(text: string): void {

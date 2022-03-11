@@ -82,9 +82,8 @@ export async function activate(
       new BicepVisualizerViewManager(extension.extensionUri, languageClient)
     );
 
-    const outputChannelManager = new OutputChannelManager(
-      "Bicep Operations",
-      "bicep"
+    const outputChannelManager = extension.register(
+      new OutputChannelManager("Bicep Operations", "bicep")
     );
 
     const treeManager = extension.register(
