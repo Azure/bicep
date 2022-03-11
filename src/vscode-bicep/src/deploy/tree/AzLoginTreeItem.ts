@@ -11,8 +11,8 @@ import {
   registerEvent,
 } from "@microsoft/vscode-azext-utils";
 
+import { AzureAccount, AzureLoginStatus } from "../../azure/types";
 import { localize } from "../../utils/localize";
-import { AzureAccount, AzureLoginStatus } from "../azure-account";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 const signInLabel: string = localize("signInLabel", "Sign in to Azure...");

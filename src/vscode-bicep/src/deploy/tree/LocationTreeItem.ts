@@ -4,8 +4,8 @@ import { SubscriptionClient } from "@azure/arm-resources-subscriptions";
 import { SubscriptionTreeItemBase } from "@microsoft/vscode-azext-azureutils";
 import { AzExtTreeItem, IActionContext } from "@microsoft/vscode-azext-utils";
 
+import { createSubscriptionClient } from "../../azure/azureClients";
 import { localize } from "../../utils/localize";
-import { createSubscriptionClient } from "../azureClients";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
 // Represents an azure subscription. Used to display locations related to the subscription
