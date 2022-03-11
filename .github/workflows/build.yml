@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-bicep:
-    name: 'Build CLI (${{ matrix.rid }})'
+    name: 'Build Bicep (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
 
     env:
@@ -106,14 +106,14 @@ jobs:
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
-      - name: Run Bicep E2E Tests
+      - name: Run Bicep CLI E2E Tests
         if: ${{ matrix.rid != 'linux-musl-x64' && matrix.runTests == 'true' }}
         run: npm ci && npm test
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
-      - name: Run Bicep E2E Tests (linux-musl-x64)
+      - name: Run Bicep CLI E2E Tests (linux-musl-x64)
         if: ${{ matrix.rid == 'linux-musl-x64' && matrix.runTests == 'true' }}
         uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
@@ -208,14 +208,14 @@ jobs:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
-      - name: Run Bicep Live E2E Tests
+      - name: Run Bicep CLI Live E2E Tests
         if: ${{ matrix.rid != 'linux-musl-x64' }}
         run: npm ci && npm run test:live
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
-      - name: Run Bicep Live E2E Tests (linux-musl-x64)
+      - name: Run Bicep CLI Live E2E Tests (linux-musl-x64)
         if: ${{ matrix.rid == 'linux-musl-x64' }}
         uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
@@ -352,7 +352,7 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
   build-vsix:
-    name: 'Build VSIX'
+    name: 'Build VSCode Extension'
     runs-on: ${{ matrix.os }}
     needs: build-bicep
 
@@ -406,21 +406,21 @@ jobs:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
 
-      - name: Build prod
+      - name: Build extension (prod)
         run: npm run build:prod
         working-directory: ./src/vscode-bicep
         
-      - name: Build E2E tests
+      - name: Build extension E2E tests
         run: npm run build:e2e
         working-directory: ./src/vscode-bicep
 
-      - name: Run E2E tests
+      - name: Run extension E2E tests
         run: npm run test:e2e
         if: runner.os != 'Linux'
         working-directory: ./src/vscode-bicep
 
       # In headless Linux CI machines xvfb is required to run VS Code, so need a separate path for Linux.
-      - name: Run E2E tests (Linux)
+      - name: Run extension tests (Linux)
         run: xvfb-run -a npm run test:e2e
         if: runner.os == 'Linux'
         working-directory: ./src/vscode-bicep
