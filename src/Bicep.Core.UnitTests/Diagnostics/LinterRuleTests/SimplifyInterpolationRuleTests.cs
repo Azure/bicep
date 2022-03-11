@@ -246,6 +246,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ]
             var stringVal = '${arrayOfStrings}'
         ")]
+        [DataRow(@"
+            var arrayOne = [
+                'a'
+                'b'
+            ]
+            var arrayTwo = [
+                'c'
+            ]
+
+            var stringVal = '${concat(arrayOne, arrayTwo)}'
+        ")]
+        [DataRow(@"
+            var stringVal = '${max(1, 2)}'
+        ")]
+        [DataRow(@"
+            var stringVal = '${resourceGroup().tags}'
+        ")]
         [DataTestMethod]
         public void TypeIsNotString_Passes(string text)
         {
