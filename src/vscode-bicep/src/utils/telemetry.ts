@@ -20,7 +20,7 @@ export async function activateWithTelemetryAndErrorHandling(
       try {
         await activateCallback(actionContext);
       } catch (e) {
-        getLogger().error(parseError(e).message ?? e);
+        getLogger().error(parseError(e).message);
         throw e;
       }
 
