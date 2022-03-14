@@ -4,25 +4,28 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Core;
 using Azure.ResourceManager;
-using Azure.ResourceManager.Resources;
 
 namespace Bicep.Core.Registry
 {
     public class TemplateSpecRepository : ITemplateSpecRepository
     {
         public readonly ArmClient client;
+        public readonly ITemplateSpecVersionProvider templateSpecVersionProvider;
 
-        public TemplateSpecRepository(ArmClient client)
+        public TemplateSpecRepository(ArmClient client, ITemplateSpecVersionProvider templateSpecVersionProvider)
         {
             this.client = client;
+            this.templateSpecVersionProvider = templateSpecVersionProvider;
         }
 
         public async Task<TemplateSpecEntity> FindTemplateSpecByIdAsync(string templateSpecId, CancellationToken cancellationToken = default)
         {
             try
             {
-                var response = await this.client.GetTemplateSpecVersion(templateSpecId).GetAsync(cancellationToken);
+                var resourceIdentifier = new ResourceIdentifier(templateSpecId);
+                var response = await this.templateSpecVersionProvider.GetTemplateSpecVersion(client, resourceIdentifier).GetAsync(cancellationToken);
 
                 return TemplateSpecEntity.FromSdkModel(response.Value.Data);
             }
