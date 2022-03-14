@@ -3,6 +3,7 @@
 
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -82,14 +83,14 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (valueSyntax is StringSyntax strSyntax
                     && strSyntax.Expressions.Length == 1
                     && strSyntax.SegmentValues.All(s => string.IsNullOrEmpty(s))
-                    && strSyntax.Expressions.First() is VariableAccessSyntax variableAccessSyntax) // VariableAccessSyntax applies to params and vars and modules
+                    && strSyntax.Expressions.First() is ExpressionSyntax expression)
                 {
-                    // We only want to trigger if the var or param is of type string (because interpolation
+                    // We only want to trigger if the expression is of type string (because interpolation
                     // using non-string types can be a perfectly valid way to convert to string, e.g. '${intVar}')
-                    var type = model.GetTypeInfo(variableAccessSyntax);
+                    var type = model.GetTypeInfo(expression);
                     if (IsStrictlyAssignableToString(type))
                     {
-                        AddCodeFix(valueSyntax.Span, variableAccessSyntax.Name.IdentifierName);
+                        AddCodeFix(valueSyntax.Span, expression.ToText());
                     }
                 }
                 return null;
