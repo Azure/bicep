@@ -1929,7 +1929,7 @@
   {
     "label": "res-policy-exemption",
     "kind": "snippet",
-    "detail": "olicy Exemption",
+    "detail": "Policy Exemption",
     "documentation": {
       "kind": "markdown",
       "value": "```bicep\nresource policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {\n  name: 'name'\n  properties: {\n    policyAssignmentId: 'policyAssignmentId'\n    policyDefinitionReferenceIds: [\n      'policyDefinitionReferenceIds'\n    ]\n    exemptionCategory: 'Mitigated'\n    expiresOn: 'expiresOn'\n    displayName: 'displayName'\n    description: 'description'\n    metadata: {\n      version: '0.1.0'\n      source: 'source'\n    }\n  }\n}\n\n```"
@@ -2045,7 +2045,7 @@
   {
     "label": "res-policy-remediation",
     "kind": "snippet",
-    "detail": "olicy Remediation",
+    "detail": "Policy Remediation",
     "documentation": {
       "kind": "markdown",
       "value": "```bicep\nresource policyRemediation 'Microsoft.PolicyInsights/remediations@2019-07-01' = {\n  name: 'name'\n  properties: {\n    policyAssignmentId: 'policyAssignmentId'\n    policyDefinitionReferenceId: 'policyDefinitionReferenceId'\n    resourceDiscoveryMode: 'ExistingNonCompliant'\n    filters: {\n      locations: [\n        location\n      ]\n    }\n  }\n}\n\n```"
