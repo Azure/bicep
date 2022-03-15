@@ -78,7 +78,7 @@ namespace Bicep.LanguageServer.Deploy
                     Location = location,
                 };
 
-                string deployment = "deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                string deployment = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
                 try
                 {
