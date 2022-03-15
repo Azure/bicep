@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
@@ -81,7 +82,7 @@ namespace Bicep.LanguageServer.Deploy
 
                 try
                 {
-                    var deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(deployment, input);
+                    var deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deployment, input);
 
                     if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
                         deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)

@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
@@ -304,9 +305,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var errorMessage = "Encountered error while creating deployment";
             deploymentCollection
                 .Setup(m => m.CreateOrUpdateAsync(
+                    It.IsAny<bool>(),
                     It.IsAny<string>(),
                     It.IsAny<DeploymentInput>(),
-                    It.IsAny<bool>(),
                     It.IsAny<CancellationToken>()))
                 .Throws(new Exception(errorMessage));
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
@@ -347,18 +348,18 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope == LanguageConstants.TargetScopeTypeSubscription)
             {
                 var deploymentCollection = StrictMock.Of<DeploymentCollection>();
-                var deploymentCreateOrUpdateAtScopeOperation = StrictMock.Of<DeploymentCreateOrUpdateAtScopeOperation>();
+                var deploymentCreateOrUpdateOperation = StrictMock.Of<DeploymentCreateOrUpdateOperation>();
                 var response = StrictMock.Of<Response>();
                 response.Setup(m => m.Status).Returns(200);
-                deploymentCreateOrUpdateAtScopeOperation.Setup(m => m.HasValue).Returns(true);
-                deploymentCreateOrUpdateAtScopeOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
+                deploymentCreateOrUpdateOperation.Setup(m => m.HasValue).Returns(true);
+                deploymentCreateOrUpdateOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
 
                 deploymentCollection
                     .Setup(m => m.CreateOrUpdateAsync(
+                        It.IsAny<bool>(),
                         It.IsAny<string>(),
                         It.IsAny<DeploymentInput>(),
-                        It.IsAny<bool>(),
-                        It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateAtScopeOperation.Object));
+                        It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateOperation.Object));
 
                 return deploymentCollection.Object;
             }
