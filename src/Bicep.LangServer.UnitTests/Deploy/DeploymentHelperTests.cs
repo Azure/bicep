@@ -341,13 +341,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
             return deploymentCollectionProviderMock.Object;
         }
 
-        private static DeploymentCollection? CreateDeploymentCollection(string scope)
+        private static DeploymentCollection CreateDeploymentCollection(string scope)
         {
+            var deploymentCollection = StrictMock.Of<DeploymentCollection>();
+
             if (scope == LanguageConstants.TargetScopeTypeManagementGroup ||
                 scope == LanguageConstants.TargetScopeTypeResourceGroup ||
                 scope == LanguageConstants.TargetScopeTypeSubscription)
             {
-                var deploymentCollection = StrictMock.Of<DeploymentCollection>();
                 var deploymentCreateOrUpdateOperation = StrictMock.Of<DeploymentCreateOrUpdateOperation>();
                 var response = StrictMock.Of<Response>();
                 response.Setup(m => m.Status).Returns(200);
@@ -360,10 +361,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                         It.IsAny<string>(),
                         It.IsAny<DeploymentInput>(),
                         It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateOperation.Object));
-
-                return deploymentCollection.Object;
             }
-            return null;
+            return deploymentCollection.Object;
         }
     }
 }

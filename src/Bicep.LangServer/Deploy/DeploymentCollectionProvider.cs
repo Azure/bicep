@@ -11,7 +11,7 @@ namespace Bicep.LanguageServer.Deploy
 {
     public class DeploymentCollectionProvider : IDeploymentCollectionProvider
     {
-        public DeploymentCollection? GetDeploymentCollection(ArmClient armClient, ResourceIdentifier resourceIdentifier, string scope)
+        public DeploymentCollection GetDeploymentCollection(ArmClient armClient, ResourceIdentifier resourceIdentifier, string scope)
         {
             switch (scope)
             {
