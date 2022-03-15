@@ -294,7 +294,7 @@ export class DeployCommand implements Command {
     }
 
     this.outputChannelManager.appendToOutputChannel(
-      `Parameter file was not provided`
+      `No parameter file was provided`
     );
 
     return "";
