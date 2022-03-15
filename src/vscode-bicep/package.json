@@ -74,7 +74,7 @@
         },
         "bicep.enableOutputTimestamps": {
           "type": "boolean",
-          "description": "Prepends each line displayed in the Bicep Operations output channel with a timestamp.",
+          "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
           "default": true
         }
       }
