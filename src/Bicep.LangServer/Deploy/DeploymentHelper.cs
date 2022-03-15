@@ -82,13 +82,9 @@ namespace Bicep.LanguageServer.Deploy
 
                 try
                 {
-                    var deploymentCreateOrUpdateAtScopeOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deployment, input);
+                    var deploymentCreateOrUpdateOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deployment, input);
 
-                    if (deploymentCreateOrUpdateAtScopeOperation.HasValue &&
-                        deploymentCreateOrUpdateAtScopeOperation.GetRawResponse().Status == 200)
-                    {
-                        return LangServerResources.DeploymentSucceededMessage;
-                    }
+                    return GetDeploymentResultMessage(deploymentCreateOrUpdateOperation);
                 }
                 catch (Exception e)
                 {
@@ -97,6 +93,26 @@ namespace Bicep.LanguageServer.Deploy
             }
 
             return LangServerResources.DeploymentFailedMessage;
+        }
+
+        private static string GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation)
+        {
+            if (!deploymentCreateOrUpdateOperation.HasValue)
+            {
+                return LangServerResources.DeploymentFailedMessage;
+            }
+
+            var response = deploymentCreateOrUpdateOperation.GetRawResponse();
+            var status = response.Status;
+
+            if (status == 200 || status == 201)
+            {
+                return LangServerResources.DeploymentSucceededMessage;
+            }
+            else
+            {
+                return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, response.ToString());
+            }
         }
 
         private static JsonElement GetParameters(string parameterFilePath)

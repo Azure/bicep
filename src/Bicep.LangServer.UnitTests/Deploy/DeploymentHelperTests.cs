@@ -287,6 +287,97 @@ namespace Bicep.LangServer.UnitTests.Deploy
         }
 
         [TestMethod]
+        public async Task CreateDeployment_WhenDeploymentCreateOrUpdateOperationHasNoValue_ReturnsDeploymentFailedMessage()
+        {
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Storage/storageAccounts"",
+      ""apiVersion"": ""2021-06-01"",
+      ""name"": ""storageaccount"",
+      ""location"": ""[resourceGroup().location]"",
+      ""properties"": {}
+    }
+  ]
+}";
+            var deploymentCreateOrUpdateOperation = StrictMock.Of<DeploymentCreateOrUpdateOperation>();
+            deploymentCreateOrUpdateOperation.Setup(m => m.HasValue).Returns(false);
+
+            var deploymentCollection = StrictMock.Of<DeploymentCollection>();
+            deploymentCollection
+                .Setup(m => m.CreateOrUpdateAsync(
+                    It.IsAny<bool>(),
+                    It.IsAny<string>(),
+                    It.IsAny<DeploymentInput>(),
+                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateOperation.Object));
+            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
+            deploymentCollectionProvider
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
+                .Returns(deploymentCollection.Object);
+
+            var result = await DeploymentHelper.CreateDeployment(
+                deploymentCollectionProvider.Object,
+                CreateMockArmClient(),
+                template,
+                string.Empty,
+                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
+                LanguageConstants.TargetScopeTypeResourceGroup,
+                "");
+
+            result.Should().Be(LangServerResources.DeploymentFailedMessage);
+        }
+
+        [TestMethod]
+        public async Task CreateDeployment_WithStatusMessageOtherThan200Or201_ReturnsDeploymentFailedMessage()
+        {
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Storage/storageAccounts"",
+      ""apiVersion"": ""2021-06-01"",
+      ""name"": ""storageaccount"",
+      ""location"": ""[resourceGroup().location]"",
+      ""properties"": {}
+    }
+  ]
+}";
+            var response = StrictMock.Of<Response>();
+            response.Setup(m => m.Status).Returns(502);
+            var responseMessage = "sample response";
+            response.Setup(m => m.ToString()).Returns(responseMessage);
+
+            var deploymentCreateOrUpdateOperation = StrictMock.Of<DeploymentCreateOrUpdateOperation>();
+            deploymentCreateOrUpdateOperation.Setup(m => m.HasValue).Returns(true);
+            deploymentCreateOrUpdateOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
+
+            var deploymentCollection = StrictMock.Of<DeploymentCollection>();
+            deploymentCollection
+                .Setup(m => m.CreateOrUpdateAsync(
+                    It.IsAny<bool>(),
+                    It.IsAny<string>(),
+                    It.IsAny<DeploymentInput>(),
+                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateOperation.Object));
+
+            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
+            deploymentCollectionProvider
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
+                .Returns(deploymentCollection.Object);
+
+            var result = await DeploymentHelper.CreateDeployment(
+                deploymentCollectionProvider.Object,
+                CreateMockArmClient(),
+                template,
+                string.Empty,
+                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
+                LanguageConstants.TargetScopeTypeResourceGroup,
+                "");
+
+            result.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, responseMessage));
+        }
+
+        [TestMethod]
         public async Task CreateDeployment_WithExceptionWhileCreatingDeployment_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
