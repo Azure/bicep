@@ -120,7 +120,7 @@ export class DeployCommand implements Command {
         );
       } else if (deploymentScope == "tenant") {
         this.outputChannelManager.appendToOutputChannel(
-          "Tenant scope deployment is not supported."
+          "Tenant scope deployment is not currently supported."
         );
       } else {
         this.outputChannelManager.appendToOutputChannel(
