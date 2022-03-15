@@ -4,6 +4,7 @@ param app2Name string = 'account-service'
 param app3Name string = 'auth-service'
 param location string = resourceGroup().location
 
+#disable-next-line BCP081
 resource service 'Microsoft.AppPlatform/Spring@2019-05-01-preview' = {
   name: serviceName
   location: location

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2749966307222727374"
+      "templateHash": "17092249105648247282"
     }
   },
   "parameters": {
@@ -148,7 +148,27 @@
           {
             "name": "[variables('subnet1Name')]",
             "properties": {
-              "addressPrefix": "10.0.0.0/24"
+              "addressPrefix": "10.0.0.0/24",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           },
           {

@@ -76,6 +76,13 @@ namespace Bicep.Core.UnitTests.Utils
                 properties.Select(val => new TypeProperty(val.name, val.type)),
                 null,
                 TypePropertyFlags.None);
+        public static ObjectType CreateObjectType(string name, params (string name, ITypeReference type, TypePropertyFlags flags)[] properties)
+            => new(
+                name,
+                TypeSymbolValidationFlags.Default,
+                properties.Select(val => new TypeProperty(val.name, val.type, val.flags)),
+                null,
+                TypePropertyFlags.None);
 
         public static DiscriminatedObjectType CreateDiscriminatedObjectType(string name, string key, params ITypeReference[] members)
             => new(

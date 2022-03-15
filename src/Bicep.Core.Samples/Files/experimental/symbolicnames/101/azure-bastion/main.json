@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8389530258169044388"
+      "templateHash": "18162431521426013488"
     }
   },
   "parameters": {
@@ -90,7 +90,27 @@
           {
             "name": "[variables('bastionSubnetName')]",
             "properties": {
-              "addressPrefix": "[parameters('bastionSubnetIpPrefix')]"
+              "addressPrefix": "[parameters('bastionSubnetIpPrefix')]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -109,7 +129,27 @@
       "apiVersion": "2020-05-01",
       "name": "[format('{0}/{1}', parameters('vnetName'), variables('bastionSubnetName'))]",
       "properties": {
-        "addressPrefix": "[parameters('bastionSubnetIpPrefix')]"
+        "addressPrefix": "[parameters('bastionSubnetIpPrefix')]",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       }
     },
     "bastionHost": {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "6135893197178781329"
+      "templateHash": "12306829397421129331"
     }
   },
   "parameters": {
@@ -850,11 +850,11 @@
     },
     "lastNameServers": {
       "type": "array",
-      "value": "[reference(resourceId('Microsoft.Network/dnsZones', format('indexedZone-{0}-{1}', parameters('accounts')[sub(length(parameters('accounts')), 1)].name, sub(length(parameters('accounts')), 1)))).nameServers]"
+      "value": "[reference(resourceId('Microsoft.Network/dnsZones', format('indexedZone-{0}-{1}', parameters('accounts')[sub(length(parameters('accounts')), 1)].name, sub(length(parameters('accounts')), 1))), '2018-05-01').nameServers]"
     },
     "lastModuleOutput": {
       "type": "string",
-      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('stuff-{0}', sub(length(parameters('accounts')), 1)))).outputs.myOutput.value]"
+      "value": "[reference(resourceId('Microsoft.Resources/deployments', format('stuff-{0}', sub(length(parameters('accounts')), 1))), '2020-10-01').outputs.myOutput.value]"
     }
   }
 }

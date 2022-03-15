@@ -83,7 +83,7 @@ namespace Bicep.Cli.IntegrationTests
             var client = new MockRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            clientFactory.Setup(m => m.CreateBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 

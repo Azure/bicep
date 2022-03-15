@@ -13,6 +13,8 @@ namespace Bicep.Core.Registry
     /// <remarks>This exists because we need to inject mock clients in integration tests and because the real client constructor requires parameters.</remarks>
     public interface IContainerRegistryClientFactory
     {
-        ContainerRegistryBlobClient CreateBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
+        ContainerRegistryBlobClient CreateAuthenticatedBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
+
+        ContainerRegistryBlobClient CreateAnonymouosBlobClient(RootConfiguration configuration, Uri registryUri, string repository);
     }
 }

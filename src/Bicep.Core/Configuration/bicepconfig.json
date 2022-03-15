@@ -1,4 +1,5 @@
 {
+  // This is the base configuration which provides the defaults for all values (end users don't see this file).
   "cloud": {
     "currentProfile": "AzureCloud",
     "profiles": {
@@ -22,7 +23,12 @@
   },
   "moduleAliases": {
     "ts": {},
-    "br": {}
+    "br": {
+      "public": {
+        "registry": "mcr.microsoft.com",
+        "modulePath": "bicep"
+      }
+    }
   },
   "analyzers": {
     "core": {
@@ -32,22 +38,22 @@
         "no-hardcoded-env-urls": {
           "level": "warning",
           "disallowedhosts": [
-            "gallery.azure.com",
-            "management.core.windows.net",
-            "management.azure.com",
-            "database.windows.net",
-            "core.windows.net",
-            "login.microsoftonline.com",
-            "graph.windows.net",
-            "trafficmanager.net",
-            "datalake.azure.net",
-            "azuredatalakestore.net",
-            "azuredatalakeanalytics.net",
-            "vault.azure.net",
             "api.loganalytics.io",
             "asazure.windows.net",
+            "azuredatalakeanalytics.net",
+            "azuredatalakestore.net",
+            "batch.core.windows.net",
+            "core.windows.net",
+            "database.windows.net",
+            "datalake.azure.net",
+            "gallery.azure.com",
+            "graph.windows.net",
+            "login.microsoftonline.com",
+            "management.azure.com",
+            "management.core.windows.net",
             "region.asazure.windows.net",
-            "batch.core.windows.net"
+            "trafficmanager.net",
+            "vault.azure.net"
           ],
           "excludedhosts": [
             "schema.management.azure.com"

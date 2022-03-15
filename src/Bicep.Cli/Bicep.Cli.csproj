@@ -40,4 +40,8 @@
   <ItemGroup>
     <TrimmerRootDescriptor Include="TrimmerRoots.xml" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
+  </ItemGroup>
 </Project>

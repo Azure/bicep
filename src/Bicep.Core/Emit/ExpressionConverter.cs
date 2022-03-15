@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
@@ -14,7 +13,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -639,6 +637,16 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("outputs"));
             }
 
+            if (moduleSymbol.DeclaringModule.HasCondition())
+            {
+                return AppendProperties(
+                    CreateFunction(
+                        "reference",
+                        GetFullyQualifiedResourceId(moduleSymbol),
+                        new JTokenExpression(TemplateWriter.NestedDeploymentResourceApiVersion)),
+                    new JTokenExpression("outputs"));
+            }
+
             return AppendProperties(
                 CreateFunction(
                     "reference",
@@ -688,7 +696,12 @@ namespace Bicep.Core.Emit
                     new JTokenExpression("full"));
             }
 
-            if (resource.IsExistingResource && !context.Settings.EnableSymbolicNames)
+            var shouldIncludeApiVersion =
+                !context.Settings.EnableSymbolicNames &&
+                (resource.IsExistingResource ||
+                (resource is DeclaredResourceMetadata { Symbol.DeclaringResource: var declaringResource } && declaringResource.HasCondition()));
+
+            if (shouldIncludeApiVersion)
             {
                 var apiVersion = resource.TypeReference.ApiVersion ?? throw new InvalidOperationException($"Expected resource type {resource.TypeReference.FormatName()} to contain version");
 

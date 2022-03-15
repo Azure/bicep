@@ -44,7 +44,7 @@ const StatusBarComponent: VFC<StatusBarProps> = ({ errorCount, hasNodes }) => (
     )}
     {errorCount === 0 && !hasNodes && (
       <div>
-        There is no resources or modules in the file. Nothing to render.
+        There are no resources or modules in the file. Nothing to display.
       </div>
     )}
   </StatusBarContainer>

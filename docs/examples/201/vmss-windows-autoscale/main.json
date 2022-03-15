@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15789291631431946618"
+      "templateHash": "1856631488954082264"
     }
   },
   "parameters": {
@@ -69,8 +69,8 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Network/virtualnetworks",
-      "apiVersion": "2015-05-01-preview",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2021-05-01",
       "name": "[variables('virtualNetworkName')]",
       "location": "[parameters('location')]",
       "properties": {
@@ -83,7 +83,27 @@
           {
             "name": "[variables('subnetName')]",
             "properties": {
-              "addressPrefix": "[variables('subnetPrefix')]"
+              "addressPrefix": "[variables('subnetPrefix')]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -180,7 +200,7 @@
                       "name": "[variables('ipConfigName')]",
                       "properties": {
                         "subnet": {
-                          "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualnetworks', variables('virtualNetworkName')), variables('subnetName'))]"
+                          "id": "[format('{0}/subnets/{1}', resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName')), variables('subnetName'))]"
                         },
                         "loadBalancerBackendAddressPools": [
                           {
@@ -203,7 +223,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/loadBalancers', variables('loadBalancerName'))]",
-        "[resourceId('Microsoft.Network/virtualnetworks', variables('virtualNetworkName'))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
       ]
     },
     {

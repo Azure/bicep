@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15739186155633208382"
+      "templateHash": "17948360019094352227"
     }
   },
   "parameters": {
@@ -107,7 +107,27 @@
           {
             "name": "[variables('vnet_shared_services_cfg').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('vnet_shared_services_cfg').subnetPrefix]"
+              "addressPrefix": "[variables('vnet_shared_services_cfg').subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -128,7 +148,27 @@
           {
             "name": "[variables('vnet_isolated_1_cfg').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('vnet_isolated_1_cfg').subnetPrefix]"
+              "addressPrefix": "[variables('vnet_isolated_1_cfg').subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]
@@ -149,7 +189,27 @@
           {
             "name": "[variables('vnet_isolated_2_cfg').subnetName]",
             "properties": {
-              "addressPrefix": "[variables('vnet_isolated_2_cfg').subnetPrefix]"
+              "addressPrefix": "[variables('vnet_isolated_2_cfg').subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]

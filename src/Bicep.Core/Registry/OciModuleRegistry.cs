@@ -26,7 +26,7 @@ namespace Bicep.Core.Registry
             : base(FileResolver)
         {
             this.cachePath = Path.Combine(features.CacheRootDirectory, ModuleReferenceSchemes.Oci);
-            this.client = new AzureContainerRegistryManager(new DefaultAzureCredential(), clientFactory);
+            this.client = new AzureContainerRegistryManager(clientFactory);
         }
 
         public override string Scheme => ModuleReferenceSchemes.Oci;

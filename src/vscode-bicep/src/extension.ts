@@ -4,7 +4,7 @@ import vscode from "vscode";
 import {
   createAzExtOutputChannel,
   registerUIExtensionVariables,
-} from "vscode-azureextensionui";
+} from "@microsoft/vscode-azext-utils";
 
 import {
   launchLanguageServiceWithProgressReport,

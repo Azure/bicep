@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17604191896133774954"
+      "templateHash": "18127518913129793364"
     }
   },
   "parameters": {
@@ -70,7 +70,27 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/subnet-01', resourceInfo('virtualNetwork').name)]",
       "properties": {
-        "addressPrefix": "10.0.1.0/24"
+        "addressPrefix": "10.0.1.0/24",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "virtualNetwork"

@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "2127873313917417280"
+      "templateHash": "16877435771722125870"
     }
   },
   "parameters": {
@@ -226,7 +226,27 @@
             "properties": {
               "addressPrefix": "[parameters('aksSubnetAddressPrefix')]",
               "privateEndpointNetworkPolicies": "Disabled",
-              "privateLinkServiceNetworkPolicies": "Enabled"
+              "privateLinkServiceNetworkPolicies": "Enabled",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           },
           {

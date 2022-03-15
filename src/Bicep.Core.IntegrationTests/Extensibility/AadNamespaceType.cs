@@ -33,7 +33,7 @@ namespace Bicep.Core.IntegrationTests.Extensibility
                     ResourceScope.Tenant | ResourceScope.ManagementGroup | ResourceScope.Subscription | ResourceScope.ResourceGroup,
                     new ObjectType("application", TypeSymbolValidationFlags.Default, new[]
                     {
-                        new TypeProperty("uniqueName", LanguageConstants.String, TypePropertyFlags.Required),
+                        new TypeProperty("uniqueName", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty),
                         new TypeProperty("appId", LanguageConstants.String, TypePropertyFlags.ReadOnly),
                     }, null)),
             }.ToImmutableDictionary(x => x.TypeReference, ResourceTypeReferenceComparer.Instance);

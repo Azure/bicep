@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17982262982198579672"
+      "templateHash": "10105950490850461524"
     }
   },
   "parameters": {
@@ -95,6 +95,7 @@
       "existing": true,
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
+      "resourceGroup": "otherGroup",
       "name": "testkeyvault"
     },
     "loopedKv": {
@@ -105,6 +106,8 @@
       "existing": true,
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2019-09-01",
+      "subscriptionId": "[variables('vaults')[copyIndex()].vaultSub]",
+      "resourceGroup": "[variables('vaults')[copyIndex()].vaultRG]",
       "name": "[variables('vaults')[copyIndex()].vaultName]"
     },
     "modATest": {

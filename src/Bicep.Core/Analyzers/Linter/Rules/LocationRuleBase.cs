@@ -31,9 +31,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             string description,
             Uri docUri,
             DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
-            DiagnosticLabel? diagnosticLabel = null
+            DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default
             )
-        : base(code, description, docUri, diagnosticLevel, diagnosticLabel) { }
+        : base(code, description, docUri, diagnosticLevel, diagnosticStyling) { }
 
         /// <summary>
         /// Retrieves the literal text value of a syntax node if that node is either a string literal or a reference (possibly indirectly)
@@ -215,7 +215,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             foreach (var moduleFormalParameter in moduleFormalParameters)
             {
                 SyntaxBase? defaultValue = (moduleFormalParameter.Modifier as ParameterDefaultValueSyntax)?.DefaultValue;
-                if (defaultValue is not null && ContainsCallToRgOrDeploymentLocation(defaultValue, out string _))
+                if (defaultValue is not null && ContainsCallToRgOrDeploymentLocation(defaultValue, out _))
                 {
                     locationParameters.Add(moduleFormalParameter.Name.IdentifierName);
                 }

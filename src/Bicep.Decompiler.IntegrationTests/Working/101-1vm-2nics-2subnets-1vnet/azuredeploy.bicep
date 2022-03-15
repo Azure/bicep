@@ -41,7 +41,7 @@ resource virtualMachineName 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       adminPassword: adminPassword
       windowsConfiguration: {
         provisionVMAgent: 'true'
-//@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool | null" but the provided value is of type "'true'". (CodeDescription: none) |'true'|
+//@[26:32) [BCP036 (Warning)] The property "provisionVMAgent" expected a value of type "bool | null" but the provided value is of type "'true'". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |'true'|
       }
     }
     hardwareProfile: {
@@ -111,6 +111,26 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: subnet1Name
         properties: {
           addressPrefix: '10.0.0.0/24'
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
       {

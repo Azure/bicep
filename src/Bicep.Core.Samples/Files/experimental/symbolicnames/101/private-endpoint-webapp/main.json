@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "9319299136230453878"
+      "templateHash": "2290245992412590029"
     }
   },
   "parameters": {
@@ -92,7 +92,27 @@
       "name": "[format('{0}/{1}', resourceInfo('virtualNetwork').name, parameters('subnetName'))]",
       "properties": {
         "addressPrefix": "[parameters('subnetCIDR')]",
-        "privateEndpointNetworkPolicies": "Disabled"
+        "privateEndpointNetworkPolicies": "Disabled",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "virtualNetwork"

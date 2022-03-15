@@ -21,7 +21,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Semantics.Metadata;
 using System.Diagnostics;
-using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Emit
 {
@@ -33,16 +32,6 @@ namespace Bicep.Core.Emit
 
         // IMPORTANT: Do not update this API version until the new one is confirmed to be deployed and available in ALL the clouds.
         public const string NestedDeploymentResourceApiVersion = "2020-10-01";
-
-        // these are top-level parameter modifier properties whose values can be emitted without any modifications
-        private static readonly ImmutableArray<string> ParameterModifierPropertiesToEmitDirectly = new[]
-        {
-            "minValue",
-            "maxValue",
-            "minLength",
-            "maxLength",
-            "metadata"
-        }.ToImmutableArray();
 
         private static readonly ImmutableHashSet<string> ResourcePropertiesToOmit = new[] {
             LanguageConstants.ResourceScopePropertyName,
@@ -573,7 +562,10 @@ namespace Bicep.Core.Emit
                         jsonWriter.WriteEndArray();
                     });
                 }
-                else if (this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is {} resourceMetadata)
+                else if (
+                    this.context.SemanticModel.ResourceMetadata.TryLookup(propertySyntax.Value) is {} resourceMetadata &&
+                    moduleSymbol.TryGetModuleType() is ModuleType moduleType &&
+                    moduleType.TryGetParameterType(keyName) is ResourceParameterType parameterType)
                 {
                     // This is a resource being passed into a module, we actually want to pass in its id
                     // rather than the whole resource.
@@ -627,7 +619,7 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
-            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter, body);
+            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel, scopeData, emitter, body);
 
             if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
             {
@@ -900,24 +892,6 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteEndObject();
             }
             jsonWriter.WriteEndObject();
-        }
-
-        private static string GetTemplateTypeName(TypeSymbol type, bool secure)
-        {
-            if (secure)
-            {
-                if (ReferenceEquals(type, LanguageConstants.String))
-                {
-                    return "secureString";
-                }
-
-                if (ReferenceEquals(type, LanguageConstants.Object))
-                {
-                    return "secureObject";
-                }
-            }
-
-            return type.Name;
         }
     }
 }

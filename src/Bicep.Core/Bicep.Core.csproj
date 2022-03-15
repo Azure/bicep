@@ -18,8 +18,8 @@
   <ItemGroup>
     <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.3" />
     <PackageReference Include="Azure.Identity" Version="1.5.0" />
-    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.3" />
-    <PackageReference Include="JetBrains.Annotations" Version="2021.2.0">
+    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.6" />
+    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
@@ -32,10 +32,10 @@
     <PackageReference Include="Azure.Deployments.Core" Version="1.0.546" />
     <PackageReference Include="Azure.Deployments.Templates" Version="1.0.546" />
     <PackageReference Include="Azure.Deployments.Expression" Version="1.0.546" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.1.331" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.331" />
+    <PackageReference Include="Azure.Bicep.Types" Version="0.1.410" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.410" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.11" />
-    <PackageReference Include="System.IO.Abstractions" Version="13.2.47" />
+    <PackageReference Include="System.IO.Abstractions" Version="16.1.10" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">
@@ -49,6 +49,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>CoreResources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>

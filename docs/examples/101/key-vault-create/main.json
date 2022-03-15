@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "8924064920603961080"
+      "templateHash": "5853821456770597375"
     }
   },
   "parameters": {
@@ -98,11 +98,11 @@
       "defaultValue": "prodKey"
     },
     "secretName": {
-      "type": "string",
+      "type": "secureString",
       "defaultValue": "bankAccountPassword"
     },
     "secretValue": {
-      "type": "string",
+      "type": "secureString",
       "defaultValue": "12345"
     },
     "networkAcls": {

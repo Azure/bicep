@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "5581484437105421652"
+      "templateHash": "11460263666974607466"
     }
   },
   "parameters": {
@@ -65,7 +65,27 @@
           {
             "name": "[variables('vnetConfig').subnet.name]",
             "properties": {
-              "addressPrefix": "[variables('vnetConfig').subnet.subnetPrefix]"
+              "addressPrefix": "[variables('vnetConfig').subnet.subnetPrefix]",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]

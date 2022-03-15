@@ -9,7 +9,7 @@ namespace Bicep.Core.Diagnostics
     {
         string Code { get; }
         string Source { get; }
-        DiagnosticLabel? Label { get; }
+        DiagnosticStyling Styling { get; }
         DiagnosticLevel Level { get; }
         string Message { get; }
         Uri? Uri { get; }

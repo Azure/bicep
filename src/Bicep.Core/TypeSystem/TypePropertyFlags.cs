@@ -64,7 +64,6 @@ namespace Bicep.Core.TypeSystem
         /// </summary>
         FallbackProperty = 1 << 9,
 
-
         /// <summary>
         /// Language system property, i.e. id, type, api-version
         /// </summary>
