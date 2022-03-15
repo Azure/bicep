@@ -55,9 +55,3 @@ export async function executeBuildCommand(
 ): Promise<void> {
   return await vscode.commands.executeCommand("bicep.build", documentUri);
 }
-
-export async function executeDeployCommand(
-  documentUri: vscode.Uri
-): Promise<void> {
-  return await vscode.commands.executeCommand("bicep.deploy", documentUri);
-}
