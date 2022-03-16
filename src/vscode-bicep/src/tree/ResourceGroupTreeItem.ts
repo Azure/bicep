@@ -26,7 +26,7 @@ import { localize } from "../utils/localize";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
-// Represents an Azure subscription. Used to display resource groups related to the subscription
+// Represents tree item used to display resource groups related to the subscription
 export class ResourceGroupTreeItem extends SubscriptionTreeItemBase {
   constructor(
     parent: AzExtParentTreeItem,

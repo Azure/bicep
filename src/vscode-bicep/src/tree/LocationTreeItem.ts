@@ -8,7 +8,7 @@ import { createSubscriptionClient } from "../azure/azureClients";
 import { localize } from "../utils/localize";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 
-// Represents an azure subscription. Used to display locations related to the subscription
+// Represents tree item used to display locations related to the subscription
 export class LocationTreeItem extends SubscriptionTreeItemBase {
   public readonly childTypeLabel: string = localize("location", "Location");
 
