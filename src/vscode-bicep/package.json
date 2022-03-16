@@ -75,7 +75,8 @@
         "bicep.enableOutputTimestamps": {
           "type": "boolean",
           "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
-          "default": true
+          "default": true,
+          "$comment": "This is used by vscode-azuretools package and has to be in the following format: <extensionPrefix>.enableOutputTimestamps"
         }
       }
     },
