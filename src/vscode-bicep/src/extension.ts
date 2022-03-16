@@ -53,12 +53,11 @@ export async function activate(
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
 
-  registerUIExtensionVariables({ context, outputChannel, ignoreBundle: false });
+  registerUIExtensionVariables({ context, outputChannel });
   registerAzureUtilsExtensionVariables({
     context,
     outputChannel,
     prefix: "bicep",
-    ignoreBundle: false,
   });
 
   await activateWithTelemetryAndErrorHandling(async (actionContext) => {
