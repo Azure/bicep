@@ -89,7 +89,9 @@ export class DeployCommand implements Command {
       }
 
       this.outputChannelManager.appendToOutputChannel(
-        `Scope specified in ${path.basename(documentPath)} -> ${deploymentScope}`
+        `Scope specified in ${path.basename(
+          documentPath
+        )} -> ${deploymentScope}`
       );
 
       // Shows a treeView that allows user to log in to Azure. If the user is already logged in, then does nothing.
@@ -310,7 +312,6 @@ export class DeployCommand implements Command {
   private async createParameterFileQuickPickList(): Promise<
     IAzureQuickPickItem[]
   > {
-
     return [this._none].concat([this._browse]);
   }
 }
