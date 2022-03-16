@@ -59,9 +59,8 @@ export class DeployCommand implements Command {
 
     const documentPath = documentUri.fsPath;
     const textDocument = TextDocumentIdentifier.create(documentUri.fsPath);
-    const fileName = path.basename(documentPath);
     this.outputChannelManager.appendToOutputChannel(
-      `Started deployment of ${fileName}`
+      `Started deployment of ${documentPath}`
     );
 
     try {
@@ -80,7 +79,7 @@ export class DeployCommand implements Command {
       }
 
       this.outputChannelManager.appendToOutputChannel(
-        `Scope specified in ${fileName} -> ${deploymentScope}`
+        `Scope specified in ${path.basename(documentPath)} -> ${deploymentScope}`
       );
 
       // Shows a treeView that allows user to log in to Azure. If the user is already logged in, then does nothing.
@@ -285,9 +284,7 @@ export class DeployCommand implements Command {
       if (paramsPaths && paramsPaths.length == 1) {
         const parameterFilePath = paramsPaths[0].fsPath;
         this.outputChannelManager.appendToOutputChannel(
-          `Parameter file used in deployment -> ${path.basename(
-            parameterFilePath
-          )}`
+          `Parameter file used in deployment -> ${parameterFilePath}`
         );
         return parameterFilePath;
       }
