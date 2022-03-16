@@ -24,10 +24,20 @@ import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
 import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { TreeManager } from "../tree/TreeManager";
+import { localize } from "../utils/localize";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { Command } from "./types";
 
 export class DeployCommand implements Command {
+  private _none: IAzureQuickPickItem = {
+    label: localize("none", "$(circle-slash) None"),
+    data: undefined,
+  };
+  private _browse: IAzureQuickPickItem = {
+    label: localize("browse", "$(file-directory) Browse..."),
+    data: undefined,
+  };
+
   public readonly id = "bicep.deploy";
 
   public constructor(
@@ -273,7 +283,7 @@ export class DeployCommand implements Command {
       }
     );
 
-    if (result.label.includes("Browse...")) {
+    if (result == this._browse) {
       const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
         {
           canSelectMany: false,
@@ -300,15 +310,7 @@ export class DeployCommand implements Command {
   private async createParameterFileQuickPickList(): Promise<
     IAzureQuickPickItem[]
   > {
-    const none: IAzureQuickPickItem = {
-      label: "$(circle-slash) None",
-      data: undefined,
-    };
-    const browse: IAzureQuickPickItem = {
-      label: "$(file-directory) Browse...",
-      data: undefined,
-    };
 
-    return [none].concat([browse]);
+    return [this._none].concat([this._browse]);
   }
 }
