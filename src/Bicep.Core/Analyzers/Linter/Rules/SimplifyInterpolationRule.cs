@@ -50,6 +50,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 base.VisitObjectPropertySyntax(syntax);
             }
 
+            public override void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
+            {
+                AddCodeFixIfSingleInterpolatedString(syntax.Value);
+                base.VisitTemplateMetadataSyntax(syntax);
+            }
+
             public override void VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
             {
                 AddCodeFixIfSingleInterpolatedString(syntax.Value);

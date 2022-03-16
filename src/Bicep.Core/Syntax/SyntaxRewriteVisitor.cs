@@ -150,6 +150,23 @@ namespace Bicep.Core.Syntax
         }
         void ISyntaxVisitor.VisitParameterDefaultValueSyntax(ParameterDefaultValueSyntax syntax) => ReplaceCurrent(syntax, ReplaceParameterDefaultValueSyntax);
 
+        protected virtual SyntaxBase ReplaceTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
+        {
+            var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
+            hasChanges |= TryRewriteStrict(syntax.Name, out var name);
+            hasChanges |= TryRewrite(syntax.Assignment, out var assignment);
+            hasChanges |= TryRewrite(syntax.Value, out var value);
+
+            if (!hasChanges)
+            {
+                return syntax;
+            }
+
+            return new TemplateMetadataSyntax(keyword, name, assignment, value);
+        }
+
+        void ISyntaxVisitor.VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax) => ReplaceCurrent(syntax, ReplaceTemplateMetadataSyntax);
+
         protected virtual SyntaxBase ReplaceVariableDeclarationSyntax(VariableDeclarationSyntax syntax)
         {
             var hasChanges = TryRewriteStrict(syntax.Keyword, out var keyword);
@@ -164,6 +181,7 @@ namespace Bicep.Core.Syntax
 
             return new VariableDeclarationSyntax(keyword, name, assignment, value);
         }
+
         void ISyntaxVisitor.VisitVariableDeclarationSyntax(VariableDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceVariableDeclarationSyntax);
 
         protected virtual SyntaxBase ReplaceLocalVariableSyntax(LocalVariableSyntax syntax)
@@ -700,5 +718,6 @@ namespace Bicep.Core.Syntax
             return new MissingDeclarationSyntax(leadingNodes);
         }
         void ISyntaxVisitor.VisitMissingDeclarationSyntax(MissingDeclarationSyntax syntax) => ReplaceCurrent(syntax, ReplaceMissingDeclarationSyntax);
+
     }
 }

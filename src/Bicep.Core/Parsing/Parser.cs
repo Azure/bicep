@@ -89,6 +89,7 @@ namespace Bicep.Core.Parsing
                         TokenType.Identifier => current.Text switch
                         {
                             LanguageConstants.TargetScopeKeyword => this.TargetScope(leadingNodes),
+                            LanguageConstants.TemplateMetadataKeyword => this.TemplateMetadata(leadingNodes),
                             LanguageConstants.ParameterKeyword => this.ParameterDeclaration(leadingNodes),
                             LanguageConstants.VariableKeyword => this.VariableDeclaration(leadingNodes),
                             LanguageConstants.ResourceKeyword => this.ResourceDeclaration(leadingNodes),
@@ -264,6 +265,16 @@ namespace Bicep.Core.Parsing
             SyntaxBase defaultValue = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), RecoveryFlags.None, TokenType.NewLine);
 
             return new ParameterDefaultValueSyntax(assignmentToken, defaultValue);
+        }
+
+        private SyntaxBase TemplateMetadata(IEnumerable<SyntaxBase> leadingNodes)
+        {
+            var keyword = ExpectKeyword(LanguageConstants.TemplateMetadataKeyword);
+            var name = this.IdentifierWithRecovery(b => b.ExpectedVariableIdentifier(), RecoveryFlags.None, TokenType.Assignment, TokenType.NewLine);
+            var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(name), TokenType.NewLine);
+            var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
+
+            return new TemplateMetadataSyntax(leadingNodes, keyword, name, assignment, value);
         }
 
         private SyntaxBase VariableDeclaration(IEnumerable<SyntaxBase> leadingNodes)

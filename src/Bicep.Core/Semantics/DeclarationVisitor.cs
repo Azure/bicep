@@ -45,6 +45,14 @@ namespace Bicep.Core.Semantics
             return (declarations.ToImmutableArray(), childScopes.Select(MakeImmutable).ToImmutableArray());
         }
 
+        public override void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
+        {
+            base.VisitTemplateMetadataSyntax(syntax);
+
+            var symbol = new TemplateMetadataSymbol(this.context, syntax.Name.IdentifierName, syntax, syntax.Value);
+            DeclareSymbol(symbol);
+        }
+
         public override void VisitParameterDeclarationSyntax(ParameterDeclarationSyntax syntax)
         {
             base.VisitParameterDeclarationSyntax(syntax);

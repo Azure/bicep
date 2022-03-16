@@ -58,6 +58,8 @@ namespace Bicep.Core.Syntax
 
         void VisitTargetScopeSyntax(TargetScopeSyntax syntax);
 
+        void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax);
+
         void VisitTernaryOperationSyntax(TernaryOperationSyntax syntax);
 
         void VisitToken(Token token);

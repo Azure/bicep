@@ -87,6 +87,8 @@ namespace Bicep.LanguageServer.Completions
             {
                 yield return CreateKeywordCompletion(LanguageConstants.ParameterKeyword, "Parameter keyword", context.ReplacementRange);
 
+                yield return CreateKeywordCompletion(LanguageConstants.TemplateMetadataKeyword, "Parameter value keyword", context.ReplacementRange);
+
                 yield return CreateKeywordCompletion(LanguageConstants.VariableKeyword, "Variable keyword", context.ReplacementRange);
 
                 yield return CreateKeywordCompletion(LanguageConstants.ResourceKeyword, "Resource keyword", context.ReplacementRange, priority: CompletionPriority.High);

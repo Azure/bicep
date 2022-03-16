@@ -296,6 +296,13 @@ namespace Bicep.LanguageServer
             base.VisitVariableDeclarationSyntax(syntax);
         }
 
+        public override void VisitTemplateMetadataSyntax(TemplateMetadataSyntax syntax)
+        {
+            AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);
+            AddTokenType(syntax.Name, SemanticTokenType.Variable);
+            base.VisitTemplateMetadataSyntax(syntax);
+        }
+
         public override void VisitTargetScopeSyntax(TargetScopeSyntax syntax)
         {
             AddTokenType(syntax.Keyword, SemanticTokenType.Keyword);

@@ -81,6 +81,9 @@ namespace Bicep.Core.TypeSystem
                 case VariableDeclarationSyntax variable:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(variable.Value), variable);
 
+                case TemplateMetadataSyntax templateMetadata:
+                    return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(templateMetadata.Value), templateMetadata);
+
                 case LocalVariableSyntax localVariable:
                     return new DeclaredTypeAssignment(this.typeManager.GetTypeInfo(localVariable), localVariable);
 
