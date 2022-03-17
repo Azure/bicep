@@ -86,7 +86,7 @@ namespace Bicep.LanguageServer.Configuration
                     }
                     remainingPaths.Reverse();
                     string newPath = string.Join('.', remainingPaths);
-                    string insertionValueAsString = Stringify(insertionValue, 1);
+                    string insertionValueAsString = Stringify(insertionValue);
 
                     int insertLine;
                     int insertColumn;
