@@ -52,7 +52,7 @@ export class DeployCommand implements Command {
   ) {}
 
   public async execute(
-    _context: IActionContext,
+    context: IActionContext,
     documentUri: vscode.Uri | undefined
   ): Promise<void> {
     documentUri ??= vscode.window.activeTextEditor?.document.uri;
@@ -77,6 +77,8 @@ export class DeployCommand implements Command {
     this.outputChannelManager.appendToOutputChannel(
       `Started deployment of ${documentPath}`
     );
+
+    context.errorHandling.suppressDisplay = true;
 
     try {
       const deploymentScopeResponse = await this.client.sendRequest(
@@ -108,7 +110,7 @@ export class DeployCommand implements Command {
       );
       await azExtTreeDataProvider.showTreeItemPicker<AzLoginTreeItem>(
         "",
-        _context
+        context
       );
 
       // Remove when the below issue is resolved:
@@ -118,7 +120,7 @@ export class DeployCommand implements Command {
       switch (deploymentScope) {
         case "resourceGroup":
           return await this.handleResourceGroupDeployment(
-            _context,
+            context,
             textDocument,
             documentUri,
             deploymentScope,
@@ -126,7 +128,7 @@ export class DeployCommand implements Command {
           );
         case "subscription":
           return await this.handleSubscriptionDeployment(
-            _context,
+            context,
             textDocument,
             documentUri,
             deploymentScope,
@@ -134,21 +136,30 @@ export class DeployCommand implements Command {
           );
         case "managementGroup":
           return await this.handleManagementGroupDeployment(
-            _context,
+            context,
             textDocument,
             documentUri,
             deploymentScope,
             template
           );
-        case "tenant":
+        case "tenant": {
+          const tenantScopeNotSupportedMessage =
+            "Tenant scope deployment is not currently supported.";
           this.outputChannelManager.appendToOutputChannel(
-            "Tenant scope deployment is not currently supported."
+            tenantScopeNotSupportedMessage
           );
-          break;
-        default:
+          throw new Error(tenantScopeNotSupportedMessage);
+        }
+        default: {
+          const deploymentFailedMessage =
+            "Deployment failed. " + deploymentScopeResponse?.errorMessage;
+
           this.outputChannelManager.appendToOutputChannel(
-            "Deployment failed. " + deploymentScopeResponse?.errorMessage
+            deploymentFailedMessage
           );
+
+          throw new Error(deploymentFailedMessage);
+        }
       }
     } catch (exception) {
       if (exception instanceof UserCancelledError) {
@@ -158,6 +169,8 @@ export class DeployCommand implements Command {
       } else {
         this.client.error("Deploy failed", parseError(exception).message, true);
       }
+
+      throw exception;
     }
   }
 
