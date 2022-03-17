@@ -130,15 +130,10 @@ export class AzLoginTreeItem extends AzExtParentTreeItem {
       const extension: Extension<AzureAccount> | undefined =
         extensions.getExtension<AzureAccount>(azureAccountExtensionId);
       if (extension) {
-        try {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          if (
-            semver.lt(extension.packageJSON.version, minAccountExtensionVersion)
-          ) {
-            return "needsUpdate";
-          }
-        } catch {
-          // ignore and assume extension is up to date
+        if (
+          semver.lt(extension.packageJSON.version, minAccountExtensionVersion)
+        ) {
+          return "needsUpdate";
         }
 
         if (!extension.isActive) {
