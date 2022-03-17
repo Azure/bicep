@@ -302,6 +302,7 @@ export class DeployCommand implements Command {
           canSelectMany: false,
           defaultUri: sourceUri,
           openLabel: "Select Parameter File",
+          filters: { parameters: ["json", "jsonc"] },
         }
       );
       if (paramsPaths && paramsPaths.length == 1) {
