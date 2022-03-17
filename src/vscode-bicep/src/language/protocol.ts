@@ -19,7 +19,7 @@ export interface DeploymentGraphNode {
   range: Range;
   hasChildren: boolean;
   hasError: boolean;
-  filePath?: string;
+  filePath: string | null;
 }
 
 export interface DeploymentGraphEdge {
@@ -35,7 +35,7 @@ export interface DeploymentGraph {
 
 export const deploymentGraphRequestType = new ProtocolRequestType<
   DeploymentGraphParams,
-  DeploymentGraph | undefined,
+  DeploymentGraph | null,
   never,
   void,
   void
