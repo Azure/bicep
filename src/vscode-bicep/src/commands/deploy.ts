@@ -114,38 +114,40 @@ export class DeployCommand implements Command {
       // https://github.com/Azure/azure-sdk-for-net/issues/27263
       this.showWarningIfAzureAcountExtensionVersionIsLatest();
 
-      if (deploymentScope == "resourceGroup") {
-        await this.handleResourceGroupDeployment(
-          _context,
-          textDocument,
-          documentUri,
-          deploymentScope,
-          template
-        );
-      } else if (deploymentScope == "subscription") {
-        await this.handleSubscriptionDeployment(
-          _context,
-          textDocument,
-          documentUri,
-          deploymentScope,
-          template
-        );
-      } else if (deploymentScope == "managementGroup") {
-        await this.handleManagementGroupDeployment(
-          _context,
-          textDocument,
-          documentUri,
-          deploymentScope,
-          template
-        );
-      } else if (deploymentScope == "tenant") {
-        this.outputChannelManager.appendToOutputChannel(
-          "Tenant scope deployment is not currently supported."
-        );
-      } else {
-        this.outputChannelManager.appendToOutputChannel(
-          "Deployment failed. " + deploymentScopeResponse?.errorMessage
-        );
+      switch (deploymentScope) {
+        case "resourceGroup":
+          return await this.handleResourceGroupDeployment(
+            _context,
+            textDocument,
+            documentUri,
+            deploymentScope,
+            template
+          );
+        case "subscription":
+          return await this.handleSubscriptionDeployment(
+            _context,
+            textDocument,
+            documentUri,
+            deploymentScope,
+            template
+          );
+        case "managementGroup":
+        return await this.handleManagementGroupDeployment(
+            _context,
+            textDocument,
+            documentUri,
+            deploymentScope,
+            template
+          );
+        case "tenant":
+          this.outputChannelManager.appendToOutputChannel(
+            "Tenant scope deployment is not currently supported."
+          );
+          break;
+        default:
+          this.outputChannelManager.appendToOutputChannel(
+            "Deployment failed. " + deploymentScopeResponse?.errorMessage
+          );
       }
     } catch (exception) {
       if (exception instanceof UserCancelledError) {
