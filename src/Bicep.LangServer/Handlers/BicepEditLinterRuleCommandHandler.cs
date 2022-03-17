@@ -101,7 +101,7 @@ namespace Bicep.LanguageServer.Handlers
         /// </summary>
         /// <param name="ruleCode"></param>
         /// <param name="configFilePath"></param>
-        /// <returns>True if the rule exists and displaying/highlighting succeds, otherwise false.</returns>
+        /// <returns>True if the rule exists and displaying/highlighting succeeds, otherwise false.</returns>
         private async Task<bool> SelectRuleLevelIfExists(string ruleCode, string configFilePath)
         {
             // Inspect the JSON to figure out the location of the rule's level value

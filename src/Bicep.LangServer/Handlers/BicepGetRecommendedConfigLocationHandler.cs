@@ -26,12 +26,10 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepGetRecommendedConfigLocationHandler : IJsonRpcRequestHandler<BicepGetRecommendedConfigLocationParams, string>
     {
-        private readonly ILogger<BicepGetRecommendedConfigLocationHandler> logger;
         private readonly ILanguageServerFacade server;
 
-        public BicepGetRecommendedConfigLocationHandler(ILogger<BicepGetRecommendedConfigLocationHandler> logger, ILanguageServerFacade server)
+        public BicepGetRecommendedConfigLocationHandler(ILanguageServerFacade server)
         {
-            this.logger = logger;
             this.server = server;
         }
 

@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Configuration
 
             if (string.IsNullOrWhiteSpace(_json))
             {
-                return AppendToEndOfJson(Stringify(PropertyPathToObject(propertyPaths, valueIfNotExist), _indent));
+                return AppendToEndOfJson(Stringify(PropertyPathToObject(propertyPaths, valueIfNotExist)));
             }
 
             TextReader textReader = new StringReader(_json);
@@ -180,7 +180,7 @@ namespace Bicep.LanguageServer.Configuration
             return result;
         }
 
-        private string Stringify(object value, int indent)
+        private string Stringify(object value)
         {
             StringBuilder sb = new StringBuilder();
             TextWriter textWriter = new StringWriter(sb);
