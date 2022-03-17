@@ -75,10 +75,10 @@ namespace Bicep.LangServer.UnitTests.Handlers
             return s.Replace("\r\n", "\n");
         }
 
-        private static Mock<ILanguageServerFacade> CreateMockLanguageServer(Action<ShowDocumentParams, CancellationToken> callback, ShowDocumentResult result)
+        private static Mock<ILanguageServerFacade> CreateMockLanguageServer(Action<ShowDocumentParams, CancellationToken> callback, ShowDocumentResult result, Container<WorkspaceFolder>? workspaceFolders = null)
         {
-            var server = Repository.Create<ILanguageServerFacade>();
             var window = Repository.Create<IWindowLanguageServer>();
+
             window
                 .Setup(m => m.SendNotification(It.IsAny<LogMessageParams>()));
             window
@@ -90,9 +90,18 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 })
                 .ReturnsAsync(() => result);
 
+            var workspace = Repository.Create<IWorkspaceLanguageServer>();
+            workspace
+                .Setup(m => m.SendRequest<Container<WorkspaceFolder>?>(It.IsAny<WorkspaceFolderParams>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(() => workspaceFolders);
+
+            var server = Repository.Create<ILanguageServerFacade>();
             server
                 .Setup(m => m.Window)
                 .Returns(window.Object);
+            server
+                .Setup(m => m.Workspace)
+                .Returns(workspace.Object);
 
             return server;
         }
@@ -222,22 +231,31 @@ namespace Bicep.LangServer.UnitTests.Handlers
   }
 }";
 
-            var (bicepPath, configPath) = CreateFiles(null);
+            var rootFolder = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(rootFolder);
+
+            var bicepFolder = Path.Combine(rootFolder, "subfolder");
+            Directory.CreateDirectory(bicepFolder);
+            string bicepPath = Path.Combine(bicepFolder, "main.bicep");
+            File.WriteAllText(bicepPath, "var a = 'hello'");
+
+            string expectedConfigPath = Path.Join(rootFolder, "bicepconfig.json");
 
             string? selectedText = null;
             var server = CreateMockLanguageServer(
                 (ShowDocumentParams @params, CancellationToken token) =>
                 {
-                    @params.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+                    @params.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(expectedConfigPath.ToLowerInvariant());
                     selectedText = GetSelectedTextFromFile(@params.Uri, @params.Selection);
                 },
-                new ShowDocumentResult() { Success = true });
+                new ShowDocumentResult() { Success = true },
+                new Container<WorkspaceFolder>(new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
 
             BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object, TelemetryProvider);
-            await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
+            await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
-            NormalizeLineEndings(File.ReadAllText(configPath)).Should().Be(expectedConfig);
+            NormalizeLineEndings(File.ReadAllText(expectedConfigPath)).Should().Be(expectedConfig);
         }
     }
 }

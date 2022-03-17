@@ -24,7 +24,7 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles the internal command for code actions to edit a particular linter rule in the bicepconfig.json file
     /// </summary>
-    public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
+public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {
         private readonly string DefaultBicepConfig;
         private readonly ILanguageServerFacade server;
@@ -44,10 +44,8 @@ namespace Bicep.LanguageServer.Handlers
             if (string.IsNullOrEmpty(bicepConfigFilePath))
             {
                 // There is no configuration file currently - create one in the default location
-                var targetFolder = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, documentUri.GetFileSystemPath());
-                var directoryContainingSourceFile = Path.GetDirectoryName(documentUri.GetFileSystemPath()) ??
-                    throw new ArgumentException($"Unable to find directory information for {documentUri.GetFileSystemPath()}");
-                bicepConfigFilePath = Path.Combine(directoryContainingSourceFile, LanguageConstants.BicepConfigurationFileName);
+                var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, documentUri.GetFileSystemPath());
+                bicepConfigFilePath = Path.Combine(targetFolder, LanguageConstants.BicepConfigurationFileName);
             }
 
             if (!File.Exists(bicepConfigFilePath))
