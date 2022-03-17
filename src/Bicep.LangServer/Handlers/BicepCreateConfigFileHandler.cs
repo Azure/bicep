@@ -34,7 +34,6 @@ namespace Bicep.LanguageServer.Handlers
 
         public async Task<bool> Handle(BicepCreateConfigParams request, CancellationToken cancellationToken)
         {
-            string defaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             string? destinationPath = request.DestinationPath?.GetFileSystemPath();
             if (destinationPath is null)
             {
@@ -42,6 +41,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             this.logger.LogTrace($"Writing new configuration file to {destinationPath}");
+            string defaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             await File.WriteAllTextAsync(destinationPath, defaultBicepConfig);
             return true;
         }
