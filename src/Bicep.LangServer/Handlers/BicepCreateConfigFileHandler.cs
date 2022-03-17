@@ -26,12 +26,10 @@ namespace Bicep.LanguageServer.Handlers
     public class BicepCreateConfigFileHandler : IJsonRpcRequestHandler<BicepCreateConfigParams, bool>
     {
         private readonly ILogger<BicepCreateConfigFileHandler> logger;
-        private readonly ILanguageServerFacade server;
 
-        public BicepCreateConfigFileHandler(ILogger<BicepCreateConfigFileHandler> logger, ILanguageServerFacade server)
+        public BicepCreateConfigFileHandler(ILogger<BicepCreateConfigFileHandler> logger)
         {
             this.logger = logger;
-            this.server = server;
         }
 
         public async Task<bool> Handle(BicepCreateConfigParams request, CancellationToken cancellationToken)
