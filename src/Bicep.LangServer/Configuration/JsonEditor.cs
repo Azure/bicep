@@ -215,7 +215,6 @@ namespace Bicep.LanguageServer.Configuration
         private int GetIndentationOfLine(int line)
         {
             var startOfLine = _lineStarts[line];
-            var endOfLineExclusive = line < _lineStarts.Length - 1 ? _lineStarts[line + 1] : _json.Length;
             for (int i = startOfLine; i < _json.Length; ++i)
             {
                 char ch = _json[i];
