@@ -96,6 +96,7 @@ namespace Bicep.LanguageServer.Configuration
                     insertColumn = column + 1;
                     currentIndent = GetIndentationOfLine(line) + _indent; // use indent of line with the starting "{" as the nested indent level
 
+                    // We will insert before the first sibling
                     string propertyInsertion =
                         "\n" +
                         IndentEachLine(
@@ -104,6 +105,15 @@ namespace Bicep.LanguageServer.Configuration
                     if (hasSiblings)
                     {
                         propertyInsertion += ",";
+                    }
+
+                    // Need a newline after the insertion if there's anything else on the line
+                    var lineStarts = TextCoordinateConverter.GetLineStarts(_json);
+                    int offset = TextCoordinateConverter.GetOffset(lineStarts, line, column);
+                    char? charAfterInsertion = _json.Length > offset ? _json[offset + 1] : null;
+                    if (charAfterInsertion != '\n' && charAfterInsertion != '\r')
+                    {
+                        propertyInsertion += '\n';
                     }
 
                     return (insertLine, insertColumn, propertyInsertion);

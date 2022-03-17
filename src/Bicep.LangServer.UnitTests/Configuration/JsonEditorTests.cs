@@ -155,7 +155,8 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
       }
     }
-  }}");
+  }
+}");
         }
 
         [TestMethod]
