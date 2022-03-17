@@ -63,7 +63,7 @@ namespace Bicep.LanguageServer.Configuration
             if (jObject is null)
             {
                 // Just append to existing text
-                return AppendToEndOfJson(Stringify(PropertyPathToObject(propertyPaths, valueIfNotExist), _indent));
+                return AppendToEndOfJson(Stringify(PropertyPathToObject(propertyPaths, valueIfNotExist)));
             }
 
             JObject? currentObject = jObject;
@@ -180,14 +180,16 @@ namespace Bicep.LanguageServer.Configuration
             return result;
         }
 
-        private string Stringify(object value)
+        private string Stringify(object value, int? indent = null)
         {
+            indent ??= _indent;
+
             StringBuilder sb = new StringBuilder();
             TextWriter textWriter = new StringWriter(sb);
             JsonTextWriter jsonWriter = new(textWriter);
             jsonWriter.Formatting = Formatting.Indented;
             jsonWriter.IndentChar = ' ';
-            jsonWriter.Indentation = _indent;
+            jsonWriter.Indentation = indent.Value;
 
             new JsonSerializer().Serialize(jsonWriter, value);
 
