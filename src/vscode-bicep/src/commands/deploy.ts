@@ -88,7 +88,7 @@ export class DeployCommand implements Command {
 
       if (!template) {
         this.outputChannelManager.appendToOutputChannel(
-          "Deployment failed. " + deploymentScopeResponse?.errorMessage
+          "Unable to deploy. Please fix below errors:\n " + deploymentScopeResponse?.errorMessage
         );
         return;
       }
