@@ -259,12 +259,18 @@ export class DeployCommand implements Command {
 
   private async sendDeployCommand(
     textDocument: TextDocumentIdentifier,
-    parameterFilePath: string,
+    parameterFilePath: string | undefined,
     id: string,
     deploymentScope: string,
     location: string,
     template: string
   ) {
+    if (!parameterFilePath) {
+      this.outputChannelManager.appendToOutputChannel(
+        `No parameter file was provided`
+      );
+      parameterFilePath = "";
+    }
     const bicepDeployParams: BicepDeployParams = {
       textDocument,
       parameterFilePath,
@@ -284,7 +290,7 @@ export class DeployCommand implements Command {
   private async selectParameterFile(
     _context: IActionContext,
     sourceUri: Uri | undefined
-  ): Promise<string> {
+  ): Promise<string | undefined> {
     const quickPickItems: IAzureQuickPickItem[] =
       await this.createParameterFileQuickPickList();
     const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
@@ -314,11 +320,7 @@ export class DeployCommand implements Command {
       }
     }
 
-    this.outputChannelManager.appendToOutputChannel(
-      `No parameter file was provided`
-    );
-
-    return "";
+    return undefined;
   }
 
   private async createParameterFileQuickPickList(): Promise<
