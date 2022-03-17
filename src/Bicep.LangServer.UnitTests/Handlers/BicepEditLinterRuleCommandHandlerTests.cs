@@ -32,7 +32,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static readonly MockRepository Repository = new(MockBehavior.Strict);
         private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
-        private static readonly ITelemetryProvider TelemetryProvider = BicepTestConstants.CreateMockTelemetryProvider().Object;
 
         #region Support
 
@@ -139,7 +138,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object, TelemetryProvider);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             selectedText.Should().Be("no-unused-params-current-level", "rule's current level value should be selected when the config file is opened");
@@ -189,7 +188,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object, TelemetryProvider);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
@@ -209,7 +208,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object, TelemetryProvider);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
             await FluentActions
                 .Awaiting(() => bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None))
                 .Should()
@@ -251,7 +250,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new ShowDocumentResult() { Success = true },
                 new Container<WorkspaceFolder>(new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object, TelemetryProvider);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");

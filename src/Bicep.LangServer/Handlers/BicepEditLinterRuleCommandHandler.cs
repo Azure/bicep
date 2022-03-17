@@ -28,14 +28,12 @@ public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<
     {
         private readonly string DefaultBicepConfig;
         private readonly ILanguageServerFacade server;
-        private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
+        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server)
             : base(LanguageConstants.EditLinterRuleCommandName, serializer)
         {
             DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             this.server = server;
-            this.telemetryProvider = telemetryProvider;
         }
 
         public override async Task<Unit> Handle(DocumentUri documentUri, string ruleCode, string bicepConfigFilePath, CancellationToken cancellationToken)
