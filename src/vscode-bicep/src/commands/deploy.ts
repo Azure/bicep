@@ -132,7 +132,7 @@ export class DeployCommand implements Command {
             template
           );
         case "managementGroup":
-        return await this.handleManagementGroupDeployment(
+          return await this.handleManagementGroupDeployment(
             _context,
             textDocument,
             documentUri,

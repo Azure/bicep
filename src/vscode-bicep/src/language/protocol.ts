@@ -19,7 +19,7 @@ export interface DeploymentGraphNode {
   range: Range;
   hasChildren: boolean;
   hasError: boolean;
-  filePath: string | null;
+  filePath?: string;
 }
 
 export interface DeploymentGraphEdge {
@@ -35,7 +35,7 @@ export interface DeploymentGraph {
 
 export const deploymentGraphRequestType = new ProtocolRequestType<
   DeploymentGraphParams,
-  DeploymentGraph | null,
+  DeploymentGraph | undefined,
   never,
   void,
   void
@@ -52,13 +52,13 @@ export interface BicepDeploymentScopeParams {
 
 export interface BicepDeploymentScopeResponse {
   scope: string;
-  template: string | null;
-  errorMessage: string | null;
+  template?: string;
+  errorMessage?: string;
 }
 
 export const deploymentScopeRequestType = new ProtocolRequestType<
   BicepDeploymentScopeParams,
-  BicepDeploymentScopeResponse | null,
+  BicepDeploymentScopeResponse | undefined,
   never,
   void,
   void
