@@ -53,7 +53,7 @@ export class DeployCommand implements Command {
 
   public async execute(
     _context: IActionContext,
-    documentUri?: vscode.Uri | undefined
+    documentUri: vscode.Uri | undefined
   ): Promise<void> {
     documentUri ??= vscode.window.activeTextEditor?.document.uri;
 
