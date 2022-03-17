@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as path from "path";
-import vscode, { Uri } from "vscode";
+import * as semver from "semver";
+import vscode, { Extension, extensions, Uri } from "vscode";
 import {
   LanguageClient,
   TextDocumentIdentifier,
@@ -15,6 +16,7 @@ import {
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 
+import { AzureAccount } from "../azure/types";
 import {
   BicepDeployParams,
   bicepDeployRequestType,
@@ -37,6 +39,9 @@ export class DeployCommand implements Command {
     label: localize("browse", "$(file-directory) Browse..."),
     data: undefined,
   };
+  private _azureAccountExtensionId = "ms-vscode.azure-account";
+  private _doNotShowAzureAccountExtensionVersionWarning = false;
+  private _doNotShowAgainMessage = "Don't show again";
 
   public readonly id = "bicep.deploy";
 
@@ -104,6 +109,10 @@ export class DeployCommand implements Command {
         "",
         _context
       );
+
+      // Remove when the below issue is resolved:
+      // https://github.com/Azure/azure-sdk-for-net/issues/27263
+      this.showWarningIfAzureAcountExtensionVersionIsLatest();
 
       if (deploymentScope == "resourceGroup") {
         await this.handleResourceGroupDeployment(
@@ -313,5 +322,27 @@ export class DeployCommand implements Command {
     IAzureQuickPickItem[]
   > {
     return [this._none].concat([this._browse]);
+  }
+
+  private showWarningIfAzureAcountExtensionVersionIsLatest() {
+    const extension: Extension<AzureAccount> | undefined =
+      extensions.getExtension<AzureAccount>(this._azureAccountExtensionId);
+    if (extension) {
+      const version: string = extension.packageJSON.version;
+      if (!this._doNotShowAzureAccountExtensionVersionWarning) {
+        if (semver.gte(version, "0.10.0")) {
+          vscode.window
+            .showInformationMessage(
+              `Detected ${version} version of Azure Account extension. If you encounter issues while signing into azure, please downgrade the version to 0.9.11 and try again.`,
+              this._doNotShowAgainMessage
+            )
+            .then((selection) => {
+              if (selection == this._doNotShowAgainMessage) {
+                this._doNotShowAzureAccountExtensionVersionWarning = true;
+              }
+            });
+        }
+      }
+    }
   }
 }

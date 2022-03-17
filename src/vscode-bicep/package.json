@@ -77,6 +77,11 @@
           "description": "Prepend each line displayed in the Bicep Operations output channel with a timestamp.",
           "default": true,
           "$comment": "This is used by vscode-azuretools package and has to be in the following format: <extensionPrefix>.enableOutputTimestamps"
+        },
+        "bicep.enableDeploy": {
+          "type": "boolean",
+          "description": "(EXPERIMENTAL) Enable/disable Bicep Deploy feature",
+          "default": false
         }
       }
     },
@@ -203,7 +208,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
           "group": "navigation"
         }
       ],
@@ -225,7 +230,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
           "group": "1_build"
         }
       ],
@@ -237,7 +242,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
           "group": "navigation"
         },
         {
@@ -259,7 +264,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "editorLangId == bicep && commandsRegistered",
+          "when": "editorLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
           "group": "navigation"
         },
         {
