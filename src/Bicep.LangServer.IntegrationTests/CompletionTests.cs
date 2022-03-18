@@ -1421,7 +1421,7 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 
 var outTest = abc.listWithInput('2020-01-01', {
   withInputInputVal: 'hello'
-  optionalLiteralVal: true ? |
+  optionalLiteralVal: true ? | : 'or'
 })
 ", @"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
@@ -1430,7 +1430,26 @@ resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
 
 var outTest = abc.listWithInput('2020-01-01', {
   withInputInputVal: 'hello'
-  optionalLiteralVal: true ? 'either'|
+  optionalLiteralVal: true ? 'either'| : 'or'
+})
+")]
+        [DataRow(@"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: true ? 'or' : | 
+})
+", @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: true ? 'or' : 'either'| 
 })
 ")]
         [DataRow(@"
