@@ -32,6 +32,13 @@ export class AzManagementGroupTreeItem extends AzExtParentTreeItem {
     );
 
     const managementGroupInfos = managementGroupsAPI.managementGroups.list();
+
+    if (managementGroupInfos.byPage.length == 0) {
+      throw new Error(
+        "You do not have access to any management group. Please create one in azure portal and try deploy again"
+      );
+    }
+
     const managementGroupInfoList: ManagementGroupInfo[] =
       await uiUtils.listAllIterator(managementGroupInfos);
 

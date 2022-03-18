@@ -166,8 +166,6 @@ export class DeployCommand implements Command {
         this.outputChannelManager.appendToOutputChannel(
           "Deployment was canceled."
         );
-      } else {
-        this.client.error("Deploy failed", parseError(exception).message, true);
       }
 
       throw exception;
@@ -181,12 +179,21 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string
   ) {
-    const managementGroupTreeItem =
-      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
-        "",
-        context
+    let managementGroupTreeItem: LocationTreeItem | undefined;
+    try {
+      managementGroupTreeItem =
+        await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
+          "",
+          context
+        );
+    } catch (exception) {
+      this.outputChannelManager.appendToOutputChannel(
+        "Deployment failed. " + parseError(exception).message
       );
-    const managementGroupId = managementGroupTreeItem.id;
+
+      throw exception;
+    }
+    const managementGroupId = managementGroupTreeItem?.id;
 
     if (managementGroupId) {
       const location = await vscode.window.showInputBox({
