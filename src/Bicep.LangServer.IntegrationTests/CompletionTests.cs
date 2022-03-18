@@ -1375,10 +1375,8 @@ var outTest = abc.listWithInput('2020-01-01', {
 ");
         }
 
-        [TestMethod]
-        public async Task List_functions_accepting_inputs_permit_object_value_completions()
-        {
-            var fileWithCursors = @"
+        [DataTestMethod]
+        [DataRow(@"
 resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
   name: 'abc'
 }
@@ -1387,8 +1385,75 @@ var outTest = abc.listWithInput('2020-01-01', {
   withInputInputVal: 'hello'
   optionalLiteralVal: |
 })
-";
+", @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
 
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: 'either'|
+})
+")]
+        [DataRow(@"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: (|)
+})
+", @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: ('either'|)
+})
+")]
+        [DataRow(@"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: true ? |
+})
+", @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: true ? 'either'|
+})
+")]
+        [DataRow(@"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: true ? 'or' : (true ? |)
+})
+", @"
+resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
+  name: 'abc'
+}
+
+var outTest = abc.listWithInput('2020-01-01', {
+  withInputInputVal: 'hello'
+  optionalLiteralVal: true ? 'or' : (true ? 'either'|)
+})
+")]
+        public async Task List_functions_accepting_inputs_permit_object_value_completions(string fileWithCursors, string updatedFileWithCursors)
+        {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
             using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
@@ -1398,16 +1463,7 @@ var outTest = abc.listWithInput('2020-01-01', {
             completions.Should().Contain(x => x.Label == "'or'");
 
             var updatedFile = ApplyCompletion(bicepFile, completions.Single(x => x.Label == "'either'"));
-            updatedFile.Should().HaveSourceText(@"
-resource abc 'Test.Rp/listFuncTests@2020-01-01' existing = {
-  name: 'abc'
-}
-
-var outTest = abc.listWithInput('2020-01-01', {
-  withInputInputVal: 'hello'
-  optionalLiteralVal: 'either'|
-})
-");
+            updatedFile.Should().HaveSourceText(updatedFileWithCursors);
         }
 
         [TestMethod]
