@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11202647491466524907"
+      "templateHash": "7810581404482823751"
     }
   },
   "parameters": {
@@ -73,8 +73,7 @@
         "state": "[parameters('transparentDataEncryption')]"
       },
       "dependsOn": [
-        "db",
-        "sqlServer"
+        "db"
       ]
     }
   }
