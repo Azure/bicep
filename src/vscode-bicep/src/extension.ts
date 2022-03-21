@@ -3,10 +3,7 @@
 import vscode from "vscode";
 
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
-import {
-  createAzExtOutputChannel,
-  registerUIExtensionVariables,
-} from "@microsoft/vscode-azext-utils";
+import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
 
 import {
   BuildCommand,
@@ -28,6 +25,7 @@ import {
   Disposable,
   resetLogger,
 } from "./utils";
+import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { BicepVisualizerViewManager } from "./visualizer";
 

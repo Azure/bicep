@@ -30,6 +30,7 @@ import { TreeManager } from "../tree/TreeManager";
 import { localize } from "../utils/localize";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { Command } from "./types";
+import { TokenCredential } from "@azure/identity";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -293,20 +294,36 @@ export class DeployCommand implements Command {
       );
       parameterFilePath = "";
     }
-    const bicepDeployParams: BicepDeployParams = {
-      textDocument,
-      parameterFilePath,
-      id,
-      deploymentScope,
-      location,
-      template,
-    };
-    const deploymentResponse: string = await this.client.sendRequest(
-      bicepDeployRequestType,
-      bicepDeployParams
-    );
 
-    this.outputChannelManager.appendToOutputChannel(deploymentResponse);
+    const azureAccountExtension: Extension<AzureAccount> | undefined =
+      extensions.getExtension<AzureAccount>(this._azureAccountExtensionId);
+
+    if (azureAccountExtension) {
+      const tokenCredentials = azureAccountExtension?.exports.sessions[0]
+        .credentials2 as TokenCredential;
+      const accessToken = await tokenCredentials.getToken([]);
+
+      if (accessToken != null) {
+        const token = accessToken.token;
+        const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+
+        const bicepDeployParams: BicepDeployParams = {
+          textDocument,
+          parameterFilePath,
+          id,
+          deploymentScope,
+          location,
+          template,
+          token,
+          expiresOnTimestamp,
+        };
+        const deploymentResponse: string = await this.client.sendRequest(
+          bicepDeployRequestType,
+          bicepDeployParams
+        );
+        this.outputChannelManager.appendToOutputChannel(deploymentResponse);
+      }
+    }
   }
 
   private async selectParameterFile(

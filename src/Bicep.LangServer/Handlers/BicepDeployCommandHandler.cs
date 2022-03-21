@@ -16,7 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace Bicep.LanguageServer.Handlers
 {
     [Method(BicepDeployCommandHandler.MethodName, Direction.ClientToServer)]
-    public record BicepDeployParams(TextDocumentIdentifier textDocument, string parameterFilePath, string id, string deploymentScope, string location, string template) : IRequest<string>;
+    public record BicepDeployParams(TextDocumentIdentifier textDocument, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp) : IRequest<string>;
 
     public class BicepDeployCommandHandler : IJsonRpcRequestHandler<BicepDeployParams, string>
     {
@@ -41,6 +41,10 @@ namespace Bicep.LanguageServer.Handlers
             DocumentUri documentUri = request.textDocument.Uri;
             var configuration = configurationManager.GetConfiguration(documentUri.ToUri());
             var credential = this.credentialFactory.CreateChain(ImmutableArray.Create(CredentialType.VisualStudioCode), configuration.Cloud.ActiveDirectoryAuthorityUri);
+
+            var credential1 = new DeployCredentials(request.token, request.expiresOnTimestamp);
+            var armClient1 = new ArmClient(credential1);
+
             var armClient = new ArmClient(credential);
 
             string deploymentOutput = await DeploymentHelper.CreateDeployment(
