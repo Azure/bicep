@@ -354,7 +354,6 @@
     "@azure/arm-subscriptions": "^5.0.0",
     "@azure/identity": "^2.0.4",
     "@azure/ms-rest-azure-env": "^2.0.0",
-    "@azure/ms-rest-nodeauth": "^3.1.1",
     "@microsoft/vscode-azext-azureutils": "^0.1.2",
     "@microsoft/vscode-azext-utils": "^0.1.0",
     "cytoscape": "^3.20.0",

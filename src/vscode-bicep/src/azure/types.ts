@@ -5,7 +5,6 @@ import { Event } from "vscode";
 import { TokenCredential } from "@azure/identity";
 import { Environment } from "@azure/ms-rest-azure-env";
 
-import type { TokenCredentialsBase } from "@azure/ms-rest-nodeauth";
 // https://github.com/microsoft/vscode-azure-account/blob/main/src/azure-account.api.d.ts
 // with just the properties we need
 export interface AzureAccount {
