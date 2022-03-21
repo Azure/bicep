@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Text;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
@@ -27,9 +28,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
-
-        private static readonly MockRepository Repository = new(MockBehavior.Strict);
-        private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
 
         #region Support
 
@@ -69,7 +67,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private static Mock<ILanguageServerFacade> CreateMockLanguageServer(Action<ShowDocumentParams, CancellationToken> callback, ShowDocumentResult result, Container<WorkspaceFolder>? workspaceFolders = null)
         {
-            var window = Repository.Create<IWindowLanguageServer>();
+            var window = StrictMock.Of<IWindowLanguageServer>();
 
             window
                 .Setup(m => m.SendNotification(It.IsAny<LogMessageParams>()));
@@ -82,12 +80,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 })
                 .ReturnsAsync(() => result);
 
-            var workspace = Repository.Create<IWorkspaceLanguageServer>();
+            var workspace = StrictMock.Of<IWorkspaceLanguageServer>();
             workspace
                 .Setup(m => m.SendRequest<Container<WorkspaceFolder>?>(It.IsAny<WorkspaceFolderParams>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => workspaceFolders);
 
-            var server = Repository.Create<ILanguageServerFacade>();
+            var server = StrictMock.Of<ILanguageServerFacade>();
             server
                 .Setup(m => m.Window)
                 .Returns(window.Object);
@@ -131,7 +129,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             selectedText.Should().Be("no-unused-params-current-level", "rule's current level value should be selected when the config file is opened");
@@ -181,7 +179,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
@@ -201,7 +199,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await FluentActions
                 .Awaiting(() => bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None))
                 .Should()
@@ -243,7 +241,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new ShowDocumentResult() { Success = true },
                 new Container<WorkspaceFolder>(new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
