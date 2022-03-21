@@ -30,7 +30,7 @@ namespace Bicep.Core.Semantics.Namespaces
         public const string lastDescription = "Returns the last element of the array, or last character of the string.";
         public const string minDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
         public const string maxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
-        
+
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
             BicepProviderName: BuiltInName,
@@ -212,7 +212,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription(containsDescription)
-                .WithDescription("Checks whether an array contains a value.")
+                .WithDescription("Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
                 .Build(),
@@ -288,11 +288,25 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                 .Build(),
 
+            new FunctionOverloadBuilder("indexOf")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Returns the first position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
+                .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
+                .Build(),
+
             new FunctionOverloadBuilder("lastIndexOf")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the last position of a value within a string. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
+                .Build(),
+
+            new FunctionOverloadBuilder("lastIndexOf")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Returns the last position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
+                .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
                 .Build(),
 
             new FunctionOverloadBuilder("startsWith")
@@ -741,7 +755,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
                         allowedValues.Items.All(item => item.Value is not ArraySyntax))
                     {
-                        /* 
+                        /*
                          * ARM handles array params with allowed values differently. If none of items of
                          * the allowed values is array, it will check if the parameter value is a subset
                          * of the allowed values.

@@ -240,7 +240,8 @@ namespace Bicep.LanguageServer.Handlers
                     resourceId.FullyQualifiedId,
                     resourceId.FormatFullyQualifiedType(),
                     resourceId.FormatName(),
-                    resourceId.NameHierarchy.Last());
+                    resourceId.NameHierarchy.Last(),
+                    string.Empty);
             }
 
             var rgRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant;
@@ -252,7 +253,8 @@ namespace Bicep.LanguageServer.Handlers
                     resourceIdString,
                     "Microsoft.Resources/resourceGroups",
                     rgRegexMatch.Groups["rgName"].Value,
-                    rgRegexMatch.Groups["rgName"].Value);
+                    rgRegexMatch.Groups["rgName"].Value,
+                    rgRegexMatch.Groups["subId"].Value);
             }
 
             return null;
