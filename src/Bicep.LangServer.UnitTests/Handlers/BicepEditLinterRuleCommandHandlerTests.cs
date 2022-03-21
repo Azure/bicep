@@ -7,11 +7,9 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -55,23 +53,18 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private string? GetSelectedTextFromFile(DocumentUri uri, Range? range)
         {
-            var contents = File.ReadAllText(uri.GetFileSystemPath());
             if (range is null)
             {
                 return null;
             }
 
+            var contents = File.ReadAllText(uri.GetFileSystemPath());
             var lineStarts = TextCoordinateConverter.GetLineStarts(contents);
             var start = TextCoordinateConverter.GetOffset(lineStarts, range.Start.Line, range.Start.Character);
             var end = TextCoordinateConverter.GetOffset(lineStarts, range.End.Line, range.End.Character);
 
             var selectedText = contents.Substring(start, end - start);
             return selectedText;
-        }
-
-        private string NormalizeLineEndings(string s)
-        {
-            return s.Replace("\r\n", "\n");
         }
 
         private static Mock<ILanguageServerFacade> CreateMockLanguageServer(Action<ShowDocumentParams, CancellationToken> callback, ShowDocumentResult result, Container<WorkspaceFolder>? workspaceFolders = null)
@@ -192,7 +185,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
-            NormalizeLineEndings(File.ReadAllText(configPath)).Should().Be(expectedConfig);
+            File.ReadAllText(configPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
         }
 
         [TestMethod]
@@ -254,7 +247,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
-            NormalizeLineEndings(File.ReadAllText(expectedConfigPath)).Should().Be(expectedConfig);
+            File.ReadAllText(expectedConfigPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
         }
     }
 }
