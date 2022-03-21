@@ -59,7 +59,7 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
 
   private removePropertiesWithPossibleUserInfo(value: string) {
     const deployParamsPattern = new RegExp(
-      '.*"token":\\s*(?<token>.*)\\s*.*"expiresOnTimestamp":\\s*(?<expiresOnTimestamp>.*)\\s*.*'
+      '.*"token":\\s*"(?<token>.*)",\\s.*"expiresOnTimestamp":\\s*"(?<expiresOnTimestamp>.*)".*'
     );
     const matches = deployParamsPattern.exec(value);
 
@@ -70,10 +70,10 @@ class AzExtOutputChannel implements IAzExtOutputChannel {
         const token = groups["token"];
         const expiresOnTimestamp = groups["expiresOnTimestamp"];
 
-        let updatedValue = value.replace(token, '"<REDACTED: token>"');
+        let updatedValue = value.replace(token, "<REDACTED: token>");
         updatedValue = updatedValue.replace(
           expiresOnTimestamp,
-          '"<REDACTED: expiresOnTimestamp>"'
+          "<REDACTED: expiresOnTimestamp>"
         );
 
         return updatedValue;
