@@ -21,7 +21,11 @@ describe("bicep.createConfigFile", (): void => {
     );
 
     if (!newConfigPath) {
-      throw new Error(`Language server returned ${String(newConfigPath)} for bicep.createConfigFile`);
+      throw new Error(
+        `Language server returned ${String(
+          newConfigPath
+        )} for bicep.createConfigFile`
+      );
     }
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     newConfigPath = newConfigPath!;
