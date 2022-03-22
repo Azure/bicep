@@ -454,7 +454,7 @@ namespace Bicep.LangServer.UnitTests.Configuration
         }
 
         [TestMethod]
-        public void FollowsExistingFormatting2()
+        public void FollowsExistingFormatting_WithinRulesSection()
         {
             TestInsertion(
                 @"{

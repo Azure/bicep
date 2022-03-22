@@ -7,11 +7,10 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Handlers;
-using Bicep.LanguageServer.Telemetry;
 using FluentAssertions;
 using MediatR;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,9 +28,6 @@ namespace Bicep.LangServer.UnitTests.Handlers
     {
         [NotNull]
         public TestContext? TestContext { get; set; }
-
-        private static readonly MockRepository Repository = new(MockBehavior.Strict);
-        private static readonly ISerializer Serializer = Repository.Create<ISerializer>().Object;
 
         #region Support
 
@@ -55,12 +51,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private string? GetSelectedTextFromFile(DocumentUri uri, Range? range)
         {
-            var contents = File.ReadAllText(uri.GetFileSystemPath());
             if (range is null)
             {
                 return null;
             }
 
+            var contents = File.ReadAllText(uri.GetFileSystemPath());
             var lineStarts = TextCoordinateConverter.GetLineStarts(contents);
             var start = TextCoordinateConverter.GetOffset(lineStarts, range.Start.Line, range.Start.Character);
             var end = TextCoordinateConverter.GetOffset(lineStarts, range.End.Line, range.End.Character);
@@ -69,14 +65,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
             return selectedText;
         }
 
-        private string NormalizeLineEndings(string s)
-        {
-            return s.Replace("\r\n", "\n");
-        }
-
         private static Mock<ILanguageServerFacade> CreateMockLanguageServer(Action<ShowDocumentParams, CancellationToken> callback, ShowDocumentResult result, Container<WorkspaceFolder>? workspaceFolders = null)
         {
-            var window = Repository.Create<IWindowLanguageServer>();
+            var window = StrictMock.Of<IWindowLanguageServer>();
 
             window
                 .Setup(m => m.SendNotification(It.IsAny<LogMessageParams>()));
@@ -89,12 +80,12 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 })
                 .ReturnsAsync(() => result);
 
-            var workspace = Repository.Create<IWorkspaceLanguageServer>();
+            var workspace = StrictMock.Of<IWorkspaceLanguageServer>();
             workspace
                 .Setup(m => m.SendRequest<Container<WorkspaceFolder>?>(It.IsAny<WorkspaceFolderParams>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(() => workspaceFolders);
 
-            var server = Repository.Create<ILanguageServerFacade>();
+            var server = StrictMock.Of<ILanguageServerFacade>();
             server
                 .Setup(m => m.Window)
                 .Returns(window.Object);
@@ -138,7 +129,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
 
             selectedText.Should().Be("no-unused-params-current-level", "rule's current level value should be selected when the config file is opened");
@@ -188,11 +179,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
-            NormalizeLineEndings(File.ReadAllText(configPath)).Should().Be(expectedConfig);
+            File.ReadAllText(configPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
         }
 
         [TestMethod]
@@ -208,7 +199,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 },
                 new ShowDocumentResult() { Success = true });
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await FluentActions
                 .Awaiting(() => bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", configPath, CancellationToken.None))
                 .Should()
@@ -250,11 +241,11 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 new ShowDocumentResult() { Success = true },
                 new Container<WorkspaceFolder>(new WorkspaceFolder[] { new() { Name = "my workspace", Uri = DocumentUri.File(rootFolder) } }));
 
-            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(Serializer, server.Object);
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object);
             await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "whatever", "", CancellationToken.None);
 
             selectedText.Should().Be("warning", "new rule's level value should be selected when the config file is opened");
-            NormalizeLineEndings(File.ReadAllText(expectedConfigPath)).Should().Be(expectedConfig);
+            File.ReadAllText(expectedConfigPath).Should().BeEquivalentToIgnoringNewlines(expectedConfig);
         }
     }
 }

@@ -192,7 +192,7 @@
   },
   {
     "name": "contains",
-    "description": "Checks whether an array contains a value.",
+    "description": "Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
     "fixedParameters": [
       {
         "name": "array",
@@ -465,6 +465,32 @@
     ]
   },
   {
+    "name": "indexOf",
+    "description": "Returns the first position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array that contains the item to find.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "itemToFind",
+        "description": "The value to find.",
+        "type": "any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, itemToFind: any): int",
+    "parameterTypeSignatures": [
+      "array: array",
+      "itemToFind: any"
+    ]
+  },
+  {
     "name": "int",
     "description": "Converts the specified value to an integer.",
     "fixedParameters": [
@@ -617,6 +643,32 @@
     "parameterTypeSignatures": [
       "stringToSearch: string",
       "stringToFind: string"
+    ]
+  },
+  {
+    "name": "lastIndexOf",
+    "description": "Returns the last position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array that contains the item to find.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "itemToFind",
+        "description": "The value to find.",
+        "type": "any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, itemToFind: any): int",
+    "parameterTypeSignatures": [
+      "array: array",
+      "itemToFind: any"
     ]
   },
   {

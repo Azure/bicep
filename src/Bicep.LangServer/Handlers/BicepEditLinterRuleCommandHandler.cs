@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.LanguageServer.Configuration;
-using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -24,7 +23,7 @@ namespace Bicep.LanguageServer.Handlers
     /// <summary>
     /// Handles the internal command for code actions to edit a particular linter rule in the bicepconfig.json file
     /// </summary>
-public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
+    public class BicepEditLinterRuleCommandHandler : ExecuteTypedCommandHandlerBase<DocumentUri, string, string>
     {
         private readonly string DefaultBicepConfig;
         private readonly ILanguageServerFacade server;
