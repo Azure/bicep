@@ -20,7 +20,9 @@ describe("bicep.createConfigFile", (): void => {
       Uri.file(fakeBicepPath)
     );
 
-    expect(newConfigPath).toBeDefined();
+    if (!newConfigPath) {
+      throw new Error(`Language server returned ${String(newConfigPath)} for bicep.createConfigFile`);
+    }
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     newConfigPath = newConfigPath!;
 
