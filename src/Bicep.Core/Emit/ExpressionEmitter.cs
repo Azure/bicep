@@ -6,9 +6,11 @@ using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
+using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
+using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -25,11 +27,11 @@ namespace Bicep.Core.Emit
             SingleStringHandling = ExpressionSerializerSingleStringHandling.SerializeAsString
         });
 
-        private readonly JsonTextWriter writer;
+        private readonly PositionTrackingJsonTextWriter writer;
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public ExpressionEmitter(JsonTextWriter writer, EmitterContext context)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
         {
             this.writer = writer;
             this.context = context;
@@ -330,6 +332,8 @@ namespace Bicep.Core.Emit
             {
                 // property whose value is not a for-expression
 
+                int currentLine = this.writer.CurrentLine;
+
                 if (propertySyntax.TryGetKeyText() is string keyName)
                 {
                     if (propertiesToOmit?.Contains(keyName) == true)
@@ -343,6 +347,13 @@ namespace Bicep.Core.Emit
                 {
                     EmitProperty(propertySyntax.Key, propertySyntax.Value);
                 }
+
+                int propertyPosition = propertySyntax.GetPosition();
+                int propertyEndPosition = propertySyntax.GetEndPosition();
+
+                (int bicepStartLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, propertyPosition);
+                (int bicepEndline, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, propertyEndPosition);
+                // TODO: add to source map
             }
         }
 
