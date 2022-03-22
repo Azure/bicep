@@ -23,6 +23,7 @@ import {
   deploymentScopeRequestType,
 } from "../language";
 import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
 import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
 import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { TreeManager } from "../tree/TreeManager";
@@ -166,8 +167,6 @@ export class DeployCommand implements Command {
         this.outputChannelManager.appendToOutputChannel(
           "Deployment was canceled."
         );
-      } else {
-        this.client.error("Deploy failed", parseError(exception).message, true);
       }
 
       throw exception;
@@ -181,12 +180,21 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string
   ) {
-    const managementGroupTreeItem =
-      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
-        "",
-        context
+    let managementGroupTreeItem: AzManagementGroupTreeItem | undefined;
+    try {
+      managementGroupTreeItem =
+        await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
+          "",
+          context
+        );
+    } catch (exception) {
+      this.outputChannelManager.appendToOutputChannel(
+        "Deployment failed. " + parseError(exception).message
       );
-    const managementGroupId = managementGroupTreeItem.id;
+
+      throw exception;
+    }
+    const managementGroupId = managementGroupTreeItem?.id;
 
     if (managementGroupId) {
       const location = await vscode.window.showInputBox({
