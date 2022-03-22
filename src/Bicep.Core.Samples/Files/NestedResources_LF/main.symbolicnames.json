@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15395751030098486023"
+      "templateHash": "6831743105336050792"
     }
   },
   "parameters": {
@@ -37,8 +37,7 @@
         "style": "[reference('basicChild').style]"
       },
       "dependsOn": [
-        "basicChild",
-        "basicParent"
+        "basicChild"
       ]
     },
     "basicChild": {
@@ -91,8 +90,7 @@
         "style": "[reference('conditionChild').style]"
       },
       "dependsOn": [
-        "conditionChild",
-        "conditionParent"
+        "conditionChild"
       ]
     },
     "conditionChild": {

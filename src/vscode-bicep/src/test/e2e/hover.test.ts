@@ -154,8 +154,10 @@ describe("hover", (): void => {
     });
   }
 
-  function normalizeMarkedString(markedString: vscode.MarkedString): string {
-    return typeof markedString === "string" ? markedString : markedString.value;
+  function normalizeMarkedString(
+    content: vscode.MarkedString | vscode.MarkdownString
+  ): string {
+    return typeof content === "string" ? content : content.value;
   }
 
   function codeblock(rawString: string): string {

@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
@@ -14,7 +13,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using JetBrains.Annotations;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit

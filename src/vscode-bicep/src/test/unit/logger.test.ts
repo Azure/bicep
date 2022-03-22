@@ -28,6 +28,7 @@ const mockWinstonLogger = {
 const mockWorkspaceState: vscode.Memento = {
   get: jest.fn(),
   update: jest.fn(),
+  keys: jest.fn(),
 };
 const mockGlobalstate = { ...mockWorkspaceState, setKeysForSync: jest.fn() };
 const mockContext = {
@@ -48,6 +49,7 @@ const mockOutputChannel: vscode.OutputChannel = {
   dispose: jest.fn(),
   hide: jest.fn(),
   show: jest.fn(),
+  replace: jest.fn(),
 };
 
 const { createLogger, getLogger, resetLogger, WinstonLogger } =
