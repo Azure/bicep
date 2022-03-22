@@ -18,6 +18,8 @@ namespace Bicep.Core.Emit
 
             public List<int> CommaPositions = new();
 
+        private string _debugString = string.Empty;
+
         public PositionTrackingTextWriter(TextWriter textWriter)
         {
             _internalWriter = textWriter;
@@ -33,6 +35,7 @@ namespace Bicep.Core.Emit
             }
 
             _internalWriter.Write(value);
+            _debugString += value;
 
             CurrentPos++;
 
