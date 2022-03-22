@@ -35,7 +35,7 @@ export class AzManagementGroupTreeItem extends AzExtParentTreeItem {
 
     if (managementGroupInfos.byPage.length == 0) {
       throw new Error(
-        "You do not have access to any management group. Please create one in azure portal and try deploy again"
+        "You do not have access to any management group. Please create one in the Azure portal and try to deploy again."
       );
     }
 
