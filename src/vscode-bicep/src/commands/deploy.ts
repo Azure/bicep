@@ -23,6 +23,7 @@ import {
   deploymentScopeRequestType,
 } from "../language";
 import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
 import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
 import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { TreeManager } from "../tree/TreeManager";
@@ -179,10 +180,10 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string
   ) {
-    let managementGroupTreeItem: LocationTreeItem | undefined;
+    let managementGroupTreeItem: AzManagementGroupTreeItem | undefined;
     try {
       managementGroupTreeItem =
-        await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
+        await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
           "",
           context
         );

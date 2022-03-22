@@ -31,19 +31,20 @@ export class AzManagementGroupTreeItem extends AzExtParentTreeItem {
       new DefaultAzureCredential()
     );
 
-    const managementGroupInfos = managementGroupsAPI.managementGroups.list();
+    let managementGroupInfos: ManagementGroupInfo[] = [];
 
-    if (managementGroupInfos.byPage.length == 0) {
+    try {
+      managementGroupInfos = await uiUtils.listAllIterator(
+        managementGroupsAPI.managementGroups.list()
+      );
+    } catch (error) {
       throw new Error(
-        "You do not have access to any management group. Please create one in the Azure portal and try to deploy again."
+        "You do not have access to any management group. Please create one in the Azure portal and try to deploy again"
       );
     }
 
-    const managementGroupInfoList: ManagementGroupInfo[] =
-      await uiUtils.listAllIterator(managementGroupInfos);
-
     return await this.createTreeItemsWithErrorHandling(
-      managementGroupInfoList,
+      managementGroupInfos,
       "invalidManagementGroup",
       (mg) => new GenericAzExtTreeItem(this, mg.id, mg.name),
       (mg) => mg.name
