@@ -9,27 +9,31 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
 {
+    public class PositionTrackingTextWriter : TextWriter
     {
-
-
-        private class PositionTrackingTextWriter : TextWriter
-        {
-            private readonly TextWriter internalWriter;
 
         public int CurrentPos;
         public int CurrentLine;
 
+        private readonly TextWriter _internalWriter;
+        private bool _endOfLine;
 
         public PositionTrackingTextWriter(TextWriter textWriter)
         {
+            _internalWriter = textWriter;
         }
 
+        public override Encoding Encoding => _internalWriter.Encoding;
 
         public override void Write(char value)
         {
+            if (_endOfLine)
             {
+                CurrentPos = 0;
+                CurrentLine++;
             }
 
+            _internalWriter.Write(value);
 
             CurrentPos++;
 
@@ -40,8 +44,12 @@ namespace Bicep.Core.Emit
         }
     }
 
+    public class PositionTrackingJsonTextWriter : JsonTextWriter
+    {
         public int CurrentPos => _trackingWriter.CurrentPos;
+        public int CurrentLine => _trackingWriter.CurrentLine;
         
+        private PositionTrackingTextWriter _trackingWriter;
 
         public static PositionTrackingJsonTextWriter Create(TextWriter textWriter)
         {

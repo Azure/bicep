@@ -123,8 +123,8 @@ namespace Bicep.Core.Emit
         private (Template, JToken) GenerateTemplateWithoutHash()
         {
             using var stringWriter = new StringWriter();
-            using var jsonWriter = PositionTrackingJsonTextWriter.Create(stringWriter);
-            var emitter = new ExpressionEmitter(jsonWriter, this.context, this.rawSourceMap);
+            using var jsonWriter = new ArmJsonTextWriter(stringWriter);
+            var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
 
