@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as path from "path";
-import * as semver from "semver";
-import vscode, { Extension, extensions, Uri } from "vscode";
+import vscode, { Uri } from "vscode";
 import { AccessToken } from "@azure/identity";
 import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
 import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { AzureAccount } from "../azure/types";
 import { Command } from "./types";
 import { localize } from "../utils/localize";
 import { LocationTreeItem } from "../tree/LocationTreeItem";
@@ -43,9 +41,6 @@ export class DeployCommand implements Command {
     label: localize("browse", "$(file-directory) Browse..."),
     data: undefined,
   };
-  private _azureAccountExtensionId = "ms-vscode.azure-account";
-  private _doNotShowAzureAccountExtensionVersionWarning = false;
-  private _doNotShowAgainMessage = "Don't show again";
 
   public readonly id = "bicep.deploy";
 
@@ -116,10 +111,6 @@ export class DeployCommand implements Command {
         "",
         context
       );
-
-      // Remove when the below issue is resolved:
-      // https://github.com/Azure/azure-sdk-for-net/issues/27263
-      this.showWarningIfAzureAcountExtensionVersionIsLatest();
 
       switch (deploymentScope) {
         case "resourceGroup":
@@ -372,27 +363,5 @@ export class DeployCommand implements Command {
     IAzureQuickPickItem[]
   > {
     return [this._none].concat([this._browse]);
-  }
-
-  private showWarningIfAzureAcountExtensionVersionIsLatest() {
-    const extension: Extension<AzureAccount> | undefined =
-      extensions.getExtension<AzureAccount>(this._azureAccountExtensionId);
-    if (extension) {
-      const version: string = extension.packageJSON.version;
-      if (!this._doNotShowAzureAccountExtensionVersionWarning) {
-        if (semver.gte(version, "0.10.0")) {
-          vscode.window
-            .showInformationMessage(
-              `Detected ${version} version of Azure Account extension. If you encounter issues while signing into azure, please downgrade the version to 0.9.11 and try again.`,
-              this._doNotShowAgainMessage
-            )
-            .then((selection) => {
-              if (selection == this._doNotShowAgainMessage) {
-                this._doNotShowAzureAccountExtensionVersionWarning = true;
-              }
-            });
-        }
-      }
-    }
   }
 }

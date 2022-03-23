@@ -208,7 +208,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
         }
       ],
@@ -230,7 +230,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep && commandsRegistered",
           "group": "1_build"
         }
       ],
@@ -242,7 +242,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
@@ -264,7 +264,7 @@
         },
         {
           "command": "bicep.deploy",
-          "when": "editorLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
