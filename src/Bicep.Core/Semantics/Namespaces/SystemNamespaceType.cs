@@ -12,7 +12,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -44,7 +43,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
-                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol) => {
+                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, InternalVariableSymbol? internalVariableSymbol) => {
                     return functionCall.Arguments.Single().Expression;
                 })
                 .Build(),
@@ -460,6 +459,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithDynamicReturnType(LoadTextContentTypeBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
+                .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
                 .Build(),
 
             new FunctionOverloadBuilder("loadFileAsBase64")
@@ -467,6 +467,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
                 .WithDynamicReturnType(LoadContentAsBase64TypeBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
+                .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
                 .Build(),
 
             new FunctionOverloadBuilder("items")
@@ -529,7 +530,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
                 return LanguageConstants.String;
             }
-            if (arguments.Length > 1 && fileEncoding != detectedEncoding)
+            if (arguments.Length > 1 && !Equals(fileEncoding, detectedEncoding))
             {
                 diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).FileEncodingMismatch(detectedEncoding.WebName));
             }
@@ -559,12 +560,22 @@ namespace Bicep.Core.Semantics.Namespaces
             return new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent);
         }
 
-        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
+        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, InternalVariableSymbol? internalVariableSymbol)
+        {
+            if (internalVariableSymbol is not null)
+            {
+                return SyntaxFactory.CreateVariableAccess(internalVariableSymbol.Name);
+            }
+            return StringLiteralFunctionVariableGenerator(functionCall, symbol, typeSymbol);
+        }
+
+        private static SyntaxBase StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
         {
             if (typeSymbol is not StringLiteralType stringLiteral)
             {
                 throw new InvalidOperationException($"Expecting function to return {nameof(StringLiteralType)}, but {typeSymbol.GetType().Name} received.");
             }
+
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
         }
 
@@ -703,12 +714,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 // long.MaxValue + 1 (9,223,372,036,854,775,808) is the only invalid 64 bit integer value that may be passed. we avoid casting to a long because this causes overflow. we need to just return long.MinValue (-9,223,372,036,854,775,808)
                 // if integerLiteralSyntax.Value is outside the range, return null. it should have already been caught by a different validation
                 UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
-                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value switch { 
+                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value switch
+                    {
                         <= long.MaxValue => -(long)integerLiteralSyntax.Value,
                         (ulong)long.MaxValue + 1 => long.MinValue,
                         _ => null
                     },
-                
+
                 // this ternary check is to make sure that the integer value is within the range of a signed 64 bit integer before casting to a long type
                 // if not, it would have been caught already by a different validation
                 IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value <= long.MaxValue ? (long)integerLiteralSyntax.Value : null,

@@ -252,6 +252,13 @@ namespace Bicep.Core.Emit
             jsonWriter.WritePropertyName("variables");
             jsonWriter.WriteStartObject();
 
+            //emit internal variables
+            foreach (var internalVariable in this.context.SemanticModel.InternalVariables.Values.OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
+            {
+                jsonWriter.WritePropertyName(internalVariable.Name);
+                emitter.EmitExpression(internalVariable.Value);
+            }
+
             var variableLookup = this.context.SemanticModel.Root.VariableDeclarations.ToLookup(variableSymbol => variableSymbol.Value is ForSyntax);
 
             // local function

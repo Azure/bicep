@@ -15,6 +15,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.Visitors;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -30,6 +31,10 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
+
+        private readonly Lazy<IImmutableDictionary<FunctionCallSyntaxBase, InternalVariableSymbol>> internalVariablesLazy;
+        //TODO: build shared variables list to use then by emitter - generate special variableName and value (Lazy)
+
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer)
         {
@@ -117,6 +122,8 @@ namespace Bicep.Core.Semantics
 
                 return outputs.ToImmutableArray();
             });
+
+            internalVariablesLazy = new Lazy<IImmutableDictionary<FunctionCallSyntaxBase, InternalVariableSymbol>>(() => FunctionVariableGeneratorVisitor.GetVariables(this, Root.Syntax).ToImmutableDictionary());
         }
 
         public BicepFile SourceFile { get; }
@@ -154,6 +161,10 @@ namespace Bicep.Core.Semantics
         /// </summary>
         public ImmutableArray<DeclaredResourceMetadata> DeclaredResources => declaredResourcesLazy.Value;
 
+        /// <summary>
+        /// Gets variable symbols that are emitted by function calls. Used mostly to optimise loading content from files.
+        /// </summary>
+        public IImmutableDictionary<FunctionCallSyntaxBase, InternalVariableSymbol> InternalVariables => internalVariablesLazy.Value;
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>
@@ -315,5 +326,6 @@ namespace Bicep.Core.Semantics
         public FileSymbol Root => this.Binder.FileSymbol;
 
         public ResourceScope TargetScope => this.Binder.TargetScope;
+
     }
 }
