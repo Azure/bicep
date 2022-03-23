@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18417593559327655298"
+      "templateHash": "7621613489475986772"
     }
   },
   "parameters": {
@@ -101,6 +101,7 @@
       "existing": true,
       "type": "Microsoft.Resources/resourceGroups",
       "apiVersion": "2021-04-01",
+      "subscriptionId": "[subscription().subscriptionId]",
       "name": "[variables('managedResourceGroupName')]"
     },
     "nsg": {

@@ -1,11 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
@@ -31,7 +27,7 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                     ResourceScope.ResourceGroup,
                     TestTypeHelper.CreateObjectType(
                         "Rp.A/parent@2020-10-01",
-                        ("name", LanguageConstants.String))),
+                        ("name", LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant))),
                 new ResourceTypeComponents(
                     ResourceTypeReference.Parse("Rp.A/parent/child@2020-10-01"),
                     ResourceScope.ResourceGroup,
@@ -40,16 +36,16 @@ namespace Bicep.Core.IntegrationTests.Scenarios
                         "name",
                         TestTypeHelper.CreateObjectType(
                             "Val1Type",
-                            ("name", new StringLiteralType("val1")),
+                            ("name", new StringLiteralType("val1"), TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
-                                ("onlyOnVal1", LanguageConstants.Bool)))),
+                                ("onlyOnVal1", LanguageConstants.Bool)), TypePropertyFlags.Required)),
                         TestTypeHelper.CreateObjectType(
                             "Val2Type",
-                            ("name", new StringLiteralType("val2")),
+                            ("name", new StringLiteralType("val2"), TypePropertyFlags.Required | TypePropertyFlags.SystemProperty | TypePropertyFlags.DeployTimeConstant),
                             ("properties", TestTypeHelper.CreateObjectType(
                                 "properties",
-                                ("onlyOnVal2", LanguageConstants.Bool)))))),
+                                ("onlyOnVal2", LanguageConstants.Bool)), TypePropertyFlags.Required)))),
             };
 
             var result = CompilationHelper.Compile(
