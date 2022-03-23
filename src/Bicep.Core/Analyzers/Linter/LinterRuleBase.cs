@@ -11,7 +11,6 @@ using Bicep.Core.Semantics;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter

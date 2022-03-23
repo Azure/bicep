@@ -3,7 +3,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Text
 {

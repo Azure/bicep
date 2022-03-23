@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Services;
 using System;
 
 namespace Bicep.Cli.Commands
