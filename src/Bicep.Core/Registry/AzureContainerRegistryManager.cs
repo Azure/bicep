@@ -3,7 +3,6 @@
 
 using Azure;
 using Azure.Containers.ContainerRegistry.Specialized;
-using Azure.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;

@@ -3,7 +3,6 @@
 
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.Semantics.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Linq;

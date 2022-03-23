@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using Bicep.Core.FileSystem;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using JsonDiffPatchDotNet;
