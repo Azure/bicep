@@ -47,6 +47,7 @@ async function go() {
         ...cliArguments,
         "--install-extension",
         "ms-dotnettools.vscode-dotnet-runtime",
+        "--force", // Force use of latest version of vscode-dotnet-runtime
         ...userDataArguments,
       ];
 
