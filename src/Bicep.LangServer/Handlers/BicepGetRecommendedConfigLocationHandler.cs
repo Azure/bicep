@@ -53,9 +53,6 @@ namespace Bicep.LanguageServer.Handlers
             var workspaceFolders = await server.Workspace.RequestWorkspaceFolders(new());
             var workspaceFolderPaths = workspaceFolders?.Select(wf => wf.Uri.GetFileSystemPath()).ToArray();
             string path = GetRecommendedConfigFileLocation(workspaceFolderPaths, bicepFilePath);
-            
-            int a = 1; //asdfg
-            int b = a / 0;
             return path;
         }
 
