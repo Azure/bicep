@@ -1202,16 +1202,16 @@
     }
   },
   {
-    "label": "res-firewall",
+    "label": "res-firewall-classic-rules",
     "kind": "snippet",
-    "detail": "Azure Firewall",
+    "detail": "Azure Firewall using classic rules",
     "documentation": {
       "kind": "markdown",
       "value": "```bicep\nresource firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    applicationRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Allow'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              protocols: [\n                {\n                  protocolType: 'Http'\n                  port: 80\n                }\n              ]\n              targetFqdns: [\n                'www.microsoft.com'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    natRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Dnat'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              destinationAddresses: [\n                'destinationAddress'\n              ]\n              destinationPorts: [\n                'port'\n              ]\n              protocols: [\n                'TCP'\n              ]\n              translatedAddress: 'translatedAddress'\n              translatedPort: 'translatedPort'\n            }\n          ]\n        }\n      }\n    ]\n    networkRuleCollections: [\n      {\n        name: 'name'\n        properties: {\n          priority: 'priority'\n          action: {\n            type: 'Deny'\n          }\n          rules: [\n            {\n              name: 'name'\n              description: 'description'\n              sourceAddresses: [\n                'sourceAddress'\n              ]\n              destinationAddresses: [\n                'destinationAddress'\n              ]\n              destinationPorts: [\n                'destinationPort'\n              ]\n              protocols: [\n                'TCP'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    ipConfigurations: [\n      {\n        name: 'name'\n        properties: {\n          subnet: {\n            id: 'id'\n          }\n          publicIPAddress: {\n            id: 'id'\n          }\n        }\n      }\n    ]\n  }\n}\n\n```"
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_res-firewall",
+    "sortText": "2_res-firewall-classic-rules",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
@@ -1224,7 +1224,7 @@
         {
           "EventName": "snippet/toplevel",
           "Properties": {
-            "name": "res-firewall"
+            "name": "res-firewall-classic-rules"
           }
         }
       ]
