@@ -62,6 +62,7 @@ export async function executeCreateConfigFileCommand(
   return await vscode.commands.executeCommand<string>(
     "bicep.createConfigFile",
     documentUri,
-    true // suppressUi
+    true, // suppressQuery
+    true // rethrow
   );
 }

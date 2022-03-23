@@ -121,9 +121,14 @@ export interface GetRecommendedConfigLocationParams {
   BicepFilePath: string | undefined;
 }
 
+export interface BicepGetRecommendedConfigLocationResult {
+  recommendedFolder?: string;
+  error?: string;
+}
+
 export const getRecommendedConfigLocationRequestType = new ProtocolRequestType<
   GetRecommendedConfigLocationParams,
-  string,
+  BicepGetRecommendedConfigLocationResult,
   never,
   void,
   void

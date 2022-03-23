@@ -11,6 +11,7 @@ import {
 import path from "path";
 import * as fse from "fs-extra";
 import {
+  BicepGetRecommendedConfigLocationResult,
   createBicepConfigRequestType,
   getRecommendedConfigLocationRequestType,
 } from "../language/protocol";
@@ -25,19 +26,30 @@ export class CreateBicepConfigurationFile implements Command {
   public async execute(
     _context: IActionContext,
     documentUri?: Uri,
-    suppressUi?: boolean // If true, recommended location used without querying user (for testing)
+    suppressQuery?: boolean, // If true, the recommended location is used without querying user (for testing)
+    rethrow?: boolean // (for testing)
   ): Promise<string | undefined> {
+    _context.errorHandling.rethrow = !!rethrow;
+
     documentUri ??= window.activeTextEditor?.document.uri;
 
-    const recommendedFolder: string = await this.client.sendRequest(
-      getRecommendedConfigLocationRequestType,
-      {
+    const recommendation: BicepGetRecommendedConfigLocationResult =
+      await this.client.sendRequest(getRecommendedConfigLocationRequestType, {
         BicepFilePath: documentUri?.fsPath,
-      }
-    );
+      });
+    if (recommendation.error || !recommendation.recommendedFolder) {
+      throw new Error(
+        `Could not determine recommended configuration location: ${
+          recommendation.error ?? "Unknown"
+        }`
+      );
+    }
 
-    let selectedPath: string = path.join(recommendedFolder, bicepConfig);
-    if (!suppressUi) {
+    let selectedPath: string = path.join(
+      recommendation.recommendedFolder,
+      bicepConfig
+    );
+    if (!suppressQuery) {
       // eslint-disable-next-line no-constant-condition
       while (true) {
         const response = await window.showSaveDialog({

@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -16,15 +15,18 @@ using System.Runtime.InteropServices;
 namespace Bicep.LanguageServer.Handlers
 {
     [Method("bicep/getRecommendedConfigLocation", Direction.ClientToServer)]
-    public record BicepGetRecommendedConfigLocationParams : IRequest<string>
+    public record BicepGetRecommendedConfigLocationParams : IRequest<BicepGetRecommendedConfigLocationResult>
     {
         public string? BicepFilePath;
     }
 
+    public record BicepGetRecommendedConfigLocationResult(string? recommendedFolder, string? error);
+
+
     /// <summary>
     /// Retrieves the recommended folder to place a new bicepconfig.json file (used by client)
     /// </summary>
-    public class BicepGetRecommendedConfigLocationHandler : IJsonRpcRequestHandler<BicepGetRecommendedConfigLocationParams, string>
+    public class BicepGetRecommendedConfigLocationHandler : IJsonRpcRequestHandler<BicepGetRecommendedConfigLocationParams, BicepGetRecommendedConfigLocationResult>
     {
         private readonly ILanguageServerFacade server;
 
@@ -33,16 +35,28 @@ namespace Bicep.LanguageServer.Handlers
             this.server = server;
         }
 
-        public async Task<string> Handle(BicepGetRecommendedConfigLocationParams request, CancellationToken cancellationToken)
+        public async Task<BicepGetRecommendedConfigLocationResult> Handle(BicepGetRecommendedConfigLocationParams request, CancellationToken cancellationToken)
         {
-            return await GetRecommendedConfigFileLocation(this.server, request.BicepFilePath);
+            try
+            {
+                var path = await GetRecommendedConfigFileLocation(this.server, request.BicepFilePath);
+                return new BicepGetRecommendedConfigLocationResult(path, null);
+            }
+            catch (Exception ex)
+            {
+                return new BicepGetRecommendedConfigLocationResult(null, ex.Message);
+            }
         }
 
         public static async Task<string> GetRecommendedConfigFileLocation(ILanguageServerFacade server, string? bicepFilePath)
         {
             var workspaceFolders = await server.Workspace.RequestWorkspaceFolders(new());
             var workspaceFolderPaths = workspaceFolders?.Select(wf => wf.Uri.GetFileSystemPath()).ToArray();
-            return GetRecommendedConfigFileLocation(workspaceFolderPaths, bicepFilePath);
+            string path = GetRecommendedConfigFileLocation(workspaceFolderPaths, bicepFilePath);
+            
+            int a = 1; //asdfg
+            int b = a / 0;
+            return path;
         }
 
         public static string GetRecommendedConfigFileLocation(string[]? workspaceFolderPaths, string? bicepFilePath)
@@ -78,7 +92,8 @@ namespace Bicep.LanguageServer.Handlers
         {
             bool caseSensitive = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
-            if (workspaceFolderPaths is null || bicepFilePath is null) {
+            if (workspaceFolderPaths is null || bicepFilePath is null)
+            {
                 return null;
             }
 
