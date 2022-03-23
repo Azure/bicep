@@ -1231,6 +1231,35 @@
     }
   },
   {
+    "label": "res-firewall-policy-standard",
+    "kind": "snippet",
+    "detail": "Azure Firewall Policy Standard SKU",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource firewallPolicy 'Microsoft.Network/firewallPolicies@2021-05-01' = {\n  name: 'name'\n  location: location\n  properties: {\n    sku: {\n      tier: 'Standard'\n    }\n    dnsSettings: {\n      enableProxy: true\n    }\n    threatIntelMode: 'Alert'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-firewall-policy-standard",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:firewallPolicy} 'Microsoft.Network/firewallPolicies@2021-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      tier: 'Standard'\n    }\n    dnsSettings: {\n      enableProxy: ${4|true,false|}\n    }\n    threatIntelMode: '${5|Alert,Deny,Off|}'\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-firewall-policy-standard"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-function",
     "kind": "snippet",
     "detail": "Azure Functions (v2)",
