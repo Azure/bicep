@@ -3,6 +3,17 @@
 import * as path from "path";
 import * as semver from "semver";
 import vscode, { Extension, extensions, Uri } from "vscode";
+import { AccessToken } from "@azure/identity";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { AzureAccount } from "../azure/types";
+import { Command } from "./types";
+import { localize } from "../utils/localize";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { TreeManager } from "../tree/TreeManager";
+
 import {
   LanguageClient,
   TextDocumentIdentifier,
@@ -12,25 +23,16 @@ import {
   AzExtTreeDataProvider,
   IActionContext,
   IAzureQuickPickItem,
+  ISubscriptionContext,
   parseError,
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 
-import { AzureAccount } from "../azure/types";
 import {
   BicepDeployParams,
   bicepDeployRequestType,
   deploymentScopeRequestType,
 } from "../language";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { TreeManager } from "../tree/TreeManager";
-import { localize } from "../utils/localize";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { Command } from "./types";
-import { TokenCredential } from "@azure/identity";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -196,6 +198,7 @@ export class DeployCommand implements Command {
       throw exception;
     }
     const managementGroupId = managementGroupTreeItem?.id;
+    const subscription = managementGroupTreeItem.subscription;
 
     if (managementGroupId) {
       const location = await vscode.window.showInputBox({
@@ -214,7 +217,8 @@ export class DeployCommand implements Command {
           managementGroupId,
           deploymentScope,
           location,
-          template
+          template,
+          subscription
         );
       }
     }
@@ -240,13 +244,16 @@ export class DeployCommand implements Command {
         documentUri
       );
 
+      const subscription = resourceGroupTreeItem.subscription;
+
       await this.sendDeployCommand(
         textDocument,
         parameterFilePath,
         resourceGroupId,
         deploymentScope,
         "",
-        template
+        template,
+        subscription
       );
     }
   }
@@ -264,7 +271,9 @@ export class DeployCommand implements Command {
         context
       );
     const location = locationTreeItem.label;
-    const subscriptionId = locationTreeItem.subscription.subscriptionPath;
+    const subscription = locationTreeItem.subscription;
+    const subscriptionId = subscription.subscriptionPath;
+
     const parameterFilePath = await this.selectParameterFile(
       context,
       documentUri
@@ -276,7 +285,8 @@ export class DeployCommand implements Command {
       subscriptionId,
       deploymentScope,
       location,
-      template
+      template,
+      subscription
     );
   }
 
@@ -286,7 +296,8 @@ export class DeployCommand implements Command {
     id: string,
     deploymentScope: string,
     location: string,
-    template: string
+    template: string,
+    subscription: ISubscriptionContext
   ) {
     if (!parameterFilePath) {
       this.outputChannelManager.appendToOutputChannel(
@@ -295,34 +306,29 @@ export class DeployCommand implements Command {
       parameterFilePath = "";
     }
 
-    const azureAccountExtension: Extension<AzureAccount> | undefined =
-      extensions.getExtension<AzureAccount>(this._azureAccountExtensionId);
+    const accessToken: AccessToken = await subscription.credentials.getToken(
+      []
+    );
 
-    if (azureAccountExtension) {
-      const tokenCredentials = azureAccountExtension?.exports.sessions[0]
-        .credentials2 as TokenCredential;
-      const accessToken = await tokenCredentials.getToken([]);
+    if (accessToken) {
+      const token = accessToken.token;
+      const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
 
-      if (accessToken != null) {
-        const token = accessToken.token;
-        const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
-
-        const bicepDeployParams: BicepDeployParams = {
-          textDocument,
-          parameterFilePath,
-          id,
-          deploymentScope,
-          location,
-          template,
-          token,
-          expiresOnTimestamp,
-        };
-        const deploymentResponse: string = await this.client.sendRequest(
-          bicepDeployRequestType,
-          bicepDeployParams
-        );
-        this.outputChannelManager.appendToOutputChannel(deploymentResponse);
-      }
+      const bicepDeployParams: BicepDeployParams = {
+        textDocument,
+        parameterFilePath,
+        id,
+        deploymentScope,
+        location,
+        template,
+        token,
+        expiresOnTimestamp,
+      };
+      const deploymentResponse: string = await this.client.sendRequest(
+        bicepDeployRequestType,
+        bicepDeployParams
+      );
+      this.outputChannelManager.appendToOutputChannel(deploymentResponse);
     }
   }
 
