@@ -21,7 +21,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         public void NoWorkspace_NoBicepFile()
         {
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation((string[]?)null, null);
-            var expected = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            var expected = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             actual.Should().Be(expected);
         }
