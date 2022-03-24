@@ -132,7 +132,7 @@ namespace Bicep.LanguageServer.Handlers
                 throw;
             }
 
-            CompilationContext? context = compilationManager.GetCompilation(fileUri);
+            CompilationContext? context = compilationManager.GetCompilation(documentUri);
             if (context is null)
             {
                 SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);

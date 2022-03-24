@@ -72,7 +72,9 @@ export class DeployCommand implements Command {
     }
 
     const documentPath = documentUri.fsPath;
-    const textDocument = TextDocumentIdentifier.create(documentUri.fsPath);
+    const textDocument = TextDocumentIdentifier.create(
+      encodeURIComponent(documentUri.path)
+    );
     this.outputChannelManager.appendToOutputChannel(
       `Starting deployment of ${documentPath}`
     );
