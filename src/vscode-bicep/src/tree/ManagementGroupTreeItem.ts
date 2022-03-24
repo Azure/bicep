@@ -4,6 +4,7 @@ import { AzExtTreeItem } from "@microsoft/vscode-azext-utils";
 import { DefaultAzureCredential } from "@azure/identity";
 import { GenericAzExtTreeItem } from "./GenericAzExtTreeItem";
 import { localize } from "../utils/localize";
+
 import {
   ManagementGroupInfo,
   ManagementGroupsAPI,

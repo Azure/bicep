@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public async Task<string> Handle(BicepDeployParams request, CancellationToken cancellationToken)
         {
-            var credential = new DeployCredentials(request.token, request.expiresOnTimestamp);
+            var credential = new DeployTokenCredential(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);
 
             string deploymentOutput = await DeploymentHelper.CreateDeployment(

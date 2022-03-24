@@ -8,11 +8,11 @@ using Azure.Core;
 
 namespace Bicep.LanguageServer.Deploy
 {
-    public class DeployCredentials : TokenCredential
+    public class DeployTokenCredential : TokenCredential
     {
         private AccessToken _accessToken;
 
-        public DeployCredentials(string token, string timeStamp)
+        public DeployTokenCredential(string token, string timeStamp)
         {
             _accessToken = new AccessToken(token, DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timeStamp)));
         }

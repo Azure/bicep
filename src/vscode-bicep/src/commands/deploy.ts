@@ -189,7 +189,6 @@ export class DeployCommand implements Command {
       throw exception;
     }
     const managementGroupId = managementGroupTreeItem?.id;
-    const subscription = managementGroupTreeItem.subscription;
 
     if (managementGroupId) {
       const location = await vscode.window.showInputBox({
@@ -209,7 +208,7 @@ export class DeployCommand implements Command {
           deploymentScope,
           location,
           template,
-          subscription
+          managementGroupTreeItem.subscription
         );
       }
     }
@@ -235,8 +234,6 @@ export class DeployCommand implements Command {
         documentUri
       );
 
-      const subscription = resourceGroupTreeItem.subscription;
-
       await this.sendDeployCommand(
         textDocument,
         parameterFilePath,
@@ -244,7 +241,7 @@ export class DeployCommand implements Command {
         deploymentScope,
         "",
         template,
-        subscription
+        resourceGroupTreeItem.subscription
       );
     }
   }
