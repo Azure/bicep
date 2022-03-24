@@ -34,7 +34,9 @@ describe("bicep.createConfigFile", (): void => {
 
       expect(path.basename(newConfigPath)).toBe("bicepconfig.json");
       if (!fileExists(newConfigPath)) {
-        throw new Error(`Expected file ${newConfigPath} to exist but it doesn't`);
+        throw new Error(
+          `Expected file ${newConfigPath} to exist but it doesn't`
+        );
       }
 
       expect(fileContains(newConfigPath, "rules")).toBeTruthy();
@@ -81,16 +83,16 @@ describe("bicep.createConfigFile", (): void => {
 function createUniqueTempFolder(filenamePrefix: string): string {
   const tempFolder = os.tmpdir();
   if (!fse.existsSync(tempFolder)) {
-    console.log(`Creating ${tempFolder}`)
+    console.log(`Creating ${tempFolder}`);
     fse.mkdirSync(tempFolder);
-    console.log(`Created ${tempFolder}`)
+    console.log(`Created ${tempFolder}`);
   }
 
   const tempSubfolder = fse.mkdtempSync(path.join(tempFolder, filenamePrefix));
   if (!fse.existsSync(tempSubfolder)) {
-    console.log(`Creating ${tempSubfolder}`)
+    console.log(`Creating ${tempSubfolder}`);
     fse.mkdirSync(tempSubfolder);
-    console.log(`Created ${tempSubfolder}`)
+    console.log(`Created ${tempSubfolder}`);
   }
 
   return tempSubfolder;
