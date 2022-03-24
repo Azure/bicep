@@ -1724,6 +1724,35 @@
     }
   },
   {
+    "label": "res-mg",
+    "kind": "snippet",
+    "detail": "Management Group",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource 'managementGroup' 'Microsoft.Management/managementGroups@2021-04-01' = {\n  name: 'name'\n  properties: {\n    displayName: 'displayName'\n    details: {\n      parent: {\n        id: 'id'\n      }\n    }\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-mg",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:'managementGroup'} 'Microsoft.Management/managementGroups@2021-04-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    details: {\n      parent: {\n        id: ${4:'id'}\n      }\n    }\n  }\n}\n"
+    },
+    "command": {
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "TopLevelDeclarationSnippetInsertion",
+          "Properties": {
+            "name": "res-mg"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-mysql",
     "kind": "snippet",
     "detail": "MySQL Database",
