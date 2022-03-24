@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 import vscode from "vscode";
 import { BicepVisualizerViewManager } from "./visualizer";
-import { createOutputChannel } from "./utils/AzExtOutputChannel";
 import { OutputChannelManager } from "./utils/OutputChannelManager";
 import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
 import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
@@ -27,6 +26,7 @@ import {
   Disposable,
   resetLogger,
 } from "./utils";
+import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -45,7 +45,7 @@ export async function activate(
   context: vscode.ExtensionContext
 ): Promise<void> {
   const extension = BicepExtension.create(context);
-  const outputChannel = createOutputChannel("Bicep", "bicep");
+  const outputChannel = createAzExtOutputChannel("Bicep", "bicep");
 
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
