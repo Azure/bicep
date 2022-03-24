@@ -8,6 +8,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,11 +39,13 @@ namespace Bicep.Core.Registry
 
             try
             {
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
                 // Try authenticated client first.
                 (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
             }
-            catch (RequestFailedException exception) when (exception.Status == 401)
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
             {
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
                 // Fall back to anonymous client.
                 client = this.CreateBlobClient(configuration, moduleReference, anonymousAccess: true);
                 (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
