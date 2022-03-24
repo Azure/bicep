@@ -76,7 +76,7 @@ export class DeployCommand implements Command {
     const documentPath = documentUri.fsPath;
     const textDocument = TextDocumentIdentifier.create(documentUri.fsPath);
     this.outputChannelManager.appendToOutputChannel(
-      `Started deployment of ${documentPath}`
+      `Starting deployment of ${documentPath}`
     );
 
     context.errorHandling.suppressDisplay = true;
@@ -120,56 +120,51 @@ export class DeployCommand implements Command {
 
       switch (deploymentScope) {
         case "resourceGroup":
-          return await this.handleResourceGroupDeployment(
+          await this.handleResourceGroupDeployment(
             context,
             textDocument,
             documentUri,
             deploymentScope,
             template
           );
+          break;
         case "subscription":
-          return await this.handleSubscriptionDeployment(
+          await this.handleSubscriptionDeployment(
             context,
             textDocument,
             documentUri,
             deploymentScope,
             template
           );
+          break;
         case "managementGroup":
-          return await this.handleManagementGroupDeployment(
+          await this.handleManagementGroupDeployment(
             context,
             textDocument,
             documentUri,
             deploymentScope,
             template
           );
+          break;
         case "tenant": {
-          const tenantScopeNotSupportedMessage =
-            "Tenant scope deployment is not currently supported.";
-          this.outputChannelManager.appendToOutputChannel(
-            tenantScopeNotSupportedMessage
+          throw new Error(
+            "Tenant scope deployment is not currently supported."
           );
-          throw new Error(tenantScopeNotSupportedMessage);
         }
         default: {
-          const deploymentFailedMessage =
-            "Deployment failed. " + deploymentScopeResponse?.errorMessage;
-
-          this.outputChannelManager.appendToOutputChannel(
-            deploymentFailedMessage
+          throw new Error(
+            deploymentScopeResponse?.errorMessage ??
+              "Unknown error determining target scope"
           );
-
-          throw new Error(deploymentFailedMessage);
         }
       }
-    } catch (exception) {
-      if (exception instanceof UserCancelledError) {
-        this.outputChannelManager.appendToOutputChannel(
-          "Deployment was canceled."
-        );
-      }
-
-      throw exception;
+    } catch (err) {
+      this.outputChannelManager.appendToOutputChannel(
+        err instanceof UserCancelledError
+          ? `Deployment canceled for ${documentPath}.`
+          : `Deployment failed for ${documentPath}. ${parseError(err).message}`
+      );
+      throw err;
     }
   }
 
@@ -256,7 +251,7 @@ export class DeployCommand implements Command {
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string
-  ) {
+  ): Promise<void> {
     const locationTreeItem =
       await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
         "",
