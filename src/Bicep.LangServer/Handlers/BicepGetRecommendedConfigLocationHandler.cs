@@ -52,8 +52,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             var workspaceFolders = await server.Workspace.RequestWorkspaceFolders(new());
             var workspaceFolderPaths = workspaceFolders?.Select(wf => wf.Uri.GetFileSystemPath()).ToArray();
-            string path = GetRecommendedConfigFileLocation(workspaceFolderPaths, bicepFilePath);
-            return path;
+            return GetRecommendedConfigFileLocation(workspaceFolderPaths, bicepFilePath);
         }
 
         public static string GetRecommendedConfigFileLocation(string[]? workspaceFolderPaths, string? bicepFilePath)
@@ -82,7 +81,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // If all else fails
-            return Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            return Environment.GetFolderPath(Environment.SpecialFolder.UserProfile, Environment.SpecialFolderOption.Create);
         }
 
         private static string? GetFolderContainingPath(string[]? workspaceFolderPaths, string? bicepFilePath)
