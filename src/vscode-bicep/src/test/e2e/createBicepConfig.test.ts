@@ -4,9 +4,10 @@
 import vscode, { Uri, window } from "vscode";
 import path from "path";
 import fse from "fs-extra";
+import os from "os";
 
-import * as os from "os";
 import { executeCreateConfigFileCommand } from "./commands";
+import {} from "fs";
 
 describe("bicep.createConfigFile", (): void => {
   afterEach(async () => {
@@ -14,23 +15,23 @@ describe("bicep.createConfigFile", (): void => {
   });
 
   it("should create valid config file and open it", async () => {
-    const fakeBicepPath = path.join(os.tmpdir(), "main.bicep");
-
-    let newConfigPath = await executeCreateConfigFileCommand(
-      Uri.file(fakeBicepPath)
-    );
-
-    if (!newConfigPath) {
-      throw new Error(
-        `Language server returned ${String(
-          newConfigPath
-        )} for bicep.createConfigFile`
-      );
-    }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    newConfigPath = newConfigPath!;
-
+    const tempFolder = createUniqueTempFolder("createBicepConfigTest-");
+    const fakeBicepPath = path.join(tempFolder, "main.bicep");
     try {
+      let newConfigPath = await executeCreateConfigFileCommand(
+        Uri.file(fakeBicepPath)
+      );
+
+      if (!newConfigPath) {
+        throw new Error(
+          `Language server returned ${String(
+            newConfigPath
+          )} for bicep.createConfigFile`
+        );
+      }
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      newConfigPath = newConfigPath!;
+
       expect(path.basename(newConfigPath)).toBe("bicepconfig.json");
       expect(fileExists(newConfigPath)).toBeTruthy();
 
@@ -52,7 +53,11 @@ describe("bicep.createConfigFile", (): void => {
         throw new Error("New config file should be opened in a visible editor");
       }
     } finally {
-      fse.unlinkSync(newConfigPath);
+      fse.rmdirSync(tempFolder, {
+        recursive: true,
+        maxRetries: 5,
+        retryDelay: 1000,
+      });
     }
   });
 
@@ -70,3 +75,14 @@ describe("bicep.createConfigFile", (): void => {
     return true;
   }
 });
+
+function createUniqueTempFolder(filenamePrefix: string): string {
+  const tmp = os.tmpdir();
+  if (!fse.existsSync(tmp)) {
+    fse.mkdirSync(tmp);
+  }
+
+  const tempFolder = fse.mkdtempSync(path.join(tmp, filenamePrefix));
+
+  return tempFolder;
+}
