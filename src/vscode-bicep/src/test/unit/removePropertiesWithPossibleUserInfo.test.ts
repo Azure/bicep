@@ -24,7 +24,7 @@ describe("removePropertiesWithPossibleUserInfoInDeployParams()", () => {
       'Params: {\n    "textDocument": {\n        "uri": "someUri"\n    }, "token": "eyJ0eXAi",\n    "expiresOnTimestamp": "1648143343698"\n}';
     const actual = removePropertiesWithPossibleUserInfoInDeployParams(value);
     const expected =
-      'Params: {\n    "textDocument": {\n        "uri": "someUri"\n    }, "token": "<REDACTED: token>",\n    "expiresOnTimestamp": "<REDACTED: expiresOnTimestamp>"\n}';
+      'Params: {\n    "textDocument": {\n        "uri": "someUri"\n    }, "token": "<REDACTED: token>",\n    "expiresOnTimestamp": "1648143343698"\n}';
 
     expect(actual).toMatch(expected);
   });

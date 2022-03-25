@@ -72,6 +72,7 @@ export class DeployCommand implements Command {
     }
 
     const documentPath = documentUri.fsPath;
+    // Handle spaces/special characters in folder names.
     const textDocument = TextDocumentIdentifier.create(
       encodeURIComponent(documentUri.path)
     );
