@@ -50,7 +50,7 @@ export class DeployCommand implements Command {
     private readonly client: LanguageClient,
     private readonly outputChannelManager: OutputChannelManager,
     private readonly treeManager: TreeManager
-  ) { }
+  ) {}
 
   public async execute(
     context: IActionContext,
@@ -92,12 +92,12 @@ export class DeployCommand implements Command {
       if (!template) {
         this.outputChannelManager.appendToOutputChannel(
           "Unable to deploy. Please fix below errors:\n " +
-          deploymentScopeResponse?.errorMessage
+            deploymentScopeResponse?.errorMessage
         );
         return;
       }
 
-      context.telemetry.properties.deploymentScope = deploymentScope;
+      context.telemetry.properties.targetScope = deploymentScope;
       this.outputChannelManager.appendToOutputChannel(
         `Scope specified in ${path.basename(
           documentPath
@@ -298,8 +298,7 @@ export class DeployCommand implements Command {
         `No parameter file was provided`
       );
       parameterFilePath = "";
-    }
-    else {
+    } else {
       context.telemetry.properties.parameterFileProvided = "true";
     }
     const bicepDeployParams: BicepDeployParams = {
