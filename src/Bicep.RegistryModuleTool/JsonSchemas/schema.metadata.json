@@ -21,7 +21,7 @@
     },
     "owner": {
       "type": "string",
-      "pattern": "^[a-zA-Z\\d](?:[a-zA-Z\\d]|-(?=[a-zA-Z\\d])){0,38}$",
+      "pattern": "^(?:Azure\\/)?[a-zA-Z\\d](?:[a-zA-Z\\d]|-(?=[a-zA-Z\\d])){0,38}$",
       "description": "The owner of the module. Must be a GitHub username or team under the Azure organization."
     }
   },
