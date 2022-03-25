@@ -1,9 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+const deployParamsPattern = new RegExp('.*"token":\\s*"(?<token>.*)"');
 export function removePropertiesWithPossibleUserInfoInDeployParams(
   value: string
 ): string {
-  const deployParamsPattern = new RegExp('.*"token":\\s*"(?<token>.*)"');
   const matches = deployParamsPattern.exec(value);
 
   if (matches != null) {
