@@ -16,7 +16,7 @@ import {
   ShowSourceCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
-  WalkthroughCopyParamsToClipboardCommand,
+  WalkthroughCopyToClipboardCommand,
   WalkthroughCreateBicepFileCommand,
   WalkthroughOpenBicepFileCommand,
 } from "./commands";
@@ -102,7 +102,7 @@ export async function activate(
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
         new ShowSourceCommand(viewManager),
-        new WalkthroughCopyParamsToClipboardCommand(),
+        new WalkthroughCopyToClipboardCommand(),
         new WalkthroughCreateBicepFileCommand(),
         new WalkthroughOpenBicepFileCommand()
       );
