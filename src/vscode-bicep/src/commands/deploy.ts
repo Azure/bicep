@@ -97,6 +97,7 @@ export class DeployCommand implements Command {
         return;
       }
 
+      context.telemetry.properties.targetScope = deploymentScope;
       this.outputChannelManager.appendToOutputChannel(
         `Scope specified in ${path.basename(
           documentPath
@@ -203,6 +204,7 @@ export class DeployCommand implements Command {
         );
 
         await this.sendDeployCommand(
+          context,
           textDocument,
           parameterFilePath,
           managementGroupId,
@@ -235,6 +237,7 @@ export class DeployCommand implements Command {
       );
 
       await this.sendDeployCommand(
+        context,
         textDocument,
         parameterFilePath,
         resourceGroupId,
@@ -265,6 +268,7 @@ export class DeployCommand implements Command {
     );
 
     await this.sendDeployCommand(
+      context,
       textDocument,
       parameterFilePath,
       subscriptionId,
@@ -275,6 +279,7 @@ export class DeployCommand implements Command {
   }
 
   private async sendDeployCommand(
+    context: IActionContext,
     textDocument: TextDocumentIdentifier,
     parameterFilePath: string | undefined,
     id: string,
@@ -283,10 +288,13 @@ export class DeployCommand implements Command {
     template: string
   ) {
     if (!parameterFilePath) {
+      context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
         `No parameter file was provided`
       );
       parameterFilePath = "";
+    } else {
+      context.telemetry.properties.parameterFileProvided = "true";
     }
     const bicepDeployParams: BicepDeployParams = {
       textDocument,
