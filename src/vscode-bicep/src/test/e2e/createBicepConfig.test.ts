@@ -83,16 +83,12 @@ describe("bicep.createConfigFile", (): void => {
 function createUniqueTempFolder(filenamePrefix: string): string {
   const tempFolder = os.tmpdir();
   if (!fse.existsSync(tempFolder)) {
-    console.log(`Creating ${tempFolder}`);
-    fse.mkdirSync(tempFolder);
-    console.log(`Created ${tempFolder}`);
+    fse.mkdirSync(tempFolder, { recursive: true });
   }
 
   const tempSubfolder = fse.mkdtempSync(path.join(tempFolder, filenamePrefix));
   if (!fse.existsSync(tempSubfolder)) {
-    console.log(`Creating ${tempSubfolder}`);
-    fse.mkdirSync(tempSubfolder);
-    console.log(`Created ${tempSubfolder}`);
+    fse.mkdirSync(tempSubfolder, { recursive: true });
   }
 
   return tempSubfolder;
