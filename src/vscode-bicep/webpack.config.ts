@@ -5,6 +5,8 @@ import webpack from "webpack";
 import CopyPlugin from "copy-webpack-plugin";
 import ForkTsCheckerWebpackPlugin from "fork-ts-checker-webpack-plugin";
 
+const TerserPlugin = require('terser-webpack-plugin');
+
 const extensionConfig: webpack.Configuration = {
   target: "node",
   entry: "./src/extension.ts",
@@ -22,6 +24,17 @@ const extensionConfig: webpack.Configuration = {
     "applicationinsights-native-metrics":
       "commonjs applicationinsights-native-metrics",
     "@opentelemetry/tracing": "commonjs @opentelemetry/tracing",
+  },
+  optimization: {
+    usedExports: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true
+        }
+      })
+    ]
   },
   module: {
     rules: [
