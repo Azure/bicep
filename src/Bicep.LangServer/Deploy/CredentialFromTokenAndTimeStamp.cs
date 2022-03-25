@@ -10,21 +10,21 @@ namespace Bicep.LanguageServer.Deploy
 {
     public class CredentialFromTokenAndTimeStamp : TokenCredential
     {
-        private AccessToken _accessToken;
+        private AccessToken accessToken;
 
         public CredentialFromTokenAndTimeStamp(string token, string timeStamp)
         {
-            _accessToken = new AccessToken(token, DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timeStamp)));
+            accessToken = new AccessToken(token, DateTimeOffset.FromUnixTimeMilliseconds(long.Parse(timeStamp)));
         }
 
         public override ValueTask<AccessToken> GetTokenAsync(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
-            return ValueTask.FromResult(_accessToken);
+            return ValueTask.FromResult(accessToken);
         }
 
         public override AccessToken GetToken(TokenRequestContext requestContext, CancellationToken cancellationToken)
         {
-            return _accessToken;
+            return accessToken;
         }
     }
 }
