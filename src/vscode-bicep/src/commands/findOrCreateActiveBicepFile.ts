@@ -17,6 +17,7 @@ import { TextDocument, Uri, window, workspace } from "vscode";
 type TargetFile =
   | "rightClick"
   | "activeEditor"
+  | "noWorkspaceActiveEditor"
   | "singleBicepFile"
   | "fromWorkspace"
   | "new";
@@ -45,14 +46,6 @@ export async function findOrCreateActiveBicepFile(
     }
   }
 
-  return await queryForBicepFile(context.ui, properties, prompt);
-}
-
-async function queryForBicepFile(
-  ui: IAzureUserInput,
-  properties: Properties,
-  prompt: string
-): Promise<Uri> {
   const bicepFilesInWorkspace = (
     await workspace.findFiles("**/*.bicep", undefined)
   ).filter((f) => !!f.fsPath);
@@ -63,9 +56,19 @@ async function queryForBicepFile(
     return bicepFilesInWorkspace[0];
   }
 
-  // If there are no Bicep files in the workspace, ask to create a new one
+  // If there are no Bicep files in the workspace...
   if (bicepFilesInWorkspace.length === 0) {
-    return await queryCreateBicepFile(ui, properties);
+    if (!workspace.workspaceFolders) {
+      // If there is no workspace open, check the active editor
+      const activeEditor = window.activeTextEditor;
+      if (activeEditor?.document?.languageId === "bicep") {
+        properties.targetFile = "noWorkspaceActiveEditor";
+        return activeEditor.document.uri;
+      }
+    }
+
+    // Otherwise ask to create one...
+    return await queryCreateBicepFile(context.ui, properties);
   }
 
   const entries: IAzureQuickPickItem<Uri>[] = bicepFilesInWorkspace.map((u) => {
