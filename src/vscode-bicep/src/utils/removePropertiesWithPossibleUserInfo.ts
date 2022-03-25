@@ -3,9 +3,7 @@
 export function removePropertiesWithPossibleUserInfoInDeployParams(
   value: string
 ): string {
-  const deployParamsPattern = new RegExp(
-    '.*"token":\\s*"(?<token>.*)",\\s.*"expiresOnTimestamp":\\s*"(?<expiresOnTimestamp>.*)".*'
-  );
+  const deployParamsPattern = new RegExp('.*"token":\\s*"(?<token>.*)"');
   const matches = deployParamsPattern.exec(value);
 
   if (matches != null) {
@@ -13,13 +11,8 @@ export function removePropertiesWithPossibleUserInfoInDeployParams(
 
     if (groups != null) {
       const token = groups["token"];
-      const expiresOnTimestamp = groups["expiresOnTimestamp"];
 
-      const updatedValue = value.replace(token, "<REDACTED: token>");
-      return updatedValue.replace(
-        expiresOnTimestamp,
-        "<REDACTED: expiresOnTimestamp>"
-      );
+      return value.replace(token, "<REDACTED: token>");
     }
   }
 
