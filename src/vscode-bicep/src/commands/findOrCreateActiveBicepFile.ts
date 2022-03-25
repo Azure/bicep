@@ -33,6 +33,8 @@ export async function findOrCreateActiveBicepFile(
   }
 ): Promise<Uri> {
   const properties = <Properties>context.telemetry.properties;
+  const ui = context.ui;
+
   if (documentUri) {
     properties.targetFile = "rightClick";
     return documentUri;
@@ -68,7 +70,7 @@ export async function findOrCreateActiveBicepFile(
     }
 
     // Otherwise ask to create one...
-    return await queryCreateBicepFile(context.ui, properties);
+    return await queryCreateBicepFile(ui, properties);
   }
 
   const entries: IAzureQuickPickItem<Uri>[] = bicepFilesInWorkspace.map((u) => {
