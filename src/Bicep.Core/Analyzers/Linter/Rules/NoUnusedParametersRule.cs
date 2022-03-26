@@ -36,7 +36,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
                 .Where(sym => sym.Name != MissingName);
 
-            return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.LineStarts));
+            return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax));
         }
     }
 }

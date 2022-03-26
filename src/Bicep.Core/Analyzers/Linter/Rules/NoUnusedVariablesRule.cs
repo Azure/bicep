@@ -40,7 +40,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .Where(sym => sym.Name != MissingName);
             foreach (var sym in unreferencedVariables)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts);
+                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax);
             }
 
             // TODO: This will not find local variables because they are not in the top-level scope.
@@ -53,7 +53,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             foreach (var sym in unreferencedLocalVariables)
             {
-                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts);
+                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax);
             }
         }
     }

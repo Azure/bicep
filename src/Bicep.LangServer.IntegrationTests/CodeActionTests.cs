@@ -420,6 +420,27 @@ param foo {type}
         [DataRow(@"var fo|o = 'foo'
 var foo2 = 'foo2'", "var foo2 = 'foo2'")]
         [DataRow(@"var fo|o = 'foo'", "")]
+        [DataRow(@"var ad|sf = 'asdf' /* 
+adf 
+*/", "")]
+        [DataRow(@"var as|df = {
+  abc: 'def'
+}", "")]
+        [DataRow(@"var ab|cd = concat('foo',/*
+*/'bar')", "")]
+        [DataRow(@"var multi|line = '''
+This
+is
+a
+multiline
+'''", "")]
+        [DataRow(@"@description('''
+''')
+var as|df = 'asdf'", "")]
+        [DataRow(@"var fo|o = 'asdf' // asdef", "")]
+        [DataRow(@"/* asdfds */ var fo|o = 'asdf'", "")]
+        [DataRow(@"/* asdf */ var fo|o = 'asdf'
+var bar = 'asdf'", "")]
         [DataTestMethod]
         public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
         {
