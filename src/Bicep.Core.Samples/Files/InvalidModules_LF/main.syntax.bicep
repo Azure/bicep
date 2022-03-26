@@ -3172,7 +3172,7 @@ output directRefToCollectionViaOutput array = nonexistentArrays
 //@[0:6)  Identifier |output|
 //@[7:37)  IdentifierSyntax
 //@[7:37)   Identifier |directRefToCollectionViaOutput|
-//@[38:43)  TypeSyntax
+//@[38:43)  SimpleTypeSyntax
 //@[38:43)   Identifier |array|
 //@[44:45)  Assignment |=|
 //@[46:63)  VariableAccessSyntax
@@ -4296,6 +4296,36 @@ module jsonModMissingParam 'moduled.json' = {
 //@[3:4)   NewLine |\n|
 }
 //@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[1:3) NewLine |\n\n|
 
-//@[0:0) EndOfFile ||
+module assignToOutput 'empty.bicep' = {
+//@[0:80) ModuleDeclarationSyntax
+//@[0:6)  Identifier |module|
+//@[7:21)  IdentifierSyntax
+//@[7:21)   Identifier |assignToOutput|
+//@[22:35)  StringSyntax
+//@[22:35)   StringComplete |'empty.bicep'|
+//@[36:37)  Assignment |=|
+//@[38:80)  ObjectSyntax
+//@[38:39)   LeftBrace |{|
+//@[39:40)   NewLine |\n|
+  name: 'assignToOutput'
+//@[2:24)   ObjectPropertySyntax
+//@[2:6)    IdentifierSyntax
+//@[2:6)     Identifier |name|
+//@[6:7)    Colon |:|
+//@[8:24)    StringSyntax
+//@[8:24)     StringComplete |'assignToOutput'|
+//@[24:25)   NewLine |\n|
+  outputs: {}
+//@[2:13)   ObjectPropertySyntax
+//@[2:9)    IdentifierSyntax
+//@[2:9)     Identifier |outputs|
+//@[9:10)    Colon |:|
+//@[11:13)    ObjectSyntax
+//@[11:12)     LeftBrace |{|
+//@[12:13)     RightBrace |}|
+//@[13:14)   NewLine |\n|
+}
+//@[0:1)   RightBrace |}|
+//@[1:1) EndOfFile ||

@@ -2,13 +2,13 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Exceptions;
-using Bicep.RegistryModuleTool.Extensions;
+using Bicep.Core.Extensions;
+using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
-using System.Buffers;
+using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 
 namespace Bicep.RegistryModuleTool.ModuleFiles
 {
@@ -16,57 +16,80 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "version.json";
 
-        private static readonly Regex VersionRegex = new(@"0|[1-9]\d*\.0|[1-9]\d*", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+        private static readonly JsonElement EmptyFileElement = JsonElementFactory.CreateElement(new Dictionary<string, object>
+        {
+            ["$schema"] = "https://aka.ms/bicep-registry-module-version-file-schema#",
+            ["version"] = "",
+            ["pathFilters"] = new[]
+            {
+                "./main.json",
+                "./metadata.json"
+            },
+        });
 
-        public VersionFile(string path, string content)
+        private static readonly JsonElement NoVersionFileElement = EmptyFileElement.Patch(JsonPatchOperations.Remove("/version"));
+
+        public VersionFile(string path, string contents, JsonElement rootElement)
             : base(path)
         {
-            this.Content = content;
+            this.Contents = contents;
+            this.RootElement = rootElement;
         }
 
-        public string Content { get; }
+        public string Contents { get; }
+
+        public JsonElement RootElement { get; }
 
         public static VersionFile Generate(IFileSystem fileSystem)
         {
-            var currentDirectoryName = fileSystem.Directory.GetCurrentDirectoryName();
 
-            if (!VersionRegex.IsMatch(currentDirectoryName))
+            var path = fileSystem.Path.GetFullPath(FileName);
+            var rootElement = EmptyFileElement;
+
+            try
             {
-                throw new BicepException(@$"The directory name ""{currentDirectoryName}"" must be in the format of a version number ""MAJOR.MINOR"".");
+                var existingFile = ReadFromFileSystem(fileSystem);
+
+                // Merge NoVersionFileElement at last in case the author changed $schema or pathFilter.
+                rootElement = rootElement
+                    .Merge(existingFile.RootElement)
+                    .Merge(NoVersionFileElement);
+            }
+            catch (FileNotFoundException)
+            {
+                // Nothing to do.
             }
 
-            var bufferWriter = new ArrayBufferWriter<byte>();
-            using (var writer = new Utf8JsonWriter(bufferWriter, new JsonWriterOptions { Indented = true }))
-            {
-                writer.WriteStartObject();
+            var content = rootElement.ToFormattedString();
 
-                writer.WriteString("$schema", "https://raw.githubusercontent.com/dotnet/Nerdbank.GitVersioning/master/src/NerdBank.GitVersioning/version.schema.json");
-                writer.WriteString("version", currentDirectoryName);
-
-                writer.WritePropertyName("pathFilters");
-                writer.WriteStartArray();
-                writer.WriteStringValue("./main.json");
-                writer.WriteEndArray();
-
-                writer.WriteEndObject();
-            }
-
-            var content = Encoding.UTF8.GetString(bufferWriter.WrittenSpan);
-
-            return new(fileSystem.Path.GetFullPath(FileName), content);
+            return new(path, content, rootElement);
         }
 
         public static VersionFile ReadFromFileSystem(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);
-            var content = fileSystem.File.ReadAllText(FileName);
 
-            return new(path, content);
+            try
+            {
+                var content = fileSystem.File.ReadAllText(FileName);
+                var rootElement = JsonElementFactory.CreateElement(content);
+
+                if (rootElement.ValueKind != JsonValueKind.Object)
+                {
+                    throw new BicepException($"The version file \"{path}\" must contain a JSON object at the root level.");
+                }
+
+                return new(path, content, rootElement);
+            }
+            catch (JsonException jsonException)
+            {
+                throw new BicepException($"The version file \"{path}\" is not a valid JSON file. {jsonException.Message}");
+            }
         }
 
         public VersionFile WriteToFileSystem(IFileSystem fileSystem)
         {
-            fileSystem.File.WriteAllText(this.Path, this.Content);
+            fileSystem.File.WriteAllText(this.Path, this.Contents);
 
             return this;
         }

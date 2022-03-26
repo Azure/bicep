@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12511392809354820622"
+      "templateHash": "12683546045009937644"
     }
   },
   "parameters": {
@@ -61,7 +61,27 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/{1}', parameters('virtualNetworkName'), parameters('subnetName'))]",
       "properties": {
-        "addressPrefix": "[parameters('subnetPrefix')]"
+        "addressPrefix": "[parameters('subnetPrefix')]",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"
@@ -72,7 +92,27 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/GatewaySubnet', parameters('virtualNetworkName'))]",
       "properties": {
-        "addressPrefix": "[parameters('gatewaySubnetPrefix')]"
+        "addressPrefix": "[parameters('gatewaySubnetPrefix')]",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', parameters('virtualNetworkName'))]"

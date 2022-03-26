@@ -39,7 +39,7 @@ resource roleDefinitionName 'Microsoft.Authorization/roleAssignments@2020-04-01-
     roleDefinitionId: roleDefinitionId
     principalId: identityName.properties.principalId
     scope: resourceGroup().id
-//@[4:9) [BCP073 (Warning)] The property "scope" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |scope|
+//@[4:9) [BCP073 (Warning)] The property "scope" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |scope|
     principalType: 'ServicePrincipal'
   }
 }

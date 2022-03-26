@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "1239573909043118015"
+      "templateHash": "10329342537630729871"
     }
   },
   "parameters": {
@@ -123,7 +123,27 @@
                 "id": "[resourceInfo('natGateway').id]"
               },
               "privateEndpointNetworkPolicies": "Enabled",
-              "privateLinkServiceNetworkPolicies": "Enabled"
+              "privateLinkServiceNetworkPolicies": "Enabled",
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ],
@@ -144,7 +164,27 @@
           "id": "[resourceInfo('natGateway').id]"
         },
         "privateEndpointNetworkPolicies": "Enabled",
-        "privateLinkServiceNetworkPolicies": "Enabled"
+        "privateLinkServiceNetworkPolicies": "Enabled",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "natGateway",

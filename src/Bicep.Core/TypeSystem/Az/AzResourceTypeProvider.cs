@@ -8,7 +8,6 @@ using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
 using Bicep.Core.Emit;
-using Bicep.Core.Semantics.Namespaces;
 using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.Az
@@ -112,10 +111,10 @@ namespace Bicep.Core.TypeSystem.Az
             // We don't expect any Az resource types without an API version
             var apiVersion = reference.ApiVersion ?? throw new ArgumentException($"Resource reference {reference.FormatName()} contains null API Version", nameof(reference));
 
-            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource id");
-            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant, "The resource name");
-            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource type");
-            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant, "The resource api version");
+            yield return new TypeProperty(ResourceIdPropertyName, LanguageConstants.String, TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource id");
+            yield return new TypeProperty(ResourceNamePropertyName, LanguageConstants.String, TypePropertyFlags.Required | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty, "The resource name");
+            yield return new TypeProperty(ResourceTypePropertyName, new StringLiteralType(reference.FormatType()), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource type");
+            yield return new TypeProperty(ResourceApiVersionPropertyName, new StringLiteralType(apiVersion), TypePropertyFlags.ReadOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty, "The resource api version");
         }
 
         public static IEnumerable<TypeProperty> CreateResourceProperties(ResourceTypeReference resourceTypeReference)
@@ -208,7 +207,7 @@ namespace Bicep.Core.TypeSystem.Az
                         bodyObjectType = new ObjectType(
                             bodyObjectType.Name,
                             bodyObjectType.ValidationFlags,
-                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags)).Values,
+                            bodyObjectType.Properties.SetItem(ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags | TypePropertyFlags.SystemProperty)).Values,
                             bodyObjectType.AdditionalPropertiesType,
                             bodyObjectType.AdditionalPropertiesFlags,
                             bodyObjectType.MethodResolver.CopyToObject);
@@ -271,7 +270,7 @@ namespace Bicep.Core.TypeSystem.Az
             var properties = objectType.Properties;
             var isExistingResource = flags.HasFlag(ResourceTypeGenerationFlags.ExistingResource);
 
-            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
+            var scopePropertyFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
             if (validParentScopes == ResourceScope.Resource)
             {
                 // resource can only be deployed as an extension resource - scope should be required
@@ -286,7 +285,7 @@ namespace Bicep.Core.TypeSystem.Az
             else
             {
                 // TODO: remove 'dependsOn' from the type library
-                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny));
+                properties = properties.SetItem(LanguageConstants.ResourceDependsOnPropertyName, new TypeProperty(LanguageConstants.ResourceDependsOnPropertyName, LanguageConstants.ResourceOrResourceCollectionRefArray, TypePropertyFlags.WriteOnly | TypePropertyFlags.DisallowAny | TypePropertyFlags.SystemProperty));
 
                 if (ScopeHelper.TryCreateNonExistingResourceScopeProperty(validParentScopes, scopePropertyFlags) is { } scopeProperty)
                 {
@@ -314,17 +313,17 @@ namespace Bicep.Core.TypeSystem.Az
                 }
             }
 
-            // add the loop variant flag to the name property (if it exists)
+            // add the loop variant and system flags to the name property (if it exists)
             if (properties.TryGetValue(ResourceNamePropertyName, out var nameProperty))
             {
-                properties = properties.SetItem(ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant));
+                properties = properties.SetItem(ResourceNamePropertyName, UpdateFlags(nameProperty, nameProperty.Flags | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty));
             }
 
             // add the 'parent' property for child resource types that are not nested inside a parent resource
             if (typeReference.TypeSegments.Length > 2 && !flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
             {
                 var parentType = new ResourceParentType(typeReference);
-                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant;
+                var parentFlags = TypePropertyFlags.WriteOnly | TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.DisallowAny | TypePropertyFlags.LoopVariant | TypePropertyFlags.SystemProperty;
 
                 properties = properties.SetItem(LanguageConstants.ResourceParentPropertyName, new TypeProperty(LanguageConstants.ResourceParentPropertyName, parentType, parentFlags));
             }
@@ -332,8 +331,8 @@ namespace Bicep.Core.TypeSystem.Az
             // Deployments RP
             if (StringComparer.OrdinalIgnoreCase.Equals(typeReference.FormatType(), ResourceTypeDeployments))
             {
-                properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
-                properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant));
+                properties = properties.SetItem("resourceGroup", new TypeProperty("resourceGroup", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty));
+                properties = properties.SetItem("subscriptionId", new TypeProperty("subscriptionId", LanguageConstants.String, TypePropertyFlags.DeployTimeConstant | TypePropertyFlags.SystemProperty));
             }
 
             var functions = objectType.MethodResolver.functionOverloads.AddRange(GetBicepMethods(typeReference));

@@ -12,7 +12,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -30,7 +29,7 @@ namespace Bicep.Core.Semantics.Namespaces
         public const string lastDescription = "Returns the last element of the array, or last character of the string.";
         public const string minDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
         public const string maxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
-        
+
         public static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
             BicepProviderName: BuiltInName,
@@ -212,7 +211,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
                 .WithGenericDescription(containsDescription)
-                .WithDescription("Checks whether an array contains a value.")
+                .WithDescription("Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
                 .Build(),
@@ -288,11 +287,25 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
                 .Build(),
 
+            new FunctionOverloadBuilder("indexOf")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Returns the first position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
+                .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
+                .Build(),
+
             new FunctionOverloadBuilder("lastIndexOf")
                 .WithReturnType(LanguageConstants.Int)
                 .WithGenericDescription("Returns the last position of a value within a string. The comparison is case-insensitive.")
                 .WithRequiredParameter("stringToSearch", LanguageConstants.String, "The value that contains the item to find.")
                 .WithRequiredParameter("stringToFind", LanguageConstants.String, "The value to find.")
+                .Build(),
+
+            new FunctionOverloadBuilder("lastIndexOf")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Returns the last position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
+                .WithRequiredParameter("array", LanguageConstants.Array, "The array that contains the item to find.")
+                .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
                 .Build(),
 
             new FunctionOverloadBuilder("startsWith")
@@ -685,9 +698,19 @@ namespace Bicep.Core.Semantics.Namespaces
 
             static long? TryGetIntegerLiteralValue(SyntaxBase syntax) => syntax switch
             {
+                // if integerLiteralSyntax.Value is within the 64 bit integer range, negate it after casting to a long type
+                // long.MaxValue + 1 (9,223,372,036,854,775,808) is the only invalid 64 bit integer value that may be passed. we avoid casting to a long because this causes overflow. we need to just return long.MinValue (-9,223,372,036,854,775,808)
+                // if integerLiteralSyntax.Value is outside the range, return null. it should have already been caught by a different validation
                 UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
-                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => -1 * integerLiteralSyntax.Value,
-                IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value,
+                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value switch { 
+                        <= long.MaxValue => -(long)integerLiteralSyntax.Value,
+                        (ulong)long.MaxValue + 1 => long.MinValue,
+                        _ => null
+                    },
+                
+                // this ternary check is to make sure that the integer value is within the range of a signed 64 bit integer before casting to a long type
+                // if not, it would have been caught already by a different validation
+                IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value <= long.MaxValue ? (long)integerLiteralSyntax.Value : null,
                 _ => null,
             };
 
@@ -731,7 +754,7 @@ namespace Bicep.Core.Semantics.Namespaces
                         SingleArgumentSelector(decoratorSyntax) is ArraySyntax allowedValues &&
                         allowedValues.Items.All(item => item.Value is not ArraySyntax))
                     {
-                        /* 
+                        /*
                          * ARM handles array params with allowed values differently. If none of items of
                          * the allowed values is array, it will check if the parameter value is a subset
                          * of the allowed values.

@@ -32,11 +32,21 @@
         "resolved": "3.3.3",
         "contentHash": "vvz3XCHVrd/Ks4xPoutLmL/T2+8JcOk/OMs3ngwQqnzokQCGEDsY+WjK/txCsDWU29sX3fGzH/FnYwNV93O1mA=="
       },
+      "Microsoft.SourceLink.GitHub": {
+        "type": "Direct",
+        "requested": "[1.1.1, )",
+        "resolved": "1.1.1",
+        "contentHash": "IaJGnOv/M7UQjRJks7B6p7pbPnOwisYGOIzqCz5ilGFTApZ3ktOR+6zJ12ZRPInulBmdAf1SrGdDG2MU8g6XTw==",
+        "dependencies": {
+          "Microsoft.Build.Tasks.Git": "1.1.1",
+          "Microsoft.SourceLink.Common": "1.1.1"
+        }
+      },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.4.231, )",
-        "resolved": "3.4.231",
-        "contentHash": "ifpSbv0sySgIVymTQQz0pjI6O7o/JxnIQMlj28JF5Ybr1LoUTcMfoKnAKwteRlhpQM9qJmONGy9M8BgrEcOteg=="
+        "requested": "[3.4.255, )",
+        "resolved": "3.4.255",
+        "contentHash": "7aJa6+VzdKNDVJqGIWGtvIDh2HsIx8DIDfUg4yWViXc798awhSohPMk1oiAZqSntnrKThKJtn4vAMRdsCj8dtg=="
       },
       "NETStandard.Library": {
         "type": "Direct",
@@ -46,6 +56,11 @@
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0"
         }
+      },
+      "Microsoft.Build.Tasks.Git": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "AT3HlgTjsqHnWpBHSNeR0KxbLZD7bztlZVj7I8vgeYG9SYqbeFGh0TM/KVtC6fg53nrWHl3VfZFvb5BiQFcY6Q=="
       },
       "Microsoft.NET.StringTools": {
         "type": "Transitive",
@@ -65,6 +80,11 @@
         "type": "Transitive",
         "resolved": "1.1.0",
         "contentHash": "aOZA3BWfz9RXjpzt0sRJJMjAscAUm3Hoa4UWAfceV9UTYxgwZ1lZt5nO2myFf+/jetYQo4uTP7zS8sJY67BBxg=="
+      },
+      "Microsoft.SourceLink.Common": {
+        "type": "Transitive",
+        "resolved": "1.1.1",
+        "contentHash": "WMcGpWKrmJmzrNeuaEb23bEMnbtR/vLmvZtkAP5qWu7vQsY59GqfRJd65sFpBszbd2k/bQ8cs8eWawQKAabkVg=="
       },
       "Microsoft.Win32.Registry": {
         "type": "Transitive",

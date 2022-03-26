@@ -4,9 +4,7 @@
 using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Xml.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {

@@ -31,19 +31,19 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
             var latestMetadataFile = MetadataFile.ReadFromFileSystem(this.fileSystem);
             var latestReadmeFile = ReadmeFile.Generate(this.fileSystem, latestMetadataFile, latestMainArmTemplateFile);
 
-            this.Validate(file.Path, file.Content, latestReadmeFile.Content);
+            this.Validate(file.Path, file.Contents, latestReadmeFile.Contents);
         }
 
         public void Validate(VersionFile file)
         {
             var latestVersionFile = VersionFile.Generate(this.fileSystem);
 
-            this.Validate(file.Path, file.Content, latestVersionFile.Content);
+            this.Validate(file.Path, file.Contents, latestVersionFile.Contents);
         }
 
         private void Validate(string filePath, string newContent, string oldContent)
         {
-            this.logger.LogDebug("Making sure the content of \"{FilePath}\" is up-to-date...", filePath);
+            this.logger.LogInformation("Making sure the content of \"{FilePath}\" is up-to-date...", filePath);
 
             if (DiffLines(newContent, oldContent))
             {

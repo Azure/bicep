@@ -39,6 +39,10 @@
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
 
+    <!-- sourcelink configuration -->
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/Azure/bicep</RepositoryUrl>
+
     <IsPackable>true</IsPackable>
   </PropertyGroup>
 

@@ -9,8 +9,8 @@ namespace Bicep.Core.Analyzers
 {
     public class AnalyzerDiagnostic : Diagnostic, IDiagnostic
     {
-        public AnalyzerDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, Uri? documentationUri = null, DiagnosticLabel? label = null)
-            : base(span, level, code, message, documentationUri, label, $"{LanguageConstants.LanguageId} {analyzerName}")
+        public AnalyzerDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level, string code, string message, Uri? documentationUri = null, DiagnosticStyling styling = DiagnosticStyling.Default)
+            : base(span, level, code, message, documentationUri, styling, $"{LanguageConstants.LanguageId} {analyzerName}")
         {
         }
     }

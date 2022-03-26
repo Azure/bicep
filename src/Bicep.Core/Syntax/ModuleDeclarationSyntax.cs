@@ -5,8 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Semantics;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Syntax
 {
@@ -46,27 +44,6 @@ namespace Bicep.Core.Syntax
 
         public StringSyntax? TryGetPath() => Path as StringSyntax;
 
-        public TypeSymbol GetDeclaredType(IBinder binder)
-        {
-            if (binder.GetSymbolInfo(this) is not ModuleSymbol moduleSymbol)
-            {
-                // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
-                return ErrorType.Empty();
-            }
-
-            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
-            {
-                return ErrorType.Create(failureDiagnostic);
-            }
-
-            return LanguageConstants.CreateModuleType(
-                moduleSemanticModel.ParameterTypeProperties,
-                moduleSemanticModel.OutputTypeProperties,
-                moduleSemanticModel.TargetScope,
-                binder.TargetScope,
-                LanguageConstants.TypeNameModule);
-        }
-
         public ObjectSyntax? TryGetBody() =>
             this.Value switch
             {
@@ -88,5 +65,7 @@ namespace Bicep.Core.Syntax
 
         public ObjectSyntax GetBody() =>
             this.TryGetBody() ?? throw new InvalidOperationException($"A valid module body is not available on this module due to errors. Use {nameof(TryGetBody)}() instead.");
+
+        public bool HasCondition() => this.Value is IfConditionSyntax or ForSyntax { Body: IfConditionSyntax };
     }
 }

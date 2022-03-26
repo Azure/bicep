@@ -321,5 +321,76 @@ output inputObjValues array = [for item in items(inputObj): item.value]
                 });
             }
         }
+
+        [TestMethod]
+        public void indexof_contains_function_evaluation_works()
+        {
+            var (template, _, _) = CompilationHelper.Compile(@"
+param inputString string
+param inputArray array
+
+output strIdxFooLC int = indexOf(inputString, 'foo')
+output strIdxFooUC int = indexOf(inputString, 'FOO')
+output strIdxBarLC int = indexOf(inputString, 'bar')
+output strIdxBarUC int = indexOf(inputString, 'BAR')
+output containsStrFooLC bool = contains(inputString, 'foo')
+output containsStrFooUC bool = contains(inputString, 'FOO')
+output containsStrBarLC bool = contains(inputString, 'bar')
+output containsStrBarUC bool = contains(inputString, 'BAR')
+
+output arrIdxFooLC int = indexOf(inputArray, 'foo')
+output arrIdxFooUC int = indexOf(inputArray, 'FOO')
+output arrIdxBarLC int = indexOf(inputArray, 'bar')
+output arrIdxBarUC int = indexOf(inputArray, 'BAR')
+output arrIdxfalse int = indexOf(inputArray, false)
+output arrIdx123 int = indexOf(inputArray, 123)
+output containsArrFooLC bool = contains(inputArray, 'foo')
+output containsArrFooUC bool = contains(inputArray, 'FOO')
+output containsArrBarLC bool = contains(inputArray, 'bar')
+output containsArrBarUC bool = contains(inputArray, 'BAR')
+output containsArrfalse bool = contains(inputArray, false)
+output containsArr123 bool = contains(inputArray, 123)
+");
+
+            using (new AssertionScope())
+            {
+                var evaluated = TemplateEvaluator.Evaluate(template, config => config with
+                {
+                    Parameters = new()
+                    {
+                        ["inputString"] = "FOOBAR",
+                        ["inputArray"] = new JArray
+                        {
+                            "FOO",
+                            "BAR"
+                        }
+                    }
+                });
+
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooLC'].value", new JValue(0));
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxFooUC'].value", new JValue(0));
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxBarLC'].value", new JValue(3));
+                evaluated.Should().HaveValueAtPath("$.outputs['strIdxBarUC'].value", new JValue(3));
+
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrFooLC'].value", new JValue(false)); // case-sensitive
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrFooUC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrBarLC'].value", new JValue(false)); // case-sensitive
+                evaluated.Should().HaveValueAtPath("$.outputs['containsStrBarUC'].value", new JValue(true));
+
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxFooLC'].value", new JValue(-1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxFooUC'].value", new JValue(0));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxBarLC'].value", new JValue(-1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxBarUC'].value", new JValue(1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdxfalse'].value", new JValue(-1));
+                evaluated.Should().HaveValueAtPath("$.outputs['arrIdx123'].value", new JValue(-1));
+
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrFooLC'].value", new JValue(false));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrFooUC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrBarLC'].value", new JValue(false));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrBarUC'].value", new JValue(true));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArrfalse'].value", new JValue(false));
+                evaluated.Should().HaveValueAtPath("$.outputs['containsArr123'].value", new JValue(false));
+            }
+        }
     }
 }

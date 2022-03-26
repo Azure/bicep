@@ -147,11 +147,11 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location is after # sign.
         /// </summary>
-        DisableNextLineDiagnosticsDirectiveStart = 1 << 25,
+        DisableNextLineDiagnosticsDirectiveStart = 1 << 26,
 
         /// <summary>
         /// The current location is after '#disable-next-line |'.
         /// </summary>
-        DisableNextLineDiagnosticsCodes = 1 << 26
+        DisableNextLineDiagnosticsCodes = 1 << 27
     }
 }

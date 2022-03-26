@@ -192,7 +192,8 @@ output myOutput string = 'myOutput'
                 "/subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg",
                 "Microsoft.Resources/resourceGroups",
                 "myRg",
-                "myRg");
+                "myRg",
+                "23775d31-d753-4290-805b-e5bde53eba6e");
             var mockResource = new JObject
             {
                 ["id"] = resourceId.FullyQualifiedId,

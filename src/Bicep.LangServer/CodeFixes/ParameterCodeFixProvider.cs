@@ -3,12 +3,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.PrettyPrint;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
@@ -35,7 +33,7 @@ namespace Bicep.LanguageServer.CodeFixes
             {
                 yield break;
             }
-            if(!supportedTypes.Any(t => parameterSyntax.ParameterType?.TypeName == t))
+            if(parameterSyntax.ParameterType is SimpleTypeSyntax simpleType && !supportedTypes.Any(t => simpleType.TypeName == t))
             {
                 yield break;
             }

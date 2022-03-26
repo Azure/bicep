@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -21,7 +20,7 @@ namespace Bicep.Core.UnitTests.Utils
 
         public static StringSyntax CreateString(string value) => SyntaxFactory.CreateStringLiteral(value);
 
-        public static IntegerLiteralSyntax CreateInt(long value) => new(CreateToken(TokenType.Integer), value);
+        public static IntegerLiteralSyntax CreateInt(ulong value) => new(CreateToken(TokenType.Integer), value);
 
         public static BooleanLiteralSyntax CreateBool(bool value) => new BooleanLiteralSyntax(value ? CreateToken(TokenType.TrueKeyword) : CreateToken(TokenType.FalseKeyword), value);
 

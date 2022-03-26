@@ -14,8 +14,8 @@ namespace Bicep.Core.Analyzers
     {
         public AnalyzerFixableDiagnostic(string analyzerName, TextSpan span, DiagnosticLevel level,
             string code, string message, Uri? documentationUri,
-            DiagnosticLabel? label, IEnumerable<CodeFix> codeFixes)
-            : base(analyzerName, span, level, code, message, documentationUri, label)
+            DiagnosticStyling styling, IEnumerable<CodeFix> codeFixes)
+            : base(analyzerName, span, level, code, message, documentationUri, styling)
         {
             this.Fixes = codeFixes;
         }

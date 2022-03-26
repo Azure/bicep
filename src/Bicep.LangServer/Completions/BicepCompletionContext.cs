@@ -176,6 +176,12 @@ namespace Bicep.LanguageServer.Completions
                 // previous processing hasn't identified a completion context kind
                 // check if we're inside an expression
                 kind |= ConvertFlag(IsInnerExpressionContext(matchingNodes, offset), BicepCompletionContextKind.Expression);
+
+                if (kind.HasFlag(BicepCompletionContextKind.Expression) &&
+                    PropertyTypeShouldFlowThrough(matchingNodes, propertyInfo, offset))
+                {
+                    kind |= BicepCompletionContextKind.PropertyValue;
+                }
             }
 
             return new BicepCompletionContext(
@@ -242,26 +248,65 @@ namespace Bicep.LanguageServer.Completions
             // local function
             bool CheckTypeIsExpected(SyntaxBase name, SyntaxBase type) => name.Span.Length > 0 && offset > name.GetEndPosition() && offset <= type.Span.Position;
 
+            bool CheckParameterResourceTypeIsExpected(ResourceTypeSyntax type) =>
+                // This handles the case where we have the resource keyword but no type-string for a parameter.
+                // Must be inside the type
+                type.Span.Length > 0 &&
+                offset >= type.Keyword.GetEndPosition() &&
+                (type.Type is null || type.Type is SkippedTriviaSyntax);
+
+            bool CheckOutputResourceTypeIsExpected(OutputDeclarationSyntax output) =>
+                // This handles the case where we have the resource keyword but no type-string for an output.
+                // Must be after the type (`resource` is valid for type) and
+                // Before the `=` if `=` is present
+                output.Type is ResourceTypeSyntax type &&
+                offset >= type.Keyword.GetEndPosition() &&
+                (type.Type is null || type.Type is SkippedTriviaSyntax) &&
+                (output.Assignment is SkippedTriviaSyntax || (output.Assignment is Token assignment && offset <= assignment.GetPosition()));
+
             if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax>(matchingNodes, parameter => CheckTypeIsExpected(parameter.Name, parameter.Type)) ||
-                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is a parameter declaration
                 // the declaration syntax is "param <identifier> <type> ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
                 // OR
-                // we are in a token that is inside a TypeSyntax node, which is inside a parameter node
+                // we are in a token that is inside a SimpleTypeSyntax node, which is inside a parameter node
                 return BicepCompletionContextKind.ParameterType;
             }
 
+            if (SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, ResourceTypeSyntax>(matchingNodes, (parameter, type) => CheckParameterResourceTypeIsExpected(type)) ||
+                SyntaxMatcher.IsTailMatch<ParameterDeclarationSyntax, ResourceTypeSyntax, StringSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.StringComplete))
+            {
+                // the most specific matching node is a parameter declaration with the resource keyword
+                // the declaration syntax is "param <identifier> resource ..."
+                // the cursor position is on the resource type if we have the resource keyword but nothing else
+                // OR
+                // we are in a token that is inside a ResourceTypeSyntax node, which is inside a parameter node
+                return BicepCompletionContextKind.ResourceType;
+            }
+
             if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckTypeIsExpected(output.Name, output.Type)) ||
-                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, TypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
+                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, SimpleTypeSyntax, Token>(matchingNodes, (_, _, token) => token.Type == TokenType.Identifier))
             {
                 // the most specific matching node is an output declaration
                 // the declaration syntax is "output <identifier> <type> ..."
                 // the cursor position is on the type if we have an identifier (non-zero length span) and the offset matches the type position
                 // OR
-                // we are in a token that is inside a TypeSyntax node, which is inside an output node
+                // we are in a token that is inside a SimpleTypeSyntax node, which is inside an output node
                 return BicepCompletionContextKind.OutputType;
+            }
+
+             // NOTE: this logic is different between parameters and outputs because the resource type is optional for outputs.
+            if (SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax>(matchingNodes, output => CheckOutputResourceTypeIsExpected(output)) ||
+                SyntaxMatcher.IsTailMatch<OutputDeclarationSyntax, ResourceTypeSyntax, StringSyntax, Token>(matchingNodes, (_, _, _, token) => token.Type == TokenType.StringComplete))
+            {
+                // the most specific matching node is an output declaration with the resource keyword
+                // the declaration syntax is "output <identifier> resource ..."
+                // the cursor position is on the resource type if we have the resource keyword but nothing else
+                // OR
+                // we are in a token that is inside a ResourceTypeSyntax node, which is inside an output node
+                return BicepCompletionContextKind.ResourceType;
             }
 
             if (SyntaxMatcher.IsTailMatch<ResourceDeclarationSyntax>(matchingNodes, resource => CheckTypeIsExpected(resource.Name, resource.Type)) ||
@@ -507,6 +552,37 @@ namespace Bicep.LanguageServer.Completions
             return BicepCompletionContextKind.None;
         }
 
+        private static bool PropertyTypeShouldFlowThrough(List<SyntaxBase> matchingNodes, (ObjectPropertySyntax? node, int index) propertyInfo, int offset)
+        {
+            if (propertyInfo.node is null)
+            {
+                return false;
+            }
+
+            // Property types should flow through parenthesized and ternary expressions. For examples:
+            // {
+            //   key: (( | ))
+            // }
+            // {
+            //   key: conditionA ? | : false
+            // }
+            // {
+            //   key: conditionA ? (conditionB ? true : |) : false
+            // }
+            if ((SyntaxMatcher.IsTailMatch<TernaryOperationSyntax>(matchingNodes) ||
+                SyntaxMatcher.IsTailMatch<TernaryOperationSyntax, Token>(matchingNodes) ||
+                SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax>(matchingNodes) ||
+                SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, Token>(matchingNodes) || 
+                SyntaxMatcher.IsTailMatch<ParenthesizedExpressionSyntax, SkippedTriviaSyntax>(matchingNodes, (parenthesizedExpression, _) =>
+                    parenthesizedExpression.Expression is SkippedTriviaSyntax)) && 
+                matchingNodes.Skip(propertyInfo.index + 1).SkipLast(1).All(node => node is TernaryOperationSyntax or ParenthesizedExpressionSyntax))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
         private static bool IsArrayItemContext(List<SyntaxBase> matchingNodes, (ArraySyntax? node, int index) arrayInfo, int offset)
         {
             if (arrayInfo.node == null)
@@ -721,6 +797,35 @@ namespace Bicep.LanguageServer.Completions
             if (isInStringSegment)
             {
                 return false;
+            }
+
+            // var foo = true ?|:
+            // var foo = true ?| :
+            // var foo = true ? |:
+            // var foo = true ? | :
+            var isInEmptyTrueExpression = SyntaxMatcher.IsTailMatch<TernaryOperationSyntax>(
+                matchingNodes,
+                ternaryOperation =>
+                    ternaryOperation.Question.GetPosition() <= offset &&
+                    ternaryOperation.Colon.GetPosition() >= offset &&
+                    ternaryOperation.TrueExpression is SkippedTriviaSyntax);
+
+            if (isInEmptyTrueExpression)
+            {
+                return true;
+            }
+
+            // var foo = true ? : | <white spaces>
+            var isInEmptyFalseExpression = SyntaxMatcher.IsTailMatch<TernaryOperationSyntax>(
+                matchingNodes,
+                ternaryOperation =>
+                    ternaryOperation.Colon.GetPosition() <= offset &&
+                    ternaryOperation.FalseExpression.GetPosition() >= offset &&
+                    ternaryOperation.FalseExpression is SkippedTriviaSyntax);
+
+            if (isInEmptyFalseExpression)
+            {
+                return true;
             }
 
             // It does not make sense to insert expressions at the cursor positions shown in the comments below.

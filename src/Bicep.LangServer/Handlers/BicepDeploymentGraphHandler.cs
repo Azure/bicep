@@ -133,7 +133,7 @@ namespace Bicep.LanguageServer.Handlers
                         continue;
                     }
 
-                    foreach (var dependency in dependencies)
+                    foreach (var dependency in dependencies.Where(d => d.Kind == ResourceDependencyKind.Primary))
                     {
                         if (!nodesBySymbol.TryGetValue(dependency.Resource, out var target))
                         {

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "15988558302197664211"
+      "templateHash": "812777055705081661"
     }
   },
   "parameters": {
@@ -68,7 +68,27 @@
       "apiVersion": "2020-06-01",
       "name": "[format('{0}/subnet-01', 'vnet-01')]",
       "properties": {
-        "addressPrefix": "10.0.1.0/24"
+        "addressPrefix": "10.0.1.0/24",
+        "networkSecurityGroup": {
+          "properties": {
+            "securityRules": [
+              {
+                "properties": {
+                  "direction": "Inbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              },
+              {
+                "properties": {
+                  "direction": "Outbound",
+                  "protocol": "*",
+                  "access": "Allow"
+                }
+              }
+            ]
+          }
+        }
       },
       "dependsOn": [
         "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-01')]"

@@ -240,7 +240,8 @@ namespace Bicep.LanguageServer.Handlers
                     resourceId.FullyQualifiedId,
                     resourceId.FormatFullyQualifiedType(),
                     resourceId.FormatName(),
-                    resourceId.NameHierarchy.Last());
+                    resourceId.NameHierarchy.Last(),
+                    string.Empty);
             }
 
             var rgRegexOptions = RegexOptions.IgnoreCase | RegexOptions.ExplicitCapture | RegexOptions.CultureInvariant;
@@ -252,7 +253,8 @@ namespace Bicep.LanguageServer.Handlers
                     resourceIdString,
                     "Microsoft.Resources/resourceGroups",
                     rgRegexMatch.Groups["rgName"].Value,
-                    rgRegexMatch.Groups["rgName"].Value);
+                    rgRegexMatch.Groups["rgName"].Value,
+                    rgRegexMatch.Groups["subId"].Value);
             }
 
             return null;
@@ -279,9 +281,16 @@ namespace Bicep.LanguageServer.Handlers
                 case JsonValueKind.String:
                     return SyntaxFactory.CreateStringLiteral(element.GetString()!);
                 case JsonValueKind.Number:
-                    if (element.TryGetInt32(out var intValue))
+                    if (element.TryGetInt64(out var intValue))
                     {
-                        return SyntaxFactory.CreateIntegerLiteral(element.GetInt32()!);
+                        if (intValue >= 0)
+                        {
+                            return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
+                        }
+                        else
+                        {
+                            return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
+                        }
                     }
                     return SyntaxFactory.CreateStringLiteral(element.ToString()!);
                 case JsonValueKind.True:

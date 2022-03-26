@@ -4,6 +4,8 @@
     <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- NU5104: A stable release of a package should not have a prerelease dependency -->
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
@@ -24,5 +26,6 @@
   <ItemGroup>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.231" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CodeAnalysis.BannedApiAnalyzers" Version="3.3.3"  PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
   </ItemGroup>
 </Project>

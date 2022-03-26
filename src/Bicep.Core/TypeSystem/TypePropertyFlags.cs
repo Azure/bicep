@@ -62,6 +62,11 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Property that is not defined in Swagger, but still might be valid. We will show warning instead error.
         /// </summary>
-        FallbackProperty = 1 << 9
+        FallbackProperty = 1 << 9,
+
+        /// <summary>
+        /// Language system property, i.e. id, type, api-version
+        /// </summary>
+        SystemProperty = 1 << 10
     }
 }

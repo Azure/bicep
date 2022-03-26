@@ -142,6 +142,78 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Maximum number of outputs used..
+        /// </summary>
+        internal static string MaxNumberOutputsRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberOutputsRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many outputs. Number of outputs is limited to {0}..
+        /// </summary>
+        internal static string MaxNumberOutputsRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberOutputsRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum number of parameters used..
+        /// </summary>
+        internal static string MaxNumberParametersRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberParametersRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many parameters. Number of parameters is limited to {0}..
+        /// </summary>
+        internal static string MaxNumberParametersRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberParametersRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum number of resources used..
+        /// </summary>
+        internal static string MaxNumberResourcesRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberResourcesRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many resources. Number of resources is limited to {0}..
+        /// </summary>
+        internal static string MaxNumberResourcesRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberResourcesRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Maximum number of variables used..
+        /// </summary>
+        internal static string MaxNumberVariablesRuleDescription {
+            get {
+                return ResourceManager.GetString("MaxNumberVariablesRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Too many variables. Number of variables is limited to {0}..
+        /// </summary>
+        internal static string MaxNumberVariablesRuleMessageFormat {
+            get {
+                return ResourceManager.GetString("MaxNumberVariablesRuleMessageFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A resource location should not use a hard-coded string or variable value. Change variable &apos;{0}&apos; into a parameter instead..
         /// </summary>
         internal static string NoHardcodedLocation_ErrorChangeVarToParam {

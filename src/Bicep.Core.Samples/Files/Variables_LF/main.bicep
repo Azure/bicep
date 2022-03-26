@@ -91,6 +91,7 @@ var expressionIndexOnAny = any({
 var anyIndexOnAny = any(true)[any(false)]
 
 var deploymentName = deployment().name
+var templateContentVersion = deployment().properties.template.contentVersion
 var templateLinkUri = deployment().properties.templateLink.uri
 var templateLinkId = deployment().properties.templateLink.id
 

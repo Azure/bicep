@@ -45,7 +45,7 @@ var osType = {
 }
 var imageReference = osType
 
-resource virtualNetwork 'Microsoft.Network/virtualnetworks@2015-05-01-preview' = {
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2021-05-01' = {
   name: virtualNetworkName
   location: location
   properties: {
@@ -59,6 +59,26 @@ resource virtualNetwork 'Microsoft.Network/virtualnetworks@2015-05-01-preview' =
         name: subnetName
         properties: {
           addressPrefix: subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]

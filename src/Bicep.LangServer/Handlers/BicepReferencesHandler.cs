@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
-using Bicep.Core.Syntax;
 using Bicep.LanguageServer.Providers;
 using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "11609579889945901205"
+      "templateHash": "18429782161085201209"
     }
   },
   "parameters": {
@@ -71,8 +71,7 @@
         "state": "[parameters('transparentDataEncryption')]"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), variables('databaseName'))]",
-        "[resourceId('Microsoft.Sql/servers', variables('sqlServerName'))]"
+        "[resourceId('Microsoft.Sql/servers/databases', variables('sqlServerName'), variables('databaseName'))]"
       ]
     }
   ]

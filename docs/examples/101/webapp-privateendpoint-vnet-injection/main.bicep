@@ -80,6 +80,26 @@ resource subnet1 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
   properties: {
     addressPrefix: subnet1_CIDR
     privateEndpointNetworkPolicies: 'Disabled'
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
 }
 
@@ -100,6 +120,26 @@ resource subnet2 'Microsoft.Network/virtualNetworks/subnets@2020-06-01' = {
       }
     ]
     privateEndpointNetworkPolicies: 'Enabled'
+    networkSecurityGroup: {
+      properties: {
+        securityRules: [
+          {
+            properties: {
+              direction: 'Inbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+          {
+            properties: {
+              direction: 'Outbound'
+              protocol: '*'
+              access: 'Allow'
+            }
+          }
+        ]
+      }
+    }
   }
 }
 

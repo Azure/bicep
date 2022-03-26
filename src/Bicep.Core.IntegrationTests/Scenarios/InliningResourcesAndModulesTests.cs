@@ -55,7 +55,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                     },
                     "Referenced resource should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01', 'full').properties.allowBlobPublicAccess]",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).allowBlobPublicAccess]",
                     "Resource access should be in-lined");
             }
         }
@@ -103,7 +103,7 @@ resource storage2 'Microsoft.Storage/storageAccounts@2019-06-01' = {
                     },
                     "Referenced resource should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test'), '2019-06-01', 'full').properties.allowBlobPublicAccess]",
+                    "[reference(resourceId('Microsoft.Storage/storageAccounts', 'test')).allowBlobPublicAccess]",
                     "Resource access should be in-lined");
             }
         }
@@ -349,7 +349,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1')).outputs, reference(resourceId('Microsoft.Resources/deployments', 'testmod2')).outputs).test.value]",
+                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1'), '2020-10-01').outputs, reference(resourceId('Microsoft.Resources/deployments', 'testmod2'), '2020-10-01').outputs).test.value]",
                     "Module access should be in-lined correctly");
             }
         }
@@ -401,7 +401,7 @@ output test bool = true
                     },
                     "Module should be added to depends on section");
                 result.Template.Should().HaveValueAtPath("$.resources[?(@.name == 'test2')].properties.allowBlobPublicAccess",
-                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1')).outputs, reference(resourceId('Microsoft.Resources/deployments', 'testmod2')).outputs).test.value]",
+                    "[if(equals(parameters('mode'), 1), reference(resourceId('Microsoft.Resources/deployments', 'testmod1'), '2020-10-01').outputs, reference(resourceId('Microsoft.Resources/deployments', 'testmod2'), '2020-10-01').outputs).test.value]",
                     "Module access should be in-lined correctly");
             }
         }

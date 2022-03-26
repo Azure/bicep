@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
@@ -142,7 +140,9 @@ namespace Bicep.Core.Syntax
             return CreateStringLiteral(text);
         }
 
-        public static IntegerLiteralSyntax CreateIntegerLiteral(long value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
+        public static IntegerLiteralSyntax CreateIntegerLiteral(ulong value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
+
+        public static UnaryOperationSyntax CreateNegativeIntegerLiteral(ulong value) => new(MinusToken, CreateIntegerLiteral(value));
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
 

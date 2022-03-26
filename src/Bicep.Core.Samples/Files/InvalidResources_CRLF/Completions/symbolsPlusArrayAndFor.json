@@ -2435,7 +2435,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nindexOf(stringToSearch: string, stringToFind: string): int\n\n```\nReturns the first position of a value within a string. The comparison is case-insensitive.\n"
+      "value": "```bicep\nindexOf(stringToSearch: string, stringToFind: string): int\nindexOf(array: array, itemToFind: any): int\n\n```\nReturns the first position of a value within a string. The comparison is case-insensitive.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -2922,7 +2922,7 @@
     "kind": "function",
     "documentation": {
       "kind": "markdown",
-      "value": "```bicep\nlastIndexOf(stringToSearch: string, stringToFind: string): int\n\n```\nReturns the last position of a value within a string. The comparison is case-insensitive.\n"
+      "value": "```bicep\nlastIndexOf(stringToSearch: string, stringToFind: string): int\nlastIndexOf(array: array, itemToFind: any): int\n\n```\nReturns the last position of a value within a string. The comparison is case-insensitive.\n"
     },
     "deprecated": false,
     "preselect": false,
@@ -4464,6 +4464,23 @@
     "command": {
       "command": "editor.action.triggerParameterHints"
     }
+  },
+  {
+    "label": "readOnlyPropertyAssignment",
+    "kind": "interface",
+    "detail": "readOnlyPropertyAssignment",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_readOnlyPropertyAssignment",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "readOnlyPropertyAssignment"
+    },
+    "commitCharacters": [
+      ":"
+    ]
   },
   {
     "label": "reference",

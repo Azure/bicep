@@ -15,7 +15,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
@@ -301,8 +300,8 @@ resource test|Output string = 'str'
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my param\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my var\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my  \nmultiline  \nresource  \n[View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/discriminatortests?tabs=bicep)\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my output  \n\n"));
         }
 
         [TestMethod]
@@ -375,6 +374,37 @@ var nsConcatFunc = sys.c|oncat('abc', 'def')
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
+        }
+
+        [TestMethod]
+        public async Task Resource_hovers_should_include_documentation_links_for_known_resource_types()
+        {
+            var hovers = await RequestHoversAtCursorLocations(@"
+resource fo|o 'Test.Rp/basicTests@2020-01-01' = {}
+
+@description('This resource also has a description!')
+resource b|ar 'Test.Rp/basicTests@2020-01-01' = {}
+
+resource m|adeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01' = {}
+");
+
+            hovers.Should().SatisfyRespectively(
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource foo 'Test.Rp/basicTests@2020-01-01'
+```
+[View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
+"),
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource bar 'Test.Rp/basicTests@2020-01-01'
+```
+This resource also has a description!  
+[View Type Documentation](https://docs.microsoft.com/azure/templates/test.rp/basictests?tabs=bicep)
+"),
+                h => h!.Contents.MarkupContent!.Value.Should().BeEquivalentToIgnoringNewlines(@"```bicep
+resource madeUp 'Test.MadeUp/nonExistentResourceType@2020-01-01'
+```
+
+"));
         }
 
         [TestMethod]

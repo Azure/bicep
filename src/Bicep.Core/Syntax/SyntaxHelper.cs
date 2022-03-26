@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Linq;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.TypeSystem;
@@ -41,7 +40,7 @@ namespace Bicep.Core.Syntax
         }
 
         public static TypeSymbol? TryGetPrimitiveType(ParameterDeclarationSyntax parameterDeclarationSyntax)
-            => LanguageConstants.TryGetDeclarationType(parameterDeclarationSyntax.ParameterType?.TypeName);
+            => LanguageConstants.TryGetDeclarationType((parameterDeclarationSyntax.ParameterType as SimpleTypeSyntax)?.TypeName);
 
         public static ResourceScope GetTargetScope(TargetScopeSyntax targetScopeSyntax)
         {

@@ -14,5 +14,7 @@ namespace Bicep.Core.Features
         bool SymbolicNameCodegenEnabled { get; }
 
         bool ImportsEnabled { get; }
+
+        bool ResourceTypedParamsAndOutputsEnabled { get; }
     }
 }

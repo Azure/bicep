@@ -35,6 +35,26 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2020-11-01' = {
         name: 'default'
         properties: {
           addressPrefix: subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]

@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "14904215116833058261"
+      "templateHash": "5926352847703879631"
     }
   },
   "parameters": {
@@ -55,7 +55,27 @@
                 {
                   "service": "Microsoft.ServiceBus"
                 }
-              ]
+              ],
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
+              }
             }
           }
         ]

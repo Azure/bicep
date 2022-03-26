@@ -7,7 +7,6 @@ using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
 using Bicep.Core.Semantics;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
@@ -15,7 +14,6 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
@@ -59,7 +57,7 @@ namespace Bicep.Cli.IntegrationTests
             var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(BicepTestConstants.FileResolver, clientFactory, templateSpecRepositoryFactory, BicepTestConstants.Features));
             var configuration = BicepTestConstants.BuiltInConfiguration;
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(BicepTestConstants.FileResolver, dispatcher, new Workspace(), PathHelper.FilePathToFileUrl(bicepFilePath), configuration);
-            var compilation = new Compilation(TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
+            var compilation = new Compilation(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
 
             var output = new List<string>();
             foreach (var (bicepFile, diagnostics) in compilation.GetAllDiagnosticsByBicepFile())

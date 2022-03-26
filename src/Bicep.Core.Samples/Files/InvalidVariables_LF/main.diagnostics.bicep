@@ -183,7 +183,7 @@ var invalidEnvironmentVar = environment().aosdufhsad
 //@[42:52) [BCP053 (Error)] The type "environment" does not contain property "aosdufhsad". Available properties include "activeDirectoryDataLake", "authentication", "batch", "gallery", "graph", "graphAudience", "media", "name", "portal", "resourceManager", "sqlManagement", "suffixes", "vmImageAliasDoc". (CodeDescription: none) |aosdufhsad|
 var invalidEnvAuthVar = environment().authentication.asdgdsag
 //@[4:21) [no-unused-vars (Warning)] Variable "invalidEnvAuthVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |invalidEnvAuthVar|
-//@[53:61) [BCP053 (Error)] The type "authentication" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". (CodeDescription: none) |asdgdsag|
+//@[53:61) [BCP053 (Error)] The type "authenticationProperties" does not contain property "asdgdsag". Available properties include "audiences", "identityProvider", "loginEndpoint", "tenant". (CodeDescription: none) |asdgdsag|
 
 // invalid use of reserved namespace
 var az = 1
@@ -393,6 +393,7 @@ var keyVaultSecretVar = kv.getSecret('mySecret')
 //@[24:48) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
 //@[4:33) [no-unused-vars (Warning)] Variable "keyVaultSecretInterpolatedVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |keyVaultSecretInterpolatedVar|
+//@[36:65) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|
 //@[39:63) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 var keyVaultSecretObjectVar = {
 //@[4:27) [no-unused-vars (Warning)] Variable "keyVaultSecretObjectVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |keyVaultSecretObjectVar|

@@ -3,11 +3,12 @@
 
 using Azure;
 using Azure.Containers.ContainerRegistry.Specialized;
-using Azure.Core;
+using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using Bicep.Core.Registry.Oci;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,19 +22,34 @@ namespace Bicep.Core.Registry
         private const StringComparison MediaTypeComparison = StringComparison.OrdinalIgnoreCase;
         private const StringComparison DigestComparison = StringComparison.Ordinal;
 
-        private readonly TokenCredential tokenCredential;
         private readonly IContainerRegistryClientFactory clientFactory;
 
-        public AzureContainerRegistryManager(TokenCredential tokenCredential, IContainerRegistryClientFactory clientFactory)
+        public AzureContainerRegistryManager(IContainerRegistryClientFactory clientFactory)
         {
-            this.tokenCredential = tokenCredential;
             this.clientFactory = clientFactory;
         }
 
-        public async Task<OciArtifactResult> PullArtifactAsync(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference)
+        public async Task<OciArtifactResult> PullArtifactAsync(RootConfiguration configuration, OciArtifactModuleReference moduleReference)
         {
             var client = this.CreateBlobClient(configuration, moduleReference);
-            var (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+
+            OciManifest manifest;
+            Stream manifestStream;
+            string manifestDigest;
+
+            try
+            {
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference}.");
+                // Try authenticated client first.
+                (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+            }
+            catch (RequestFailedException exception) when (exception.Status == 401 || exception.Status == 403)
+            {
+                Trace.WriteLine($"Authenticated attempt to pull artifact for module {moduleReference.FullyQualifiedReference} failed, received code {exception.Status}. Fallback to anonymous pull.");
+                // Fall back to anonymous client.
+                client = this.CreateBlobClient(configuration, moduleReference, anonymousAccess: true);
+                (manifest, manifestStream, manifestDigest) = await DownloadManifestAsync(moduleReference, client);
+            }
 
             var moduleStream = await ProcessManifest(client, manifest);
 
@@ -75,7 +91,9 @@ namespace Bicep.Core.Registry
 
         private static Uri GetRegistryUri(OciArtifactModuleReference moduleReference) => new($"https://{moduleReference.Registry}");
 
-        private ContainerRegistryBlobClient CreateBlobClient(Configuration.RootConfiguration configuration, OciArtifactModuleReference moduleReference) => this.clientFactory.CreateBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
+        private ContainerRegistryBlobClient CreateBlobClient(RootConfiguration configuration, OciArtifactModuleReference moduleReference, bool anonymousAccess = false) => anonymousAccess
+            ? this.clientFactory.CreateAnonymouosBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository)
+            : this.clientFactory.CreateAuthenticatedBlobClient(configuration, GetRegistryUri(moduleReference), moduleReference.Repository);
 
         private static async Task<(OciManifest, Stream, string)> DownloadManifestAsync(OciArtifactModuleReference moduleReference, ContainerRegistryBlobClient client)
         {

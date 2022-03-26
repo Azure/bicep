@@ -5,10 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Core.Entities;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Parsing;
+using Bicep.Core.Resources;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Newtonsoft.Json.Linq;
@@ -19,9 +23,9 @@ namespace Bicep.Core.Semantics
     {
         private readonly Lazy<ResourceScope> targetScopeLazy;
 
-        private readonly Lazy<ImmutableArray<TypeProperty>> parameterTypePropertiesLazy;
+        private readonly Lazy<ImmutableArray<ParameterMetadata>> parametersLazy;
 
-        private readonly Lazy<ImmutableArray<TypeProperty>> outputTypePropertiesLazy;
+        private readonly Lazy<ImmutableArray<OutputMetadata>> outputsLazy;
 
         public ArmTemplateSemanticModel(ArmTemplateFile sourceFile)
         {
@@ -53,36 +57,33 @@ namespace Bicep.Core.Semantics
                 };
             });
 
-            this.parameterTypePropertiesLazy = new(() =>
+            this.parametersLazy = new(() =>
             {
                 if (this.SourceFile.Template?.Parameters is null)
                 {
-                    return ImmutableArray<TypeProperty>.Empty;
+                    return ImmutableArray<ParameterMetadata>.Empty;
                 }
 
                 return this.SourceFile.Template.Parameters
-                    .Select(parameterProperty => new TypeProperty(
+                    .Select(parameterProperty => new ParameterMetadata(
                         parameterProperty.Key,
                         GetType(parameterProperty.Value),
-                        parameterProperty.Value.DefaultValue is null
-                            ? TypePropertyFlags.WriteOnly | TypePropertyFlags.Required
-                            : TypePropertyFlags.WriteOnly,
+                        parameterProperty.Value.DefaultValue is null,
                         TryGetMetadataDescription(parameterProperty.Value.Metadata)))
                     .ToImmutableArray();
             });
 
-            this.outputTypePropertiesLazy = new(() =>
+            this.outputsLazy = new(() =>
             {
                 if (this.SourceFile.Template?.Outputs is null)
                 {
-                    return ImmutableArray<TypeProperty>.Empty;
+                    return ImmutableArray<OutputMetadata>.Empty;
                 }
 
                 return this.SourceFile.Template.Outputs
-                    .Select(outputProperty => new TypeProperty(
+                    .Select(outputProperty => new OutputMetadata(
                         outputProperty.Key,
                         GetType(outputProperty.Value),
-                        TypePropertyFlags.ReadOnly,
                         TryGetMetadataDescription(outputProperty.Value.Metadata)))
                     .ToImmutableArray();
             });
@@ -94,9 +95,9 @@ namespace Bicep.Core.Semantics
             ? ResourceScope.ResourceGroup
             : this.targetScopeLazy.Value;
 
-        public ImmutableArray<TypeProperty> ParameterTypeProperties => this.parameterTypePropertiesLazy.Value;
+        public ImmutableArray<ParameterMetadata> Parameters => this.parametersLazy.Value;
 
-        public ImmutableArray<TypeProperty> OutputTypeProperties => this.outputTypePropertiesLazy.Value;
+        public ImmutableArray<OutputMetadata> Outputs => this.outputsLazy.Value;
 
         public bool HasErrors()
         {
@@ -113,14 +114,14 @@ namespace Bicep.Core.Semantics
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var visitor = new SemanticDiagnosticVisitor(diagnosticWriter);
 
-            foreach (var parameterTypeProperty in this.ParameterTypeProperties)
+            foreach (var parameter in this.Parameters)
             {
-                visitor.Visit(parameterTypeProperty.TypeReference.Type);
+                visitor.Visit(parameter.TypeReference.Type);
             }
 
-            foreach (var outputTypeProperty in this.OutputTypeProperties)
+            foreach (var output in this.Outputs)
             {
-                visitor.Visit(outputTypeProperty.TypeReference.Type);
+                visitor.Visit(output.TypeReference.Type);
             }
 
             return diagnosticWriter.GetDiagnostics().Count > 0;
@@ -137,10 +138,24 @@ namespace Bicep.Core.Semantics
                 TemplateParameterType.String or TemplateParameterType.SecureString when AllowedStringLiteralsProvided() =>
                     TypeHelper.CreateTypeUnion(allowedValueTypes),
 
+                TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(parameter, out var resourceType) =>
+                    resourceType,
+
                 TemplateParameterType.Array when AllowedStringLiteralsProvided() =>
                     new TypedArrayType(TypeHelper.CreateTypeUnion(allowedValueTypes), TypeSymbolValidationFlags.Default),
 
                 _ => GetType((TemplateParameter)parameter),
+            };
+        }
+
+        private static TypeSymbol GetType(TemplateOutputParameter output)
+        {
+            return output.Type.Value switch
+            {
+                TemplateParameterType.String when TryCreateUnboundResourceTypeParameter(output, out var resourceType) =>
+                    resourceType,
+
+                _ => GetType((TemplateParameter)output),
             };
         }
 
@@ -174,6 +189,27 @@ namespace Bicep.Core.Semantics
                     _ => new StringLiteralType(allowedValue.ToString()),
                 };
             }
+        }
+
+        private static bool TryCreateUnboundResourceTypeParameter(TemplateParameter parameterOrOutput, [NotNullWhen(true)] out TypeSymbol? type)
+        {
+            if (parameterOrOutput.Metadata?.Value is JObject metadata &&
+                metadata.TryGetValue(LanguageConstants.MetadataResourceTypePropertyName, out var obj) &&
+                obj.Value<string>() is string resourceTypeRaw)
+            {
+                if (ResourceTypeReference.TryParse(resourceTypeRaw) is {} parsed)
+                {
+                    type = new UnboundResourceType(parsed);
+                    return true;
+                }
+
+                // Return true here because it *was* a resource type, just a wrong one.
+                type = ErrorType.Create(DiagnosticBuilder.ForPosition(new TextSpan(0, 0)).InvalidResourceType());
+                return true;
+            }
+
+            type = null;
+            return false;
         }
 
         private static string? TryGetMetadataDescription(TemplateGenericProperty<JToken>? metadata)

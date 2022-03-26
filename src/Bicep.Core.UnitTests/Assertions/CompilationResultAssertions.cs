@@ -2,12 +2,8 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Bicep.Core.Analyzers;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
 using static Bicep.Core.UnitTests.Utils.CompilationHelper;
 

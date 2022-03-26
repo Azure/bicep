@@ -16,9 +16,9 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "metadata.json";
 
-        private static readonly JsonElement EmptyMetadataElement = JsonElementFactory.CreateElement(new Dictionary<string, string>
+        private static readonly JsonElement EmptyFileElement = JsonElementFactory.CreateElement(new Dictionary<string, string>
         {
-            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-schema#",
+            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-file-schema#",
             ["name"] = "",
             ["description"] = "",
             ["owner"] = "",
@@ -39,12 +39,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
         public static MetadataFile EnsureInFileSystem(IFileSystem fileSystem)
         {
             var path = fileSystem.Path.GetFullPath(FileName);
-            var rootElement = EmptyMetadataElement;
+            var rootElement = EmptyFileElement;
 
             try
             {
-                var existingMetadataFile = ReadFromFileSystem(fileSystem);
-                rootElement = rootElement.Merge(existingMetadataFile.RootElement);
+                var existingFile = ReadFromFileSystem(fileSystem);
+                rootElement = rootElement.Merge(existingFile.RootElement);
             }
             catch (FileNotFoundException)
             {
@@ -67,6 +67,11 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             {
                 using var stream = fileSystem.FileStream.Create(path, FileMode.Open, FileAccess.Read);
                 var jsonElement = JsonElementFactory.CreateElement(stream);
+
+                if (jsonElement.ValueKind != JsonValueKind.Object)
+                {
+                    throw new BicepException($"The metadata file \"{path}\" must contain a JSON object at the root level.");
+                }
 
                 return new(path, jsonElement);
             }

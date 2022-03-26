@@ -1,13 +1,11 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.UnitTests.Parsing;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Bicep.Core.Diagnostics;
@@ -624,7 +623,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 .Setup(x => x.GetSymbolInfo(It.IsAny<SyntaxBase>()))
                 .Returns<Symbol?>(null);
 
-            var typeManager = new TypeManager(binderMock.Object, fileResolverMock.Object);
+            var typeManager = new TypeManager(BicepTestConstants.Features, binderMock.Object, fileResolverMock.Object);
 
             var diagnosticWriter = ToListDiagnosticWriter.Create();
             var result = TypeValidator.NarrowTypeAndCollectDiagnostics(typeManager, binderMock.Object, diagnosticWriter, expression, targetType);

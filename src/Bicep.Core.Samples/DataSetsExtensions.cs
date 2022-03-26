@@ -57,7 +57,7 @@ namespace Bicep.Core.Samples
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            return (new Compilation(namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
+            return (new Compilation(BicepTestConstants.Features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration)), outputDirectory, fileUri);
         }
 
         public static IContainerRegistryClientFactory CreateMockRegistryClients(this DataSet dataSet, TestContext testContext, params (Uri registryUri, string repository)[] additionalClients)
@@ -86,7 +86,7 @@ namespace Bicep.Core.Samples
 
             var clientFactory = new Mock<IContainerRegistryClientFactory>(MockBehavior.Strict);
             clientFactory
-                .Setup(m => m.CreateBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
+                .Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), It.IsAny<Uri>(), It.IsAny<string>()))
                 .Returns<RootConfiguration, Uri, string>((_, registryUri, repository) =>
                 {
                     if (repoToClient.TryGetValue((registryUri, repository), out var client))

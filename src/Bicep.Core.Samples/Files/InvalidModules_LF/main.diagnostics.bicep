@@ -705,6 +705,7 @@ module secureModule1 'moduleb.bicep' = {
     stringParamA: kv.getSecret('mySecret')
 //@[18:42) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
     stringParamB: '${kv.getSecret('mySecret')}'
+//@[18:47) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|
 //@[21:45) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
     objParam: kv.getSecret('mySecret')
 //@[14:38) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
@@ -713,11 +714,13 @@ module secureModule1 'moduleb.bicep' = {
 //@[16:40) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 //@[16:40) [BCP036 (Error)] The property "arrayParam" expected a value of type "array" but the provided value is of type "string". (CodeDescription: none) |kv.getSecret('mySecret')|
     secureStringParam: '${kv.getSecret('mySecret')}'
+//@[23:52) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|
 //@[26:50) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
     secureObjectParam: kv.getSecret('mySecret')
 //@[23:47) [BCP036 (Error)] The property "secureObjectParam" expected a value of type "object" but the provided value is of type "string". (CodeDescription: none) |kv.getSecret('mySecret')|
     secureStringParam2: '${kv.getSecret('mySecret')}'
 //@[4:22) [BCP037 (Error)] The property "secureStringParam2" is not allowed on objects of type "params". No other properties are allowed. (CodeDescription: none) |secureStringParam2|
+//@[24:53) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|
 //@[27:51) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
     secureObjectParam2: kv.getSecret('mySecret')
 //@[4:22) [BCP037 (Error)] The property "secureObjectParam2" is not allowed on objects of type "params". No other properties are allowed. (CodeDescription: none) |secureObjectParam2|
@@ -782,3 +785,8 @@ module jsonModMissingParam 'moduled.json' = {
   }
 }
 
+module assignToOutput 'empty.bicep' = {
+  name: 'assignToOutput'
+  outputs: {}
+//@[2:9) [BCP073 (Error)] The property "outputs" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |outputs|
+}

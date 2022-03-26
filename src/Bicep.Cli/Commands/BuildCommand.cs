@@ -41,6 +41,11 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.SymbolicNamesDisclaimerMessage);
             }
 
+            if (invocationContext.Features.ResourceTypedParamsAndOutputsEnabled)
+            {
+                logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
+            }
+
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
             if (diagnosticLogger.ErrorCount < 1)

@@ -37,6 +37,26 @@ resource vnet 'Microsoft.Network/virtualNetworks@2020-05-01' = {
         name: vnetConfig.subnet.name
         properties: {
           addressPrefix: vnetConfig.subnet.subnetPrefix
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]

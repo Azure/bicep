@@ -61,7 +61,7 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFileValidators
                     JsonPatchOperations.Replace("/owner", "")),
                 @$"The file ""{file.Path}"" is invalid:
   #/description: Value is not longer than or equal to 10 characters
-  #/owner: Value does not match the pattern of ""^[a-zA-Z\d](?:[a-zA-Z\d]|-(?=[a-zA-Z\d])){{0,38}}$""
+  #/owner: Value does not match the pattern of ""^(?:Azure\/)?[a-zA-Z\d](?:[a-zA-Z\d]|-(?=[a-zA-Z\d])){{0,38}}$""
   #: Required properties [name] were not present
 ",
             };

@@ -10,7 +10,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.2" />
+    <PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
+    <PackageReference Include="CommandLineParser" Version="2.8.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,7 +29,11 @@
   <ItemGroup>
     <EmbeddedResource Update="LangServerResources.resx">
       <LastGenOutput>LangServerResources.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
   </ItemGroup>
 </Project>

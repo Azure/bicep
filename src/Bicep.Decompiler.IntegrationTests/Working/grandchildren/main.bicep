@@ -7,7 +7,7 @@ resource storageAccounts_ll21w7onmmpv65q24_name_resource 'Microsoft.Storage/stor
   sku: {
     name: 'Standard_LRS'
     tier: 'Standard'
-//@[4:8) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |tier|
+//@[4:8) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |tier|
   }
   kind: 'StorageV2'
   properties: {
@@ -41,7 +41,7 @@ resource storageAccounts_ll22w7onmmpv65q24_name_resource 'Microsoft.Storage/stor
   sku: {
     name: 'Standard_LRS'
     tier: 'Standard'
-//@[4:8) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. (CodeDescription: none) |tier|
+//@[4:8) [BCP073 (Warning)] The property "tier" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |tier|
   }
   kind: 'StorageV2'
   properties: {

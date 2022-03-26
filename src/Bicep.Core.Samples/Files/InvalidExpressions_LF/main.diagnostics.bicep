@@ -35,7 +35,7 @@ var bad = 3 * 4 /
 var bad = 222222222222222222222222222222222222222222 * 4
 //@[4:7) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[4:7) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
-//@[10:52) [BCP010 (Error)] Expected a valid 32-bit signed integer. (CodeDescription: none) |222222222222222222222222222222222222222222|
+//@[10:52) [BCP010 (Error)] Expected a valid 64-bit signed integer. (CodeDescription: none) |222222222222222222222222222222222222222222|
 var bad = (null) ?
 //@[4:7) [BCP028 (Error)] Identifier "bad" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |bad|
 //@[4:7) [no-unused-vars (Warning)] Variable "bad" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |bad|
@@ -361,7 +361,7 @@ var concatWrongTypesContradiction = concat('s', [
 ])
 var indexOfWrongTypes = indexOf(1,1)
 //@[4:21) [no-unused-vars (Warning)] Variable "indexOfWrongTypes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |indexOfWrongTypes|
-//@[32:34) [BCP070 (Error)] Argument of type "int" is not assignable to parameter of type "string". (CodeDescription: none) |1,|
+//@[32:34) [BCP048 (Error)] Cannot resolve function overload.\n  Overload 1 of 2, "(stringToSearch: string, stringToFind: string): int", gave the following error:\n    Argument of type "int" is not assignable to parameter of type "string".\n  Overload 2 of 2, "(array: array, itemToFind: any): int", gave the following error:\n    Argument of type "int" is not assignable to parameter of type "array". (CodeDescription: none) |1,|
 
 // not enough params
 var test1 = listKeys('abcd')

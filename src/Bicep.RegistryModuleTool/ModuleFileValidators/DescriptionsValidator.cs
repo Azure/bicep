@@ -5,7 +5,6 @@ using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
-using System.CommandLine;
 using System.Linq;
 using System.Text;
 
@@ -25,7 +24,7 @@ namespace Bicep.RegistryModuleTool.ModuleFileValidators
 
         public void Validate(MainBicepFile file)
         {
-            this.logger.LogDebug("Making sure descriptions are defined for all parameters and outputs...");
+            this.logger.LogInformation("Making sure descriptions are defined for all parameters and outputs...");
 
             var noDescriptionParameters = latestMainArmTemplateFile.Parameters.Where(parameter => string.IsNullOrEmpty(parameter.Description));
             var noDescriptionOutputs = latestMainArmTemplateFile.Outputs.Where(output => string.IsNullOrEmpty(output.Description));

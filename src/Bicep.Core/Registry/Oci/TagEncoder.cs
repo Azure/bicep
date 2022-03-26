@@ -3,7 +3,6 @@
 
 using Bicep.Core.Modules;
 using System;
-using System.Diagnostics;
 using System.Text;
 
 namespace Bicep.Core.Registry.Oci

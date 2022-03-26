@@ -26,6 +26,19 @@ namespace Bicep.RegistryModuleTool.UnitTests.ModuleFiles
         }
 
         [TestMethod]
+        public void ReadFromFileSystem_RootIsNotObject_ThrowsException()
+        {
+            var fileSystem = new MockFileSystem();
+            var path = fileSystem.Path.GetFullPath(MetadataFile.FileName);
+
+            fileSystem.AddFile(path, "[]");
+
+            FluentActions.Invoking(() => MetadataFile.ReadFromFileSystem(fileSystem)).Should()
+                .Throw<BicepException>()
+                .WithMessage($"The metadata file \"{path}\" must contain a JSON object at the root level.");
+        }
+
+        [TestMethod]
         public void ReadFromFileSystem_ValidJson_Succeeds()
         {
             var fileSystem = new MockFileSystem();

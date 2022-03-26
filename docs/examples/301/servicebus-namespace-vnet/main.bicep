@@ -32,6 +32,26 @@ resource virtualNetwork 'Microsoft.Network/virtualNetworks@2017-09-01' = {
               service: 'Microsoft.ServiceBus'
             }
           ]
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]

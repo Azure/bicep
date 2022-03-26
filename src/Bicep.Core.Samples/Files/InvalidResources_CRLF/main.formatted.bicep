@@ -146,6 +146,21 @@ resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   apiVersion: true
 }
 
+resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-01' = {
+  name: 'vnet-bicep'
+  location: 'westeurope'
+  etag: 'assigning-to-read-only-value'
+  properties: {
+    resourceGuid: 'assigning-to-read-only-value'
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
+    }
+    subnets: []
+  }
+}
+
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
   name: 'test'
   dependsOn: [

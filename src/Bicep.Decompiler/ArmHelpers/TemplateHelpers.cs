@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
-using Azure.Deployments.Core.Utilities;
-using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Decompiler.Exceptions;
@@ -70,7 +68,7 @@ namespace Bicep.Decompiler.ArmHelpers
 
         public static (string type, string name, string apiVersion) ParseResource(JObject resource)
         {
-            var type = AssertRequiredProperty(resource, "type", $"Unable to parse \"type\" for resource").ToString();
+            var type = AssertRequiredProperty(resource, "type", $"Unable to parse \"type\" for resource").ToString().Trim('/');
             var name = AssertRequiredProperty(resource, "name", $"Unable to parse \"name\" for resource").ToString();
             var apiVersion = AssertRequiredProperty(resource, "apiVersion", $"Unable to parse \"apiVersion\" for resource").ToString();
 

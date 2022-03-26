@@ -8,7 +8,6 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Rewriters;
 using Bicep.Core.Syntax.Visitors;
-using Bicep.Core.TypeSystem;
 
 namespace Bicep.Core.Decompiler.Rewriters
 {
