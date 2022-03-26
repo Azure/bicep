@@ -29,8 +29,8 @@ const extensionConfig: webpack.Configuration = {
     minimizer: [
       new TerserPlugin({
         terserOptions: {
-          keep_classnames: /AbortSignal/,
-          keep_fnames: /AbortSignal/,
+          keep_classnames: true,
+          keep_fnames: true,
         },
       }),
     ],
