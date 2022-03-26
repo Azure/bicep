@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 import vscode from "vscode";
 import path from "path";
 import fs from "fs";
@@ -10,7 +11,7 @@ import {
   executeShowVisualizerCommand,
   executeShowVisualizerToSideCommand,
 } from "./commands";
-import { retryWhile, sleep } from "../utils/time";
+import { sleep, until } from "../utils/time";
 import { expectDefined } from "../utils/assert";
 
 const extensionLogPath = path.join(__dirname, "../../../bicep.log");
@@ -28,12 +29,15 @@ describe("visualizer", (): void => {
     // Give the language server sometime to finish compilation.
     await sleep(2000);
 
-    const viewColumn = await retryWhile(
-      async () => await executeShowVisualizerCommand(document.uri),
-      () => !visualizerIsReady(document.uri)
-    );
-
-    expect(visualizerIsReady(document.uri)).toBeTruthy();
+    const viewColumn = await executeShowVisualizerCommand(document.uri);
+    await until(() => visualizerIsReady(document.uri), {
+      interval: 100,
+    });
+    if (!visualizerIsReady(document.uri)) {
+      throw new Error(
+        `Expected visualizer to be ready for ${document.uri.toString()}`
+      );
+    }
     expectDefined(viewColumn);
     expect(viewColumn).toBe(editor.viewColumn);
   });
@@ -45,13 +49,15 @@ describe("visualizer", (): void => {
 
     // Give the language server sometime to finish compilation.
     await sleep(2000);
-
-    const viewColumn = await retryWhile(
-      async () => await executeShowVisualizerToSideCommand(document.uri),
-      () => !visualizerIsReady(document.uri)
-    );
-
-    expect(visualizerIsReady(document.uri)).toBeTruthy();
+    const viewColumn = await executeShowVisualizerToSideCommand(document.uri);
+    await until(() => visualizerIsReady(document.uri), {
+      interval: 100,
+    });
+    if (!visualizerIsReady(document.uri)) {
+      throw new Error(
+        `Expected visualizer to be ready for ${document.uri.toString()}`
+      );
+    }
     expectDefined(viewColumn);
     expect(viewColumn).toBe(vscode.ViewColumn.Beside);
   });
