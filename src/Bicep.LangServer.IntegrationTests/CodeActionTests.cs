@@ -421,26 +421,26 @@ param foo {type}
 var foo2 = 'foo2'", "var foo2 = 'foo2'")]
         [DataRow(@"var fo|o = 'foo'", "")]
         [DataRow(@"var ad|sf = 'asdf' /* 
-adf 
-*/", "")]
+        adf 
+        */", "")]
         [DataRow(@"var as|df = {
-  abc: 'def'
-}", "")]
+          abc: 'def'
+        }", "")]
         [DataRow(@"var ab|cd = concat('foo',/*
-*/'bar')", "")]
+        */'bar')", "")]
         [DataRow(@"var multi|line = '''
-This
-is
-a
-multiline
-'''", "")]
+        This
+        is
+        a
+        multiline
+        '''", "")]
         [DataRow(@"@description('''
-''')
-var as|df = 'asdf'", "")]
+        ''')
+        var as|df = 'asdf'", "")]
         [DataRow(@"var fo|o = 'asdf' // asdef", "")]
-        [DataRow(@"/* asdfds */ var fo|o = 'asdf'", "")]
-        [DataRow(@"/* asdf */ var fo|o = 'asdf'
-var bar = 'asdf'", "")]
+        [DataRow(@"/* asdfds */var fo|o = 'asdf'", "")]
+        [DataRow(@"/* asdf */var fo|o = 'asdf'
+var bar = 'asdf'", "var bar = 'asdf'")]
         [DataTestMethod]
         public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
         {
@@ -455,6 +455,8 @@ var bar = 'asdf'", "")]
         [DataRow(@"param fo|o string
 param foo2 string", "param foo2 string")]
         [DataRow(@"param fo|o string", "")]
+        [DataRow(@"#disable-next-line foo
+param as|df string = '123'", "#disable-next-line foo\n")]
         [DataRow(@"@secure()
 param fo|o string
 param foo2 string", "param foo2 string")]

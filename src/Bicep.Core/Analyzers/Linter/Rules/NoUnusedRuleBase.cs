@@ -17,21 +17,21 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
     protected const string MissingName = "<missing>";
     private readonly string type;
 
-    protected NoUnusedRuleBase(string type, string code, string description, Uri? docUri = null, DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning, DiagnosticLabel? diagnosticLabel = null) :
-        base(code, description, docUri, diagnosticLevel, diagnosticLabel)
+    protected NoUnusedRuleBase(string type, string code, string description, DiagnosticStyling diagnosticStyling, Uri? docUri = null, DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning) :
+        base(code, description, docUri, diagnosticLevel, diagnosticStyling)
     {
         this.type = type;
     }
 
     protected AnalyzerFixableDiagnostic CreateRemoveUnusedDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
     {
-        var span = GetSpanForRow(programSyntax, declaringSyntax, nameSyntax, lineStarts);
+        var span = GetSpanForRow(programSyntax, declaringSyntax);
         var codeFix = new CodeFix($"Remove unused {type}", true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
         var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(nameSyntax.Span, codeFix, name);
         return fixableDiagnosticForSpan;
     }
 
-    private static TextSpan GetSpanForRow(ProgramSyntax programSyntax, SyntaxBase declaringSyntax, IdentifierSyntax identifierSyntax, ImmutableArray<int> lineStarts)
+    private static TextSpan GetSpanForRow(ProgramSyntax programSyntax, SyntaxBase declaringSyntax)
     {
         // Find the first & last token in the statement
         var startToken = declaringSyntax.TryFindMostSpecificNodeInclusive(declaringSyntax.Span.Position, x => x is Token) as Token;

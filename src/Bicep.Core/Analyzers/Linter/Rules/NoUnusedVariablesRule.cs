@@ -18,8 +18,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             "variable",
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
-            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-            diagnosticStyling: Diagnostics.DiagnosticStyling.ShowCodeAsUnused)
+            
+            diagnosticStyling: Diagnostics.DiagnosticStyling.ShowCodeAsUnused, docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
         { }
 
 
