@@ -52,7 +52,6 @@ export class ShowVisualizerToSideCommand implements Command {
 
   public async execute(
     context: IActionContext,
-    _context: IActionContext,
     documentUri?: vscode.Uri | undefined
   ): Promise<vscode.ViewColumn | undefined> {
     return await showVisualizer(context, this.viewManager, documentUri, true);
