@@ -65,7 +65,6 @@ export const deploymentScopeRequestType = new ProtocolRequestType<
 >("bicep/getDeploymentScope");
 
 export interface BicepDeployParams {
-  textDocument: TextDocumentIdentifier;
   parameterFilePath: string;
   id: string;
   deploymentScope: string;

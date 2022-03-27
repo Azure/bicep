@@ -7,25 +7,26 @@ using Azure.ResourceManager;
 using Bicep.LanguageServer.Deploy;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
     [Method(BicepDeployCommandHandler.MethodName, Direction.ClientToServer)]
-    public record BicepDeployParams(TextDocumentIdentifier textDocument, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp) : IRequest<string>;
+    public record BicepDeployParams(string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp) : IRequest<string>;
 
-    public class BicepDeployCommandHandler : IJsonRpcRequestHandler<BicepDeployParams, string>
+    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, string>
     {
         public const string MethodName = "bicep/deploy";
 
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
 
-        public BicepDeployCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider)
+        public BicepDeployCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, ISerializer serializer)
+            : base(LangServerConstants.DeployCommand, serializer)
         {
             this.deploymentCollectionProvider = deploymentCollectionProvider;
         }
 
-        public async Task<string> Handle(BicepDeployParams request, CancellationToken cancellationToken)
+        public override async Task<string> Handle(BicepDeployParams request, CancellationToken cancellationToken)
         {
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);

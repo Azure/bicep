@@ -26,11 +26,7 @@ import {
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 
-import {
-  BicepDeployParams,
-  bicepDeployRequestType,
-  deploymentScopeRequestType,
-} from "../language";
+import { deploymentScopeRequestType } from "../language";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -309,7 +305,6 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
 
       const bicepDeployParams: BicepDeployParams = {
-        textDocument,
         parameterFilePath,
         id,
         deploymentScope,
@@ -319,8 +314,11 @@ export class DeployCommand implements Command {
         expiresOnTimestamp,
       };
       const deploymentResponse: string = await this.client.sendRequest(
-        bicepDeployRequestType,
-        bicepDeployParams
+        "workspace/executeCommand",
+        {
+          command: "deploy",
+          arguments: [bicepDeployParams],
+        }
       );
       this.outputChannelManager.appendToOutputChannel(deploymentResponse);
     }
