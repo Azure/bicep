@@ -11,13 +11,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    [Method(BicepDeployCommandHandler.MethodName, Direction.ClientToServer)]
     public record BicepDeployParams(string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp) : IRequest<string>;
 
     public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, string>
     {
-        public const string MethodName = "bicep/deploy";
-
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
 
         public BicepDeployCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, ISerializer serializer)
