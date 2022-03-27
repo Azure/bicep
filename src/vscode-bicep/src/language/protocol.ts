@@ -74,14 +74,6 @@ export interface BicepDeployParams {
   expiresOnTimestamp: string;
 }
 
-export const bicepDeployRequestType = new ProtocolRequestType<
-  BicepDeployParams,
-  string,
-  never,
-  void,
-  void
->("bicep/deploy");
-
 export interface BicepCacheResponse {
   content: string;
 }
