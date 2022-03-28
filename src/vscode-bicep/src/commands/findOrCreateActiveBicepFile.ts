@@ -69,7 +69,7 @@ export async function findOrCreateActiveBicepFile(
       }
     }
 
-    // Otherwise ask to create one...
+    // There is workspace, but there are no bicep files in it. Ask to create one...
     return await queryCreateBicepFile(ui, properties);
   }
 
