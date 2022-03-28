@@ -220,6 +220,7 @@ export class DeployCommand implements Command {
         );
 
         await this.sendDeployCommand(
+          context,
           documentUri.fsPath,
           parameterFilePath,
           managementGroupId,
@@ -252,6 +253,7 @@ export class DeployCommand implements Command {
       );
 
       await this.sendDeployCommand(
+        context,
         documentUri.fsPath,
         parameterFilePath,
         resourceGroupId,
@@ -284,6 +286,7 @@ export class DeployCommand implements Command {
     );
 
     await this.sendDeployCommand(
+      context,
       documentUri.fsPath,
       parameterFilePath,
       subscriptionId,
@@ -295,6 +298,7 @@ export class DeployCommand implements Command {
   }
 
   private async sendDeployCommand(
+    context: IActionContext,
     documentPath: string,
     parameterFilePath: string | undefined,
     id: string,
@@ -304,10 +308,13 @@ export class DeployCommand implements Command {
     subscription: ISubscriptionContext
   ) {
     if (!parameterFilePath) {
+      context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
         `No parameter file was provided`
       );
       parameterFilePath = "";
+    } else {
+      context.telemetry.properties.parameterFileProvided = "true";
     }
 
     const accessToken: AccessToken = await subscription.credentials.getToken(
