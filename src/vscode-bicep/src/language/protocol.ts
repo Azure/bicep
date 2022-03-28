@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import {
-  DocumentUri,
   Position,
   ProtocolNotificationType,
   ProtocolRequestType,
@@ -106,7 +105,7 @@ export const insertResourceRequestType = new ProtocolNotificationType<
 >("textDocument/insertResource");
 
 export interface CreateBicepConfigParams {
-  destinationPath: DocumentUri;
+  destinationPath: string;
 }
 
 export const createBicepConfigRequestType = new ProtocolRequestType<
@@ -118,17 +117,17 @@ export const createBicepConfigRequestType = new ProtocolRequestType<
 >("bicep/createConfigFile");
 
 export interface GetRecommendedConfigLocationParams {
-  BicepFilePath: string | undefined;
+  bicepFilePath?: string;
 }
 
-export interface BicepGetRecommendedConfigLocationResult {
+export interface GetRecommendedConfigLocationResult {
   recommendedFolder?: string;
   error?: string;
 }
 
 export const getRecommendedConfigLocationRequestType = new ProtocolRequestType<
   GetRecommendedConfigLocationParams,
-  BicepGetRecommendedConfigLocationResult,
+  GetRecommendedConfigLocationResult,
   never,
   void,
   void

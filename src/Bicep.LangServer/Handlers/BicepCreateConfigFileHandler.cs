@@ -9,15 +9,13 @@ using Bicep.Core.Configuration;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Bicep.LanguageServer.Handlers
 {
     [Method("bicep/createConfigFile", Direction.ClientToServer)]
     public class BicepCreateConfigParams : IRequest<bool>
     {
-        public DocumentUri? DestinationPath { get; init; }
+        public string? DestinationPath { get; init; }
     }
 
     /// <summary>
@@ -34,7 +32,7 @@ namespace Bicep.LanguageServer.Handlers
 
         public async Task<bool> Handle(BicepCreateConfigParams request, CancellationToken cancellationToken)
         {
-            string? destinationPath = request.DestinationPath?.GetFileSystemPath();
+            string? destinationPath = request.DestinationPath;
             if (destinationPath is null)
             {
                 throw new ArgumentException($"{nameof(destinationPath)} should not be null");

@@ -11,7 +11,7 @@ import {
 import path from "path";
 import * as fse from "fs-extra";
 import {
-  BicepGetRecommendedConfigLocationResult,
+  GetRecommendedConfigLocationResult,
   createBicepConfigRequestType,
   getRecommendedConfigLocationRequestType,
 } from "../language/protocol";
@@ -33,9 +33,9 @@ export class CreateBicepConfigurationFile implements Command {
 
     documentUri ??= window.activeTextEditor?.document.uri;
 
-    const recommendation: BicepGetRecommendedConfigLocationResult =
+    const recommendation: GetRecommendedConfigLocationResult =
       await this.client.sendRequest(getRecommendedConfigLocationRequestType, {
-        BicepFilePath: documentUri?.fsPath,
+        bicepFilePath: documentUri?.fsPath,
       });
     if (recommendation.error || !recommendation.recommendedFolder) {
       throw new Error(
@@ -54,7 +54,7 @@ export class CreateBicepConfigurationFile implements Command {
       while (true) {
         const response = await window.showSaveDialog({
           defaultUri: Uri.file(selectedPath),
-          filters: { "bicep.config files": [bicepConfig] },
+          filters: { "Bicep configuration files": [bicepConfig] },
           title: "Where would you like to save the Bicep configuration file?",
           saveLabel: "Save configuration file",
         });

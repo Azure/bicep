@@ -86,10 +86,5 @@ function createUniqueTempFolder(filenamePrefix: string): string {
     fse.mkdirSync(tempFolder, { recursive: true });
   }
 
-  const tempSubfolder = fse.mkdtempSync(path.join(tempFolder, filenamePrefix));
-  if (!fse.existsSync(tempSubfolder)) {
-    fse.mkdirSync(tempSubfolder, { recursive: true });
-  }
-
-  return tempSubfolder;
+  return fse.mkdtempSync(path.join(tempFolder, filenamePrefix));
 }
