@@ -40,10 +40,6 @@ export class WalkthroughCopyToClipboardCommand implements Command {
     const step = args.step;
     context.telemetry.properties.step = step;
 
-    console.log(
-      encodeURIComponent(JSON.stringify(["ms-vscode.azure-account"]))
-    );
-
     const code = step === "params" ? paramsCode : resourcesCode;
     vscode.env.clipboard.writeText(code);
   }
