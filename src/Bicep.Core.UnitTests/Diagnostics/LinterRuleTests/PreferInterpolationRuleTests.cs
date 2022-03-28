@@ -3,13 +3,9 @@
 
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests

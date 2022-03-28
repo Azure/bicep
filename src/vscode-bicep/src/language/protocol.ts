@@ -71,6 +71,8 @@ export interface BicepDeployParams {
   deploymentScope: string;
   location: string;
   template: string;
+  token: string;
+  expiresOnTimestamp: string;
 }
 
 export const bicepDeployRequestType = new ProtocolRequestType<

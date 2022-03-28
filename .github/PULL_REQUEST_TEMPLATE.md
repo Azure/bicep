@@ -29,6 +29,8 @@ We are integrating the Bicep examples into the [Azure QuickStart Templates](http
 * [ ] I have placeholders values that correspond to their property names (e.g. `dnsPrefix: 'dnsPrefix'`), unless it's a property that MUST be changed or parameterized in order to deploy. In that case, I use 'REQUIRED' e.g. [keyData](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep#L26)
 * [ ] I have my symbolic name as the first tab stop ($1) in the snippet. e.g. [res-aks-cluster.bicep](./src/Bicep.LangServer/Snippets/Templates/res-aks-cluster.bicep)
 * [ ] I have a resource name property equal to "name"
+* [ ] If applicable, I have set the `location` property to `location: /*${<id>:location}*/'location'` (not `resourceGroup().location`) where `<id>` is a placeholder id, and added `param location string` to the test's main.bicep file so that the resulting main.combined.bicep file used in the tests compiles without errors
+* [ ] I have verified that the snippet deploys correctly when used in the context of an actual bicep file
 
   e.g.
 

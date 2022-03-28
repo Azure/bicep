@@ -1,8 +1,17 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as path from "path";
-import * as semver from "semver";
-import vscode, { Extension, extensions, Uri } from "vscode";
+import vscode, { Uri } from "vscode";
+import { AccessToken } from "@azure/identity";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { Command } from "./types";
+import { localize } from "../utils/localize";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { TreeManager } from "../tree/TreeManager";
+
 import {
   LanguageClient,
   TextDocumentIdentifier,
@@ -12,23 +21,16 @@ import {
   AzExtTreeDataProvider,
   IActionContext,
   IAzureQuickPickItem,
+  ISubscriptionContext,
   parseError,
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 
-import { AzureAccount } from "../azure/types";
 import {
   BicepDeployParams,
   bicepDeployRequestType,
   deploymentScopeRequestType,
 } from "../language";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { TreeManager } from "../tree/TreeManager";
-import { localize } from "../utils/localize";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { Command } from "./types";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -39,9 +41,6 @@ export class DeployCommand implements Command {
     label: localize("browse", "$(file-directory) Browse..."),
     data: undefined,
   };
-  private _azureAccountExtensionId = "ms-vscode.azure-account";
-  private _doNotShowAzureAccountExtensionVersionWarning = false;
-  private _doNotShowAgainMessage = "Don't show again";
 
   public readonly id = "bicep.deploy";
 
@@ -73,9 +72,12 @@ export class DeployCommand implements Command {
     }
 
     const documentPath = documentUri.fsPath;
-    const textDocument = TextDocumentIdentifier.create(documentUri.fsPath);
+    // Handle spaces/special characters in folder names.
+    const textDocument = TextDocumentIdentifier.create(
+      encodeURIComponent(documentUri.path)
+    );
     this.outputChannelManager.appendToOutputChannel(
-      `Started deployment of ${documentPath}`
+      `Starting deployment of ${documentPath}`
     );
 
     context.errorHandling.suppressDisplay = true;
@@ -96,6 +98,7 @@ export class DeployCommand implements Command {
         return;
       }
 
+      context.telemetry.properties.targetScope = deploymentScope;
       this.outputChannelManager.appendToOutputChannel(
         `Scope specified in ${path.basename(
           documentPath
@@ -113,64 +116,53 @@ export class DeployCommand implements Command {
         context
       );
 
-      // Remove when the below issue is resolved:
-      // https://github.com/Azure/azure-sdk-for-net/issues/27263
-      this.showWarningIfAzureAcountExtensionVersionIsLatest();
-
       switch (deploymentScope) {
         case "resourceGroup":
-          return await this.handleResourceGroupDeployment(
+          await this.handleResourceGroupDeployment(
             context,
             textDocument,
             documentUri,
             deploymentScope,
             template
           );
+          break;
         case "subscription":
-          return await this.handleSubscriptionDeployment(
+          await this.handleSubscriptionDeployment(
             context,
             textDocument,
             documentUri,
             deploymentScope,
             template
           );
+          break;
         case "managementGroup":
-          return await this.handleManagementGroupDeployment(
+          await this.handleManagementGroupDeployment(
             context,
             textDocument,
             documentUri,
             deploymentScope,
             template
           );
+          break;
         case "tenant": {
-          const tenantScopeNotSupportedMessage =
-            "Tenant scope deployment is not currently supported.";
-          this.outputChannelManager.appendToOutputChannel(
-            tenantScopeNotSupportedMessage
+          throw new Error(
+            "Tenant scope deployment is not currently supported."
           );
-          throw new Error(tenantScopeNotSupportedMessage);
         }
         default: {
-          const deploymentFailedMessage =
-            "Deployment failed. " + deploymentScopeResponse?.errorMessage;
-
-          this.outputChannelManager.appendToOutputChannel(
-            deploymentFailedMessage
+          throw new Error(
+            deploymentScopeResponse?.errorMessage ??
+              "Unknown error determining target scope"
           );
-
-          throw new Error(deploymentFailedMessage);
         }
       }
-    } catch (exception) {
-      if (exception instanceof UserCancelledError) {
-        this.outputChannelManager.appendToOutputChannel(
-          "Deployment was canceled."
-        );
-      } else {
-        this.client.error("Deploy failed", parseError(exception).message, true);
-      }
-
-      throw exception;
+    } catch (err) {
+      this.outputChannelManager.appendToOutputChannel(
+        err instanceof UserCancelledError
+          ? `Deployment canceled for ${documentPath}.`
+          : `Deployment failed for ${documentPath}. ${parseError(err).message}`
+      );
+      throw err;
     }
   }
 
@@ -181,12 +173,21 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string
   ) {
-    const managementGroupTreeItem =
-      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<LocationTreeItem>(
-        "",
-        context
+    let managementGroupTreeItem: AzManagementGroupTreeItem | undefined;
+    try {
+      managementGroupTreeItem =
+        await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
+          "",
+          context
+        );
+    } catch (exception) {
+      this.outputChannelManager.appendToOutputChannel(
+        "Deployment failed. " + parseError(exception).message
       );
-    const managementGroupId = managementGroupTreeItem.id;
+
+      throw exception;
+    }
+    const managementGroupId = managementGroupTreeItem?.id;
 
     if (managementGroupId) {
       const location = await vscode.window.showInputBox({
@@ -200,12 +201,14 @@ export class DeployCommand implements Command {
         );
 
         await this.sendDeployCommand(
+          context,
           textDocument,
           parameterFilePath,
           managementGroupId,
           deploymentScope,
           location,
-          template
+          template,
+          managementGroupTreeItem.subscription
         );
       }
     }
@@ -232,12 +235,14 @@ export class DeployCommand implements Command {
       );
 
       await this.sendDeployCommand(
+        context,
         textDocument,
         parameterFilePath,
         resourceGroupId,
         deploymentScope,
         "",
-        template
+        template,
+        resourceGroupTreeItem.subscription
       );
     }
   }
@@ -248,57 +253,77 @@ export class DeployCommand implements Command {
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string
-  ) {
+  ): Promise<void> {
     const locationTreeItem =
       await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
         "",
         context
       );
     const location = locationTreeItem.label;
-    const subscriptionId = locationTreeItem.subscription.subscriptionPath;
+    const subscription = locationTreeItem.subscription;
+    const subscriptionId = subscription.subscriptionPath;
+
     const parameterFilePath = await this.selectParameterFile(
       context,
       documentUri
     );
 
     await this.sendDeployCommand(
+      context,
       textDocument,
       parameterFilePath,
       subscriptionId,
       deploymentScope,
       location,
-      template
+      template,
+      subscription
     );
   }
 
   private async sendDeployCommand(
+    context: IActionContext,
     textDocument: TextDocumentIdentifier,
     parameterFilePath: string | undefined,
     id: string,
     deploymentScope: string,
     location: string,
-    template: string
+    template: string,
+    subscription: ISubscriptionContext
   ) {
     if (!parameterFilePath) {
+      context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
         `No parameter file was provided`
       );
       parameterFilePath = "";
+    } else {
+      context.telemetry.properties.parameterFileProvided = "true";
     }
-    const bicepDeployParams: BicepDeployParams = {
-      textDocument,
-      parameterFilePath,
-      id,
-      deploymentScope,
-      location,
-      template,
-    };
-    const deploymentResponse: string = await this.client.sendRequest(
-      bicepDeployRequestType,
-      bicepDeployParams
+
+    const accessToken: AccessToken = await subscription.credentials.getToken(
+      []
     );
 
-    this.outputChannelManager.appendToOutputChannel(deploymentResponse);
+    if (accessToken) {
+      const token = accessToken.token;
+      const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+
+      const bicepDeployParams: BicepDeployParams = {
+        textDocument,
+        parameterFilePath,
+        id,
+        deploymentScope,
+        location,
+        template,
+        token,
+        expiresOnTimestamp,
+      };
+      const deploymentResponse: string = await this.client.sendRequest(
+        bicepDeployRequestType,
+        bicepDeployParams
+      );
+      this.outputChannelManager.appendToOutputChannel(deploymentResponse);
+    }
   }
 
   private async selectParameterFile(
@@ -341,27 +366,5 @@ export class DeployCommand implements Command {
     IAzureQuickPickItem[]
   > {
     return [this._none].concat([this._browse]);
-  }
-
-  private showWarningIfAzureAcountExtensionVersionIsLatest() {
-    const extension: Extension<AzureAccount> | undefined =
-      extensions.getExtension<AzureAccount>(this._azureAccountExtensionId);
-    if (extension) {
-      const version: string = extension.packageJSON.version;
-      if (!this._doNotShowAzureAccountExtensionVersionWarning) {
-        if (semver.gte(version, "0.10.0")) {
-          vscode.window
-            .showInformationMessage(
-              `Detected ${version} version of Azure Account extension. If you encounter issues while signing into azure, please downgrade the version to 0.9.11 and try again.`,
-              this._doNotShowAgainMessage
-            )
-            .then((selection) => {
-              if (selection == this._doNotShowAgainMessage) {
-                this._doNotShowAzureAccountExtensionVersionWarning = true;
-              }
-            });
-        }
-      }
-    }
   }
 }

@@ -47,6 +47,7 @@ module.exports = {
             assertFunctionNames: ["expect*"],
           },
         ],
+        "prettier/prettier": "warn",
       },
     },
     {

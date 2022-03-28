@@ -4,11 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Resources;
-using Bicep.Core.Semantics;
 using System.Collections.Immutable;
 using System.Collections.Concurrent;
-using Bicep.Core.Emit;
-using System.Text.RegularExpressions;
 
 namespace Bicep.Core.TypeSystem.K8s
 {

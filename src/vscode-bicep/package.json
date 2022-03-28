@@ -43,6 +43,9 @@
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
     "onCommand:bicep.showVisualizerToSide",
+    "onCommand:bicep.gettingStarted.copyToClipboard",
+    "onCommand:bicep.gettingStarted.createBicepFile",
+    "onCommand:bicep.gettingStarted.openBicepFile",
     "onWebviewPanel:bicep.visualizer"
   ],
   "main": "./out/extension",
@@ -166,6 +169,19 @@
         "command": "bicep.createConfigFile",
         "title": "Create Bicep Configuration File",
         "category": "Bicep"
+      },
+      {
+        "$section": "================== Walkthrough commands (not visible to users) ==================",
+        "command": "bicep.gettingStarted.createBicepFile",
+        "title": "Walkthrough: Create Empty Bicep File"
+      },
+      {
+        "command": "bicep.gettingStarted.openBicepFile",
+        "title": "Walkthrough: Open Existing Bicep File"
+      },
+      {
+        "command": "bicep.gettingStarted.copyToClipboard",
+        "title": "Walkthrough: Copy walkthrough code to the clipboard"
       }
     ],
     "keybindings": [
@@ -292,9 +308,106 @@
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus && commandsRegistered",
           "group": "navigation"
+        },
+        {
+          "command": "bicep.gettingStarted.createBicepFile",
+          "when": "never"
+        },
+        {
+          "command": "bicep.gettingStarted.openBicepFile",
+          "when": "never"
+        },
+        {
+          "command": "bicep.gettingStarted.copyToClipboard",
+          "when": "never"
         }
       ]
-    }
+    },
+    "walkthroughs.$comments": [
+      "Documentation: https://code.visualstudio.com/api/references/contribution-points#contributes.walkthroughs",
+      "",
+      "Automatically completes if a markdown button is pressed or there are no commands and no completion events",
+      "Available completion events include:",
+      "  onCommand:myCommand.id: Check off step when a command has been run.",
+      "  onSettingChanged:mySetting.id: Check off step once the given setting has been modified.",
+      "  onContext:contextKeyExpression: Check off step when a context key expression evaluates true.",
+      "  extensionInstalled:myExt.id: Check off step if the given extension is installed.",
+      "  onView:myView.id: Check off step once a given view becomes visible.",
+      "  onLink:https://...: Check off step once a given link has been opened via a Walkthrough."
+    ],
+    "walkthroughs": [
+      {
+        "id": "gettingStarted",
+        "title": "Getting Started with Bicep",
+        "description": "Learn about Bicep and the Bicep extension for Visual Studio Code",
+        "steps": [
+          {
+            "id": "openBicepFile",
+            "title": "Open a Bicep File",
+            "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension).\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nHint: [Close the side bar for more space](command:workbench.action.closeSidebar)",
+            "media": {
+              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
+              "altText": "Bicep logo"
+            },
+            "completionEvents": [
+              "onCommand:bicep.gettingStarted.createBicepFile",
+              "onCommand:bicep.gettingStarted.openBicepFile",
+              "onLanguage:bicep"
+            ]
+          },
+          {
+            "id": "addParameters",
+            "title": "Add parameters",
+            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes.",
+            "media": {
+              "markdown": "media/walkthroughs/gettingStarted/2_Type_Params.md"
+            }
+          },
+          {
+            "id": "addResources",
+            "title": "Add resources",
+            "description": "Use Bicep's IntelliSense and snippets to help you create a deployable Bicep file in minutes.",
+            "media": {
+              "markdown": "media/walkthroughs/gettingStarted/3_Type_Resources.md"
+            }
+          },
+          {
+            "id": "visualizeYourResources",
+            "title": "Visualize your resources",
+            "description": "The Visualizer gives you a representation of the resources in your Bicep file.\n[Open Visualizer to the Side](command:bicep.showVisualizer)",
+            "media": {
+              "markdown": "media/walkthroughs/gettingStarted/4_Show_Visualizer.md"
+            },
+            "completionEvents": [
+              "onCommand:bicep.showVisualizerToSide",
+              "onCommand:bicep.showVisualizer"
+            ]
+          },
+          {
+            "id": "deployToAzure",
+            "title": "Deploy to Azure",
+            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy)",
+            "media": {
+              "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
+              "altText": "Example of deploying Bicep file to Azure"
+            },
+            "completionEvents": [
+              "onCommand:bicep.deploy"
+            ],
+            "when": "config.bicep.enableDeploy"
+          },
+          {
+            "id": "learnMore",
+            "title": "Learn More",
+            "description": "Great Job! You've completed Getting Started with Bicep. But don't stop now!\nCheck out our [Bicep Documentation](https://aka.ms/Bicep) to learn more about importing Bicep files as [modules](https://aka.ms/bicep/docs/modules) and [other extension features](https://aka.ms/bicep/docs/vscode).\nWanna take a deep dive into the Bicep language? Take a look at [Microsoft Learn - Bicep](https://aka.ms/microsoftlearnbicep).",
+            "media": {
+              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
+              "altText": "Bicep logo"
+            }
+          }
+        ]
+      }
+    ]
   },
   "scripts": {
     "vscode:prepublish": "npm run build:prod",
@@ -308,6 +421,7 @@
     "test:unit": "jest --config jest.config.unit.js",
     "test:snapshot": "jest --config jest.config.snapshot.js",
     "test:update-snapshot": "jest --config jest.config.snapshot.js --updateSnapshot",
+    "testlocal:e2e": "(export BICEP_LANGUAGE_SERVER_PATH=${INIT_CWD}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll || set BICEP_LANGUAGE_SERVER_PATH=%INIT_CWD%/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll) && npm run build && npm run build:e2e && npm run test:e2e",
     "clean": "rimraf ./out ./coverage",
     "package": "npm run clean && nbgv-setversion && vsce package --githubBranch main --out ./vscode-bicep.vsix && nbgv-setversion --reset"
   },
@@ -317,7 +431,7 @@
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.1.0",
-    "@types/node": "^17.0.12",
+    "@types/node": "^17.0.23",
     "@types/react": "^17.0.37",
     "@types/react-dom": "^17.0.9",
     "@types/react-test-renderer": "^17.0.1",
@@ -326,8 +440,8 @@
     "@types/triple-beam": "^1.3.2",
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^4.33.0",
-    "@typescript-eslint/parser": "^4.31.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.0",
+    "@typescript-eslint/parser": "^5.12.0",
     "@vscode/test-electron": "^2.1.2",
     "copy-webpack-plugin": "^9.0.1",
     "esbuild-loader": "^2.16.0",
@@ -347,9 +461,10 @@
     "rimraf": "^3.0.2",
     "semver": "^7.3.5",
     "svg-inline-loader": "^0.8.2",
+    "terser-webpack-plugin": "5.3.1",
     "ts-jest": "^27.0.7",
     "ts-node": "^10.2.1",
-    "typescript": "^4.3.5",
+    "typescript": "^4.6.3",
     "vsce": "^1.99.0",
     "webpack": "^5.69.0",
     "webpack-cli": "^4.8.0"
@@ -359,7 +474,7 @@
     "@azure/arm-resources": "^5.0.0",
     "@azure/arm-subscriptions": "^5.0.0",
     "@azure/identity": "^2.0.4",
-    "@microsoft/vscode-azext-azureutils": "^0.1.2",
+    "@microsoft/vscode-azext-azureutils": "^0.1.3",
     "@microsoft/vscode-azext-utils": "^0.1.0",
     "cytoscape": "^3.20.0",
     "cytoscape-elk": "^2.0.2",
@@ -370,7 +485,7 @@
     "styled-components": "^5.3.1",
     "triple-beam": "^1.3.0",
     "vscode-languageclient": "^7.0.0",
-    "winston": "^3.5.1",
+    "winston": "^3.6.0",
     "winston-transport": "^4.4.0"
   },
   "extensionDependencies": [
