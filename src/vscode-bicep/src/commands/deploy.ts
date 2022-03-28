@@ -102,7 +102,6 @@ export class DeployCommand implements Command {
         return;
       }
 
-      context.telemetry.properties.targetScope = deploymentScope;
       this.outputChannelManager.appendToOutputChannel(
         `Scope specified in ${path.basename(
           documentPath
@@ -220,8 +219,7 @@ export class DeployCommand implements Command {
         );
 
         await this.sendDeployCommand(
-          context,
-          textDocument,
+          documentUri.fsPath,
           parameterFilePath,
           managementGroupId,
           deploymentScope,
@@ -253,8 +251,7 @@ export class DeployCommand implements Command {
       );
 
       await this.sendDeployCommand(
-        context,
-        textDocument,
+        documentUri.fsPath,
         parameterFilePath,
         resourceGroupId,
         deploymentScope,
@@ -286,8 +283,7 @@ export class DeployCommand implements Command {
     );
 
     await this.sendDeployCommand(
-      context,
-      textDocument,
+      documentUri.fsPath,
       parameterFilePath,
       subscriptionId,
       deploymentScope,
@@ -298,8 +294,7 @@ export class DeployCommand implements Command {
   }
 
   private async sendDeployCommand(
-    context: IActionContext,
-    textDocument: TextDocumentIdentifier,
+    documentPath: string,
     parameterFilePath: string | undefined,
     id: string,
     deploymentScope: string,
@@ -308,13 +303,10 @@ export class DeployCommand implements Command {
     subscription: ISubscriptionContext
   ) {
     if (!parameterFilePath) {
-      context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
         `No parameter file was provided`
       );
       parameterFilePath = "";
-    } else {
-      context.telemetry.properties.parameterFileProvided = "true";
     }
 
     const accessToken: AccessToken = await subscription.credentials.getToken(
