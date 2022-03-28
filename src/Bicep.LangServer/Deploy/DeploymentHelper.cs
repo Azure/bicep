@@ -94,7 +94,7 @@ namespace Bicep.LanguageServer.Deploy
                 }
             }
 
-            return LangServerResources.DeploymentFailedMessage;
+            return string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
         }
 
         private static string GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath)
