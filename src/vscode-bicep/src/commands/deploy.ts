@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 import * as path from "path";
-import vscode, { Uri } from "vscode";
+import vscode, { commands, Uri } from "vscode";
 import { AccessToken } from "@azure/identity";
 import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
 import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
@@ -26,7 +26,11 @@ import {
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 
-import { BicepDeployParams, deploymentScopeRequestType } from "../language";
+import {
+  BicepDeploymentScopeParams,
+  BicepDeploymentScopeResponse,
+  BicepDeployParams,
+} from "../language";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -79,10 +83,14 @@ export class DeployCommand implements Command {
     context.errorHandling.suppressDisplay = true;
 
     try {
-      const deploymentScopeResponse = await this.client.sendRequest(
-        deploymentScopeRequestType,
-        { textDocument: textDocument }
-      );
+      const bicepDeploymentScopeParams: BicepDeploymentScopeParams = {
+        textDocument,
+      };
+      const deploymentScopeResponse: BicepDeploymentScopeResponse =
+        await this.client.sendRequest("workspace/executeCommand", {
+          command: "getDeploymentScope",
+          arguments: [bicepDeploymentScopeParams],
+        });
       const deploymentScope = deploymentScopeResponse?.scope;
       const template = deploymentScopeResponse?.template;
 
@@ -116,7 +124,6 @@ export class DeployCommand implements Command {
         case "resourceGroup":
           await this.handleResourceGroupDeployment(
             context,
-            textDocument,
             documentUri,
             deploymentScope,
             template
@@ -125,7 +132,6 @@ export class DeployCommand implements Command {
         case "subscription":
           await this.handleSubscriptionDeployment(
             context,
-            textDocument,
             documentUri,
             deploymentScope,
             template
@@ -134,7 +140,6 @@ export class DeployCommand implements Command {
         case "managementGroup":
           await this.handleManagementGroupDeployment(
             context,
-            textDocument,
             documentUri,
             deploymentScope,
             template
@@ -153,18 +158,36 @@ export class DeployCommand implements Command {
         }
       }
     } catch (err) {
-      this.outputChannelManager.appendToOutputChannel(
-        err instanceof UserCancelledError
-          ? `Deployment canceled for ${documentPath}.`
-          : `Deployment failed for ${documentPath}. ${parseError(err).message}`
-      );
+      let errorMessage: string;
+
+      if (err instanceof UserCancelledError) {
+        errorMessage = `Deployment canceled for ${documentPath}.`;
+      }
+      // Long-standing issue that is pretty common for all Azure calls, but can be fixed with a simple reload of VS Code.
+      // https://github.com/microsoft/vscode-azure-account/issues/53
+      else if (parseError(err).message === "Entry not found in cache.") {
+        errorMessage = `Deployment canceled for ${documentPath}. Your VS Code window must be reloaded to perform this action.`;
+        context.errorHandling.suppressReportIssue = true;
+        context.errorHandling.buttons = [
+          {
+            title: localize("reloadWindow", "Reload Window"),
+            callback: async (): Promise<void> => {
+              await commands.executeCommand("workbench.action.reloadWindow");
+            },
+          },
+        ];
+      } else {
+        errorMessage = `Deployment failed for ${documentPath}. ${
+          parseError(err).message
+        }`;
+      }
+      this.outputChannelManager.appendToOutputChannel(errorMessage);
       throw err;
     }
   }
 
   private async handleManagementGroupDeployment(
     context: IActionContext,
-    textDocument: TextDocumentIdentifier,
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string
@@ -212,7 +235,6 @@ export class DeployCommand implements Command {
 
   private async handleResourceGroupDeployment(
     context: IActionContext,
-    textDocument: TextDocumentIdentifier,
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string
@@ -245,7 +267,6 @@ export class DeployCommand implements Command {
 
   private async handleSubscriptionDeployment(
     context: IActionContext,
-    textDocument: TextDocumentIdentifier,
     documentUri: vscode.Uri,
     deploymentScope: string,
     template: string
@@ -305,6 +326,7 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
 
       const bicepDeployParams: BicepDeployParams = {
+        documentPath,
         parameterFilePath,
         id,
         deploymentScope,

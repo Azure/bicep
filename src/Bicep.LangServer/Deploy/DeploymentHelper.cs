@@ -21,6 +21,7 @@ namespace Bicep.LanguageServer.Deploy
         /// </summary>
         /// <param name="deploymentCollectionProvider">deployment collection provider</param>
         /// <param name="armClient">arm client</param>
+        /// <param name="documentPath">path to bicep file used in deployment</param>
         /// <param name="template">template used in deployment</param>
         /// <param name="parameterFilePath">path to parameter file used in deployment</param>
         /// <param name="id">id string to create the ResourceIdentifier from</param>
@@ -30,6 +31,7 @@ namespace Bicep.LanguageServer.Deploy
         public static async Task<string> CreateDeployment(
             IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
+            string documentPath,
             string template,
             string parameterFilePath,
             string id,
@@ -40,7 +42,7 @@ namespace Bicep.LanguageServer.Deploy
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
                 string.IsNullOrWhiteSpace(location))
             {
-                return LangServerResources.MissingLocationDeploymentFailedMessage;
+                return string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
             }
 
             DeploymentCollection? deploymentCollection;
@@ -52,7 +54,7 @@ namespace Bicep.LanguageServer.Deploy
             }
             catch (Exception e)
             {
-                return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, e.Message);
+                return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message);
             }
 
             if (deploymentCollection is not null)
@@ -61,7 +63,7 @@ namespace Bicep.LanguageServer.Deploy
 
                 try
                 {
-                    parameters = GetParameters(parameterFilePath);
+                    parameters = GetParameters(documentPath, parameterFilePath);
                 }
                 catch (Exception e)
                 {
@@ -84,22 +86,22 @@ namespace Bicep.LanguageServer.Deploy
                 {
                     var deploymentCreateOrUpdateOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deployment, input);
 
-                    return GetDeploymentResultMessage(deploymentCreateOrUpdateOperation);
+                    return GetDeploymentResultMessage(deploymentCreateOrUpdateOperation, documentPath);
                 }
                 catch (Exception e)
                 {
-                    return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, e.Message);
+                    return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message);
                 }
             }
 
             return LangServerResources.DeploymentFailedMessage;
         }
 
-        private static string GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation)
+        private static string GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath)
         {
             if (!deploymentCreateOrUpdateOperation.HasValue)
             {
-                return LangServerResources.DeploymentFailedMessage;
+                return string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
             }
 
             var response = deploymentCreateOrUpdateOperation.GetRawResponse();
@@ -107,15 +109,15 @@ namespace Bicep.LanguageServer.Deploy
 
             if (status == 200 || status == 201)
             {
-                return LangServerResources.DeploymentSucceededMessage;
+                return string.Format(LangServerResources.DeploymentSucceededMessage, documentPath);
             }
             else
             {
-                return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, response.ToString());
+                return string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString());
             }
         }
 
-        private static JsonElement GetParameters(string parameterFilePath)
+        private static JsonElement GetParameters(string documentPath, string parameterFilePath)
         {
             if (string.IsNullOrWhiteSpace(parameterFilePath))
             {
@@ -130,7 +132,7 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
-                    throw new Exception(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, e.Message));
+                    throw new Exception(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, e.Message));
                 }
             }
         }

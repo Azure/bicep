@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployParams(string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp) : IRequest<string>;
+    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp) : IRequest<string>;
 
     public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, string>
     {
@@ -31,6 +31,7 @@ namespace Bicep.LanguageServer.Handlers
             string deploymentOutput = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider,
                 armClient,
+                request.documentPath,
                 request.template,
                 request.parameterFilePath,
                 request.id,

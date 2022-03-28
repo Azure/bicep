@@ -56,15 +56,8 @@ export interface BicepDeploymentScopeResponse {
   errorMessage?: string;
 }
 
-export const deploymentScopeRequestType = new ProtocolRequestType<
-  BicepDeploymentScopeParams,
-  BicepDeploymentScopeResponse | undefined,
-  never,
-  void,
-  void
->("bicep/getDeploymentScope");
-
 export interface BicepDeployParams {
+  documentPath: string,
   parameterFilePath: string;
   id: string;
   deploymentScope: string;
