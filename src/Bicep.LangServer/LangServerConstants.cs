@@ -7,5 +7,6 @@ namespace Bicep.LanguageServer
     {
         public const string BuildCommand = "build";
         public const string DeployCommand = "deploy";
+        public const string GetDeploymentScopeCommand = "getDeploymentScope";
     }
 }
