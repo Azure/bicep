@@ -23,7 +23,6 @@ import {
   IAzureQuickPickItem,
   ISubscriptionContext,
   parseError,
-  UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
 
 import {
@@ -160,7 +159,7 @@ export class DeployCommand implements Command {
     } catch (err) {
       let errorMessage: string;
 
-      if (err instanceof UserCancelledError) {
+      if (parseError(err).isUserCancelledError) {
         errorMessage = `Deployment canceled for ${documentPath}.`;
       }
       // Long-standing issue that is pretty common for all Azure calls, but can be fixed with a simple reload of VS Code.
