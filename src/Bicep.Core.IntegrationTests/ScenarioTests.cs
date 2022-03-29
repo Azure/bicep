@@ -3,14 +3,11 @@
 using System;
 using System.Linq;
 using System.Security.Cryptography;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 using Bicep.Core.Resources;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -2904,7 +2901,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
   }
 }
 "));
-            result.Should().GenerateATemplate().And.HaveDiagnostics(new []
+            result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
             {
                 ("BCP073", DiagnosticLevel.Warning, "The property \"tags\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
@@ -2925,7 +2922,7 @@ module mod 'module.bicep' = {
   outputs: {}
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new []
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
             {
                 ("BCP073", DiagnosticLevel.Error, "The property \"outputs\" is read-only. Expressions cannot be assigned to read-only properties.")
             });
@@ -2961,7 +2958,8 @@ output badResult object = {
   value: storage.listAnything().keys[0].value
 }");
 
-            result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject {
+            result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
+            {
                 ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
             });
         }

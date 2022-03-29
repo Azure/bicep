@@ -2,17 +2,11 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Features;
-using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Bicep.Core.UnitTests.Assertions
 {

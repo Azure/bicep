@@ -395,6 +395,7 @@ var keyVaultSecretVar = kv.getSecret('mySecret')
 //@[24:48) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 var keyVaultSecretInterpolatedVar = '${kv.getSecret('mySecret')}'
 //@[4:33) [no-unused-vars (Warning)] Variable "keyVaultSecretInterpolatedVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |keyVaultSecretInterpolatedVar|
+//@[36:65) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|
 //@[39:63) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 var keyVaultSecretObjectVar = {
 //@[4:27) [no-unused-vars (Warning)] Variable "keyVaultSecretObjectVar" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |keyVaultSecretObjectVar|

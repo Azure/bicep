@@ -321,36 +321,43 @@ namespace Bicep.Core.Emit
             {
                 // emit the resource id of the resource being extended
                 expressionEmitter.EmitProperty("scope", () => expressionEmitter.EmitUnqualifiedResourceId(scopeResource, scopeData.IndexExpression, newContext));
+                return;
             }
-            else if (scopeData.RequestedScope == ResourceScope.Tenant && semanticModel.TargetScope != ResourceScope.Tenant)
-            {
-                // emit the "/" to allow cross-scope deployment of a Tenant resource from another deployment scope
-                expressionEmitter.EmitProperty("scope", "/");
-            }
+
+            EmitResourceOrModuleScopeProperties(semanticModel, scopeData, expressionEmitter, newContext);
         }
 
-        public static void EmitModuleScopeProperties(ResourceScope targetScope, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
+        public static void EmitModuleScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext) =>
+            EmitResourceOrModuleScopeProperties(semanticModel, scopeData, expressionEmitter, newContext);
+
+        private static void EmitResourceOrModuleScopeProperties(SemanticModel semanticModel, ScopeData scopeData, ExpressionEmitter expressionEmitter, SyntaxBase newContext)
         {
             switch (scopeData.RequestedScope)
             {
                 case ResourceScope.Tenant:
-                    expressionEmitter.EmitProperty("scope", new JTokenExpression("/"));
+                    if (semanticModel.TargetScope != ResourceScope.Tenant)
+                    {
+                        // emit the "/" to allow cross-scope deployment of a Tenant resource from another deployment scope
+                        expressionEmitter.EmitProperty("scope", new JTokenExpression("/"));
+                    }
                     return;
                 case ResourceScope.ManagementGroup:
                     if (scopeData.ManagementGroupNameProperty is not null)
                     {
                         // The template engine expects an unqualified resourceId for the management group scope if deploying at tenant or management group scope
-                        var useFullyQualifiedResourceId = targetScope != ResourceScope.Tenant && targetScope != ResourceScope.ManagementGroup;
+                        var useFullyQualifiedResourceId = semanticModel.TargetScope != ResourceScope.Tenant && semanticModel.TargetScope != ResourceScope.ManagementGroup;
                         expressionEmitter.EmitProperty("scope", expressionEmitter.GetManagementGroupResourceId(scopeData.ManagementGroupNameProperty, scopeData.IndexExpression, newContext, useFullyQualifiedResourceId));
                     }
                     return;
                 case ResourceScope.Subscription:
                     if (scopeData.SubscriptionIdProperty is not null)
                     {
+                        // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
                         expressionEmitter.EmitProperty("subscriptionId", scopeData.SubscriptionIdProperty);
                     }
-                    else if (targetScope == ResourceScope.ResourceGroup)
+                    else if (semanticModel.TargetScope == ResourceScope.ResourceGroup)
                     {
+                        // TODO: It's very suspicious that this doesn't reference scopeData.IndexExpression
                         expressionEmitter.EmitProperty("subscriptionId", new FunctionExpression("subscription", Array.Empty<LanguageExpression>(), new LanguageExpression[] { new JTokenExpression("subscriptionId") }));
                     }
                     return;

@@ -1,19 +1,14 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Azure.Bicep.Types.Az;
-using Azure.Bicep.Types.Az.Index;
 using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
-using Bicep.LanguageServer.Providers;
-using Moq;
 
 namespace Bicep.Core.UnitTests.Utils
 {
@@ -74,6 +69,13 @@ namespace Bicep.Core.UnitTests.Utils
                 name,
                 TypeSymbolValidationFlags.Default,
                 properties.Select(val => new TypeProperty(val.name, val.type)),
+                null,
+                TypePropertyFlags.None);
+        public static ObjectType CreateObjectType(string name, params (string name, ITypeReference type, TypePropertyFlags flags)[] properties)
+            => new(
+                name,
+                TypeSymbolValidationFlags.Default,
+                properties.Select(val => new TypeProperty(val.name, val.type, val.flags)),
                 null,
                 TypePropertyFlags.None);
 

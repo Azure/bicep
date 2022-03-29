@@ -619,7 +619,7 @@ namespace Bicep.Core.Emit
             emitter.EmitObjectProperties((ObjectSyntax)body, ModulePropertiesToOmit);
 
             var scopeData = context.ModuleScopeData[moduleSymbol];
-            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel.TargetScope, scopeData, emitter, body);
+            ScopeHelper.EmitModuleScopeProperties(context.SemanticModel, scopeData, emitter, body);
 
             if (scopeData.RequestedScope != ResourceScope.ResourceGroup)
             {
@@ -682,12 +682,21 @@ namespace Bicep.Core.Emit
 
             jsonWriter.WriteEndObject();
         }
-        private static bool ShouldGenerateDependsOn(ResourceDependency dependency) => dependency.Resource switch
-        {   // We only want to add a 'dependsOn' for resources being deployed in this file.
-            ResourceSymbol resource => !resource.DeclaringResource.IsExistingResource(),
-            ModuleSymbol => true,
-            _ => throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}"),
-        };
+        private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
+        {
+            if(dependency.Kind == ResourceDependencyKind.Transitive)
+            {
+                // transitive dependencies do not have to be emitted
+                return false;
+            }
+
+            return dependency.Resource switch
+            {   // We only want to add a 'dependsOn' for resources being deployed in this file.
+                ResourceSymbol resource => !resource.DeclaringResource.IsExistingResource(),
+                ModuleSymbol => true,
+                _ => throw new InvalidOperationException($"Found dependency '{dependency.Resource.Name}' of unexpected type {dependency.GetType()}"),
+            };
+        }
 
         private void EmitSymbolicNameDependsOnEntry(JsonTextWriter jsonWriter, ExpressionEmitter emitter, SyntaxBase newContext, ResourceDependency dependency)
         {

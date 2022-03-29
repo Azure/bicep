@@ -2,11 +2,10 @@
 // Licensed under the MIT License.
 
 using System.Buffers;
-using System.IO;
 using System.Text;
 using System.Text.Encodings.Web;
 using System.Text.Json;
-using Azure.ResourceManager;
+using Azure.Core;
 using Azure.ResourceManager.Resources;
 using Bicep.Core.Extensions;
 using Bicep.Core.Json;
@@ -145,7 +144,8 @@ namespace Bicep.Core.Registry
                         break;
                 }
             }
-            return new(id, name, type, systemData, location, tags, description, linkedTemplates, metadata, mainTemplate, uiFormDefinition);
+            var resourceIdentifier = new ResourceIdentifier(id);
+            return new(resourceIdentifier, name, type, systemData, location, tags, description, linkedTemplates, metadata, mainTemplate, uiFormDefinition);
         }
 
         public string ToUtf8Json()

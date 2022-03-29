@@ -1,30 +1,36 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
-import {
-  createAzExtOutputChannel,
-  registerUIExtensionVariables,
-} from "@microsoft/vscode-azext-utils";
 
-import {
-  launchLanguageServiceWithProgressReport,
-  BicepCacheContentProvider,
-} from "./language";
+import vscode from "vscode";
 import { BicepVisualizerViewManager } from "./visualizer";
+import { createAzExtOutputChannel } from "./utils/AzExtOutputChannel";
+import { OutputChannelManager } from "./utils/OutputChannelManager";
+import { registerAzureUtilsExtensionVariables } from "@microsoft/vscode-azext-azureutils";
+import { registerUIExtensionVariables } from "@microsoft/vscode-azext-utils";
+import { TreeManager } from "./tree/TreeManager";
 import {
   BuildCommand,
   CommandManager,
+  DeployCommand,
   InsertResourceCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
+  WalkthroughCopyToClipboardCommand,
+  WalkthroughCreateBicepFileCommand,
+  WalkthroughOpenBicepFileCommand,
 } from "./commands";
 import {
-  createLogger,
-  resetLogger,
+  BicepCacheContentProvider,
+  launchLanguageServiceWithProgressReport,
+} from "./language";
+import {
   activateWithTelemetryAndErrorHandling,
+  createLogger,
   Disposable,
+  resetLogger,
 } from "./utils";
+import { CreateBicepConfigurationFile } from "./commands/createConfigurationFile";
 
 class BicepExtension extends Disposable {
   private constructor(public readonly extensionUri: vscode.Uri) {
@@ -47,7 +53,13 @@ export async function activate(
 
   extension.register(outputChannel);
   extension.register(createLogger(context, outputChannel));
+
   registerUIExtensionVariables({ context, outputChannel });
+  registerAzureUtilsExtensionVariables({
+    context,
+    outputChannel,
+    prefix: "bicep",
+  });
 
   await activateWithTelemetryAndErrorHandling(async (actionContext) => {
     const languageClient = await launchLanguageServiceWithProgressReport(
@@ -70,15 +82,28 @@ export async function activate(
       new BicepVisualizerViewManager(extension.extensionUri, languageClient)
     );
 
+    const outputChannelManager = extension.register(
+      new OutputChannelManager("Bicep Operations", "bicep")
+    );
+
+    const treeManager = extension.register(
+      new TreeManager(outputChannelManager)
+    );
+
     // Register commands.
     await extension
       .register(new CommandManager(context))
       .registerCommands(
-        new BuildCommand(languageClient),
+        new BuildCommand(languageClient, outputChannelManager),
+        new CreateBicepConfigurationFile(languageClient),
+        new DeployCommand(languageClient, outputChannelManager, treeManager),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
-        new ShowSourceCommand(viewManager)
+        new ShowSourceCommand(viewManager),
+        new WalkthroughCopyToClipboardCommand(),
+        new WalkthroughCreateBicepFileCommand(),
+        new WalkthroughOpenBicepFileCommand()
       );
   });
 }

@@ -7,7 +7,6 @@ using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces

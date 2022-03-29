@@ -8,6 +8,7 @@ using Bicep.Core.Tracing;
 using Bicep.Core.Registry.Auth;
 using Bicep.Core.Configuration;
 using System.Threading;
+using Azure.Core;
 
 namespace Bicep.LanguageServer.Providers
 {
@@ -20,23 +21,22 @@ namespace Bicep.LanguageServer.Providers
             this.credentialFactory = credentialFactory;
         }
 
-        private ArmClient CreateArmClient(RootConfiguration configuration, string resourceType, string apiVersion)
+        private ArmClient CreateArmClient(RootConfiguration configuration, string subscriptionId)
         {
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
-            options.ApiVersions.SetApiVersion(resourceType, apiVersion);
             options.Scope = configuration.Cloud.AuthenticationScope;
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
 
-            return new ArmClient(configuration.Cloud.ResourceManagerEndpointUri, credential, options);
+            return new ArmClient(credential, subscriptionId, configuration.Cloud.ResourceManagerEndpointUri, options);
         }
 
         public async Task<JsonElement> GetGenericResource(RootConfiguration configuration, IAzResourceProvider.AzResourceIdentifier resourceId, string apiVersion, CancellationToken cancellationToken)
         {
-            var armClient = CreateArmClient(configuration, resourceId.FullyQualifiedType, apiVersion);
-
-            var response = await armClient.GetGenericResource(resourceId.FullyQualifiedId).GetAsync(cancellationToken);
+            var armClient = CreateArmClient(configuration, resourceId.subscriptionId);
+            var resourceIdentifier = new ResourceIdentifier(resourceId.FullyQualifiedId);
+            var response = await armClient.GetGenericResource(resourceIdentifier).GetAsync(cancellationToken);
             if (response is null ||
                 response.GetRawResponse().ContentStream is not { } contentStream)
             {

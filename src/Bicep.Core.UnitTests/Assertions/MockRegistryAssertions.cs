@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Azure.Deployments.Core.Json;
-using Bicep.Core.Features;
 using Bicep.Core.Registry.Oci;
 using Bicep.Core.UnitTests.Registry;
 using FluentAssertions;
