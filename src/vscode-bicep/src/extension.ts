@@ -16,6 +16,9 @@ import {
   ShowSourceCommand,
   ShowVisualizerCommand,
   ShowVisualizerToSideCommand,
+  WalkthroughCopyToClipboardCommand,
+  WalkthroughCreateBicepFileCommand,
+  WalkthroughOpenBicepFileCommand,
 } from "./commands";
 import {
   BicepCacheContentProvider,
@@ -95,7 +98,10 @@ export async function activate(
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
-        new ShowSourceCommand(viewManager)
+        new ShowSourceCommand(viewManager),
+        new WalkthroughCopyToClipboardCommand(),
+        new WalkthroughCreateBicepFileCommand(),
+        new WalkthroughOpenBicepFileCommand()
       );
   });
 }
