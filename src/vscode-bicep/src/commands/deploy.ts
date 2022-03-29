@@ -165,7 +165,7 @@ export class DeployCommand implements Command {
       // Long-standing issue that is pretty common for all Azure calls, but can be fixed with a simple reload of VS Code.
       // https://github.com/microsoft/vscode-azure-account/issues/53
       else if (parseError(err).message === "Entry not found in cache.") {
-        errorMessage = `Deployment canceled for ${documentPath}. Your VS Code window must be reloaded to perform this action.`;
+        errorMessage = `Deployment failed for ${documentPath}. Token cache is out of date. Please reload VS Code and try again. If this problem persists, consider changing the VS Code setting "Azure: Authentication Library" to "MSAL".`;
         context.errorHandling.suppressReportIssue = true;
         context.errorHandling.buttons = [
           {
