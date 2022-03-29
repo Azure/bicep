@@ -303,12 +303,24 @@ namespace Bicep.Cli.UnitTests
         }
 
         [TestMethod]
-        public void Restore_should_parse_correctly()
+        public void Restore__with_no_force_should_parse_correctly()
         {
             var arguments = ArgumentParser.TryParse(new[] { "restore", "file1" });
             arguments.Should().BeOfType<RestoreArguments>();
             var typed = (RestoreArguments)arguments!;
 
+            typed.ForceRestore.Should().Be(false);
+            typed.InputFile.Should().Be("file1");
+        }
+
+        [TestMethod]
+        public void Restore_with_force_should_parse_correctly()
+        {
+            var arguments = ArgumentParser.TryParse(new[] { "restore", "--force", "file1" });
+            arguments.Should().BeOfType<RestoreArguments>();
+            var typed = (RestoreArguments)arguments!;
+
+            typed.ForceRestore.Should().Be(true);
             typed.InputFile.Should().Be("file1");
         }
     }

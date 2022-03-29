@@ -97,5 +97,10 @@ namespace Bicep.Core.Registry
         private string GetModuleEntryPointPath(TemplateSpecModuleReference reference) => Path.Combine(this.GetModuleDirectoryPath(reference), "main.json");
 
         private Uri GetModuleEntryPointUri(TemplateSpecModuleReference reference) => new(this.GetModuleEntryPointPath(reference), UriKind.Absolute);
+
+        public override async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<TemplateSpecModuleReference> references)
+        {
+            return await base.InvalidateModulesCacheInternal(configuration, references);
+        }
     }
 }

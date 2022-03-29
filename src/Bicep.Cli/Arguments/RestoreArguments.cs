@@ -9,17 +9,26 @@ namespace Bicep.Cli.Arguments
         {
             for (var i = 0; i < args.Length; i++)
             {
-                if (args[i].StartsWith("--"))
+                switch (args[i].ToLowerInvariant())
                 {
-                    throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
-                }
+                    case "--force":
+                        ForceRestore = true;
+                        break;
 
-                if (InputFile is not null)
-                {
-                    throw new CommandLineException($"The input file path cannot be specified multiple times.");
-                }
+                    default:
+                        if (args[i].StartsWith("--"))
+                        {
+                            throw new CommandLineException($"Unrecognized parameter \"{args[i]}\"");
+                        }
 
-                InputFile = args[i];
+                        if (InputFile is not null)
+                        {
+                            throw new CommandLineException($"The input file path cannot be specified multiple times.");
+                        }
+
+                        InputFile = args[i];
+                        break;
+                }
             }
 
             if (InputFile is null)
@@ -29,5 +38,7 @@ namespace Bicep.Cli.Arguments
         }
 
         public string InputFile { get; }
+
+        public bool ForceRestore { get; }
     }
 }

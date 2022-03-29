@@ -47,15 +47,18 @@ namespace Bicep.Cli.Services
             this.decompiler = decompiler;
         }
 
-        public async Task RestoreAsync(string inputPath)
+        public async Task RestoreAsync(string inputPath, bool forceRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
             var originalModulesToRestore = sourceFileGrouping.ModulesToRestore;
 
+            // Ignore modules to restore logic, include all modules to be restored, A distinct() is done later in the processing
+            var modulesToRestore = forceRestore ? sourceFileGrouping.SourceFilesByModuleDeclaration.Select(kvp => kvp.Key).Union(sourceFileGrouping.ModulesToRestore).ToImmutableHashSet() : sourceFileGrouping.ModulesToRestore;
+
             // restore is supposed to only restore the module references that are syntactically valid
-            await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration));
+            await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration), forceRestore);
 
             // update the errors based on restore status
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(this.moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
