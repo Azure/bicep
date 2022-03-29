@@ -155,6 +155,7 @@ jobs:
     name: 'Test CLI (live) (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
     needs: build-bicep
+    if: github.repository == 'Azure/bicep'
 
     env:
       CI: true
