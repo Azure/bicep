@@ -105,3 +105,32 @@ export const insertResourceRequestType = new ProtocolNotificationType<
   InsertResourceParams,
   void
 >("textDocument/insertResource");
+
+export interface CreateBicepConfigParams {
+  destinationPath: string;
+}
+
+export const createBicepConfigRequestType = new ProtocolRequestType<
+  CreateBicepConfigParams,
+  void,
+  never,
+  void,
+  void
+>("bicep/createConfigFile");
+
+export interface GetRecommendedConfigLocationParams {
+  bicepFilePath?: string;
+}
+
+export interface GetRecommendedConfigLocationResult {
+  recommendedFolder?: string;
+  error?: string;
+}
+
+export const getRecommendedConfigLocationRequestType = new ProtocolRequestType<
+  GetRecommendedConfigLocationParams,
+  GetRecommendedConfigLocationResult,
+  never,
+  void,
+  void
+>("bicep/getRecommendedConfigLocation");

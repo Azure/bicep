@@ -48,7 +48,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             Action sut = () => bicepBuildCommandHandler.Handle(path, CancellationToken.None);
 
-            sut.Should().Throw<ArgumentException>().WithMessage("Invalid input file");
+            sut.Should().Throw<ArgumentException>().WithMessage("Invalid input file path");
         }
 
         [TestMethod]

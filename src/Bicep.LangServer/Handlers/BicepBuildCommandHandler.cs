@@ -57,7 +57,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
-                throw new ArgumentException("Invalid input file");
+                throw new ArgumentException("Invalid input file path");
             }
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
