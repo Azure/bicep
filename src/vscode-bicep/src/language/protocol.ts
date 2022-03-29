@@ -56,16 +56,8 @@ export interface BicepDeploymentScopeResponse {
   errorMessage?: string;
 }
 
-export const deploymentScopeRequestType = new ProtocolRequestType<
-  BicepDeploymentScopeParams,
-  BicepDeploymentScopeResponse | undefined,
-  never,
-  void,
-  void
->("bicep/getDeploymentScope");
-
 export interface BicepDeployParams {
-  textDocument: TextDocumentIdentifier;
+  documentPath: string;
   parameterFilePath: string;
   id: string;
   deploymentScope: string;
@@ -74,14 +66,6 @@ export interface BicepDeployParams {
   token: string;
   expiresOnTimestamp: string;
 }
-
-export const bicepDeployRequestType = new ProtocolRequestType<
-  BicepDeployParams,
-  string,
-  never,
-  void,
-  void
->("bicep/deploy");
 
 export interface BicepCacheResponse {
   content: string;

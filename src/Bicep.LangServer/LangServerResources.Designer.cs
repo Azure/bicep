@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed..
+        ///   Looks up a localized string similar to Deployment failed for {0}..
         /// </summary>
         public static string DeploymentFailedMessage {
             get {
@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed. {0}.
+        ///   Looks up a localized string similar to Deployment failed for {0}. {1}.
         /// </summary>
         public static string DeploymentFailedWithExceptionMessage {
             get {
@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment succeeded..
+        ///   Looks up a localized string similar to Deployment succeeded for {0}..
         /// </summary>
         public static string DeploymentSucceededMessage {
             get {
@@ -115,7 +115,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed. Please provide a valid location..
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid location..
         /// </summary>
         public static string MissingLocationDeploymentFailedMessage {
             get {

@@ -26,23 +26,21 @@ using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    [Method(BicepDeploymentScopeRequestHandler.MethodName, Direction.ClientToServer)]
     public record BicepDeploymentScopeParams(TextDocumentIdentifier TextDocument) : ITextDocumentIdentifierParams, IRequest<BicepDeploymentScopeResponse>;
 
     public record BicepDeploymentScopeResponse(string scope, string? template, string? errorMessage);
 
     /// <summary>
-    /// Handles bicep/getDeploymentScope LSP request.
+    /// Handles getDeploymentScope LSP request.
     /// The BicepDeploymentScopeRequestHandler returns targetScope, template and error message.
     /// Error message would be null if provided bicep file was error free.
     /// </summary>
-    public class BicepDeploymentScopeRequestHandler : IJsonRpcRequestHandler<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
+    public class BicepDeploymentScopeRequestHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentScopeParams, BicepDeploymentScopeResponse>
     {
-        public const string MethodName = "bicep/getDeploymentScope";
-
         private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
@@ -58,7 +56,9 @@ namespace Bicep.LanguageServer.Handlers
             IFeatureProvider features,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
-            INamespaceProvider namespaceProvider)
+            INamespaceProvider namespaceProvider,
+            ISerializer serializer)
+            : base(LangServerConstants.GetDeploymentScopeCommand, serializer)
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
@@ -69,7 +69,7 @@ namespace Bicep.LanguageServer.Handlers
             this.namespaceProvider = namespaceProvider;
         }
 
-        public Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
+        public override Task<BicepDeploymentScopeResponse> Handle(BicepDeploymentScopeParams request, CancellationToken cancellationToken)
         {
             var documentUri = request.TextDocument.Uri;
 
