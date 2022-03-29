@@ -97,6 +97,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit {0} in bicepconfig.json.
+        /// </summary>
+        internal static string EditLinterRuleActionTitle {
+            get {
+                return ResourceManager.GetString("EditLinterRuleActionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deployment failed. Please fix the following issues in the parameter file: {0}.
         /// </summary>
         public static string InvalidParameterFileDeploymentFailedMessage {

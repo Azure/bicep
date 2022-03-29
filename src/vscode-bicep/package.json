@@ -37,6 +37,7 @@
   "activationEvents": [
     "onLanguage:bicep",
     "onCommand:bicep.build",
+    "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
     "onCommand:bicep.insertResource",
     "onCommand:bicep.showSource",
@@ -165,17 +166,22 @@
         "category": "Bicep"
       },
       {
+        "command": "bicep.createConfigFile",
+        "title": "Create Bicep Configuration File",
+        "category": "Bicep"
+      },
+      {
         "$section": "================== Walkthrough commands (not visible to users) ==================",
         "command": "bicep.gettingStarted.createBicepFile",
-        "title": "Create Empty Bicep File"
+        "title": "Walkthrough: Create Empty Bicep File"
       },
       {
         "command": "bicep.gettingStarted.openBicepFile",
-        "title": "Open Existing Bicep File"
+        "title": "Walkthrough: Open Existing Bicep File"
       },
       {
         "command": "bicep.gettingStarted.copyToClipboard",
-        "title": "Internal command: Copy walkthrough code to the clipboard"
+        "title": "Walkthrough: Copy walkthrough code to the clipboard"
       }
     ],
     "keybindings": [
