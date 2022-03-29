@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { ExtensionContext } from "vscode";
+import { ExtensionContext } from "vscode";
 import * as fse from "fs-extra";
 import { Disposable } from "../utils/disposable";
 import { Command } from "./types";
@@ -9,7 +9,6 @@ import * as azureextensionui from "@microsoft/vscode-azext-utils";
 import assert from "assert";
 
 export class CommandManager extends Disposable {
-  private static readonly commandsRegistredContextKey = "commandsRegistered";
   private _packageJson: IPackageJson | undefined;
 
   public constructor(private readonly _ctx: ExtensionContext) {
@@ -20,12 +19,6 @@ export class CommandManager extends Disposable {
     ...commands: T
   ): Promise<void> {
     commands.map((command) => this.registerCommand(command));
-
-    await vscode.commands.executeCommand(
-      "setContext",
-      CommandManager.commandsRegistredContextKey,
-      true
-    );
   }
 
   private registerCommand<T extends Command>(command: T): void {

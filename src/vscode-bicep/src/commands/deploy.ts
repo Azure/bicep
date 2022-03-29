@@ -11,12 +11,10 @@ import { localize } from "../utils/localize";
 import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { TreeManager } from "../tree/TreeManager";
-
 import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
-
 import {
   AzExtTreeDataProvider,
   IActionContext,
@@ -25,12 +23,12 @@ import {
   parseError,
   UserCancelledError,
 } from "@microsoft/vscode-azext-utils";
-
 import {
   BicepDeployParams,
   bicepDeployRequestType,
   deploymentScopeRequestType,
 } from "../language";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -54,22 +52,11 @@ export class DeployCommand implements Command {
     context: IActionContext,
     documentUri: vscode.Uri | undefined
   ): Promise<void> {
-    documentUri ??= vscode.window.activeTextEditor?.document.uri;
-
-    if (!documentUri) {
-      return;
-    }
-
-    if (documentUri.scheme === "output") {
-      // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
-      // it won't be fixed in VS Code, so we need to handle it on our side.
-      // See https://github.com/microsoft/vscode/issues/58869#issuecomment-422322972 for details.
-      vscode.window.showInformationMessage(
-        "Unable to locate an active Bicep file, as the output panel is focused. Please focus a text editor first before running the command."
-      );
-
-      return;
-    }
+    documentUri = await findOrCreateActiveBicepFile(
+      context,
+      documentUri,
+      "Choose which Bicep file to deploy"
+    );
 
     const documentPath = documentUri.fsPath;
     // Handle spaces/special characters in folder names.

@@ -153,17 +153,20 @@
       {
         "command": "bicep.build",
         "title": "Build",
-        "category": "Bicep"
+        "category": "Bicep",
+        "icon": "$(output)"
       },
       {
         "command": "bicep.deploy",
         "title": "Deploy",
-        "category": "Bicep"
+        "category": "Bicep",
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "bicep.insertResource",
         "title": "Insert Resource",
-        "category": "Bicep"
+        "category": "Bicep",
+        "icon": "$(cloud-download)"
       },
       {
         "command": "bicep.createConfigFile",
@@ -173,15 +176,18 @@
       {
         "$section": "================== Walkthrough commands (not visible to users) ==================",
         "command": "bicep.gettingStarted.createBicepFile",
-        "title": "Walkthrough: Create Empty Bicep File"
+        "title": "Create Empty Bicep File (Walkthrough)",
+        "category": "Bicep Internal"
       },
       {
         "command": "bicep.gettingStarted.openBicepFile",
-        "title": "Walkthrough: Open Existing Bicep File"
+        "title": "Open Existing Bicep File (Walkthrough)",
+        "category": "Bicep Internal"
       },
       {
         "command": "bicep.gettingStarted.copyToClipboard",
-        "title": "Walkthrough: Copy walkthrough code to the clipboard"
+        "title": "Copy walkthrough code to the clipboard (Walkthrough)",
+        "category": "Bicep Internal"
       }
     ],
     "keybindings": [
@@ -195,119 +201,114 @@
         "command": "bicep.showVisualizerToSide",
         "key": "ctrl+k v",
         "mac": "cmd+k v",
-        "when": "resourceLangId == bicep && commandsRegistered"
+        "when": "resourceLangId == bicep"
       }
     ],
     "menus": {
       "editor/title": [
         {
           "command": "bicep.showVisualizerToSide",
-          "when": "editorLangId == bicep && commandsRegistered",
+          "when": "editorLangId == bicep",
           "alt": "bicep.showVisualizer",
           "group": "navigation"
         },
         {
           "command": "bicep.showSource",
-          "when": "bicepVisualizerFocus && commandsRegistered",
+          "when": "bicepVisualizerFocus",
           "group": "navigation"
         }
       ],
       "explorer/context": [
         {
           "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "navigation"
         },
         {
           "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "navigation"
         },
         {
           "command": "bicep.build",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "navigation"
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "navigation"
         }
       ],
       "editor/title/context": [
         {
           "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "1_open"
         },
         {
           "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "1_open"
         },
         {
           "command": "bicep.build",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "1_build"
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "1_build"
         }
       ],
       "editor/context": [
         {
           "command": "bicep.build",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "navigation"
         },
         {
           "command": "bicep.deploy",
-          "when": "resourceLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "navigation"
         },
         {
           "command": "bicep.showVisualizer",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "1_open"
         },
         {
           "command": "bicep.showVisualizerToSide",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "1_open"
         }
       ],
       "commandPalette": [
         {
           "command": "bicep.build",
-          "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
           "command": "bicep.deploy",
-          "when": "editorLangId == bicep && commandsRegistered && config.bicep.enableDeploy",
+          "when": "config.bicep.enableDeploy",
           "group": "navigation"
         },
         {
           "command": "bicep.insertResource",
-          "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
           "command": "bicep.showVisualizer",
-          "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
           "command": "bicep.showVisualizerToSide",
-          "when": "editorLangId == bicep && commandsRegistered",
           "group": "navigation"
         },
         {
           "command": "bicep.showSource",
-          "when": "bicepVisualizerFocus && commandsRegistered",
-          "group": "navigation"
+          "when": "never"          
         },
         {
           "command": "bicep.gettingStarted.createBicepFile",
