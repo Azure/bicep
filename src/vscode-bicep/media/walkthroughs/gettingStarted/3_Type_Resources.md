@@ -1,6 +1,6 @@
 # Add resources to your Bicep file
 
-* First, type `'appplan'` to view the 'App Service plan' resource snippet and press Tab or Enter. Press Tab to jump to the `name` attribute and replace its value with the parameter `appPlanName`.
+* First, type `'appplan'` to view the 'Application Service Plan' resource snippet and press Tab or Enter. Press Tab to jump to the `name` attribute and replace its value with the parameter `appPlanName`.
 
 * Next, type `'storage'` to view the 'Storage Account' resource snippet and press Tab or Enter. Replace the `name` attribute's value with `'${appServicePlan.name}storage'` (including the single quotes).
 

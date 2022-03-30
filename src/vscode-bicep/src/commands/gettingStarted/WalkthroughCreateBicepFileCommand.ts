@@ -32,7 +32,7 @@ async function createAndOpenBicepFile(
       : undefined) ?? Uri.file(os.tmpdir());
   const uri: Uri | undefined = await window.showSaveDialog({
     title: "Save new Bicep file",
-    defaultUri: Uri.joinPath(folder, "untitled"),
+    defaultUri: Uri.joinPath(folder, "main"),
     filters: { "Bicep files": ["bicep"] },
   });
   if (!uri) {
