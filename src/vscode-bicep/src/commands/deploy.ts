@@ -54,7 +54,8 @@ export class DeployCommand implements Command {
     documentUri = await findOrCreateActiveBicepFile(
       context,
       documentUri,
-      "Choose which Bicep file to deploy"
+      "Choose which Bicep file to deploy",
+      { alwaysAskWhenMultipleAvailable: true }
     );
 
     const documentPath = documentUri.fsPath;
