@@ -8,10 +8,10 @@ resource /*${1:firewall}*/firewall 'Microsoft.Network/azureFirewalls@2021-05-01'
       tier: 'Standard'
     }    
     firewallPolicy: {
-      id: /*${4:'firewallPolicy.id'}*/'firewallPolicy.id'
+      id: /*${4:firewallPolicy.id}*/firewallPolicy.id
     }
     virtualHub: {
-      id: /*${5:'virtualHub.id'}*/'virtualHub.id'
+      id: /*${5:virtualHub.id}*/virtualHub.id
     }
     hubIPAddresses: {
        publicIPs: {
