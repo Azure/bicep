@@ -18,7 +18,8 @@ type TargetFile =
   | "rightClick"
   | "activeEditor"
   | "noWorkspaceActiveEditor"
-  | "singleBicepFile"
+  | "singleInWorkspace"
+  | "singleInVisibleEditors"
   | "fromWorkspace"
   | "new";
 type Properties = TelemetryProperties & { targetFile: TargetFile };
@@ -51,15 +52,25 @@ export async function findOrCreateActiveBicepFile(
   const bicepFilesInWorkspace = (
     await workspace.findFiles("**/*.bicep", undefined)
   ).filter((f) => !!f.fsPath);
+  const visibleBicepFiles = window.visibleTextEditors
+    .filter((e) => e.document.languageId === "bicep")
+    .map((e) => e.document.uri);
 
   // If there's only a single Bicep file in the workspace, always use that
-  if (bicepFilesInWorkspace.length === 1) {
-    properties.targetFile = "singleBicepFile";
+  if (bicepFilesInWorkspace.length === 1 && visibleBicepFiles.length === 0) {
+    properties.targetFile = "singleInWorkspace";
     return bicepFilesInWorkspace[0];
+  } else if (
+    visibleBicepFiles.length === 1 &&
+    bicepFilesInWorkspace.length === 0
+  ) {
+    properties.targetFile = "singleInVisibleEditors";
+    return visibleBicepFiles[0];
   }
 
-  // If there are no Bicep files in the workspace...
-  if (bicepFilesInWorkspace.length === 0) {
+  // If there are no Bicep files in the workspace or open...
+  const bicepFiles = bicepFilesInWorkspace.concat(visibleBicepFiles);
+  if (bicepFiles.length === 0) {
     if (!workspace.workspaceFolders) {
       // If there is no workspace open, check the active editor
       const activeEditor = window.activeTextEditor;
@@ -69,11 +80,11 @@ export async function findOrCreateActiveBicepFile(
       }
     }
 
-    // There is workspace, but there are no bicep files in it. Ask to create one...
+    // There is a workspace, but there are no bicep files in it. Ask to create one...
     return await queryCreateBicepFile(ui, properties);
   }
 
-  const entries: IAzureQuickPickItem<Uri>[] = bicepFilesInWorkspace.map((u) => {
+  const entries: IAzureQuickPickItem<Uri>[] = bicepFiles.map((u) => {
     const workspaceRoot: string | undefined =
       workspace.getWorkspaceFolder(u)?.uri.fsPath;
     const relativePath = workspaceRoot
