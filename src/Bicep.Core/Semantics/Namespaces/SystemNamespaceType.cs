@@ -439,6 +439,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("format", LanguageConstants.String, "The output format for the date time result. If not provided, the format of the base value is used. Use either [standard format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings) or [custom format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings).")
                 .Build(),
 
+            new FunctionOverloadBuilder("dateTimeToEpoch")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Converts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.")
+                .WithOptionalParameter("dateTime", LanguageConstants.String, "An [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted dateTime string to be converted to epoch time.")
+                .Build(),
+
+            new FunctionOverloadBuilder("dateTimeFromEpoch")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Converts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.")
+                .WithOptionalParameter("epochTime", LanguageConstants.Int, "An epoch time value that will be converted to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime formatted string.")
+                .Build(),
+
             // newGuid and utcNow are only allowed in parameter default values
             new FunctionOverloadBuilder("utcNow")
                 .WithReturnType(LanguageConstants.String)

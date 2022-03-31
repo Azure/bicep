@@ -71,6 +71,8 @@ namespace Bicep.Decompiler.BicepHelpers
             "or",
             "if",
             "dateTimeAdd",
+            "dateTimeToEpoch",
+            "dateTimeFromEpoch",
             "utcNow",
             "newGuid",
             "subscription",
