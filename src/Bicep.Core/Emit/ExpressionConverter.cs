@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Expressions;
+using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
@@ -180,7 +181,7 @@ namespace Bicep.Core.Emit
                     // regardless if there is an index expression or not, we don't need to append replacements
                     return this;
 
-                case 1 when indexExpression != null:
+                case 1 when indexExpression is not null:
                     // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
                     var @for = inaccessibleLocalLoops.Single();
                     var current = this;
@@ -510,8 +511,8 @@ namespace Bicep.Core.Emit
 
                 var parentNames = ancestors.SelectMany((x, i) =>
                 {
-                    var nameExpression = CreateConverterForIndexReplacement(x.Resource.NameSyntax, x.IndexExpression, resource.Symbol.NameSyntax)
-                        .ConvertExpression(x.Resource.NameSyntax);
+                    var expression = GetResourceNameAncestorSyntaxSegment(resource, i);
+                    var nameExpression = this.ConvertExpression(expression);
 
                     if (i == 0 && firstAncestorNameLength > 1)
                     {
@@ -536,6 +537,127 @@ namespace Bicep.Core.Emit
                 (type, i) => AppendProperties(
                     CreateFunction("split", nameExpression, new JTokenExpression("/")),
                     new JTokenExpression(i)));
+        }
+
+        /// <summary>
+        /// Returns a collection of name segment expressions for the specified resource. Local variable replacements
+        /// are performed so the expressions are valid in the language/binding scope of the specified resource.
+        /// </summary>
+        /// <param name="resource">The resource</param>
+        public IEnumerable<SyntaxBase> GetResourceNameSyntaxSegments(DeclaredResourceMetadata resource)
+        {
+            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+            var nameExpression = resource.NameSyntax;
+
+            return ancestors
+                .Select((x, i) => GetResourceNameAncestorSyntaxSegment(resource, i))
+                .Concat(nameExpression);
+        }
+
+        /// <summary>
+        /// Calculates the expression that represents the parent name corresponding to the specified ancestor of the specified resource.
+        /// The expressions returned are modified by performing the necessary local variable replacements.
+        /// </summary>
+        /// <param name="resource">The declared resource metadata</param>
+        /// <param name="startingAncestorIndex">the index of the ancestor (0 means the ancestor closest to the root)</param>
+        private SyntaxBase GetResourceNameAncestorSyntaxSegment(DeclaredResourceMetadata resource, int startingAncestorIndex)
+        {
+            var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
+            if(startingAncestorIndex >= ancestors.Length)
+            {
+                // not enough ancestors
+                throw new ArgumentException($"Resource type has {ancestors.Length} ancestor types but name expression was requested for ancestor type at index {startingAncestorIndex}.");
+            }
+
+            /*
+             * Consider the following example:
+             * 
+             * resource one 'MS.Example/ones@...' = [for (_, i) in range(0, ...) : {
+             *   name: name_exp1(i)
+             * }]
+             * 
+             * resource two 'MS.Example/ones/twos@...' = [for (_, j) in range(0, ...) : {
+             *   parent: one[index_exp2(j)]
+             *   name: name_exp2(j)
+             * }]
+             * 
+             * resource three 'MS.Example/ones/twos/threes@...' = [for (_, k) in range(0, ...) : {
+             *   parent: two[index_exp3(k)]
+             *   name: name_exp3(k)
+             * }]
+             * 
+             * name_exp* and index_exp* are expressions represented here as functions
+             * 
+             * The name segment expressions for "three" are the following:
+             * 0. name_exp1(index_exp2(index_exp3(k)))
+             * 1. name_exp2(index_exp3(k))
+             * 2. name_exp3(k)
+             * 
+             * (The formula can be generalized to more levels of nesting.)
+             * 
+             * This function can be used to get 0 and 1 above by passing 0 or 1 respectively as the startingAncestorIndex.
+             * The name segment 2 above must be obtained from the resource directly.
+             * 
+             * Given that we don't have proper functions in our runtime AND that our expressions don't have side effects,
+             * the formula is implemented via local variable replacement.
+             */
+
+            // the initial ancestor gives us the base expression
+            SyntaxBase? rewritten = ancestors[startingAncestorIndex].Resource.NameSyntax;
+
+            for(int i = startingAncestorIndex; i < ancestors.Length; i++)
+            {
+                var ancestor = ancestors[i];
+
+                // local variable replacement will be done in context of the next ancestor
+                // or the resource itself if we're on the last ancestor
+                var newContext = i < ancestors.Length - 1 ? ancestors[i + 1].Resource : resource;
+
+                var inaccessibleLocals = this.context.DataFlowAnalyzer.GetInaccessibleLocalsAfterSyntaxMove(rewritten, newContext.Symbol.NameSyntax);
+                var inaccessibleLocalLoops = inaccessibleLocals.Select(local => GetEnclosingForExpression(local)).Distinct().ToList();
+
+                switch (inaccessibleLocalLoops.Count)
+                {
+                    case 0 when i == startingAncestorIndex:
+                        /*
+                         * There are no local vars to replace. It is impossible for a local var to be introduced at the next level
+                         * so we can just bail out with the result.
+                         * 
+                         * This path is followed by non-loop resources.
+                         * 
+                         * Case 0 is not possible for non-starting ancestor index because 
+                         * once we have a local variable replacement, it will propagate to the next levels
+                         */
+                        return ancestor.Resource.NameSyntax;
+
+                    case 1 when ancestor.IndexExpression is not null:
+                        if (LocalSymbolDependencyVisitor.GetLocalSymbolDependencies(this.context.SemanticModel, rewritten).SingleOrDefault(s => s.LocalKind == LocalKind.ForExpressionItemVariable) is { } loopItemSymbol)
+                        {
+                            // rewrite the straggler from previous iteration
+                            // TODO: Nested loops will require DFA on the ForSyntax.Expression
+                            rewritten = SymbolReplacer.Replace(this.context.SemanticModel, new Dictionary<Symbol, SyntaxBase> { [loopItemSymbol] = SyntaxFactory.CreateArrayAccess(GetEnclosingForExpression(loopItemSymbol).Expression, ancestor.IndexExpression) }, rewritten);
+                        }
+
+                        // TODO: Run data flow analysis on the array expression as well. (Will be needed for nested resource loops)
+                        var @for = inaccessibleLocalLoops.Single();
+
+                        var replacements = inaccessibleLocals.ToDictionary(local => (Symbol)local, local => local.LocalKind switch
+                              {
+                                  LocalKind.ForExpressionIndexVariable => ancestor.IndexExpression,
+                                  LocalKind.ForExpressionItemVariable => SyntaxFactory.CreateArrayAccess(@for.Expression, ancestor.IndexExpression),
+                                  _ => throw new NotImplementedException($"Unexpected local kind '{local.LocalKind}'.")
+                              });
+
+                        rewritten = SymbolReplacer.Replace(this.context.SemanticModel, replacements, rewritten);                        
+
+                        break;
+
+                    default:
+                        throw new NotImplementedException("Mismatch between count of index expressions and inaccessible symbols during array access index expression rewriting.");
+                }
+            }
+
+            return rewritten;
         }
 
         public LanguageExpression GetFullyQualifiedResourceName(DeclaredResourceMetadata resource)
@@ -603,12 +725,13 @@ namespace Bicep.Core.Emit
             }
             else if (resource is DeclaredResourceMetadata declared)
             {
+                var nameSegments = GetResourceNameSegments(declared);
                 return ScopeHelper.FormatFullyQualifiedResourceId(
                     context,
                     this,
                     context.ResourceScopeData[declared],
                     resource.TypeReference.FormatType(),
-                    GetResourceNameSegments(declared));
+                    nameSegments);
             }
             else
             {
