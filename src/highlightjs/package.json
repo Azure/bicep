@@ -3,7 +3,7 @@
   "private": true,
   "devDependencies": {
     "@types/highlight.js": "^10.1.0",
-    "@types/jest": "^27.4.0",
+    "@types/jest": "^27.4.1",
     "@types/node": "^17.0.18",
     "@types/plist": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^4.33.0",
