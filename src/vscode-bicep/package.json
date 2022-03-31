@@ -158,7 +158,7 @@
       },
       {
         "command": "bicep.deploy",
-        "title": "Deploy",
+        "title": "Deploy...",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
       },
