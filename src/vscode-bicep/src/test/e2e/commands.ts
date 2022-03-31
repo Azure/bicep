@@ -66,3 +66,9 @@ export async function executeCreateConfigFileCommand(
     true // rethrow
   );
 }
+
+export async function executeForceModulesRestoreCommand(
+  documentUri: vscode.Uri
+): Promise<void> {
+  return await vscode.commands.executeCommand("bicep.forceModulesRestore", documentUri);
+}

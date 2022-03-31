@@ -74,6 +74,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepDeployCommandHandler>()
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
+                    .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
                     .WithServices(services => RegisterServices(creationOptions, services));

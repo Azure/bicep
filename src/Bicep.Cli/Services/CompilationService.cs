@@ -47,7 +47,7 @@ namespace Bicep.Cli.Services
             this.decompiler = decompiler;
         }
 
-        public async Task RestoreAsync(string inputPath, bool forceRestore)
+        public async Task RestoreAsync(string inputPath, bool forceModulesRestore)
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
@@ -55,10 +55,10 @@ namespace Bicep.Cli.Services
             var originalModulesToRestore = sourceFileGrouping.ModulesToRestore;
 
             // Ignore modules to restore logic, include all modules to be restored, A distinct() is done later in the processing
-            var modulesToRestore = forceRestore ? sourceFileGrouping.SourceFilesByModuleDeclaration.Select(kvp => kvp.Key).Union(sourceFileGrouping.ModulesToRestore).ToImmutableHashSet() : sourceFileGrouping.ModulesToRestore;
+            var modulesToRestore = forceModulesRestore ? sourceFileGrouping.SourceFilesByModuleDeclaration.Select(kvp => kvp.Key).Union(sourceFileGrouping.ModulesToRestore).ToImmutableHashSet() : sourceFileGrouping.ModulesToRestore;
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration), forceRestore);
+            await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration), forceModulesRestore);
 
             // update the errors based on restore status
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(this.moduleDispatcher, this.workspace, sourceFileGrouping, configuration);

@@ -130,11 +130,11 @@ namespace Bicep.Core.Registry
             return registry.TryGetLocalModuleEntryPointUri(parentModuleUri, moduleReference, out failureBuilder);
         }
 
-        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences, bool forceRestore = false)
+        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (!forceRestore && moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
+            if (!forceModulesRestore && moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
@@ -150,11 +150,11 @@ namespace Bicep.Core.Registry
             foreach (var scheme in this.registries.Keys.Where(refType => referencesByScheme.Contains(refType)))
             {
                 // if we're asked to purge modules cache
-                if (forceRestore) {
-                    var forceRestoreStatuses = await this.registries[scheme].InvalidateModulesCache(configuration, referencesByScheme[scheme]);
+                if (forceModulesRestore) {
+                    var forceModulesRestoreStatuses = await this.registries[scheme].InvalidateModulesCache(configuration, referencesByScheme[scheme]);
 
                     // update cache invalidation status for each failed modules
-                    foreach (var (failedReference, failureBuilder) in forceRestoreStatuses)
+                    foreach (var (failedReference, failureBuilder) in forceModulesRestoreStatuses)
                     {
                         this.SetRestoreFailure(failedReference, configuration, failureBuilder);
                     }

@@ -12,7 +12,7 @@ namespace Bicep.Cli.Arguments
                 switch (args[i].ToLowerInvariant())
                 {
                     case "--force":
-                        ForceRestore = true;
+                        ForceModulesRestore = true;
                         break;
 
                     default:
@@ -39,6 +39,6 @@ namespace Bicep.Cli.Arguments
 
         public string InputFile { get; }
 
-        public bool ForceRestore { get; }
+        public bool ForceModulesRestore { get; }
     }
 }

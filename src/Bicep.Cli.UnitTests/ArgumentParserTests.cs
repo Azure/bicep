@@ -309,7 +309,7 @@ namespace Bicep.Cli.UnitTests
             arguments.Should().BeOfType<RestoreArguments>();
             var typed = (RestoreArguments)arguments!;
 
-            typed.ForceRestore.Should().Be(false);
+            typed.ForceModulesRestore.Should().Be(false);
             typed.InputFile.Should().Be("file1");
         }
 
@@ -320,7 +320,7 @@ namespace Bicep.Cli.UnitTests
             arguments.Should().BeOfType<RestoreArguments>();
             var typed = (RestoreArguments)arguments!;
 
-            typed.ForceRestore.Should().Be(true);
+            typed.ForceModulesRestore.Should().Be(true);
             typed.InputFile.Should().Be("file1");
         }
     }

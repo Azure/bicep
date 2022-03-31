@@ -23,7 +23,7 @@ namespace Bicep.Cli.Commands
         public async Task<int> RunAsync(RestoreArguments args)
         {
             var inputPath = PathHelper.ResolvePath(args.InputFile);
-            await this.compilationService.RestoreAsync(inputPath, args.ForceRestore);
+            await this.compilationService.RestoreAsync(inputPath, args.ForceModulesRestore);
 
             // return non-zero exit code on errors
             return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
