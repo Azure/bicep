@@ -134,13 +134,13 @@
     "commands": [
       {
         "command": "bicep.showVisualizer",
-        "title": "Open Visualizer",
+        "title": "Open Bicep Visualizer",
         "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
       {
         "command": "bicep.showVisualizerToSide",
-        "title": "Open Visualizer to the Side",
+        "title": "Open Bicep Visualizer to the Side",
         "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
@@ -152,13 +152,13 @@
       },
       {
         "command": "bicep.build",
-        "title": "Build",
+        "title": "Build Bicep file",
         "category": "Bicep",
         "icon": "$(output)"
       },
       {
         "command": "bicep.deploy",
-        "title": "Deploy...",
+        "title": "Deploy Bicep file...",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
       },
@@ -210,101 +210,101 @@
           "command": "bicep.showVisualizerToSide",
           "when": "editorLangId == bicep",
           "alt": "bicep.showVisualizer",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
-          "group": "navigation"
+          "group": "0_bicep"
         }
       ],
       "explorer/context": [
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
-          "group": "navigation"
+          "group": "0_bicep"
         }
       ],
       "editor/title/context": [
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "1_build"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
-          "group": "1_build"
+          "group": "0_bicep"
         }
       ],
       "editor/context": [
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         }
       ],
       "commandPalette": [
         {
           "command": "bicep.build",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "config.bicep.enableDeploy",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.insertResource",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizer",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showSource",
@@ -347,7 +347,7 @@
             "title": "Open a Bicep File",
             "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension).\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nTip: [Close the side bar for more space](command:workbench.action.closeSidebar)",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
+              "image": "media/walkthroughs/gettingStarted/0_bicepLogoImage.png",
               "altText": "Bicep logo"
             },
             "completionEvents": [
@@ -402,7 +402,7 @@
             "title": "Learn More",
             "description": "Great Job! You've completed Getting Started with Bicep. But don't stop now!\nCheck out our [Bicep Documentation](https://aka.ms/Bicep) to learn more about importing Bicep files as [modules](https://aka.ms/bicep/docs/modules) and [other extension features](https://aka.ms/bicep/docs/vscode).\nWanna take a deep dive into the Bicep language? Take a look at [Microsoft Learn - Bicep](https://aka.ms/microsoftlearnbicep).",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
+              "image": "media/walkthroughs/gettingStarted/0_bicepLogoImage.png",
               "altText": "Bicep logo"
             }
           }
