@@ -1,4 +1,4 @@
-﻿// WVD AppGroup
+﻿// AVD AppGroup
 resource /*${1:applicationGroup}*/applicationGroup 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {
   name: /*${2:'name'}*/'name'
   location: /*${3:location}*/'location'
