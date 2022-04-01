@@ -78,7 +78,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
       
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
@@ -237,7 +237,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
       
       - name: Download Bicep CLI
         uses: actions/download-artifact@v2
@@ -296,7 +296,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -461,7 +461,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -498,7 +498,7 @@ jobs:
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
