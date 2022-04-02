@@ -347,7 +347,7 @@
             "title": "Open a Bicep File",
             "description": "To get started with Bicep extension features, open or create a Bicep file (any file with '.bicep' extension).\n[Open Bicep file](command:bicep.gettingStarted.openBicepFile)\n[Create Bicep file](command:bicep.gettingStarted.createBicepFile)\nTip: [Close the side bar for more space](command:workbench.action.closeSidebar)",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/0_bicepLogoImage.png",
+              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
               "altText": "Bicep logo"
             },
             "completionEvents": [
@@ -402,7 +402,7 @@
             "title": "Learn More",
             "description": "Great Job! You've completed Getting Started with Bicep. But don't stop now!\nCheck out our [Bicep Documentation](https://aka.ms/Bicep) to learn more about importing Bicep files as [modules](https://aka.ms/bicep/docs/modules) and [other extension features](https://aka.ms/bicep/docs/vscode).\nWanna take a deep dive into the Bicep language? Take a look at [Microsoft Learn - Bicep](https://aka.ms/microsoftlearnbicep).",
             "media": {
-              "image": "media/walkthroughs/gettingStarted/0_bicepLogoImage.png",
+              "image": "media/walkthroughs/gettingStarted/1_BicepLogoImage.png",
               "altText": "Bicep logo"
             }
           }
