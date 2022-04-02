@@ -152,13 +152,13 @@
       },
       {
         "command": "bicep.build",
-        "title": "Build Bicep file",
+        "title": "Build Bicep File",
         "category": "Bicep",
         "icon": "$(output)"
       },
       {
         "command": "bicep.deploy",
-        "title": "Deploy Bicep file...",
+        "title": "Deploy Bicep File...",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
       },
