@@ -1,0 +1,45 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "dev",
+      "templateHash": "11034486757332027255"
+    },
+    "myString2": "string value",
+    "myInt2": 42,
+    "myTruth": true,
+    "myFalsehood": false,
+    "myEscapedString": "First line\r\nSecond\ttabbed\tline",
+    "foo": {
+      "enabled": true,
+      "name": "this is my object",
+      "priority": 3,
+      "info": {
+        "a": "b"
+      },
+      "empty": {},
+      "array": [
+        "string item",
+        12,
+        true,
+        [
+          "inner",
+          false
+        ],
+        {
+          "a": "b"
+        }
+      ]
+    },
+    "myArrayParam": [
+      "a",
+      "b",
+      "c"
+    ],
+    "myEmptyObj": {},
+    "myEmptyArray": []
+  },
+  "resources": []
+}

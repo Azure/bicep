@@ -95,6 +95,15 @@ namespace Bicep.LangServer.UnitTests
                 },
                 c =>
                 {
+                    c.Label.Should().Be("templateMetadata");
+                    c.Kind.Should().Be(CompletionItemKind.Keyword);
+                    c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);
+                    c.InsertText.Should().BeNull();
+                    c.Detail.Should().Be("templateMetadata keyword");
+                    c.TextEdit!.TextEdit!.NewText.Should().Be("templateMetadata");
+                },
+                c =>
+                {
                     c.Label.Should().Be("var");
                     c.Kind.Should().Be(CompletionItemKind.Keyword);
                     c.InsertTextFormat.Should().Be(InsertTextFormat.PlainText);

@@ -3430,6 +3430,20 @@
     }
   },
   {
+    "label": "templateMetadata",
+    "kind": "keyword",
+    "detail": "templateMetadata keyword",
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_templateMetadata",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "templateMetadata"
+    }
+  },
+  {
     "label": "var",
     "kind": "keyword",
     "detail": "Variable keyword",

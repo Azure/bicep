@@ -98,6 +98,10 @@ namespace Bicep.LanguageServer.Handlers
                     return WithMarkdown(CodeBlockWithDescription(
                         $"output {output.Name}: {output.Type}", TryGetDescriptionMarkdown(result, output)));
 
+                case TemplateMetadataSymbol templateMetadata:
+                    return CodeBlockWithDescription(
+                        $"templateMetadata {templateMetadata.Name}: {templateMetadata.Type}", TryGetDescriptionMarkdown(result, templateMetadata));
+
                 case BuiltInNamespaceSymbol builtInNamespace:
                     return WithMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
 
