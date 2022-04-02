@@ -134,13 +134,13 @@
     "commands": [
       {
         "command": "bicep.showVisualizer",
-        "title": "Open Visualizer",
+        "title": "Open Bicep Visualizer",
         "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
       {
         "command": "bicep.showVisualizerToSide",
-        "title": "Open Visualizer to the Side",
+        "title": "Open Bicep Visualizer to the Side",
         "category": "Bicep",
         "icon": "$(type-hierarchy-sub)"
       },
@@ -152,13 +152,13 @@
       },
       {
         "command": "bicep.build",
-        "title": "Build",
+        "title": "Build Bicep File",
         "category": "Bicep",
         "icon": "$(output)"
       },
       {
         "command": "bicep.deploy",
-        "title": "Deploy...",
+        "title": "Deploy Bicep File...",
         "category": "Bicep",
         "icon": "$(cloud-upload)"
       },
@@ -210,101 +210,101 @@
           "command": "bicep.showVisualizerToSide",
           "when": "editorLangId == bicep",
           "alt": "bicep.showVisualizer",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
-          "group": "navigation"
+          "group": "0_bicep"
         }
       ],
       "explorer/context": [
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
-          "group": "navigation"
+          "group": "0_bicep"
         }
       ],
       "editor/title/context": [
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "1_build"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
-          "group": "1_build"
+          "group": "0_bicep"
         }
       ],
       "editor/context": [
         {
           "command": "bicep.build",
           "when": "resourceLangId == bicep",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
           "when": "resourceLangId == bicep",
-          "group": "1_open"
+          "group": "0_bicep"
         }
       ],
       "commandPalette": [
         {
           "command": "bicep.build",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.deploy",
           "when": "config.bicep.enableDeploy",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.insertResource",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizer",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
-          "group": "navigation"
+          "group": "0_bicep"
         },
         {
           "command": "bicep.showSource",
