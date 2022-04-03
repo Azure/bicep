@@ -324,7 +324,7 @@
         {
           "command": "bicep.forceModulesRestore",
           "when": "editorLangId == bicep && commandsRegistered",
-          "group": "navigation"
+          "group": "0_bicep"
         },        
         {
           "command": "bicep.insertResource",
