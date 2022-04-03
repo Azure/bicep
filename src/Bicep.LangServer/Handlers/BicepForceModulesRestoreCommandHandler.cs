@@ -2,36 +2,31 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Core.Json;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
-using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
 using Bicep.Core.Features;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
-using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Utils;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using System.Collections.Immutable;
+using System.Text;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    // This handler is used to generate compiled .json file for given a bicep file path.
-    // It returns build succeeded/failed message, which can be displayed approriately in IDE output window
+    // This handler is used to force the modules restore for given a bicep file.
+    // It returns force module restore succeeded/failed message, which can be displayed approriately in IDE output window
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
@@ -58,13 +53,13 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
-                throw new ArgumentException("Invalid input file");
+                throw new ArgumentException("Invalid input file path");
             }
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
-            Task<string> buildOutput = GenerateForceModulesRestoreOutputMessage(bicepFilePath, documentUri);
+            Task<string> restoreOutput = GenerateForceModulesRestoreOutputMessage(bicepFilePath, documentUri);
 
-            return buildOutput;
+            return restoreOutput;
         }
 
         private async Task<string> GenerateForceModulesRestoreOutputMessage(string bicepFilePath, DocumentUri documentUri)
@@ -78,20 +73,38 @@ namespace Bicep.LanguageServer.Handlers
             }
             catch (ConfigurationException exception)
             {
-                // Fail the build if there's configuration errors.
+                // Fail the restore if there's configuration errors.
                 return exception.Message;
             }
             Workspace workspace = new Workspace();
             SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri, configuration);
-            var originalModulesToRestore = sourceFileGrouping.ModulesToRestore;
 
-            // Ignore modules to restore logic, include all modules to be restored, A distinct() is done later in the processing
-            var modulesToRestore = sourceFileGrouping.SourceFilesByModuleDeclaration.Select(kvp => kvp.Key).Union(sourceFileGrouping.ModulesToRestore).ToImmutableHashSet();
+            // Ignore modules to restore logic, include all modules to be restored
+            var modulesToRestore = sourceFileGrouping.SourceFilesByModuleDeclaration
+                .Select(kvp => kvp.Key)
+                .Union(sourceFileGrouping.ModulesToRestore)
+                .ToImmutableHashSet();
+
+            // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in outputs and logging
+            var modulesToRestoreReferences = moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration)
+                .Distinct()
+                .OrderBy(key => key.FullyQualifiedReference);
+
+            if (!modulesToRestoreReferences.Any()) {
+                return $"Force modules restore skipped. No modules references in input file.";
+            }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            bool restoreStatus = await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration), true);
-            
-            return $"Force modules restore succeeded. Restored x modules ${restoreStatus}";
+            await moduleDispatcher.RestoreModules(configuration, modulesToRestoreReferences, true);
+
+            // if all are marked as success
+            var sbRestoreSummary = new StringBuilder();
+            foreach(var module in modulesToRestoreReferences) {
+                var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(module, configuration, out _);
+                sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
+            }
+
+            return $"Force modules restore summary: {sbRestoreSummary}";
         }
 
         // Returns true if the template contains bicep _generator metadata, false otherwise

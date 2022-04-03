@@ -253,7 +253,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "0_bicep"
         }        
       ],
@@ -280,7 +280,7 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep && commandsRegistered",
+          "when": "resourceLangId == bicep",
           "group": "0_bicep"
         }        
       ],
@@ -297,8 +297,8 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "resourceLangId == bicep && commandsRegistered",
-          "group": "navigation"
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
         },        
         {
           "command": "bicep.showVisualizer",
@@ -323,7 +323,6 @@
         },
         {
           "command": "bicep.forceModulesRestore",
-          "when": "editorLangId == bicep && commandsRegistered",
           "group": "0_bicep"
         },        
         {

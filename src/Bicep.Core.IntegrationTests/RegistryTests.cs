@@ -271,6 +271,126 @@ namespace Bicep.Core.IntegrationTests
             }
         }
 
+        [DataTestMethod]
+        [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
+        public async Task ForceModuleRestoreWithStuckFileLockShouldFailAfterTimeout(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount)
+        {
+            var dataSet = DataSets.Registry_LF;
+
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
+
+            var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
+            Directory.CreateDirectory(cacheDirectory);
+
+            var features = StrictMock.Of<IFeatureProvider>();
+            features.Setup(m => m.RegistryEnabled).Returns(true);
+            features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
+
+            FileResolver fileResolver = new FileResolver();
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
+
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var moduleReferences = moduleInfos
+                .OrderBy(m => m.Metadata.Target)
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, configuration, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .ToImmutableList();
+
+            moduleReferences.Should().HaveCount(moduleCount);
+
+            // initially the cache should be empty
+            foreach (var moduleReference in moduleReferences)
+            {
+                dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Unknown);
+            }
+
+            var moduleFileUri = dispatcher.TryGetLocalModuleEntryPointUri(new Uri("file://main.bicep"), moduleReferences[0], configuration, out _)!;
+            moduleFileUri.Should().NotBeNull();
+
+            var moduleFilePath = moduleFileUri.LocalPath;
+            var moduleDirectory = Path.GetDirectoryName(moduleFilePath)!;
+            Directory.CreateDirectory(moduleDirectory);
+
+            var lockFileName = Path.Combine(moduleDirectory, "lock");
+            var lockFileUri = new Uri(lockFileName);
+
+            var @lock = fileResolver.TryAcquireFileLock(lockFileUri);
+            @lock.Should().NotBeNull();
+
+            // let's try to restore a module while holding a lock
+            using (@lock)
+            {
+                (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+            }
+
+            // the first module should have failed due to a timeout
+            dispatcher.GetModuleRestoreStatus(moduleReferences[0], configuration, out var failureBuilder).Should().Be(ModuleRestoreStatus.Failed);
+            using (new AssertionScope())
+            {
+                failureBuilder!.Should().HaveCode("BCP233");
+                failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:05\" for the lock on file \"{lockFileUri}\" to be released.");
+            }
+
+            // all other modules should have succeeded
+            foreach (var moduleReference in moduleReferences.Skip(1))
+            {
+                dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+            }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetModuleInfoData), DynamicDataSourceType.Method)]
+        public async Task ForceModuleRestoreShouldRestoreAllModules(IEnumerable<ExternalModuleInfo> moduleInfos, int moduleCount)
+        {
+            var dataSet = DataSets.Registry_LF;
+
+            var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
+            var clientFactory = dataSet.CreateMockRegistryClients(TestContext);
+            var templateSpecRepositoryFactory = dataSet.CreateMockTemplateSpecRepositoryFactory(TestContext);
+            await dataSet.PublishModulesToRegistryAsync(clientFactory, TestContext);
+
+            var cacheDirectory = FileHelper.GetCacheRootPath(TestContext);
+            Directory.CreateDirectory(cacheDirectory);
+
+            var features = StrictMock.Of<IFeatureProvider>();
+            features.Setup(m => m.RegistryEnabled).Returns(true);
+            features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
+
+            FileResolver fileResolver = new FileResolver();
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
+
+            var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
+            var moduleReferences = moduleInfos
+                .OrderBy(m => m.Metadata.Target)
+                .Select(m => dispatcher.TryGetModuleReference(m.Metadata.Target, configuration, out _) ?? throw new AssertFailedException($"Invalid module target '{m.Metadata.Target}'."))
+                .ToImmutableList();
+
+            moduleReferences.Should().HaveCount(moduleCount);
+
+            // initially the cache should be empty
+            foreach (var moduleReference in moduleReferences)
+            {
+                dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Unknown);
+            }
+
+            var moduleFileUri = dispatcher.TryGetLocalModuleEntryPointUri(new Uri("file://main.bicep"), moduleReferences[0], configuration, out _)!;
+            moduleFileUri.Should().NotBeNull();
+
+            var moduleFilePath = moduleFileUri.LocalPath;
+            var moduleDirectory = Path.GetDirectoryName(moduleFilePath)!;
+            Directory.CreateDirectory(moduleDirectory);
+
+            (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+
+            // all other modules should have succeeded
+            foreach (var moduleReference in moduleReferences)
+            {
+                dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+            }
+        }        
+
         public static IEnumerable<object[]> GetModuleInfoData()
         {
             yield return new object[] { DataSets.Registry_LF.RegistryModules.Values, 7 };
