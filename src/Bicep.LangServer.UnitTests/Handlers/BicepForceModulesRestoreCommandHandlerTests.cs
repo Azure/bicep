@@ -74,7 +74,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
         }
 
         [TestMethod]
-        public async Task Handle_WithValidPath_AndTwoLocalModulesInInputFile_ReturnsSummaryMessage()
+        public async Task Handle_WithValidPath_AndThreeLocalModulesInInputFile_ReturnsSummaryMessage()
         {
             string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
 
@@ -116,5 +116,43 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             expected.Should().Be(@"Force modules restore summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Succeeded");
         }
         
+        [TestMethod]
+        public async Task Handle_WithValidPath_AndTwoLocalModules_InInputFile_WhichOneDoNotExist_ReturnsSummaryMessage()
+        {
+            string testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+
+            string bicepLocalModuleFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'name'
+  location: 'global'
+}";
+
+            string bicepFileContents = @"
+module localModule './localmodule1.bicep' = {
+  name: 'localModuleDeploy1'
+}
+
+module localModule './localmodule2.bicep' = {
+  name: 'localModuleDeploy2'
+}
+
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'dnsZone'
+  location: 'global'
+}";
+            string bicepLocalModule1FilePath = FileHelper.SaveResultFile(TestContext, "localmodule1.bicep", bicepLocalModuleFileContents, testOutputPath);
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents, testOutputPath);
+            Uri bicepFileUri = new Uri(bicepFilePath);
+
+            DocumentUri documentUri = DocumentUri.From(bicepFileUri);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
+
+            string expected = StringUtils.ReplaceNewlines(await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None), "|");
+
+            expected.Should().Be(@"Force modules restore summary: |  * ./localmodule1.bicep: Succeeded");
+        }
+        
+
+        // One scenario not tested here is when we have an external module and another file than the module lock is locked, which prevent the directory delete. We don't have a test for the message
      }
 }
