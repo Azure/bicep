@@ -361,6 +361,46 @@
     }
   },
   {
+    "label": "dateTimeFromEpoch",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeFromEpoch([epochTime: int]): string\n\n```\nConverts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeFromEpoch",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeFromEpoch($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "dateTimeToEpoch",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\ndateTimeToEpoch([dateTime: string]): int\n\n```\nConverts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_dateTimeToEpoch",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "dateTimeToEpoch($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "deployment",
     "kind": "function",
     "documentation": {
