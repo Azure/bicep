@@ -70,6 +70,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed.
+        /// </summary>
+        public static string DeploymentFailedStatus {
+            get {
+                return ResourceManager.GetString("DeploymentFailedStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. {1}.
         /// </summary>
         public static string DeploymentFailedWithExceptionMessage {
@@ -88,6 +97,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Succeeded.
+        /// </summary>
+        public static string DeploymentSucceededStatus {
+            get {
+                return ResourceManager.GetString("DeploymentSucceededStatus", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Disable {0} for this line.
         /// </summary>
         public static string DisableDiagnosticForThisLine {
@@ -99,14 +117,14 @@ namespace Bicep.LanguageServer {
         /// <summary>
         ///   Looks up a localized string similar to Edit {0} in bicepconfig.json.
         /// </summary>
-        internal static string EditLinterRuleActionTitle {
+        public static string EditLinterRuleActionTitle {
             get {
                 return ResourceManager.GetString("EditLinterRuleActionTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed. Please fix the following issues in the parameter file: {0}.
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please fix the following issues in the parameter file: {1}.
         /// </summary>
         public static string InvalidParameterFileDeploymentFailedMessage {
             get {

@@ -17,6 +17,7 @@ namespace Bicep.LanguageServer.Telemetry
             public const string ModuleBodySnippetInsertion = "snippet/modulebody";
             public const string ObjectBodySnippetInsertion = "snippet/object";
 
+            public const string DeployStatus = "deploy/status";
             public const string DisableNextLineDiagnostics = "diagnostics/disablenextline";
 
             // Rule names are all in lower case to help ease querying. The names get lowercased before they are stored.

@@ -130,5 +130,16 @@ namespace Bicep.LanguageServer.Telemetry
                 EventName = TelemetryConstants.EventNames.BicepFileOpen,
                 Properties = properties
             };
+
+        public static BicepTelemetryEvent CreateDeployStatus(string requestId, string status)
+            => new BicepTelemetryEvent
+            {
+                EventName = TelemetryConstants.EventNames.DeployStatus,
+                Properties = new()
+                {
+                    ["requestId"] = requestId,
+                    ["status"] = status
+                }
+            };
     }
 }

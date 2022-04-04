@@ -5,22 +5,25 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
 using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp) : IRequest<string>;
+    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string requestId) : IRequest<string>;
 
     public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, string>
     {
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
+        private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepDeployCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, ISerializer serializer)
+        public BicepDeployCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, ISerializer serializer, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.DeployCommand, serializer)
         {
             this.deploymentCollectionProvider = deploymentCollectionProvider;
+            this.telemetryProvider = telemetryProvider;
         }
 
         public override async Task<string> Handle(BicepDeployParams request, CancellationToken cancellationToken)
@@ -28,7 +31,7 @@ namespace Bicep.LanguageServer.Handlers
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);
 
-            string deploymentOutput = await DeploymentHelper.CreateDeployment(
+            (string deploymentStatus, string deploymentOutput) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider,
                 armClient,
                 request.documentPath,
@@ -38,7 +41,14 @@ namespace Bicep.LanguageServer.Handlers
                 request.deploymentScope,
                 request.location);
 
+            PostTelemetryEvent(telemetryProvider, request.requestId, deploymentStatus);
             return deploymentOutput;
+        }
+
+        private static void PostTelemetryEvent(ITelemetryProvider telemetryProvider, string requestId, string status)
+        {
+            var telemetryEvent = BicepTelemetryEvent.CreateDeployStatus(requestId, status);
+            telemetryProvider.PostEvent(telemetryEvent);
         }
     }
 }
