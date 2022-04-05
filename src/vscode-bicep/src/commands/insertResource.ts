@@ -1,32 +1,34 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
+import vscode, { Uri, window, workspace } from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import { insertResourceRequestType } from "../language";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
 
 export class InsertResourceCommand implements Command {
   public readonly id = "bicep.insertResource";
 
   public constructor(private readonly client: LanguageClient) {}
 
-  public async execute(): Promise<void> {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-      return;
-    }
+  public async execute(
+    context: IActionContext,
+    documentUri?: Uri
+  ): Promise<void> {
+    documentUri = await findOrCreateActiveBicepFile(
+      context,
+      documentUri,
+      "Choose which Bicep file to insert a resource into",
+      {
+        // Since "Insert Resource" is acting on text in an editor, unlike most commands
+        //   we will choose the active editor if it's a bicep file
+        considerActiveEditor: true,
+      }
+    );
 
-    const document = editor.document;
-    if (document.uri.scheme === "output") {
-      // The output panel in VS Code was implemented as a text editor by accident. Due to breaking change concerns,
-      // it won't be fixed in VS Code, so we need to handle it on our side.
-      // See https://github.com/microsoft/vscode/issues/58869#issuecomment-422322972 for details.
-      vscode.window.showInformationMessage(
-        "Unable to locate an active Bicep file, as the output panel is focused. Please focus a text editor first before running the command."
-      );
-
-      return;
-    }
+    const document = await workspace.openTextDocument(documentUri);
+    const editor = await window.showTextDocument(document);
 
     const resourceId = await vscode.window.showInputBox({
       prompt: "Enter a resourceId",

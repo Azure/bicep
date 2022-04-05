@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
-using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.Core.TypeSystem;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;

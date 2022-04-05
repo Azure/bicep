@@ -2964,5 +2964,46 @@ output badResult object = {
             });
         }
 
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5530
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_5530()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource foo 'Microsoft.AAD/domainServices@2021-05-01' existing = {
+  scope: resourceGroup
+  name: 'foo'
+}
+
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01'
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5530
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_5530_2()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'tenant'
+
+resource foo 'Microsoft.Authorization/policyAssignments@2021-06-01' existing = {
+  scope: managementGroup
+  name: 'foo'
+}
+
+resource managementGroup 'Microsoft.Management/managementGroups@2021-04-01'
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.")
+            });
+        }
     }
 }

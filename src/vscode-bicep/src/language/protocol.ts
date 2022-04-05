@@ -56,30 +56,16 @@ export interface BicepDeploymentScopeResponse {
   errorMessage?: string;
 }
 
-export const deploymentScopeRequestType = new ProtocolRequestType<
-  BicepDeploymentScopeParams,
-  BicepDeploymentScopeResponse | undefined,
-  never,
-  void,
-  void
->("bicep/getDeploymentScope");
-
 export interface BicepDeployParams {
-  textDocument: TextDocumentIdentifier;
+  documentPath: string;
   parameterFilePath: string;
   id: string;
   deploymentScope: string;
   location: string;
   template: string;
+  token: string;
+  expiresOnTimestamp: string;
 }
-
-export const bicepDeployRequestType = new ProtocolRequestType<
-  BicepDeployParams,
-  string,
-  never,
-  void,
-  void
->("bicep/deploy");
 
 export interface BicepCacheResponse {
   content: string;
@@ -103,3 +89,32 @@ export const insertResourceRequestType = new ProtocolNotificationType<
   InsertResourceParams,
   void
 >("textDocument/insertResource");
+
+export interface CreateBicepConfigParams {
+  destinationPath: string;
+}
+
+export const createBicepConfigRequestType = new ProtocolRequestType<
+  CreateBicepConfigParams,
+  void,
+  never,
+  void,
+  void
+>("bicep/createConfigFile");
+
+export interface GetRecommendedConfigLocationParams {
+  bicepFilePath?: string;
+}
+
+export interface GetRecommendedConfigLocationResult {
+  recommendedFolder?: string;
+  error?: string;
+}
+
+export const getRecommendedConfigLocationRequestType = new ProtocolRequestType<
+  GetRecommendedConfigLocationParams,
+  GetRecommendedConfigLocationResult,
+  never,
+  void,
+  void
+>("bicep/getRecommendedConfigLocation");

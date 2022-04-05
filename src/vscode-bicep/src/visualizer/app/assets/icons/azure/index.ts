@@ -230,6 +230,17 @@ export async function importResourceIconInline(
       return (await import("./security/10245-icon-service-Key-Vaults.svg"))
         .default;
 
+    // Microsoft.Automation
+    case "microsoft.automation/automationaccounts":
+      return (
+        await import("./management/00022-icon-service-Automation-Accounts.svg")
+      ).default;
+
+    // Microsoft.Authorization
+    case "Microsoft.Authorization/policyDefinitions":
+      return (await import("./management/10316-icon-service-Policy.svg"))
+        .default;
+
     // Microsoft.Subscriptions
     case "microsoft.subscription/aliases":
       return (await import("./general/10002-icon-service-Subscriptions.svg"))
@@ -239,6 +250,15 @@ export async function importResourceIconInline(
     case "microsoft.storage/storageaccounts":
       return (await import("./storage/10086-icon-service-Storage-Accounts.svg"))
         .default;
+    case "microsoft.storage/storageaccounts/fileservices":
+      return (
+        await import("./general/10838-icon-service-Storage-Azure-Files.svg")
+      ).default;
+    case "microsoft.storage/storageaccounts/queueservices":
+      return (await import("./general/10840-icon-service-Storage-Queue.svg"))
+        .default;
+    case "microsoft.storage/storageaccounts/tableservices":
+      return (await import("./general/10841-icon-service-Table.svg")).default;
     case "microsoft.recoveryservices/vaults":
       return (
         await import(
@@ -281,6 +301,29 @@ export async function importResourceIconInline(
       return (
         await import(
           "./appServices/10047-icon-service-App-Service-Environments.svg"
+        )
+      ).default;
+
+    // Microsoft.NotificationHubs
+    case "microsoft.notificationhubs/namespaces":
+      return (await import("./iot/10045-icon-service-Notification-Hubs.svg"))
+        .default;
+
+    // Microsoft.Devices
+    case "microsoft.devices/iothubs":
+      return (await import("./iot/10182-icon-service-IoT-Hub.svg")).default;
+
+    // Microsoft.IoTCentral
+    case "microsoft.iotcentral/iotapps":
+      return (
+        await import("./iot/10184-icon-service-IoT-Central-Applications.svg")
+      ).default;
+
+    // Microsoft.TimeSeriesInsights
+    case "microsoft.timeseriesinsights/environments":
+      return (
+        await import(
+          "./iot/10181-icon-service-Time-Series-Insights-Environments.svg"
         )
       ).default;
 
@@ -370,6 +413,10 @@ export async function importResourceIconInline(
         )
       ).default;
 
+    // Microsoft.Logic
+    case "microsoft.logic/workflows":
+      return (await import("./iot/10201-icon-service-Logic-Apps.svg")).default;
+
     // Microsoft.AzureActiveDirectory
     case "microsoft.azureactivedirectory/b2cdirectories":
       return (await import("./identity/10228-icon-service-Azure-AD-B2C.svg"))
@@ -393,6 +440,11 @@ export async function importResourceIconInline(
           "./appServices/10042-icon-service-API-Management-Services.svg"
         )
       ).default;
+
+    // Microsoft.ServiceBus
+    case "microsoft.servicebus/namespaces":
+      return (await import("./general/10836-icon-service-Service-Bus.svg"))
+        .default;
 
     // Microsoft.ContainerInstance
     case "microsoft.containerinstance/containergroups":

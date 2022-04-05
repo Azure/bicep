@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using Bicep.Core.Configuration;
 using Bicep.Core.Modules;
 using FluentAssertions;
-using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Bicep.Core.UnitTests.Assertions;
 

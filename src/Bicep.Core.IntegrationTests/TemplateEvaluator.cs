@@ -7,14 +7,11 @@ using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
 using Azure.Deployments.Core.Collections;
-using Azure.Deployments.Core.Instrumentation;
-using Azure.Deployments.Templates.Schema;
 using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Engines;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Core.ErrorResponses;
-using System.Collections.Immutable;
 using Bicep.Core.UnitTests.Utils;
 
 namespace Bicep.Core.IntegrationTests

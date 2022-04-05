@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { ExtensionContext } from "vscode";
+import { ExtensionContext } from "vscode";
 import * as fse from "fs-extra";
 import { Disposable } from "../utils/disposable";
 import { Command } from "./types";
@@ -9,7 +9,6 @@ import * as azureextensionui from "@microsoft/vscode-azext-utils";
 import assert from "assert";
 
 export class CommandManager extends Disposable {
-  private static readonly commandsRegistredContextKey = "commandsRegistered";
   private _packageJson: IPackageJson | undefined;
 
   public constructor(private readonly _ctx: ExtensionContext) {
@@ -20,12 +19,6 @@ export class CommandManager extends Disposable {
     ...commands: T
   ): Promise<void> {
     commands.map((command) => this.registerCommand(command));
-
-    await vscode.commands.executeCommand(
-      "setContext",
-      CommandManager.commandsRegistredContextKey,
-      true
-    );
   }
 
   private registerCommand<T extends Command>(command: T): void {
@@ -62,19 +55,40 @@ export class CommandManager extends Disposable {
     );
     assert(
       !!activation,
-      `Code error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`
+      `Internal error: Add an entry for '${activationKey}' to package.json's activationEvents array. This ensures that the command will be functional even if the extension is not yet activated.`
     );
 
     assert(
       command.id.startsWith("bicep."),
       `Command ID doesn't start with 'bicep.': ${command.id}`
     );
+
+    // Walkthrough commands shouldn't be shown in the command palette
+    if (command.id.match(/gettingStarted/i)) {
+      const commandPaletteWhen: string | undefined =
+        this._packageJson.contributes?.menus?.commandPalette?.find(
+          (m) => m.command === command.id
+        )?.when;
+      assert(
+        commandPaletteWhen === "never",
+        `Internal error: Add an entry for '${command.id}' to package.json's contributes/menus/commandPalette array with a 'when' value of 'never'.`
+      );
+    }
   }
 }
 
 interface IPackageJson {
-  commands?: {
-    command: string;
+  contributes: {
+    commands?: {
+      command: string;
+    };
+    menus?: {
+      commandPalette?: {
+        command: string;
+        when?: string;
+        group?: string;
+      }[];
+    };
   };
   activationEvents?: string[];
 }

@@ -13,11 +13,13 @@ using Bicep.Core.Registry;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
+using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using IOFileSystem = System.IO.Abstractions.FileSystem;
@@ -33,6 +35,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         private static readonly FileResolver FileResolver = new();
         private static readonly IConfigurationManager configurationManager = new ConfigurationManager(new IOFileSystem());
         private readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
+        private readonly ISerializer Serializer = StrictMock.Of<ISerializer>().Object;
 
         [TestMethod]
         public async Task Handle_WithInvalidInputFile_ReturnsBicepDeploymentScopeResponseWithErrorMessage()
@@ -52,7 +55,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -84,7 +88,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -114,7 +119,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
@@ -168,7 +174,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
-                BicepTestConstants.NamespaceProvider);
+                BicepTestConstants.NamespaceProvider,
+                Serializer);
 
             var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
             BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);

@@ -1,4 +1,4 @@
-﻿// Azure Firewall
+﻿// Azure Firewall using classic rules
 resource /*${1:firewall}*/firewall 'Microsoft.Network/azureFirewalls@2020-11-01' = {
   name: /*${2:'name'}*/'name'
   location: /*${3:location}*/'location'

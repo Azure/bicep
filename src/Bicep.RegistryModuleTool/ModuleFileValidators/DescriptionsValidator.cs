@@ -5,7 +5,6 @@ using Bicep.RegistryModuleTool.Exceptions;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFiles;
 using Microsoft.Extensions.Logging;
-using System.CommandLine;
 using System.Linq;
 using System.Text;
 

@@ -4,7 +4,6 @@
 using Bicep.Core.TypeSystem;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Bicep.Core.Semantics
 {

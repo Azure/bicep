@@ -18,9 +18,9 @@
       "env": {
         "BICEP_TRACING_ENABLED": "true",
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
-
+      
         // Defaulting to "verbose" when debugging so that new telemetry IDs during development aren't accidentally sent and created before they're finalized
-        "DEBUGTELEMETRY": "v", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from vscode-azureextensionui)
+        "DEBUGTELEMETRY": "v", // "" or "0" or "false": send telemetry as normal; "1": debug mode (no telemetry sent); "verbose": telemetry in console, don't send (from microsoft/vscode-azext-utils)
       }
     },
     {
@@ -58,7 +58,7 @@
       }
     },
     {
-      "name": "Launch Tests: E2E",
+      "name": "Launch Tests: E2E (prod)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
@@ -68,6 +68,22 @@
       ],
       "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
       "preLaunchTask": "build:e2e",
+      "env": {
+        "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
+        "TEST_MODE": "e2e"
+      }
+    },
+    {
+      "name": "Launch Tests: E2E (development)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/e2e/index"
+      ],
+      "outFiles": ["${workspaceRoot}/out/test/e2e/**/*.js"],
+      "preLaunchTask": "build:e2e:dev",
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
         "TEST_MODE": "e2e"

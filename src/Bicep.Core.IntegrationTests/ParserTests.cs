@@ -1,11 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
 using Bicep.Core.Extensions;
 using Bicep.Core.Navigation;
 using Bicep.Core.UnitTests.Assertions;
