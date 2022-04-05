@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="id">id string to create the ResourceIdentifier from</param>
         /// <param name="scope">target scope</param>
         /// <param name="location">location to store the deployment data</param>
-        /// <returns>deployment succeeded/failed message with result</returns>
+        /// <returns>deployment succeeded/failed message and result</returns>
         public static async Task<(string, string)> CreateDeployment(
             IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
