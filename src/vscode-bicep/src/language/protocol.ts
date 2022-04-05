@@ -65,6 +65,7 @@ export interface BicepDeployParams {
   template: string;
   token: string;
   expiresOnTimestamp: string;
+  requestId: string;
 }
 
 export interface BicepCacheResponse {

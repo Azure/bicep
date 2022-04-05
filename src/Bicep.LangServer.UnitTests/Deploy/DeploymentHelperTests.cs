@@ -42,7 +42,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope)));
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 armClient,
                 documentPath,
@@ -55,7 +55,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
 
-            result.Should().Be(expectedDeploymentOutputMessage);
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(expectedDeploymentOutputMessage);
         }
 
         [DataRow(null)]
@@ -67,7 +68,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var armClient = CreateMockArmClient();
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
@@ -77,7 +78,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 location);
 
-            result.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
         }
 
         [DataRow(null)]
@@ -89,7 +91,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var armClient = CreateMockArmClient();
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
@@ -99,7 +101,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeManagementGroup,
                 location);
 
-            result.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
         }
 
         [TestMethod]
@@ -112,7 +115,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant)));
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 armClient,
                 documentPath,
@@ -125,7 +128,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
 
-            result.Should().Be(expectedDeploymentOutputMessage);
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(expectedDeploymentOutputMessage);
         }
 
         [DataRow(LanguageConstants.TargetScopeTypeManagementGroup, "eastus")]
@@ -153,7 +157,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -163,7 +167,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope,
                 location);
 
-            result.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+            result.Should().Be(LangServerResources.DeploymentSucceededResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
         }
 
         [TestMethod]
@@ -188,7 +193,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -198,7 +203,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus");
 
-            result.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file"));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file"));
         }
 
         [TestMethod]
@@ -224,7 +230,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             string parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -234,7 +240,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus");
 
-            result.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
         }
 
         [TestMethod]
@@ -258,7 +265,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns<DeploymentCollection>(null);
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -268,7 +275,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
         [TestMethod]
@@ -293,7 +301,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Throws(new Exception(errorMessage));
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -303,7 +311,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
         }
 
         [TestMethod]
@@ -337,7 +346,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection.Object);
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -347,7 +356,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
         [TestMethod]
@@ -388,7 +398,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection.Object);
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -398,7 +408,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
         }
 
         [TestMethod]
@@ -431,7 +442,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection.Object);
             var documentPath = "some_path";
 
-            var result = await DeploymentHelper.CreateDeployment(
+            (var result, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -441,7 +452,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
+            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
         }
 
         private static ArmClient CreateMockArmClient()
