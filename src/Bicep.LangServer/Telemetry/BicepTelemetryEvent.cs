@@ -134,7 +134,7 @@ namespace Bicep.LanguageServer.Telemetry
         public static BicepTelemetryEvent CreateDeployStatus(string requestId, string result)
             => new BicepTelemetryEvent
             {
-                EventName = TelemetryConstants.EventNames.DeployStatus,
+                EventName = TelemetryConstants.EventNames.DeployResult,
                 Properties = new()
                 {
                     ["requestId"] = requestId,

@@ -41,11 +41,11 @@ namespace Bicep.LanguageServer.Handlers
                 request.deploymentScope,
                 request.location);
 
-            PostTelemetryEvent(telemetryProvider, request.requestId, deploymentResult);
+            PostTelemetryEvent(request.requestId, deploymentResult);
             return deploymentOutput;
         }
 
-        private static void PostTelemetryEvent(ITelemetryProvider telemetryProvider, string requestId, string status)
+        private void PostTelemetryEvent(string requestId, string status)
         {
             var telemetryEvent = BicepTelemetryEvent.CreateDeployStatus(requestId, status);
             telemetryProvider.PostEvent(telemetryEvent);
