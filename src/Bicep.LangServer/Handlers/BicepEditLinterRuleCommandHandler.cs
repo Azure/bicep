@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.LanguageServer.Configuration;
+using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -27,38 +28,61 @@ namespace Bicep.LanguageServer.Handlers
     {
         private readonly string DefaultBicepConfig;
         private readonly ILanguageServerFacade server;
+        private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server)
+        public BicepEditLinterRuleCommandHandler(ISerializer serializer, ILanguageServerFacade server, ITelemetryProvider telemetryProvider)
             : base(LanguageConstants.EditLinterRuleCommandName, serializer)
         {
             DefaultBicepConfig = DefaultBicepConfigHelper.GetDefaultBicepConfig();
             this.server = server;
+            this.telemetryProvider = telemetryProvider;
         }
 
         public override async Task<Unit> Handle(DocumentUri documentUri, string ruleCode, string bicepConfigFilePath, CancellationToken cancellationToken)
         {
-            // bicepConfigFilePath will be empty string if no current configuration file was found
-            if (string.IsNullOrEmpty(bicepConfigFilePath))
+            string? error = "unknown";
+            bool newConfigFile = false;
+            try
             {
-                // There is no configuration file currently - create one in the default location
-                var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, documentUri.GetFileSystemPath());
-                bicepConfigFilePath = Path.Combine(targetFolder, LanguageConstants.BicepConfigurationFileName);
-            }
+                // bicepConfigFilePath will be empty string if no current configuration file was found
+                if (string.IsNullOrEmpty(bicepConfigFilePath))
+                {
+                    // There is no configuration file currently - create one in the default location
+                    var targetFolder = await BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(this.server, documentUri.GetFileSystemPath());
+                    bicepConfigFilePath = Path.Combine(targetFolder, LanguageConstants.BicepConfigurationFileName);
+                }
 
-            if (!File.Exists(bicepConfigFilePath))
-            {
                 try
                 {
-                    File.WriteAllText(bicepConfigFilePath, DefaultBicepConfig);
+                    if (!File.Exists(bicepConfigFilePath))
+                    {
+                        newConfigFile = true;
+                        File.WriteAllText(bicepConfigFilePath, DefaultBicepConfig);
+                    }
                 }
                 catch (Exception ex)
                 {
+                    error = ex.GetType().Name;
                     server.Window.ShowError($"Unable to create configuration file \"{bicepConfigFilePath}\": {ex.Message}");
+                    return Unit.Value;
                 }
-            }
 
-            await AddAndSelectRuleLevel(bicepConfigFilePath, ruleCode);
-            return Unit.Value;
+
+                await AddAndSelectRuleLevel(bicepConfigFilePath, ruleCode);
+
+                error = null;
+                return Unit.Value;
+            }
+            catch (Exception ex)
+            {
+                error = ex.GetType().Name;
+                server.Window.ShowError(ex.Message);
+                return Unit.Value;
+            }
+            finally
+            {
+                telemetryProvider.PostEvent(BicepTelemetryEvent.EditLinterRule(ruleCode, newConfigFile, error));
+            }
         }
 
         public async Task AddAndSelectRuleLevel(string bicepConfigFilePath, string ruleCode)
