@@ -147,7 +147,7 @@ jobs:
 
       - name: Upload Code Coverage
         if: ${{ matrix.runTests == 'true' }}
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
         with:
           flags: dotnet
 
@@ -432,7 +432,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
