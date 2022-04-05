@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Handlers
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);
 
-            (string deploymentStatus, string deploymentOutput) = await DeploymentHelper.CreateDeployment(
+            (string deploymentResult, string deploymentOutput) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider,
                 armClient,
                 request.documentPath,
@@ -41,7 +41,7 @@ namespace Bicep.LanguageServer.Handlers
                 request.deploymentScope,
                 request.location);
 
-            PostTelemetryEvent(telemetryProvider, request.requestId, deploymentStatus);
+            PostTelemetryEvent(telemetryProvider, request.requestId, deploymentResult);
             return deploymentOutput;
         }
 

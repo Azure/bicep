@@ -27,7 +27,7 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="id">id string to create the ResourceIdentifier from</param>
         /// <param name="scope">target scope</param>
         /// <param name="location">location to store the deployment data</param>
-        /// <returns>deployment succeeded/failed message</returns>
+        /// <returns>deployment succeeded/failed message with result</returns>
         public static async Task<(string, string)> CreateDeployment(
             IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Deploy
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
                 string.IsNullOrWhiteSpace(location))
             {
-                return (LangServerResources.DeploymentFailedStatus, string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
             }
 
             DeploymentCollection? deploymentCollection;
@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Deploy
             }
             catch (Exception e)
             {
-                return (LangServerResources.DeploymentFailedStatus, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
+                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
             }
 
             if (deploymentCollection is not null)
@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
-                    return (LangServerResources.DeploymentFailedStatus, e.Message);
+                    return (LangServerResources.DeploymentFailedResult, e.Message);
                 }
 
                 var deploymentProperties = new DeploymentProperties(DeploymentMode.Incremental)
@@ -90,18 +90,18 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
-                    return (LangServerResources.DeploymentFailedStatus, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
+                    return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
                 }
             }
 
-            return (LangServerResources.DeploymentFailedStatus, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
         private static (string, string) GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath)
         {
             if (!deploymentCreateOrUpdateOperation.HasValue)
             {
-                return (LangServerResources.DeploymentFailedStatus, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
             }
 
             var response = deploymentCreateOrUpdateOperation.GetRawResponse();
@@ -109,11 +109,11 @@ namespace Bicep.LanguageServer.Deploy
 
             if (status == 200 || status == 201)
             {
-                return (LangServerResources.DeploymentSucceededStatus, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+                return (LangServerResources.DeploymentSucceededResult, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
             }
             else
             {
-                return (LangServerResources.DeploymentFailedStatus, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
+                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
             }
         }
 
