@@ -47,7 +47,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private void PostTelemetryEvent(string requestId, string status)
         {
-            var telemetryEvent = BicepTelemetryEvent.CreateDeployStatus(requestId, status);
+            var telemetryEvent = BicepTelemetryEvent.CreateDeployResult(requestId, status);
             telemetryProvider.PostEvent(telemetryEvent);
         }
     }
