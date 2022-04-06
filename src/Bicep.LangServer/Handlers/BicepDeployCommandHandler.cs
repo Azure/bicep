@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Handlers
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);
 
-            (string deploymentResult, string deploymentOutput) = await DeploymentHelper.CreateDeployment(
+            (bool isSuccess, string deploymentOutput) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider,
                 armClient,
                 request.documentPath,
@@ -41,13 +41,13 @@ namespace Bicep.LanguageServer.Handlers
                 request.deploymentScope,
                 request.location);
 
-            PostTelemetryEvent(request.deployId, deploymentResult);
+            PostTelemetryEvent(request.deployId, isSuccess);
             return deploymentOutput;
         }
 
-        private void PostTelemetryEvent(string deployId, string status)
+        private void PostTelemetryEvent(string deployId, bool isSuccess)
         {
-            var telemetryEvent = BicepTelemetryEvent.CreateDeployResult(deployId, status);
+            var telemetryEvent = BicepTelemetryEvent.CreateDeployResult(deployId, isSuccess ? "Succeeded" : "Failed");
             telemetryProvider.PostEvent(telemetryEvent);
         }
     }
