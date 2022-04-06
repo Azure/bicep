@@ -160,30 +160,26 @@ namespace Bicep.LanguageServer.Telemetry
                 eventName:  TelemetryConstants.EventNames.BicepFileOpen,
                 properties: properties
             );
-            {
-                EventName = TelemetryConstants.EventNames.BicepFileOpen,
-                Properties = properties
-            };
 
         public static BicepTelemetryEvent CreateDeployStart(string deployId)
             => new BicepTelemetryEvent
-            {
-                EventName = TelemetryConstants.EventNames.DeployStart,
-                Properties = new()
+            (
+                eventName: TelemetryConstants.EventNames.DeployStart,
+                properties: new()
                 {
                     ["deployId"] = deployId
                 }
-            };
+            );
 
         public static BicepTelemetryEvent CreateDeployResult(string deployId, string result)
             => new BicepTelemetryEvent
-            {
-                EventName = TelemetryConstants.EventNames.DeployResult,
-                Properties = new()
+            (
+                eventName: TelemetryConstants.EventNames.DeployResult,
+                properties: new()
                 {
                     ["deployId"] = deployId,
                     ["result"] = result
                 }
-            };
+            );
     }
 }
