@@ -164,7 +164,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "no-unused-params" },
-                    { "newConfigFile", "False" },
+                    { "newConfigFile", "false" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
@@ -231,7 +231,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
-                    { "newConfigFile", "False" },
+                    { "newConfigFile", "false" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
@@ -270,7 +270,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
-                    { "newConfigFile", "False" },
+                    { "newConfigFile", "false" },
                     { "error", "JsonReaderException" },
                     { "result", Result.Failed },
                 });
@@ -329,7 +329,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev!.EventName.Should().Be(TelemetryConstants.EventNames.EditLinterRule);
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
-                    { "newConfigFile", "True" },
+                    { "newConfigFile", "true" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
