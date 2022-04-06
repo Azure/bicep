@@ -24,12 +24,12 @@ export class CreateBicepConfigurationFile implements Command {
   public constructor(private readonly client: LanguageClient) {}
 
   public async execute(
-    _context: IActionContext,
+    context: IActionContext,
     documentUri?: Uri,
     suppressQuery?: boolean, // If true, the recommended location is used without querying user (for testing)
     rethrow?: boolean // (for testing)
   ): Promise<string | undefined> {
-    _context.errorHandling.rethrow = !!rethrow;
+    context.errorHandling.rethrow = !!rethrow;
 
     documentUri ??= window.activeTextEditor?.document.uri;
 
@@ -45,10 +45,12 @@ export class CreateBicepConfigurationFile implements Command {
       );
     }
 
-    let selectedPath: string = path.join(
+    const recommendedPath = path.join(
       recommendation.recommendedFolder,
       bicepConfig
     );
+    let selectedPath: string = recommendedPath;
+
     if (!suppressQuery) {
       // eslint-disable-next-line no-constant-condition
       while (true) {
@@ -74,6 +76,13 @@ export class CreateBicepConfigurationFile implements Command {
         }
       }
     }
+
+    context.telemetry.properties.usingRecommendedLocation = String(
+      selectedPath === recommendedPath
+    );
+    context.telemetry.properties.sameFolderAsBicep = String(
+      recommendation.recommendedFolder === path.dirname(selectedPath)
+    );
 
     await this.client.sendRequest(createBicepConfigRequestType, {
       destinationPath: selectedPath,
