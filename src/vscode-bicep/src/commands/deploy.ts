@@ -51,6 +51,9 @@ export class DeployCommand implements Command {
     context: IActionContext,
     documentUri: vscode.Uri | undefined
   ): Promise<void> {
+    const deployId = Math.random().toString();
+    context.telemetry.properties.deployId = deployId;
+
     documentUri = await findOrCreateActiveBicepFile(
       context,
       documentUri,
@@ -112,7 +115,8 @@ export class DeployCommand implements Command {
             context,
             documentUri,
             deploymentScope,
-            template
+            template,
+            deployId
           );
           break;
         case "subscription":
@@ -120,7 +124,8 @@ export class DeployCommand implements Command {
             context,
             documentUri,
             deploymentScope,
-            template
+            template,
+            deployId
           );
           break;
         case "managementGroup":
@@ -128,7 +133,8 @@ export class DeployCommand implements Command {
             context,
             documentUri,
             deploymentScope,
-            template
+            template,
+            deployId
           );
           break;
         case "tenant": {
@@ -176,7 +182,8 @@ export class DeployCommand implements Command {
     context: IActionContext,
     documentUri: vscode.Uri,
     deploymentScope: string,
-    template: string
+    template: string,
+    deployId: string
   ) {
     const managementGroupTreeItem =
       await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
@@ -204,7 +211,8 @@ export class DeployCommand implements Command {
           deploymentScope,
           location,
           template,
-          managementGroupTreeItem.subscription
+          managementGroupTreeItem.subscription,
+          deployId
         );
       }
     }
@@ -214,7 +222,8 @@ export class DeployCommand implements Command {
     context: IActionContext,
     documentUri: vscode.Uri,
     deploymentScope: string,
-    template: string
+    template: string,
+    deployId: string
   ) {
     const resourceGroupTreeItem =
       await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
@@ -237,7 +246,8 @@ export class DeployCommand implements Command {
         deploymentScope,
         "",
         template,
-        resourceGroupTreeItem.subscription
+        resourceGroupTreeItem.subscription,
+        deployId
       );
     }
   }
@@ -246,7 +256,8 @@ export class DeployCommand implements Command {
     context: IActionContext,
     documentUri: vscode.Uri,
     deploymentScope: string,
-    template: string
+    template: string,
+    deployId: string
   ): Promise<void> {
     const locationTreeItem =
       await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
@@ -270,7 +281,8 @@ export class DeployCommand implements Command {
       deploymentScope,
       location,
       template,
-      subscription
+      subscription,
+      deployId
     );
   }
 
@@ -282,7 +294,8 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     location: string,
     template: string,
-    subscription: ISubscriptionContext
+    subscription: ISubscriptionContext,
+    deployId: string
   ) {
     if (!parameterFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
@@ -311,6 +324,7 @@ export class DeployCommand implements Command {
         template,
         token,
         expiresOnTimestamp,
+        deployId,
       };
       const deploymentResponse: string = await this.client.sendRequest(
         "workspace/executeCommand",
