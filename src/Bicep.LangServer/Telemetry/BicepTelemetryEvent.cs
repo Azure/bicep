@@ -165,13 +165,13 @@ namespace Bicep.LanguageServer.Telemetry
                 Properties = properties
             };
 
-        public static BicepTelemetryEvent CreateDeployResult(string requestId, string result)
+        public static BicepTelemetryEvent CreateDeployResult(string deployId, string result)
             => new BicepTelemetryEvent
             {
                 EventName = TelemetryConstants.EventNames.DeployResult,
                 Properties = new()
                 {
-                    ["requestId"] = requestId,
+                    ["deployId"] = deployId,
                     ["result"] = result
                 }
             };
