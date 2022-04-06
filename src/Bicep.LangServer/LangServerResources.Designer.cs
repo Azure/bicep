@@ -70,15 +70,6 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Failed.
-        /// </summary>
-        public static string DeploymentFailedResult {
-            get {
-                return ResourceManager.GetString("DeploymentFailedResult", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. {1}.
         /// </summary>
         public static string DeploymentFailedWithExceptionMessage {
@@ -93,15 +84,6 @@ namespace Bicep.LanguageServer {
         public static string DeploymentSucceededMessage {
             get {
                 return ResourceManager.GetString("DeploymentSucceededMessage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Succeeded.
-        /// </summary>
-        public static string DeploymentSucceededResult {
-            get {
-                return ResourceManager.GetString("DeploymentSucceededResult", resourceCulture);
             }
         }
         

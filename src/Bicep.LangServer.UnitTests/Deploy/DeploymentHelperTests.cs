@@ -55,7 +55,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(expectedDeploymentOutputMessage);
         }
 
@@ -78,7 +78,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 location);
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
         }
 
@@ -101,7 +101,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeManagementGroup,
                 location);
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
         }
 
@@ -128,7 +128,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(expectedDeploymentOutputMessage);
         }
 
@@ -167,7 +167,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope,
                 location);
 
-            result.Should().Be(LangServerResources.DeploymentSucceededResult);
+            result.Should().Be("Succeeded");
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
         }
 
@@ -203,7 +203,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus");
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file"));
         }
 
@@ -240,7 +240,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus");
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
         }
 
@@ -275,7 +275,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
@@ -311,7 +311,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
         }
 
@@ -356,7 +356,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
@@ -408,7 +408,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
         }
 
@@ -452,7 +452,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "");
 
-            result.Should().Be(LangServerResources.DeploymentFailedResult);
+            result.Should().Be("Failed");
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
         }
 

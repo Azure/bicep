@@ -42,7 +42,7 @@ namespace Bicep.LanguageServer.Deploy
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
                 string.IsNullOrWhiteSpace(location))
             {
-                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+                return ("Failed", string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
             }
 
             DeploymentCollection? deploymentCollection;
@@ -54,7 +54,7 @@ namespace Bicep.LanguageServer.Deploy
             }
             catch (Exception e)
             {
-                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
+                return ("Failed", string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
             }
 
             if (deploymentCollection is not null)
@@ -67,7 +67,7 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
-                    return (LangServerResources.DeploymentFailedResult, e.Message);
+                    return ("Failed", e.Message);
                 }
 
                 var deploymentProperties = new DeploymentProperties(DeploymentMode.Incremental)
@@ -90,18 +90,18 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
-                    return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
+                    return ("Failed", string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
                 }
             }
 
-            return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            return ("Failed", string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
         private static (string, string) GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath)
         {
             if (!deploymentCreateOrUpdateOperation.HasValue)
             {
-                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+                return ("Failed", string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
             }
 
             var response = deploymentCreateOrUpdateOperation.GetRawResponse();
@@ -109,11 +109,11 @@ namespace Bicep.LanguageServer.Deploy
 
             if (status == 200 || status == 201)
             {
-                return (LangServerResources.DeploymentSucceededResult, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+                return ("Succeeded", string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
             }
             else
             {
-                return (LangServerResources.DeploymentFailedResult, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
+                return ("Failed", string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
             }
         }
 

@@ -120,17 +120,11 @@
   <data name="DeploymentFailedMessage" xml:space="preserve">
     <value>Deployment failed for {0}.</value>
   </data>
-  <data name="DeploymentFailedResult" xml:space="preserve">
-    <value>Failed</value>
-  </data>
   <data name="DeploymentFailedWithExceptionMessage" xml:space="preserve">
     <value>Deployment failed for {0}. {1}</value>
   </data>
   <data name="DeploymentSucceededMessage" xml:space="preserve">
     <value>Deployment succeeded for {0}.</value>
-  </data>
-  <data name="DeploymentSucceededResult" xml:space="preserve">
-    <value>Succeeded</value>
   </data>
   <data name="DisableDiagnosticForThisLine" xml:space="preserve">
     <value>Disable {0} for this line</value>
