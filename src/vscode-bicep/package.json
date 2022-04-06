@@ -487,7 +487,7 @@
     "styled-components": "^5.3.5",
     "triple-beam": "^1.3.0",
     "vscode-languageclient": "^7.0.0",
-    "winston": "^3.6.0",
+    "winston": "^3.7.2",
     "winston-transport": "^4.4.0"
   },
   "extensionDependencies": [
