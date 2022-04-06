@@ -17,7 +17,6 @@ import {
 } from "vscode-languageclient/node";
 import {
   AzExtTreeDataProvider,
-  callWithTelemetryAndErrorHandling,
   IActionContext,
   IAzureQuickPickItem,
   ISubscriptionContext,
@@ -53,13 +52,7 @@ export class DeployCommand implements Command {
     documentUri: vscode.Uri | undefined
   ): Promise<void> {
     const deployId = Math.random().toString();
-
-    await callWithTelemetryAndErrorHandling(
-      "deploy/start",
-      async (context: IActionContext) => {
-        context.telemetry.properties.deployId = deployId;
-      }
-    );
+    context.telemetry.properties.deployId = deployId;
 
     documentUri = await findOrCreateActiveBicepFile(
       context,

@@ -28,6 +28,8 @@ namespace Bicep.LanguageServer.Handlers
 
         public override async Task<string> Handle(BicepDeployParams request, CancellationToken cancellationToken)
         {
+            PostDeployStartTelemetryEvent(request.deployId);
+
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);
 
@@ -41,13 +43,23 @@ namespace Bicep.LanguageServer.Handlers
                 request.deploymentScope,
                 request.location);
 
-            PostTelemetryEvent(request.deployId, isSuccess);
+            PostDeployResultTelemetryEvent(request.deployId, isSuccess);
+
             return deploymentOutput;
         }
 
-        private void PostTelemetryEvent(string deployId, bool isSuccess)
+        private void PostDeployStartTelemetryEvent(string deployId)
         {
-            var telemetryEvent = BicepTelemetryEvent.CreateDeployResult(deployId, isSuccess ? "Succeeded" : "Failed");
+            var telemetryEvent = BicepTelemetryEvent.CreateDeployStart(deployId);
+
+            telemetryProvider.PostEvent(telemetryEvent);
+        }
+
+        private void PostDeployResultTelemetryEvent(string deployId, bool isSuccess)
+        {
+            var result = isSuccess ? BicepTelemetryEvent.Result.Succeeded : BicepTelemetryEvent.Result.Failed;
+            var telemetryEvent = BicepTelemetryEvent.CreateDeployResult(deployId, result);
+
             telemetryProvider.PostEvent(telemetryEvent);
         }
     }
