@@ -178,20 +178,11 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string
   ) {
-    let managementGroupTreeItem: AzManagementGroupTreeItem | undefined;
-    try {
-      managementGroupTreeItem =
-        await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
-          "",
-          context
-        );
-    } catch (exception) {
-      this.outputChannelManager.appendToOutputChannel(
-        "Deployment failed. " + parseError(exception).message
+    const managementGroupTreeItem =
+      await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
+        "",
+        context
       );
-
-      throw exception;
-    }
     const managementGroupId = managementGroupTreeItem?.id;
 
     if (managementGroupId) {
