@@ -19,7 +19,7 @@ namespace Bicep.LanguageServer.Telemetry
 
         public Dictionary<string, string> Properties { get; private set; }
 
-        private static string ToString(bool f)
+        private static string ToTrueFalse(bool f)
         {
             return f ? "true" : "false";
         }
@@ -111,14 +111,15 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent EditLinterRule(string code, bool newConfigFile, string? error)
+        public static BicepTelemetryEvent EditLinterRule(string code, bool newConfigFile, bool newRuleAdded, string? error)
             => new BicepTelemetryEvent
             (
                 eventName:  TelemetryConstants.EventNames.EditLinterRule,
                 properties: new()
                 {
                     ["code"] = code,
-                    ["newConfigFile"] = ToString(newConfigFile),
+                    ["newConfigFile"] = ToTrueFalse(newConfigFile),
+                    ["newRuleAdded"] = ToTrueFalse(newRuleAdded),
                     ["error"] = error ?? string.Empty,
                     ["result"] = error == null ? Result.Succeeded : Result.Failed,
                 }

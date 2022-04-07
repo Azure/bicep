@@ -164,6 +164,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "no-unused-params" },
                     { "newConfigFile", "false" },
+                    { "newRuleAdded", "false" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
@@ -265,6 +266,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
                     { "newConfigFile", "false" },
+                    { "newRuleAdded", "true" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
@@ -304,6 +306,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
                     { "newConfigFile", "false" },
+                    { "newRuleAdded", "false" },
                     { "error", "JsonReaderException" },
                     { "result", Result.Failed },
                 });
@@ -363,6 +366,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
                     { "newConfigFile", "true" },
+                    { "newRuleAdded", "true" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
