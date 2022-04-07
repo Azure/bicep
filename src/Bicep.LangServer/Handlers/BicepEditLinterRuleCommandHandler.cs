@@ -95,8 +95,8 @@ namespace Bicep.LanguageServer.Handlers
 
             string json = File.ReadAllText(bicepConfigFilePath);
             (int line, int column, string text)? insertion = new JsonEditor(json).InsertIfNotExist(
-                new string[] { "analyzers", "core", "rules", ruleCode },
-                new { level = "warning" });
+                new string[] { "analyzers", "core", "rules", ruleCode, "level" },
+                "warning");
 
             if (insertion.HasValue)
             {
@@ -109,9 +109,9 @@ namespace Bicep.LanguageServer.Handlers
                 {
                     server.Window.ShowError($"Unable to write to configuration file \"{bicepConfigFilePath}\": {ex.Message}");
                 }
-
-                await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath);
             }
+
+            await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath);
         }
 
         /// <summary>
