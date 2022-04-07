@@ -127,7 +127,18 @@
     }
   },
   "type": "object",
-  "default": {},
+  "default$omment": "This is the default for an empty file",
+  "default": {
+    "analyzers": {
+      "core": {
+        "rules": {
+          "no-unused-params": {
+            "level": ""
+          }
+        }
+      }
+    }
+  },
   "properties": {
     "cloud": {
       "title": "Cloud",
