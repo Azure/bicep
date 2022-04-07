@@ -314,8 +314,10 @@ export class DeployCommand implements Command {
     if (accessToken) {
       const token = accessToken.token;
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+      const subscriptionId = subscription.subscriptionPath;
 
       const bicepDeployParams: BicepDeployParams = {
+        subscriptionId,
         documentPath,
         parameterFilePath,
         id,

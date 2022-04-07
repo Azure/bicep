@@ -9,19 +9,32 @@ using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using static Bicep.LanguageServer.Deploy.DeploymentsCache;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId) : IRequest<string>;
+    public record BicepDeployParams(
+        string subscriptionId,
+        string documentPath,
+        string parameterFilePath,
+        string id,
+        string deploymentScope,
+        string location,
+        string template,
+        string token,
+        string expiresOnTimestamp,
+        string deployId) : IRequest<string>;
 
     public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, string>
     {
+        private readonly IDeploymentsCache deploymentsCache;
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
         private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepDeployCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, ISerializer serializer, ITelemetryProvider telemetryProvider)
+        public BicepDeployCommandHandler(IDeploymentsCache deploymentsCache, IDeploymentCollectionProvider deploymentCollectionProvider, ISerializer serializer, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.DeployCommand, serializer)
         {
+            this.deploymentsCache = deploymentsCache;
             this.deploymentCollectionProvider = deploymentCollectionProvider;
             this.telemetryProvider = telemetryProvider;
         }
@@ -44,6 +57,9 @@ namespace Bicep.LanguageServer.Handlers
                 request.location);
 
             PostDeployResultTelemetryEvent(request.deployId, isSuccess);
+
+            var lastUsedDefaults = new LastUsedDefaults(request.subscriptionId, request.id, request.parameterFilePath, request.location);
+            deploymentsCache.UpdateDeploymentsCache(request.documentPath, lastUsedDefaults);
 
             return deploymentOutput;
         }

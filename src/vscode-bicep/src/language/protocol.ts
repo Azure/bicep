@@ -57,6 +57,7 @@ export interface BicepDeploymentScopeResponse {
 }
 
 export interface BicepDeployParams {
+  subscriptionId: string;
   documentPath: string;
   parameterFilePath: string;
   id: string;
