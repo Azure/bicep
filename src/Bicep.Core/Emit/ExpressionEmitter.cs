@@ -130,7 +130,9 @@ namespace Bicep.Core.Emit
 
         public void EmitResourceIdReference(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
+            var nameComponents = SyntaxFactory.CreateArray(this.converter.GetResourceNameSyntaxSegments(resource));
+
+            var converterForContext = this.converter.CreateConverterForIndexReplacement(nameComponents, indexExpression, newContext);
 
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
