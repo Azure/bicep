@@ -34,30 +34,4 @@ namespace Bicep.Core.Emit
             return replacementSyntax;
         }
     }
-
-    public class SyntaxReplacer: SyntaxRewriteVisitor
-    {
-        private IReadOnlyDictionary<VariableAccessSyntax, SyntaxBase> replacements;
-
-        private SyntaxReplacer(IReadOnlyDictionary<VariableAccessSyntax, SyntaxBase> replacements)
-        {
-            this.replacements = replacements;
-        }
-
-        public static SyntaxBase Replace(IReadOnlyDictionary<VariableAccessSyntax, SyntaxBase> replacements, SyntaxBase syntax) =>
-            new SyntaxReplacer(replacements).Rewrite(syntax);
-
-        protected override SyntaxBase ReplaceVariableAccessSyntax(VariableAccessSyntax syntax)
-        {
-            if(!this.replacements.TryGetValue(syntax, out var replacementSyntax))
-            {
-                // no match
-                // leave syntax as-is
-                return base.ReplaceVariableAccessSyntax(syntax);
-            }
-
-            // inject the replacment syntax
-            return replacementSyntax;
-        }
-    }
 }
