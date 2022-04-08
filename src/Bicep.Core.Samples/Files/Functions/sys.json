@@ -314,6 +314,44 @@
     ]
   },
   {
+    "name": "dateTimeFromEpoch",
+    "description": "Converts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.",
+    "fixedParameters": [
+      {
+        "name": "epochTime",
+        "description": "An epoch time value that will be converted to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime formatted string.",
+        "type": "int",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "([epochTime: int]): string",
+    "parameterTypeSignatures": [
+      "[epochTime: int]"
+    ]
+  },
+  {
+    "name": "dateTimeToEpoch",
+    "description": "Converts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.",
+    "fixedParameters": [
+      {
+        "name": "dateTime",
+        "description": "An [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted dateTime string to be converted to epoch time.",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "([dateTime: string]): int",
+    "parameterTypeSignatures": [
+      "[dateTime: string]"
+    ]
+  },
+  {
     "name": "empty",
     "description": "Determines if an array, object, or string is empty.",
     "fixedParameters": [
