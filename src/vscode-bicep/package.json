@@ -210,12 +210,12 @@
           "command": "bicep.showVisualizerToSide",
           "when": "editorLangId == bicep",
           "alt": "bicep.showVisualizer",
-          "group": "0_bicep"
+          "group": "navigation"
         },
         {
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
-          "group": "0_bicep"
+          "group": "navigation"
         }
       ],
       "explorer/context": [
