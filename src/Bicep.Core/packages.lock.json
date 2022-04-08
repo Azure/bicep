@@ -4,20 +4,20 @@
     "net6.0": {
       "Azure.Bicep.Types": {
         "type": "Direct",
-        "requested": "[0.1.410, )",
-        "resolved": "0.1.410",
-        "contentHash": "gjdw59Ki6o2vt6d6VekzGLNLUnb/sHoB/nxWL/nzLBlbrNkgnaeWwfIwitsJWBdDCopBFDtMdPQbYufs6HncjA==",
+        "requested": "[0.1.449, )",
+        "resolved": "0.1.449",
+        "contentHash": "Adt0ZNABi7JqybzthXvFuxZuOw/Ns7UX0nLTSetUWXqT190uqyKxjQ+GE0gBVqSoVauQSBkPZb+wqTTSrsfHMA==",
         "dependencies": {
-          "System.Text.Json": "5.0.2"
+          "System.Text.Json": "6.0.2"
         }
       },
       "Azure.Bicep.Types.Az": {
         "type": "Direct",
-        "requested": "[0.1.410, )",
-        "resolved": "0.1.410",
-        "contentHash": "sQmq5lldMqcG/3Xgb25nz2E5nFcMltoLWS7872K+HTepH9W9ywb+s5GRoctD3uttyecbL/qYcYMql7RP5tj9Tw==",
+        "requested": "[0.1.449, )",
+        "resolved": "0.1.449",
+        "contentHash": "B+M9VMd4OLD90iOh3li4+86cE4+V8xTU1Lh1LQqEKtNZebnZuIvkmeSq354SCWvIldWaczYJZp8q37ZxZzmkcw==",
         "dependencies": {
-          "Azure.Bicep.Types": "0.1.410"
+          "Azure.Bicep.Types": "0.1.449"
         }
       },
       "Azure.Bicep.Types.K8s": {
@@ -365,8 +365,8 @@
       },
       "System.Text.Json": {
         "type": "Transitive",
-        "resolved": "6.0.0",
-        "contentHash": "zaJsHfESQvJ11vbXnNlkrR46IaMULk/gHxYsJphzSF+07kTjPHv+Oc14w6QEOfo3Q4hqLJgStUaYB9DBl0TmWg==",
+        "resolved": "6.0.2",
+        "contentHash": "0nE2gwXLn3PTBOPwORLqwuYvWB+Beomt9ZBX+6LmogMNKUvfD1SoDb/ycB1vBntT94rGaB/SvxEyeLu14H6aEg==",
         "dependencies": {
           "System.Runtime.CompilerServices.Unsafe": "6.0.0",
           "System.Text.Encodings.Web": "6.0.0"
