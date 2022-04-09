@@ -193,7 +193,7 @@ jobs:
           node-version: 14.x
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -240,7 +240,7 @@ jobs:
         uses: actions/setup-dotnet@v2
       
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
@@ -319,13 +319,13 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -342,7 +342,7 @@ jobs:
       
       - name: Download CLI Package
         if: ${{ matrix.runTests == 'true' }}
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -402,7 +402,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Download Language Server
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
