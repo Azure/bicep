@@ -428,7 +428,7 @@
     "packagelocal": "rimraf ./bicepLanguageServer && cp -r ../Bicep.LangServer/bin/Debug/net6.0 ./bicepLanguageServer && npm run package"
   },
   "devDependencies": {
-    "@types/copy-webpack-plugin": "^8.0.1",
+    "@types/copy-webpack-plugin": "^10.1.0",
     "@types/cytoscape": "^3.14.19",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
