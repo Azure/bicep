@@ -276,11 +276,6 @@
         "resolved": "17.1.0",
         "contentHash": "0N/ZJ71ncCxQWhgtkEYKOgu2oMHa8h1tsOUbhmIKXF8UwtSUCe4vHAsJ3DVcNWRwNfQzSTy263ZE+QF6MdIhhQ=="
       },
-      "Microsoft.CSharp": {
-        "type": "Transitive",
-        "resolved": "4.4.1",
-        "contentHash": "A5hI3gk6WpcBI0QGZY6/d5CCaYUxJgi7iENn1uYEng+Olo8RfI5ReGVkjXjeu3VR3srLvVYREATXa2M0X7FYJA=="
-      },
       "Microsoft.Extensions.Configuration": {
         "type": "Transitive",
         "resolved": "6.0.1",
@@ -890,12 +885,8 @@
       },
       "System.CommandLine": {
         "type": "Transitive",
-        "resolved": "2.0.0-beta1.21308.1",
-        "contentHash": "X8qLygjyktfmcNMNFekMkumyaTblJmkH3BBbKiQlk4FvJfp613gkMKrA0CNqLUT9tEfLcm3XMzAbsiYFwM8zbQ==",
-        "dependencies": {
-          "Microsoft.CSharp": "4.4.1",
-          "system.memory": "4.5.4"
-        }
+        "resolved": "2.0.0-beta3.22114.1",
+        "contentHash": "QMzk1jj+PzdGbwuVsxII7FcQaCelnK+TcRcAqOGVoPovLBCSQPdikKiEzb56vAidvum5t4LSdDZ34O4j7+ALgw=="
       },
       "System.CommandLine.Hosting": {
         "type": "Transitive",
@@ -1803,7 +1794,7 @@
           "Serilog.Extensions.Hosting": "4.2.0",
           "Serilog.Sinks.Console": "4.0.1",
           "Serilog.Sinks.TextWriter": "2.1.0",
-          "System.CommandLine": "2.0.0-beta1.21308.1",
+          "System.CommandLine": "2.0.0-beta3.22114.1",
           "System.CommandLine.Hosting": "0.3.0-alpha.21216.1",
           "System.CommandLine.Rendering": "0.3.0-alpha.21216.1",
           "System.IO.Abstractions": "16.1.25"
