@@ -81,7 +81,7 @@ describe("getLogger()", () => {
   });
 });
 
-// eslint-disable-next-line jest/lowercase-name
+// eslint-disable-next-line jest/prefer-lowercase-title
 describe("WinstonLogger", () => {
   beforeEach(() => {
     jest.clearAllMocks();
