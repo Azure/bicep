@@ -39,6 +39,7 @@ module.exports = {
         "react/prop-types": "off",
         "react/jsx-uses-react": "off",
         "react/react-in-jsx-scope": "off",
+        "jest/no-conditional-in-test": "off",
         "jest/no-hooks": "off",
         "jest/prefer-expect-assertions": "off",
         "jest/expect-expect": [
