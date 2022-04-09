@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Core.Json;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Core.Definitions.Schema;
 using Bicep.Core.Extensions;
@@ -21,6 +20,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.Semantics.Metadata;
 using System.Diagnostics;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.Core.Emit
 {

@@ -6,13 +6,13 @@ using Newtonsoft.Json.Linq;
 using Azure.Deployments.Core.Configuration;
 using Azure.Deployments.Core.Definitions.Schema;
 using Azure.Deployments.Templates.Engines;
-using Azure.Deployments.Core.Collections;
-using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Expression.Engines;
 using System.Linq;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Core.ErrorResponses;
 using Bicep.Core.UnitTests.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Collections;
 
 namespace Bicep.Core.IntegrationTests
 {
