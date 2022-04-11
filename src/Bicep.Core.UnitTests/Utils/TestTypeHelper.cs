@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
+using Bicep.Core.Extensions;
 using Bicep.Core.Resources;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
