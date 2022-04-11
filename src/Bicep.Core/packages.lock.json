@@ -31,12 +31,12 @@
       },
       "Azure.Containers.ContainerRegistry": {
         "type": "Direct",
-        "requested": "[1.1.0-beta.3, )",
-        "resolved": "1.1.0-beta.3",
-        "contentHash": "VQGYiGCBMQOFb8kC5qetb0sslVKMKpH0zfndszI0fk7umyV3k0sKVvNJDa8++tvrNpTtaKXoFrSq057J0WVZYA==",
+        "requested": "[1.1.0-beta.4, )",
+        "resolved": "1.1.0-beta.4",
+        "contentHash": "GhTCm4Hh2Hs+MUQL5ocIn+dqcfPzyTkCjkIji/IuATZ/Nyr1FZHCaHm44P3Mj0uuXbBLgXejFlypDlTyKMJcsw==",
         "dependencies": {
-          "Azure.Core": "1.19.0",
-          "System.Text.Json": "4.6.0"
+          "Azure.Core": "1.24.0",
+          "System.Text.Json": "4.7.2"
         }
       },
       "Azure.Deployments.Core": {
