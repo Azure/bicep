@@ -190,7 +190,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: '14'
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v3
@@ -301,7 +301,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 10.x
+          node-version: '14'
 
       - name: npm ci
         if: ${{ matrix.runTests == 'true' }}
@@ -383,7 +383,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          node-version: '14'
 
       - name: npm ci
         run: npm ci
@@ -466,7 +466,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: '14'
       
       - name: npm ci
         run: npm ci
