@@ -12,7 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId) : IRequest<string>;
+    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
 
     public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, string>
     {
@@ -41,7 +41,8 @@ namespace Bicep.LanguageServer.Handlers
                 request.parameterFilePath,
                 request.id,
                 request.deploymentScope,
-                request.location);
+                request.location,
+                request.portalUrl);
 
             PostDeployResultTelemetryEvent(request.deployId, isSuccess);
 

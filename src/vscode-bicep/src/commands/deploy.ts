@@ -314,6 +314,7 @@ export class DeployCommand implements Command {
     if (accessToken) {
       const token = accessToken.token;
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+      const portalUrl = subscription.environment.portalUrl;
 
       const bicepDeployParams: BicepDeployParams = {
         documentPath,
@@ -325,6 +326,7 @@ export class DeployCommand implements Command {
         token,
         expiresOnTimestamp,
         deployId,
+        portalUrl,
       };
       const deploymentResponse: string = await this.client.sendRequest(
         "workspace/executeCommand",

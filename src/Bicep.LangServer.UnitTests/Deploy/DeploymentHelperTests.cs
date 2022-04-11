@@ -50,7 +50,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 scope,
-                string.Empty);
+                string.Empty,
+                "portalUrl");
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
@@ -76,7 +77,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeSubscription,
-                location);
+                location,
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
@@ -99,7 +101,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeManagementGroup,
-                location);
+                location,
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
@@ -123,7 +126,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeTenant,
-                string.Empty);
+                string.Empty,
+                "portalUrl");
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
@@ -165,7 +169,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 scope,
-                location);
+                location,
+                "portalUrl");
 
             isSuccess.Should().BeTrue();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
@@ -201,7 +206,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 @"c:\parameter.json",
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
-                "eastus");
+                "eastus",
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file"));
@@ -238,7 +244,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 parametersFilePath,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
-                "eastus");
+                "eastus",
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
@@ -273,7 +280,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "",
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
@@ -309,7 +317,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "",
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
@@ -354,7 +363,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "",
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
@@ -406,7 +416,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "",
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
@@ -450,7 +461,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "",
+                "portalUrl");
 
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));

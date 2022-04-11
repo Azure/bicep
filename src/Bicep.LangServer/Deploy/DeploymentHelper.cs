@@ -36,7 +36,8 @@ namespace Bicep.LanguageServer.Deploy
             string parameterFilePath,
             string id,
             string scope,
-            string location)
+            string location,
+            string portalUrl)
         {
             if ((scope == LanguageConstants.TargetScopeTypeSubscription ||
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
@@ -80,13 +81,15 @@ namespace Bicep.LanguageServer.Deploy
                     Location = location,
                 };
 
-                string deployment = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+                string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
                 try
                 {
-                    var deploymentCreateOrUpdateOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deployment, input);
+                    var deploymentCreateOrUpdateOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deploymentName, input);
 
-                    return GetDeploymentResultMessage(deploymentCreateOrUpdateOperation, documentPath);
+                    var linkToDeploymentInAzurePortal = GetLinkToDeploymentInAzurePortal(portalUrl, Uri.EscapeDataString(id), deploymentName);
+
+                    return GetDeploymentResultMessage(deploymentCreateOrUpdateOperation, documentPath, linkToDeploymentInAzurePortal);
                 }
                 catch (Exception e)
                 {
@@ -97,7 +100,12 @@ namespace Bicep.LanguageServer.Deploy
             return (false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
-        private static (bool isSuccess, string outputMessage) GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath)
+        private static string GetLinkToDeploymentInAzurePortal(string portalUrl, string id, string deploymentName)
+        {
+            return $"{portalUrl}/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/{id}%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2F{deploymentName}";
+        }
+
+        private static (bool isSuccess, string outputMessage) GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath, string linkToDeploymentInAzurePortal)
         {
             if (!deploymentCreateOrUpdateOperation.HasValue)
             {
@@ -109,7 +117,8 @@ namespace Bicep.LanguageServer.Deploy
 
             if (status == 200 || status == 201)
             {
-                return (true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+                var outputMessage = string.Format(LangServerResources.DeploymentSucceededMessage, documentPath, linkToDeploymentInAzurePortal);
+                return (true, outputMessage);
             }
             else
             {
