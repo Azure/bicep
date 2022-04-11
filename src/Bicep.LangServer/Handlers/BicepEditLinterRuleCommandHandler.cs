@@ -42,6 +42,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             string? error = "unknown";
             bool newConfigFile = false;
+            bool newRuleAdded = false;
             try
             {
                 // bicepConfigFilePath will be empty string if no current configuration file was found
@@ -68,7 +69,7 @@ namespace Bicep.LanguageServer.Handlers
                 }
 
 
-                await AddAndSelectRuleLevel(bicepConfigFilePath, ruleCode);
+                newRuleAdded = await AddAndSelectRuleLevel(bicepConfigFilePath, ruleCode);
 
                 error = null;
                 return Unit.Value;
@@ -81,37 +82,41 @@ namespace Bicep.LanguageServer.Handlers
             }
             finally
             {
-                telemetryProvider.PostEvent(BicepTelemetryEvent.EditLinterRule(ruleCode, newConfigFile, error));
+                telemetryProvider.PostEvent(BicepTelemetryEvent.EditLinterRule(ruleCode, newConfigFile, newRuleAdded, error));
             }
         }
 
-        public async Task AddAndSelectRuleLevel(string bicepConfigFilePath, string ruleCode)
+        // Returns true if the rule was added to the config file
+        public async Task<bool> AddAndSelectRuleLevel(string bicepConfigFilePath, string ruleCode)
         {
             if (await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath))
             {
                 // The rule already exists and has been shown/selected
-                return;
+                return false;
             }
 
             string json = File.ReadAllText(bicepConfigFilePath);
             (int line, int column, string text)? insertion = new JsonEditor(json).InsertIfNotExist(
-                new string[] { "analyzers", "core", "rules", ruleCode },
-                new { level = "warning" });
+                new string[] { "analyzers", "core", "rules", ruleCode, "level" },
+                "warning");
 
+            bool added = false;
             if (insertion.HasValue)
             {
                 var (line, column, insertText) = insertion.Value;
                 try
                 {
                     File.WriteAllText(bicepConfigFilePath, JsonEditor.ApplyInsertion(json, (line, column, insertText)));
+                    added = true;
                 }
                 catch (Exception ex)
                 {
                     server.Window.ShowError($"Unable to write to configuration file \"{bicepConfigFilePath}\": {ex.Message}");
                 }
-
-                await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath);
             }
+
+            await SelectRuleLevelIfExists(ruleCode, bicepConfigFilePath);
+            return added;
         }
 
         /// <summary>

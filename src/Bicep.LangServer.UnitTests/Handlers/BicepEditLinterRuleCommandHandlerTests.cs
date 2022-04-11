@@ -8,6 +8,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Text;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -163,9 +164,44 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "no-unused-params" },
                     { "newConfigFile", "false" },
+                    { "newRuleAdded", "false" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
+        }
+
+        [TestMethod]
+        public async Task IfConfigExists_AndContainsRuleButNotLevel_ThenJustAddLevelAndSelect()
+        {
+            string bicepConfig = @"{
+              ""analyzers"": {
+                ""core"": {
+                  ""verbose"": false,
+                  ""enabled"": true,
+                  ""rules"": {
+                    ""no-unused-params"": {
+                    }
+                  }
+                }
+              }
+            }";
+
+            var (bicepPath, configPath) = CreateFiles(bicepConfig);
+
+            string? selectedText = null;
+            var server = CreateMockLanguageServer(
+                (ShowDocumentParams @params, CancellationToken token) =>
+                {
+                    @params.Uri.GetFileSystemPath().ToLowerInvariant().Should().Be(configPath.ToLowerInvariant());
+                    selectedText = GetSelectedTextFromFile(@params.Uri, @params.Selection);
+                },
+                new ShowDocumentResult() { Success = true });
+
+            var telemetryProvider = BicepTestConstants.CreateMockTelemetryProvider();
+            BicepEditLinterRuleCommandHandler bicepEditLinterRuleHandler = new(StrictMock.Of<ISerializer>().Object, server.Object, telemetryProvider.Object);
+            await bicepEditLinterRuleHandler.Handle(new Uri(bicepPath), "no-unused-params", configPath, CancellationToken.None);
+
+            selectedText.Should().Be("warning", "rule's current level value should be selected when the config file is opened");
         }
 
         [TestMethod]
@@ -230,6 +266,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
                     { "newConfigFile", "false" },
+                    { "newRuleAdded", "true" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
@@ -269,6 +306,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
                     { "newConfigFile", "false" },
+                    { "newRuleAdded", "false" },
                     { "error", "JsonReaderException" },
                     { "result", Result.Failed },
                 });
@@ -328,6 +366,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             ev.Properties.Should().Contain(new Dictionary<string, string> {
                     { "code", "whatever" },
                     { "newConfigFile", "true" },
+                    { "newRuleAdded", "true" },
                     { "error", string.Empty },
                     { "result", Result.Succeeded },
                 });
