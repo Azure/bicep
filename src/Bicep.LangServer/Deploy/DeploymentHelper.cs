@@ -118,7 +118,7 @@ namespace Bicep.LanguageServer.Deploy
 
             if (status == 200 || status == 201)
             {
-                return (true,  string.Format(LangServerResources.DeploymentSucceededMessage, documentPath, linkToDeploymentInAzurePortal));
+                return (true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath, linkToDeploymentInAzurePortal));
             }
             else
             {
