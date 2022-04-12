@@ -166,7 +166,7 @@ resource exampleUser2 'Microsoft.ApiManagement/service/users@2020-06-01-preview'
 }
 
 resource exampleUser3 'Microsoft.ApiManagement/service/users@2020-06-01-preview' = {
-  name: '${apiManagementService.name}/exampleUser1'
+  name: '${apiManagementService.name}/exampleUser3'
   properties: {
     firstName: 'ExampleFirstName3'
     lastName: 'ExampleLastName3'

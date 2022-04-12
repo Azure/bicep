@@ -257,7 +257,7 @@
     "exampleUser3": {
       "type": "Microsoft.ApiManagement/service/users",
       "apiVersion": "2020-06-01-preview",
-      "name": "[format('{0}/exampleUser1', resourceInfo('apiManagementService').name)]",
+      "name": "[format('{0}/exampleUser3', resourceInfo('apiManagementService').name)]",
       "properties": {
         "firstName": "ExampleFirstName3",
         "lastName": "ExampleLastName3",
