@@ -461,7 +461,7 @@
     "prettier": "^2.6.2",
     "react-test-renderer": "^18.0.0",
     "rimraf": "^3.0.2",
-    "semver": "^7.3.6",
+    "semver": "^7.3.7",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.1",
     "ts-jest": "^27.1.4",
