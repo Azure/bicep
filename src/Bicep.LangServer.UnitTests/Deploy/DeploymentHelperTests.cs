@@ -411,6 +411,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
                 .Returns(deploymentCollection.Object);
             var documentPath = "some_path";
+            var deploymentLink = "https://portal.azure.com/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/%2Fsubscriptions%2F07268dd7-4c50-434b-b1ff-67b8164edb41%2FresourceGroups%2Fbhavyatest%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2Fbicep_deployment";
 
             (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
@@ -424,7 +425,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment");
             isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessageAndLink, documentPath, responseMessage, deploymentLink));
         }
 
         [TestMethod]

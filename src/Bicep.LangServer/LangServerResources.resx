@@ -123,6 +123,9 @@
   <data name="DeploymentFailedWithExceptionMessage" xml:space="preserve">
     <value>Deployment failed for {0}. {1}</value>
   </data>
+  <data name="DeploymentFailedWithExceptionMessageAndLink" xml:space="preserve">
+    <value>Deployment failed for {0}. {1} Please use the following link to view deployment: {2}</value>
+  </data>
   <data name="DeploymentSucceededMessage" xml:space="preserve">
     <value>Deployment succeeded for {0}. Please use the following link to view deployment: {1}</value>
   </data>

@@ -122,7 +122,7 @@ namespace Bicep.LanguageServer.Deploy
             }
             else
             {
-                return (false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
+                return (false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessageAndLink, documentPath, response.ToString(), linkToDeploymentInAzurePortal));
             }
         }
 
