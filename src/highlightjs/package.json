@@ -11,7 +11,7 @@
     "eslint": "^8.13.0",
     "eslint-plugin-header": "^3.1.1",
     "eslint-plugin-jest": "^26.1.4",
-    "highlight.js": "^11.5.0",
+    "highlight.js": "^11.5.1",
     "jest": "^27.5.1",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.7.0",
