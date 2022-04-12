@@ -27,6 +27,8 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="id">id string to create the ResourceIdentifier from</param>
         /// <param name="scope">target scope</param>
         /// <param name="location">location to store the deployment data</param>
+        /// <param name="portalUrl">the management portal URL.</param>
+        /// <param name="deploymentName">name of the deployment</param>
         /// <returns>deployment result and succeeded/failed message </returns>
         public static async Task<(bool isSuccess, string outputMessage)> CreateDeployment(
             IDeploymentCollectionProvider deploymentCollectionProvider,
@@ -37,7 +39,8 @@ namespace Bicep.LanguageServer.Deploy
             string id,
             string scope,
             string location,
-            string portalUrl)
+            string portalUrl,
+            string deploymentName)
         {
             if ((scope == LanguageConstants.TargetScopeTypeSubscription ||
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
@@ -80,8 +83,6 @@ namespace Bicep.LanguageServer.Deploy
                 {
                     Location = location,
                 };
-
-                string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
                 try
                 {

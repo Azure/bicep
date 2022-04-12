@@ -51,8 +51,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 scope,
                 string.Empty,
-                "portalUrl");
-
+                "https://portal.azure.com/",
+                "bicep_deployment");
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
 
@@ -78,8 +78,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeSubscription,
                 location,
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
         }
@@ -102,8 +102,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeManagementGroup,
                 location,
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
         }
@@ -127,8 +127,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeTenant,
                 string.Empty,
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
 
@@ -160,6 +160,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), scope))
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
+            var portalUrl = "https://portal.azure.com";
+            var deploymentName = "bicep_deployment";
+            var expectedDeploymentLink = @"https://portal.azure.com/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/%2Fsubscriptions%2F07268dd7-4c50-434b-b1ff-67b8164edb41%2FresourceGroups%2Fbhavyatest%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2Fbicep_deployment";
 
             (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider.Object,
@@ -170,10 +173,11 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 scope,
                 location,
-                "portalUrl");
+                portalUrl,
+                deploymentName);
 
             isSuccess.Should().BeTrue();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath, expectedDeploymentLink));
         }
 
         [TestMethod]
@@ -207,8 +211,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus",
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file"));
         }
@@ -245,8 +249,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus",
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
         }
@@ -281,8 +285,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
@@ -318,8 +322,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
         }
@@ -364,8 +368,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
@@ -417,8 +421,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
         }
@@ -462,8 +466,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
-                "portalUrl");
-
+                "https://portal.azure.com",
+                "bicep_deployment");
             isSuccess.Should().BeFalse();
             outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
         }

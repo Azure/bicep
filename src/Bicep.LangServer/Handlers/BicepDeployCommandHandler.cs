@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
@@ -32,6 +33,7 @@ namespace Bicep.LanguageServer.Handlers
 
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);
+            var deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
             (bool isSuccess, string deploymentOutput) = await DeploymentHelper.CreateDeployment(
                 deploymentCollectionProvider,
@@ -42,7 +44,8 @@ namespace Bicep.LanguageServer.Handlers
                 request.id,
                 request.deploymentScope,
                 request.location,
-                request.portalUrl);
+                request.portalUrl,
+                deploymentName);
 
             PostDeployResultTelemetryEvent(request.deployId, isSuccess);
 
