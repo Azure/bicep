@@ -32,7 +32,7 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
 
-        private readonly Lazy<IImmutableDictionary<FunctionCallSyntaxBase, InternalVariableSymbol>> internalVariablesLazy;
+        private readonly Lazy<IImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable>> functionVariablesLazy;
         //TODO: build shared variables list to use then by emitter - generate special variableName and value (Lazy)
 
 
@@ -123,7 +123,7 @@ namespace Bicep.Core.Semantics
                 return outputs.ToImmutableArray();
             });
 
-            internalVariablesLazy = new Lazy<IImmutableDictionary<FunctionCallSyntaxBase, InternalVariableSymbol>>(() => FunctionVariableGeneratorVisitor.GetVariables(this, Root.Syntax).ToImmutableDictionary());
+            functionVariablesLazy = new Lazy<IImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable>>(() => FunctionVariableGeneratorVisitor.GetVariables(this, Root.Syntax).ToImmutableDictionary());
         }
 
         public BicepFile SourceFile { get; }
@@ -162,9 +162,10 @@ namespace Bicep.Core.Semantics
         public ImmutableArray<DeclaredResourceMetadata> DeclaredResources => declaredResourcesLazy.Value;
 
         /// <summary>
-        /// Gets variable symbols that are emitted by function calls. Used mostly to optimise loading content from files.
+        /// Gets function variables that are emitted by function calls. Used mostly to optimise loading content from files.
         /// </summary>
-        public IImmutableDictionary<FunctionCallSyntaxBase, InternalVariableSymbol> InternalVariables => internalVariablesLazy.Value;
+        public IImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable> FunctionVariables => functionVariablesLazy.Value;
+
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
         /// </summary>

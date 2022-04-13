@@ -244,7 +244,8 @@ namespace Bicep.Core.Emit
 
         private void EmitVariablesIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
-            if (!this.context.SemanticModel.Root.VariableDeclarations.Any(symbol => !this.context.VariablesToInline.Contains(symbol)))
+            if (!this.context.SemanticModel.Root.VariableDeclarations.Any(symbol => !this.context.VariablesToInline.Contains(symbol)) &&
+                this.context.SemanticModel.FunctionVariables.Count == 0)
             {
                 return;
             }
@@ -253,10 +254,10 @@ namespace Bicep.Core.Emit
             jsonWriter.WriteStartObject();
 
             //emit internal variables
-            foreach (var internalVariable in this.context.SemanticModel.InternalVariables.Values.OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
+            foreach (var functionVariable in this.context.SemanticModel.FunctionVariables.Values.OrderBy(x => x.Name, LanguageConstants.IdentifierComparer))
             {
-                jsonWriter.WritePropertyName(internalVariable.Name);
-                emitter.EmitExpression(internalVariable.Value);
+                jsonWriter.WritePropertyName(functionVariable.Name);
+                emitter.EmitExpression(functionVariable.Value);
             }
 
             var variableLookup = this.context.SemanticModel.Root.VariableDeclarations.ToLookup(variableSymbol => variableSymbol.Value is ForSyntax);

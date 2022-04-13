@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
@@ -43,7 +44,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
-                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, InternalVariableSymbol? internalVariableSymbol) => {
+                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable) => {
                     return functionCall.Arguments.Single().Expression;
                 })
                 .Build(),
@@ -572,16 +573,26 @@ namespace Bicep.Core.Semantics.Namespaces
             return new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent);
         }
 
-        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, InternalVariableSymbol? internalVariableSymbol)
+        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable)
         {
-            if (internalVariableSymbol is not null)
+            if (functionVariable is not null)
             {
-                return SyntaxFactory.CreateVariableAccess(internalVariableSymbol.Name);
+                return SyntaxFactory.CreateFunctionVariableAccess(functionVariable.Name);
             }
-            return StringLiteralFunctionVariableGenerator(functionCall, symbol, typeSymbol);
+
+            return CreateStringLiteral(typeSymbol);
         }
 
-        private static SyntaxBase StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
+        private static SyntaxBase? StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment)
+        {
+            if (directVariableAssignment)
+            {
+                return null;
+            }
+            return CreateStringLiteral(typeSymbol);
+        }
+
+        private static SyntaxBase CreateStringLiteral(TypeSymbol typeSymbol)
         {
             if (typeSymbol is not StringLiteralType stringLiteral)
             {

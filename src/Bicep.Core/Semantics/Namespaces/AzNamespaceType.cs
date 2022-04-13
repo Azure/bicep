@@ -23,7 +23,7 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: "AzureResourceManager",
             ArmTemplateProviderVersion: "1.0");
 
-        private static SyntaxBase RestrictedObjectReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, InternalVariableSymbol? internalVariableSymbol)
+        private static SyntaxBase RestrictedObjectReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable)
         {
             return SyntaxFactory.CreateObject(ImmutableArray<ObjectPropertySyntax>.Empty);
         }

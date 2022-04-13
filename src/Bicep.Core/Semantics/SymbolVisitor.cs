@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using Bicep.Core.TypeSystem;
-using System;
 
 namespace Bicep.Core.Semantics
 {
@@ -18,11 +17,6 @@ namespace Bicep.Core.Semantics
         }
 
         public virtual void VisitFileSymbol(FileSymbol symbol)
-        {
-            VisitDescendants(symbol);
-        }
-
-        internal void VisitInternalVariableSymbol(InternalVariableSymbol symbol)
         {
             VisitDescendants(symbol);
         }

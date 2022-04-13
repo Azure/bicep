@@ -15,8 +15,8 @@ namespace Bicep.Core.Semantics
     public class FunctionOverload
     {
         public delegate TypeSymbol ReturnTypeBuilderDelegate(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes);
-        public delegate SyntaxBase EvaluatorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, InternalVariableSymbol? internalVariableSymbol);
-        public delegate SyntaxBase VariableGeneratorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol);
+        public delegate SyntaxBase EvaluatorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable);
+        public delegate SyntaxBase? VariableGeneratorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment);
 
         public FunctionOverload(string name, string genericDescription, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, VariableGeneratorDelegate? variableGenerator, FunctionFlags flags = FunctionFlags.Default)
         {

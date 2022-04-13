@@ -27,6 +27,9 @@ namespace Bicep.Core.Syntax
         public static VariableAccessSyntax CreateVariableAccess(string text)
             => new VariableAccessSyntax(CreateIdentifier(text));
 
+        public static ExplicitVariableAccessSyntax CreateFunctionVariableAccess(string text)
+            => new ExplicitVariableAccessSyntax(CreateIdentifier(text));
+
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
         public static Token LeftBraceToken => CreateToken(TokenType.LeftBrace, "{");

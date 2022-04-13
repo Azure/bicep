@@ -113,7 +113,7 @@ namespace Bicep.Core.Emit
             if (symbol is FunctionSymbol &&
                 context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is {Evaluator: { }} functionOverload)
             {
-                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall), context.SemanticModel.InternalVariables.GetValueOrDefault(functionCall)));
+                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall), context.SemanticModel.FunctionVariables.GetValueOrDefault(functionCall)));
             }
 
             switch (functionCall)
@@ -925,8 +925,14 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
         {
-            string name = variableAccessSyntax.Name.IdentifierName;
+            var name = variableAccessSyntax.Name.IdentifierName;
 
+            if (variableAccessSyntax is ExplicitVariableAccessSyntax)
+            {
+                //just return a call to variables.
+                return CreateFunction("variables", new JTokenExpression(name));  
+            }
+            
             var symbol = context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
 
             switch (symbol)
@@ -964,8 +970,8 @@ namespace Bicep.Core.Emit
                     return GetLocalVariableExpression(localVariableSymbol);
 
                 default:
-                    //just return a call to variables.
-                    return CreateFunction("variables", new JTokenExpression(name));                    
+                    throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
+                  
             }
         }
 
