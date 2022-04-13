@@ -16,7 +16,6 @@ using Bicep.Core.Parsing;
 using FluentAssertions.Execution;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Extensions;
-using Bicep.Core.Syntax;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.LangServer.IntegrationTests

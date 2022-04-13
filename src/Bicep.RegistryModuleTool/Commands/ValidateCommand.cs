@@ -42,7 +42,7 @@ namespace Bicep.RegistryModuleTool.Commands
             {
                 var valid = true;
 
-                this.Logger.LogInformation("Validting module path...");
+                this.Logger.LogInformation("Validating module path...");
                 valid &= Validate(context.Console, () => ValidateModulePath(this.FileSystem));
 
                 this.Logger.LogInformation("Validating main Bicep file...");

@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Azure.Deployments.Core.Json;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,6 +31,7 @@ using Bicep.Core.Extensions;
 using System.Linq;
 using System;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.LangServer.IntegrationTests
 {

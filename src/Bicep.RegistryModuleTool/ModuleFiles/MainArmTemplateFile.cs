@@ -6,7 +6,6 @@ using Bicep.Core.Json;
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
 using Bicep.RegistryModuleTool.Proxies;
-using Json.Path;
 using System;
 using System.Collections.Generic;
 using System.IO;

@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
-using System.Linq;
 using System.IO.Pipes;
 using System.Net.Sockets;
 using System.Runtime;
@@ -9,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommandLine;
 using Bicep.Core.Utils;
-using System.IO;
 using System.Net;
 using System.Diagnostics;
 

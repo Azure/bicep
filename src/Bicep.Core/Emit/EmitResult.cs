@@ -3,7 +3,6 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
 
 namespace Bicep.Core.Emit
 {

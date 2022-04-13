@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using System.Text.RegularExpressions;
 using DiffPlex.DiffBuilder;
 using DiffPlex.DiffBuilder.Model;
 using FluentAssertions;

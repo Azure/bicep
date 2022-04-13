@@ -24,7 +24,6 @@ using Bicep.Core.Workspaces;
 using System;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests;
 using Bicep.Core.Navigation;
 
 namespace Bicep.LangServer.IntegrationTests

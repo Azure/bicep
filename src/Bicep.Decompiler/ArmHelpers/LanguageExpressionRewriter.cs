@@ -2,8 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using Azure.Deployments.Expression.Configuration;
-using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
 
 namespace Bicep.Decompiler.ArmHelpers

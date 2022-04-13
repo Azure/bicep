@@ -155,7 +155,7 @@ namespace Bicep.Core.Emit
                                 return null;
                             }
 
-                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = targetResource.NameSyntax, IndexExpression = indexExpression };
+                            return new ScopeData { RequestedScope = ResourceScope.ResourceGroup, SubscriptionIdProperty = rgScopeData?.SubscriptionIdProperty, ResourceGroupProperty = targetResource.TryGetNameSyntax(), IndexExpression = indexExpression };
                         }
                     }
 
@@ -173,7 +173,7 @@ namespace Bicep.Core.Emit
                                 return null;
                             }
 
-                            return new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = targetResource.NameSyntax, IndexExpression = indexExpression };
+                            return new ScopeData { RequestedScope = ResourceScope.ManagementGroup, ManagementGroupNameProperty = targetResource.TryGetNameSyntax(), IndexExpression = indexExpression };
                         }
                     }
 

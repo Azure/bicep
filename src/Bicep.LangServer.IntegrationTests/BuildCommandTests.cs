@@ -4,17 +4,14 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Threading.Tasks;
-using Bicep.Core.Features;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Newtonsoft.Json.Linq;
 using Bicep.Core.UnitTests;
 using Bicep.LangServer.IntegrationTests.Helpers;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using FluentAssertions;
 using Bicep.Core.Samples;
 using Bicep.Core.UnitTests.Assertions;
