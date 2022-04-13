@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed for {0}. {1} Please use the following link to view deployment: {2}.
+        ///   Looks up a localized string similar to Deployment failed for {0}. {1} Link to deployment available: {2}.
         /// </summary>
         public static string DeploymentFailedWithExceptionMessageAndLink {
             get {
@@ -88,7 +88,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment succeeded for {0}. Please use the following link to view deployment: {1}.
+        ///   Looks up a localized string similar to Deployment succeeded for {0}. Link to deployment available: {1}.
         /// </summary>
         public static string DeploymentSucceededMessage {
             get {

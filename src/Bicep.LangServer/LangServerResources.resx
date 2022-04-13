@@ -124,10 +124,10 @@
     <value>Deployment failed for {0}. {1}</value>
   </data>
   <data name="DeploymentFailedWithExceptionMessageAndLink" xml:space="preserve">
-    <value>Deployment failed for {0}. {1} Please use the following link to view deployment: {2}</value>
+    <value>Deployment failed for {0}. {1} Link to deployment available: {2}</value>
   </data>
   <data name="DeploymentSucceededMessage" xml:space="preserve">
-    <value>Deployment succeeded for {0}. Please use the following link to view deployment: {1}</value>
+    <value>Deployment succeeded for {0}. Link to deployment available: {1}</value>
   </data>
   <data name="DisableDiagnosticForThisLine" xml:space="preserve">
     <value>Disable {0} for this line</value>
