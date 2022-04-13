@@ -577,7 +577,7 @@ namespace Bicep.Core.Semantics.Namespaces
         {
             if (functionVariable is not null)
             {
-                return SyntaxFactory.CreateFunctionVariableAccess(functionVariable.Name);
+                return SyntaxFactory.CreateExplicitVariableAccess(functionVariable.Name);
             }
 
             return CreateStringLiteral(typeSymbol);

@@ -21,14 +21,11 @@ namespace Bicep.Core.Syntax
         public static Token CreateToken(TokenType tokenType, string text = "")
             => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
 
-        public static IdentifierSyntax CreateIdentifier(string text)
-            => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
+        public static IdentifierSyntax CreateIdentifier(string text) => new(CreateToken(TokenType.Identifier, text));
 
-        public static VariableAccessSyntax CreateVariableAccess(string text)
-            => new VariableAccessSyntax(CreateIdentifier(text));
+        public static VariableAccessSyntax CreateVariableAccess(string text) => new(CreateIdentifier(text));
 
-        public static ExplicitVariableAccessSyntax CreateFunctionVariableAccess(string text)
-            => new ExplicitVariableAccessSyntax(CreateIdentifier(text));
+        public static ExplicitVariableAccessSyntax CreateExplicitVariableAccess(string text) => new(CreateIdentifier(text));
 
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
