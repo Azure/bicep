@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
@@ -45,7 +46,7 @@ namespace Bicep.LanguageServer.Deploy
                 return (false, string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
             }
 
-            DeploymentCollection? deploymentCollection;
+            ArmDeploymentCollection? deploymentCollection;
             var resourceIdentifier = new ResourceIdentifier(id);
 
             try
@@ -70,12 +71,12 @@ namespace Bicep.LanguageServer.Deploy
                     return (false, e.Message);
                 }
 
-                var deploymentProperties = new DeploymentProperties(DeploymentMode.Incremental)
+                var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
                 {
-                    Template = JsonDocument.Parse(template).RootElement,
-                    Parameters = parameters
+                    Template = new BinaryData(JsonDocument.Parse(template).RootElement),
+                    Parameters = new BinaryData(parameters)
                 };
-                var input = new DeploymentInput(deploymentProperties)
+                var armDeploymentContent = new ArmDeploymentContent(deploymentProperties)
                 {
                     Location = location,
                 };
@@ -84,7 +85,7 @@ namespace Bicep.LanguageServer.Deploy
 
                 try
                 {
-                    var deploymentCreateOrUpdateOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deployment, input);
+                    var deploymentCreateOrUpdateOperation = await deploymentCollection.CreateOrUpdateAsync(WaitUntil.Completed, deployment, armDeploymentContent);
 
                     return GetDeploymentResultMessage(deploymentCreateOrUpdateOperation, documentPath);
                 }
@@ -97,14 +98,14 @@ namespace Bicep.LanguageServer.Deploy
             return (false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
         }
 
-        private static (bool isSuccess, string outputMessage) GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath)
+        private static (bool isSuccess, string outputMessage) GetDeploymentResultMessage(ArmOperation<ArmDeploymentResource> armDeploymentResourceOperation, string documentPath)
         {
-            if (!deploymentCreateOrUpdateOperation.HasValue)
+            if (!armDeploymentResourceOperation.HasValue)
             {
                 return (false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
             }
 
-            var response = deploymentCreateOrUpdateOperation.GetRawResponse();
+            var response = armDeploymentResourceOperation.GetRawResponse();
             var status = response.Status;
 
             if (status == 200 || status == 201)

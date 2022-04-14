@@ -9,6 +9,6 @@ namespace Bicep.Core.Registry
 {
     public interface ITemplateSpecVersionProvider
     {
-        TemplateSpecVersion GetTemplateSpecVersion(ArmClient armClient, ResourceIdentifier resourceIdentifier);
+        TemplateSpecVersionResource GetTemplateSpecVersion(ArmClient armClient, ResourceIdentifier resourceIdentifier);
     }
 }
