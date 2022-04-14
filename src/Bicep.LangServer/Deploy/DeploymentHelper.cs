@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Azure;
 using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
@@ -49,19 +50,19 @@ namespace Bicep.LanguageServer.Deploy
                 return (false, string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
             }
 
-            DeploymentCollection? deploymentCollection;
+            ArmDeploymentCollection? armeploymentCollection;
             var resourceIdentifier = new ResourceIdentifier(id);
 
             try
             {
-                deploymentCollection = deploymentCollectionProvider.GetDeploymentCollection(armClient, resourceIdentifier, scope);
+                armeploymentCollection = deploymentCollectionProvider.GetDeploymentCollection(armClient, resourceIdentifier, scope);
             }
             catch (Exception e)
             {
                 return (false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
             }
 
-            if (deploymentCollection is not null)
+            if (armeploymentCollection is not null)
             {
                 JsonElement parameters;
 
@@ -74,23 +75,23 @@ namespace Bicep.LanguageServer.Deploy
                     return (false, e.Message);
                 }
 
-                var deploymentProperties = new DeploymentProperties(DeploymentMode.Incremental)
+                var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
                 {
-                    Template = JsonDocument.Parse(template).RootElement,
-                    Parameters = parameters
+                    Template = new BinaryData(JsonDocument.Parse(template).RootElement),
+                    Parameters = new BinaryData(parameters)
                 };
-                var input = new DeploymentInput(deploymentProperties)
+                var input = new ArmDeploymentContent(deploymentProperties)
                 {
                     Location = location,
                 };
 
                 try
                 {
-                    var deploymentCreateOrUpdateOperation = await deploymentCollection.CreateOrUpdateAsync(waitForCompletion:true, deploymentName, input);
+                    var armDeploymentResourceOperation = await armeploymentCollection.CreateOrUpdateAsync(WaitUntil.Completed, deploymentName, input);
 
                     var linkToDeploymentInAzurePortal = GetLinkToDeploymentInAzurePortal(portalUrl, Uri.EscapeDataString(id), deploymentName);
 
-                    return GetDeploymentResultMessage(deploymentCreateOrUpdateOperation, documentPath, linkToDeploymentInAzurePortal);
+                    return GetDeploymentResultMessage(armDeploymentResourceOperation, documentPath, linkToDeploymentInAzurePortal);
                 }
                 catch (Exception e)
                 {
@@ -106,7 +107,7 @@ namespace Bicep.LanguageServer.Deploy
             return $"{portalUrl}/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/{id}%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2F{deploymentName}";
         }
 
-        private static (bool isSuccess, string outputMessage) GetDeploymentResultMessage(DeploymentCreateOrUpdateOperation deploymentCreateOrUpdateOperation, string documentPath, string linkToDeploymentInAzurePortal)
+        private static (bool isSuccess, string outputMessage) GetDeploymentResultMessage(ArmOperation<ArmDeploymentResource> deploymentCreateOrUpdateOperation, string documentPath, string linkToDeploymentInAzurePortal)
         {
             if (!deploymentCreateOrUpdateOperation.HasValue)
             {

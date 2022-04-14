@@ -23,13 +23,15 @@ namespace Bicep.LanguageServer.Providers
 
         private ArmClient CreateArmClient(RootConfiguration configuration, string subscriptionId)
         {
+            var armEnvironment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);
+
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
-            options.Scope = configuration.Cloud.AuthenticationScope;
+            options.Environment = armEnvironment;
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
 
-            return new ArmClient(credential, subscriptionId, configuration.Cloud.ResourceManagerEndpointUri, options);
+            return new ArmClient(credential, subscriptionId, options);
         }
 
         public async Task<JsonElement> GetGenericResource(RootConfiguration configuration, IAzResourceProvider.AzResourceIdentifier resourceId, string apiVersion, CancellationToken cancellationToken)

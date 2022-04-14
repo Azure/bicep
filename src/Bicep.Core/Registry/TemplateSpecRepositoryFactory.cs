@@ -19,12 +19,14 @@ namespace Bicep.Core.Registry
 
         public ITemplateSpecRepository CreateRepository(RootConfiguration configuration, string subscriptionId)
         {
+            var armEnvironment = new ArmEnvironment(configuration.Cloud.ResourceManagerEndpointUri, configuration.Cloud.AuthenticationScope);
+
             var options = new ArmClientOptions();
             options.Diagnostics.ApplySharedResourceManagerSettings();
-            options.Scope = configuration.Cloud.AuthenticationScope;
+            options.Environment = armEnvironment;
 
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
-            var armClient = new ArmClient(credential, subscriptionId, configuration.Cloud.ResourceManagerEndpointUri, options);
+            var armClient = new ArmClient(credential, subscriptionId, options);
 
             return new TemplateSpecRepository(armClient, new TemplateSpecVersionProvider());
         }
