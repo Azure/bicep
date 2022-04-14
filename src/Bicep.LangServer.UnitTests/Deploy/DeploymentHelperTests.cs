@@ -262,7 +262,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
-                .Returns<DeploymentCollection>(null);
+                .Returns<ArmDeploymentCollection>(null);
             var documentPath = "some_path";
 
             (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
@@ -330,16 +330,16 @@ namespace Bicep.LangServer.UnitTests.Deploy
     }
   ]
 }";
-            var deploymentCreateOrUpdateOperation = StrictMock.Of<DeploymentCreateOrUpdateOperation>();
-            deploymentCreateOrUpdateOperation.Setup(m => m.HasValue).Returns(false);
+            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
+            armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(false);
 
-            var deploymentCollection = StrictMock.Of<DeploymentCollection>();
+            var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
             deploymentCollection
                 .Setup(m => m.CreateOrUpdateAsync(
-                    It.IsAny<bool>(),
+                    It.IsAny<WaitUntil>(),
                     It.IsAny<string>(),
-                    It.IsAny<DeploymentInput>(),
-                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateOperation.Object));
+                    It.IsAny<ArmDeploymentContent>(),
+                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(armDeploymentResourceOperation.Object));
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
@@ -380,17 +380,17 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var responseMessage = "sample response";
             response.Setup(m => m.ToString()).Returns(responseMessage);
 
-            var deploymentCreateOrUpdateOperation = StrictMock.Of<DeploymentCreateOrUpdateOperation>();
-            deploymentCreateOrUpdateOperation.Setup(m => m.HasValue).Returns(true);
-            deploymentCreateOrUpdateOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
+            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
+            armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(true);
+            armDeploymentResourceOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
 
-            var deploymentCollection = StrictMock.Of<DeploymentCollection>();
+            var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
             deploymentCollection
                 .Setup(m => m.CreateOrUpdateAsync(
-                    It.IsAny<bool>(),
+                    It.IsAny<WaitUntil>(),
                     It.IsAny<string>(),
-                    It.IsAny<DeploymentInput>(),
-                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateOperation.Object));
+                    It.IsAny<ArmDeploymentContent>(),
+                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(armDeploymentResourceOperation.Object));
 
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
@@ -427,13 +427,13 @@ namespace Bicep.LangServer.UnitTests.Deploy
     }
   ]
 }";
-            var deploymentCollection = StrictMock.Of<DeploymentCollection>();
+            var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
             var errorMessage = "Encountered error while creating deployment";
             deploymentCollection
                 .Setup(m => m.CreateOrUpdateAsync(
-                    It.IsAny<bool>(),
+                    It.IsAny<WaitUntil>(),
                     It.IsAny<string>(),
-                    It.IsAny<DeploymentInput>(),
+                    It.IsAny<ArmDeploymentContent>(),
                     It.IsAny<CancellationToken>()))
                 .Throws(new Exception(errorMessage));
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
@@ -470,26 +470,26 @@ namespace Bicep.LangServer.UnitTests.Deploy
             return deploymentCollectionProviderMock.Object;
         }
 
-        private static DeploymentCollection CreateDeploymentCollection(string scope)
+        private static ArmDeploymentCollection CreateDeploymentCollection(string scope)
         {
-            var deploymentCollection = StrictMock.Of<DeploymentCollection>();
+            var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
 
             if (scope == LanguageConstants.TargetScopeTypeManagementGroup ||
                 scope == LanguageConstants.TargetScopeTypeResourceGroup ||
                 scope == LanguageConstants.TargetScopeTypeSubscription)
             {
-                var deploymentCreateOrUpdateOperation = StrictMock.Of<DeploymentCreateOrUpdateOperation>();
+                var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
                 var response = StrictMock.Of<Response>();
                 response.Setup(m => m.Status).Returns(200);
-                deploymentCreateOrUpdateOperation.Setup(m => m.HasValue).Returns(true);
-                deploymentCreateOrUpdateOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
+                armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(true);
+                armDeploymentResourceOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
 
                 deploymentCollection
                     .Setup(m => m.CreateOrUpdateAsync(
-                        It.IsAny<bool>(),
+                        It.IsAny<WaitUntil>(),
                         It.IsAny<string>(),
-                        It.IsAny<DeploymentInput>(),
-                        It.IsAny<CancellationToken>())).Returns(Task.FromResult(deploymentCreateOrUpdateOperation.Object));
+                        It.IsAny<ArmDeploymentContent>(),
+                        It.IsAny<CancellationToken>())).Returns(Task.FromResult(armDeploymentResourceOperation.Object));
             }
             return deploymentCollection.Object;
         }

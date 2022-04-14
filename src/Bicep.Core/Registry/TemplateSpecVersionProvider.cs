@@ -9,9 +9,9 @@ namespace Bicep.Core.Registry
 {
     internal class TemplateSpecVersionProvider : ITemplateSpecVersionProvider
     {
-        public TemplateSpecVersion GetTemplateSpecVersion(ArmClient armClient, ResourceIdentifier resourceIdentifier)
+        public TemplateSpecVersionResource GetTemplateSpecVersion(ArmClient armClient, ResourceIdentifier resourceIdentifier)
         {
-            return armClient.GetTemplateSpecVersion(resourceIdentifier);
+            return armClient.GetTemplateSpecVersionResource(resourceIdentifier);
         }
     }
 }

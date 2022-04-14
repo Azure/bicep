@@ -54,7 +54,7 @@ namespace Bicep.Core.Registry
         public static TemplateSpecEntity FromSdkModel(TemplateSpecVersionData model) => new(
             model.Id,
             model.Name,
-            model.Type,
+            model.ResourceType,
             JsonElementFactory.CreateElement(model.SystemData),
             model.Location,
             JsonElementFactory.CreateNullableElement(model.Tags),
