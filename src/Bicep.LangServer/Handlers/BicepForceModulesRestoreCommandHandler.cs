@@ -77,7 +77,8 @@ namespace Bicep.LanguageServer.Handlers
                 return exception.Message;
             }
             Workspace workspace = new Workspace();
-            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, workspace, fileUri, configuration);
+            var forceModulesRestoreModuleDispatcher = new ForceRestoreModuleDispatcher(this.moduleDispatcher);
+            SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, forceModulesRestoreModuleDispatcher, workspace, fileUri, configuration);
 
             // Ignore modules to restore logic, include all modules to be restored
             var modulesToRestore = sourceFileGrouping.SourceFilesByModuleDeclaration
@@ -86,7 +87,7 @@ namespace Bicep.LanguageServer.Handlers
                 .ToImmutableHashSet();
 
             // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in outputs and logging
-            var modulesToRestoreReferences = moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration)
+            var modulesToRestoreReferences = forceModulesRestoreModuleDispatcher.GetValidModuleReferences(modulesToRestore, configuration)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
@@ -95,12 +96,12 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await moduleDispatcher.RestoreModules(configuration, modulesToRestoreReferences, true);
+            await forceModulesRestoreModuleDispatcher.RestoreModules(configuration, modulesToRestoreReferences);
 
             // if all are marked as success
             var sbRestoreSummary = new StringBuilder();
             foreach(var module in modulesToRestoreReferences) {
-                var restoreStatus = moduleDispatcher.GetModuleRestoreStatus(module, configuration, out _);
+                var restoreStatus = forceModulesRestoreModuleDispatcher.GetModuleRestoreStatus(module, configuration, out _);
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 

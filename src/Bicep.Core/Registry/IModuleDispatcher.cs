@@ -16,6 +16,8 @@ namespace Bicep.Core.Registry
     public interface IModuleDispatcher
     {
         ImmutableArray<string> AvailableSchemes { get; }
+        
+        ImmutableDictionary<string, IModuleRegistry> AvailableRegistries { get; }
 
         ModuleReference? TryGetModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
@@ -27,9 +29,11 @@ namespace Bicep.Core.Registry
 
         Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
-        Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false);
+        Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences);
 
         Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled);
+
+        void SetRestoreFailure(ModuleReference moduleReference, RootConfiguration configuration, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder);
 
         void PruneRestoreStatuses();
     }

@@ -290,7 +290,9 @@ namespace Bicep.Core.IntegrationTests
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             FileResolver fileResolver = new FileResolver();
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
+            var dispatcher = new ForceRestoreModuleDispatcher(
+                new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object))
+            );            
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             var moduleReferences = moduleInfos
@@ -322,7 +324,7 @@ namespace Bicep.Core.IntegrationTests
             // let's try to restore a module while holding a lock
             using (@lock)
             {
-                (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+                (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences)).Should().BeTrue();
             }
 
             // REF: FileLockTests.cs/FileLockShouldNotThrowIfLockFileIsDeleted()
@@ -366,7 +368,9 @@ namespace Bicep.Core.IntegrationTests
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             FileResolver fileResolver = new FileResolver();
-            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
+            var dispatcher = new ForceRestoreModuleDispatcher(
+                new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object))
+            );
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             var moduleReferences = moduleInfos
@@ -389,7 +393,7 @@ namespace Bicep.Core.IntegrationTests
             var moduleDirectory = Path.GetDirectoryName(moduleFilePath)!;
             Directory.CreateDirectory(moduleDirectory);
 
-            (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences, forceModulesRestore: true)).Should().BeTrue();
+            (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences)).Should().BeTrue();
 
             // all other modules should have succeeded
             foreach (var moduleReference in moduleReferences)

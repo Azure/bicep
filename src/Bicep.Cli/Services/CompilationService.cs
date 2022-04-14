@@ -51,37 +51,23 @@ namespace Bicep.Cli.Services
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
+            IModuleDispatcher currentModuleDispatcher = forceModulesRestore ? new ForceRestoreModuleDispatcher(this.moduleDispatcher) : this.moduleDispatcher;
+
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, currentModuleDispatcher, this.workspace, inputUri, configuration);
             var originalModulesToRestore = sourceFileGrouping.ModulesToRestore;
 
-
-
-            var modulesToRestore = forceModulesRestore ?
-                    // Ignore modules to restore logic if we force module restore
-                    // include all modules to be restored
-                    sourceFileGrouping.SourceFilesByModuleDeclaration
-                        .Select(kvp => kvp.Key)
-                        .Union(sourceFileGrouping.ModulesToRestore)
-                        .ToImmutableHashSet()
-                : sourceFileGrouping.ModulesToRestore;
-            
-            // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in processing and logging
-            var modulesToRestoreReferences = moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration)
+            // RestoreModules() does a distinct but we'll do it also to prevent duplicates in processing and logging
+            var modulesToRestoreReferences = currentModuleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await moduleDispatcher.RestoreModules(configuration, modulesToRestoreReferences, forceModulesRestore);
+            await currentModuleDispatcher.RestoreModules(configuration, modulesToRestoreReferences);
 
             // update the errors based on restore status
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(this.moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(currentModuleDispatcher, this.workspace, sourceFileGrouping, configuration);
 
-            if(forceModulesRestore) {
-                LogDiagnostics(GetForceModulesRestoreDiagnosticsByBicepFile(sourceFileGrouping, modulesToRestore));
-            }
-            else {
-                LogDiagnostics(GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore));
-            }
+            LogDiagnostics(GetForceModulesRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore));
         }
 
         public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)

@@ -19,17 +19,17 @@ namespace Bicep.Core.Registry
     {
         private static readonly TimeSpan FailureExpirationInterval = TimeSpan.FromMinutes(30);
 
-        private readonly ImmutableDictionary<string, IModuleRegistry> registries;
-
         private readonly ConcurrentDictionary<RestoreFailureKey, RestoreFailureInfo> restoreFailures = new();
 
         public ModuleDispatcher(IModuleRegistryProvider registryProvider)
         {
-            this.registries = registryProvider.Registries.ToImmutableDictionary(registry => registry.Scheme);
-            this.AvailableSchemes = this.registries.Keys.OrderBy(s => s).ToImmutableArray();
+            this.AvailableRegistries = registryProvider.Registries.ToImmutableDictionary(registry => registry.Scheme);
+            this.AvailableSchemes = this.AvailableRegistries.Keys.OrderBy(s => s).ToImmutableArray();
         }
 
         public ImmutableArray<string> AvailableSchemes { get; }
+
+        public ImmutableDictionary<string, IModuleRegistry> AvailableRegistries { get; }
 
         public ModuleReference? TryGetModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
@@ -38,7 +38,7 @@ namespace Bicep.Core.Registry
             {
                 case 1:
                     // local path reference
-                    if (registries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
+                    if (this.AvailableRegistries.TryGetValue(ModuleReferenceSchemes.Local, out var localRegistry))
                     {
                         return localRegistry.TryParseModuleReference(null, parts[0], configuration, out failureBuilder);
                     }
@@ -58,7 +58,7 @@ namespace Bicep.Core.Registry
                         aliasName = schemeParts[1];
                     }
 
-                    if (!string.IsNullOrEmpty(scheme) && registries.TryGetValue(scheme, out var registry))
+                    if (!string.IsNullOrEmpty(scheme) && this.AvailableRegistries.TryGetValue(scheme, out var registry))
                     {
                         // the scheme is recognized
                         var rawValue = parts[1];
@@ -130,11 +130,11 @@ namespace Bicep.Core.Registry
             return registry.TryGetLocalModuleEntryPointUri(parentModuleUri, moduleReference, out failureBuilder);
         }
 
-        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences, bool forceModulesRestore = false)
+        public async Task<bool> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> moduleReferences)
         {
             // WARNING: The various operations on ModuleReference objects here rely on the custom Equals() implementation and NOT on object identity
 
-            if (!forceModulesRestore && moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
+            if (moduleReferences.All(module => this.GetModuleRestoreStatus(module, configuration, out _) == ModuleRestoreStatus.Succeeded))
             {
                 // all the modules have already been restored - no need to do anything
                 return false;
@@ -147,20 +147,9 @@ namespace Bicep.Core.Registry
             var referencesByScheme = uniqueReferences.ToLookup(@ref => @ref.Scheme);
 
             // send each set of refs to its own registry
-            foreach (var scheme in this.registries.Keys.Where(refType => referencesByScheme.Contains(refType)))
+            foreach (var scheme in this.AvailableRegistries.Keys.Where(refType => referencesByScheme.Contains(refType)))
             {
-                // if we're asked to purge modules cache
-                if (forceModulesRestore) {
-                    var forceModulesRestoreStatuses = await this.registries[scheme].InvalidateModulesCache(configuration, referencesByScheme[scheme]);
-
-                    // update cache invalidation status for each failed modules
-                    foreach (var (failedReference, failureBuilder) in forceModulesRestoreStatuses)
-                    {
-                        this.SetRestoreFailure(failedReference, configuration, failureBuilder);
-                    }
-                }
-
-                var restoreStatuses = await this.registries[scheme].RestoreModules(configuration, referencesByScheme[scheme]);
+                var restoreStatuses = await this.AvailableRegistries[scheme].RestoreModules(configuration, referencesByScheme[scheme]);
 
                 // update restore status for each failed module restore
                 foreach (var (failedReference, failureBuilder) in restoreStatuses)
@@ -194,7 +183,7 @@ namespace Bicep.Core.Registry
         }
 
         private IModuleRegistry GetRegistry(ModuleReference moduleReference) =>
-            this.registries.TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected module reference scheme '{moduleReference.Scheme}'.");
+            this.AvailableRegistries.TryGetValue(moduleReference.Scheme, out var registry) ? registry : throw new InvalidOperationException($"Unexpected module reference scheme '{moduleReference.Scheme}'.");
 
         private bool HasRestoreFailed(ModuleReference moduleReference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder)
         {
@@ -212,7 +201,7 @@ namespace Bicep.Core.Registry
 
         private static bool IsFailureInfoExpired(RestoreFailureInfo failureInfo, DateTime dateTime) => dateTime >= failureInfo.Expiration;
 
-        private void SetRestoreFailure(ModuleReference moduleReference, RootConfiguration configuration, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
+        public void SetRestoreFailure(ModuleReference moduleReference, RootConfiguration configuration, DiagnosticBuilder.ErrorBuilderDelegate failureBuilder)
         {
             // as the user is typing, the modules will keep getting recompiled
             // we can't keep retrying syntactically correct references to non-existent modules on every key press
