@@ -70,7 +70,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
             string expected = await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None);
 
-            expected.Should().Be(@"Force modules restore skipped. No modules references in input file.");
+            expected.Should().Be(@"Restore (force) skipped. No modules references in input file.");
         }
 
         [TestMethod]
@@ -113,7 +113,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             string expected = StringUtils.ReplaceNewlines(await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None), "|");
 
-            expected.Should().Be(@"Force modules restore summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Succeeded");
+            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Succeeded");
         }
         
         [TestMethod]
@@ -149,7 +149,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             string expected = StringUtils.ReplaceNewlines(await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None), "|");
 
-            expected.Should().Be(@"Force modules restore summary: |  * ./localmodule1.bicep: Succeeded");
+            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded");
         }
         
 

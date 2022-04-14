@@ -44,7 +44,7 @@ export class ForceModulesRestoreCommand implements Command {
       );
       this.outputChannelManager.appendToOutputChannel(forceModulesRestoreOutput);
     } catch (err) {
-      this.client.error("Force Modules Restore failed", parseError(err).message, true);
+      this.client.error("Restore (force) failed", parseError(err).message, true);
     }
   }
 }

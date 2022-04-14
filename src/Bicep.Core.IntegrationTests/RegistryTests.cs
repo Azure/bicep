@@ -325,19 +325,26 @@ namespace Bicep.Core.IntegrationTests
                 (await dispatcher.RestoreModules(BicepTestConstants.BuiltInConfiguration, moduleReferences, forceModulesRestore: true)).Should().BeTrue();
             }
 
-            // the first module should have failed due to a timeout
-            dispatcher.GetModuleRestoreStatus(moduleReferences[0], configuration, out var failureBuilder).Should().Be(ModuleRestoreStatus.Failed);
+            // REF: FileLockTests.cs/FileLockShouldNotThrowIfLockFileIsDeleted()
+            // Delete will succeed on Linux and Mac due to advisory nature of locks there
             using (new AssertionScope())
             {
+#if WINDOWS_BUILD
+                dispatcher.GetModuleRestoreStatus(moduleReferences[0], configuration, out var failureBuilder).Should().Be(ModuleRestoreStatus.Failed);
+
                 failureBuilder!.Should().HaveCode("BCP233");
                 failureBuilder!.Should().HaveMessageStartWith($"Unable to delete the module with reference \"{moduleReferences[0].FullyQualifiedReference}\" from cache: Exceeded the timeout of \"00:00:05\" for the lock on file \"{lockFileUri}\" to be released.");
+#else
+                dispatcher.GetModuleRestoreStatus(moduleReferences[0], configuration, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+#endif
+
+                // all other modules should have succeeded
+                foreach (var moduleReference in moduleReferences.Skip(1))
+                {
+                    dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Succeeded);
+                }
             }
 
-            // all other modules should have succeeded
-            foreach (var moduleReference in moduleReferences.Skip(1))
-            {
-                dispatcher.GetModuleRestoreStatus(moduleReference, configuration, out _).Should().Be(ModuleRestoreStatus.Succeeded);
-            }
         }
 
         [DataTestMethod]

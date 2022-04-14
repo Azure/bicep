@@ -165,7 +165,7 @@
       },
       {
         "command": "bicep.forceModulesRestore",
-        "title": "Force Modules Restore",
+        "title": "Restore Bicep File (force)",
         "category": "Bicep"
       },
       {

@@ -26,7 +26,7 @@ using System.Text;
 namespace Bicep.LanguageServer.Handlers
 {
     // This handler is used to force the modules restore for given a bicep file.
-    // It returns force module restore succeeded/failed message, which can be displayed approriately in IDE output window
+    // It returns Restore (force) succeeded/failed message, which can be displayed approriately in IDE output window
     public class BicepForceModulesRestoreCommandHandler : ExecuteTypedResponseCommandHandlerBase<string, string>
     {
         private readonly ICompilationManager compilationManager;
@@ -91,7 +91,7 @@ namespace Bicep.LanguageServer.Handlers
                 .OrderBy(key => key.FullyQualifiedReference);
 
             if (!modulesToRestoreReferences.Any()) {
-                return $"Force modules restore skipped. No modules references in input file.";
+                return $"Restore (force) skipped. No modules references in input file.";
             }
 
             // restore is supposed to only restore the module references that are syntactically valid
@@ -104,7 +104,7 @@ namespace Bicep.LanguageServer.Handlers
                 sbRestoreSummary.Append($"{Environment.NewLine}  * {module.FullyQualifiedReference}: {restoreStatus}");
             }
 
-            return $"Force modules restore summary: {sbRestoreSummary}";
+            return $"Restore (force) summary: {sbRestoreSummary}";
         }
 
         // Returns true if the template contains bicep _generator metadata, false otherwise
