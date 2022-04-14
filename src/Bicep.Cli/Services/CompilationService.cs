@@ -54,13 +54,16 @@ namespace Bicep.Cli.Services
             var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
             var originalModulesToRestore = sourceFileGrouping.ModulesToRestore;
 
-            // Ignore modules to restore logic, include all modules to be restored
-            var allModules = sourceFileGrouping.SourceFilesByModuleDeclaration
-                .Select(kvp => kvp.Key)
-                .Union(sourceFileGrouping.ModulesToRestore)
-                .ToImmutableHashSet();
-            
-            var modulesToRestore = forceModulesRestore ? allModules : sourceFileGrouping.ModulesToRestore;
+
+
+            var modulesToRestore = forceModulesRestore ?
+                    // Ignore modules to restore logic if we force module restore
+                    // include all modules to be restored
+                    sourceFileGrouping.SourceFilesByModuleDeclaration
+                        .Select(kvp => kvp.Key)
+                        .Union(sourceFileGrouping.ModulesToRestore)
+                        .ToImmutableHashSet()
+                : sourceFileGrouping.ModulesToRestore;
             
             // RestoreModules() does a distinct but we'll do it also to prevent deuplicates in processing and logging
             var modulesToRestoreReferences = moduleDispatcher.GetValidModuleReferences(modulesToRestore, configuration)
