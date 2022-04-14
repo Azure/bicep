@@ -67,7 +67,12 @@ namespace Bicep.Cli.Services
             // update the errors based on restore status
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(currentModuleDispatcher, this.workspace, sourceFileGrouping, configuration);
 
-            LogDiagnostics(GetForceModulesRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore));
+            if(forceModulesRestore) {
+                LogDiagnostics(GetForceModulesRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore));
+            }
+            else {
+                LogDiagnostics(GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore));
+            }
         }
 
         public async Task<Compilation> CompileAsync(string inputPath, bool skipRestore)
