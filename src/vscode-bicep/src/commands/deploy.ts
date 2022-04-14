@@ -25,7 +25,9 @@ import {
 import {
   BicepDeploymentScopeParams,
   BicepDeploymentScopeResponse,
+  BicepDeploymentWaitForCompletionParams,
   BicepDeployParams,
+  BicepDeployStartResponse,
 } from "../language";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 
@@ -109,9 +111,11 @@ export class DeployCommand implements Command {
         context
       );
 
+      let deployStartResponse: BicepDeployStartResponse | undefined;
+
       switch (deploymentScope) {
         case "resourceGroup":
-          await this.handleResourceGroupDeployment(
+          deployStartResponse = await this.handleResourceGroupDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -120,7 +124,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "subscription":
-          await this.handleSubscriptionDeployment(
+          deployStartResponse = await this.handleSubscriptionDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -129,7 +133,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "managementGroup":
-          await this.handleManagementGroupDeployment(
+          deployStartResponse = await this.handleManagementGroupDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -147,6 +151,29 @@ export class DeployCommand implements Command {
             deploymentScopeResponse?.errorMessage ??
               "Unknown error determining target scope"
           );
+        }
+      }
+
+      if (deployStartResponse) {
+        this.outputChannelManager.appendToOutputChannel(
+          deployStartResponse.outputMessage
+        );
+
+        if (deployStartResponse.isSuccess){
+          const bicepDeploymentWaitForCompletionParams: BicepDeploymentWaitForCompletionParams =
+            {
+              deployId,
+              documentPath,
+            };
+          const outputMessage: string = await this.client.sendRequest(
+            "workspace/executeCommand",
+            {
+              command: "deploy/waitForCompletion",
+              arguments: [bicepDeploymentWaitForCompletionParams],
+            }
+          );
+
+          this.outputChannelManager.appendToOutputChannel(outputMessage);
         }
       }
     } catch (err) {
@@ -184,7 +211,7 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string,
     deployId: string
-  ) {
+  ): Promise<BicepDeployStartResponse | undefined> {
     const managementGroupTreeItem =
       await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
         "",
@@ -203,7 +230,7 @@ export class DeployCommand implements Command {
           documentUri
         );
 
-        await this.sendDeployCommand(
+        return await this.sendDeployStartCommand(
           context,
           documentUri.fsPath,
           parameterFilePath,
@@ -216,6 +243,8 @@ export class DeployCommand implements Command {
         );
       }
     }
+
+    return undefined;
   }
 
   private async handleResourceGroupDeployment(
@@ -224,7 +253,7 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string,
     deployId: string
-  ) {
+  ): Promise<BicepDeployStartResponse | undefined> {
     const resourceGroupTreeItem =
       await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
         "",
@@ -238,7 +267,7 @@ export class DeployCommand implements Command {
         documentUri
       );
 
-      await this.sendDeployCommand(
+      return await this.sendDeployStartCommand(
         context,
         documentUri.fsPath,
         parameterFilePath,
@@ -250,6 +279,8 @@ export class DeployCommand implements Command {
         deployId
       );
     }
+
+    return undefined;
   }
 
   private async handleSubscriptionDeployment(
@@ -258,7 +289,7 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string,
     deployId: string
-  ): Promise<void> {
+  ): Promise<BicepDeployStartResponse | undefined> {
     const locationTreeItem =
       await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
         "",
@@ -273,7 +304,7 @@ export class DeployCommand implements Command {
       documentUri
     );
 
-    await this.sendDeployCommand(
+    return await this.sendDeployStartCommand(
       context,
       documentUri.fsPath,
       parameterFilePath,
@@ -286,7 +317,7 @@ export class DeployCommand implements Command {
     );
   }
 
-  private async sendDeployCommand(
+  private async sendDeployStartCommand(
     context: IActionContext,
     documentPath: string,
     parameterFilePath: string | undefined,
@@ -296,7 +327,7 @@ export class DeployCommand implements Command {
     template: string,
     subscription: ISubscriptionContext,
     deployId: string
-  ) {
+  ): Promise<BicepDeployStartResponse | undefined> {
     if (!parameterFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
@@ -314,6 +345,7 @@ export class DeployCommand implements Command {
     if (accessToken) {
       const token = accessToken.token;
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+      const portalUrl = subscription.environment.portalUrl;
 
       const bicepDeployParams: BicepDeployParams = {
         documentPath,
@@ -325,16 +357,18 @@ export class DeployCommand implements Command {
         token,
         expiresOnTimestamp,
         deployId,
+        portalUrl,
       };
-      const deploymentResponse: string = await this.client.sendRequest(
-        "workspace/executeCommand",
-        {
-          command: "deploy",
+      const deploymentStartResponse: BicepDeployStartResponse =
+        await this.client.sendRequest("workspace/executeCommand", {
+          command: "deploy/start",
           arguments: [bicepDeployParams],
-        }
-      );
-      this.outputChannelManager.appendToOutputChannel(deploymentResponse);
+        });
+
+      return deploymentStartResponse;
     }
+
+    return undefined;
   }
 
   private async selectParameterFile(

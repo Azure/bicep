@@ -123,6 +123,9 @@
   <data name="DeploymentFailedWithExceptionMessage" xml:space="preserve">
     <value>Deployment failed for {0}. {1}</value>
   </data>
+  <data name="DeploymentStartedMessage" xml:space="preserve">
+    <value>Deployment started for {0}. View deployment in portal: {1}.</value>
+  </data>
   <data name="DeploymentSucceededMessage" xml:space="preserve">
     <value>Deployment succeeded for {0}.</value>
   </data>

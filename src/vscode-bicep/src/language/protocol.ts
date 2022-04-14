@@ -66,6 +66,17 @@ export interface BicepDeployParams {
   token: string;
   expiresOnTimestamp: string;
   deployId: string;
+  portalUrl: string;
+}
+
+export interface BicepDeployStartResponse {
+  isSuccess: boolean;
+  outputMessage: string;
+}
+
+export interface BicepDeploymentWaitForCompletionParams {
+  deployId: string;
+  documentPath: string;
 }
 
 export interface BicepCacheResponse {
