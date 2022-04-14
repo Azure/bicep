@@ -106,30 +106,5 @@ namespace Bicep.LanguageServer.Handlers
 
             return $"Restore (force) summary: {sbRestoreSummary}";
         }
-
-        // Returns true if the template contains bicep _generator metadata, false otherwise
-        public bool TemplateContainsBicepGeneratorMetadata(string template)
-        {
-            try
-            {
-                if (!string.IsNullOrEmpty(template))
-                {
-                    JToken jtoken = template.FromJson<JToken>();
-                    if (TemplateHelpers.TryGetTemplateGeneratorObject(jtoken, out DeploymentTemplateGeneratorMetadata generator))
-                    {
-                        if (generator.Name == "bicep")
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return false;
-        }
     }
 }
