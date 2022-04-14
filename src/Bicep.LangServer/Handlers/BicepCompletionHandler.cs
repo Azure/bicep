@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Bicep.Core.Features;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Completions;
+using Bicep.LanguageServer.Configuration;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -33,6 +34,12 @@ namespace Bicep.LanguageServer.Handlers
 
         public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
+            bool isConfig = false;
+            if (ConfigurationHelper.IsBicepConfigFile(request.TextDocument.Uri))
+            {
+                isConfig = true;
+            }
+
             var compilationContext = this.compilationManager.GetCompilation(request.TextDocument.Uri);
             if (compilationContext == null)
             {
@@ -41,6 +48,10 @@ namespace Bicep.LanguageServer.Handlers
 
             int offset = PositionHelper.GetOffset(compilationContext.LineStarts, request.Position);
             var completionContext = BicepCompletionContext.Create(featureProvider, compilationContext.Compilation, offset);
+            if (isConfig)
+            {
+                completionContext.Kind = BicepCompletionContextKind.IsConfig;
+            }
             var completions = Enumerable.Empty<CompletionItem>();
             try
             {
@@ -61,7 +72,7 @@ namespace Bicep.LanguageServer.Handlers
 
         protected override CompletionRegistrationOptions CreateRegistrationOptions(CompletionCapability capability, ClientCapabilities clientCapabilities) => new()
         {
-            DocumentSelector = DocumentSelectorFactory.Create(),
+            DocumentSelector = DocumentSelectorFactory.CreateForTextDocumentSync(),
             AllCommitCharacters = new Container<string>(),
             ResolveProvider = false,
             TriggerCharacters = new Container<string>(":", " ", ".", "/", "'", "@", "{", "#")

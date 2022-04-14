@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -60,7 +60,7 @@ namespace Bicep.LanguageServer.Completions
             this.ActiveScopes = activeScopes;
         }
 
-        public BicepCompletionContextKind Kind { get; }
+        public BicepCompletionContextKind Kind { get; set; }
 
         public SyntaxBase? EnclosingDeclaration { get; }
 

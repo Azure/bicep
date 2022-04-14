@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
 
@@ -152,6 +152,8 @@ namespace Bicep.LanguageServer.Completions
         /// <summary>
         /// The current location is after '#disable-next-line |'.
         /// </summary>
-        DisableNextLineDiagnosticsCodes = 1 << 27
+        DisableNextLineDiagnosticsCodes = 1 << 27,
+
+        IsConfig = 1 << 28,
     }
 }
