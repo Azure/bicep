@@ -79,7 +79,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment started for {0}. View deployment in portal: {1}..
+        ///   Looks up a localized string similar to Deployment started for {0}..
         /// </summary>
         public static string DeploymentStartedMessage {
             get {
@@ -138,6 +138,15 @@ namespace Bicep.LanguageServer {
         public static string UnsupportedTargetScopeMessage {
             get {
                 return ResourceManager.GetString("UnsupportedTargetScopeMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View deployment in portal: {0}..
+        /// </summary>
+        public static string ViewDeploymentInPortalMessage {
+            get {
+                return ResourceManager.GetString("ViewDeploymentInPortalMessage", resourceCulture);
             }
         }
     }

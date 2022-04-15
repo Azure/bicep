@@ -72,6 +72,7 @@ export interface BicepDeployParams {
 export interface BicepDeployStartResponse {
   isSuccess: boolean;
   outputMessage: string;
+  viewDeploymentInPortalMessage?: string;
 }
 
 export interface BicepDeploymentWaitForCompletionParams {

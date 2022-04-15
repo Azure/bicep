@@ -15,7 +15,7 @@ namespace Bicep.LanguageServer.Handlers
 {
     public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
 
-    public record BicepDeployStartResponse(bool isSuccess, string outputMessage);
+    public record BicepDeployStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 
     public class BicepDeployStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, BicepDeployStartResponse>
     {
@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
 
             string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
-            (bool isSuccess, string deploymentOutput) = await DeploymentHelper.StartDeploymentAsync(
+            return await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider,
                 armClient,
                 request.documentPath,
@@ -53,8 +53,6 @@ namespace Bicep.LanguageServer.Handlers
                 request.portalUrl,
                 deploymentName,
                 deploymentOperationsCache);
-
-            return new BicepDeployStartResponse(isSuccess, deploymentOutput);
         }
 
         private void PostDeployStartTelemetryEvent(string deployId)

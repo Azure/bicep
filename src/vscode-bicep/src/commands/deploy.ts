@@ -159,7 +159,15 @@ export class DeployCommand implements Command {
           deployStartResponse.outputMessage
         );
 
-        if (deployStartResponse.isSuccess){
+        if (deployStartResponse.isSuccess) {
+          const deploymentLinkInAzurePortal =
+            deployStartResponse.viewDeploymentInPortalMessage;
+
+          if (deploymentLinkInAzurePortal != null) {
+            this.outputChannelManager.appendToOutputChannel(
+              deploymentLinkInAzurePortal
+            );
+          }
           const bicepDeploymentWaitForCompletionParams: BicepDeploymentWaitForCompletionParams =
             {
               deployId,
