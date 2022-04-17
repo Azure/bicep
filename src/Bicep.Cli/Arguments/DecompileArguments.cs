@@ -93,7 +93,7 @@ namespace Bicep.Cli.Arguments
 
             if (!OutputToStdOut && !AllowOverwrite && File.Exists(outputPath))
             {
-                throw new CommandLineException($"The --allowoverwrite should be used to override file");
+                throw new CommandLineException($"The output path \"{outputPath}\" already exists. Use --allowoverwrite to overwrite the existing file.");
             }
         }
 

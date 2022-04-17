@@ -96,7 +96,7 @@ Usage:
       --outdir <dir>    Saves the output at the specified directory.
       --outfile <file>  Saves the output as the specified file path.
       --stdout          Prints the output to stdout.
-      --allowoverwrite  Allows confirmation for overwriting existing bicep file.
+      --allowoverwrite  Allows overwriting the output file if it exists (applies only to 'bicep decompile').
 
     Examples:
       bicep decompile file.json
