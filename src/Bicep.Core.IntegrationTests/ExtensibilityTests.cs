@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Diagnostics.CodeAnalysis;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.IntegrationTests.Extensibility;
 using Bicep.Core.UnitTests;
@@ -9,6 +8,7 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -105,14 +105,15 @@ resource blobs2 'blob' = [for i in range(10, 10): {
 }]
 
 output sourceContainerName string = container.name
-output sourceContainerNameSquare string = container['name']
+var propName = 'name'
+output sourceContainerNameSquare string = container[propName]
 output miscBlobContainerName string = blobs[13 % 10].containerName
 output containerName string = blobs[5].containerName
-output base64Content string = blobs[3]['base64Content']
+output base64Content string = blobs[3].base64Content
 ");
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerName'].value", "[reference('container').name]");
-            result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerNameSquare'].value", "[reference('container').name]");
+            result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerNameSquare'].value", "[reference('container')[variables('propName')]]");
             result.Template.Should().HaveValueAtPath("$.outputs['miscBlobContainerName'].value", "[reference(format('blobs[{0}]', mod(13, 10))).containerName]");
             result.Template.Should().HaveValueAtPath("$.outputs['containerName'].value", "[reference(format('blobs[{0}]', 5)).containerName]");
             result.Template.Should().HaveValueAtPath("$.outputs['base64Content'].value", "[reference(format('blobs[{0}]', 3)).base64Content]");
@@ -133,16 +134,17 @@ resource myAppsLoop 'application' = [for i in range(0, numApps): {
   uniqueName: '${myApp.appId}-bar-${i}'
 }]
 
+var appIdPropName = 'appId'
 output myAppId string = myApp.appId
-output myAppId2 string = myApp['appId']
+output myAppId2 string = myApp[appIdPropName]
 output myAppsLoopId string = myAppsLoop[13 % numApps].appId
-output myAppsLoopId2 string = myAppsLoop[3]['appId']
+output myAppsLoopId2 string = myAppsLoop[3][appIdPropName]
 ");
             result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['myAppId'].value", "[reference('myApp').appId]");
-            result.Template.Should().HaveValueAtPath("$.outputs['myAppId2'].value", "[reference('myApp').appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppId2'].value", "[reference('myApp')[variables('appIdPropName')]]");
             result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId'].value", "[reference(format('myAppsLoop[{0}]', mod(13, parameters('numApps')))).appId]");
-            result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId2'].value", "[reference(format('myAppsLoop[{0}]', 3)).appId]");
+            result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId2'].value", "[reference(format('myAppsLoop[{0}]', 3))[variables('appIdPropName')]]");
         }
 
         [TestMethod]
