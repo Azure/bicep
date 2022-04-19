@@ -362,6 +362,16 @@
                     }
                   ]
                 },
+                "prefer-bare-property-names": {
+                  "allOf": [
+                    {
+                      "description": "Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. See https://aka.ms/bicep/linter/prefer-bare-property-names"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
                 "prefer-interpolation": {
                   "allOf": [
                     {
