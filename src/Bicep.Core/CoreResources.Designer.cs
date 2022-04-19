@@ -412,6 +412,33 @@ namespace Bicep.Core {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Avoid using single quotes around object property declaration when possible..
+        /// </summary>
+        internal static string PreferBarePropertyNamesDeclarationFixTitle {
+            get {
+                return ResourceManager.GetString("PreferBarePropertyNamesDeclarationFixTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Use property access syntax instead of array access syntax when possible..
+        /// </summary>
+        internal static string PreferBarePropertyNamesDereferenceFixTitle {
+            get {
+                return ResourceManager.GetString("PreferBarePropertyNamesDereferenceFixTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax..
+        /// </summary>
+        internal static string PreferBarePropertyNamesRuleDescription {
+            get {
+                return ResourceManager.GetString("PreferBarePropertyNamesRuleDescription", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Use protectedSettings for commandToExecute secrets.
         /// </summary>
         internal static string ProtectCommandToExecuteSecretsRuleDescription {

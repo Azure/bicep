@@ -286,4 +286,13 @@
   <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
     <value>Too many resources. Number of resources is limited to {0}.</value>
   </data>
+  <data name="PreferBarePropertyNamesDeclarationFixTitle" xml:space="preserve">
+    <value>Avoid using single quotes around object property declaration when possible.</value>
+  </data>
+  <data name="PreferBarePropertyNamesDereferenceFixTitle" xml:space="preserve">
+    <value>Use property access syntax instead of array access syntax when possible.</value>
+  </data>
+  <data name="PreferBarePropertyNamesRuleDescription" xml:space="preserve">
+    <value>Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax.</value>
+  </data>
 </root>
