@@ -106,7 +106,7 @@ describe("hover", (): void => {
       endCharacter: 67,
       contents: [
         codeblockWithDescription(
-          "function uniqueString(string): string",
+          "function uniqueString(... : string): string",
           "Creates a deterministic hash string based on the values provided as parameters."
         ),
       ],
