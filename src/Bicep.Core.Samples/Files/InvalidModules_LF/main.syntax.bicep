@@ -1,5 +1,5 @@
 module nonExistentFileRef './nonExistent.bicep' = {
-//@[000:13682) ProgramSyntax
+//@[000:13676) ProgramSyntax
 //@[000:00054) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00025) | ├─IdentifierSyntax
@@ -1426,35 +1426,33 @@ module runtimeInvalidModule4 'empty.bicep' = {
 //@[001:00003) ├─Token(NewLine) |\n\n|
 
 module runtimeInvalidModule5 'empty.bicep' = {
-//@[000:00088) ├─ModuleDeclarationSyntax
+//@[000:00082) ├─ModuleDeclarationSyntax
 //@[000:00006) | ├─Token(Identifier) |module|
 //@[007:00028) | ├─IdentifierSyntax
 //@[007:00028) | | └─Token(Identifier) |runtimeInvalidModule5|
 //@[029:00042) | ├─StringSyntax
 //@[029:00042) | | └─Token(StringComplete) |'empty.bicep'|
 //@[043:00044) | ├─Token(Assignment) |=|
-//@[045:00088) | └─ObjectSyntax
+//@[045:00082) | └─ObjectSyntax
 //@[045:00046) | | ├─Token(LeftBrace) |{|
 //@[046:00047) | | ├─Token(NewLine) |\n|
-  name: runtimeValidRes1['sku']['name']
-//@[002:00039) | | ├─ObjectPropertySyntax
+  name: runtimeValidRes1.sku.name
+//@[002:00033) | | ├─ObjectPropertySyntax
 //@[002:00006) | | | ├─IdentifierSyntax
 //@[002:00006) | | | | └─Token(Identifier) |name|
 //@[006:00007) | | | ├─Token(Colon) |:|
-//@[008:00039) | | | └─ArrayAccessSyntax
-//@[008:00031) | | | | ├─ArrayAccessSyntax
+//@[008:00033) | | | └─PropertyAccessSyntax
+//@[008:00028) | | | | ├─PropertyAccessSyntax
 //@[008:00024) | | | | | ├─VariableAccessSyntax
 //@[008:00024) | | | | | | └─IdentifierSyntax
 //@[008:00024) | | | | | | | └─Token(Identifier) |runtimeValidRes1|
-//@[024:00025) | | | | | ├─Token(LeftSquare) |[|
-//@[025:00030) | | | | | ├─StringSyntax
-//@[025:00030) | | | | | | └─Token(StringComplete) |'sku'|
-//@[030:00031) | | | | | └─Token(RightSquare) |]|
-//@[031:00032) | | | | ├─Token(LeftSquare) |[|
-//@[032:00038) | | | | ├─StringSyntax
-//@[032:00038) | | | | | └─Token(StringComplete) |'name'|
-//@[038:00039) | | | | └─Token(RightSquare) |]|
-//@[039:00040) | | ├─Token(NewLine) |\n|
+//@[024:00025) | | | | | ├─Token(Dot) |.|
+//@[025:00028) | | | | | └─IdentifierSyntax
+//@[025:00028) | | | | | | └─Token(Identifier) |sku|
+//@[028:00029) | | | | ├─Token(Dot) |.|
+//@[029:00033) | | | | └─IdentifierSyntax
+//@[029:00033) | | | | | └─Token(Identifier) |name|
+//@[033:00034) | | ├─Token(NewLine) |\n|
 }
 //@[000:00001) | | └─Token(RightBrace) |}|
 //@[001:00003) ├─Token(NewLine) |\n\n|

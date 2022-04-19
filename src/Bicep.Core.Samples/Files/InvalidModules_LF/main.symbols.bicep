@@ -284,8 +284,8 @@ module runtimeInvalidModule4 'empty.bicep' = {
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
-//@[07:28) Module runtimeInvalidModule5. Type: module. Declaration start char: 0, length: 88
-  name: runtimeValidRes1['sku']['name']
+//@[07:28) Module runtimeInvalidModule5. Type: module. Declaration start char: 0, length: 82
+  name: runtimeValidRes1.sku.name
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {

@@ -66,6 +66,7 @@ lmn: 'lmn' }
 var nestedMixed = {
 //@[04:015) [no-unused-vars (Warning)] Variable "nestedMixed" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |nestedMixed|
   abc: { 'def': 'ghi', abc: 'def', foo: [
+//@[09:014) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |'def'|
     'bar', 'blah'
   ] }
 }

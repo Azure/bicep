@@ -284,8 +284,8 @@ resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-0
 }
 
 resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[009:025) Resource runtimeValidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 135
-  name: concat(validModule['name'], 'v1')
+//@[009:025) Resource runtimeValidRes4. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 132
+  name: concat(validModule.name, 'v1')
 }
 
 resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -320,13 +320,13 @@ resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[009:027) Resource runtimeInvalidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 152
-  name: runtimeValidRes1['properties']['evictionPolicy']
+//@[009:027) Resource runtimeInvalidRes5. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 150
+  name: runtimeValidRes1.properties.['evictionPolicy']
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[009:027) Resource runtimeInvalidRes6. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 149
-  name: runtimeValidRes1.properties['evictionPolicy']
+//@[009:027) Resource runtimeInvalidRes6. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 146
+  name: runtimeValidRes1.properties.evictionPolicy
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -360,13 +360,13 @@ resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@202
 }
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[009:028) Resource runtimeInvalidRes12. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 240
-  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+//@[009:028) Resource runtimeInvalidRes12. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 234
+  name: concat(runtimeValidRes1.location, runtimeValidRes2.location, runtimeInvalidRes3.properties.azCliVersion, validModule.params.name)
 }
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[009:028) Resource runtimeInvalidRes13. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 243
-  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
+//@[009:028) Resource runtimeInvalidRes13. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 234
+  name: '${runtimeValidRes1.location}${runtimeValidRes2.location}${runtimeInvalidRes3.properties.azCliVersion}${validModule.params.name}'
 }
 
 // variable related runtime validation
@@ -419,8 +419,8 @@ resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@202
 }
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[009:028) Resource runtimeInvalidRes18. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 226
-  name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
+//@[009:028) Resource runtimeInvalidRes18. Type: Microsoft.Advisor/recommendations/suppressions@2020-01-01. Declaration start char: 0, length: 223
+  name: concat(runtimeInvalid.foo1, runtimeValidRes2.properties.azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
 }
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
