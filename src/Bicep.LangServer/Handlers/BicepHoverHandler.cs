@@ -1,9 +1,5 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -13,6 +9,10 @@ using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Bicep.LanguageServer.Handlers
 {
@@ -56,7 +56,7 @@ namespace Bicep.LanguageServer.Handlers
         private static string? TryGetDescriptionMarkdown(SymbolResolutionResult result, DeclaredSymbol symbol)
         {
             if (symbol.DeclaringSyntax is StatementSyntax statementSyntax &&
-                SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), statementSyntax) is {} description)
+                SemanticModelHelper.TryGetDescription(result.Context.Compilation.GetEntrypointSemanticModel(), statementSyntax) is { } description)
             {
                 return description;
             }
@@ -82,12 +82,12 @@ namespace Bicep.LanguageServer.Handlers
                     return CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable));
 
                 case ResourceSymbol resource:
-                    var docsSuffix = TryGetTypeDocumentationLink(resource) is {} typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
+                    var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
                     var description = TryGetDescriptionMarkdown(result, resource);
 
                     return CodeBlockWithDescription(
                         $"resource {resource.Name} {(resource.Type is ResourceType ? $"'{resource.Type}'" : resource.Type)}",
-                        description is {} ? $"{description}\n{docsSuffix}" : docsSuffix);
+                        description is { } ? $"{description}\n{docsSuffix}" : docsSuffix);
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
@@ -136,30 +136,30 @@ namespace Bicep.LanguageServer.Handlers
             var buffer = new StringBuilder();
             buffer.Append($"function ");
             buffer.Append(function.Name);
-            buffer.Append('(');
-
-            const string argumentSeparator = ", ";
-            foreach (FunctionArgumentSyntax argumentSyntax in functionCall.Arguments)
-            {
-                var argumentType = model.GetTypeInfo(argumentSyntax);
-                buffer.Append(argumentType);
-
-                buffer.Append(argumentSeparator);
-            }
-
-            // remove trailing argument separator (if any)
-            if (functionCall.Arguments.Length > 0)
-            {
-                buffer.Remove(buffer.Length - argumentSeparator.Length, argumentSeparator.Length);
-            }
-
-            buffer.Append("): ");
-            buffer.Append(model.GetTypeInfo(functionCall));
 
             if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is { } matchedOverload)
             {
+                buffer.Append(matchedOverload.TypeSignature);
                 return CodeBlockWithDescription(buffer.ToString(), matchedOverload.Description);
             }
+
+            buffer.Append('(');
+
+            const string argumentSeparator = ", ";
+            bool prependSeparator = false;
+            foreach (FunctionArgumentSyntax argumentSyntax in functionCall.Arguments)
+            {
+                if (prependSeparator)
+                {
+                    buffer.Append(argumentSeparator);
+                }
+
+                buffer.Append(model.GetDeclaredType(argumentSyntax) ?? model.GetTypeInfo(argumentSyntax));
+                prependSeparator = true;
+            }
+
+            buffer.Append("): ");
+            buffer.Append(model.GetDeclaredType(functionCall));
 
             // TODO fall back to displaying a more generic description if unable to resolve a particular overload, once https://github.com/Azure/bicep/issues/4588 has been implemented.
             return CodeBlock(buffer.ToString());
@@ -167,7 +167,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)
         {
-            if (resource.TryGetResourceType() is {} resourceType &&
+            if (resource.TryGetResourceType() is { } resourceType &&
                 resourceType.DeclaringNamespace.ProviderNameEquals(AzNamespaceType.BuiltInName) &&
                 resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
             {

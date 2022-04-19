@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
@@ -28,6 +23,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -372,8 +372,8 @@ var nsConcatFunc = sys.c|oncat('abc', 'def')
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
         }
 
         [TestMethod]
@@ -418,8 +418,8 @@ var nsConcatFunc = sys.conc|at(any('hello'))
 ");
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(array | bool | int | string): any\n```\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(array | bool | int | string): any\n```\n"));
         }
 
         [TestMethod]
