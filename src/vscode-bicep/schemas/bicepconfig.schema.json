@@ -1,4 +1,4 @@
-﻿{
+{
   "$comment1": "=========================================================================================================",
   "$comment2": "IMPORTANT: This file is for intellisense only, it does *not* affect the actual bicepconfig.json defaults.",
   "$comment3": "  Actual defaults picked up by configuration are in src/Bicep.Core/Configuration/bicepconfig.json",
@@ -127,7 +127,7 @@
     }
   },
   "type": "object",
-  "default$comment$asdfg": "This is the default for an empty file",
+  "default$comment": "This is the default for an empty file",
   "default": {},
   "properties": {
     "cloud": {
@@ -179,7 +179,7 @@
       "title": "Module Aliases",
       "type": "object",
       "additionalProperties": false,
-      "$asdfg-default":  null,
+      "$asdfg-default": null,
       "default": {
         "ts": {},
         "br": {
@@ -187,279 +187,279 @@
             "registry": "mcr.microsoft.com",
             "modulePath": "bicep"
           }
+        }
+      },
+      "properties": {
+        "ts": {
+          "title": "Template Spec Module Aliases",
+          "description": "Template Spec module alias definitions",
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/templateSpecModuleAlias"
+          }
         },
-        "properties": {
-          "ts": {
-            "title": "Template Spec Module Aliases",
-            "description": "Template Spec module alias definitions",
-            "type": "object",
-            "additionalProperties": {
-              "$ref": "#/definitions/templateSpecModuleAlias"
-            }
-          },
-          "br": {
-            "title": "Bicep Registry Module Aliases",
-            "description": "Bicep Registry module alias definitions",
-            "additionalProperties": {
-              "$ref": "#/definitions/bicepRegistryModuleAlias"
-            }
+        "br": {
+          "title": "Bicep Registry Module Aliases",
+          "description": "Bicep Registry module alias definitions",
+          "additionalProperties": {
+            "$ref": "#/definitions/bicepRegistryModuleAlias"
+          }
+        }
+      }
+    },
+    "analyzers": {
+      "title": "Analyzers",
+      "type": "object",
+      "default": {
+        "core": {
+          "rules": {
+            "$comment": "Press CTRL+SPACE here to configure rules"
           }
         }
       },
-      "analyzers": {
-        "title": "Analyzers",
-        "type": "object",
-        "default": {
-          "core": {
+      "properties": {
+        "core": {
+          "title": "Core Bicep Analyzer",
+          "description": "Core analyzer built into bicep",
+          "type": "object",
+          "required": [],
+          "properties": {
+            "verbose": {
+              "type": "boolean",
+              "default": false
+            },
+            "enabled": {
+              "type": "boolean",
+              "default": true
+            },
             "rules": {
-              "$comment": "Press CTRL+SPACE here to configure rules"
-            }
-          }
-        },
-        "properties": {
-          "core": {
-            "title": "Core Bicep Analyzer",
-            "description": "Core analyzer built into bicep",
-            "type": "object",
-            "required": [],
-            "properties": {
-              "verbose": {
-                "type": "boolean",
-                "default": false
-              },
-              "enabled": {
-                "type": "boolean",
-                "default": true
-              },
-              "rules": {
-                "additionalProperties": false,
-                "properties": {
-                  "adminusername-should-not-be-literal": {
-                    "allOf": [
-                      {
-                        "description": "Property 'adminUserName' should not use a literal value. Use a param instead. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "explicit-values-for-loc-params": {
-                    "allOf": [
-                      {
-                        "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. See https://aka.ms/bicep/linter/explicit-values-for-loc-params"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "no-hardcoded-env-urls": {
-                    "allOf": [
-                      {
-                        "description": "Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. See https://aka.ms/bicep/linter/no-hardcoded-env-urls",
-                        "type": "object",
-                        "properties": {
-                          "disallowedhosts": {
-                            "description": "Customize the list of hosts to disallow",
-                            "type": "array",
-                            "default": [
-                              "api.loganalytics.io",
-                              "asazure.windows.net",
-                              "azuredatalakeanalytics.net",
-                              "azuredatalakestore.net",
-                              "batch.core.windows.net",
-                              "core.windows.net",
-                              "database.windows.net",
-                              "datalake.azure.net",
-                              "gallery.azure.com",
-                              "graph.windows.net",
-                              "login.microsoftonline.com",
-                              "management.azure.com",
-                              "management.core.windows.net",
-                              "region.asazure.windows.net",
-                              "trafficmanager.net",
-                              "vault.azure.net"
-                            ],
-                            "items": {
-                              "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/disallowedhosts/items",
-                              "title": "Items",
-                              "type": "string",
-                              "default": "",
-                              "minLength": 1
-                            }
-                          },
-                          "excludedhosts": {
-                            "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
-                            "type": "array",
-                            "default": [
-                              "schema.management.azure.com"
-                            ],
-                            "items": {
-                              "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
-                              "title": "Items",
-                              "type": "string",
-                              "default": "",
-                              "minLength": 0
-                            }
+              "additionalProperties": false,
+              "properties": {
+                "adminusername-should-not-be-literal": {
+                  "allOf": [
+                    {
+                      "description": "Property 'adminUserName' should not use a literal value. Use a param instead. See https://aka.ms/bicep/linter/adminusername-should-not-be-literal"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "explicit-values-for-loc-params": {
+                  "allOf": [
+                    {
+                      "description": "When consuming a module, any location-related parameters that have a default value must be assigned an explicit value. See https://aka.ms/bicep/linter/explicit-values-for-loc-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-hardcoded-env-urls": {
+                  "allOf": [
+                    {
+                      "description": "Environment URLs should not be hardcoded. Use the environment() function to ensure compatibility across clouds. See https://aka.ms/bicep/linter/no-hardcoded-env-urls",
+                      "type": "object",
+                      "properties": {
+                        "disallowedhosts": {
+                          "description": "Customize the list of hosts to disallow",
+                          "type": "array",
+                          "default": [
+                            "api.loganalytics.io",
+                            "asazure.windows.net",
+                            "azuredatalakeanalytics.net",
+                            "azuredatalakestore.net",
+                            "batch.core.windows.net",
+                            "core.windows.net",
+                            "database.windows.net",
+                            "datalake.azure.net",
+                            "gallery.azure.com",
+                            "graph.windows.net",
+                            "login.microsoftonline.com",
+                            "management.azure.com",
+                            "management.core.windows.net",
+                            "region.asazure.windows.net",
+                            "trafficmanager.net",
+                            "vault.azure.net"
+                          ],
+                          "items": {
+                            "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/disallowedhosts/items",
+                            "title": "Items",
+                            "type": "string",
+                            "default": "",
+                            "minLength": 1
+                          }
+                        },
+                        "excludedhosts": {
+                          "description": "Customize the list of hosts to allow even if they contain an excluded host as a substring",
+                          "type": "array",
+                          "default": [
+                            "schema.management.azure.com"
+                          ],
+                          "items": {
+                            "$id": "#/analyzers/core/rules/no-hardcoded-env-urls/excludedhosts/items",
+                            "title": "Items",
+                            "type": "string",
+                            "default": "",
+                            "minLength": 0
                           }
                         }
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
                       }
-                    ]
-                  },
-                  "no-hardcoded-location": {
-                    "allOf": [
-                      {
-                        "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. See https://aka.ms/bicep/linter/no-hardcoded-location"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "no-loc-expr-outside-params": {
-                    "allOf": [
-                      {
-                        "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-loc-expr-outside-params"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "no-unnecessary-dependson": {
-                    "allOf": [
-                      {
-                        "description": "No unnecessary dependsOn. See https://aka.ms/bicep/linter/no-unnecessary-dependson"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "no-unused-params": {
-                    "allOf": [
-                      {
-                        "description": "All parameters must be used. See https://aka.ms/bicep/linter/no-unused-params"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "no-unused-vars": {
-                    "allOf": [
-                      {
-                        "description": "All variables must be used. See https://aka.ms/bicep/linter/no-unused-vars"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "outputs-should-not-contain-secrets": {
-                    "allOf": [
-                      {
-                        "description": "Outputs should not contain secrets. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "prefer-interpolation": {
-                    "allOf": [
-                      {
-                        "description": "Use string interpolation instead of the concat function. See https://aka.ms/bicep/linter/prefer-interpolation"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "secure-parameter-default": {
-                    "allOf": [
-                      {
-                        "description": "Secure parameters should not have hardcoded defaults (except for empty or newGuid()). See https://aka.ms/bicep/linter/secure-parameter-default"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "simplify-interpolation": {
-                    "allOf": [
-                      {
-                        "description": "Remove unnecessary string interpolation. See https://aka.ms/bicep/linter/simplify-interpolation"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "protect-commandtoexecute-secrets": {
-                    "allOf": [
-                      {
-                        "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "use-stable-vm-image": {
-                    "allOf": [
-                      {
-                        "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
-                      },
-                      {
-                        "$ref": "#/definitions/rule"
-                      }
-                    ]
-                  },
-                  "max-params": {
-                    "allOf": [
-                      {
-                        "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
-                      },
-                      {
-                        "$ref": "#/definitions/rule-def-error-level"
-                      }
-                    ]
-                  },
-                  "max-variables": {
-                    "allOf": [
-                      {
-                        "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
-                      },
-                      {
-                        "$ref": "#/definitions/rule-def-error-level"
-                      }
-                    ]
-                  },
-                  "max-outputs": {
-                    "allOf": [
-                      {
-                        "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
-                      },
-                      {
-                        "$ref": "#/definitions/rule-def-error-level"
-                      }
-                    ]
-                  },
-                  "max-resources": {
-                    "allOf": [
-                      {
-                        "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
-                      },
-                      {
-                        "$ref": "#/definitions/rule-def-error-level"
-                      }
-                    ]
-                  }
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-hardcoded-location": {
+                  "allOf": [
+                    {
+                      "description": "A resource's location should not use a hard-coded string or variable value. It should use a parameter, an expression, or the string 'global'. See https://aka.ms/bicep/linter/no-hardcoded-location"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-loc-expr-outside-params": {
+                  "allOf": [
+                    {
+                      "description": "Functions resourceGroup().location and deployment().location should only be used as the default value of a parameter. See https://aka.ms/bicep/linter/no-loc-expr-outside-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-unnecessary-dependson": {
+                  "allOf": [
+                    {
+                      "description": "No unnecessary dependsOn. See https://aka.ms/bicep/linter/no-unnecessary-dependson"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-unused-params": {
+                  "allOf": [
+                    {
+                      "description": "All parameters must be used. See https://aka.ms/bicep/linter/no-unused-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "no-unused-vars": {
+                  "allOf": [
+                    {
+                      "description": "All variables must be used. See https://aka.ms/bicep/linter/no-unused-vars"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "outputs-should-not-contain-secrets": {
+                  "allOf": [
+                    {
+                      "description": "Outputs should not contain secrets. See https://aka.ms/bicep/linter/outputs-should-not-contain-secrets"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "prefer-interpolation": {
+                  "allOf": [
+                    {
+                      "description": "Use string interpolation instead of the concat function. See https://aka.ms/bicep/linter/prefer-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "secure-parameter-default": {
+                  "allOf": [
+                    {
+                      "description": "Secure parameters should not have hardcoded defaults (except for empty or newGuid()). See https://aka.ms/bicep/linter/secure-parameter-default"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "simplify-interpolation": {
+                  "allOf": [
+                    {
+                      "description": "Remove unnecessary string interpolation. See https://aka.ms/bicep/linter/simplify-interpolation"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "protect-commandtoexecute-secrets": {
+                  "allOf": [
+                    {
+                      "description": "Use protectedSettings for commandToExecute secrets. See https://aka.ms/bicep/linter/protect-commandtoexecute-secrets"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "use-stable-vm-image": {
+                  "allOf": [
+                    {
+                      "description": "Virtual machines shouldn't use preview images. See https://aka.ms/bicep/linter/use-stable-vm-image"
+                    },
+                    {
+                      "$ref": "#/definitions/rule"
+                    }
+                  ]
+                },
+                "max-params": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of parameters used. See https://aka.ms/bicep/linter/max-params"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-error-level"
+                    }
+                  ]
+                },
+                "max-variables": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of variables used. See https://aka.ms/bicep/linter/max-variables"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-error-level"
+                    }
+                  ]
+                },
+                "max-outputs": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of outputs used. See https://aka.ms/bicep/linter/max-outputs"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-error-level"
+                    }
+                  ]
+                },
+                "max-resources": {
+                  "allOf": [
+                    {
+                      "description": "Maximum number of resources used. See https://aka.ms/bicep/linter/max-resources"
+                    },
+                    {
+                      "$ref": "#/definitions/rule-def-error-level"
+                    }
+                  ]
                 }
               }
             }
@@ -468,3 +468,4 @@
       }
     }
   }
+}

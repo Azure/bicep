@@ -1,4 +1,4 @@
-﻿// Copyright (c) Microsoft Corporation.
+// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -55,37 +55,29 @@ namespace Bicep.LanguageServer.Completions
         {
             var model = compilation.GetEntrypointSemanticModel();
 
-            if (context.Kind != BicepCompletionContextKind.IsConfig)
-            {
-                return GetDeclarationCompletions(model, context)
-                    .Concat(GetSymbolCompletions(model, context))
-                    .Concat(GetDeclarationTypeCompletions(compilation, context))
-                    .Concat(GetObjectPropertyNameCompletions(model, context))
-                    .Concat(GetMemberAccessCompletions(compilation, context))
-                    .Concat(GetResourceAccessCompletions(compilation, context))
-                    .Concat(GetArrayIndexCompletions(compilation, context))
-                    .Concat(GetPropertyValueCompletions(model, context))
-                    .Concat(GetArrayItemCompletions(model, context))
-                    .Concat(GetResourceTypeCompletions(model, context))
-                    .Concat(GetResourceTypeFollowerCompletions(context))
-                    .Concat(GetModulePathCompletions(model, context))
-                    .Concat(GetModuleBodyCompletions(model, context))
-                    .Concat(GetResourceBodyCompletions(model, context))
-                    .Concat(GetParameterDefaultValueCompletions(model, context))
-                    .Concat(GetVariableValueCompletions(context))
-                    .Concat(GetOutputValueCompletions(model, context))
-                    .Concat(GetTargetScopeCompletions(model, context))
-                    .Concat(GetImportCompletions(model, context))
-                    .Concat(GetFunctionParamCompletions(model, context))
-                    .Concat(GetExpressionCompletions(model, context))
-                    .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
-                    .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
-            }
-            else
-            {
-                return new CompletionItem[]{ CreateContextualSnippetCompletion("label", "detail", "snippet",
-                    context.ReplacementRange) };
-            }
+            return GetDeclarationCompletions(model, context)
+                .Concat(GetSymbolCompletions(model, context))
+                .Concat(GetDeclarationTypeCompletions(compilation, context))
+                .Concat(GetObjectPropertyNameCompletions(model, context))
+                .Concat(GetMemberAccessCompletions(compilation, context))
+                .Concat(GetResourceAccessCompletions(compilation, context))
+                .Concat(GetArrayIndexCompletions(compilation, context))
+                .Concat(GetPropertyValueCompletions(model, context))
+                .Concat(GetArrayItemCompletions(model, context))
+                .Concat(GetResourceTypeCompletions(model, context))
+                .Concat(GetResourceTypeFollowerCompletions(context))
+                .Concat(GetModulePathCompletions(model, context))
+                .Concat(GetModuleBodyCompletions(model, context))
+                .Concat(GetResourceBodyCompletions(model, context))
+                .Concat(GetParameterDefaultValueCompletions(model, context))
+                .Concat(GetVariableValueCompletions(context))
+                .Concat(GetOutputValueCompletions(model, context))
+                .Concat(GetTargetScopeCompletions(model, context))
+                .Concat(GetImportCompletions(model, context))
+                .Concat(GetFunctionParamCompletions(model, context))
+                .Concat(GetExpressionCompletions(model, context))
+                .Concat(GetDisableNextLineDiagnosticsDirectiveCompletion(context))
+                .Concat(GetDisableNextLineDiagnosticsDirectiveCodesCompletion(model, context));
         }
 
         private IEnumerable<CompletionItem> GetDeclarationCompletions(SemanticModel model, BicepCompletionContext context)

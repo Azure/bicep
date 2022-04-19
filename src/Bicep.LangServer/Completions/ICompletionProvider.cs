@@ -3,6 +3,7 @@
 
 using System.Collections.Generic;
 using Bicep.Core.Semantics;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace Bicep.LanguageServer.Completions

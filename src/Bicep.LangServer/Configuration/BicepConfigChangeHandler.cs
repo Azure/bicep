@@ -20,7 +20,7 @@ namespace Bicep.LanguageServer.Configuration
         private readonly ITelemetryProvider telemetryProvider;
         private readonly IWorkspace workspace;
 
-        private readonly ConcurrentDictionary<DocumentUri, RootConfiguration> activeBicepConfigCache = new ConcurrentDictionary<DocumentUri, RootConfiguration>();
+        public static readonly ConcurrentDictionary<DocumentUri, RootConfiguration> activeBicepConfigCache = new ConcurrentDictionary<DocumentUri, RootConfiguration>(); // asdfg Store in workspace?
 
         public BicepConfigChangeHandler(ICompilationManager compilationManager,
                                         IConfigurationManager configurationManager,
@@ -55,7 +55,7 @@ namespace Bicep.LanguageServer.Configuration
 
         private void HandleBicepConfigOpenOrChangeEvent(DocumentUri documentUri)
         {
-            if (ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration))
+            if (ConfigurationHelper.TryGetConfiguration(configurationManager, documentUri, out RootConfiguration? configuration)) //asdfg this fails if the config file is bad
             {
                 activeBicepConfigCache.AddOrUpdate(documentUri, (documentUri) => configuration, (documentUri, prevConfiguration) => configuration);
             }

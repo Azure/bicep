@@ -36,6 +36,7 @@
   "homepage": "https://github.com/Azure/bicep/blob/main/README.md",
   "activationEvents": [
     "onLanguage:bicep",
+    "onLanguage:jsonc",
     "onCommand:bicep.build",
     "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
