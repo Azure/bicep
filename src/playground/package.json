@@ -21,7 +21,7 @@
     "@types/webpack": "^5.28.0",
     "@types/webpack-dev-server": "^4.7.2",
     "@typescript-eslint/eslint-plugin": "^5.19.0",
-    "@typescript-eslint/parser": "^5.18.0",
+    "@typescript-eslint/parser": "^5.20.0",
     "copy-webpack-plugin": "^9.0.1",
     "css-loader": "^6.7.1",
     "eslint": "^8.12.0",
