@@ -8,6 +8,7 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -46,7 +47,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (TryGetValidIdentifierToken(syntax.Key, out string? literal))
                 {
-                    AddCodeFix(syntax.Key.Span, literal!, CoreResources.PreferBarePropertyNamesDeclarationFixTitle);
+                    AddCodeFix(syntax.Key.Span, literal, CoreResources.PreferBarePropertyNamesDeclarationFixTitle);
                 }
 
                 base.VisitObjectPropertySyntax(syntax);
@@ -56,7 +57,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (TryGetValidIdentifierToken(syntax.IndexExpression, out string? literal))
                 {
-                    AddCodeFix(syntax.IndexExpression.Span, $".{literal}", CoreResources.PreferBarePropertyNamesDereferenceFixTitle);
+                    AddCodeFix(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare), $".{literal}", CoreResources.PreferBarePropertyNamesDereferenceFixTitle);
                 }
 
                 base.VisitArrayAccessSyntax(syntax);
@@ -69,7 +70,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 spanFixes[span] = fix;
             }
 
-            private static bool TryGetValidIdentifierToken(SyntaxBase syntax, out string? validToken)
+            private static bool TryGetValidIdentifierToken(SyntaxBase syntax, [NotNullWhen(true)] out string? validToken)
             {
                 if (syntax is StringSyntax @string)
                 {
