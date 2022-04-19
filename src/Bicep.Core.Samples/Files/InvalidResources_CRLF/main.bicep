@@ -237,7 +237,7 @@ resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-0
 }
 
 resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: concat(validModule['name'], 'v1')
+  name: concat(validModule.name, 'v1')
 }
 
 resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -267,11 +267,11 @@ resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020
 }
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: runtimeValidRes1['properties']['evictionPolicy']
+  name: runtimeValidRes1.properties.['evictionPolicy']
 }
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: runtimeValidRes1.properties['evictionPolicy']
+  name: runtimeValidRes1.properties.evictionPolicy
 }
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
@@ -298,11 +298,11 @@ resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@202
 }
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+  name: concat(runtimeValidRes1.location, runtimeValidRes2.location, runtimeInvalidRes3.properties.azCliVersion, validModule.params.name)
 }
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
+  name: '${runtimeValidRes1.location}${runtimeValidRes2.location}${runtimeInvalidRes3.properties.azCliVersion}${validModule.params.name}'
 }
 
 // variable related runtime validation
@@ -345,7 +345,7 @@ resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@202
 }
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
+  name: concat(runtimeInvalid.foo1, runtimeValidRes2.properties.azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
 }
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {

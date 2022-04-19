@@ -229,7 +229,7 @@ module runtimeInvalidModule4 'empty.bicep' = {
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
-  name: runtimeValidRes1['sku']['name']
+  name: runtimeValidRes1.sku.name
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
