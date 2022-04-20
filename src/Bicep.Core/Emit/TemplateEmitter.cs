@@ -44,7 +44,7 @@ namespace Bicep.Core.Emit
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.sourceMap;
+            this.sourceMap = new SourceMap(); // emitter.rawSourceMap;
         });
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace Bicep.Core.Emit
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.sourceMap;
+            this.sourceMap = new SourceMap();// emitter.rawSourceMap;
         });
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace Bicep.Core.Emit
         {
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.sourceMap;
+            this.sourceMap = new SourceMap(); //emitter.rawSourceMap;
         });
 
         private EmitResult EmitOrFail(Action write)
