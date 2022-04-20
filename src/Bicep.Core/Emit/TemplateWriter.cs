@@ -144,7 +144,7 @@ namespace Bicep.Core.Emit
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
-        private void EmitParametersIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        protected void EmitParametersIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             if (this.context.SemanticModel.Root.ParameterDeclarations.Length == 0)
             {
