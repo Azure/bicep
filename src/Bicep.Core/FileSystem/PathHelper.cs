@@ -65,6 +65,19 @@ namespace Bicep.Core.FileSystem
             }
         }
 
+        public static string ResolveParametersFileOutputPath(string path)
+        {
+            var folder = ResolvePath(path);
+
+            var pathWithoutFileName = Path.GetDirectoryName(folder);
+
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
+
+            var outputPath = $"{pathWithoutFileName}{Path.DirectorySeparatorChar}{fileNameWithoutExtension}-parameters.json";
+
+            return outputPath;
+        }
+
         public static string GetDefaultBuildOutputPath(string path)
         {
             if (string.Equals(Path.GetExtension(path), TemplateOutputExtension, PathComparison))
