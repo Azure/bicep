@@ -1,0 +1,60 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Bicep.Core.Semantics;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System;
+using System.IO;
+
+namespace Bicep.Core.Emit
+{
+    public class ParametersFileTemplateWriter : TemplateWriter
+    {
+        public ParametersFileTemplateWriter(SemanticModel semanticModel, EmitterSettings settings): base(semanticModel, settings)
+        {
+            this.context = new EmitterContext(semanticModel, settings);
+            this.settings = settings;
+        }
+
+        private readonly EmitterContext context;
+        private readonly EmitterSettings settings;
+
+        public new void Write(JsonTextWriter writer)
+        {
+            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            var templateJToken = GenerateTemplate();
+            if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
+            {
+                throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
+            }
+            templateJToken.WriteTo(writer);
+        }
+
+        private JToken GenerateTemplate()
+        {
+            // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
+            // instead of writing to a JsonWriter and converting it to JToken at the end
+            using var stringWriter = new StringWriter();
+            using var jsonWriter = new JsonTextWriter(stringWriter);
+            var emitter = new ExpressionEmitter(jsonWriter, this.context);
+
+            jsonWriter.WriteStartObject();
+
+            emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#");
+
+            emitter.EmitProperty("contentVersion", "1.0.0.0");
+
+            this.EmitMetadata(jsonWriter, emitter);
+
+            this.EmitParametersIfPresent(jsonWriter, emitter);
+
+            jsonWriter.WriteEndObject();
+
+            var content = stringWriter.ToString();
+
+            return content.FromJson<JToken>();
+        }
+    }
+}
