@@ -25,6 +25,7 @@ namespace Bicep.Cli.Services
             return (args[0].ToLowerInvariant()) switch
             {
                 Constants.Command.Build => new BuildArguments(args[1..]),
+                Constants.Command.GenerateParamsFile => new GenerateParametersFileArguments(args[1..]),
                 Constants.Command.Decompile => new DecompileArguments(args[1..]),
                 Constants.Command.Publish => new PublishArguments(args[1..]),
                 Constants.Command.Restore => new RestoreArguments(args[1..]),
