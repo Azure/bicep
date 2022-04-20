@@ -1,8 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
@@ -13,10 +11,10 @@ namespace Bicep.Core.Emit
     {
 
         public int CurrentPos;
-        public int CurrentLine;
 
         private readonly TextWriter _internalWriter;
-        private bool _endOfLine;
+
+        private string _debugString = string.Empty;
 
         public PositionTrackingTextWriter(TextWriter textWriter)
         {
@@ -27,29 +25,23 @@ namespace Bicep.Core.Emit
 
         public override void Write(char value)
         {
-            if (_endOfLine)
+            if (value == ',')
             {
-                CurrentPos = 0;
-                CurrentLine++;
+                CommaPositions.Add(CurrentPos);
             }
 
             _internalWriter.Write(value);
 
             CurrentPos++;
-
-            if (value == '\n') // check for carriage return char?
-            {
-                _endOfLine = true;
-            }
         }
     }
 
     public class PositionTrackingJsonTextWriter : JsonTextWriter
     {
         public int CurrentPos => _trackingWriter.CurrentPos;
-        public int CurrentLine => _trackingWriter.CurrentLine;
-        
-        private PositionTrackingTextWriter _trackingWriter;
+        public List<int> CommaPositions => _trackingWriter.CommaPositions;
+
+        private readonly PositionTrackingTextWriter _trackingWriter;
 
         public static PositionTrackingJsonTextWriter Create(TextWriter textWriter)
         {

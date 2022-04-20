@@ -65,7 +65,9 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(this.model, this.settings).Write(writer);
+            var emitter = new TemplateWriter(this.model, this.settings);
+            emitter.Write(writer);
+            this.sourceMap = emitter.sourceMap;
         });
 
         /// <summary>
@@ -81,8 +83,9 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new TemplateWriter(this.model, this.settings).Write(writer);
-            writer.Flush();
+            var emitter = new TemplateWriter(this.model, this.settings);
+            emitter.Write(writer);
+            this.sourceMap = emitter.sourceMap;
         });
 
         /// <summary>
@@ -91,7 +94,9 @@ namespace Bicep.Core.Emit
         /// <param name="writer">The json writer to write the template</param>
         public EmitResult Emit(JsonTextWriter writer) => this.EmitOrFail(() =>
         {
-            new TemplateWriter(this.model, this.settings).Write(writer);
+            var emitter = new TemplateWriter(this.model, this.settings);
+            emitter.Write(writer);
+            this.sourceMap = emitter.sourceMap;
         });
 
         private EmitResult EmitOrFail(Action write)

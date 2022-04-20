@@ -17,11 +17,11 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceMapping;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -92,38 +92,66 @@ namespace Bicep.Core.Emit
         }
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-        private readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
+        public readonly SourceMap sourceMap;
 
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
+            this.sourceMap = new SourceMap();
         }
 
         public void Write(JsonTextWriter writer)
         {
             // Template is used for calculating template hash, template JToken is used for writing to file.
             var (template, templateJToken) = GenerateTemplateWithoutHash();
-
             var templateHash = TemplateHelpers.ComputeTemplateHash(template.ToJToken());
             if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
             {
                 throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
             }
-            generatorObject.Add(TemplateHashPropertyName, templateHash);
-
-            if (this.context.Settings.EnableSourceMapping)
-            {
-                ProcessRawSourceMap(templateJToken);
-            }
-
+            generatorObject.Add("templateHash", templateHash);
             templateJToken.WriteTo(writer);
+        }
+
+        private void TransformSourceMap(JToken rawTemplate)
+        {
+            // DEBUG
+            var unformattedLines = new List<string>();
+            var unformattedTemplate = rawTemplate.ToString(Formatting.None);
+
+            var unformattedLineStarts = rawTemplate
+                .ToString(Formatting.Indented)
+                .Split(Environment.NewLine, StringSplitOptions.None)
+                .Aggregate(
+                    new List<int>() { 0 }, // first line starts at position 0
+                    (lineStarts, line) =>
+                    {
+                        var unformattedLine = Regex.Replace(line, @"(""(?:[^""\\]|\\.)*"")|\s+", "$1");
+
+                        unformattedLines.Add(unformattedLine); // DEBUG
+
+                        lineStarts.Add(lineStarts.Last() + unformattedLine.Length);
+                        return lineStarts;
+                    });
+
+            // add 1 to all line numbers to convert to 1-indexing
+            var sourceMap = this.rawSourceMap.ToDictionary(
+                kvp => kvp.Key + 1,
+                kvp => (
+                    TextCoordinateConverter.GetPosition(unformattedLineStarts, kvp.Value.Item1).line + 1,
+                    TextCoordinateConverter.GetPosition(unformattedLineStarts, kvp.Value.Item2).line + 1,
+                    unformattedTemplate[kvp.Value.Item1..kvp.Value.Item2]
+                ));
+
+            // TODO: resources at end of object seem to also map an extra line (e.g. agentVMSize in test)
+            // TODO: tranform from bicep=>arm map to arm=>bicep map
         }
 
         private (Template, JToken) GenerateTemplateWithoutHash()
         {
             using var stringWriter = new StringWriter();
-            using var jsonWriter = new ArmJsonTextWriter(stringWriter);
+            using var jsonWriter = PositionTrackingJsonTextWriter.Create(stringWriter);
             var emitter = new ExpressionEmitter(jsonWriter, this.context);
 
             jsonWriter.WriteStartObject();
@@ -155,87 +183,7 @@ namespace Bicep.Core.Emit
             return (Template.FromJson<Template>(content), content.FromJson<JToken>());
         }
 
-        private void ProcessRawSourceMap(JToken rawTemplate)
-        {
-            var formattedTemplateLines = rawTemplate
-                .ToString(Formatting.Indented)
-                .Split(Environment.NewLine, StringSplitOptions.None);
-
-            // get line starts of unformatted JSON by stripping formatting from each line of formatted JSON
-            var unformattedLineStarts = formattedTemplateLines
-                .Aggregate(
-                    new List<int>() { 0 }, // first line starts at position 0
-                    (lineStarts, line) =>
-                    {
-                        var unformattedLine = Regex.Replace(line, @"(""(?:[^""\\]|\\.)*"")|\s+", "$1");
-                        lineStarts.Add(lineStarts.Last() + unformattedLine.Length);
-                        return lineStarts;
-                    });
-
-            // get position and length of template hash (relying on the first occurence)
-            (var templateHashStartPosition, var templateHashLength) = formattedTemplateLines
-                .Select((value, index) => new { lineNumber = index, lineValue = value })
-                .Where(item => item.lineValue.Contains(TemplateHashPropertyName))
-                .Select(item =>
-                {
-                    var startPosition = unformattedLineStarts[item.lineNumber];
-                    var unformattedLineLength = unformattedLineStarts[item.lineNumber + 1] - startPosition;
-                    return (startPosition, unformattedLineLength + 1); // account for comma by adding 1 to length
-                })
-                .FirstOrDefault();
-
-            // increment all positions in mappings by templateHashLength that occur after hash start position
-            this.rawSourceMap.Keys.ForEach(file =>
-            {
-                this.rawSourceMap[file].Keys.ForEach(line =>
-                {
-                    for (int i = 0; i < rawSourceMap[file][line].Count; i++)
-                    {
-                        var (start, end) = this.rawSourceMap[file][line][i];
-
-                        if (start >= templateHashStartPosition)
-                        {
-                            this.rawSourceMap[file][line][i] =
-                                (start + templateHashLength, end + templateHashLength);
-                        }
-                    }
-                });
-            });
-
-            // transform offsets in rawSourceMap to line numbers for formatted JSON using unformattedLineStarts
-            // add 1 to all line numbers to convert to 1-indexing
-            var formattedSourceMap = this.rawSourceMap.ToDictionary(
-                kvp => kvp.Key,
-                kvp => kvp.Value.ToDictionary(
-                    kvp => kvp.Key + 1,
-                    kvp => kvp.Value.Select(mapping => (
-                        TextCoordinateConverter.GetPosition(unformattedLineStarts, mapping.start).line + 1,
-                        TextCoordinateConverter.GetPosition(unformattedLineStarts, mapping.end).line + 1))));
-
-            // unfold key-values in bicep-to-json map to convert to json-to-bicep map
-            this.SourceMap = new();
-            var weights = new int[unformattedLineStarts.Count];
-            Array.Fill(weights, int.MaxValue);
-
-            formattedSourceMap.ForEach(fileKvp =>
-                fileKvp.Value.ForEach(lineKvp =>
-                    lineKvp.Value.ForEach(mapping =>
-                    {
-                        // write most specific mapping available for each json line (less lines => stronger weight)
-                        int weight = mapping.Item2 - mapping.Item1;
-                        for (int i = mapping.Item1; i <= mapping.Item2; i++)
-                        {
-                            // write new mapping if weight is stronger than existing mapping
-                            if (weight < weights[i])
-                            {
-                                this.SourceMap[i] = (fileKvp.Key, lineKvp.Key);
-                                weights[i] = weight;
-                            }
-                        }
-                    })));
-        }
-
-        private void EmitParametersIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
+        private void EmitParametersIfPresent(JsonTextWriter jsonWriter, ExpressionEmitter emitter)
         {
             if (this.context.SemanticModel.Root.ParameterDeclarations.Length == 0)
             {
@@ -251,8 +199,6 @@ namespace Bicep.Core.Emit
 
                 jsonWriter.WritePropertyName(parameterSymbol.Name);
                 this.EmitParameter(jsonWriter, parameterSymbol, emitter);
-
-                AddSourceMapping(parameterSymbol.DeclaringParameter, jsonWriter, startPos);
             }
 
             jsonWriter.WriteEndObject();
@@ -332,13 +278,13 @@ namespace Bicep.Core.Emit
             {
                 if (property.TryGetKeyText() is string propertyName)
                 {
+                    int start2 = jsonWriter.CurrentPos;
                     emitter.EmitProperty(propertyName, property.Value);
+                    AddSourceMapping(property, start2, jsonWriter);
                 }
             }
 
             jsonWriter.WriteEndObject();
-
-            AddSourceMapping(parameterSymbol.DeclaringParameter, jsonWriter, startPos);
         }
 
         private void EmitVariablesIfPresent(PositionTrackingJsonTextWriter jsonWriter, ExpressionEmitter emitter)
@@ -647,13 +593,7 @@ namespace Bicep.Core.Emit
                 emitter.EmitProperty(property, val);
             }
 
-            // create mapping between resource line range and bicep line
-            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, resource.Symbol.DeclaringResource.GetPosition());
-            sourceMap.AddMapping(startLine, jsonWriter.CurrentLine, bicepLine + 1);
-
             jsonWriter.WriteEndObject();
-
-            AddSourceMapping(resource.Symbol.DeclaringResource, jsonWriter, startPos);
         }
 
         private void EmitModuleParameters(JsonTextWriter jsonWriter, ModuleSymbol moduleSymbol, ExpressionEmitter emitter)
@@ -821,8 +761,6 @@ namespace Bicep.Core.Emit
             }
 
             jsonWriter.WriteEndObject();
-
-            AddSourceMapping(moduleSymbol.DeclaringModule, jsonWriter, startPos);
         }
 
         private static bool ShouldGenerateDependsOn(ResourceDependency dependency)
@@ -1052,19 +990,6 @@ namespace Bicep.Core.Emit
                 jsonWriter.WriteEndObject();
             }
             jsonWriter.WriteEndObject();
-        }
-
-        private void AddSourceMapping(SyntaxBase bicepSyntax, PositionTrackingJsonTextWriter jsonWriter, int startPosition)
-        {
-            if (this.context.Settings.EnableSourceMapping)
-            {
-                SourceMapHelper.AddMapping(
-                    this.rawSourceMap,
-                    this.context.SemanticModel.SourceFile,
-                    bicepSyntax,
-                    jsonWriter,
-                    startPosition);
-            }
         }
     }
 }
