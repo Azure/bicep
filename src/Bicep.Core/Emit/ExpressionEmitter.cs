@@ -7,12 +7,12 @@ using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
 using Azure.Deployments.Expression.Serializers;
 using Bicep.Core.Extensions;
+using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem.Az;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Emit
@@ -31,15 +31,21 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context)
+        public readonly Dictionary<int, (int, int)> rawSourceMap;
+
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, Dictionary<int, (int, int)> rawSourceMap)
         {
             this.writer = writer;
             this.context = context;
             this.converter = new ExpressionConverter(context);
+            this.rawSourceMap = rawSourceMap;
         }
 
         public void EmitExpression(SyntaxBase syntax)
         {
+            // TODO: any value here?
+            //int startPos = writer.CurrentPos;
+
             switch (syntax)
             {
                 case BooleanLiteralSyntax boolSyntax:
@@ -92,6 +98,9 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
+
+
+            //AddSourceMapping(syntax, startPos);
         }
 
         public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
@@ -306,6 +315,8 @@ namespace Bicep.Core.Emit
             // emit loop properties first (if any)
             if (propertyLookup.Contains(true))
             {
+                // TODO: bicep 
+
                 // we have properties whose value is a for-expression
                 this.EmitProperty("copy", () =>
                 {
@@ -332,7 +343,7 @@ namespace Bicep.Core.Emit
             {
                 // property whose value is not a for-expression
 
-                int currentLine = this.writer.CurrentLine;
+                int startPos = this.writer.CurrentPos;
 
                 if (propertySyntax.TryGetKeyText() is string keyName)
                 {
@@ -348,12 +359,7 @@ namespace Bicep.Core.Emit
                     EmitProperty(propertySyntax.Key, propertySyntax.Value);
                 }
 
-                int propertyPosition = propertySyntax.GetPosition();
-                int propertyEndPosition = propertySyntax.GetEndPosition();
-
-                (int bicepStartLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, propertyPosition);
-                (int bicepEndline, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, propertyEndPosition);
-                // TODO: add to source map
+                AddSourceMapping(propertySyntax, startPos);
             }
         }
 
@@ -432,13 +438,27 @@ namespace Bicep.Core.Emit
             => EmitPropertyInternal(new JTokenExpression(name), value);
 
         public void EmitProperty(string name, SyntaxBase expressionValue)
-            => EmitPropertyInternal(new JTokenExpression(name), expressionValue);
+        {
+            int startPos = this.writer.CurrentPos;
+
+            EmitPropertyInternal(new JTokenExpression(name), expressionValue);
+
+            //AddSourceMapping(expressionValue, startPos);
+        }
 
         public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
-            => EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
+        {
+            int startPos = this.writer.CurrentPos;
+
+            EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
+
+            //AddSourceMapping(syntaxKey, startPos);
+        }
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc)
         {
+            // cannot create mapping without access to SyntaxBase object (use IPositionable to get position in bicep)
+
             var serializedName = ExpressionSerializer.SerializeExpression(expressionKey);
             writer.WritePropertyName(serializedName);
 
@@ -461,6 +481,18 @@ namespace Bicep.Core.Emit
             {
                 EmitProperty(name, expression);
             }
+        }
+
+        private void AddSourceMapping(IPositionable bicepPosition, int startPosition)
+        {
+            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, bicepPosition.GetPosition());
+
+            // increment start position if starting on a comma (happens when outputting successive items in objects and arrays)
+            startPosition = this.writer.CommaPositions.Contains(startPosition)
+                ? startPosition + 1
+                : startPosition;
+
+            this.rawSourceMap[bicepLine] = (startPosition, this.writer.CurrentPos - 1); // TODO: overwriting mappings
         }
     }
 }
