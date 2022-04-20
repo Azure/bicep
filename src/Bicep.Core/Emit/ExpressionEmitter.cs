@@ -44,6 +44,9 @@ namespace Bicep.Core.Emit
 
         public void EmitExpression(SyntaxBase syntax)
         {
+            // TODO: any value here?
+            //int startPos = writer.CurrentPos;
+
             switch (syntax)
             {
                 case BooleanLiteralSyntax boolSyntax:
@@ -98,6 +101,9 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
+
+
+            //AddSourceMapping(syntax, startPos);
         }
 
         public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
@@ -472,6 +478,18 @@ namespace Bicep.Core.Emit
             {
                 EmitProperty(name, expression);
             }
+        }
+
+        private void AddSourceMapping(IPositionable bicepPosition, int startPosition)
+        {
+            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, bicepPosition.GetPosition());
+
+            // increment start position if starting on a comma (happens when outputting successive items in objects and arrays)
+            startPosition = this.writer.CommaPositions.Contains(startPosition)
+                ? startPosition + 1
+                : startPosition;
+
+            this.rawSourceMap[bicepLine] = (startPosition, this.writer.CurrentPos - 1); // TODO: overwriting mappings
         }
 
         private void AddSourceMapping(SyntaxBase bicepSyntax, int startPosition)

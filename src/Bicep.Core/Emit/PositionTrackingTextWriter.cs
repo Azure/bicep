@@ -18,7 +18,8 @@ namespace Bicep.Core.Emit
 
             public List<int> CommaPositions = new();
 
-        private string _debugString = string.Empty;
+        public string _debugString = string.Empty;
+        public List<int> CommaPositions = new List<int>();
 
         public PositionTrackingTextWriter(TextWriter textWriter)
         {
@@ -29,7 +30,7 @@ namespace Bicep.Core.Emit
 
         public override void Write(char value)
         {
-                if (value == ',')
+            if (value == ',')
             {
                     CommaPositions.Add(CurrentPos);
             }
@@ -38,11 +39,6 @@ namespace Bicep.Core.Emit
             _debugString += value;
 
             CurrentPos++;
-
-            if (value == '\n') // check for carriage return char?
-            {
-                _endOfLine = true;
-            }
         }
     }
 
