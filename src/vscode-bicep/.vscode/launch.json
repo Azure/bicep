@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Extension",
+      "name": "Launch Extension (dev)",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -75,7 +75,7 @@
       }
     },
     {
-      "name": "Launch Tests: E2E (development)",
+      "name": "Launch Tests: E2E (dev)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
