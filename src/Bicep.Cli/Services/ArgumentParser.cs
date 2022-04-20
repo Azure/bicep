@@ -34,4 +34,3 @@ namespace Bicep.Cli.Services
         }
     }
 }
-
