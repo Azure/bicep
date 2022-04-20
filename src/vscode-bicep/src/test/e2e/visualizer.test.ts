@@ -7,6 +7,7 @@ import fs from "fs";
 
 import { resolveExamplePath } from "./examples";
 import {
+  executeCloseAllEditors,
   executeShowSourceCommand,
   executeShowVisualizerCommand,
   executeShowVisualizerToSideCommand,
@@ -18,7 +19,7 @@ const extensionLogPath = path.join(__dirname, "../../../bicep.log");
 
 describe("visualizer", (): void => {
   afterEach(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    await executeCloseAllEditors();
   });
 
   it("should open visualizer webview", async () => {

@@ -44,7 +44,7 @@ namespace Bicep.LanguageServer.Handlers
             // Handle scenario where the bicepconfig.json file was opened prior to
             // language service activation. If the config file was opened before the language server
             // activation, there won't be an entry for it in the cache. We'll capture the state of the
-            // config file on disk when it's changes and cache it.
+            // config file on disk when it's changed and cache it.
             if (ConfigurationHelper.IsBicepConfigFile(documentUri))
             {
                 bicepConfigChangeHandler.HandleBicepConfigChangeEvent(documentUri);

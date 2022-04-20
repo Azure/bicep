@@ -324,6 +324,12 @@
         }
       ]
     },
+    "snippets": [
+      {
+        "language": "jsonc",
+        "path": "vscode-snippets/jsonc-snippets.jsonc"
+      }
+    ],
     "walkthroughs.$comments": [
       "Documentation: https://code.visualstudio.com/api/references/contribution-points#contributes.walkthroughs",
       "",
