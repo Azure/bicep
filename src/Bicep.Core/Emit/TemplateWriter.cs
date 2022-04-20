@@ -17,11 +17,11 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Semantics.Namespaces;
-using Bicep.Core.SourceMapping;
 using Bicep.Core.Syntax;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.TypeSystem.Az;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -95,14 +95,13 @@ namespace Bicep.Core.Emit
         }
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
-
-        public readonly SourceMap sourceMap;
+        public readonly Dictionary<int, (int, int)> rawSourceMap;
 
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
-            this.rawSourceMap = new Dictionary<string, IDictionary<int, IList<(int, int)>>>();
+            this.rawSourceMap = new Dictionary<int, (int, int)>();
         }
 
         public void Write(JsonTextWriter writer)
@@ -123,6 +122,40 @@ namespace Bicep.Core.Emit
             }
 
             templateJToken.WriteTo(writer);
+        }
+
+        private void TransformSourceMap(JToken rawTemplate)
+        {
+            // DEBUG
+            var unformattedLines = new List<string>();
+            var unformattedTemplate = rawTemplate.ToString(Formatting.None);
+
+            var unformattedLineStarts = rawTemplate
+                .ToString(Formatting.Indented)
+                .Split(Environment.NewLine, StringSplitOptions.None)
+                .Aggregate(
+                    new List<int>() { 0 }, // first line starts at position 0
+                    (lineStarts, line) =>
+                    {
+                        var unformattedLine = Regex.Replace(line, @"(""(?:[^""\\]|\\.)*"")|\s+", "$1");
+
+                        unformattedLines.Add(unformattedLine); // DEBUG
+
+                        lineStarts.Add(lineStarts.Last() + unformattedLine.Length);
+                        return lineStarts;
+                    });
+
+            // add 1 to all line numbers to convert to 1-indexing
+            var sourceMap = this.rawSourceMap.ToDictionary(
+                kvp => kvp.Key + 1,
+                kvp => (
+                    TextCoordinateConverter.GetPosition(unformattedLineStarts, kvp.Value.Item1).line + 1,
+                    TextCoordinateConverter.GetPosition(unformattedLineStarts, kvp.Value.Item2).line + 1,
+                    unformattedTemplate[kvp.Value.Item1..kvp.Value.Item2]
+                ));
+
+            // TODO: resources at end of object seem to also map an extra line (e.g. agentVMSize in test)
+            // TODO: tranform from bicep=>arm map to arm=>bicep map
         }
 
         private (Template, JToken) GenerateTemplateWithoutHash()
@@ -337,7 +370,9 @@ namespace Bicep.Core.Emit
             {
                 if (property.TryGetKeyText() is string propertyName)
                 {
+                    int start2 = jsonWriter.CurrentPos;
                     emitter.EmitProperty(propertyName, property.Value);
+                    AddSourceMapping(property, start2, jsonWriter);
                 }
             }
 
@@ -510,10 +545,7 @@ namespace Bicep.Core.Emit
 
         private void EmitResource(PositionTrackingJsonTextWriter jsonWriter, DeclaredResourceMetadata resource, ExpressionEmitter emitter)
         {
-            jsonWriter.WriteStartObject();
-
-            // Save current line (start of resource) for source map
-            int startLine = jsonWriter.CurrentLine;
+            int startPos = jsonWriter.CurrentPos;
 
             jsonWriter.WriteStartObject();
 
@@ -653,10 +685,6 @@ namespace Bicep.Core.Emit
             {
                 emitter.EmitProperty(property, val);
             }
-
-            // create mapping between resource line range and bicep line
-            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, resource.Symbol.DeclaringResource.GetPosition());
-            sourceMap.AddMapping(startLine, jsonWriter.CurrentLine, bicepLine + 1);
 
             jsonWriter.WriteEndObject();
 
