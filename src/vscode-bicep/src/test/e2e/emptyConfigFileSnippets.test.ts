@@ -27,20 +27,20 @@ describe("empty config file snippets", (): void => {
   });
 
   it("scaffolding snippet should work as expected in an empty file", async () => {
-    const expectedAfterInsertion = `
-    {
-        // See https://aka.ms/bicep/config for more information on Bicep configuration options
-        // Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions
-        "analyzers": {
-            "core": {
-                "rules": {
-                    "no-unused-params": {
-                        "level": "warning"
-                    }
+    const expectedAfterInsertion = `{
+    // See https://aka.ms/bicep/config for more information on Bicep configuration options
+    // Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions
+    "analyzers": {
+        "core": {
+            "rules": {
+                "no-unused-params": {
+                    "level": "warning"
                 }
             }
         }
-    }`;
+    }
+}
+`;
 
     const tempFolder = createUniqueTempFolder("emptyConfigSnippetsTest-");
     const configPath = path.join(tempFolder, "bicepconfig.json");
