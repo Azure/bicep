@@ -146,12 +146,11 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             DocumentUri documentUri = DocumentUri.From(bicepFileUri);
             BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
 
-            var forceRestoreModuleDispatcher = new ForceRestoreModuleDispatcher(ModuleDispatcher);
-            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, forceRestoreModuleDispatcher, configurationManager);
+            BicepForceModulesRestoreCommandHandler bicepForceModulesRestoreCommandHandler = new BicepForceModulesRestoreCommandHandler(bicepCompilationManager, Repository.Create<ISerializer>().Object, BicepTestConstants.Features, BicepTestConstants.EmitterSettings, BicepTestConstants.NamespaceProvider, FileResolver, ModuleDispatcher, configurationManager);
 
             string expected = StringUtils.ReplaceNewlines(await bicepForceModulesRestoreCommandHandler.Handle(bicepFilePath, CancellationToken.None), "|");
 
-            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Succeeded");
+            expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded");
         }
         
 

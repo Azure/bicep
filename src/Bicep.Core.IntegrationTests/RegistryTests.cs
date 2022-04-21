@@ -290,9 +290,7 @@ namespace Bicep.Core.IntegrationTests
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             FileResolver fileResolver = new FileResolver();
-            var dispatcher = new ForceRestoreModuleDispatcher(
-                new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object))
-            );            
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             var moduleReferences = moduleInfos
@@ -368,9 +366,7 @@ namespace Bicep.Core.IntegrationTests
             features.Setup(m => m.CacheRootDirectory).Returns(cacheDirectory);
 
             FileResolver fileResolver = new FileResolver();
-            var dispatcher = new ForceRestoreModuleDispatcher(
-                new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object))
-            );
+            var dispatcher = new ModuleDispatcher(new DefaultModuleRegistryProvider(fileResolver, clientFactory, templateSpecRepositoryFactory, features.Object));
 
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             var moduleReferences = moduleInfos

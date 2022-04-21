@@ -51,21 +51,20 @@ namespace Bicep.Cli.Services
         {
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
-            IModuleDispatcher currentModuleDispatcher = forceModulesRestore ? new ForceRestoreModuleDispatcher(this.moduleDispatcher) : this.moduleDispatcher;
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, currentModuleDispatcher, this.workspace, inputUri, configuration);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration, forceModulesRestore);
             var originalModulesToRestore = sourceFileGrouping.ModulesToRestore;
 
             // RestoreModules() does a distinct but we'll do it also to prevent duplicates in processing and logging
-            var modulesToRestoreReferences = currentModuleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)
+            var modulesToRestoreReferences = this.moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)
                 .Distinct()
                 .OrderBy(key => key.FullyQualifiedReference);
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await currentModuleDispatcher.RestoreModules(configuration, modulesToRestoreReferences);
+            await this.moduleDispatcher.RestoreModules(configuration, modulesToRestoreReferences, forceModulesRestore);
 
             // update the errors based on restore status
-            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(currentModuleDispatcher, this.workspace, sourceFileGrouping, configuration);
+            sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(this.moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
 
             LogDiagnostics(GetModuleRestoreDiagnosticsByBicepFile(sourceFileGrouping, originalModulesToRestore, forceModulesRestore));
         }
@@ -75,14 +74,14 @@ namespace Bicep.Cli.Services
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration, forceModulesRestore: false);
             if (!skipRestore)
             {
                 // module references in the file may be malformed
                 // however we still want to surface as many errors as we can for the module refs that are valid
                 // so we will try to restore modules with valid refs and skip everything else
                 // (the diagnostics will be collected during compilation)
-                if (await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
+                if (await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration), forceModulesRestore: false))
                 {
                     // modules had to be restored - recompile
                     sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
