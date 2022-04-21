@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
@@ -28,6 +23,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.IntegrationTests
@@ -372,8 +373,8 @@ var nsConcatFunc = sys.c|oncat('abc', 'def')
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
         }
 
         [TestMethod]
@@ -418,8 +419,12 @@ var nsConcatFunc = sys.conc|at(any('hello'))
 ");
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"));
+                h => h!.Contents.MarkedStrings.Should().ContainInOrder(
+                    "```bicep\nfunction concat(... : array): array\n```\nCombines multiple arrays and returns the concatenated array.\n",
+                    "```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
+                h => h!.Contents.MarkedStrings.Should().ContainInOrder(
+                    "```bicep\nfunction concat(... : array): array\n```\nCombines multiple arrays and returns the concatenated array.\n",
+                    "```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
         }
 
         [TestMethod]
@@ -511,57 +516,73 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             hover!.Range!.Should().NotBeNull();
             hover.Contents.Should().NotBeNull();
 
-            hover.Contents.HasMarkedStrings.Should().BeFalse();
-            hover.Contents.HasMarkupContent.Should().BeTrue();
-            hover.Contents.MarkedStrings.Should().BeNull();
-            hover.Contents.MarkupContent.Should().NotBeNull();
-
-            hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
-            hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
-            Regex.Matches(hover.Contents.MarkupContent.Value, "```").Count.Should().Be(2);
-
-            switch (symbol)
+            List<string> tooltips = new();
+            if (hover.Contents.HasMarkedStrings)
             {
-                case ParameterSymbol parameter:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"param {parameter.Name}: {parameter.Type}");
-                    break;
+                tooltips.AddRange(hover.Contents.MarkedStrings!.Select(ms => ms.Value));
+            }
+            else
+            {
+                hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
+                tooltips.Add(hover.Contents.MarkupContent!.Value);
+            }
 
-                case VariableSymbol variable:
-                    // the hovers with errors don't appear in VS code and only occur in tests
-                    hover.Contents.MarkupContent.Value.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
-                    break;
+            foreach (var tooltip in tooltips)
+            {
+                tooltip.Should().StartWith("```bicep\n");
+                Regex.Matches(tooltip, "```").Count.Should().Be(2);
 
-                case ResourceSymbol resource:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"resource {resource.Name}");
-                    hover.Contents.MarkupContent.Value.Should().Contain(resource.Type.Name);
-                    break;
+                switch (symbol)
+                {
+                    case ParameterSymbol parameter:
+                        tooltip.Should().Contain($"param {parameter.Name}: {parameter.Type}");
+                        break;
 
-                case ModuleSymbol module:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"module {module.Name}");
-                    break;
+                    case VariableSymbol variable:
+                        // the hovers with errors don't appear in VS code and only occur in tests
+                        tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
+                        break;
 
-                case OutputSymbol output:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"output {output.Name}: {output.Type}");
-                    break;
+                    case ResourceSymbol resource:
+                        tooltip.Should().Contain($"resource {resource.Name}");
+                        tooltip.Should().Contain(resource.Type.Name);
+                        break;
 
-                case FunctionSymbol function:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"function {function.Name}(");
-                    break;
+                    case ModuleSymbol module:
+                        tooltip.Should().Contain($"module {module.Name}");
+                        break;
 
-                case LocalVariableSymbol local:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"{local.Name}: {local.Type}");
-                    break;
+                    case OutputSymbol output:
+                        tooltip.Should().Contain($"output {output.Name}: {output.Type}");
+                        break;
 
-                case ImportedNamespaceSymbol import:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"{import.Name} namespace");
-                    break;
+                    case FunctionSymbol function:
+                        if (function.Overloads.All(fo => fo is FunctionWildcardOverload))
+                        {
+                            tooltip.Should().Contain($"function ");
+                            tooltip.Should().Contain($"*(");
+                        }
+                        else
+                        {
+                            tooltip.Should().Contain($"function {function.Name}(");
+                        }
+                        break;
 
-                case BuiltInNamespaceSymbol @namespace:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"{@namespace.Name} namespace");
-                    break;
+                    case LocalVariableSymbol local:
+                        tooltip.Should().Contain($"{local.Name}: {local.Type}");
+                        break;
 
-                default:
-                    throw new AssertFailedException($"Unexpected symbol type '{symbol.GetType().Name}'");
+                    case ImportedNamespaceSymbol import:
+                        tooltip.Should().Contain($"{import.Name} namespace");
+                        break;
+
+                    case BuiltInNamespaceSymbol @namespace:
+                        tooltip.Should().Contain($"{@namespace.Name} namespace");
+                        break;
+
+                    default:
+                        throw new AssertFailedException($"Unexpected symbol type '{symbol.GetType().Name}'");
+                }
             }
         }
 
