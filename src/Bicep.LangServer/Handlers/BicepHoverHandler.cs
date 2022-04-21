@@ -9,8 +9,8 @@ using Bicep.LanguageServer.Utils;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -44,11 +44,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return Task.FromResult<Hover?>(new Hover
             {
-                Contents = new MarkedStringsOrMarkupContent(new MarkupContent
-                {
-                    Kind = MarkupKind.Markdown,
-                    Value = markdown
-                }),
+                Contents = markdown,
                 Range = PositionHelper.GetNameRange(result.Context.LineStarts, result.Origin)
             });
         }
@@ -64,46 +60,46 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
-        private static string? GetMarkdown(HoverParams request, SymbolResolutionResult result)
+        private static MarkedStringsOrMarkupContent? GetMarkdown(HoverParams request, SymbolResolutionResult result)
         {
             // all of the generated markdown includes the language id to avoid VS code rendering
             // with multiple borders
             switch (result.Symbol)
             {
                 case ImportedNamespaceSymbol import:
-                    return CodeBlockWithDescription(
-                        $"import {import.Name}", TryGetDescriptionMarkdown(result, import));
+                    return WithMarkdown(CodeBlockWithDescription(
+                        $"import {import.Name}", TryGetDescriptionMarkdown(result, import)));
 
                 case ParameterSymbol parameter:
-                    return CodeBlockWithDescription(
-                        $"param {parameter.Name}: {parameter.Type}", TryGetDescriptionMarkdown(result, parameter));
+                    return WithMarkdown(CodeBlockWithDescription(
+                        $"param {parameter.Name}: {parameter.Type}", TryGetDescriptionMarkdown(result, parameter)));
 
                 case VariableSymbol variable:
-                    return CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable));
+                    return WithMarkdown(CodeBlockWithDescription($"var {variable.Name}: {variable.Type}", TryGetDescriptionMarkdown(result, variable)));
 
                 case ResourceSymbol resource:
                     var docsSuffix = TryGetTypeDocumentationLink(resource) is { } typeDocsLink ? $"[View Type Documentation]({typeDocsLink})" : "";
                     var description = TryGetDescriptionMarkdown(result, resource);
 
-                    return CodeBlockWithDescription(
+                    return WithMarkdown(CodeBlockWithDescription(
                         $"resource {resource.Name} {(resource.Type is ResourceType ? $"'{resource.Type}'" : resource.Type)}",
-                        description is { } ? $"{description}\n{docsSuffix}" : docsSuffix);
+                        description is { } ? $"{description}\n{docsSuffix}" : docsSuffix));
 
                 case ModuleSymbol module:
                     var filePath = SyntaxHelper.TryGetModulePath(module.DeclaringModule, out _);
                     if (filePath != null)
                     {
-                        return CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module));
+                        return WithMarkdown(CodeBlockWithDescription($"module {module.Name} '{filePath}'", TryGetDescriptionMarkdown(result, module)));
                     }
 
-                    return CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module));
+                    return WithMarkdown(CodeBlockWithDescription($"module {module.Name}", TryGetDescriptionMarkdown(result, module)));
 
                 case OutputSymbol output:
-                    return CodeBlockWithDescription(
-                        $"output {output.Name}: {output.Type}", TryGetDescriptionMarkdown(result, output));
+                    return WithMarkdown(CodeBlockWithDescription(
+                        $"output {output.Name}: {output.Type}", TryGetDescriptionMarkdown(result, output)));
 
                 case BuiltInNamespaceSymbol builtInNamespace:
-                    return CodeBlock($"{builtInNamespace.Name} namespace");
+                    return WithMarkdown(CodeBlock($"{builtInNamespace.Name} namespace"));
 
                 case FunctionSymbol function when result.Origin is FunctionCallSyntaxBase functionCall:
                     // it's not possible for a non-function call syntax to resolve to a function symbol
@@ -111,10 +107,10 @@ namespace Bicep.LanguageServer.Handlers
                     return GetFunctionMarkdown(function, functionCall, result.Context.Compilation.GetEntrypointSemanticModel());
 
                 case PropertySymbol property:
-                    return CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description);
+                    return WithMarkdown(CodeBlockWithDescription($"{property.Name}: {property.Type}", property.Description));
 
                 case LocalVariableSymbol local:
-                    return CodeBlock($"{local.Name}: {local.Type}");
+                    return WithMarkdown(CodeBlock($"{local.Name}: {local.Type}"));
 
                 default:
                     return null;
@@ -131,39 +127,29 @@ namespace Bicep.LanguageServer.Handlers
         // Markdown needs two leading whitespaces before newline to insert a line break
         private static string CodeBlockWithDescription(string content, string? description) => CodeBlock(content) + (description is not null ? $"{description.Replace("\n", "  \n")}\n" : string.Empty);
 
-        private static string GetFunctionMarkdown(FunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
+        private static MarkedStringsOrMarkupContent GetFunctionMarkdown(FunctionSymbol function, FunctionCallSyntaxBase functionCall, SemanticModel model)
         {
-            var buffer = new StringBuilder();
-            buffer.Append($"function ");
-            buffer.Append(function.Name);
-
             if (model.TypeManager.GetMatchedFunctionOverload(functionCall) is { } matchedOverload)
             {
-                buffer.Append(matchedOverload.TypeSignature);
-                return CodeBlockWithDescription(buffer.ToString(), matchedOverload.Description);
+                return WithMarkdown(GetFunctionOverloadMarkdown(matchedOverload, function.Overloads.Length - 1));
             }
 
-            buffer.Append('(');
+            var potentialMatches =
+                function.Overloads
+                .Select(overload => (overload, matchType:
+                    overload.Match(functionCall.Arguments.Select(model.GetTypeInfo).ToList(), out _, out _)))
+                .Where(t => t.matchType == FunctionMatchResult.Match || t.matchType == FunctionMatchResult.PotentialMatch)
+                .Select(t => t.overload)
+                .ToList();
 
-            const string argumentSeparator = ", ";
-            bool prependSeparator = false;
-            foreach (FunctionArgumentSyntax argumentSyntax in functionCall.Arguments)
-            {
-                if (prependSeparator)
-                {
-                    buffer.Append(argumentSeparator);
-                }
+            // If there are no potential matches, just show all overloads
+            IEnumerable<FunctionOverload> toShow = potentialMatches.Count > 0 ? potentialMatches : function.Overloads;
 
-                buffer.Append(model.GetDeclaredType(argumentSyntax) ?? model.GetTypeInfo(argumentSyntax));
-                prependSeparator = true;
-            }
-
-            buffer.Append("): ");
-            buffer.Append(model.GetDeclaredType(functionCall));
-
-            // TODO fall back to displaying a more generic description if unable to resolve a particular overload, once https://github.com/Azure/bicep/issues/4588 has been implemented.
-            return CodeBlock(buffer.ToString());
+            return WithMarkdown(toShow.Select(GetFunctionOverloadMarkdown));
         }
+
+        private static string GetFunctionOverloadMarkdown(FunctionOverload overload, int functionOverloadCount)
+            => CodeBlockWithDescription($"function {overload.Name}{overload.TypeSignature}", overload.Description);
 
         private static string? TryGetTypeDocumentationLink(ResourceSymbol resource)
         {
@@ -180,10 +166,18 @@ namespace Bicep.LanguageServer.Handlers
             return null;
         }
 
+        private static MarkedStringsOrMarkupContent WithMarkdown(string markdown) => new MarkedStringsOrMarkupContent(new MarkupContent
+        {
+            Kind = MarkupKind.Markdown,
+            Value = markdown,
+        });
+
+        private static MarkedStringsOrMarkupContent WithMarkdown(IEnumerable<string> markdown)
+            => new MarkedStringsOrMarkupContent(markdown.Select(md => new MarkedString(md)));
+
         protected override HoverRegistrationOptions CreateRegistrationOptions(HoverCapability capability, ClientCapabilities clientCapabilities) => new()
         {
             DocumentSelector = DocumentSelectorFactory.Create()
         };
     }
 }
-
