@@ -113,7 +113,7 @@ namespace Bicep.Core.Emit
             if (symbol is FunctionSymbol &&
                 context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is {Evaluator: { }} functionOverload)
             {
-                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall), context.SemanticModel.FunctionVariables.GetValueOrDefault(functionCall)));
+                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall), context.FunctionVariables.GetValueOrDefault(functionCall)));
             }
 
             switch (functionCall)
@@ -971,7 +971,6 @@ namespace Bicep.Core.Emit
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
-                  
             }
         }
 

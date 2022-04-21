@@ -21,10 +21,10 @@ namespace Bicep.Core.Visitors
             this.variables = new();
         }
 
-        public static IDictionary<FunctionCallSyntaxBase, FunctionVariable> GetVariables(SemanticModel semanticModel, SyntaxBase syntax)
+        public static IDictionary<FunctionCallSyntaxBase, FunctionVariable> GetFunctionVariables(SemanticModel semanticModel)
         {
             var visitor = new FunctionVariableGeneratorVisitor(semanticModel);
-            visitor.Visit(syntax);
+            visitor.Visit(semanticModel.Root.Syntax);
 
             return visitor.variables;
         }

@@ -59,7 +59,6 @@ namespace Bicep.Core.Semantics
 
         public VariableGeneratorDelegate? VariableGenerator { get; }
 
-
         public FunctionFlags Flags { get; }
 
         public string TypeSignature { get; }

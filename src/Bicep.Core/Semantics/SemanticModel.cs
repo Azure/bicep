@@ -8,14 +8,12 @@ using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
 using Bicep.Core.TypeSystem;
-using Bicep.Core.Visitors;
 using Bicep.Core.Workspaces;
 
 namespace Bicep.Core.Semantics
@@ -31,10 +29,6 @@ namespace Bicep.Core.Semantics
         private readonly Lazy<ImmutableArray<ResourceMetadata>> allResourcesLazy;
         private readonly Lazy<ImmutableArray<DeclaredResourceMetadata>> declaredResourcesLazy;
         private readonly Lazy<IEnumerable<IDiagnostic>> allDiagnostics;
-
-        private readonly Lazy<IImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable>> functionVariablesLazy;
-        //TODO: build shared variables list to use then by emitter - generate special variableName and value (Lazy)
-
 
         public SemanticModel(Compilation compilation, BicepFile sourceFile, IFileResolver fileResolver, IBicepAnalyzer linterAnalyzer)
         {
@@ -122,8 +116,6 @@ namespace Bicep.Core.Semantics
 
                 return outputs.ToImmutableArray();
             });
-
-            functionVariablesLazy = new Lazy<IImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable>>(() => FunctionVariableGeneratorVisitor.GetVariables(this, Root.Syntax).ToImmutableDictionary());
         }
 
         public BicepFile SourceFile { get; }
@@ -160,11 +152,6 @@ namespace Bicep.Core.Semantics
         /// Does not include parameters and outputs of modules.
         /// </summary>
         public ImmutableArray<DeclaredResourceMetadata> DeclaredResources => declaredResourcesLazy.Value;
-
-        /// <summary>
-        /// Gets function variables that are emitted by function calls. Used mostly to optimise loading content from files.
-        /// </summary>
-        public IImmutableDictionary<FunctionCallSyntaxBase, FunctionVariable> FunctionVariables => functionVariablesLazy.Value;
 
         /// <summary>
         /// Gets all the parser and lexer diagnostics unsorted. Does not include diagnostics from the semantic model.
