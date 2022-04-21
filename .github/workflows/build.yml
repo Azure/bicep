@@ -155,10 +155,11 @@ jobs:
     name: 'Test CLI (live) (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
     needs: build-bicep
-    if: github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
+    if: env.CAN_ACCESS_SECRETS != null && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
 
     env:
       CI: true
+      CAN_ACCESS_SECRETS: ${{ secrets.CAN_ACCESS_SECRETS }}
       BICEP_SPN_PASSWORD: ${{ secrets.BICEP_SPN_PASSWORD }}
       BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
 
