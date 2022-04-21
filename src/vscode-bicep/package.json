@@ -480,7 +480,7 @@
     "@microsoft/vscode-azext-utils": "^0.2.0",
     "cytoscape": "^3.21.1",
     "cytoscape-elk": "^2.0.2",
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^10.1.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
     "react-icons": "^4.3.1",
