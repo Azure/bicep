@@ -61,7 +61,7 @@ namespace Bicep.Cli.Services
                 .OrderBy(key => key.FullyQualifiedReference);
 
             // restore is supposed to only restore the module references that are syntactically valid
-            await this.moduleDispatcher.RestoreModules(configuration, modulesToRestoreReferences, forceModulesRestore);
+            await moduleDispatcher.RestoreModules(configuration, modulesToRestoreReferences, forceModulesRestore);
 
             // update the errors based on restore status
             sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(this.moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
@@ -74,14 +74,14 @@ namespace Bicep.Cli.Services
             var inputUri = PathHelper.FilePathToFileUrl(inputPath);
             var configuration = this.configurationManager.GetConfiguration(inputUri);
 
-            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration, forceModulesRestore: false);
+            var sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, this.workspace, inputUri, configuration);
             if (!skipRestore)
             {
                 // module references in the file may be malformed
                 // however we still want to surface as many errors as we can for the module refs that are valid
                 // so we will try to restore modules with valid refs and skip everything else
                 // (the diagnostics will be collected during compilation)
-                if (await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration), forceModulesRestore: false))
+                if (await moduleDispatcher.RestoreModules(configuration, moduleDispatcher.GetValidModuleReferences(sourceFileGrouping.ModulesToRestore, configuration)))
                 {
                     // modules had to be restored - recompile
                     sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(moduleDispatcher, this.workspace, sourceFileGrouping, configuration);
@@ -135,7 +135,7 @@ namespace Bicep.Cli.Services
             return sourceFileGrouping.SourceFiles
                 .OfType<BicepFile>()
                 .ToDictionary(bicepFile => bicepFile, bicepFile => GetModuleDiagnosticsPerFile(sourceFileGrouping, bicepFile, originalModulesToRestore, forceModulesRestore));
-        }  
+        }
 
         private void LogDiagnostics(Compilation compilation)
         {

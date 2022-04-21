@@ -16,7 +16,7 @@ namespace Bicep.Core.Registry
     public interface IModuleDispatcher
     {
         ImmutableArray<string> AvailableSchemes { get; }
-        
+
         ModuleReference? TryGetModuleReference(string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         ModuleReference? TryGetModuleReference(ModuleDeclarationSyntax module, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
