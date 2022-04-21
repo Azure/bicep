@@ -155,7 +155,7 @@ jobs:
   check-secret-access:
     name: Check if the workflow run can access secrets
     runs-on: ${{ matrix.os }}
-    needs: build-step
+    needs: build-bicep
     outputs:
       can_access_secrets: ${{ steps.check-secret.outputs.can_access_secrets }}
     steps:
@@ -170,7 +170,7 @@ jobs:
     name: 'Test CLI (live) (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
     needs:
-      - build-step
+      - build-bicep
       - check-secret-access
     if: needs.check-secret-access.outputs.can_access_secrets == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
 
