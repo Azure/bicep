@@ -372,6 +372,22 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
                 .Build();
 
+            const string managementGroupResourceIdDescriptin = "Returns the unique identifier for a resource deployed at the management group level.";
+            yield return new FunctionOverloadBuilder("managementGroupResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription(managementGroupResourceIdDescriptin)
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("managementGroupResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription(managementGroupResourceIdDescriptin)
+                .WithRequiredParameter("managementGroupId", LanguageConstants.String, "The management group ID")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .Build();
+
             const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";
             yield return new FunctionOverloadBuilder("providers")
                 .WithReturnType(GetProvidersSingleProviderReturnType())
