@@ -154,7 +154,7 @@ jobs:
 
   check-secret-access:
     name: Check if the workflow run can access secrets
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     needs: build-bicep
     outputs:
       can_access_secrets: ${{ steps.check-secret.outputs.can_access_secrets }}
