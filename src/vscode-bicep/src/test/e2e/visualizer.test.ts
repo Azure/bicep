@@ -30,14 +30,8 @@ describe("visualizer", (): void => {
     await sleep(2000);
 
     const viewColumn = await executeShowVisualizerCommand(document.uri);
-    await until(() => visualizerIsReady(document.uri), {
-      interval: 100,
-    });
-    if (!visualizerIsReady(document.uri)) {
-      throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
-      );
-    }
+    await ensureVisualizerReady(document);
+
     expectDefined(viewColumn);
     expect(viewColumn).toBe(editor.viewColumn);
   });
@@ -49,15 +43,10 @@ describe("visualizer", (): void => {
 
     // Give the language server sometime to finish compilation.
     await sleep(2000);
+
     const viewColumn = await executeShowVisualizerToSideCommand(document.uri);
-    await until(() => visualizerIsReady(document.uri), {
-      interval: 100,
-    });
-    if (!visualizerIsReady(document.uri)) {
-      throw new Error(
-        `Expected visualizer to be ready for ${document.uri.toString()}`
-      );
-    }
+    await ensureVisualizerReady(document);
+
     expectDefined(viewColumn);
     expect(viewColumn).toBe(vscode.ViewColumn.Beside);
   });
@@ -65,15 +54,29 @@ describe("visualizer", (): void => {
   it("should open source", async () => {
     expect(vscode.window.activeTextEditor).toBeUndefined();
 
-    const examplePath = resolveExamplePath("201", "sql");
-    const textDocument = await vscode.workspace.openTextDocument(examplePath);
+    const examplePath = resolveExamplePath("000", "blank");
+    const document = await vscode.workspace.openTextDocument(examplePath);
 
-    await executeShowVisualizerCommand(textDocument.uri);
+    await executeShowVisualizerCommand(document.uri);
+    await ensureVisualizerReady(document);
+
     const sourceEditor = await executeShowSourceCommand();
 
     expectDefined(sourceEditor);
     expect(sourceEditor).toBe(vscode.window.activeTextEditor);
   });
+
+  async function ensureVisualizerReady(document: vscode.TextDocument) {
+    await until(() => visualizerIsReady(document.uri), {
+      interval: 100,
+    });
+
+    if (!visualizerIsReady(document.uri)) {
+      throw new Error(
+        `Expected visualizer to be ready for ${document.uri.toString()}`
+      );
+    }
+  }
 
   function visualizerIsReady(documentUri: vscode.Uri): boolean {
     if (!fs.existsSync(extensionLogPath)) {
