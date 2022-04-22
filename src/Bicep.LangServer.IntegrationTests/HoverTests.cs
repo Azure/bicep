@@ -21,6 +21,7 @@ using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -33,11 +34,30 @@ using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class HoverTests
     {
+        private static readonly SharedLanguageHelperManager DefaultServer = new();
+        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
+        private static readonly SharedLanguageHelperManager ServerWithTestNamespaceProvider = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
+            ServerWithTestNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver)));
+        }
+
+        [ClassCleanup]
+        public static async Task ClassCleanup()
+        {
+            await DefaultServer.DisposeAsync();
+            await ServerWithBuiltInTypes.DisposeAsync();
+            await ServerWithTestNamespaceProvider.DisposeAsync();
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -45,8 +65,9 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver));
-            var client = helper.Client;
+
+            var helper = await ServerWithTestNamespaceProvider.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -77,7 +98,7 @@ namespace Bicep.LangServer.IntegrationTests
                     _ => symbolReference,
                 };
 
-                var hover = await client.RequestHover(new HoverParams
+                var hover = await helper.Client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
                     Position = TextCoordinateConverter.GetPosition(lineStarts, nodeForHover.Span.Position)
@@ -133,8 +154,9 @@ namespace Bicep.LangServer.IntegrationTests
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -157,7 +179,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (SyntaxBase node in nonHoverableNodes)
             {
-                var hover = await client.RequestHover(new HoverParams
+                var hover = await helper.Client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
                     Position = TextCoordinateConverter.GetPosition(lineStarts, node.Span.Position)
@@ -188,10 +210,12 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
@@ -220,10 +244,12 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = [for i in range(0, 10): {
 output string test = testRes[3].prop|erties.rea|donly
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
@@ -252,10 +278,12 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = if (true) {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
@@ -291,10 +319,12 @@ resource test|Res 'Test.Rp/discriminatorTests@2020-01-01' = {
 resource test|Output string = 'str'
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"),
@@ -495,11 +525,12 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
   ki|nd
 }
 ");
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
@@ -591,12 +622,12 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
 
-
-            return await RequestHovers(client, bicepFile, cursors);
+            return await RequestHovers(helper.Client, bicepFile, cursors);
         }
     }
 }

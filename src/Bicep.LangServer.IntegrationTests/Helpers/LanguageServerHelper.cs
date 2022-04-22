@@ -22,7 +22,7 @@ using Bicep.Core.UnitTests;
 
 namespace Bicep.LangServer.IntegrationTests
 {
-    public class LanguageServerHelper : IDisposable
+    public sealed class LanguageServerHelper : IDisposable
     {
         public static readonly ISnippetsProvider SnippetsProvider = new SnippetsProvider(BicepTestConstants.Features, TestTypeHelper.CreateEmptyProvider(), BicepTestConstants.FileResolver, BicepTestConstants.ConfigurationManager);
 
@@ -35,6 +35,12 @@ namespace Bicep.LangServer.IntegrationTests
             Client = client;
         }
 
+        /// <summary>
+        /// Creates and initializes a new language server/client pair without loading any files. This is recommended when you need to open multiple files using the language server.
+        /// </summary>
+        /// <param name="testContext">The test context</param>
+        /// <param name="onClientOptions">The client options</param>
+        /// <param name="creationOptions">The server creation options</param>
         public static async Task<LanguageServerHelper> StartServerWithClientConnectionAsync(TestContext testContext, Action<LanguageClientOptions> onClientOptions, Server.CreationOptions? creationOptions = null)
         {
             var clientPipe = new Pipe();
@@ -75,6 +81,15 @@ namespace Bicep.LangServer.IntegrationTests
             return new(server, client);
         }
 
+        /// <summary>
+        /// Starts a language client/server pair that will load the specified Bicep text and wait for the diagnostics to be published.
+        /// No further file opening is possible.
+        /// </summary>
+        /// <param name="testContext">The test context</param>
+        /// <param name="text">The bicep text</param>
+        /// <param name="documentUri">The document URI of the Bicep text</param>
+        /// <param name="onClientOptions">The additional client options</param>
+        /// <param name="creationOptions">The server creation options</param>
         public static async Task<LanguageServerHelper> StartServerWithTextAsync(TestContext testContext, string text, DocumentUri documentUri, Action<LanguageClientOptions>? onClientOptions = null, Server.CreationOptions? creationOptions = null)
         {
             var diagnosticsPublished = new TaskCompletionSource<PublishDiagnosticsParams>();
@@ -112,8 +127,8 @@ namespace Bicep.LangServer.IntegrationTests
 
         public void Dispose()
         {
-            Server.Dispose();
-            Client.Dispose();
+            this.Server.Dispose();
+            this.Client.Dispose();
         }
     }
 }
