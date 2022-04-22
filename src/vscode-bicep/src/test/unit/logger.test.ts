@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+
 jest.mock("winston", () => ({
   createLogger: () => mockWinstonLogger,
   format: {
@@ -81,8 +82,7 @@ describe("getLogger()", () => {
   });
 });
 
-// eslint-disable-next-line jest/prefer-lowercase-title
-describe("WinstonLogger", () => {
+describe("winstonLogger", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
