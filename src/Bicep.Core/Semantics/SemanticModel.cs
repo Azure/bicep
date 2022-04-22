@@ -8,7 +8,6 @@ using System.Linq;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
-using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
@@ -315,5 +314,6 @@ namespace Bicep.Core.Semantics
         public FileSymbol Root => this.Binder.FileSymbol;
 
         public ResourceScope TargetScope => this.Binder.TargetScope;
+
     }
 }

@@ -15,15 +15,17 @@ namespace Bicep.Core.Semantics
     public class FunctionOverload
     {
         public delegate TypeSymbol ReturnTypeBuilderDelegate(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes);
-        public delegate SyntaxBase EvaluatorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol);
+        public delegate SyntaxBase EvaluatorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable);
+        public delegate SyntaxBase? VariableGeneratorDelegate(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment);
 
-        public FunctionOverload(string name, string genericDescription, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, FunctionFlags flags = FunctionFlags.Default)
+        public FunctionOverload(string name, string genericDescription, string description, ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType, IEnumerable<FixedFunctionParameter> fixedParameters, VariableFunctionParameter? variableParameter, EvaluatorDelegate? evaluator, VariableGeneratorDelegate? variableGenerator, FunctionFlags flags = FunctionFlags.Default)
         {
             Name = name;
             GenericDescription = genericDescription;
             Description = description;
             ReturnTypeBuilder = returnTypeBuilder;
             Evaluator = evaluator;
+            VariableGenerator = variableGenerator;
             FixedParameters = fixedParameters.ToImmutableArray();
             VariableParameter = variableParameter;
             Flags = flags;
@@ -50,8 +52,12 @@ namespace Bicep.Core.Semantics
         public VariableFunctionParameter? VariableParameter { get; }
 
         public ReturnTypeBuilderDelegate ReturnTypeBuilder { get; }
+
         public TypeSymbol TypeSignatureSymbol { get; }
+
         public EvaluatorDelegate? Evaluator { get; }
+
+        public VariableGeneratorDelegate? VariableGenerator { get; }
 
         public FunctionFlags Flags { get; }
 

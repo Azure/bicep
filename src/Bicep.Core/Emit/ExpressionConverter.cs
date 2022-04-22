@@ -110,11 +110,10 @@ namespace Bicep.Core.Emit
         private LanguageExpression ConvertFunction(FunctionCallSyntaxBase functionCall)
         {
             var symbol = context.SemanticModel.GetSymbolInfo(functionCall);
-            if (symbol is FunctionSymbol functionSymbol &&
-                context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is FunctionOverload functionOverload &&
-                functionOverload.Evaluator is not null)
+            if (symbol is FunctionSymbol &&
+                context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is {Evaluator: { }} functionOverload)
             {
-                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall)));
+                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall), context.FunctionVariables.GetValueOrDefault(functionCall)));
             }
 
             switch (functionCall)
@@ -926,8 +925,14 @@ namespace Bicep.Core.Emit
 
         private LanguageExpression ConvertVariableAccess(VariableAccessSyntax variableAccessSyntax)
         {
-            string name = variableAccessSyntax.Name.IdentifierName;
+            var name = variableAccessSyntax.Name.IdentifierName;
 
+            if (variableAccessSyntax is ExplicitVariableAccessSyntax)
+            {
+                //just return a call to variables.
+                return CreateFunction("variables", new JTokenExpression(name));  
+            }
+            
             var symbol = context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
 
             switch (symbol)

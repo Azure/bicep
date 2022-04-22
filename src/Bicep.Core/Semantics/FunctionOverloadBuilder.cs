@@ -12,13 +12,13 @@ namespace Bicep.Core.Semantics
     {
         public FunctionOverloadBuilder(string name)
         {
-            this.Name = name;
-            this.GenericDescription = string.Empty;
-            this.Description = string.Empty;
-            this.ReturnType = LanguageConstants.Any;
-            this.FixedParameters = ImmutableArray.CreateBuilder<FixedFunctionParameter>();
-            this.ReturnTypeBuilder = (_, _, _, _, _) => LanguageConstants.Any;
-            this.VariableParameter = null;
+            Name = name;
+            GenericDescription = string.Empty;
+            Description = string.Empty;
+            ReturnType = LanguageConstants.Any;
+            FixedParameters = ImmutableArray.CreateBuilder<FixedFunctionParameter>();
+            ReturnTypeBuilder = (_, _, _, _, _) => LanguageConstants.Any;
+            VariableParameter = null;
         }
 
         protected string Name { get; }
@@ -37,72 +37,75 @@ namespace Bicep.Core.Semantics
 
         protected FunctionOverload.EvaluatorDelegate? Evaluator { get; private set; }
 
+        protected FunctionOverload.VariableGeneratorDelegate? VariableGenerator { get; private set; }
+
         protected FunctionFlags Flags { get; private set; }
 
         public FunctionOverload Build()
         {
-            this.Validate();
-            return this.BuildInternal();
+            Validate();
+            return BuildInternal();
         }
 
         public virtual FunctionOverload BuildInternal() =>
-            new FunctionOverload(
-                this.Name,
-                this.GenericDescription,
-                this.Description,
-                this.ReturnTypeBuilder,
-                this.ReturnType,
-                this.FixedParameters.ToImmutable(),
-                this.VariableParameter,
-                this.Evaluator,
-                this.Flags);
+            new(
+                Name,
+                GenericDescription,
+                Description,
+                ReturnTypeBuilder,
+                ReturnType,
+                FixedParameters.ToImmutable(),
+                VariableParameter,
+                Evaluator,
+                VariableGenerator,
+                Flags);
 
         public FunctionOverloadBuilder WithGenericDescription(string genericDescription)
         {
-            this.GenericDescription = genericDescription;
-            this.Description = genericDescription;
+            GenericDescription = genericDescription;
+            Description = genericDescription;
 
             return this;
         }
         
         public FunctionOverloadBuilder WithDescription(string description)
         {
-            this.Description = description;
+            Description = description;
 
             return this;
         }
 
         public FunctionOverloadBuilder WithReturnType(TypeSymbol returnType)
         {
-            this.ReturnType = returnType;
-            this.ReturnTypeBuilder = (_, _, _, _, _) => returnType;
+            ReturnType = returnType;
+            ReturnTypeBuilder = (_, _, _, _, _) => returnType;
 
             return this;
         }
 
         public FunctionOverloadBuilder WithDynamicReturnType(FunctionOverload.ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType)
         {
-            this.ReturnType = signatureType;
-            this.ReturnTypeBuilder = returnTypeBuilder;
+            ReturnType = signatureType;
+            ReturnTypeBuilder = returnTypeBuilder;
 
             return this;
         }
 
         public FunctionOverloadBuilder WithRequiredParameter(string name, TypeSymbol type, string description)
         {
-            this.FixedParameters.Add(new FixedFunctionParameter(name, description, type, required: true));
+            FixedParameters.Add(new FixedFunctionParameter(name, description, type, required: true));
             return this;
         }
 
         public FunctionOverloadBuilder WithOptionalParameter(string name, TypeSymbol type, string description)
         {
-            this.FixedParameters.Add(new FixedFunctionParameter(name, description, type, required: false));
+            FixedParameters.Add(new FixedFunctionParameter(name, description, type, required: false));
             return this;
         }
 
         public FunctionOverloadBuilder WithVariableParameter(string namePrefix, TypeSymbol type, int minimumCount, string description)
         {
-            this.VariableParameter = new VariableFunctionParameter(namePrefix, description, type, minimumCount);
+            VariableParameter = new VariableFunctionParameter(namePrefix, description, type, minimumCount);
             return this;
         }
 
@@ -111,10 +114,15 @@ namespace Bicep.Core.Semantics
             Evaluator = evaluator;
             return this;
         }
+        public FunctionOverloadBuilder WithVariableGenerator(FunctionOverload.VariableGeneratorDelegate variableGenerator)
+        {
+            VariableGenerator = variableGenerator;
+            return this;
+        }
 
         public FunctionOverloadBuilder WithFlags(FunctionFlags flags)
         {
-            this.Flags = flags;
+            Flags = flags;
 
             return this;
         }
@@ -125,9 +133,9 @@ namespace Bicep.Core.Semantics
             bool requiredState = true;
             bool optionalParameterPresent = false;
 
-            for (int i = 0; i < this.FixedParameters.Count; i++)
+            for (int i = 0; i < FixedParameters.Count; i++)
             {
-                var current = this.FixedParameters[i];
+                var current = FixedParameters[i];
 
                 if (!current.Required)
                 {
@@ -150,7 +158,7 @@ namespace Bicep.Core.Semantics
 
                     case false when current.Required:
                         // required param after we've seen optionals
-                        throw new InvalidOperationException($"Required parameter of function overload '{this.Name}' at index {i} follows an optional argument, which is not supported.");
+                        throw new InvalidOperationException($"Required parameter of function overload '{Name}' at index {i} follows an optional argument, which is not supported.");
 
                     default:
                         // optional following an optional
@@ -159,9 +167,9 @@ namespace Bicep.Core.Semantics
                 }
             }
 
-            if (optionalParameterPresent && this.VariableParameter != null)
+            if (optionalParameterPresent && VariableParameter != null)
             {
-                throw new InvalidOperationException($"The function overload '{this.Name}' has a variable parameter together with optional parameters, which is not supported.");
+                throw new InvalidOperationException($"The function overload '{Name}' has a variable parameter together with optional parameters, which is not supported.");
             }
         }
     }
