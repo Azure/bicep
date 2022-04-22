@@ -20,7 +20,7 @@
     <PackageReference Include="FluentAssertions" Version="6.6.0" />
     <PackageReference Include="JsonPath.Net" Version="0.2.1" />
     <PackageReference Include="JsonSchema.Net" Version="2.3.0" />
-    <PackageReference Include="Markdig" Version="0.30.0" />
+    <PackageReference Include="Markdig" Version="0.30.1" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />
