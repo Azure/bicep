@@ -39,6 +39,7 @@
     "onCommand:bicep.build",
     "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
+    "onCommand:bicep.forceModulesRestore",
     "onCommand:bicep.insertResource",
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
@@ -163,6 +164,11 @@
         "icon": "$(cloud-upload)"
       },
       {
+        "command": "bicep.forceModulesRestore",
+        "title": "Restore Bicep File (force)",
+        "category": "Bicep"
+      },
+      {
         "command": "bicep.insertResource",
         "title": "Insert Resource",
         "category": "Bicep",
@@ -197,6 +203,12 @@
         "mac": "cmd+alt+b",
         "when": "resourceLangId == bicep"
       },
+      {
+        "command": "bicep.forceModulesRestore",
+        "key": "ctrl+m r",
+        "mac": "cmd+m r",
+        "when": "resourceLangId == bicep"
+      },      
       {
         "command": "bicep.showVisualizerToSide",
         "key": "ctrl+k v",
@@ -238,7 +250,12 @@
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
-        }
+        },
+        {
+          "command": "bicep.forceModulesRestore",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        }        
       ],
       "editor/title/context": [
         {
@@ -260,7 +277,12 @@
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
-        }
+        },
+        {
+          "command": "bicep.forceModulesRestore",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        }        
       ],
       "editor/context": [
         {
@@ -273,6 +295,11 @@
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
         },
+        {
+          "command": "bicep.forceModulesRestore",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },        
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
@@ -294,6 +321,10 @@
           "when": "config.bicep.enableDeploy",
           "group": "0_bicep"
         },
+        {
+          "command": "bicep.forceModulesRestore",
+          "group": "0_bicep"
+        },        
         {
           "command": "bicep.insertResource",
           "group": "0_bicep"
