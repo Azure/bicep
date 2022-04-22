@@ -9,6 +9,7 @@ on:
 
 jobs:
   build-bicep:
+    
     name: 'Build CLI (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
 
@@ -151,11 +152,27 @@ jobs:
         with:
           flags: dotnet
 
+  check-secret-access:
+    name: Check if the workflow run can access secrets
+    runs-on: ubuntu-latest
+    needs: build-bicep
+    outputs:
+      can_access_secrets: ${{ steps.check-secret.outputs.can_access_secrets }}
+    steps:
+      - name: Check secret
+        id: check-secret
+        env:
+          CAN_ACCESS_SECRETS: ${{ secrets.CAN_ACCESS_SECRETS }}
+        run: |
+          echo "::set-output name=can_access_secrets::${{ env.CAN_ACCESS_SECRETS != '' }}"
+    
   test-cli-live:
     name: 'Test CLI (live) (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
-    needs: build-bicep
-    if: github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
+    needs:
+      - build-bicep
+      - check-secret-access
+    if: needs.check-secret-access.outputs.can_access_secrets == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
 
     env:
       CI: true
