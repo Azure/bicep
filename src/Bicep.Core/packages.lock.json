@@ -99,9 +99,9 @@
       },
       "JetBrains.Annotations": {
         "type": "Direct",
-        "requested": "[2021.3.0, )",
-        "resolved": "2021.3.0",
-        "contentHash": "Ddxjs5RRjf+c8m9m++WvhW1lz1bqNhsTjWvCLbQN9bvKbkJeR9MhtfNwKgBRRdG2yLHcXFr5Lf7fsvvkiPaDRg=="
+        "requested": "[2022.1.0, )",
+        "resolved": "2022.1.0",
+        "contentHash": "ASfpoFJxiRsC9Xc4TWuPM41Zb/gl64xwfMOhnOZ3RnVWGYIZchjpWQV5zshJgoc/ZxVtgjaF7b577lURj7E6ig=="
       },
       "JsonPatch.Net": {
         "type": "Direct",
