@@ -17,6 +17,7 @@ using FluentAssertions.Execution;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.Core.Workspaces;
+using Bicep.LangServer.IntegrationTests.Helpers;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -24,8 +25,22 @@ namespace Bicep.LangServer.IntegrationTests
     [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class SemanticTokenTests
     {
+        private static readonly SharedLanguageHelperManager DefaultServer = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+        }
+
+        [ClassCleanup]
+        public static async Task ClassCleanup()
+        {
+            await DefaultServer.DisposeAsync();
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -34,10 +49,10 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From($"/{dataSet.Name}");
             var bicepFile = SourceFileFactory.CreateBicepFile(uri.ToUri(), dataSet.Bicep);
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
-            var semanticTokens = await client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
+            var semanticTokens = await helper.Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams
             {
                 TextDocument = new TextDocumentIdentifier(uri),
             });
