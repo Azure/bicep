@@ -2,6 +2,9 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.FileSystem;
+using LanguageConstants = Bicep.Core.LanguageConstants;
+
+
 using System.IO;
 
 namespace Bicep.Cli.Arguments
@@ -17,7 +20,7 @@ namespace Bicep.Cli.Arguments
                     case "--stdout":
                         OutputToStdOut = true;
                         break;
-                    case "--allowoverwrite":
+                    case "--force":
                         AllowOverwrite = true;
                         break;
                     case "--outdir":
@@ -87,13 +90,14 @@ namespace Bicep.Cli.Arguments
                 }
             }
 
-            var inputPath = PathHelper.ResolvePath(InputFile);
-            static string DefaultOutputPath(string path) => PathHelper.GetDefaultDecompileOutputPath(path);
-            var outputPath = PathHelper.ResolveDefaultOutputPath(inputPath, OutputDir, OutputFile, DefaultOutputPath);
-
-            if (!OutputToStdOut && !AllowOverwrite && File.Exists(outputPath))
+            if (!OutputToStdOut && !AllowOverwrite)
             {
-                throw new CommandLineException($"The output path \"{outputPath}\" already exists. Use --allowoverwrite to overwrite the existing file.");
+                string outputFilePath = Path.ChangeExtension(PathHelper.ResolvePath(InputFile), LanguageConstants.LanguageFileExtension);
+                if (File.Exists(outputFilePath))
+                {
+                    throw new CommandLineException($"The output path \"{outputFilePath}\" already exists. Use --force to overwrite the existing file.");
+                }
+
             }
         }
 

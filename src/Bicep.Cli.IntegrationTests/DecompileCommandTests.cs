@@ -299,7 +299,7 @@ namespace Bicep.Cli.IntegrationTests
             {
                 // keep the output stream open while we attempt to write to it
                 // this should force an access denied error
-                var (output, error, result) = await Bicep("decompile", "--allowoverwrite", jsonPath);
+                var (output, error, result) = await Bicep("decompile", "--force", jsonPath);
 
                 output.Should().BeEmpty();
                 error.AsLines().Should().Contain(DecompilationDisclaimer);
