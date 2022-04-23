@@ -3022,9 +3022,14 @@ resource managementGroup 'Microsoft.Management/managementGroups@2021-04-01'
         {
             var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
 var text = loadTextContent('./con')
+var text2 = loadTextContent('./con.txt')
 var base64 = loadFileAsBase64('./con')
+var base64_2 = loadFileAsBase64('./con.txt')
 
 module test './con'
+
+module test './con.txt'
+
 ");
             var fileResolver = new FileResolver();
             var configuration = BicepTestConstants.BuiltInConfiguration;

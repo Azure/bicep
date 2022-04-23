@@ -246,7 +246,7 @@ namespace Bicep.Core.FileSystem
         {
             /*
              * Win10 (and possibly older versions) will block without returning when
-             * reading a file whose name is CON which breaks the language server
+             * reading a file whose name is CON or CON.<any extension> which breaks the language server
              * 
              * as a workaround, we will simulate Win11+ behavior that throws a
              * FileNotFoundException
@@ -260,10 +260,10 @@ namespace Bicep.Core.FileSystem
                 return;
             }
 
-            string fileName = Path.GetFileName(localPath);
+            string fileName = Path.GetFileNameWithoutExtension(localPath);
             if(!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
             {
-                // file is not named CON, so we can proceed normally
+                // file is not named CON or CON.<any extension>, so we can proceed normally
                 return;
             }
 
