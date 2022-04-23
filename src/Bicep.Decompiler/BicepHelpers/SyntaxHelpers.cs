@@ -79,6 +79,7 @@ namespace Bicep.Decompiler.BicepHelpers
             "resourceGroup",
             "deployment",
             "environment",
+            "managementGroupResourceId",
             "resourceId",
             "subscriptionResourceId",
             "tenantResourceId",
