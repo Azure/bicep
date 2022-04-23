@@ -1,11 +1,16 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -16,6 +21,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ScenarioTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         // https://github.com/azure/bicep/issues/3636
         public void Test_Issue3636()
@@ -3004,6 +3012,28 @@ resource managementGroup 'Microsoft.Management/managementGroups@2021-04-01'
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
                 ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.")
             });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/6224
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_6224()
+        {
+            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+var text = loadTextContent('./con')
+var base64 = loadFileAsBase64('./con')
+
+module test './con'
+");
+            var fileResolver = new FileResolver();
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            var features = BicepTestConstants.Features;
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, configuration, features);
+
+            // the bug was that the compilation would not complete
+            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
         }
     }
 }
