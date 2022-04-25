@@ -63,7 +63,7 @@ namespace Bicep.Core.UnitTests.Registry
         {
             var data = new TemplateSpecVersionData("westus")
             {
-                MainTemplate = "{}"
+                MainTemplate = new BinaryData("{}")
             };
 
             var templateSpecVersionMock = CreateMockTemplateSpecVersion(
@@ -81,12 +81,12 @@ namespace Bicep.Core.UnitTests.Registry
 
             var templateSpec = await repository.FindTemplateSpecByIdAsync(TestTemplateSpecId);
 
-            templateSpec.MainTemplate.ValueEquals("{}").Should().BeTrue();
+            templateSpec.MainTemplate.GetRawText().Should().Be("{}");
         }
 
         private ITemplateSpecVersionProvider CreateMockTemplateSpecVersionProvider(
             ArmClient armClient,
-            TemplateSpecVersion templateSpecVersion)
+            TemplateSpecVersionResource templateSpecVersion)
         {
             var templateSpecVersionProvider = StrictMock.Of<ITemplateSpecVersionProvider>();
             templateSpecVersionProvider
@@ -96,9 +96,9 @@ namespace Bicep.Core.UnitTests.Registry
             return templateSpecVersionProvider.Object;
         }
 
-        private static TemplateSpecVersion CreateMockTemplateSpecVersion(params Action<Mock<TemplateSpecVersion>>[] setUpTemplateSpecVersionMockActions)
+        private static TemplateSpecVersionResource CreateMockTemplateSpecVersion(params Action<Mock<TemplateSpecVersionResource>>[] setUpTemplateSpecVersionMockActions)
         {
-            var templateSpecVersionMock = StrictMock.Of<TemplateSpecVersion>();
+            var templateSpecVersionMock = StrictMock.Of<TemplateSpecVersionResource>();
 
             foreach (var action in setUpTemplateSpecVersionMockActions)
             {
