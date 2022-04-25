@@ -122,6 +122,13 @@ namespace Bicep.LanguageServer.Deploy
             return $"{portalUrl}/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/{id}%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2F{deploymentName}";
         }
 
+        /// <summary>
+        /// Waits for deployment operation to complete
+        /// </summary>
+        /// <param name="deploymentId">deployment id</param>
+        /// <param name="documentPath">path to bicep file used in deployment</param>
+        /// <param name="deploymentOperationsCache"><see cref="IDeploymentOperationsCache"/></param>
+        /// <returns><see cref="BicepDeployWaitForCompletionResponse"/></returns>
         public async static Task<BicepDeployWaitForCompletionResponse> WaitForDeploymentCompletionAsync(string deploymentId, string documentPath, IDeploymentOperationsCache deploymentOperationsCache)
         {
             var deploymentResourceOperation = deploymentOperationsCache.GetDeploymentOperation(deploymentId);

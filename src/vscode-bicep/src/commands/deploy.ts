@@ -111,11 +111,11 @@ export class DeployCommand implements Command {
         context
       );
 
-      let deployStartResponse: BicepDeploymentStartResponse | undefined;
+      let deploymentStartResponse: BicepDeploymentStartResponse | undefined;
 
       switch (deploymentScope) {
         case "resourceGroup":
-          deployStartResponse = await this.handleResourceGroupDeployment(
+          deploymentStartResponse = await this.handleResourceGroupDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -124,7 +124,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "subscription":
-          deployStartResponse = await this.handleSubscriptionDeployment(
+          deploymentStartResponse = await this.handleSubscriptionDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -133,7 +133,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "managementGroup":
-          deployStartResponse = await this.handleManagementGroupDeployment(
+          deploymentStartResponse = await this.handleManagementGroupDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -154,14 +154,14 @@ export class DeployCommand implements Command {
         }
       }
 
-      if (deployStartResponse) {
+      if (deploymentStartResponse) {
         this.outputChannelManager.appendToOutputChannel(
-          deployStartResponse.outputMessage
+          deploymentStartResponse.outputMessage
         );
 
-        if (deployStartResponse.isSuccess) {
+        if (deploymentStartResponse.isSuccess) {
           const viewDeploymentInPortalMessage =
-            deployStartResponse.viewDeploymentInPortalMessage;
+            deploymentStartResponse.viewDeploymentInPortalMessage;
 
           if (viewDeploymentInPortalMessage != null) {
             this.outputChannelManager.appendToOutputChannel(
