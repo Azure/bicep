@@ -9,7 +9,7 @@ on:
 
 jobs:
   build-bicep:
-    
+
     name: 'Build CLI (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
 
@@ -80,14 +80,14 @@ jobs:
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
-      
+
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
 
       - name: Pack
         if: ${{ matrix.publishPackages == 'true' }}
         run: dotnet pack --configuration ${{ matrix.configuration }}
-      
+
       - name: Test
         if: ${{ matrix.runTests == 'true' }}
         run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
@@ -103,7 +103,7 @@ jobs:
       - name: Publish Language Server
         if: ${{ matrix.publishLanguageServer == 'true' }}
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
-      
+
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
@@ -122,7 +122,7 @@ jobs:
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
-      
+
       - name: Upload Language Server
         uses: actions/upload-artifact@v3
         if: ${{ matrix.publishLanguageServer == 'true' }}
@@ -130,7 +130,7 @@ jobs:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net6.0/publish/*
           if-no-files-found: error
-      
+
       - name: Upload Bicep
         uses: actions/upload-artifact@v3
         with:
@@ -163,9 +163,10 @@ jobs:
         id: check-secret
         env:
           CAN_ACCESS_SECRETS: ${{ secrets.CAN_ACCESS_SECRETS }}
+        if: ${{ env.CAN_ACCESS_SECRETS != '' }}
         run: |
-          echo "::set-output name=can_access_secrets::${{ env.CAN_ACCESS_SECRETS != '' }}"
-    
+          echo "::set-output name=can_access_secrets::true"
+
   test-cli-live:
     name: 'Test CLI (live) (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
@@ -197,7 +198,7 @@ jobs:
         - os: 'macos-latest'
           rid: 'osx-x64'
           configuration: 'release'
-    
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -255,16 +256,16 @@ jobs:
 
       - name: Setup .NET Core
         uses: actions/setup-dotnet@v2
-      
+
       - name: Download Bicep CLI
         uses: actions/download-artifact@v3
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
-      
+
       - name: Build Windows Installer
         run: dotnet build --configuration release ./src/installer-win/installer.proj
-      
+
       - name: Upload Windows Installer
         uses: actions/upload-artifact@v3
         with:
@@ -283,7 +284,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      
+
       # should be the full list of RIDs that we support in the CLI
       matrix:
         include:
@@ -305,7 +306,7 @@ jobs:
         - os: 'ubuntu-latest'
           rid: 'osx-arm64'
           runTests: 'false'
-    
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -349,14 +350,14 @@ jobs:
 
       - name: Build CLI Package
         run: dotnet build --configuration release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
-      
+
       - name: Upload CLI Package
         uses: actions/upload-artifact@v3
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/*.nupkg
           if-no-files-found: error
-      
+
       - name: Download CLI Package
         if: ${{ matrix.runTests == 'true' }}
         uses: actions/download-artifact@v3
@@ -405,11 +406,11 @@ jobs:
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep
-        
+
       - name: Run lint
         run: npm run lint
         working-directory: ./src/vscode-bicep
-          
+
       - name: Run unit tests
         run: npm run test:unit
         working-directory: ./src/vscode-bicep
@@ -427,7 +428,7 @@ jobs:
       - name: Build prod
         run: npm run build:prod
         working-directory: ./src/vscode-bicep
-        
+
       - name: Build E2E tests
         run: npm run build:e2e
         working-directory: ./src/vscode-bicep
@@ -484,7 +485,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '14'
-      
+
       - name: npm ci
         run: npm ci
         working-directory: ./src/playground
@@ -521,21 +522,21 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      
+
       - name: TextMate Grammar
         run: |
           npm ci
           npm run lint
           npm test
         working-directory: ./src/textmate
-      
+
       - name: HighlightJs Grammar
         run: |
           npm ci
           npm run lint
           npm test
         working-directory: ./src/highlightjs
-      
+
       - name: Monarch Grammar
         run: |
           npm ci
