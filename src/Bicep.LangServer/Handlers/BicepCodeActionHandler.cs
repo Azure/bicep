@@ -181,7 +181,7 @@ namespace Bicep.LanguageServer.Handlers
             return new CodeAction
             {
                 Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
-                Command = Command.Create(LanguageConstants.EditLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */)
+                Command = Command.Create(LangServerConstants.EditLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */)
         };
         }
 

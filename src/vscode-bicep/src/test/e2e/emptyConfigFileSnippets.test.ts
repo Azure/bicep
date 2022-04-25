@@ -20,6 +20,8 @@ import {
 import {} from "fs";
 import { createUniqueTempFolder } from "../utils/createUniqueTempFolder";
 import { normalizeLineEndings } from "../utils/normalizeLineEndings";
+import { testScope } from "../utils/testScope";
+import { expectedNewConfigFileContents } from "./expectedNewConfigFileContents";
 
 describe("empty config file snippets", (): void => {
   afterEach(async () => {
@@ -27,20 +29,7 @@ describe("empty config file snippets", (): void => {
   });
 
   it("scaffolding snippet should work as expected in an empty file", async () => {
-    const expectedAfterInsertion = `{
-    // See https://aka.ms/bicep/config for more information on Bicep configuration options
-    // Press CTRL+SPACE/CMD+SPACE at any location to see Intellisense suggestions
-    "analyzers": {
-        "core": {
-            "rules": {
-                "no-unused-params": {
-                    "level": "warning"
-                }
-            }
-        }
-    }
-}
-`;
+    const expectedAfterInsertion = expectedNewConfigFileContents;
 
     const tempFolder = createUniqueTempFolder("emptyConfigSnippetsTest-");
     const configPath = path.join(tempFolder, "bicepconfig.json");
@@ -50,42 +39,53 @@ describe("empty config file snippets", (): void => {
       const doc = await workspace.openTextDocument(configPath);
       const editor = await window.showTextDocument(doc);
 
-      // Find available completions
-      const completions = await executeCompletionItemProvider(
-        doc.uri,
-        new vscode.Position(0, 0)
-      );
-      expect(true).toBe(true);
-      expect(completions).toBeDefined();
-      const items = completions!.items;
-      expect(items.length).toBeGreaterThan(0);
+      let items: CompletionItem[];
+      await testScope("Find available completions", async () => {
+        const completions = await executeCompletionItemProvider(
+          doc.uri,
+          new vscode.Position(0, 0)
+        );
+        expect(true).toBe(true);
+        expect(completions).toBeDefined();
+        items = completions!.items;
+        expect(items.length).toBeGreaterThan(0);
+      });
 
-      // Find the snippet of interest
-      const scaffoldSnippet = items.find(
-        (i) => getCompletionLabelText(i) === "Default Bicep Configuration"
-      );
-      expect(scaffoldSnippet).toBeDefined();
-      // ... and insert it
-      await editor.insertSnippet(<SnippetString>scaffoldSnippet!.insertText);
+      let scaffoldSnippet: CompletionItem | undefined;
+      await testScope("Find the snippet of interest", async () => {
+        scaffoldSnippet = items.find(
+          (i) => getCompletionLabelText(i) === "Default Bicep Configuration"
+        );
+        expect(scaffoldSnippet).toBeDefined();
+      });
+      await testScope(" ... and insert it", async () => {
+        await editor.insertSnippet(<SnippetString>scaffoldSnippet!.insertText);
+      });
 
-      // Verify
-      const textAfterInsertion = editor.document.getText();
-      expect(normalizeLineEndings(textAfterInsertion)).toBe(
-        normalizeLineEndings(expectedAfterInsertion)
-      );
+      await testScope("Verify inserted snippet", () => {
+        const textAfterInsertion = editor.document.getText();
+        expect(normalizeLineEndings(textAfterInsertion)).toBe(
+          normalizeLineEndings(expectedAfterInsertion)
+        );
+      });
 
-      // Verify that the snippet placed VS Code into an "insertion" state with the dropdown for the first rule open to show
-      //   the available diagnostic levels (the current one should be "warning").
-      // Verify this by moving down to the next suggestion ("off") and selecting it
-      const expectedAfterSelectingOffInsteadOfWarning =
-        expectedAfterInsertion.replace(/warning/, "off");
-      await executeSelectNextSuggestion();
-      await executeAcceptSelectedSuggestion();
-      const textAfterSelectingOffInsteadOfWarningtext =
-        editor.document.getText();
-      expect(
-        normalizeLineEndings(textAfterSelectingOffInsteadOfWarningtext)
-      ).toBe(normalizeLineEndings(expectedAfterSelectingOffInsteadOfWarning));
+      await testScope(
+        `Verify that the snippet placed VS Code into an "insertion" state with the dropdown for the first rule open to show the available diagnostic levels (the current one should be "warning").
+Verify this by moving down to the next suggestion ("off") and selecting it`,
+        async () => {
+          const expectedAfterSelectingOffInsteadOfWarning =
+            expectedAfterInsertion.replace(/warning/, "off");
+          await executeSelectNextSuggestion();
+          await executeAcceptSelectedSuggestion();
+          const textAfterSelectingOffInsteadOfWarningtext =
+            editor.document.getText();
+          expect(
+            normalizeLineEndings(textAfterSelectingOffInsteadOfWarningtext)
+          ).toBe(
+            normalizeLineEndings(expectedAfterSelectingOffInsteadOfWarning)
+          );
+        }
+      );
     } finally {
       fse.rmdirSync(tempFolder, {
         recursive: true,

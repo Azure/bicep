@@ -11,8 +11,8 @@ import {
 import path from "path";
 import * as fse from "fs-extra";
 import {
+  sendRequestCreateConfigFile,
   GetRecommendedConfigLocationResult,
-  createBicepConfigRequestType,
   getRecommendedConfigLocationRequestType,
 } from "../language/protocol";
 
@@ -84,7 +84,7 @@ export class CreateBicepConfigurationFile implements Command {
       recommendation.recommendedFolder === path.dirname(selectedPath)
     );
 
-    await this.client.sendRequest(createBicepConfigRequestType, {
+    await sendRequestCreateConfigFile(this.client, {
       destinationPath: selectedPath,
     });
 

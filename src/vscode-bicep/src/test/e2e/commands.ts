@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 import * as vscode from "vscode";
+import { sleep } from "../utils/time";
 
 // More can be added as needed: https://code.visualstudio.com/api/references/commands.
 
@@ -36,6 +37,7 @@ export async function executeAcceptSelectedSuggestion(): Promise<void> {
 }
 
 export async function executeSelectNextSuggestion(): Promise<void> {
+  await sleep(1000);
   await vscode.commands.executeCommand("selectNextSuggestion");
 }
 
@@ -87,5 +89,8 @@ export async function executeCreateConfigFileCommand(
 export async function executeForceModulesRestoreCommand(
   documentUri: vscode.Uri
 ): Promise<void> {
-  return await vscode.commands.executeCommand("bicep.forceModulesRestore", documentUri);
+  return await vscode.commands.executeCommand(
+    "bicep.forceModulesRestore",
+    documentUri
+  );
 }

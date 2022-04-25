@@ -42,9 +42,15 @@ export class ForceModulesRestoreCommand implements Command {
           arguments: [documentUri.fsPath],
         }
       );
-      this.outputChannelManager.appendToOutputChannel(forceModulesRestoreOutput);
+      this.outputChannelManager.appendToOutputChannel(
+        forceModulesRestoreOutput
+      );
     } catch (err) {
-      this.client.error("Restore (force) failed", parseError(err).message, true);
+      this.client.error(
+        "Restore (force) failed",
+        parseError(err).message,
+        true
+      );
     }
   }
 }

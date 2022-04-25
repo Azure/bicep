@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import { LanguageClient } from "vscode-languageclient/node";
 import {
   Position,
   ProtocolNotificationType,
@@ -68,6 +69,10 @@ export interface BicepDeployParams {
   deployId: string;
 }
 
+export interface BicepCreateConfigParams {
+  destinationPath: string;
+}
+
 export interface BicepCacheResponse {
   content: string;
 }
@@ -91,17 +96,15 @@ export const insertResourceRequestType = new ProtocolNotificationType<
   void
 >("textDocument/insertResource");
 
-export interface CreateBicepConfigParams {
-  destinationPath: string;
+export async function sendRequestCreateConfigFile(
+  client: LanguageClient,
+  args: { destinationPath: string }
+): Promise<boolean> {
+  return await client.sendRequest("workspace/executeCommand", {
+    command: "bicep.createConfigFile",
+    arguments: [args],
+  });
 }
-
-export const createBicepConfigRequestType = new ProtocolRequestType<
-  CreateBicepConfigParams,
-  void,
-  never,
-  void,
-  void
->("bicep/createConfigFile");
 
 export interface GetRecommendedConfigLocationParams {
   bicepFilePath?: string;
