@@ -56,7 +56,7 @@ export interface BicepDeploymentScopeResponse {
   errorMessage?: string;
 }
 
-export interface BicepDeployParams {
+export interface BicepDeploymentStartParams {
   documentPath: string;
   parameterFilePath: string;
   id: string;
@@ -69,7 +69,7 @@ export interface BicepDeployParams {
   portalUrl: string;
 }
 
-export interface BicepDeployStartResponse {
+export interface BicepDeploymentStartResponse {
   isSuccess: boolean;
   outputMessage: string;
   viewDeploymentInPortalMessage?: string;

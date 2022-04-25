@@ -74,7 +74,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var documentPath = "some_path";
 
             var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
-                StartDeploymentAsyncCollectionProvider(),
+                CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
                 string.Empty,
@@ -87,8 +87,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
+
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
@@ -102,7 +104,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var documentPath = "some_path";
 
             var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
-                StartDeploymentAsyncCollectionProvider(),
+                CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
                 string.Empty,
@@ -115,8 +117,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
+
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
@@ -170,7 +174,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
     }
   ]
 }";
-            var deploymentCollection = StartDeploymentAsyncCollection(scope);
+            var deploymentCollection = CreateDeploymentCollection(scope);
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), scope))
@@ -192,11 +196,13 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 deployId,
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentStartedMessage, documentPath);
             var expectedDeploymentLink = @"https://portal.azure.com/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/%2Fsubscriptions%2F07268dd7-4c50-434b-b1ff-67b8164edb41%2FresourceGroups%2Fbhavyatest%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2Fbicep_deployment";
+            var expectedViewDeploymentInPortalMessage = string.Format(LangServerResources.ViewDeploymentInPortalMessage, expectedDeploymentLink);
 
             bicepDeployStartResponse.isSuccess.Should().BeTrue();
-            bicepDeployStartResponse.outputMessage.Should().Be(string.Format(LangServerResources.DeploymentStartedMessage, documentPath));
-            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().Be(string.Format(LangServerResources.ViewDeploymentInPortalMessage, expectedDeploymentLink));
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().Be(expectedViewDeploymentInPortalMessage);
         }
 
         [TestMethod]
@@ -214,7 +220,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
     }
   ]
 }";
-            var deploymentCollection = StartDeploymentAsyncCollection(LanguageConstants.TargetScopeTypeSubscription);
+            var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
@@ -235,8 +241,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file");
+
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file"));
+            bicepDeployStartResponse.outputMessage.Should().Contain(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
@@ -255,7 +263,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
     }
   ]
 }";
-            var deploymentCollection = StartDeploymentAsyncCollection(LanguageConstants.TargetScopeTypeSubscription);
+            var deploymentCollection = CreateDeploymentCollection(LanguageConstants.TargetScopeTypeSubscription);
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
             deploymentCollectionProvider
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
@@ -277,8 +285,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0.");
+
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
@@ -317,8 +327,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
+
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
@@ -358,8 +370,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
+
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
@@ -407,8 +421,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
+
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
-            bicepDeployStartResponse.outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
             bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
@@ -460,7 +476,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "deployment_name",
                 deploymentOperationsCache);
 
-            deploymentOperationsCache.GetDeploymentOperationFromCache(deployId).Should().NotBeNull();
+            deploymentOperationsCache.GetDeploymentOperation(deployId).Should().NotBeNull();
         }
 
         [TestMethod]
@@ -479,15 +495,17 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var documentPath = "some_path";
             var deploymentId = "bicep_deployment";
             var deploymentOperationsCache = new DeploymentOperationsCache();
-            deploymentOperationsCache.AddToCache(deploymentId, armDeploymentResourceOperation.Object);
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId, armDeploymentResourceOperation.Object);
 
             var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
                 deploymentId,
                 documentPath,
                 deploymentOperationsCache);
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage);
+
             bicepDeployWaitForCompletionResponse.isSuccess.Should().BeFalse();
-            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
+            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
         }
 
         [DataRow(200)]
@@ -508,15 +526,17 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var documentPath = "some_path";
             var deploymentId = "bicep_deployment";
             var deploymentOperationsCache = new DeploymentOperationsCache();
-            deploymentOperationsCache.AddToCache(deploymentId, armDeploymentResourceOperation.Object);
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId, armDeploymentResourceOperation.Object);
 
             var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
                 deploymentId,
                 documentPath,
                 deploymentOperationsCache);
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentSucceededMessage, documentPath);
+
             bicepDeployWaitForCompletionResponse.isSuccess.Should().BeTrue();
-            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
         }
 
         [TestMethod]
@@ -528,8 +548,10 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 documentPath,
                 new DeploymentOperationsCache());
 
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
+
             bicepDeployWaitForCompletionResponse.isSuccess.Should().BeFalse();
-            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
         }
 
         [TestMethod]
@@ -549,16 +571,16 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var deploymentId1 = "bicep_deployment_1";
             var deploymentId2 = "bicep_deployment_2";
             var deploymentOperationsCache = new DeploymentOperationsCache();
-            deploymentOperationsCache.AddToCache(deploymentId1, armDeploymentResourceOperation.Object);
-            deploymentOperationsCache.AddToCache(deploymentId2, armDeploymentResourceOperation.Object);
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId1, armDeploymentResourceOperation.Object);
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId2, armDeploymentResourceOperation.Object);
 
             await DeploymentHelper.WaitForDeploymentCompletionAsync(
                 deploymentId1,
                 documentPath,
                 deploymentOperationsCache);
 
-            deploymentOperationsCache.GetDeploymentOperationFromCache(deploymentId1).Should().BeNull();
-            deploymentOperationsCache.GetDeploymentOperationFromCache(deploymentId2).Should().NotBeNull();
+            deploymentOperationsCache.GetDeploymentOperation(deploymentId1).Should().BeNull();
+            deploymentOperationsCache.GetDeploymentOperation(deploymentId2).Should().NotBeNull();
         }
 
         private static ArmClient CreateMockArmClient()
@@ -568,14 +590,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
             return clientMock.Object;
         }
 
-        private static IDeploymentCollectionProvider StartDeploymentAsyncCollectionProvider()
+        private static IDeploymentCollectionProvider CreateDeploymentCollectionProvider()
         {
             var deploymentCollectionProviderMock = StrictMock.Of<IDeploymentCollectionProvider>();
 
             return deploymentCollectionProviderMock.Object;
         }
 
-        private static ArmDeploymentCollection StartDeploymentAsyncCollection(string scope)
+        private static ArmDeploymentCollection CreateDeploymentCollection(string scope)
         {
             var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
 

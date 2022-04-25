@@ -33,7 +33,7 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="portalUrl">azure management portal URL</param>
         /// <param name="deploymentName">deployment name</param>
         /// <param name="deploymentOperationsCache">deployment operations cache that needs to be updated</param>
-        /// <returns><see cref="BicepDeployStartResponse"/> </returns>
+        /// <returns><see cref="BicepDeployStartResponse"/></returns>
         public static async Task<BicepDeployStartResponse> StartDeploymentAsync(
             IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
@@ -122,13 +122,13 @@ namespace Bicep.LanguageServer.Deploy
             return $"{portalUrl}/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/{id}%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2F{deploymentName}";
         }
 
-        public async static Task<(bool isSuccess, string outputMessage)> WaitForDeploymentCompletionAsync(string deploymentId, string documentPath, IDeploymentOperationsCache deploymentOperationsCache)
+        public async static Task<BicepDeployWaitForCompletionResponse> WaitForDeploymentCompletionAsync(string deploymentId, string documentPath, IDeploymentOperationsCache deploymentOperationsCache)
         {
             var deploymentResourceOperation = deploymentOperationsCache.GetDeploymentOperation(deploymentId);
 
             if (deploymentResourceOperation is null)
             {
-                return (false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+                return new BicepDeployWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
             }
 
             var response = await deploymentResourceOperation.WaitForCompletionAsync();
@@ -137,11 +137,11 @@ namespace Bicep.LanguageServer.Deploy
 
             if (status == 200 || status == 201)
             {
-                return (true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+                return new BicepDeployWaitForCompletionResponse(true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
             }
             else
             {
-                return (false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
+                return new BicepDeployWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
             }
         }
 

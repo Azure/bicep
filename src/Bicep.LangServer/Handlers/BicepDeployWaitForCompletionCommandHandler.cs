@@ -13,6 +13,8 @@ namespace Bicep.LanguageServer.Handlers
 {
     public record BicepDeployWaitForCompletionParams(string deployId, string documentPath) : IRequest<string>;
 
+    public record BicepDeployWaitForCompletionResponse(bool isSuccess, string outputMessage);
+
     public class BicepDeployWaitForCompletionCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployWaitForCompletionParams, string>
     {
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
@@ -27,14 +29,14 @@ namespace Bicep.LanguageServer.Handlers
 
         public override async Task<string> Handle(BicepDeployWaitForCompletionParams request, CancellationToken cancellationToken)
         {
-            (bool isSuccess, string deploymentOutput) = await DeploymentHelper.WaitForDeploymentCompletionAsync(
+            var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
                 request.deployId,
                 request.documentPath,
                 deploymentOperationsCache);
 
-            PostDeployResultTelemetryEvent(request.deployId, isSuccess);
+            PostDeployResultTelemetryEvent(request.deployId, bicepDeployWaitForCompletionResponse.isSuccess);
 
-            return deploymentOutput;
+            return bicepDeployWaitForCompletionResponse.outputMessage;
         }
 
         private void PostDeployResultTelemetryEvent(string deployId, bool isSuccess)

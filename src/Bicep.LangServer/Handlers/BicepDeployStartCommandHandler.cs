@@ -13,11 +13,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
+    public record BicepDeployStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
 
     public record BicepDeployStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 
-    public class BicepDeployStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, BicepDeployStartResponse>
+    public class BicepDeployStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployStartParams, BicepDeployStartResponse>
     {
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Handlers
             this.telemetryProvider = telemetryProvider;
         }
 
-        public override async Task<BicepDeployStartResponse> Handle(BicepDeployParams request, CancellationToken cancellationToken)
+        public override async Task<BicepDeployStartResponse> Handle(BicepDeployStartParams request, CancellationToken cancellationToken)
         {
             PostDeployStartTelemetryEvent(request.deployId);
 
