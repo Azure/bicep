@@ -123,6 +123,9 @@
   <data name="DeploymentFailedWithExceptionMessage" xml:space="preserve">
     <value>Deployment failed for {0}. {1}</value>
   </data>
+  <data name="DeploymentStartedMessage" xml:space="preserve">
+    <value>Deployment started for {0}.</value>
+  </data>
   <data name="DeploymentSucceededMessage" xml:space="preserve">
     <value>Deployment succeeded for {0}.</value>
   </data>
@@ -141,5 +144,8 @@
   </data>
   <data name="UnsupportedTargetScopeMessage" xml:space="preserve">
     <value>Unsupported target scope: {0}.</value>
+  </data>
+  <data name="ViewDeploymentInPortalMessage" xml:space="preserve">
+    <value>View deployment in portal: {0}.</value>
   </data>
 </root>

@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
@@ -12,28 +13,34 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId) : IRequest<string>;
+    public record BicepDeployParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
 
-    public class BicepDeployCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, string>
+    public record BicepDeployStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
+
+    public class BicepDeployStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployParams, BicepDeployStartResponse>
     {
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
+        private readonly IDeploymentOperationsCache deploymentOperationsCache;
         private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepDeployCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, ISerializer serializer, ITelemetryProvider telemetryProvider)
-            : base(LangServerConstants.DeployCommand, serializer)
+        public BicepDeployStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
+            : base(LangServerConstants.DeployStartCommand, serializer)
         {
             this.deploymentCollectionProvider = deploymentCollectionProvider;
+            this.deploymentOperationsCache = deploymentOperationsCache;
             this.telemetryProvider = telemetryProvider;
         }
 
-        public override async Task<string> Handle(BicepDeployParams request, CancellationToken cancellationToken)
+        public override async Task<BicepDeployStartResponse> Handle(BicepDeployParams request, CancellationToken cancellationToken)
         {
             PostDeployStartTelemetryEvent(request.deployId);
 
             var credential = new CredentialFromTokenAndTimeStamp(request.token, request.expiresOnTimestamp);
             var armClient = new ArmClient(credential);
 
-            (bool isSuccess, string deploymentOutput) = await DeploymentHelper.CreateDeployment(
+            string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
+
+            return await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider,
                 armClient,
                 request.documentPath,
@@ -41,24 +48,16 @@ namespace Bicep.LanguageServer.Handlers
                 request.parameterFilePath,
                 request.id,
                 request.deploymentScope,
-                request.location);
-
-            PostDeployResultTelemetryEvent(request.deployId, isSuccess);
-
-            return deploymentOutput;
+                request.location,
+                request.deployId,
+                request.portalUrl,
+                deploymentName,
+                deploymentOperationsCache);
         }
 
         private void PostDeployStartTelemetryEvent(string deployId)
         {
             var telemetryEvent = BicepTelemetryEvent.CreateDeployStart(deployId);
-
-            telemetryProvider.PostEvent(telemetryEvent);
-        }
-
-        private void PostDeployResultTelemetryEvent(string deployId, bool isSuccess)
-        {
-            var result = isSuccess ? BicepTelemetryEvent.Result.Succeeded : BicepTelemetryEvent.Result.Failed;
-            var telemetryEvent = BicepTelemetryEvent.CreateDeployResult(deployId, result);
 
             telemetryProvider.PostEvent(telemetryEvent);
         }
