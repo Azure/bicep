@@ -111,9 +111,13 @@ namespace Bicep.Core.Emit
         {
             var symbol = context.SemanticModel.GetSymbolInfo(functionCall);
             if (symbol is FunctionSymbol &&
-                context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is {Evaluator: { }} functionOverload)
+                context.SemanticModel.TypeManager.GetMatchedFunctionOverload(functionCall) is { Evaluator: { } } functionOverload)
             {
-                return ConvertExpression(functionOverload.Evaluator(functionCall, symbol, context.SemanticModel.GetTypeInfo(functionCall), context.FunctionVariables.GetValueOrDefault(functionCall)));
+                return ConvertExpression(functionOverload.Evaluator(functionCall,
+                    symbol,
+                    context.SemanticModel.GetTypeInfo(functionCall),
+                    context.SemanticModel.FunctionVariables.GetValueOrDefault(functionCall),
+                    context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall)));
             }
 
             switch (functionCall)
@@ -562,7 +566,7 @@ namespace Bicep.Core.Emit
         private SyntaxBase GetResourceNameAncestorSyntaxSegment(DeclaredResourceMetadata resource, int startingAncestorIndex)
         {
             var ancestors = this.context.SemanticModel.ResourceAncestors.GetAncestors(resource);
-            if(startingAncestorIndex >= ancestors.Length)
+            if (startingAncestorIndex >= ancestors.Length)
             {
                 // not enough ancestors
                 throw new ArgumentException($"Resource type has {ancestors.Length} ancestor types but name expression was requested for ancestor type at index {startingAncestorIndex}.");
@@ -604,7 +608,7 @@ namespace Bicep.Core.Emit
             // the initial ancestor gives us the base expression
             SyntaxBase? rewritten = ancestors[startingAncestorIndex].Resource.NameSyntax;
 
-            for(int i = startingAncestorIndex; i < ancestors.Length; i++)
+            for (int i = startingAncestorIndex; i < ancestors.Length; i++)
             {
                 var ancestor = ancestors[i];
 
@@ -647,7 +651,7 @@ namespace Bicep.Core.Emit
                                   _ => throw new NotImplementedException($"Unexpected local kind '{local.LocalKind}'.")
                               });
 
-                        rewritten = SymbolReplacer.Replace(this.context.SemanticModel, replacements, rewritten);                        
+                        rewritten = SymbolReplacer.Replace(this.context.SemanticModel, replacements, rewritten);
 
                         break;
 
@@ -930,9 +934,9 @@ namespace Bicep.Core.Emit
             if (variableAccessSyntax is ExplicitVariableAccessSyntax)
             {
                 //just return a call to variables.
-                return CreateFunction("variables", new JTokenExpression(name));  
+                return CreateFunction("variables", new JTokenExpression(name));
             }
-            
+
             var symbol = context.SemanticModel.GetSymbolInfo(variableAccessSyntax);
 
             switch (symbol)
@@ -971,6 +975,7 @@ namespace Bicep.Core.Emit
 
                 default:
                     throw new NotImplementedException($"Encountered an unexpected symbol kind '{symbol?.Kind}' when generating a variable access expression.");
+
             }
         }
 

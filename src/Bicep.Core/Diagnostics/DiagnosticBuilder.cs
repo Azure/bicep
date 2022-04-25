@@ -1371,7 +1371,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP231",
                 "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
 
-
             public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
                 TextSpan,
                 "BCP232",
@@ -1381,6 +1380,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP233",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");
+
+            public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
+                TextSpan,
+                "BCP234",
+                $"Specified path does not exist in given JSON file or is invalid.");
     
         }
 

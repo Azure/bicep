@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
@@ -13,6 +14,7 @@ using Bicep.Core.Modules;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -44,7 +46,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
-                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable) => {
+                .WithEvaluator((functionCall, _, _, _, _) => {
                     return functionCall.Arguments.Single().Expression;
                 })
                 .Build(),
@@ -429,7 +431,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("json")
                 .WithGenericDescription("Converts a valid JSON string into a JSON data type.")
                 .WithRequiredParameter("json", LanguageConstants.String, "The value to convert to JSON. The string must be a properly formatted JSON string.")
-                .WithDynamicReturnType(JsonTypeBuilder, LanguageConstants.Any)
+                .WithReturnResultBuilder(JsonResultBuilder, LanguageConstants.Any)
                 .Build(),
 
             new FunctionOverloadBuilder("dateTimeAdd")
@@ -470,7 +472,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithGenericDescription($"Loads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is {LanguageConstants.MaxLiteralCharacterLimit} characters (including line endings).")
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
-                .WithDynamicReturnType(LoadTextContentTypeBuilder, LanguageConstants.String)
+                .WithReturnResultBuilder(LoadTextContentResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
                 .Build(),
@@ -478,15 +480,24 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("loadFileAsBase64")
                 .WithGenericDescription($"Loads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is {LanguageConstants.MaxLiteralCharacterLimit / 4 * 3 / 1024} Kb.")
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
-                .WithDynamicReturnType(LoadContentAsBase64TypeBuilder, LanguageConstants.String)
+                .WithReturnResultBuilder(LoadContentAsBase64ResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
+                .Build(),
+            new FunctionOverloadBuilder("loadJsonContent")
+                .WithGenericDescription($"Loads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.")
+                .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
+                .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath string to narrow down loaded file. If not provided, root element indicator '$' is used")
+                .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
+                .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.String)
+                .WithEvaluator(JsonContentFunctionReturnTypeEvaluator)
+                .WithVariableGenerator(JsonContentFunctionVariableGenerator)
                 .Build(),
 
             new FunctionOverloadBuilder("items")
                 .WithGenericDescription("Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys and values for")
-                .WithDynamicReturnType(ItemsTypeBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
+                .WithReturnResultBuilder(ItemsResultBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
                 .Build(),
         }.ToImmutableArray();
 
@@ -513,67 +524,134 @@ namespace Bicep.Core.Semantics.Namespaces
             return fileUri;
         }
 
-        private static TypeSymbol LoadTextContentTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadTextContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            if (argumentTypes[0] is not StringLiteralType filePathType)
+            return TryLoadTextContentFromFile(binder, fileResolver, diagnostics,
+                (arguments[0], argumentTypes[0]),
+                arguments.Length > 1 ? (arguments[1], argumentTypes[1]) : null,
+                out var fileContent,
+                LanguageConstants.MaxLiteralCharacterLimit)
+                ? new(new StringLiteralType(fileContent))
+                : new(LanguageConstants.String);
+        }
+
+        private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            string? tokenSelectorPath = null;
+            if (arguments.Length > 1)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired());
-                return LanguageConstants.String;
+                if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
+                {
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired());
+                    return new(LanguageConstants.Any);
+                }
+                tokenSelectorPath = tokenSelectorType.RawStringValue;
+            }
+            if (!TryLoadTextContentFromFile(binder, fileResolver, diagnostics,
+                    (arguments[0], argumentTypes[0]),
+                    arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null,
+                    out var fileContent,
+                    LanguageConstants.MaxLiteralCharacterLimit))
+            {
+                return new(LanguageConstants.Any);
+            }
+
+            if (fileContent.TryFromJson<JToken>() is not { } token)
+            {
+                // Instead of catching and returning the JSON parse exception, we simply return a generic error.
+                // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
+                var error = DiagnosticBuilder.ForPosition(arguments[0]).UnparseableJsonType();
+                return new(ErrorType.Create(error));
+            }
+
+            if (tokenSelectorPath is not null)
+            {
+
+                try
+                {
+                    token = token.SelectToken(tokenSelectorPath, false);
+                    if (token is null)
+                    {
+                        diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid());
+                        return new(LanguageConstants.Any);
+                    }
+                }
+                catch (JsonException)
+                {
+                    //path is invalid or user hasn't finished typing it yet
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid());
+                    return new(LanguageConstants.Any);
+                }
+            }
+            return new(ConvertJsonToBicepType(token), token);
+        }
+
+        private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, int maxCharacters = -1)
+        {
+            fileContent = null;
+
+            if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
+            {
+                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired());
+                return false;
             }
             var filePathValue = filePathType.RawStringValue;
 
-            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, arguments[0]);
+            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, filePathArgument.syntax);
             if (fileUri is null)
             {
-                return LanguageConstants.String;
+                return false;
             }
+
             var fileEncoding = Encoding.UTF8;
-            if (argumentTypes.Length > 1)
+            if (encodingArgument is not null)
             {
-                if (argumentTypes[1] is not StringLiteralType encodingType)
+                if (encodingArgument.Value.typeSymbol is not StringLiteralType encodingType)
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired());
-                    return LanguageConstants.String;
+                    diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).CompileTimeConstantRequired());
+                    return false;
                 }
                 fileEncoding = LanguageConstants.SupportedEncodings.First(x => string.Equals(x.name, encodingType.RawStringValue, LanguageConstants.IdentifierComparison)).encoding;
             }
 
-            if (!fileResolver.TryRead(fileUri, out var fileContent, out var fileReadFailureBuilder, fileEncoding, LanguageConstants.MaxLiteralCharacterLimit, out var detectedEncoding))
+            if (!fileResolver.TryRead(fileUri, out fileContent, out var fileReadFailureBuilder, fileEncoding, maxCharacters, out var detectedEncoding))
             {
-                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
-                return LanguageConstants.String;
+                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
+                return false;
             }
-            if (arguments.Length > 1 && !Equals(fileEncoding, detectedEncoding))
+
+            if (encodingArgument is not null && !Equals(fileEncoding, detectedEncoding))
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).FileEncodingMismatch(detectedEncoding.WebName));
+                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
             }
-            return new StringLiteralType(fileContent);
+
+            return true;
         }
 
-        private static TypeSymbol LoadContentAsBase64TypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadContentAsBase64ResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
             if (argumentTypes[0] is not StringLiteralType filePathType)
             {
                 diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired());
-                return LanguageConstants.String;
+                return new(LanguageConstants.String);
             }
             var filePathValue = filePathType.RawStringValue;
 
             var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, arguments[0]);
             if (fileUri is null)
             {
-                return LanguageConstants.String;
+                return new(LanguageConstants.String);
             }
             if (!fileResolver.TryReadAsBase64(fileUri, out var fileContent, out var fileReadFailureBuilder, LanguageConstants.MaxLiteralCharacterLimit))
             {
                 diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
-                return LanguageConstants.String;
+                return new(LanguageConstants.String);
             }
 
-            return new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent);
+            return new(new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent));
         }
 
-        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable)
+        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionValue)
         {
             if (functionVariable is not null)
             {
@@ -583,7 +661,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return CreateStringLiteral(typeSymbol);
         }
 
-        private static SyntaxBase? StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment)
+        private static SyntaxBase? StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionValue)
         {
             if (directVariableAssignment)
             {
@@ -602,6 +680,43 @@ namespace Bicep.Core.Semantics.Namespaces
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
         }
 
+        private static SyntaxBase JsonContentFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionValue)
+        {
+            if (functionVariable is null)
+            {
+                // TemplateEmitter when emitting ARM-json code instead function will use createObject functions instead putting raw JSON.
+                // This can be avoided using functionVariables where bicep syntax is processed by Emitter itself, not by ExpressionConverter.
+                throw new InvalidOperationException($"Function Variable must be used");
+            }
+
+            return SyntaxFactory.CreateExplicitVariableAccess(functionVariable.Name);
+
+        }
+
+        private static SyntaxBase JsonContentFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionValue)
+        {
+            //converting JSON to bicep syntax and then back to ARM-JSON escapes ARM template expressions (`[variables('')]`, etc.) out of the box
+            return ConvertJsonToBicepSyntax(functionValue as JToken ?? throw new InvalidOperationException($"Expecting function to return {nameof(JToken)}, but {functionValue?.GetType().ToString() ?? "null"} received."));
+        }
+
+        private static SyntaxBase ConvertJsonToBicepSyntax(JToken token) =>
+        token switch
+        {
+            JObject @object => SyntaxFactory.CreateObject(@object.Properties().Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ConvertJsonToBicepSyntax(x.Value)))),
+            JArray @array => SyntaxFactory.CreateArray(@array.Select(ConvertJsonToBicepSyntax)),
+            JValue value => value.Type switch
+            {
+                JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
+                JTokenType.Integer => value.ToObject<long>() < 0 ? SyntaxFactory.CreateNegativeIntegerLiteral((ulong)(0 - value.ToObject<long>())) : SyntaxFactory.CreateIntegerLiteral(value.ToObject<ulong>()),
+                // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
+                JTokenType.Float => SyntaxFactory.CreateFunctionCall("json", SyntaxFactory.CreateStringLiteral(value.ToObject<float>().ToString(CultureInfo.InvariantCulture))),
+                JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.ToObject<bool>()),
+                JTokenType.Null => SyntaxFactory.CreateFunctionCall("null"),
+                _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported value token type: {value.Type}"),
+            },
+            _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
+        };
+
         private static TypeSymbol GetItemsReturnType(TypeSymbol keyType, TypeSymbol valueType)
             => new TypedArrayType(
                 new ObjectType(
@@ -614,11 +729,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     null),
                 TypeSymbolValidationFlags.Default);
 
-        private static TypeSymbol ItemsTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult ItemsResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
             if (argumentTypes[0] is not ObjectType objectType)
             {
-                return GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any);
+                return new(GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any));
             }
 
             var keyTypes = new List<TypeSymbol>();
@@ -641,40 +756,40 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueTypes.Add(additionalPropertiesType);
             }
 
-            return GetItemsReturnType(
+            return new(GetItemsReturnType(
                 keyType: TypeHelper.CreateTypeUnion(keyTypes),
-                valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any);
+                valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
         }
 
-        private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
-        {
-            static TypeSymbol ToBicepType(JToken token)
-                => token switch
+        private static TypeSymbol ConvertJsonToBicepType(JToken token)
+            => token switch
+            {
+                JObject @object => new ObjectType(
+                    "object",
+                    TypeSymbolValidationFlags.Default,
+                    @object.Properties().Select(x => new TypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
+                    null),
+                JArray @array => new TypedArrayType(
+                    TypeHelper.CreateTypeUnion(@array.Select(ConvertJsonToBicepType)),
+                    TypeSymbolValidationFlags.Default),
+                JValue value => value.Type switch
                 {
-                    JObject @object => new ObjectType(
-                        "object",
-                        TypeSymbolValidationFlags.Default,
-                        @object.Properties().Select(x => new TypeProperty(x.Name, ToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
-                        null),
-                    JArray @array => new TypedArrayType(
-                        TypeHelper.CreateTypeUnion(@array.Select(x => ToBicepType(x))),
-                        TypeSymbolValidationFlags.Default),
-                    JValue value => value.Type switch
-                    {
-                        JTokenType.String => new StringLiteralType(value.ToString()),
-                        JTokenType.Integer => LanguageConstants.Int,
-                        // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
-                        JTokenType.Float => LanguageConstants.Any,
-                        JTokenType.Boolean => LanguageConstants.Bool,
-                        JTokenType.Null => LanguageConstants.Null,
-                        _ => LanguageConstants.Any,
-                    },
+                    JTokenType.String => new StringLiteralType(value.ToString(CultureInfo.InvariantCulture)),
+                    JTokenType.Integer => LanguageConstants.Int,
+                    // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
+                    JTokenType.Float => LanguageConstants.Any,
+                    JTokenType.Boolean => LanguageConstants.Bool,
+                    JTokenType.Null => LanguageConstants.Null,
                     _ => LanguageConstants.Any,
-                };
+                },
+                _ => LanguageConstants.Any,
+            };
 
+        private static FunctionResult JsonResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
             if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
             {
-                return LanguageConstants.Any;
+                return new(LanguageConstants.Any);
             }
 
             // Purposefully use the same method and parsing settings as the deployment engine,
@@ -687,10 +802,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 // instead break it out into a separate file and use loadTextContent().
                 var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparseableJsonType();
 
-                return ErrorType.Create(error);
+                return new(ErrorType.Create(error));
             }
 
-            return ToBicepType(token);
+            return new(ConvertJsonToBicepType(token));
         }
 
         // TODO: Add copyIndex here when we support loops.

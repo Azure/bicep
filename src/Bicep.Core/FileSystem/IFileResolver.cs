@@ -23,10 +23,16 @@ namespace Bicep.Core.FileSystem
         /// <param name="fileUri">The file URI to read.</param>
         /// <param name="fileContents">The contents of the file, if successful.</param>
         /// <param name="failureBuilder">Builder for the failure to return, if unsuccessful.</param>
-        /// <param name="fileEncoding">Encoding to use when reading file. Auto if set to null</param>
-        /// <param name="maxCharacters">Maximum number of text characters to read. if negative - read all.</param>
         bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
+        /// <summary>
+        /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
+        /// </summary>
+        /// <param name="fileUri">The file URI to read.</param>
+        /// <param name="fileContents">The contents of the file, if successful.</param>
+        /// <param name="failureBuilder">Builder for the failure to return, if unsuccessful.</param>
+        /// <param name="fileEncoding">Encoding to use when reading file. Auto if set to null</param>
+        /// <param name="maxCharacters">Maximum number of text characters to read. if negative - read all.</param>
         bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, Encoding fileEncoding, int maxCharacters, [NotNullWhen(true)] out Encoding? detectedEncoding);
 
         bool TryReadAtMostNCharaters(Uri fileUri, Encoding fileEncoding, int n, [NotNullWhen(true)] out string? fileContents);
