@@ -348,11 +348,19 @@ namespace Bicep.Decompiler
 
             if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "createObject"))
             {
-                syntax = SyntaxFactory.CreateObject(expression.Parameters.Chunk(2)
-                    .Select(pair => new ObjectPropertySyntax(
-                        ParseLanguageExpression(pair[0]),
-                        SyntaxFactory.ColonToken,
-                        ParseLanguageExpression(pair[1]))));
+                syntax = SyntaxFactory.CreateObject(expression.Parameters.Select(ParseLanguageExpression).Chunk(2).Select(pair =>
+                {
+                    if (pair[0] is StringSyntax keyString)
+                    {
+                        var keyLiteral = keyString.TryGetLiteralValue();
+                        if (keyLiteral is not null)
+                        {
+                            return SyntaxFactory.CreateObjectProperty(keyLiteral, pair[1]);
+                        }
+                    }
+
+                    return new ObjectPropertySyntax(pair[0], SyntaxFactory.ColonToken, pair[1]);
+                }));
                 return true;
             }
 

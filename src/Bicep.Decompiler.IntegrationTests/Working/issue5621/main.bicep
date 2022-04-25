@@ -1,6 +1,6 @@
 var emptyObject = {}
 var simpleObject = {
-  'foo': 'bar'
+  foo: 'bar'
 }
 var emptyArray = []
 var singletonList = [
@@ -17,16 +17,16 @@ var nestedArrays = [
     2
   ]
   {
-    'key1': [
+    key1: [
       3
       4
     ]
-    'key2': {
-      'nestedKey1': [
+    key2: {
+      nestedKey1: [
         5
         6
       ]
-      'nestedKey2': {}
+      nestedKey2: {}
     }
   }
 ]
