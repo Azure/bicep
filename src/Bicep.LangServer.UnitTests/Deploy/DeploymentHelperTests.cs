@@ -206,7 +206,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         }
 
         [TestMethod]
-        public async Task StartDeploymentAsync_WithInvalidValidParameterFilePath_ReturnsDeploymentFailedMessage()
+        public async Task StartDeploymentAsync_WithInvalidParameterFilePath_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -249,7 +249,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         }
 
         [TestMethod]
-        public async Task StartDeploymentAsync_WithInvalidParameterFileContents_ReturnsDeploymentFailesMessage()
+        public async Task StartDeploymentAsync_WithInvalidParameterFileContents_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",

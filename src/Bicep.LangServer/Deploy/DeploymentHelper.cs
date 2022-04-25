@@ -19,7 +19,7 @@ namespace Bicep.LanguageServer.Deploy
     public class DeploymentHelper
     {
         /// <summary>
-        /// Starts a deployment at provided target scope and returns <see cref="BicepDeployStartResponse"/>.
+        /// Starts a deployment at provided target scope and returns <see cref="BicepDeploymentStartResponse"/>.
         /// </summary>
         /// <param name="deploymentCollectionProvider">deployment collection provider</param>
         /// <param name="armClient">arm client</param>
@@ -33,8 +33,8 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="portalUrl">azure management portal URL</param>
         /// <param name="deploymentName">deployment name</param>
         /// <param name="deploymentOperationsCache">deployment operations cache that needs to be updated</param>
-        /// <returns><see cref="BicepDeployStartResponse"/></returns>
-        public static async Task<BicepDeployStartResponse> StartDeploymentAsync(
+        /// <returns><see cref="BicepDeploymentStartResponse"/></returns>
+        public static async Task<BicepDeploymentStartResponse> StartDeploymentAsync(
             IDeploymentCollectionProvider deploymentCollectionProvider,
             ArmClient armClient,
             string documentPath,
@@ -52,7 +52,7 @@ namespace Bicep.LanguageServer.Deploy
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
                 string.IsNullOrWhiteSpace(location))
             {
-                return new BicepDeployStartResponse(false, string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath), null);
+                return new BicepDeploymentStartResponse(false, string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath), null);
             }
 
             ArmDeploymentCollection? deploymentCollection;
@@ -64,7 +64,7 @@ namespace Bicep.LanguageServer.Deploy
             }
             catch (Exception e)
             {
-                return new BicepDeployStartResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message), null);
+                return new BicepDeploymentStartResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message), null);
             }
 
             if (deploymentCollection is not null)
@@ -77,7 +77,7 @@ namespace Bicep.LanguageServer.Deploy
                 }
                 catch (Exception e)
                 {
-                    return new BicepDeployStartResponse(false, e.Message, null);
+                    return new BicepDeploymentStartResponse(false, e.Message, null);
                 }
 
                 var deploymentProperties = new ArmDeploymentProperties(ArmDeploymentMode.Incremental)
@@ -96,25 +96,25 @@ namespace Bicep.LanguageServer.Deploy
 
                     if (deploymentOperation is null)
                     {
-                        return new BicepDeployStartResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath), null);
+                        return new BicepDeploymentStartResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath), null);
                     }
 
                     deploymentOperationsCache.CacheDeploymentOperation(deploymentId, deploymentOperation);
 
                     var linkToDeploymentInAzurePortal = GetLinkToDeploymentInAzurePortal(portalUrl, Uri.EscapeDataString(id), deploymentName);
 
-                    return new BicepDeployStartResponse(
+                    return new BicepDeploymentStartResponse(
                         true,
                         string.Format(LangServerResources.DeploymentStartedMessage, documentPath),
                         string.Format(LangServerResources.ViewDeploymentInPortalMessage, linkToDeploymentInAzurePortal));
                 }
                 catch (Exception e)
                 {
-                    return new BicepDeployStartResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message), null);
+                    return new BicepDeploymentStartResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message), null);
                 }
             }
 
-            return new BicepDeployStartResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath), null);
+            return new BicepDeploymentStartResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath), null);
         }
 
         private static string GetLinkToDeploymentInAzurePortal(string portalUrl, string id, string deploymentName)
@@ -128,14 +128,14 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="deploymentId">deployment id</param>
         /// <param name="documentPath">path to bicep file used in deployment</param>
         /// <param name="deploymentOperationsCache"><see cref="IDeploymentOperationsCache"/></param>
-        /// <returns><see cref="BicepDeployWaitForCompletionResponse"/></returns>
-        public async static Task<BicepDeployWaitForCompletionResponse> WaitForDeploymentCompletionAsync(string deploymentId, string documentPath, IDeploymentOperationsCache deploymentOperationsCache)
+        /// <returns><see cref="BicepDeploymentWaitForCompletionResponse"/></returns>
+        public async static Task<BicepDeploymentWaitForCompletionResponse> WaitForDeploymentCompletionAsync(string deploymentId, string documentPath, IDeploymentOperationsCache deploymentOperationsCache)
         {
             var deploymentResourceOperation = deploymentOperationsCache.GetDeploymentOperation(deploymentId);
 
             if (deploymentResourceOperation is null)
             {
-                return new BicepDeployWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+                return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
             }
 
             var response = await deploymentResourceOperation.WaitForCompletionAsync();
@@ -144,11 +144,11 @@ namespace Bicep.LanguageServer.Deploy
 
             if (status == 200 || status == 201)
             {
-                return new BicepDeployWaitForCompletionResponse(true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+                return new BicepDeploymentWaitForCompletionResponse(true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
             }
             else
             {
-                return new BicepDeployWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
+                return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
             }
         }
 

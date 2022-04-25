@@ -11,23 +11,23 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployWaitForCompletionParams(string deployId, string documentPath) : IRequest<string>;
+    public record BicepDeploymentWaitForCompletionParams(string deployId, string documentPath) : IRequest<string>;
 
-    public record BicepDeployWaitForCompletionResponse(bool isSuccess, string outputMessage);
+    public record BicepDeploymentWaitForCompletionResponse(bool isSuccess, string outputMessage);
 
-    public class BicepDeployWaitForCompletionCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployWaitForCompletionParams, string>
+    public class BicepDeploymentWaitForCompletionCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentWaitForCompletionParams, string>
     {
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
         private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepDeployWaitForCompletionCommandHandler(IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
+        public BicepDeploymentWaitForCompletionCommandHandler(IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.DeployWaitForCompletionCommand, serializer)
         {
             this.deploymentOperationsCache = deploymentOperationsCache;
             this.telemetryProvider = telemetryProvider;
         }
 
-        public override async Task<string> Handle(BicepDeployWaitForCompletionParams request, CancellationToken cancellationToken)
+        public override async Task<string> Handle(BicepDeploymentWaitForCompletionParams request, CancellationToken cancellationToken)
         {
             var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
                 request.deployId,

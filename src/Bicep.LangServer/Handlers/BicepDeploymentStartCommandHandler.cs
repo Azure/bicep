@@ -13,17 +13,17 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeployStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
+    public record BicepDeploymentStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
 
-    public record BicepDeployStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
+    public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 
-    public class BicepDeployStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeployStartParams, BicepDeployStartResponse>
+    public class BicepDeploymentStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentStartParams, BicepDeploymentStartResponse>
     {
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
         private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepDeployStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
+        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.DeployStartCommand, serializer)
         {
             this.deploymentCollectionProvider = deploymentCollectionProvider;
@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Handlers
             this.telemetryProvider = telemetryProvider;
         }
 
-        public override async Task<BicepDeployStartResponse> Handle(BicepDeployStartParams request, CancellationToken cancellationToken)
+        public override async Task<BicepDeploymentStartResponse> Handle(BicepDeploymentStartParams request, CancellationToken cancellationToken)
         {
             PostDeployStartTelemetryEvent(request.deployId);
 
