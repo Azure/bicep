@@ -165,7 +165,7 @@ jobs:
           CAN_ACCESS_SECRETS: ${{ secrets.CAN_ACCESS_SECRETS }}
         if: ${{ env.CAN_ACCESS_SECRETS != '' }}
         run: |
-          echo "::set-output name=can_access_secrets::true"
+          echo "::set-output name=access_verified::true"
 
   test-cli-live:
     name: 'Test CLI (live) (${{ matrix.rid }})'
@@ -173,7 +173,7 @@ jobs:
     needs:
       - build-bicep
       - check-secret-access
-    if: needs.check-secret-access.outputs.can_access_secrets == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
+    if: needs.check-secret-access.outputs.access_verified == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
 
     env:
       CI: true
