@@ -152,27 +152,27 @@ jobs:
         with:
           flags: dotnet
 
-  check-secret-access:
+  can-run-live-tests:
     name: Check if the workflow run can access secrets
     runs-on: ubuntu-latest
     outputs:
-      access_verified: ${{ steps.check-secret.outputs.access_verified }}
+      access_verified: ${{ steps.check-access.outputs.verified }}
     steps:
-      - name: Check secret
-        id: check-secret
+      - name: Check access
+        id: check-access
         env:
-          CAN_ACCESS_SECRETS: ${{ secrets.CAN_ACCESS_SECRETS }}
-        if: ${{ env.CAN_ACCESS_SECRETS != '' }}
+          BICEP_SPN_PASSWORD: ${{ secrets.BICEP_SPN_PASSWORD }}
+        if: ${{ env.BICEP_SPN_PASSWORD != '' }}
         run: |
-          echo "::set-output name=access_verified::true"
+          echo "::set-output name=verified::true"
 
   test-cli-live:
     name: 'Test CLI (live) (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
     needs:
       - build-bicep
-      - check-secret-access
-    if: needs.check-secret-access.outputs.access_verified == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
+      - can-run-live-tests
+    if: needs.can-run-live-tests.outputs.access_verified == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
 
     env:
       CI: true
