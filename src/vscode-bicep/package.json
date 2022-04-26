@@ -170,7 +170,7 @@
       },
       {
         "command": "bicep.insertResource",
-        "title": "Insert Resource",
+        "title": "Insert Resource...",
         "category": "Bicep",
         "icon": "$(cloud-download)"
       },
@@ -214,6 +214,12 @@
         "key": "ctrl+k v",
         "mac": "cmd+k v",
         "when": "resourceLangId == bicep"
+      },
+      {
+        "command": "bicep.insertResource",
+        "key": "ctrl+k i",
+        "mac": "cmd+k i",
+        "when": "resourceLangId == bicep"
       }
     ],
     "menus": {
@@ -255,7 +261,7 @@
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
-        }        
+        }
       ],
       "editor/title/context": [
         {
@@ -307,6 +313,11 @@
         },
         {
           "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
         }
