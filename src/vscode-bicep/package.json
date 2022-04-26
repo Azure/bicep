@@ -234,6 +234,11 @@
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
           "group": "navigation"
+        },
+        {
+          "command": "bicep.insertResource",
+          "when": "editorLangId == bicep",
+          "group": "navigation"
         }
       ],
       "explorer/context": [
@@ -259,6 +264,11 @@
         },
         {
           "command": "bicep.forceModulesRestore",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
         }
@@ -288,7 +298,12 @@
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
-        }        
+        },
+        {
+          "command": "bicep.insertResource",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        }
       ],
       "editor/context": [
         {
