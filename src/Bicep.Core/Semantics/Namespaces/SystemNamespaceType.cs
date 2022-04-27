@@ -551,7 +551,7 @@ namespace Bicep.Core.Semantics.Namespaces
                     (arguments[0], argumentTypes[0]),
                     arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null,
                     out var fileContent,
-                    LanguageConstants.MaxLiteralCharacterLimit))
+                    LanguageConstants.MaxJsonFileCharacterLimit))
             {
                 return new(LanguageConstants.Any);
             }

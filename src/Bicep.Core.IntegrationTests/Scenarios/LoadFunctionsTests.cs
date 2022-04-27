@@ -26,7 +26,7 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
 ";
         private static readonly string B64_TEXT_CONTENT = Convert.ToBase64String(Encoding.UTF8.GetBytes(TEXT_CONTENT));
-        public enum FunctionCase { loadTextContent, loadFileAsBase64 }
+        public enum FunctionCase { loadTextContent, loadFileAsBase64, loadJsonContent }
         private static string ExpectedResult(FunctionCase function) => function switch
         {
             FunctionCase.loadTextContent => TEXT_CONTENT,
@@ -218,14 +218,19 @@ output out string = message
         [DataTestMethod]
         [DataRow(FunctionCase.loadTextContent, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadTextContent: variable in interpolation")]
         [DataRow(FunctionCase.loadFileAsBase64, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadFileAsBase64: variable in interpolation")]
+        [DataRow(FunctionCase.loadJsonContent, "var fileName = 'message.txt'", "'${fileName}'", DisplayName = "loadJsonContent: variable in interpolation")]
         [DataRow(FunctionCase.loadTextContent, "", "'${'fileName'}'", DisplayName = "loadTextContent: string literal in interpolation")]
         [DataRow(FunctionCase.loadFileAsBase64, "", "'${'fileName'}'", DisplayName = "loadFileAsBase64: string literal in interpolation")]
+        [DataRow(FunctionCase.loadJsonContent, "", "'${'fileName'}'", DisplayName = "loadJsonContent: string literal in interpolation")]
         [DataRow(FunctionCase.loadTextContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadTextContent: parameter")]
         [DataRow(FunctionCase.loadFileAsBase64, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadFileAsBase64: parameter")]
+        [DataRow(FunctionCase.loadJsonContent, "param fileName string = 'message.txt'", "fileName", DisplayName = "loadJsonContent: parameter")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
 var _fileName = fileName", "_fileName", DisplayName = "loadTextContent: variable from parameter")]
         [DataRow(FunctionCase.loadFileAsBase64, @"param fileName string = 'message.txt'
 var _fileName = fileName", "_fileName", DisplayName = "loadFileAsBase64: variable from parameter")]
+        [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
+var _fileName = fileName", "_fileName", DisplayName = "loadJsonContent: variable from parameter")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
 var fileNames = [
 fileName
@@ -234,6 +239,10 @@ fileName
 var fileNames = [
 fileName
 ]", "fileNames[0]", DisplayName = "loadFileAsBase64: param as array value")]
+        [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
+var fileNames = [
+fileName
+]", "fileNames[0]", DisplayName = "loadJsonContent: param as array value")]
         [DataRow(FunctionCase.loadTextContent, @"param fileName string = 'message.txt'
 var files = [
  {
@@ -246,6 +255,12 @@ var files = [
   name: fileName
  }
 ]", "files[0].name", DisplayName = "loadFileAsBase64: param as object property in array")]
+        [DataRow(FunctionCase.loadJsonContent, @"param fileName string = 'message.txt'
+var files = [
+ {
+  name: fileName
+ }
+]", "files[0].name", DisplayName = "loadJsonContent: param as object property in array")]
         [DataRow(FunctionCase.loadTextContent, @"param encoding string = 'us-ascii'
 var files = [
  {
@@ -253,13 +268,30 @@ var files = [
   encoding: encoding
  }
 ]", "files[0].name", "files[0].encoding", DisplayName = "loadTextContent: encoding param as object property in array")]
-        public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, string filePath, string? encoding = null)
+        [DataRow(FunctionCase.loadJsonContent, @"param encoding string = 'us-ascii'
+param path string = '$'
+var files = [
+ {
+  name: 'message.json'
+  path: path
+  encoding: encoding
+ }
+]", "files[0].name", "files[0].path", DisplayName = "loadJsonContent: path param as object property in array")]
+        [DataRow(FunctionCase.loadJsonContent, @"param encoding string = 'us-ascii'
+var files = [
+ {
+  name: 'message.json'
+  path: '$'
+  encoding: encoding
+ }
+]", "files[0].name", "'$'", "files[0].encoding", DisplayName = "loadJsonContent: encoding param as object property in array")]
+        public void LoadFunction_RequiresCompileTimeConstantArguments_Invalid(FunctionCase function, string declaration, params string[] args)
         {
             //notice - here we will not test actual loading file with given encoding - just the fact that bicep function accepts all .NET available encodings
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
 " + declaration + @"
-var message = 'Body: ${" + function.ToString() + @"(" + filePath + ((encoding is null) ? string.Empty : (", " + encoding)) + @")}'
+var message = 'Body: ${" + function + @"(" + string.Join(", ", args) + @")}'
 "),
     ("message.txt", TEXT_CONTENT));
 
@@ -413,6 +445,7 @@ output out string = script
         [DataTestMethod]
         [DataRow(FunctionCase.loadTextContent)]
         [DataRow(FunctionCase.loadFileAsBase64)]
+        [DataRow(FunctionCase.loadJsonContent)]
         public void LoadFunction_FileDoesNotExist(FunctionCase function)
         {
             var (template, diags, _) = CompilationHelper.Compile(

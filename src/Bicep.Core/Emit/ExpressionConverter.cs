@@ -116,7 +116,7 @@ namespace Bicep.Core.Emit
                 return ConvertExpression(functionOverload.Evaluator(functionCall,
                     symbol,
                     context.SemanticModel.GetTypeInfo(functionCall),
-                    context.SemanticModel.FunctionVariables.GetValueOrDefault(functionCall),
+                    context.FunctionVariables.GetValueOrDefault(functionCall),
                     context.SemanticModel.TypeManager.GetMatchedFunctionResultValue(functionCall)));
             }
 
