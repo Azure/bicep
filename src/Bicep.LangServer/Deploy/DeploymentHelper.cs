@@ -101,7 +101,7 @@ namespace Bicep.LanguageServer.Deploy
 
                     deploymentOperationsCache.CacheDeploymentOperation(deploymentId, deploymentOperation);
 
-                    var linkToDeploymentInAzurePortal = GetLinkToDeploymentInAzurePortal(portalUrl, Uri.EscapeDataString(id), deploymentName);
+                    var linkToDeploymentInAzurePortal = GetLinkToDeploymentInAzurePortal(portalUrl, id, deploymentName);
 
                     return new BicepDeploymentStartResponse(
                         true,
@@ -119,6 +119,7 @@ namespace Bicep.LanguageServer.Deploy
 
         private static string GetLinkToDeploymentInAzurePortal(string portalUrl, string id, string deploymentName)
         {
+            id = Uri.EscapeDataString(id);
             return $"{portalUrl}/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/{id}%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2F{deploymentName}";
         }
 
