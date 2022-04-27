@@ -131,7 +131,7 @@ namespace Bicep.LanguageServer.Deploy
         /// <returns><see cref="BicepDeploymentWaitForCompletionResponse"/></returns>
         public async static Task<BicepDeploymentWaitForCompletionResponse> WaitForDeploymentCompletionAsync(string deploymentId, string documentPath, IDeploymentOperationsCache deploymentOperationsCache)
         {
-            var deploymentResourceOperation = deploymentOperationsCache.GetDeploymentOperation(deploymentId);
+            var deploymentResourceOperation = deploymentOperationsCache.FindAndRemoveDeploymentOperation(deploymentId);
 
             if (deploymentResourceOperation is null)
             {

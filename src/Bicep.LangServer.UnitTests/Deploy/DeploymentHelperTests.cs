@@ -476,7 +476,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "deployment_name",
                 deploymentOperationsCache);
 
-            deploymentOperationsCache.GetDeploymentOperation(deployId).Should().NotBeNull();
+            deploymentOperationsCache.FindAndRemoveDeploymentOperation(deployId).Should().NotBeNull();
         }
 
         [TestMethod]
@@ -579,8 +579,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 documentPath,
                 deploymentOperationsCache);
 
-            deploymentOperationsCache.GetDeploymentOperation(deploymentId1).Should().BeNull();
-            deploymentOperationsCache.GetDeploymentOperation(deploymentId2).Should().NotBeNull();
+            deploymentOperationsCache.FindAndRemoveDeploymentOperation(deploymentId1).Should().BeNull();
+            deploymentOperationsCache.FindAndRemoveDeploymentOperation(deploymentId2).Should().NotBeNull();
         }
 
         private static ArmClient CreateMockArmClient()

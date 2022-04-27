@@ -16,7 +16,7 @@ namespace Bicep.LanguageServer.Deploy
             deploymentOperationsCache.TryAdd(deploymentId, armOperation);
         }
 
-        public ArmOperation<ArmDeploymentResource>? GetDeploymentOperation(string deploymentId)
+        public ArmOperation<ArmDeploymentResource>? FindAndRemoveDeploymentOperation(string deploymentId)
         {
             if (deploymentOperationsCache.TryRemove(deploymentId, out ArmOperation<ArmDeploymentResource>? armDeploymentOperation) &&
                 armDeploymentOperation is not null)

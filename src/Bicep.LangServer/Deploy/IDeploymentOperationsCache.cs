@@ -10,6 +10,6 @@ namespace Bicep.LanguageServer.Deploy
     {
         public void CacheDeploymentOperation(string deploymentId, ArmOperation<ArmDeploymentResource> armOperation);
 
-        public ArmOperation<ArmDeploymentResource>? GetDeploymentOperation(string deploymentId);
+        public ArmOperation<ArmDeploymentResource>? FindAndRemoveDeploymentOperation(string deploymentId);
     }
 }
