@@ -154,36 +154,11 @@ export class DeployCommand implements Command {
         }
       }
 
-      if (deploymentStartResponse) {
-        this.outputChannelManager.appendToOutputChannel(
-          deploymentStartResponse.outputMessage
-        );
-
-        if (deploymentStartResponse.isSuccess) {
-          const viewDeploymentInPortalMessage =
-            deploymentStartResponse.viewDeploymentInPortalMessage;
-
-          if (viewDeploymentInPortalMessage != null) {
-            this.outputChannelManager.appendToOutputChannel(
-              viewDeploymentInPortalMessage
-            );
-          }
-          const bicepDeploymentWaitForCompletionParams: BicepDeploymentWaitForCompletionParams =
-            {
-              deployId,
-              documentPath,
-            };
-          const outputMessage: string = await this.client.sendRequest(
-            "workspace/executeCommand",
-            {
-              command: "deploy/waitForCompletion",
-              arguments: [bicepDeploymentWaitForCompletionParams],
-            }
-          );
-
-          this.outputChannelManager.appendToOutputChannel(outputMessage);
-        }
-      }
+      await this.sendDeployWaitForCompletionCommand(
+        deployId,
+        deploymentStartResponse,
+        documentPath
+      );
     } catch (err) {
       let errorMessage: string;
 
@@ -377,6 +352,43 @@ export class DeployCommand implements Command {
     }
 
     return undefined;
+  }
+
+  private async sendDeployWaitForCompletionCommand(
+    deployId: string,
+    deploymentStartResponse: BicepDeploymentStartResponse | undefined,
+    documentPath: string
+  ) {
+    if (deploymentStartResponse) {
+      this.outputChannelManager.appendToOutputChannel(
+        deploymentStartResponse.outputMessage
+      );
+
+      if (deploymentStartResponse.isSuccess) {
+        const viewDeploymentInPortalMessage =
+          deploymentStartResponse.viewDeploymentInPortalMessage;
+
+        if (viewDeploymentInPortalMessage != null) {
+          this.outputChannelManager.appendToOutputChannel(
+            viewDeploymentInPortalMessage
+          );
+        }
+        const bicepDeploymentWaitForCompletionParams: BicepDeploymentWaitForCompletionParams =
+          {
+            deployId,
+            documentPath,
+          };
+        const outputMessage: string = await this.client.sendRequest(
+          "workspace/executeCommand",
+          {
+            command: "deploy/waitForCompletion",
+            arguments: [bicepDeploymentWaitForCompletionParams],
+          }
+        );
+
+        this.outputChannelManager.appendToOutputChannel(outputMessage);
+      }
+    }
   }
 
   private async selectParameterFile(
