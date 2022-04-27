@@ -490,7 +490,7 @@
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.4.244",
     "prettier": "^2.6.2",
-    "react-test-renderer": "^18.0.0",
+    "react-test-renderer": "^18.1.0",
     "rimraf": "^3.0.2",
     "semver": "^7.3.7",
     "svg-inline-loader": "^0.8.2",
