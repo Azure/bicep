@@ -1,17 +1,19 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import vscode, { Uri, window } from "vscode";
+import { Uri, window } from "vscode";
 import path from "path";
 import fse from "fs-extra";
 import os from "os";
-
-import { executeCreateConfigFileCommand } from "./commands";
+import {
+  executeCloseAllEditors,
+  executeCreateConfigFileCommand,
+} from "./commands";
 import {} from "fs";
 
 describe("bicep.createConfigFile", (): void => {
   afterEach(async () => {
-    await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    await executeCloseAllEditors();
   });
 
   it("should create valid config file and open it", async () => {
