@@ -41,8 +41,10 @@ namespace Bicep.LanguageServer.Handlers
 
         private void PostDeployResultTelemetryEvent(string deployId, bool isSuccess)
         {
-            var result = isSuccess ? BicepTelemetryEvent.Result.Succeeded : BicepTelemetryEvent.Result.Failed;
-            var telemetryEvent = BicepTelemetryEvent.CreateDeployResult(deployId, result);
+            var telemetryEvent = BicepTelemetryEvent.CreateDeployStartOrWaitForCompletionResult(
+                TelemetryConstants.EventNames.DeployResult,
+                deployId,
+                isSuccess);
 
             telemetryProvider.PostEvent(telemetryEvent);
         }

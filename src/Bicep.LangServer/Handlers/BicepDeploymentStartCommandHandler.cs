@@ -40,7 +40,7 @@ namespace Bicep.LanguageServer.Handlers
 
             string deploymentName = "bicep_deployment_" + DateTime.UtcNow.ToString("yyyyMMddHHmmss");
 
-            return await DeploymentHelper.StartDeploymentAsync(
+            var bicepDeploymentStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider,
                 armClient,
                 request.documentPath,
@@ -53,11 +53,25 @@ namespace Bicep.LanguageServer.Handlers
                 request.portalUrl,
                 deploymentName,
                 deploymentOperationsCache);
+
+            PostDeployStartResultTelemetryEvent(request.deployId, bicepDeploymentStartResponse.isSuccess);
+
+            return bicepDeploymentStartResponse;
         }
 
         private void PostDeployStartTelemetryEvent(string deployId)
         {
             var telemetryEvent = BicepTelemetryEvent.CreateDeployStart(deployId);
+
+            telemetryProvider.PostEvent(telemetryEvent);
+        }
+
+        private void PostDeployStartResultTelemetryEvent(string deployId, bool isSuccess)
+        {
+            var telemetryEvent = BicepTelemetryEvent.CreateDeployStartOrWaitForCompletionResult(
+                TelemetryConstants.EventNames.DeployStartResult,
+                deployId,
+                isSuccess);
 
             telemetryProvider.PostEvent(telemetryEvent);
         }
