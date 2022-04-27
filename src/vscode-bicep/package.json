@@ -238,7 +238,7 @@
         {
           "command": "bicep.insertResource",
           "when": "editorLangId == bicep",
-          "group": "navigation"
+          "group": "edit"
         }
       ],
       "explorer/context": [
