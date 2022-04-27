@@ -340,6 +340,30 @@ namespace Bicep.Decompiler
                 return true;
             }
 
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "createArray"))
+            {
+                syntax = SyntaxFactory.CreateArray(expression.Parameters.Select(ParseLanguageExpression));
+                return true;
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(expression.Function, "createObject"))
+            {
+                syntax = SyntaxFactory.CreateObject(expression.Parameters.Select(ParseLanguageExpression).Chunk(2).Select(pair =>
+                {
+                    if (pair[0] is StringSyntax keyString)
+                    {
+                        var keyLiteral = keyString.TryGetLiteralValue();
+                        if (keyLiteral is not null)
+                        {
+                            return SyntaxFactory.CreateObjectProperty(keyLiteral, pair[1]);
+                        }
+                    }
+
+                    return new ObjectPropertySyntax(pair[0], SyntaxFactory.ColonToken, pair[1]);
+                }));
+                return true;
+            }
+
             syntax = null;
             return false;
         }
@@ -676,7 +700,7 @@ namespace Bicep.Decompiler
             {
                 var expressionValue = valueLookupFunc(functionName);
                 if (TryParseJToken(expressionValue) is SyntaxBase expression &&
-                    transformFunc((functionName, expression)) is {} transformOutput)
+                    transformFunc((functionName, expression)) is { } transformOutput)
                 {
                     var (newFunctionName, newExpression) = transformOutput;
 
@@ -690,11 +714,12 @@ namespace Bicep.Decompiler
             => ProcessDecoratorsWithTransform(
                 new[] { "metadata" },
                 valueLookupFunc,
-                input => {
+                input =>
+                {
                     var (name, expression) = input;
 
                     if (expression is ObjectSyntax metadataObject &&
-                        metadataObject.TryGetPropertyByName("description") is {} descriptionProperty)
+                        metadataObject.TryGetPropertyByName("description") is { } descriptionProperty)
                     {
                         // Replace metadata decorator with description decorator if the metadata object only contains description.
                         return ("description", descriptionProperty.Value);
@@ -707,7 +732,8 @@ namespace Bicep.Decompiler
             => ProcessDecoratorsWithTransform(
                 new[] { "metadata" },
                 valueLookupFunc,
-                input => {
+                input =>
+                {
                     var (name, expression) = input;
 
                     if (expression is ObjectSyntax metadataObject &&
@@ -735,7 +761,8 @@ namespace Bicep.Decompiler
                 ProcessDecoratorsWithTransform(
                 new[] { "minValue", "maxValue", "minLength", "maxLength", "allowedValues" },
                 name => value.Value?[name],
-                input => {
+                input =>
+                {
                     var (name, expression) = input;
 
                     if (name == "allowedValues")
