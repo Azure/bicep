@@ -87,13 +87,13 @@ namespace Bicep.LanguageServer.Handlers
 
         private static string? GetFolderContainingPath(string[]? workspaceFolderPaths, string bicepFolder)
         {
-            bool caseSensitive = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-            bicepFolder = AddSeparator(bicepFolder);
-
             if (workspaceFolderPaths is null)
             {
                 return null;
             }
+
+            bool caseSensitive = !RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+            bicepFolder = AddSeparator(bicepFolder);
 
             foreach (var folder in workspaceFolderPaths)
             {
