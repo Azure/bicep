@@ -4,10 +4,7 @@ import * as vscode from "vscode";
 
 import { expectDefined, expectRange } from "../utils/assert";
 import { retryWhile, sleep } from "../utils/time";
-import {
-  executeCloseAllEditors,
-  executeHoverProvider,
-} from "./commands";
+import { executeCloseAllEditors, executeHoverProvider } from "./commands";
 import { readExampleFile } from "./examples";
 
 describe("hover", (): void => {
