@@ -8,6 +8,7 @@ namespace Bicep.LanguageServer
         public const string BuildCommand = "build";
         public const string DeployStartCommand = "deploy/start";
         public const string DeployWaitForCompletionCommand = "deploy/waitForCompletion";
+        public const string GetDeployMissingParameters = "getMissingParameters";
         public const string GetDeploymentScopeCommand = "getDeploymentScope";
         public const string ForceModulesRestoreCommand = "forceModulesRestore";
     }

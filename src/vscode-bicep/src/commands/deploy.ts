@@ -406,6 +406,8 @@ export class DeployCommand implements Command {
       }
     );
 
+    let parameterFilePath: string | undefined;
+
     if (result == this._browse) {
       const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
         {
@@ -416,15 +418,36 @@ export class DeployCommand implements Command {
         }
       );
       if (paramsPaths && paramsPaths.length == 1) {
-        const parameterFilePath = paramsPaths[0].fsPath;
+        parameterFilePath = paramsPaths[0].fsPath;
         this.outputChannelManager.appendToOutputChannel(
           `Parameter file used in deployment -> ${parameterFilePath}`
         );
-        return parameterFilePath;
       }
     }
 
-    return undefined;
+    const missingParams: string[] = await this.client.sendRequest(
+      "workspace/executeCommand",
+      {
+        command: "getMissingParameters",
+        arguments: [sourceUri?.fsPath, parameterFilePath],
+      }
+    );
+
+    for (const missingParam of missingParams) {
+      const items: IAzureQuickPickItem<string>[] = [];
+      items.push({
+        label: "",
+        data: "",
+        description: "",
+        id: sourceUri?.fsPath,
+      });
+
+      const response = await _context.ui.showQuickPick(items, {
+        placeHolder: "Enter value for missing parameter: " + missingParam,
+      });
+    }
+
+    return parameterFilePath;
   }
 
   private async createParameterFileQuickPickList(): Promise<
