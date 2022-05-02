@@ -28,6 +28,7 @@ import {
   BicepDeploymentWaitForCompletionParams,
   BicepDeploymentStartParams,
   BicepDeploymentStartResponse,
+  BicepDeploymentMissingParameters,
 } from "../language";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 
@@ -213,6 +214,12 @@ export class DeployCommand implements Command {
           documentUri
         );
 
+        const missingParamsWithValues = await this.handleMissingParams(
+          context,
+          documentUri,
+          parameterFilePath
+        );
+
         return await this.sendDeployStartCommand(
           context,
           documentUri.fsPath,
@@ -222,7 +229,8 @@ export class DeployCommand implements Command {
           location,
           template,
           managementGroupTreeItem.subscription,
-          deployId
+          deployId,
+          missingParamsWithValues
         );
       }
     }
@@ -250,6 +258,12 @@ export class DeployCommand implements Command {
         documentUri
       );
 
+      const missingParamsWithValues = await this.handleMissingParams(
+        context,
+        documentUri,
+        parameterFilePath
+      );
+
       return await this.sendDeployStartCommand(
         context,
         documentUri.fsPath,
@@ -259,7 +273,8 @@ export class DeployCommand implements Command {
         "",
         template,
         resourceGroupTreeItem.subscription,
-        deployId
+        deployId,
+        missingParamsWithValues
       );
     }
 
@@ -287,6 +302,12 @@ export class DeployCommand implements Command {
       documentUri
     );
 
+    const missingParamsWithValues = await this.handleMissingParams(
+      context,
+      documentUri,
+      parameterFilePath
+    );
+
     return await this.sendDeployStartCommand(
       context,
       documentUri.fsPath,
@@ -296,7 +317,8 @@ export class DeployCommand implements Command {
       location,
       template,
       subscription,
-      deployId
+      deployId,
+      missingParamsWithValues
     );
   }
 
@@ -309,7 +331,8 @@ export class DeployCommand implements Command {
     location: string,
     template: string,
     subscription: ISubscriptionContext,
-    deployId: string
+    deployId: string,
+    missingParamsWithValues: BicepDeploymentMissingParameters[]
   ): Promise<BicepDeploymentStartResponse | undefined> {
     if (!parameterFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
@@ -341,6 +364,7 @@ export class DeployCommand implements Command {
         expiresOnTimestamp,
         deployId,
         portalUrl,
+        missingParamsWithValues,
       };
       const deploymentStartResponse: BicepDeploymentStartResponse =
         await this.client.sendRequest("workspace/executeCommand", {
@@ -425,6 +449,14 @@ export class DeployCommand implements Command {
       }
     }
 
+    return parameterFilePath;
+  }
+
+  private async handleMissingParams(
+    _context: IActionContext,
+    sourceUri: Uri | undefined,
+    parameterFilePath: string | undefined
+  ) {
     const missingParams: string[] = await this.client.sendRequest(
       "workspace/executeCommand",
       {
@@ -433,21 +465,49 @@ export class DeployCommand implements Command {
       }
     );
 
-    for (const missingParam of missingParams) {
-      const items: IAzureQuickPickItem<string>[] = [];
-      items.push({
-        label: "",
-        data: "",
-        description: "",
-        id: sourceUri?.fsPath,
-      });
+    const missingParamsWithValues: BicepDeploymentMissingParameters[] = [];
 
-      const response = await _context.ui.showQuickPick(items, {
+    for (const missingParam of missingParams) {
+      let id: string = missingParam;
+
+      if (sourceUri) {
+        id = id + sourceUri.fsPath;
+
+        if (parameterFilePath) {
+          id = id + parameterFilePath;
+        }
+      }
+      const enterMissingParameter: IAzureQuickPickItem = {
+        label: localize(
+          "enterMissingParameter",
+          "Enter value for missing parameter: " + missingParam
+        ),
+        data: undefined,
+        id: sourceUri?.fsPath,
+      };
+
+      const entries: IAzureQuickPickItem[] = [];
+      entries.push(enterMissingParameter);
+
+      const missingParamQuickPick = await _context.ui.showQuickPick(entries, {
         placeHolder: "Enter value for missing parameter: " + missingParam,
       });
+
+      if (missingParamQuickPick == enterMissingParameter) {
+        const missingParamValue = await vscode.window.showInputBox({
+          placeHolder: "Please enter value for param: " + missingParam,
+        });
+
+        if (missingParamValue) {
+          missingParamsWithValues.push({
+            name: missingParam,
+            value: missingParamValue,
+          });
+        }
+      }
     }
 
-    return parameterFilePath;
+    return missingParamsWithValues;
   }
 
   private async createParameterFileQuickPickList(): Promise<

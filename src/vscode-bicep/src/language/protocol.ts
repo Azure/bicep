@@ -67,6 +67,7 @@ export interface BicepDeploymentStartParams {
   expiresOnTimestamp: string;
   deployId: string;
   portalUrl: string;
+  missingParamsWithValues: BicepDeploymentMissingParameters[];
 }
 
 export interface BicepDeploymentStartResponse {
@@ -91,6 +92,11 @@ export const bicepCacheRequestType = new ProtocolRequestType<
   void,
   void
 >("textDocument/bicepCache");
+
+export interface BicepDeploymentMissingParameters {
+  name: string;
+  value: string;
+}
 
 export interface InsertResourceParams {
   textDocument: TextDocumentIdentifier;

@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Azure;
@@ -11,8 +11,8 @@ using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
-using Bicep.Core.Json;
 using Bicep.LanguageServer.Handlers;
+using Newtonsoft.Json.Linq;
 
 namespace Bicep.LanguageServer.Deploy
 {
@@ -46,7 +46,8 @@ namespace Bicep.LanguageServer.Deploy
             string deploymentId,
             string portalUrl,
             string deploymentName,
-            IDeploymentOperationsCache deploymentOperationsCache)
+            IDeploymentOperationsCache deploymentOperationsCache,
+            IEnumerable<BicepDeploymentMissingParams> missingParams)
         {
             if ((scope == LanguageConstants.TargetScopeTypeSubscription ||
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
@@ -69,11 +70,11 @@ namespace Bicep.LanguageServer.Deploy
 
             if (deploymentCollection is not null)
             {
-                JsonElement parameters;
+                string parameters;
 
                 try
                 {
-                    parameters = GetParameters(documentPath, parameterFilePath);
+                    parameters = ParametersHelper.GetParametersFileContents(documentPath, parameterFilePath, missingParams);
                 }
                 catch (Exception e)
                 {
@@ -150,26 +151,6 @@ namespace Bicep.LanguageServer.Deploy
             else
             {
                 return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
-            }
-        }
-
-        private static JsonElement GetParameters(string documentPath, string parameterFilePath)
-        {
-            if (string.IsNullOrWhiteSpace(parameterFilePath))
-            {
-                return JsonElementFactory.CreateElement("{}");
-            }
-            else
-            {
-                try
-                {
-                    string text = File.ReadAllText(parameterFilePath);
-                    return JsonElementFactory.CreateElement(text);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, e.Message));
-                }
             }
         }
     }
