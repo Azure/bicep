@@ -51,7 +51,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.5.103" />
   </ItemGroup>
   <ProjectExtensions><VisualStudio><UserProperties configuration_4bicepconfig_1json__JsonSchema="https://appsemble.app/api.json" /></VisualStudio></ProjectExtensions>
 </Project>
