@@ -25,7 +25,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [DataTestMethod]
         public void GetParametersFileContents_WithNullOrEmptyParametersFilePathAndEmptyMissingParams_ReturnsEmptyJObject(string parametersFilePath)
         {
-            var result = ParametersHelper.GetParametersFileContents("some_document_path", parametersFilePath, Enumerable.Empty<BicepDeploymentMissingParams>());
+            var result = ParametersHelper.GetParametersFileContents("some_document_path", parametersFilePath, Enumerable.Empty<BicepDeploymentMissingParam>());
 
             result.Should().Be("{}");
         }
@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetParametersFileContents_WithEmptyParametersFilePathAndNonEmptyMissingParams_ReturnsUpdatedJObject()
         {
-            var missingParams = new List<BicepDeploymentMissingParams>{ new BicepDeploymentMissingParams("storageAccountName", "stgAcc") };
+            var missingParams = new List<BicepDeploymentMissingParam>{ new BicepDeploymentMissingParam("storageAccountName", "stgAcc") };
             var result = ParametersHelper.GetParametersFileContents("some_document_path", string.Empty, missingParams);
 
             result.Should().BeEquivalentToIgnoringNewlines(@"{
@@ -46,7 +46,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void GetParametersFileContents_WithParametersFilePathAndNonEmptyMissingParams_ReturnsUpdatedJObject()
         {
-            var missingParams = new List<BicepDeploymentMissingParams> { new BicepDeploymentMissingParams("storageAccountName", "stgAcc") };
+            var missingParams = new List<BicepDeploymentMissingParam> { new BicepDeploymentMissingParam("storageAccountName", "stgAcc") };
             var parametersFilePath = FileHelper.SaveResultFile(this.TestContext, "parameters.json", @"{
   ""location"": {
     ""value"": ""eastus""

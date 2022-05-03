@@ -457,18 +457,17 @@ export class DeployCommand implements Command {
     sourceUri: Uri | undefined,
     parameterFilePath: string | undefined
   ) {
-    const missingParams: string[] = await this.client.sendRequest(
-      "workspace/executeCommand",
-      {
+    const missingParams: BicepDeploymentMissingParameters[] =
+      await this.client.sendRequest("workspace/executeCommand", {
         command: "getMissingParameters",
         arguments: [sourceUri?.fsPath, parameterFilePath],
-      }
-    );
+      });
 
     const missingParamsWithValues: BicepDeploymentMissingParameters[] = [];
 
     for (const missingParam of missingParams) {
-      let id: string = missingParam;
+      const missingParamName = missingParam.name;
+      let id: string = missingParamName;
 
       if (sourceUri) {
         id = id + sourceUri.fsPath;
@@ -477,33 +476,51 @@ export class DeployCommand implements Command {
           id = id + parameterFilePath;
         }
       }
+
       const enterMissingParameter: IAzureQuickPickItem = {
         label: localize(
           "enterMissingParameter",
-          "Enter value for missing parameter: " + missingParam
+          "Enter value for missing parameter: " + missingParamName
         ),
         data: undefined,
-        id: sourceUri?.fsPath,
+        alwaysShow: true,
+        id: sourceUri?.path,
       };
 
       const entries: IAzureQuickPickItem[] = [];
       entries.push(enterMissingParameter);
 
+      const previouslyUsedValue = missingParam.value;
+      if (previouslyUsedValue) {
+        const previouslyUsedValueQuickPickItem: IAzureQuickPickItem = {
+          label: previouslyUsedValue,
+          data: undefined,
+          alwaysShow: true,
+          id: sourceUri?.path,
+        };
+        entries.push(previouslyUsedValueQuickPickItem);
+      }
+
       const missingParamQuickPick = await _context.ui.showQuickPick(entries, {
-        placeHolder: "Enter value for missing parameter: " + missingParam,
+        placeHolder: "Select missing parameter: " + missingParamName,
       });
 
       if (missingParamQuickPick == enterMissingParameter) {
         const missingParamValue = await vscode.window.showInputBox({
-          placeHolder: "Please enter value for param: " + missingParam,
+          placeHolder: "Please enter value for param: " + missingParamName,
         });
 
         if (missingParamValue) {
           missingParamsWithValues.push({
-            name: missingParam,
+            name: missingParamName,
             value: missingParamValue,
           });
         }
+      } else {
+        missingParamsWithValues.push({
+          name: missingParamName,
+          value: missingParamQuickPick.label,
+        });
       }
     }
 

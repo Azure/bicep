@@ -11,7 +11,7 @@ namespace Bicep.LanguageServer.Deploy
 {
     public class ParametersHelper
     {
-        public static string GetParametersFileContents(string documentPath, string parametersFilePath, IEnumerable<BicepDeploymentMissingParams> missingParams)
+        public static string GetParametersFileContents(string documentPath, string parametersFilePath, IEnumerable<BicepDeploymentMissingParam> missingParams)
         {
             try
             {
@@ -20,7 +20,7 @@ namespace Bicep.LanguageServer.Deploy
 
                 var jObject = JObject.Parse(text);
 
-                foreach (BicepDeploymentMissingParams bicepDeploymentMissingParam in missingParams)
+                foreach (BicepDeploymentMissingParam bicepDeploymentMissingParam in missingParams)
                 {
                     var valueObject = JObject.Parse("{}");
                     valueObject.Add("value", bicepDeploymentMissingParam.value);

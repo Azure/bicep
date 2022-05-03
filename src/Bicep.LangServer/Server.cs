@@ -136,6 +136,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
             services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
             services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
+            services.AddSingleton<IMissingParamsCache, MissingParamsCache>();
         }
 
         public void Dispose()

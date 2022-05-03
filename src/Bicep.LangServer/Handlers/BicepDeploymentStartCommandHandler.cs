@@ -10,27 +10,30 @@ using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl, IEnumerable<BicepDeploymentMissingParams> missingParamsWithValues) : IRequest<string>;
+    public record BicepDeploymentStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl, IEnumerable<BicepDeploymentMissingParam> missingParamsWithValues) : IRequest<string>;
 
     public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 
-    public record BicepDeploymentMissingParams(string name, string value);
+    public record BicepDeploymentMissingParam(string name, string value);
 
     public class BicepDeploymentStartCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentStartParams, BicepDeploymentStartResponse>
     {
         private readonly IDeploymentCollectionProvider deploymentCollectionProvider;
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
+        private readonly IMissingParamsCache missingParamsCache;
         private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
+        public BicepDeploymentStartCommandHandler(IDeploymentCollectionProvider deploymentCollectionProvider, IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, IMissingParamsCache missingParamsCache, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.DeployStartCommand, serializer)
         {
             this.deploymentCollectionProvider = deploymentCollectionProvider;
             this.deploymentOperationsCache = deploymentOperationsCache;
+            this.missingParamsCache = missingParamsCache;
             this.telemetryProvider = telemetryProvider;
         }
 
@@ -57,6 +60,8 @@ namespace Bicep.LanguageServer.Handlers
                 deploymentName,
                 deploymentOperationsCache,
                 request.missingParamsWithValues);
+
+            missingParamsCache.CacheBicepDeploymentMissingParams(DocumentUri.FromFileSystemPath(request.documentPath), request.missingParamsWithValues);
 
             PostDeployStartResultTelemetryEvent(request.deployId, bicepDeploymentStartResponse.isSuccess);
 

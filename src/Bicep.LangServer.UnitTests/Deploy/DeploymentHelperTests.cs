@@ -57,7 +57,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
@@ -89,7 +89,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
 
@@ -120,7 +120,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
 
@@ -152,7 +152,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
@@ -201,7 +201,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 deployId,
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentStartedMessage, documentPath);
             var expectedDeploymentLink = @"https://portal.azure.com/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/%2Fsubscriptions%2F07268dd7-4c50-434b-b1ff-67b8164edb41%2FresourceGroups%2Fbhavyatest%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2Fbicep_deployment";
@@ -247,7 +247,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file");
 
@@ -292,7 +292,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
 
@@ -335,7 +335,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
 
@@ -379,7 +379,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
 
@@ -431,7 +431,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache(),
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
 
@@ -487,7 +487,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "https://portal.azure.com",
                 "deployment_name",
                 deploymentOperationsCache,
-                Enumerable.Empty<BicepDeploymentMissingParams>());
+                Enumerable.Empty<BicepDeploymentMissingParam>());
 
             deploymentOperationsCache.FindAndRemoveDeploymentOperation(deployId).Should().NotBeNull();
         }

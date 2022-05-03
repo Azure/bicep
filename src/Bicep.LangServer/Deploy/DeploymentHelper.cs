@@ -12,7 +12,6 @@ using Azure.ResourceManager.Resources;
 using Azure.ResourceManager.Resources.Models;
 using Bicep.Core;
 using Bicep.LanguageServer.Handlers;
-using Newtonsoft.Json.Linq;
 
 namespace Bicep.LanguageServer.Deploy
 {
@@ -47,7 +46,7 @@ namespace Bicep.LanguageServer.Deploy
             string portalUrl,
             string deploymentName,
             IDeploymentOperationsCache deploymentOperationsCache,
-            IEnumerable<BicepDeploymentMissingParams> missingParams)
+            IEnumerable<BicepDeploymentMissingParam> missingParams)
         {
             if ((scope == LanguageConstants.TargetScopeTypeSubscription ||
                 scope == LanguageConstants.TargetScopeTypeManagementGroup) &&
