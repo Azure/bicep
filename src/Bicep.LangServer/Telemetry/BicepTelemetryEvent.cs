@@ -172,14 +172,14 @@ namespace Bicep.LanguageServer.Telemetry
                 }
             );
 
-        public static BicepTelemetryEvent CreateDeployResult(string deployId, string result)
+        public static BicepTelemetryEvent CreateDeployStartOrWaitForCompletionResult(string eventName, string deployId, bool isSuccess)
             => new BicepTelemetryEvent
             (
-                eventName: TelemetryConstants.EventNames.DeployResult,
+                eventName: eventName,
                 properties: new()
                 {
                     ["deployId"] = deployId,
-                    ["result"] = result
+                    ["result"] = isSuccess ? Result.Succeeded : Result.Failed
                 }
             );
     }

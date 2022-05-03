@@ -72,7 +72,8 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSemanticTokensHandler>()
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
-                    .WithHandler<BicepDeployCommandHandler>()
+                    .WithHandler<BicepDeploymentStartCommandHandler>()
+                    .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>()
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
@@ -133,6 +134,7 @@ namespace Bicep.LanguageServer
             services.AddSingleton<ILinterRulesProvider, LinterRulesProvider>();
             services.AddSingleton<IBicepConfigChangeHandler, BicepConfigChangeHandler>();
             services.AddSingleton<IDeploymentCollectionProvider, DeploymentCollectionProvider>();
+            services.AddSingleton<IDeploymentOperationsCache, DeploymentOperationsCache>();
         }
 
         public void Dispose()

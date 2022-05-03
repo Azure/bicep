@@ -33,7 +33,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [DataRow("   ")]
         [DataRow("invalid_scope")]
         [DataTestMethod]
-        public async Task CreateDeployment_WithInvalidScope_ReturnsDeploymentFailedMessage(string scope)
+        public async Task StartDeploymentAsync_WithInvalidScope_ReturnsDeploymentFailedMessage(string scope)
         {
             var armClient = CreateMockArmClient();
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
@@ -42,7 +42,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope)));
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 armClient,
                 documentPath,
@@ -50,25 +50,30 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 scope,
-                string.Empty);
+                string.Empty,
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, scope));
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public async Task CreateDeployment_WithSubscriptionScopeAndInvalidLocation_ReturnsDeploymentFailedMessage(string location)
+        public async Task StartDeploymentAsync_WithSubscriptionScopeAndInvalidLocation_ReturnsDeploymentFailedMessage(string location)
         {
             var armClient = CreateMockArmClient();
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
@@ -76,22 +81,29 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeSubscription,
-                location);
+                location,
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
+
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
         [DataTestMethod]
-        public async Task CreateDeployment_WithManagementGroupScopeAndInvalidLocation_ReturnsDeploymentFailedMessage(string location)
+        public async Task StartDeploymentAsync_WithManagementGroupScopeAndInvalidLocation_ReturnsDeploymentFailedMessage(string location)
         {
             var armClient = CreateMockArmClient();
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 CreateDeploymentCollectionProvider(),
                 armClient,
                 documentPath,
@@ -99,14 +111,21 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeManagementGroup,
-                location);
+                location,
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.MissingLocationDeploymentFailedMessage, documentPath);
+
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [TestMethod]
-        public async Task CreateDeployment_WithTenantScope_ReturnsDeploymentNotSupportedMessage()
+        public async Task StartDeploymentAsync_WithTenantScope_ReturnsDeploymentNotSupportedMessage()
         {
             var armClient = CreateMockArmClient();
             var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
@@ -115,7 +134,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Throws(new Exception(string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant)));
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 armClient,
                 documentPath,
@@ -123,20 +142,25 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41",
                 LanguageConstants.TargetScopeTypeTenant,
-                string.Empty);
+                string.Empty,
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
             var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath,
                 string.Format(LangServerResources.UnsupportedTargetScopeMessage, LanguageConstants.TargetScopeTypeTenant));
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [DataRow(LanguageConstants.TargetScopeTypeManagementGroup, "eastus")]
         [DataRow(LanguageConstants.TargetScopeTypeResourceGroup, "")]
         [DataRow(LanguageConstants.TargetScopeTypeSubscription, "eastus")]
         [DataTestMethod]
-        public async Task CreateDeployment_WithValidScopeAndInput_ReturnsDeploymentSucceededMessage(string scope, string location)
+        public async Task StartDeploymentAsync_WithValidScopeAndInput_ReturnsDeploymentSucceededMessage(string scope, string location)
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -156,8 +180,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), scope))
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
+            var deployId = "bicep_deployment";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -165,14 +190,23 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 scope,
-                location);
+                location,
+                string.Empty,
+                "https://portal.azure.com",
+                deployId,
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeTrue();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentStartedMessage, documentPath);
+            var expectedDeploymentLink = @"https://portal.azure.com/#blade/HubsExtension/DeploymentDetailsBlade/overview/id/%2Fsubscriptions%2F07268dd7-4c50-434b-b1ff-67b8164edb41%2FresourceGroups%2Fbhavyatest%2Fproviders%2FMicrosoft.Resources%2Fdeployments%2Fbicep_deployment";
+            var expectedViewDeploymentInPortalMessage = string.Format(LangServerResources.ViewDeploymentInPortalMessage, expectedDeploymentLink);
+
+            bicepDeployStartResponse.isSuccess.Should().BeTrue();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().Be(expectedViewDeploymentInPortalMessage);
         }
 
         [TestMethod]
-        public async Task CreateDeployment_WithInvalidValidParameterFilePath_ReturnsDeploymentFailedMessage()
+        public async Task StartDeploymentAsync_WithInvalidParameterFilePath_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -193,7 +227,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -201,14 +235,21 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 @"c:\parameter.json",
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
-                "eastus");
+                "eastus",
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Contain(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file"));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file");
+
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Contain(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [TestMethod]
-        public async Task CreateDeployment_WithInvalidValidParameterFileContents_ReturnsDeploymentFailesMessage()
+        public async Task StartDeploymentAsync_WithInvalidParameterFileContents_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -230,7 +271,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
             string parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", "invalid_parameters_file");
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -238,14 +279,21 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 parametersFilePath,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
-                "eastus");
+                "eastus",
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0."));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0.");
+
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [TestMethod]
-        public async Task CreateDeployment_WithNoDeploymentCollection_ReturnsDeploymentFailedMessage()
+        public async Task StartDeploymentAsync_WithNoDeploymentCollection_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -265,7 +313,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns<ArmDeploymentCollection>(null);
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -273,14 +321,21 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "",
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
+
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [TestMethod]
-        public async Task CreateDeployment_WithExceptionWhileFetchingDeploymentCollection_ReturnsDeploymentFailedMessage()
+        public async Task StartDeploymentAsync_WithExceptionWhileFetchingDeploymentCollection_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -301,7 +356,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Throws(new Exception(errorMessage));
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -309,111 +364,21 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
-
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
-        }
-
-        [TestMethod]
-        public async Task CreateDeployment_WhenDeploymentCreateOrUpdateOperationHasNoValue_ReturnsDeploymentFailedMessage()
-        {
-            var template = @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""resources"": [
-    {
-      ""type"": ""Microsoft.Storage/storageAccounts"",
-      ""apiVersion"": ""2021-06-01"",
-      ""name"": ""storageaccount"",
-      ""location"": ""[resourceGroup().location]"",
-      ""properties"": {}
-    }
-  ]
-}";
-            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
-            armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(false);
-
-            var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
-            deploymentCollection
-                .Setup(m => m.CreateOrUpdateAsync(
-                    It.IsAny<WaitUntil>(),
-                    It.IsAny<string>(),
-                    It.IsAny<ArmDeploymentContent>(),
-                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(armDeploymentResourceOperation.Object));
-            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
-            deploymentCollectionProvider
-                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
-                .Returns(deploymentCollection.Object);
-            var documentPath = "some_path";
-
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
-                deploymentCollectionProvider.Object,
-                CreateMockArmClient(),
-                documentPath,
-                template,
+                "",
                 string.Empty,
-                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
-                LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
+
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
         }
 
         [TestMethod]
-        public async Task CreateDeployment_WithStatusMessageOtherThan200Or201_ReturnsDeploymentFailedMessage()
-        {
-            var template = @"{
-  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
-  ""resources"": [
-    {
-      ""type"": ""Microsoft.Storage/storageAccounts"",
-      ""apiVersion"": ""2021-06-01"",
-      ""name"": ""storageaccount"",
-      ""location"": ""[resourceGroup().location]"",
-      ""properties"": {}
-    }
-  ]
-}";
-            var response = StrictMock.Of<Response>();
-            response.Setup(m => m.Status).Returns(502);
-            var responseMessage = "sample response";
-            response.Setup(m => m.ToString()).Returns(responseMessage);
-
-            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
-            armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(true);
-            armDeploymentResourceOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
-
-            var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
-            deploymentCollection
-                .Setup(m => m.CreateOrUpdateAsync(
-                    It.IsAny<WaitUntil>(),
-                    It.IsAny<string>(),
-                    It.IsAny<ArmDeploymentContent>(),
-                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(armDeploymentResourceOperation.Object));
-
-            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
-            deploymentCollectionProvider
-                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeResourceGroup))
-                .Returns(deploymentCollection.Object);
-            var documentPath = "some_path";
-
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
-                deploymentCollectionProvider.Object,
-                CreateMockArmClient(),
-                documentPath,
-                template,
-                string.Empty,
-                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
-                LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
-
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage));
-        }
-
-        [TestMethod]
-        public async Task CreateDeployment_WithExceptionWhileCreatingDeployment_ReturnsDeploymentFailedMessage()
+        public async Task StartDeploymentAsync_WithExceptionWhileCreatingDeployment_ReturnsDeploymentFailedMessage()
         {
             var template = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
@@ -442,7 +407,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Returns(deploymentCollection.Object);
             var documentPath = "some_path";
 
-            (var isSuccess, var outputMessage) = await DeploymentHelper.CreateDeployment(
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
@@ -450,10 +415,172 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeResourceGroup,
-                "");
+                "",
+                string.Empty,
+                "https://portal.azure.com",
+                "bicep_deployment",
+                new DeploymentOperationsCache());
 
-            isSuccess.Should().BeFalse();
-            outputMessage.Should().Be(string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage));
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, errorMessage);
+
+            bicepDeployStartResponse.isSuccess.Should().BeFalse();
+            bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+            bicepDeployStartResponse.viewDeploymentInPortalMessage.Should().BeNull();
+        }
+
+        [TestMethod]
+        public async Task StartDeploymentAsync_WithValidScopeAndInput_ShouldUpdateDeploymentOperationsCache()
+        {
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Storage/storageAccounts"",
+      ""apiVersion"": ""2021-06-01"",
+      ""name"": ""storageaccount"",
+      ""location"": ""[resourceGroup().location]"",
+      ""properties"": {}
+    }
+  ]
+}";
+
+            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>().Object;
+            var deploymentCollection = StrictMock.Of<ArmDeploymentCollection>();
+
+            deploymentCollection
+                .Setup(m => m.CreateOrUpdateAsync(
+                    It.IsAny<WaitUntil>(),
+                    It.IsAny<string>(),
+                    It.IsAny<ArmDeploymentContent>(),
+                    It.IsAny<CancellationToken>())).Returns(Task.FromResult(armDeploymentResourceOperation));
+
+            var deploymentCollectionProvider = StrictMock.Of<IDeploymentCollectionProvider>();
+            deploymentCollectionProvider
+                .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
+                .Returns(deploymentCollection.Object);
+
+            var deploymentOperationsCache = new DeploymentOperationsCache();
+            var deployId = "bicep_deployment1";
+
+            var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
+                deploymentCollectionProvider.Object,
+                CreateMockArmClient(),
+                "some_path",
+                template,
+                string.Empty,
+                "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
+                LanguageConstants.TargetScopeTypeSubscription,
+                "eastus",
+                deployId,
+                "https://portal.azure.com",
+                "deployment_name",
+                deploymentOperationsCache);
+
+            deploymentOperationsCache.FindAndRemoveDeploymentOperation(deployId).Should().NotBeNull();
+        }
+
+        [TestMethod]
+        public async Task WaitForDeploymentCompletionAsync_WithStatusMessageOtherThan200Or201_ReturnsDeploymentFailedMessage()
+        {
+            var responseMessage = "sample response";
+
+            var armDeploymentResourceResponse = StrictMock.Of<Response<ArmDeploymentResource>>();
+            armDeploymentResourceResponse.Setup(m => m.GetRawResponse().Status).Returns(502);
+            armDeploymentResourceResponse.Setup(m => m.ToString()).Returns(responseMessage);
+
+            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
+            armDeploymentResourceOperation.Setup(m => m.WaitForCompletionAsync(CancellationToken.None)).Returns(ValueTask.FromResult(armDeploymentResourceResponse.Object));
+            armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(true);
+
+            var documentPath = "some_path";
+            var deploymentId = "bicep_deployment";
+            var deploymentOperationsCache = new DeploymentOperationsCache();
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId, armDeploymentResourceOperation.Object);
+
+            var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
+                deploymentId,
+                documentPath,
+                deploymentOperationsCache);
+
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, responseMessage);
+
+            bicepDeployWaitForCompletionResponse.isSuccess.Should().BeFalse();
+            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+        }
+
+        [DataRow(200)]
+        [DataRow(201)]
+        [DataTestMethod]
+        public async Task WaitForDeploymentCompletionAsync_WithStatusMessage200Or201_ReturnsDeploymentSucceededMessage(int status)
+        {
+            var responseMessage = "sample response";
+
+            var armDeploymentResourceResponse = StrictMock.Of<Response<ArmDeploymentResource>>();
+            armDeploymentResourceResponse.Setup(m => m.GetRawResponse().Status).Returns(status);
+            armDeploymentResourceResponse.Setup(m => m.ToString()).Returns(responseMessage);
+
+            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
+            armDeploymentResourceOperation.Setup(m => m.WaitForCompletionAsync(CancellationToken.None)).Returns(ValueTask.FromResult(armDeploymentResourceResponse.Object));
+            armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(true);
+
+            var documentPath = "some_path";
+            var deploymentId = "bicep_deployment";
+            var deploymentOperationsCache = new DeploymentOperationsCache();
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId, armDeploymentResourceOperation.Object);
+
+            var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
+                deploymentId,
+                documentPath,
+                deploymentOperationsCache);
+
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentSucceededMessage, documentPath);
+
+            bicepDeployWaitForCompletionResponse.isSuccess.Should().BeTrue();
+            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+        }
+
+        [TestMethod]
+        public async Task WaitForDeploymentCompletionAsync_WithNoEntryFoundForDeployIdInDeploymentOperationsCache_ReturnsDeploymentFailedMessage()
+        {
+            var documentPath = "some_path";
+            var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
+                "bicep_deployment",
+                documentPath,
+                new DeploymentOperationsCache());
+
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.DeploymentFailedMessage, documentPath);
+
+            bicepDeployWaitForCompletionResponse.isSuccess.Should().BeFalse();
+            bicepDeployWaitForCompletionResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
+        }
+
+        [TestMethod]
+        public async Task WaitForDeploymentCompletionAsync_WhenCalled_RemovesDeployIdFromDeploymentOperationsCache()
+        {
+            var responseMessage = "sample response";
+
+            var armDeploymentResourceResponse = StrictMock.Of<Response<ArmDeploymentResource>>();
+            armDeploymentResourceResponse.Setup(m => m.GetRawResponse().Status).Returns(It.IsAny<int>);
+            armDeploymentResourceResponse.Setup(m => m.ToString()).Returns(responseMessage);
+
+            var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
+            armDeploymentResourceOperation.Setup(m => m.WaitForCompletionAsync(CancellationToken.None)).Returns(ValueTask.FromResult(armDeploymentResourceResponse.Object));
+            armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(true);
+
+            var documentPath = "some_path";
+            var deploymentId1 = "bicep_deployment_1";
+            var deploymentId2 = "bicep_deployment_2";
+            var deploymentOperationsCache = new DeploymentOperationsCache();
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId1, armDeploymentResourceOperation.Object);
+            deploymentOperationsCache.CacheDeploymentOperation(deploymentId2, armDeploymentResourceOperation.Object);
+
+            await DeploymentHelper.WaitForDeploymentCompletionAsync(
+                deploymentId1,
+                documentPath,
+                deploymentOperationsCache);
+
+            deploymentOperationsCache.FindAndRemoveDeploymentOperation(deploymentId1).Should().BeNull();
+            deploymentOperationsCache.FindAndRemoveDeploymentOperation(deploymentId2).Should().NotBeNull();
         }
 
         private static ArmClient CreateMockArmClient()
@@ -479,10 +606,6 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope == LanguageConstants.TargetScopeTypeSubscription)
             {
                 var armDeploymentResourceOperation = StrictMock.Of<ArmOperation<ArmDeploymentResource>>();
-                var response = StrictMock.Of<Response>();
-                response.Setup(m => m.Status).Returns(200);
-                armDeploymentResourceOperation.Setup(m => m.HasValue).Returns(true);
-                armDeploymentResourceOperation.Setup(m => m.GetRawResponse()).Returns(response.Object);
 
                 deploymentCollection
                     .Setup(m => m.CreateOrUpdateAsync(
