@@ -115,6 +115,7 @@ function addFileQuickPick(
     alwaysShow: true,
     description: isActiveEditor ? "Active editor" : undefined,
     id: uri.path, // Used for most-recent persistence
+    priority: isActiveEditor ? "highest" : "normal",
   });
 }
 
