@@ -44,9 +44,6 @@ namespace Bicep.Core.Emit
 
         public void EmitExpression(SyntaxBase syntax)
         {
-            // TODO: any value here?
-            //int startPos = writer.CurrentPos;
-
             switch (syntax)
             {
                 case BooleanLiteralSyntax boolSyntax:
@@ -101,9 +98,6 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
-
-
-            //AddSourceMapping(syntax, startPos);
         }
 
         public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
@@ -482,6 +476,7 @@ namespace Bicep.Core.Emit
 
         private void AddSourceMapping(IPositionable bicepPosition, int startPosition)
         {
+            var bicepFileName = Path.GetFileName(this.context.SemanticModel.SourceFile.FileUri.AbsolutePath);
             (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, bicepPosition.GetPosition());
 
             // increment start position if starting on a comma (happens when outputting successive items in objects and arrays)
@@ -489,7 +484,12 @@ namespace Bicep.Core.Emit
                 ? startPosition + 1
                 : startPosition;
 
-            this.rawSourceMap[bicepLine] = (startPosition, this.writer.CurrentPos - 1); // TODO: overwriting mappings
+            if (!this.rawSourceMap.ContainsKey(bicepFileName))
+            {
+                this.rawSourceMap[bicepFileName] = new Dictionary<int, (int start, int end)>();
+            }
+            
+            this.rawSourceMap[bicepFileName][bicepLine] = (startPosition, this.writer.CurrentPos - 1); // TODO: overwriting mappings
         }
 
         private void AddSourceMapping(SyntaxBase bicepSyntax, int startPosition)
