@@ -6,10 +6,12 @@ using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
@@ -71,7 +73,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("base64")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("base64"), LanguageConstants.String)
                 .WithGenericDescription("Returns the base64 representation of the input string.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The value to return as a base64 representation.")
                 .Build(),
@@ -85,7 +87,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("replace")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("replace"), LanguageConstants.String)
                 .WithGenericDescription("Returns a new string with all instances of one string replaced by another string.")
                 .WithRequiredParameter("originalString", LanguageConstants.String, "The original string.")
                 .WithRequiredParameter("oldString", LanguageConstants.String, "The string to be removed from the original string.")
@@ -93,13 +95,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("toLower")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("toLower"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to lower case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to lower case.")
                 .Build(),
 
             new FunctionOverloadBuilder("toUpper")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("toUpper"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to upper case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to upper case.")
                 .Build(),
@@ -130,19 +132,19 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("uniqueString")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uniqueString"), LanguageConstants.String)
                 .WithGenericDescription("Creates a deterministic hash string based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create a unique string.")
                 .Build(),
 
             new FunctionOverloadBuilder("guid")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("guid"), LanguageConstants.String)
                 .WithGenericDescription("Creates a value in the format of a globally unique identifier based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create the GUID.")
                 .Build(),
 
             new FunctionOverloadBuilder("trim")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("trim"), LanguageConstants.String)
                 .WithGenericDescription("Removes all leading and trailing white-space characters from the specified string.")
                 .WithRequiredParameter("stringToTrim", LanguageConstants.String, "The value to trim.")
                 .Build(),
@@ -261,7 +263,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("first")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("first"), LanguageConstants.String)
                 .WithGenericDescription(firstDescription)
                 .WithDescription("Returns the first character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the first character.")
@@ -275,7 +277,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("last")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("last"), LanguageConstants.String)
                 .WithGenericDescription(lastDescription)
                 .WithDescription("Returns the last character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the last character.")
@@ -365,7 +367,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("base64ToString")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("base64ToString"), LanguageConstants.String)
                 .WithGenericDescription("Converts a base64 representation to a string.")
                 .WithRequiredParameter("base64Value", LanguageConstants.String, "The base64 representation to convert to a string.")
                 .Build(),
@@ -377,26 +379,26 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("uriComponentToString")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uriComponentToString"), LanguageConstants.String)
                 .WithGenericDescription("Returns a string of a URI encoded value.")
                 .WithRequiredParameter("uriEncodedString", LanguageConstants.String, "The URI encoded value to convert to a string.")
                 .Build(),
 
             new FunctionOverloadBuilder("uriComponent")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uriComponent"), LanguageConstants.String)
                 .WithGenericDescription("Encodes a URI.")
                 .WithRequiredParameter("stringToEncode", LanguageConstants.String, "The value to encode.")
                 .Build(),
 
             new FunctionOverloadBuilder("dataUriToString")
                 .WithGenericDescription("Converts a data URI formatted value to a string.")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("dataUriToString"), LanguageConstants.String)
                 .WithRequiredParameter("dataUriToConvert", LanguageConstants.String, "The data URI value to convert.")
                 .Build(),
 
             // TODO: Docs have wrong param type and param name (any is actually supported)
             new FunctionOverloadBuilder("dataUri")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("dataUri"), LanguageConstants.String)
                 .WithGenericDescription("Converts a value to a data URI.")
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to a data URI.")
                 .Build(),
@@ -512,6 +514,32 @@ namespace Bicep.Core.Semantics.Namespaces
             }
             return fileUri;
         }
+
+        private static FunctionOverload.ReturnTypeBuilderDelegate PerformArmConversionOfStringLiterals(string armFunctionName) =>
+            (IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes) =>
+            {
+                if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType)) {
+                    var parameters = argumentTypes.OfType<StringLiteralType>().Select(slt => JValue.CreateString(slt.RawStringValue)).ToArray();
+                    try {
+                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters) is JValue jValue && jValue.Value is string stringValue)
+                        {
+                            return new StringLiteralType(stringValue);
+                        }
+                    } catch (Exception e) {
+                        // The ARM function invoked will almost certainly fail at runtime, but there's a chance a fix has been
+                        // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
+                        // be reported as a warning, and the fallback type will be used.
+                        diagnostics.Write(
+                            DiagnosticBuilder.ForPosition(TextSpan.Between(arguments.First().Span, arguments.Last().Span))
+                                .ArmFunctionLiteralTypeConversionFailedWithMessage(
+                                    string.Join(", ", parameters.Select(t => t.ToString())),
+                                    armFunctionName,
+                                    e.Message));
+                    }
+                }
+
+                return LanguageConstants.String;
+            };
 
         private static TypeSymbol LoadTextContentTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
