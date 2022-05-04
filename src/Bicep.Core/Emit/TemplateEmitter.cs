@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceMapping;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -18,10 +17,13 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterSettings settings;
 
+        private (string,int)[]? sourceMap;
+
         public TemplateEmitter(SemanticModel model, EmitterSettings settings)
         {
             this.model = model;
             this.settings = settings;
+            this.sourceMap = null;
         }
 
         /// <summary>
