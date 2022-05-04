@@ -6,7 +6,6 @@ using System.Linq;
 using System.Text;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Semantics;
-using Bicep.Core.SourceMapping;
 using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
@@ -17,13 +16,13 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterSettings settings;
 
-        private SourceMap sourceMap;
+        private (string,int)[]? sourceMap;
 
         public TemplateEmitter(SemanticModel model, EmitterSettings settings)
         {
             this.model = model;
             this.settings = settings;
-            this.sourceMap = new SourceMap();
+            this.sourceMap = null;
         }
 
         /// <summary>
@@ -44,7 +43,7 @@ namespace Bicep.Core.Emit
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = new SourceMap(); // emitter.rawSourceMap;
+            this.sourceMap = emitter.sourceMap;
         });
 
         /// <summary>
@@ -62,7 +61,7 @@ namespace Bicep.Core.Emit
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = new SourceMap();// emitter.rawSourceMap;
+            this.sourceMap = emitter.sourceMap;
         });
 
         /// <summary>
@@ -73,7 +72,7 @@ namespace Bicep.Core.Emit
         {
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = new SourceMap(); //emitter.rawSourceMap;
+            this.sourceMap = emitter.sourceMap;
         });
 
         private EmitResult EmitOrFail(Action write)
