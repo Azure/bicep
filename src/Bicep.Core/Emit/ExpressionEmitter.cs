@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Expressions;
@@ -31,9 +32,9 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly Dictionary<int, (int, int)> rawSourceMap;
+        public readonly Dictionary<string, Dictionary<int, (int start, int end)>> rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, Dictionary<int, (int, int)> rawSourceMap)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, Dictionary<string, Dictionary<int, (int, int)>> rawSourceMap)
         {
             this.writer = writer;
             this.context = context;
@@ -43,9 +44,6 @@ namespace Bicep.Core.Emit
 
         public void EmitExpression(SyntaxBase syntax)
         {
-            // TODO: any value here?
-            //int startPos = writer.CurrentPos;
-
             switch (syntax)
             {
                 case BooleanLiteralSyntax boolSyntax:
@@ -73,7 +71,9 @@ namespace Bicep.Core.Emit
 
                     foreach (ArrayItemSyntax itemSyntax in arraySyntax.Items)
                     {
+                        var startPos = writer.CurrentPos;
                         EmitExpression(itemSyntax.Value);
+                        AddSourceMapping(itemSyntax, startPos);
                     }
 
                     writer.WriteEndArray();
@@ -98,9 +98,6 @@ namespace Bicep.Core.Emit
                 default:
                     throw new NotImplementedException($"Cannot emit unexpected expression of type {syntax.GetType().Name}");
             }
-
-
-            //AddSourceMapping(syntax, startPos);
         }
 
         public void EmitExpression(SyntaxBase resourceNameSyntax, SyntaxBase? indexExpression, SyntaxBase newContext)
@@ -341,7 +338,9 @@ namespace Bicep.Core.Emit
                             throw new InvalidOperationException("Encountered a property with an expression-based key whose value is a for-expression.");
                         }
 
+                        int startPos = this.writer.CurrentPos;
                         this.EmitCopyObject(key, @for, @for.Body);
+                        AddSourceMapping(property, startPos);
                     }
 
                     this.writer.WriteEndArray();
@@ -452,20 +451,12 @@ namespace Bicep.Core.Emit
 
         public void EmitProperty(string name, SyntaxBase expressionValue)
         {
-            int startPos = this.writer.CurrentPos;
-
             EmitPropertyInternal(new JTokenExpression(name), expressionValue);
-
-            //AddSourceMapping(expressionValue, startPos);
         }
 
         public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
         {
-            int startPos = this.writer.CurrentPos;
-
             EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
-
-            //AddSourceMapping(syntaxKey, startPos);
         }
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc, bool skipCopyCheck = false)
@@ -503,6 +494,7 @@ namespace Bicep.Core.Emit
 
         private void AddSourceMapping(IPositionable bicepPosition, int startPosition)
         {
+            var bicepFileName = Path.GetFileName(this.context.SemanticModel.SourceFile.FileUri.AbsolutePath);
             (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, bicepPosition.GetPosition());
 
             // increment start position if starting on a comma (happens when outputting successive items in objects and arrays)
@@ -510,7 +502,12 @@ namespace Bicep.Core.Emit
                 ? startPosition + 1
                 : startPosition;
 
-            this.rawSourceMap[bicepLine] = (startPosition, this.writer.CurrentPos - 1); // TODO: overwriting mappings
+            if (!this.rawSourceMap.ContainsKey(bicepFileName))
+            {
+                this.rawSourceMap[bicepFileName] = new Dictionary<int, (int start, int end)>();
+            }
+            
+            this.rawSourceMap[bicepFileName][bicepLine] = (startPosition, this.writer.CurrentPos - 1); // TODO: overwriting mappings
         }
     }
 }

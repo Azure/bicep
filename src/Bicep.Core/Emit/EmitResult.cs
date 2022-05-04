@@ -3,17 +3,16 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.SourceMapping;
 
 namespace Bicep.Core.Emit
 {
     public class EmitResult
     {
-        public EmitResult(EmitStatus status, IEnumerable<IDiagnostic> diagnostics, SourceMap? sourceMap = null)
+        public EmitResult(EmitStatus status, IEnumerable<IDiagnostic> diagnostics, (string, int)[]? sourceMap = null)
         {
             this.Status = status;
             this.Diagnostics = diagnostics.ToImmutableArray();
-            this.sourceMap = sourceMap;
+            this.SourceMap = sourceMap;
         }
 
         /// <summary>
@@ -29,7 +28,7 @@ namespace Bicep.Core.Emit
         /// <summary>
         /// Source map created during the emit operation.
         /// </summary>
-        public SourceMap? sourceMap { get; }
+        public (string, int)[]? SourceMap { get; }
         
     }
 }
