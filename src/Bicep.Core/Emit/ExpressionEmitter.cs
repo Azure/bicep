@@ -498,16 +498,22 @@ namespace Bicep.Core.Emit
             (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, bicepPosition.GetPosition());
 
             // increment start position if starting on a comma (happens when outputting successive items in objects and arrays)
-            startPosition = this.writer.CommaPositions.Contains(startPosition)
-                ? startPosition + 1
-                : startPosition;
+            if (this.writer.CommaPositions.Contains(startPosition))
+            {
+                startPosition++;
+            }
 
             if (!this.rawSourceMap.ContainsKey(bicepFileName))
             {
-                this.rawSourceMap[bicepFileName] = new Dictionary<int, (int start, int end)>();
+                this.rawSourceMap[bicepFileName] = new Dictionary<int, IList<(int, int)>>();
             }
-            
-            this.rawSourceMap[bicepFileName][bicepLine] = (startPosition, this.writer.CurrentPos - 1); // TODO: overwriting mappings
+
+            if (!this.rawSourceMap[bicepFileName].ContainsKey(bicepLine))
+            {
+                this.rawSourceMap[bicepFileName][bicepLine] = new List<(int, int)>();
+            }
+
+            this.rawSourceMap[bicepFileName][bicepLine].Add((startPosition, this.writer.CurrentPos - 1));
         }
 
         private void AddSourceMapping(SyntaxBase bicepSyntax, int startPosition)
