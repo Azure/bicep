@@ -8,6 +8,7 @@ using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
+using Bicep.Core.TypeSystem.Az;
 
 namespace Bicep.Core.TypeSystem
 {
@@ -15,24 +16,111 @@ namespace Bicep.Core.TypeSystem
     {
         public static void Validate(SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter)
         {
-            // Collect all sytnaxes that require DTCs (a.k.a. DTC containers).
-            var containers = DeployTimeConstantContainerVisitor.CollectDeployTimeConstantContainers(semanticModel);
+            var existingResourceBodyObjectTypeOverrides = new Dictionary<DeclaredSymbol, ObjectType>();
 
+            // grab all existing resources
+            var existingResourceSymbols = semanticModel.DeclaredResources
+                .Select(x => x.Symbol)
+                .Where(x => x.DeclaringResource.IsExistingResource())
+                .ToArray();
+
+            // first pass to remove ReadableAtDeployTime flag for existing resources containing a non-DTC value or referencing such resource
+            foreach (var existingResourceSymbol in existingResourceSymbols)
+            {
+                // grab the property for "name" for each existing resource to check if it has a DTC value or not
+                var nameObjectPropertySyntax = existingResourceSymbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName);
+
+                var diagnosticWriterForExistingResourcesFirstPass = ToListDiagnosticWriter.Create();
+
+                // check if name property has DTC value and if it does not, then update the dictionary
+                if (nameObjectPropertySyntax != null && !ContainsDeployTimeConstant(nameObjectPropertySyntax, nameObjectPropertySyntax.Value, semanticModel, diagnosticWriterForExistingResourcesFirstPass, existingResourceBodyObjectTypeOverrides))
+                {
+                    // map the resource symbol to the new modified ObjectType with the ReadableAtDeployTime flag removed
+                    RemoveReadableAtDeployTimeFlagForExistingResource(existingResourceBodyObjectTypeOverrides, existingResourceSymbol);
+                }
+            }
+
+            // second pass over dictionary in reverse order to remove ReadableAtDeployTime flag from any existing resources that may have been missed the first pass
+            foreach (var existingResourceSymbol in existingResourceSymbols.Reverse())
+            {
+                // grab the property for "name" for each existing resource to check if it has a DTC value or not
+                var nameObjectPropertySyntax = existingResourceSymbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName);
+
+                var diagnosticWriterForExistingResourcesSecondPass = ToListDiagnosticWriter.Create();
+
+                // check if name property has DTC value and if it does not, then update the dictionary
+                if (nameObjectPropertySyntax != null && !ContainsDeployTimeConstant(nameObjectPropertySyntax, nameObjectPropertySyntax.Value, semanticModel, diagnosticWriterForExistingResourcesSecondPass, existingResourceBodyObjectTypeOverrides))
+                {
+                    // map the resource symbol to the new modified ObjectType with the ReadableAtDeployTime flag removed
+                    RemoveReadableAtDeployTimeFlagForExistingResource(existingResourceBodyObjectTypeOverrides, existingResourceSymbol);
+                }
+            }
+
+            // now map every resourceSymbol in the dictionary to the same ObjectType but with the DeployTimeConstant flag removed this time
+            foreach (var existingResourceSymbol in existingResourceSymbols)
+            {
+                if (existingResourceBodyObjectTypeOverrides.TryGetValue(existingResourceSymbol, out var value))
+                {
+                    if (value is { } objectType && value.Properties.TryGetValue(AzResourceTypeProvider.ResourceNamePropertyName, out var nameProperty))
+                    {
+                        existingResourceBodyObjectTypeOverrides[existingResourceSymbol] = new ObjectType(
+                                value.Name,
+                                value.ValidationFlags,
+                                value.Properties.SetItem(AzResourceTypeProvider.ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags & ~TypePropertyFlags.DeployTimeConstant)).Values,
+                                value.AdditionalPropertiesType,
+                                value.AdditionalPropertiesFlags,
+                                value.MethodResolver.CopyToObject);
+                    }
+                }
+            }
+
+            // Collect all syntaxes that require DTCs (a.k.a. DTC containers).
+            var containers = DeployTimeConstantContainerVisitor.CollectDeployTimeConstantContainers(semanticModel);
             foreach (var container in containers)
             {
                 // Only visit child nodes of the DTC container to avoid flagging the DTC container itself.
                 foreach (var childContainer in GetChildrenOfDeployTimeConstantContainer(semanticModel, container))
                 {
-                    // Validate property accesses, array accesses, resource accesses and function calls.
-                    new DeployTimeConstantDirectViolationVisitor(container, semanticModel, diagnosticWriter)
-                        .Visit(childContainer);
+                    ContainsDeployTimeConstant(container, childContainer, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides);
+                }
+            }
+        }
 
-                    // Validate variable dependencies.
-                    foreach (var variableDependency in VariableDependencyVisitor.GetVariableDependencies(semanticModel, childContainer))
-                    {
-                        new DeployTimeConstantIndirectViolationVisitor(container, variableDependency, semanticModel, diagnosticWriter)
-                            .Visit(variableDependency);
-                    }
+        public static bool ContainsDeployTimeConstant(SyntaxBase container, SyntaxBase childContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
+        {
+            // Validate property accesses, array accesses, resource accesses and function calls.
+            new DeployTimeConstantDirectViolationVisitor(container, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides)
+                .Visit(childContainer);
+
+            // Validate variable dependencies.
+            foreach (var variableDependency in VariableDependencyVisitor.GetVariableDependencies(semanticModel, childContainer))
+            {
+                new DeployTimeConstantIndirectViolationVisitor(container, variableDependency, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides)
+                    .Visit(variableDependency);
+            }
+
+            // if there are diagnostics, this means the name property contains a non-DTC value.
+            if (diagnosticWriter is ToListDiagnosticWriter toListDiagnosticWriter && toListDiagnosticWriter.GetDiagnostics().Count > 0)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public static void RemoveReadableAtDeployTimeFlagForExistingResource(Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides, ResourceSymbol existingResourceSymbol)
+        {
+            if (!existingResourceBodyObjectTypeOverrides.TryGetValue(existingResourceSymbol, out var value))
+            {
+                if (existingResourceSymbol.TryGetBodyObjectType() is { } objectType && objectType.Properties.TryGetValue(AzResourceTypeProvider.ResourceNamePropertyName, out var nameProperty))
+                {
+                    existingResourceBodyObjectTypeOverrides[existingResourceSymbol] = new ObjectType(
+                            objectType.Name,
+                            objectType.ValidationFlags,
+                            objectType.Properties.SetItem(AzResourceTypeProvider.ResourceNamePropertyName, new TypeProperty(nameProperty.Name, LanguageConstants.String, nameProperty.Flags & ~TypePropertyFlags.ReadableAtDeployTime)).Values,
+                            objectType.AdditionalPropertiesType,
+                            objectType.AdditionalPropertiesFlags,
+                            objectType.MethodResolver.CopyToObject);
                 }
             }
         }

@@ -3040,5 +3040,128 @@ module test './con.txt'
             var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
             compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_2()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+
+resource foo 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: existingStg.name
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. Properties of existingStg which can be calculated at the start include \"apiVersion\", \"id\", \"type\".")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_3()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg2.name
+}
+
+resource existingStg2 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+
+resource existingStg3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg.name
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_4()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg1 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg2.name
+}
+
+resource existingStg2 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+
+resource existingStg3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg2.name
+}
+
+resource existingStg4 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg1.name
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
     }
 }
