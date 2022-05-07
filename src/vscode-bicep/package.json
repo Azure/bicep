@@ -208,7 +208,7 @@
         "key": "ctrl+m r",
         "mac": "cmd+m r",
         "when": "resourceLangId == bicep"
-      },      
+      },
       {
         "command": "bicep.showVisualizerToSide",
         "key": "ctrl+k v",
@@ -320,7 +320,7 @@
           "command": "bicep.forceModulesRestore",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
-        },        
+        },
         {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
@@ -350,7 +350,7 @@
         {
           "command": "bicep.forceModulesRestore",
           "group": "0_bicep"
-        },        
+        },
         {
           "command": "bicep.insertResource",
           "group": "0_bicep"
@@ -540,7 +540,7 @@
     "@azure/arm-subscriptions": "^5.0.0",
     "@azure/identity": "^2.0.4",
     "@microsoft/vscode-azext-azureutils": "^0.2.0",
-    "@microsoft/vscode-azext-utils": "^0.2.1",
+    "@microsoft/vscode-azext-utils": "^0.2.4",
     "cytoscape": "^3.21.1",
     "cytoscape-elk": "^2.0.2",
     "fs-extra": "^10.1.0",

@@ -29,7 +29,7 @@ namespace Bicep.RegistryModuleTool.IntegrationTests.Commands
         ""template"": {
           ""metadata"": {
             ""_generator"": {
-              ""templateHash"": ""7959995366596346262""
+              ""templateHash"": ""16759655392678672335""
             }
           }
         }

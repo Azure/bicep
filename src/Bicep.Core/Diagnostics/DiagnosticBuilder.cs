@@ -1375,17 +1375,23 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP232",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache.");
-                
+
             public ErrorDiagnostic ModuleDeleteFailedWithMessage(string moduleRef, string message) => new(
                 TextSpan,
                 "BCP233",
                 $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");
 
+            public Diagnostic ArmFunctionLiteralTypeConversionFailedWithMessage(string literalValue, string armFunctionName, string message) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP234",
+                $"The ARM function \"{armFunctionName}\" failed when invoked on the value [{literalValue}]: {message}");
+
             public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
                 TextSpan,
-                "BCP234",
+                "BCP235",
                 $"Specified path does not exist in given JSON file or is invalid.");
-    
+
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

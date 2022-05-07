@@ -25,7 +25,9 @@ import {
 import {
   BicepDeploymentScopeParams,
   BicepDeploymentScopeResponse,
-  BicepDeployParams,
+  BicepDeploymentWaitForCompletionParams,
+  BicepDeploymentStartParams,
+  BicepDeploymentStartResponse,
 } from "../language";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 
@@ -109,9 +111,11 @@ export class DeployCommand implements Command {
         context
       );
 
+      let deploymentStartResponse: BicepDeploymentStartResponse | undefined;
+
       switch (deploymentScope) {
         case "resourceGroup":
-          await this.handleResourceGroupDeployment(
+          deploymentStartResponse = await this.handleResourceGroupDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -120,7 +124,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "subscription":
-          await this.handleSubscriptionDeployment(
+          deploymentStartResponse = await this.handleSubscriptionDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -129,7 +133,7 @@ export class DeployCommand implements Command {
           );
           break;
         case "managementGroup":
-          await this.handleManagementGroupDeployment(
+          deploymentStartResponse = await this.handleManagementGroupDeployment(
             context,
             documentUri,
             deploymentScope,
@@ -149,6 +153,12 @@ export class DeployCommand implements Command {
           );
         }
       }
+
+      await this.sendDeployWaitForCompletionCommand(
+        deployId,
+        deploymentStartResponse,
+        documentPath
+      );
     } catch (err) {
       let errorMessage: string;
 
@@ -184,7 +194,7 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string,
     deployId: string
-  ) {
+  ): Promise<BicepDeploymentStartResponse | undefined> {
     const managementGroupTreeItem =
       await this.treeManager.azManagementGroupTreeItem.showTreeItemPicker<AzManagementGroupTreeItem>(
         "",
@@ -203,7 +213,7 @@ export class DeployCommand implements Command {
           documentUri
         );
 
-        await this.sendDeployCommand(
+        return await this.sendDeployStartCommand(
           context,
           documentUri.fsPath,
           parameterFilePath,
@@ -216,6 +226,8 @@ export class DeployCommand implements Command {
         );
       }
     }
+
+    return undefined;
   }
 
   private async handleResourceGroupDeployment(
@@ -224,7 +236,7 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string,
     deployId: string
-  ) {
+  ): Promise<BicepDeploymentStartResponse | undefined> {
     const resourceGroupTreeItem =
       await this.treeManager.azResourceGroupTreeItem.showTreeItemPicker<AzResourceGroupTreeItem>(
         "",
@@ -238,7 +250,7 @@ export class DeployCommand implements Command {
         documentUri
       );
 
-      await this.sendDeployCommand(
+      return await this.sendDeployStartCommand(
         context,
         documentUri.fsPath,
         parameterFilePath,
@@ -250,6 +262,8 @@ export class DeployCommand implements Command {
         deployId
       );
     }
+
+    return undefined;
   }
 
   private async handleSubscriptionDeployment(
@@ -258,7 +272,7 @@ export class DeployCommand implements Command {
     deploymentScope: string,
     template: string,
     deployId: string
-  ): Promise<void> {
+  ): Promise<BicepDeploymentStartResponse | undefined> {
     const locationTreeItem =
       await this.treeManager.azLocationTree.showTreeItemPicker<LocationTreeItem>(
         "",
@@ -273,7 +287,7 @@ export class DeployCommand implements Command {
       documentUri
     );
 
-    await this.sendDeployCommand(
+    return await this.sendDeployStartCommand(
       context,
       documentUri.fsPath,
       parameterFilePath,
@@ -286,7 +300,7 @@ export class DeployCommand implements Command {
     );
   }
 
-  private async sendDeployCommand(
+  private async sendDeployStartCommand(
     context: IActionContext,
     documentPath: string,
     parameterFilePath: string | undefined,
@@ -296,7 +310,7 @@ export class DeployCommand implements Command {
     template: string,
     subscription: ISubscriptionContext,
     deployId: string
-  ) {
+  ): Promise<BicepDeploymentStartResponse | undefined> {
     if (!parameterFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
@@ -314,8 +328,9 @@ export class DeployCommand implements Command {
     if (accessToken) {
       const token = accessToken.token;
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
+      const portalUrl = subscription.environment.portalUrl;
 
-      const bicepDeployParams: BicepDeployParams = {
+      const deploymentStartParams: BicepDeploymentStartParams = {
         documentPath,
         parameterFilePath,
         id,
@@ -325,15 +340,54 @@ export class DeployCommand implements Command {
         token,
         expiresOnTimestamp,
         deployId,
+        portalUrl,
       };
-      const deploymentResponse: string = await this.client.sendRequest(
-        "workspace/executeCommand",
-        {
-          command: "deploy",
-          arguments: [bicepDeployParams],
-        }
+      const deploymentStartResponse: BicepDeploymentStartResponse =
+        await this.client.sendRequest("workspace/executeCommand", {
+          command: "deploy/start",
+          arguments: [deploymentStartParams],
+        });
+
+      return deploymentStartResponse;
+    }
+
+    return undefined;
+  }
+
+  private async sendDeployWaitForCompletionCommand(
+    deployId: string,
+    deploymentStartResponse: BicepDeploymentStartResponse | undefined,
+    documentPath: string
+  ) {
+    if (deploymentStartResponse) {
+      this.outputChannelManager.appendToOutputChannel(
+        deploymentStartResponse.outputMessage
       );
-      this.outputChannelManager.appendToOutputChannel(deploymentResponse);
+
+      if (deploymentStartResponse.isSuccess) {
+        const viewDeploymentInPortalMessage =
+          deploymentStartResponse.viewDeploymentInPortalMessage;
+
+        if (viewDeploymentInPortalMessage != null) {
+          this.outputChannelManager.appendToOutputChannel(
+            viewDeploymentInPortalMessage
+          );
+        }
+        const bicepDeploymentWaitForCompletionParams: BicepDeploymentWaitForCompletionParams =
+          {
+            deployId,
+            documentPath,
+          };
+        const outputMessage: string = await this.client.sendRequest(
+          "workspace/executeCommand",
+          {
+            command: "deploy/waitForCompletion",
+            arguments: [bicepDeploymentWaitForCompletionParams],
+          }
+        );
+
+        this.outputChannelManager.appendToOutputChannel(outputMessage);
+      }
     }
   }
 
