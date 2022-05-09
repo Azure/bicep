@@ -106,12 +106,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = resourceSnippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
-                    var command = new Command()
-                    {
-                        Title = "top level snippet completion",
-                        Name = TelemetryConstants.CommandName,
-                        Arguments = JArray.FromObject(new List<object> { telemetryEvent })
-                    };
+                    var command = TelemetryHelper.CreateCommand
+                    (
+                        title: "top level snippet completion",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                                                                    resourceSnippet.Detail,
@@ -133,12 +133,12 @@ namespace Bicep.LanguageServer.Completions
                     {
                         string prefix = snippet.Prefix;
                         BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
-                        var command = new Command()
-                        {
-                            Title = "nested resource declaration completion snippet",
-                            Name = TelemetryConstants.CommandName,
-                            Arguments = JArray.FromObject(new List<object> { telemetryEvent })
-                        };
+                        var command = TelemetryHelper.CreateCommand
+                        (
+                            title: "nested resource declaration completion snippet",
+                            name: TelemetryConstants.CommandName,
+                            args: JArray.FromObject(new List<object> { telemetryEvent })
+                        );
                         yield return CreateContextualSnippetCompletion(prefix,
                             snippet.Detail,
                             snippet.Text,
@@ -519,12 +519,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = snippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, resourceType.Type.Name);
-                    Command command = new Command()
-                    {
-                        Title = "resource body completion snippet",
-                        Name = TelemetryConstants.CommandName,
-                        Arguments = JArray.FromObject(new List<object> { telemetryEvent })
-                    };
+                    Command command = TelemetryHelper.CreateCommand
+                    (
+                        title: "resource body completion snippet",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
@@ -546,12 +546,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
-                var command = new Command()
-                {
-                    Title = "module body completion snippet",
-                    Name = TelemetryConstants.CommandName,
-                    Arguments = JArray.FromObject(new List<object> { telemetryEvent })
-                };
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "module body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
@@ -953,12 +953,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateObjectBodySnippetInsertion(prefix);
-                var command = new Command()
-                {
-                    Title = "object body completion snippet",
-                    Name = TelemetryConstants.CommandName,
-                    Arguments = JArray.FromObject(new List<object> { telemetryEvent })
-                };
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "object body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,

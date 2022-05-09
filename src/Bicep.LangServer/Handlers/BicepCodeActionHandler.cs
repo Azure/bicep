@@ -161,12 +161,11 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateDisableNextLineDiagnostics(diagnosticCode.String);
-            var telemetryCommand = new Command()
-            {
-                Title = "disable next line diagnostics code action",
-                Name = TelemetryConstants.CommandName,
-                Arguments = JArray.FromObject(new List<object> { telemetryEvent })
-            };
+            var telemetryCommand = TelemetryHelper.CreateCommand(
+                title: "disable next line diagnostics code action",
+                name: TelemetryConstants.CommandName,
+                args: JArray.FromObject(new List<object> { telemetryEvent })
+            );
 
             return new CodeAction
             {
@@ -187,12 +186,12 @@ namespace Bicep.LanguageServer.Handlers
             return new CodeAction
             {
                 Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
-                Command = new Command()
-                {
-                    Title = "edit linter rule code action",
-                    Name = LanguageConstants.EditLinterRuleCommandName,
-                    Arguments = JArray.FromObject(new List<object> { documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */ })
-                }
+                Command = TelemetryHelper.CreateCommand
+                (
+                    title: "edit linter rule code action",
+                    name: LanguageConstants.EditLinterRuleCommandName,
+                    args: JArray.FromObject(new List<object> { documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */ })
+                )
             };
         }
 
