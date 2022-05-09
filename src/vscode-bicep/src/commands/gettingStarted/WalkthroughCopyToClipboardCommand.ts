@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 import { IActionContext } from "@microsoft/vscode-azext-utils";
-import vscode from "vscode";
+import vscode, { Uri } from "vscode";
 import { Command } from "../types";
 
 const paramsCode =
@@ -35,6 +35,7 @@ export class WalkthroughCopyToClipboardCommand implements Command {
 
   public async execute(
     context: IActionContext,
+    _documentUri: Uri,
     args: { step: "params" | "resources" }
   ): Promise<void> {
     const step = args.step;
