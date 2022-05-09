@@ -24,35 +24,23 @@ namespace Bicep.Core.TypeSystem
                 .Where(x => x.DeclaringResource.IsExistingResource())
                 .ToArray();
 
-            // first pass to remove ReadableAtDeployTime flag for existing resources containing a non-DTC value or referencing such resource
-            foreach (var existingResourceSymbol in existingResourceSymbols)
+            // compare existing resources to all other existing resources to find dependencies and see if it has a non-DTC value
+            // and needs to remove the ReadableAtDeployTime flag from the "name" property -> O(n^2) time complexity
+            for (int i = 0; i < existingResourceSymbols.Length; i++)
             {
-                // grab the property for "name" for each existing resource to check if it has a DTC value or not
-                var nameObjectPropertySyntax = existingResourceSymbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName);
-
-                var diagnosticWriterForExistingResourcesFirstPass = ToListDiagnosticWriter.Create();
-
-                // check if name property has DTC value and if it does not, then update the dictionary
-                if (nameObjectPropertySyntax != null && !ContainsDeployTimeConstant(nameObjectPropertySyntax, nameObjectPropertySyntax.Value, semanticModel, diagnosticWriterForExistingResourcesFirstPass, existingResourceBodyObjectTypeOverrides))
+                foreach (var existingResourceSymbol in existingResourceSymbols)
                 {
-                    // map the resource symbol to the new modified ObjectType with the ReadableAtDeployTime flag removed
-                    RemoveReadableAtDeployTimeFlagForExistingResource(existingResourceBodyObjectTypeOverrides, existingResourceSymbol);
-                }
-            }
+                    // grab the "name" property to check if it has a DTC value or not
+                    var nameObjectPropertySyntax = existingResourceSymbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName);
 
-            // second pass over dictionary in reverse order to remove ReadableAtDeployTime flag from any existing resources that may have been missed the first pass
-            foreach (var existingResourceSymbol in existingResourceSymbols.Reverse())
-            {
-                // grab the property for "name" for each existing resource to check if it has a DTC value or not
-                var nameObjectPropertySyntax = existingResourceSymbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName);
+                    var diagnosticWriterForExistingResources = ToListDiagnosticWriter.Create();
 
-                var diagnosticWriterForExistingResourcesSecondPass = ToListDiagnosticWriter.Create();
-
-                // check if name property has DTC value and if it does not, then update the dictionary
-                if (nameObjectPropertySyntax != null && !ContainsDeployTimeConstant(nameObjectPropertySyntax, nameObjectPropertySyntax.Value, semanticModel, diagnosticWriterForExistingResourcesSecondPass, existingResourceBodyObjectTypeOverrides))
-                {
-                    // map the resource symbol to the new modified ObjectType with the ReadableAtDeployTime flag removed
-                    RemoveReadableAtDeployTimeFlagForExistingResource(existingResourceBodyObjectTypeOverrides, existingResourceSymbol);
+                    // if "name" property has a non-DTC value, then make and entry for the corresponding existing ResourceSymbol to a modified ObjectType in the dictionary
+                    if (nameObjectPropertySyntax != null && !ContainsDeployTimeConstant(nameObjectPropertySyntax, nameObjectPropertySyntax.Value, semanticModel, diagnosticWriterForExistingResources, existingResourceBodyObjectTypeOverrides))
+                    {
+                        // map the resource symbol to the new modified ObjectType with the ReadableAtDeployTime flag removed
+                        RemoveReadableAtDeployTimeFlagForExistingResource(existingResourceBodyObjectTypeOverrides, existingResourceSymbol);
+                    }
                 }
             }
 
