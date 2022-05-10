@@ -397,7 +397,14 @@
       "  onContext:contextKeyExpression: Check off step when a context key expression evaluates true.",
       "  extensionInstalled:myExt.id: Check off step if the given extension is installed.",
       "  onView:myView.id: Check off step once a given view becomes visible.",
-      "  onLink:https://...: Check off step once a given link has been opened via a Walkthrough."
+      "  onLink:https://...: Check off step once a given link has been opened via a Walkthrough.",
+      "",
+      "Passing arguments to commands: See https://github.com/Microsoft/vscode/issues/69757,",
+      "  Example: [Copy code to clipboard](command:bicep.gettingStarted.copyToClipboard?%7B%22step%22%3A%22resources%22%7D)",
+      "",
+      "Walkthrough commands (bicep.gettingStarted.xxx) are automatically marked in telemetry as being from the walkthrough.  Regular commands",
+      "  which are called from the walkthrough markdown should be marked with a query string ?walkthrough=true to have it marked in telemetry.",
+      "  Example: [Open Visualizer](command:bicep.showVisualizerToSide?%7B%22walkthrough%22%3A%22true%22%7D)"
     ],
     "walkthroughs": [
       {
@@ -438,7 +445,7 @@
           {
             "id": "visualizeYourResources",
             "title": "Visualize your resources",
-            "description": "The Visualizer gives you a representation of the resources in your Bicep file.\n[Open Visualizer](command:bicep.showVisualizerToSide)",
+            "description": "The Visualizer gives you a representation of the resources in your Bicep file.\n[Open Visualizer](command:bicep.showVisualizerToSide?%7B%22walkthrough%22%3A%22true%22%7D)",
             "media": {
               "markdown": "media/walkthroughs/gettingStarted/4_Show_Visualizer.md"
             },
@@ -450,7 +457,7 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy)",
+            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
@@ -496,7 +503,7 @@
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
     "@types/mocha": "^9.1.1",
-    "@types/node": "^17.0.25",
+    "@types/node": "^17.0.32",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.2",
     "@types/react-test-renderer": "^18.0.0",
