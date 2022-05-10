@@ -3115,15 +3115,16 @@ resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 }
 
 resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
-  name: existingStg2.name
+  name: newStg.name
 }
 
-resource existingStg2 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
-  name: newStg.properties.accessTier
-}
-
-resource existingStg3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: existingStg.name
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
 }
 ");
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
@@ -3134,6 +3135,37 @@ resource existingStg3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = 
         /// </summary>
         [TestMethod]
         public void Test_Issue_3169_4()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg1 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg2.name
+}
+
+resource existingStg2 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+
+resource existingStg3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg1.name
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_5()
         {
             var result = CompilationHelper.Compile(@"
 resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {

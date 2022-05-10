@@ -25,22 +25,41 @@ namespace Bicep.Core.TypeSystem
                 .ToArray();
 
             // compare existing resources to all other existing resources to find dependencies and see if it has a non-DTC value
-            // and needs to remove the ReadableAtDeployTime flag from the "name" property -> O(n^2) time complexity
+            // and needs to remove the ReadableAtDeployTime flag from the "name" property -> O(n^2) time complexity with some optimizations
             for (int i = 0; i < existingResourceSymbols.Length; i++)
             {
+                int count = existingResourceBodyObjectTypeOverrides.Count;
+
                 foreach (var existingResourceSymbol in existingResourceSymbols)
                 {
+                    // skip if the existing resource symbol is already in the dictionary because there is no need to check the DTC value again
+                    if (existingResourceBodyObjectTypeOverrides.TryGetValue(existingResourceSymbol, out var value))
+                    {
+                        continue;
+                    }
+
                     // grab the "name" property to check if it has a DTC value or not
                     var nameObjectPropertySyntax = existingResourceSymbol.DeclaringResource.TryGetBody()?.TryGetPropertyByName(AzResourceTypeProvider.ResourceNamePropertyName);
 
-                    var diagnosticWriterForExistingResources = ToListDiagnosticWriter.Create();
+                    var diagnosticWriterForExistingResources = SimpleDiagnosticWriter.Create();
 
-                    // if "name" property has a non-DTC value, then make and entry for the corresponding existing ResourceSymbol to a modified ObjectType in the dictionary
-                    if (nameObjectPropertySyntax != null && !ContainsDeployTimeConstant(nameObjectPropertySyntax, nameObjectPropertySyntax.Value, semanticModel, diagnosticWriterForExistingResources, existingResourceBodyObjectTypeOverrides))
+                    // if "name" property has a non-DTC value, then make an entry for the corresponding existing ResourceSymbol to a modified ObjectType in the dictionary
+                    if (nameObjectPropertySyntax != null)
                     {
-                        // map the resource symbol to the new modified ObjectType with the ReadableAtDeployTime flag removed
-                        RemoveReadableAtDeployTimeFlagForExistingResource(existingResourceBodyObjectTypeOverrides, existingResourceSymbol);
+                        CheckDeployTimeConstantViolations(nameObjectPropertySyntax, nameObjectPropertySyntax.Value, semanticModel, diagnosticWriterForExistingResources, existingResourceBodyObjectTypeOverrides);
+
+                        // if a DTC diagnostic was thrown, map the resource symbol to the new modified ObjectType with the ReadableAtDeployTime flag removed
+                        if (diagnosticWriterForExistingResources.HasDiagnostics())
+                        {
+                            RemoveReadableAtDeployTimeFlagForExistingResource(existingResourceBodyObjectTypeOverrides, existingResourceSymbol);
+                        }
                     }
+                }
+
+                // if no new entries have been added to existingResourceBodyObjectTypeOverrides, that means there are no further DTC checks needed
+                if (count == existingResourceBodyObjectTypeOverrides.Count)
+                {
+                    break;
                 }
             }
 
@@ -69,12 +88,12 @@ namespace Bicep.Core.TypeSystem
                 // Only visit child nodes of the DTC container to avoid flagging the DTC container itself.
                 foreach (var childContainer in GetChildrenOfDeployTimeConstantContainer(semanticModel, container))
                 {
-                    ContainsDeployTimeConstant(container, childContainer, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides);
+                    CheckDeployTimeConstantViolations(container, childContainer, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides);
                 }
             }
         }
 
-        public static bool ContainsDeployTimeConstant(SyntaxBase container, SyntaxBase childContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
+        public static void CheckDeployTimeConstantViolations(SyntaxBase container, SyntaxBase childContainer, SemanticModel semanticModel, IDiagnosticWriter diagnosticWriter, Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
         {
             // Validate property accesses, array accesses, resource accesses and function calls.
             new DeployTimeConstantDirectViolationVisitor(container, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides)
@@ -86,14 +105,6 @@ namespace Bicep.Core.TypeSystem
                 new DeployTimeConstantIndirectViolationVisitor(container, variableDependency, semanticModel, diagnosticWriter, existingResourceBodyObjectTypeOverrides)
                     .Visit(variableDependency);
             }
-
-            // if there are diagnostics, this means the name property contains a non-DTC value.
-            if (diagnosticWriter is ToListDiagnosticWriter toListDiagnosticWriter && toListDiagnosticWriter.GetDiagnostics().Count > 0)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         public static void RemoveReadableAtDeployTimeFlagForExistingResource(Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides, ResourceSymbol existingResourceSymbol)
