@@ -3120,7 +3120,7 @@ resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
 
 resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
   name: existingStg.name
-  kind: 'StorageV2'
+  kind: 'BlobStorage'
   location: resourceGroup().location
   sku: {
     name: 'Standard_LRS'
@@ -3128,6 +3128,7 @@ resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
 }
 ");
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.kind == 'BlobStorage')].name", "test");
         }
 
         /// <summary>
