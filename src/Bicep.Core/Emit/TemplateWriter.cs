@@ -204,7 +204,6 @@ namespace Bicep.Core.Emit
                 })
                 .FirstOrDefault();
 
-
             //var updatedRawSourceMap = this.rawSourceMap.ToDictionary(
             //    kvp => kvp.Key,
             //    kvp => kvp.Value.ToDictionary(
@@ -359,9 +358,10 @@ namespace Bicep.Core.Emit
             {
                 if (property.TryGetKeyText() is string propertyName)
                 {
-                    int start2 = jsonWriter.CurrentPos;
+                    // TODO: investigate if ever viable position
+                    //int start2 = jsonWriter.CurrentPos;
                     emitter.EmitProperty(propertyName, property.Value);
-                    AddSourceMapping(property, start2, jsonWriter);
+                    //AddSourceMapping(property, start2, jsonWriter);
                 }
             }
 
