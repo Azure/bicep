@@ -12,6 +12,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class NoUnusedParametersRule : NoUnusedRuleBase
     {
+        private const string MissingName = "<missing>";
         public new const string Code = "no-unused-params";
 
         public NoUnusedParametersRule() : base(
