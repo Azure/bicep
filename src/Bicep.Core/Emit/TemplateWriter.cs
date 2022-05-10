@@ -296,9 +296,10 @@ namespace Bicep.Core.Emit
             {
                 if (property.TryGetKeyText() is string propertyName)
                 {
-                    int start2 = jsonWriter.CurrentPos;
+                    // TODO: investigate if ever viable position
+                    //int start2 = jsonWriter.CurrentPos;
                     emitter.EmitProperty(propertyName, property.Value);
-                    AddSourceMapping(property, start2, jsonWriter);
+                    //AddSourceMapping(property, start2, jsonWriter);
                 }
             }
 
