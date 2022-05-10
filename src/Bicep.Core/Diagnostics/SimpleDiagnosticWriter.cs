@@ -3,6 +3,8 @@
 
 namespace Bicep.Core.Diagnostics
 {
+    // SimpleDiagnosticWriter is a diagnostic writer that returns a boolean indicating whether or not diagnostics were written.
+    // By using a boolean we can avoid storing the diagnostics in a list like ToListDiagnosticWriter.
     public class SimpleDiagnosticWriter : IDiagnosticWriter
     {
         private bool hasDiagnostics;
