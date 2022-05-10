@@ -4,7 +4,7 @@
   "devDependencies": {
     "tmlanguage-generator": "^0.2.3",
     "@types/html-escaper": "^3.0.0",
-    "@types/jest": "^27.4.1",
+    "@types/jest": "^27.5.0",
     "@types/node": "^17.0.30",
     "@types/plist": "^3.0.2",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
