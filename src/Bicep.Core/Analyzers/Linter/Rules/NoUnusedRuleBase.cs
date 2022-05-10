@@ -26,9 +26,22 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
     protected AnalyzerFixableDiagnostic CreateRemoveUnusedDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
     {
         var span = GetSpanForRow(programSyntax, declaringSyntax);
-        var codeFix = new CodeFix($"Remove unused {type}", true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
+        var codeFix = new CodeFix(GetCodeFixDescription(), true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
         var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(nameSyntax.Span, codeFix, name);
         return fixableDiagnosticForSpan;
+    }
+
+    private string GetCodeFixDescription()
+    {
+        switch (type)
+        {
+            case "parameter":
+                return "Remove unused parameter";
+            case "variable":
+                return "Remove unused variable";
+            default:
+                return "Remove unused";
+        }
     }
 
     private static TextSpan GetSpanForRow(ProgramSyntax programSyntax, SyntaxBase declaringSyntax)

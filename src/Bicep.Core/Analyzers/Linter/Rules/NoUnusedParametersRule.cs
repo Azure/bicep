@@ -18,7 +18,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             "parameter",
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
-            diagnosticStyling: DiagnosticStyling.ShowCodeAsUnused, docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
+            diagnosticStyling: DiagnosticStyling.ShowCodeAsUnused)
         { }
 
         public override string FormatMessage(params object[] values)

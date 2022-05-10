@@ -18,8 +18,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             "variable",
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
-            
-            diagnosticStyling: Diagnostics.DiagnosticStyling.ShowCodeAsUnused, docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"))
+            docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
+            diagnosticStyling: Diagnostics.DiagnosticStyling.ShowCodeAsUnused)
         { }
 
 
@@ -37,7 +37,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()
                 .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
-                .Where(sym => sym.Name != MissingName);
+                .Where(sym => sym.NameSyntax.IsValid);
             foreach (var sym in unreferencedVariables)
             {
                 yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax);
@@ -49,7 +49,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             // local variables must have a reference of type VariableAccessSyntax
             var unreferencedLocalVariables = model.Root.Declarations.OfType<LocalVariableSymbol>()
                         .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
-                        .Where(sym => sym.Name != MissingName);
+                        .Where(sym => sym.NameSyntax.IsValid);
 
             foreach (var sym in unreferencedLocalVariables)
             {
