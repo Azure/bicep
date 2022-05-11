@@ -69,6 +69,7 @@ describe("empty config file snippets", (): void => {
         expect(scaffoldSnippet).toBeDefined();
         // ... and insert it
         await editor.insertSnippet(<SnippetString>scaffoldSnippet!.insertText);
+        await sleep(1000);
 
         // Verify
         const textAfterInsertion = editor.document.getText();
@@ -82,6 +83,7 @@ describe("empty config file snippets", (): void => {
         const expectedAfterSelectingOffInsteadOfWarning =
           expectedAfterInsertion.replace(/warning/, "off");
         await executeSelectNextSuggestion();
+        await sleep(1000);
         await executeAcceptSelectedSuggestion();
 
         await sleep(5000);
