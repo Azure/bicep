@@ -105,16 +105,14 @@ resource blobs2 'blob' = [for i in range(10, 10): {
 }]
 
 output sourceContainerName string = container.name
+#disable-next-line prefer-bare-property-names
 output sourceContainerNameSquare string = container['name']
 output miscBlobContainerName string = blobs[13 % 10].containerName
 output containerName string = blobs[5].containerName
+#disable-next-line prefer-bare-property-names
 output base64Content string = blobs[3]['base64Content']
 ");
-            result.Should().HaveDiagnostics(new[]
-            {
-                ("prefer-bare-property-names", DiagnosticLevel.Warning, "Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax."),
-                ("prefer-bare-property-names", DiagnosticLevel.Warning, "Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax."),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerName'].value", "[reference('container').name]");
             result.Template.Should().HaveValueAtPath("$.outputs['sourceContainerNameSquare'].value", "[reference('container').name]");
             result.Template.Should().HaveValueAtPath("$.outputs['miscBlobContainerName'].value", "[reference(format('blobs[{0}]', mod(13, 10))).containerName]");
@@ -138,15 +136,13 @@ resource myAppsLoop 'application' = [for i in range(0, numApps): {
 }]
 
 output myAppId string = myApp.appId
+#disable-next-line prefer-bare-property-names
 output myAppId2 string = myApp['appId']
 output myAppsLoopId string = myAppsLoop[13 % numApps].appId
+#disable-next-line prefer-bare-property-names
 output myAppsLoopId2 string = myAppsLoop[3]['appId']
 ");
-            result.Should().HaveDiagnostics(new[]
-            {
-                ("prefer-bare-property-names", DiagnosticLevel.Warning, "Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax."),
-                ("prefer-bare-property-names", DiagnosticLevel.Warning, "Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax."),
-            });
+            result.Should().NotHaveAnyDiagnostics();
             result.Template.Should().HaveValueAtPath("$.outputs['myAppId'].value", "[reference('myApp').appId]");
             result.Template.Should().HaveValueAtPath("$.outputs['myAppId2'].value", "[reference('myApp').appId]");
             result.Template.Should().HaveValueAtPath("$.outputs['myAppsLoopId'].value", "[reference(format('myAppsLoop[{0}]', mod(13, parameters('numApps')))).appId]");
