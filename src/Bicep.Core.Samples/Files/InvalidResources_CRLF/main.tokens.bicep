@@ -1362,7 +1362,7 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[089:090) Assignment |=|
 //@[091:092) LeftBrace |{|
 //@[092:094) NewLine |\r\n|
-  name: concat(runtimeValidRes1.location, runtimeValidRes['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
 //@[008:014) Identifier |concat|
@@ -1371,25 +1371,25 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[031:032) Dot |.|
 //@[032:040) Identifier |location|
 //@[040:041) Comma |,|
-//@[042:057) Identifier |runtimeValidRes|
-//@[057:058) LeftSquare |[|
-//@[058:068) StringComplete |'location'|
-//@[068:069) RightSquare |]|
-//@[069:070) Comma |,|
-//@[071:089) Identifier |runtimeInvalidRes3|
-//@[089:090) LeftSquare |[|
-//@[090:102) StringComplete |'properties'|
-//@[102:103) RightSquare |]|
-//@[103:104) Dot |.|
-//@[104:116) Identifier |azCliVersion|
-//@[116:117) Comma |,|
-//@[118:129) Identifier |validModule|
-//@[129:130) Dot |.|
-//@[130:136) Identifier |params|
-//@[136:137) Dot |.|
-//@[137:141) Identifier |name|
-//@[141:142) RightParen |)|
-//@[142:144) NewLine |\r\n|
+//@[042:058) Identifier |runtimeValidRes2|
+//@[058:059) LeftSquare |[|
+//@[059:069) StringComplete |'location'|
+//@[069:070) RightSquare |]|
+//@[070:071) Comma |,|
+//@[072:090) Identifier |runtimeInvalidRes3|
+//@[090:091) LeftSquare |[|
+//@[091:103) StringComplete |'properties'|
+//@[103:104) RightSquare |]|
+//@[104:105) Dot |.|
+//@[105:117) Identifier |azCliVersion|
+//@[117:118) Comma |,|
+//@[119:130) Identifier |validModule|
+//@[130:131) Dot |.|
+//@[131:137) Identifier |params|
+//@[137:138) Dot |.|
+//@[138:142) Identifier |name|
+//@[142:143) RightParen |)|
+//@[143:145) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|
@@ -1401,7 +1401,7 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 //@[089:090) Assignment |=|
 //@[091:092) LeftBrace |{|
 //@[092:094) NewLine |\r\n|
-  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params']name}'
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
 //@[008:011) StringLeftPiece |'${|
@@ -1425,9 +1425,10 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 //@[129:130) LeftSquare |[|
 //@[130:138) StringComplete |'params'|
 //@[138:139) RightSquare |]|
-//@[139:143) Identifier |name|
-//@[143:145) StringRightPiece |}'|
-//@[145:147) NewLine |\r\n|
+//@[139:140) Dot |.|
+//@[140:144) Identifier |name|
+//@[144:146) StringRightPiece |}'|
+//@[146:148) NewLine |\r\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:005) NewLine |\r\n\r\n|

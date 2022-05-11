@@ -297,11 +297,11 @@ resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@202
 }
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: concat(runtimeValidRes1.location, runtimeValidRes['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+  name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
 }
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params']name}'
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
 }
 
 // variable related runtime validation
