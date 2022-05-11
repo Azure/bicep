@@ -10,7 +10,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
@@ -35,7 +34,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         private sealed class Visitor : SyntaxVisitor
         {
-            private static readonly Regex VALID_IDENTIFIER_PATTERN = new(@"^[a-zA-Z_]\w*$");
             private readonly Dictionary<TextSpan, CodeFix> spanFixes;
 
             public Visitor(Dictionary<TextSpan, CodeFix> spanFixes)
@@ -47,7 +45,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (TryGetValidIdentifierToken(syntax.Key, out string? literal))
                 {
-                    AddCodeFix(syntax.Key.Span, literal, CoreResources.PreferBarePropertyNamesDeclarationFixTitle);
+                    AddCodeFix(syntax.Key.Span, literal, string.Format(CoreResources.PreferBarePropertyNamesDeclarationFixTitle, literal));
                 }
 
                 base.VisitObjectPropertySyntax(syntax);
@@ -57,7 +55,8 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 if (TryGetValidIdentifierToken(syntax.IndexExpression, out string? literal))
                 {
-                    AddCodeFix(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare), $".{literal}", CoreResources.PreferBarePropertyNamesDereferenceFixTitle);
+                    var replacement = $".{literal}";
+                    AddCodeFix(TextSpan.Between(syntax.OpenSquare, syntax.CloseSquare), replacement, string.Format(CoreResources.PreferBarePropertyNamesDereferenceFixTitle, replacement));
                 }
 
                 base.VisitArrayAccessSyntax(syntax);
@@ -75,7 +74,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 if (syntax is StringSyntax @string)
                 {
                     string? literalValue = @string.TryGetLiteralValue();
-                    if (literalValue is not null && VALID_IDENTIFIER_PATTERN.IsMatch(literalValue))
+                    if (literalValue is not null && Lexer.IsValidIdentifier(literalValue))
                     {
                         validToken = literalValue;
                         return true;

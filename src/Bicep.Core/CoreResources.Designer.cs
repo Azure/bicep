@@ -412,7 +412,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Avoid using single quotes around object property declaration when possible..
+        ///   Looks up a localized string similar to Replace quoted property name with {0}..
         /// </summary>
         internal static string PreferBarePropertyNamesDeclarationFixTitle {
             get {
@@ -421,7 +421,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use property access syntax instead of array access syntax when possible..
+        ///   Looks up a localized string similar to Replace array syntax with {0}..
         /// </summary>
         internal static string PreferBarePropertyNamesDereferenceFixTitle {
             get {
