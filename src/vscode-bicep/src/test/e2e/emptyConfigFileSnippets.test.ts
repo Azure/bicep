@@ -86,9 +86,7 @@ describe("empty config file snippets", (): void => {
         await executeSelectNextSuggestion();
         await executeAcceptSelectedSuggestion();
 
-        if (timeout > 0) {
-          await sleep(timeout);
-        }
+        await sleep(5000);
 
         const textAfterSelectingOffInsteadOfWarningtext =
           editor.document.getText();
