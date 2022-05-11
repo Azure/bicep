@@ -12,10 +12,8 @@ import vscode, {
 import path from "path";
 import fse from "fs-extra";
 import {
-  executeAcceptSelectedSuggestion,
   executeCloseAllEditors,
   executeCompletionItemProvider,
-  executeSelectNextSuggestion,
 } from "./commands";
 import {} from "fs";
 import { createUniqueTempFolder } from "../utils/createUniqueTempFolder";
