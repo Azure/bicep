@@ -1,5 +1,5 @@
 
-//@[000:51645) ProgramSyntax
+//@[000:51669) ProgramSyntax
 //@[000:00002) ├─Token(NewLine) |\r\n|
 // wrong declaration
 //@[020:00022) ├─Token(NewLine) |\r\n|
@@ -1602,39 +1602,40 @@ resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-0
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:00132) ├─ResourceDeclarationSyntax
+//@[000:00135) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00025) | ├─IdentifierSyntax
 //@[009:00025) | | └─Token(Identifier) |runtimeValidRes4|
 //@[026:00085) | ├─StringSyntax
 //@[026:00085) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
 //@[086:00087) | ├─Token(Assignment) |=|
-//@[088:00132) | └─ObjectSyntax
+//@[088:00135) | └─ObjectSyntax
 //@[088:00089) | | ├─Token(LeftBrace) |{|
 //@[089:00091) | | ├─Token(NewLine) |\r\n|
-  name: concat(validModule.name, 'v1')
-//@[002:00038) | | ├─ObjectPropertySyntax
+  name: concat(validModule['name'], 'v1')
+//@[002:00041) | | ├─ObjectPropertySyntax
 //@[002:00006) | | | ├─IdentifierSyntax
 //@[002:00006) | | | | └─Token(Identifier) |name|
 //@[006:00007) | | | ├─Token(Colon) |:|
-//@[008:00038) | | | └─FunctionCallSyntax
+//@[008:00041) | | | └─FunctionCallSyntax
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
-//@[015:00031) | | | | ├─FunctionArgumentSyntax
-//@[015:00031) | | | | | └─PropertyAccessSyntax
+//@[015:00034) | | | | ├─FunctionArgumentSyntax
+//@[015:00034) | | | | | └─ArrayAccessSyntax
 //@[015:00026) | | | | | | ├─VariableAccessSyntax
 //@[015:00026) | | | | | | | └─IdentifierSyntax
 //@[015:00026) | | | | | | | | └─Token(Identifier) |validModule|
-//@[026:00027) | | | | | | ├─Token(Dot) |.|
-//@[027:00031) | | | | | | └─IdentifierSyntax
-//@[027:00031) | | | | | | | └─Token(Identifier) |name|
-//@[031:00032) | | | | ├─Token(Comma) |,|
-//@[033:00037) | | | | ├─FunctionArgumentSyntax
-//@[033:00037) | | | | | └─StringSyntax
-//@[033:00037) | | | | | | └─Token(StringComplete) |'v1'|
-//@[037:00038) | | | | └─Token(RightParen) |)|
-//@[038:00040) | | ├─Token(NewLine) |\r\n|
+//@[026:00027) | | | | | | ├─Token(LeftSquare) |[|
+//@[027:00033) | | | | | | ├─StringSyntax
+//@[027:00033) | | | | | | | └─Token(StringComplete) |'name'|
+//@[033:00034) | | | | | | └─Token(RightSquare) |]|
+//@[034:00035) | | | | ├─Token(Comma) |,|
+//@[036:00040) | | | | ├─FunctionArgumentSyntax
+//@[036:00040) | | | | | └─StringSyntax
+//@[036:00040) | | | | | | └─Token(StringComplete) |'v1'|
+//@[040:00041) | | | | └─Token(RightParen) |)|
+//@[041:00043) | | ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) | | └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -1845,59 +1846,56 @@ resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:00150) ├─ResourceDeclarationSyntax
+//@[000:00152) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00027) | ├─IdentifierSyntax
 //@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes5|
 //@[028:00087) | ├─StringSyntax
 //@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
 //@[088:00089) | ├─Token(Assignment) |=|
-//@[090:00150) | └─ObjectSyntax
+//@[090:00152) | └─ObjectSyntax
 //@[090:00091) | | ├─Token(LeftBrace) |{|
 //@[091:00093) | | ├─Token(NewLine) |\r\n|
-  name: runtimeValidRes1.properties.['evictionPolicy']
-//@[002:00054) | | ├─ObjectPropertySyntax
+  name: runtimeValidRes1['properties']['evictionPolicy']
+//@[002:00056) | | ├─ObjectPropertySyntax
 //@[002:00006) | | | ├─IdentifierSyntax
 //@[002:00006) | | | | └─Token(Identifier) |name|
 //@[006:00007) | | | ├─Token(Colon) |:|
-//@[008:00054) | | | └─ArrayAccessSyntax
-//@[008:00036) | | | | ├─PropertyAccessSyntax
-//@[008:00035) | | | | | ├─PropertyAccessSyntax
-//@[008:00024) | | | | | | ├─VariableAccessSyntax
-//@[008:00024) | | | | | | | └─IdentifierSyntax
-//@[008:00024) | | | | | | | | └─Token(Identifier) |runtimeValidRes1|
-//@[024:00025) | | | | | | ├─Token(Dot) |.|
-//@[025:00035) | | | | | | └─IdentifierSyntax
-//@[025:00035) | | | | | | | └─Token(Identifier) |properties|
-//@[035:00036) | | | | | ├─Token(Dot) |.|
-//@[036:00036) | | | | | └─IdentifierSyntax
-//@[036:00036) | | | | | | └─SkippedTriviaSyntax
-//@[036:00037) | | | | ├─Token(LeftSquare) |[|
-//@[037:00053) | | | | ├─StringSyntax
-//@[037:00053) | | | | | └─Token(StringComplete) |'evictionPolicy'|
-//@[053:00054) | | | | └─Token(RightSquare) |]|
-//@[054:00056) | | ├─Token(NewLine) |\r\n|
+//@[008:00056) | | | └─ArrayAccessSyntax
+//@[008:00038) | | | | ├─ArrayAccessSyntax
+//@[008:00024) | | | | | ├─VariableAccessSyntax
+//@[008:00024) | | | | | | └─IdentifierSyntax
+//@[008:00024) | | | | | | | └─Token(Identifier) |runtimeValidRes1|
+//@[024:00025) | | | | | ├─Token(LeftSquare) |[|
+//@[025:00037) | | | | | ├─StringSyntax
+//@[025:00037) | | | | | | └─Token(StringComplete) |'properties'|
+//@[037:00038) | | | | | └─Token(RightSquare) |]|
+//@[038:00039) | | | | ├─Token(LeftSquare) |[|
+//@[039:00055) | | | | ├─StringSyntax
+//@[039:00055) | | | | | └─Token(StringComplete) |'evictionPolicy'|
+//@[055:00056) | | | | └─Token(RightSquare) |]|
+//@[056:00058) | | ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) | | └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:00146) ├─ResourceDeclarationSyntax
+//@[000:00149) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00027) | ├─IdentifierSyntax
 //@[009:00027) | | └─Token(Identifier) |runtimeInvalidRes6|
 //@[028:00087) | ├─StringSyntax
 //@[028:00087) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
 //@[088:00089) | ├─Token(Assignment) |=|
-//@[090:00146) | └─ObjectSyntax
+//@[090:00149) | └─ObjectSyntax
 //@[090:00091) | | ├─Token(LeftBrace) |{|
 //@[091:00093) | | ├─Token(NewLine) |\r\n|
-  name: runtimeValidRes1.properties.evictionPolicy
-//@[002:00050) | | ├─ObjectPropertySyntax
+  name: runtimeValidRes1.properties['evictionPolicy']
+//@[002:00053) | | ├─ObjectPropertySyntax
 //@[002:00006) | | | ├─IdentifierSyntax
 //@[002:00006) | | | | └─Token(Identifier) |name|
 //@[006:00007) | | | ├─Token(Colon) |:|
-//@[008:00050) | | | └─PropertyAccessSyntax
+//@[008:00053) | | | └─ArrayAccessSyntax
 //@[008:00035) | | | | ├─PropertyAccessSyntax
 //@[008:00024) | | | | | ├─VariableAccessSyntax
 //@[008:00024) | | | | | | └─IdentifierSyntax
@@ -1905,10 +1903,11 @@ resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020
 //@[024:00025) | | | | | ├─Token(Dot) |.|
 //@[025:00035) | | | | | └─IdentifierSyntax
 //@[025:00035) | | | | | | └─Token(Identifier) |properties|
-//@[035:00036) | | | | ├─Token(Dot) |.|
-//@[036:00050) | | | | └─IdentifierSyntax
-//@[036:00050) | | | | | └─Token(Identifier) |evictionPolicy|
-//@[050:00052) | | ├─Token(NewLine) |\r\n|
+//@[035:00036) | | | | ├─Token(LeftSquare) |[|
+//@[036:00052) | | | | ├─StringSyntax
+//@[036:00052) | | | | | └─Token(StringComplete) |'evictionPolicy'|
+//@[052:00053) | | | | └─Token(RightSquare) |]|
+//@[053:00055) | | ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) | | └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -2096,22 +2095,22 @@ resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@202
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:00234) ├─ResourceDeclarationSyntax
+//@[000:00239) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00028) | ├─IdentifierSyntax
 //@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes12|
 //@[029:00088) | ├─StringSyntax
 //@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
 //@[089:00090) | ├─Token(Assignment) |=|
-//@[091:00234) | └─ObjectSyntax
+//@[091:00239) | └─ObjectSyntax
 //@[091:00092) | | ├─Token(LeftBrace) |{|
 //@[092:00094) | | ├─Token(NewLine) |\r\n|
-  name: concat(runtimeValidRes1.location, runtimeValidRes2.location, runtimeInvalidRes3.properties.azCliVersion, validModule.params.name)
-//@[002:00137) | | ├─ObjectPropertySyntax
+  name: concat(runtimeValidRes1.location, runtimeValidRes['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
+//@[002:00142) | | ├─ObjectPropertySyntax
 //@[002:00006) | | | ├─IdentifierSyntax
 //@[002:00006) | | | | └─Token(Identifier) |name|
 //@[006:00007) | | | ├─Token(Colon) |:|
-//@[008:00137) | | | └─FunctionCallSyntax
+//@[008:00142) | | | └─FunctionCallSyntax
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
@@ -2124,63 +2123,65 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[032:00040) | | | | | | └─IdentifierSyntax
 //@[032:00040) | | | | | | | └─Token(Identifier) |location|
 //@[040:00041) | | | | ├─Token(Comma) |,|
-//@[042:00067) | | | | ├─FunctionArgumentSyntax
-//@[042:00067) | | | | | └─PropertyAccessSyntax
-//@[042:00058) | | | | | | ├─VariableAccessSyntax
-//@[042:00058) | | | | | | | └─IdentifierSyntax
-//@[042:00058) | | | | | | | | └─Token(Identifier) |runtimeValidRes2|
-//@[058:00059) | | | | | | ├─Token(Dot) |.|
-//@[059:00067) | | | | | | └─IdentifierSyntax
-//@[059:00067) | | | | | | | └─Token(Identifier) |location|
-//@[067:00068) | | | | ├─Token(Comma) |,|
-//@[069:00111) | | | | ├─FunctionArgumentSyntax
-//@[069:00111) | | | | | └─PropertyAccessSyntax
-//@[069:00098) | | | | | | ├─PropertyAccessSyntax
-//@[069:00087) | | | | | | | ├─VariableAccessSyntax
-//@[069:00087) | | | | | | | | └─IdentifierSyntax
-//@[069:00087) | | | | | | | | | └─Token(Identifier) |runtimeInvalidRes3|
-//@[087:00088) | | | | | | | ├─Token(Dot) |.|
-//@[088:00098) | | | | | | | └─IdentifierSyntax
-//@[088:00098) | | | | | | | | └─Token(Identifier) |properties|
-//@[098:00099) | | | | | | ├─Token(Dot) |.|
-//@[099:00111) | | | | | | └─IdentifierSyntax
-//@[099:00111) | | | | | | | └─Token(Identifier) |azCliVersion|
-//@[111:00112) | | | | ├─Token(Comma) |,|
-//@[113:00136) | | | | ├─FunctionArgumentSyntax
-//@[113:00136) | | | | | └─PropertyAccessSyntax
-//@[113:00131) | | | | | | ├─PropertyAccessSyntax
-//@[113:00124) | | | | | | | ├─VariableAccessSyntax
-//@[113:00124) | | | | | | | | └─IdentifierSyntax
-//@[113:00124) | | | | | | | | | └─Token(Identifier) |validModule|
-//@[124:00125) | | | | | | | ├─Token(Dot) |.|
-//@[125:00131) | | | | | | | └─IdentifierSyntax
-//@[125:00131) | | | | | | | | └─Token(Identifier) |params|
-//@[131:00132) | | | | | | ├─Token(Dot) |.|
-//@[132:00136) | | | | | | └─IdentifierSyntax
-//@[132:00136) | | | | | | | └─Token(Identifier) |name|
-//@[136:00137) | | | | └─Token(RightParen) |)|
-//@[137:00139) | | ├─Token(NewLine) |\r\n|
+//@[042:00069) | | | | ├─FunctionArgumentSyntax
+//@[042:00069) | | | | | └─ArrayAccessSyntax
+//@[042:00057) | | | | | | ├─VariableAccessSyntax
+//@[042:00057) | | | | | | | └─IdentifierSyntax
+//@[042:00057) | | | | | | | | └─Token(Identifier) |runtimeValidRes|
+//@[057:00058) | | | | | | ├─Token(LeftSquare) |[|
+//@[058:00068) | | | | | | ├─StringSyntax
+//@[058:00068) | | | | | | | └─Token(StringComplete) |'location'|
+//@[068:00069) | | | | | | └─Token(RightSquare) |]|
+//@[069:00070) | | | | ├─Token(Comma) |,|
+//@[071:00116) | | | | ├─FunctionArgumentSyntax
+//@[071:00116) | | | | | └─PropertyAccessSyntax
+//@[071:00103) | | | | | | ├─ArrayAccessSyntax
+//@[071:00089) | | | | | | | ├─VariableAccessSyntax
+//@[071:00089) | | | | | | | | └─IdentifierSyntax
+//@[071:00089) | | | | | | | | | └─Token(Identifier) |runtimeInvalidRes3|
+//@[089:00090) | | | | | | | ├─Token(LeftSquare) |[|
+//@[090:00102) | | | | | | | ├─StringSyntax
+//@[090:00102) | | | | | | | | └─Token(StringComplete) |'properties'|
+//@[102:00103) | | | | | | | └─Token(RightSquare) |]|
+//@[103:00104) | | | | | | ├─Token(Dot) |.|
+//@[104:00116) | | | | | | └─IdentifierSyntax
+//@[104:00116) | | | | | | | └─Token(Identifier) |azCliVersion|
+//@[116:00117) | | | | ├─Token(Comma) |,|
+//@[118:00141) | | | | ├─FunctionArgumentSyntax
+//@[118:00141) | | | | | └─PropertyAccessSyntax
+//@[118:00136) | | | | | | ├─PropertyAccessSyntax
+//@[118:00129) | | | | | | | ├─VariableAccessSyntax
+//@[118:00129) | | | | | | | | └─IdentifierSyntax
+//@[118:00129) | | | | | | | | | └─Token(Identifier) |validModule|
+//@[129:00130) | | | | | | | ├─Token(Dot) |.|
+//@[130:00136) | | | | | | | └─IdentifierSyntax
+//@[130:00136) | | | | | | | | └─Token(Identifier) |params|
+//@[136:00137) | | | | | | ├─Token(Dot) |.|
+//@[137:00141) | | | | | | └─IdentifierSyntax
+//@[137:00141) | | | | | | | └─Token(Identifier) |name|
+//@[141:00142) | | | | └─Token(RightParen) |)|
+//@[142:00144) | | ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) | | └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:00234) ├─ResourceDeclarationSyntax
+//@[000:00242) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00028) | ├─IdentifierSyntax
 //@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes13|
 //@[029:00088) | ├─StringSyntax
 //@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
 //@[089:00090) | ├─Token(Assignment) |=|
-//@[091:00234) | └─ObjectSyntax
+//@[091:00242) | └─ObjectSyntax
 //@[091:00092) | | ├─Token(LeftBrace) |{|
 //@[092:00094) | | ├─Token(NewLine) |\r\n|
-  name: '${runtimeValidRes1.location}${runtimeValidRes2.location}${runtimeInvalidRes3.properties.azCliVersion}${validModule.params.name}'
-//@[002:00137) | | ├─ObjectPropertySyntax
+  name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params']name}'
+//@[002:00145) | | ├─ObjectPropertySyntax
 //@[002:00006) | | | ├─IdentifierSyntax
 //@[002:00006) | | | | └─Token(Identifier) |name|
 //@[006:00007) | | | ├─Token(Colon) |:|
-//@[008:00137) | | | └─StringSyntax
+//@[008:00145) | | | └─StringSyntax
 //@[008:00011) | | | | ├─Token(StringLeftPiece) |'${|
 //@[011:00036) | | | | ├─PropertyAccessSyntax
 //@[011:00027) | | | | | ├─VariableAccessSyntax
@@ -2190,39 +2191,41 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 //@[028:00036) | | | | | └─IdentifierSyntax
 //@[028:00036) | | | | | | └─Token(Identifier) |location|
 //@[036:00039) | | | | ├─Token(StringMiddlePiece) |}${|
-//@[039:00064) | | | | ├─PropertyAccessSyntax
+//@[039:00067) | | | | ├─ArrayAccessSyntax
 //@[039:00055) | | | | | ├─VariableAccessSyntax
 //@[039:00055) | | | | | | └─IdentifierSyntax
 //@[039:00055) | | | | | | | └─Token(Identifier) |runtimeValidRes2|
-//@[055:00056) | | | | | ├─Token(Dot) |.|
-//@[056:00064) | | | | | └─IdentifierSyntax
-//@[056:00064) | | | | | | └─Token(Identifier) |location|
-//@[064:00067) | | | | ├─Token(StringMiddlePiece) |}${|
-//@[067:00109) | | | | ├─PropertyAccessSyntax
-//@[067:00096) | | | | | ├─PropertyAccessSyntax
-//@[067:00085) | | | | | | ├─VariableAccessSyntax
-//@[067:00085) | | | | | | | └─IdentifierSyntax
-//@[067:00085) | | | | | | | | └─Token(Identifier) |runtimeInvalidRes3|
-//@[085:00086) | | | | | | ├─Token(Dot) |.|
-//@[086:00096) | | | | | | └─IdentifierSyntax
-//@[086:00096) | | | | | | | └─Token(Identifier) |properties|
-//@[096:00097) | | | | | ├─Token(Dot) |.|
-//@[097:00109) | | | | | └─IdentifierSyntax
-//@[097:00109) | | | | | | └─Token(Identifier) |azCliVersion|
-//@[109:00112) | | | | ├─Token(StringMiddlePiece) |}${|
-//@[112:00135) | | | | ├─PropertyAccessSyntax
-//@[112:00130) | | | | | ├─PropertyAccessSyntax
-//@[112:00123) | | | | | | ├─VariableAccessSyntax
-//@[112:00123) | | | | | | | └─IdentifierSyntax
-//@[112:00123) | | | | | | | | └─Token(Identifier) |validModule|
-//@[123:00124) | | | | | | ├─Token(Dot) |.|
-//@[124:00130) | | | | | | └─IdentifierSyntax
-//@[124:00130) | | | | | | | └─Token(Identifier) |params|
-//@[130:00131) | | | | | ├─Token(Dot) |.|
-//@[131:00135) | | | | | └─IdentifierSyntax
-//@[131:00135) | | | | | | └─Token(Identifier) |name|
-//@[135:00137) | | | | └─Token(StringRightPiece) |}'|
-//@[137:00139) | | ├─Token(NewLine) |\r\n|
+//@[055:00056) | | | | | ├─Token(LeftSquare) |[|
+//@[056:00066) | | | | | ├─StringSyntax
+//@[056:00066) | | | | | | └─Token(StringComplete) |'location'|
+//@[066:00067) | | | | | └─Token(RightSquare) |]|
+//@[067:00070) | | | | ├─Token(StringMiddlePiece) |}${|
+//@[070:00115) | | | | ├─ArrayAccessSyntax
+//@[070:00099) | | | | | ├─PropertyAccessSyntax
+//@[070:00088) | | | | | | ├─VariableAccessSyntax
+//@[070:00088) | | | | | | | └─IdentifierSyntax
+//@[070:00088) | | | | | | | | └─Token(Identifier) |runtimeInvalidRes3|
+//@[088:00089) | | | | | | ├─Token(Dot) |.|
+//@[089:00099) | | | | | | └─IdentifierSyntax
+//@[089:00099) | | | | | | | └─Token(Identifier) |properties|
+//@[099:00100) | | | | | ├─Token(LeftSquare) |[|
+//@[100:00114) | | | | | ├─StringSyntax
+//@[100:00114) | | | | | | └─Token(StringComplete) |'azCliVersion'|
+//@[114:00115) | | | | | └─Token(RightSquare) |]|
+//@[115:00118) | | | | ├─Token(StringMiddlePiece) |}${|
+//@[118:00143) | | | | ├─SkippedTriviaSyntax
+//@[118:00139) | | | | | ├─ArrayAccessSyntax
+//@[118:00129) | | | | | | ├─VariableAccessSyntax
+//@[118:00129) | | | | | | | └─IdentifierSyntax
+//@[118:00129) | | | | | | | | └─Token(Identifier) |validModule|
+//@[129:00130) | | | | | | ├─Token(LeftSquare) |[|
+//@[130:00138) | | | | | | ├─StringSyntax
+//@[130:00138) | | | | | | | └─Token(StringComplete) |'params'|
+//@[138:00139) | | | | | | └─Token(RightSquare) |]|
+//@[139:00143) | | | | | └─SkippedTriviaSyntax
+//@[139:00143) | | | | | | └─Token(Identifier) |name|
+//@[143:00145) | | | | └─Token(StringRightPiece) |}'|
+//@[145:00147) | | ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) | | └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
@@ -2536,22 +2539,22 @@ resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@202
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[000:00223) ├─ResourceDeclarationSyntax
+//@[000:00226) ├─ResourceDeclarationSyntax
 //@[000:00008) | ├─Token(Identifier) |resource|
 //@[009:00028) | ├─IdentifierSyntax
 //@[009:00028) | | └─Token(Identifier) |runtimeInvalidRes18|
 //@[029:00088) | ├─StringSyntax
 //@[029:00088) | | └─Token(StringComplete) |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
 //@[089:00090) | ├─Token(Assignment) |=|
-//@[091:00223) | └─ObjectSyntax
+//@[091:00226) | └─ObjectSyntax
 //@[091:00092) | | ├─Token(LeftBrace) |{|
 //@[092:00094) | | ├─Token(NewLine) |\r\n|
-  name: concat(runtimeInvalid.foo1, runtimeValidRes2.properties.azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
-//@[002:00126) | | ├─ObjectPropertySyntax
+  name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
+//@[002:00129) | | ├─ObjectPropertySyntax
 //@[002:00006) | | | ├─IdentifierSyntax
 //@[002:00006) | | | | └─Token(Identifier) |name|
 //@[006:00007) | | | ├─Token(Colon) |:|
-//@[008:00126) | | | └─FunctionCallSyntax
+//@[008:00129) | | | └─FunctionCallSyntax
 //@[008:00014) | | | | ├─IdentifierSyntax
 //@[008:00014) | | | | | └─Token(Identifier) |concat|
 //@[014:00015) | | | | ├─Token(LeftParen) |(|
@@ -2564,41 +2567,42 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[030:00034) | | | | | | └─IdentifierSyntax
 //@[030:00034) | | | | | | | └─Token(Identifier) |foo1|
 //@[034:00035) | | | | ├─Token(Comma) |,|
-//@[036:00076) | | | | ├─FunctionArgumentSyntax
-//@[036:00076) | | | | | └─PropertyAccessSyntax
-//@[036:00063) | | | | | | ├─PropertyAccessSyntax
+//@[036:00079) | | | | ├─FunctionArgumentSyntax
+//@[036:00079) | | | | | └─PropertyAccessSyntax
+//@[036:00066) | | | | | | ├─ArrayAccessSyntax
 //@[036:00052) | | | | | | | ├─VariableAccessSyntax
 //@[036:00052) | | | | | | | | └─IdentifierSyntax
 //@[036:00052) | | | | | | | | | └─Token(Identifier) |runtimeValidRes2|
-//@[052:00053) | | | | | | | ├─Token(Dot) |.|
-//@[053:00063) | | | | | | | └─IdentifierSyntax
-//@[053:00063) | | | | | | | | └─Token(Identifier) |properties|
-//@[063:00064) | | | | | | ├─Token(Dot) |.|
-//@[064:00076) | | | | | | └─IdentifierSyntax
-//@[064:00076) | | | | | | | └─Token(Identifier) |azCliVersion|
-//@[076:00077) | | | | ├─Token(Comma) |,|
-//@[078:00108) | | | | ├─FunctionArgumentSyntax
-//@[078:00108) | | | | | └─StringSyntax
-//@[078:00081) | | | | | | ├─Token(StringLeftPiece) |'${|
-//@[081:00106) | | | | | | ├─PropertyAccessSyntax
-//@[081:00097) | | | | | | | ├─VariableAccessSyntax
-//@[081:00097) | | | | | | | | └─IdentifierSyntax
-//@[081:00097) | | | | | | | | | └─Token(Identifier) |runtimeValidRes1|
-//@[097:00098) | | | | | | | ├─Token(Dot) |.|
-//@[098:00106) | | | | | | | └─IdentifierSyntax
-//@[098:00106) | | | | | | | | └─Token(Identifier) |location|
-//@[106:00108) | | | | | | └─Token(StringRightPiece) |}'|
-//@[108:00109) | | | | ├─Token(Comma) |,|
-//@[110:00125) | | | | ├─FunctionArgumentSyntax
-//@[110:00125) | | | | | └─PropertyAccessSyntax
-//@[110:00121) | | | | | | ├─VariableAccessSyntax
-//@[110:00121) | | | | | | | └─IdentifierSyntax
-//@[110:00121) | | | | | | | | └─Token(Identifier) |runtimefoo4|
-//@[121:00122) | | | | | | ├─Token(Dot) |.|
-//@[122:00125) | | | | | | └─IdentifierSyntax
-//@[122:00125) | | | | | | | └─Token(Identifier) |hop|
-//@[125:00126) | | | | └─Token(RightParen) |)|
-//@[126:00128) | | ├─Token(NewLine) |\r\n|
+//@[052:00053) | | | | | | | ├─Token(LeftSquare) |[|
+//@[053:00065) | | | | | | | ├─StringSyntax
+//@[053:00065) | | | | | | | | └─Token(StringComplete) |'properties'|
+//@[065:00066) | | | | | | | └─Token(RightSquare) |]|
+//@[066:00067) | | | | | | ├─Token(Dot) |.|
+//@[067:00079) | | | | | | └─IdentifierSyntax
+//@[067:00079) | | | | | | | └─Token(Identifier) |azCliVersion|
+//@[079:00080) | | | | ├─Token(Comma) |,|
+//@[081:00111) | | | | ├─FunctionArgumentSyntax
+//@[081:00111) | | | | | └─StringSyntax
+//@[081:00084) | | | | | | ├─Token(StringLeftPiece) |'${|
+//@[084:00109) | | | | | | ├─PropertyAccessSyntax
+//@[084:00100) | | | | | | | ├─VariableAccessSyntax
+//@[084:00100) | | | | | | | | └─IdentifierSyntax
+//@[084:00100) | | | | | | | | | └─Token(Identifier) |runtimeValidRes1|
+//@[100:00101) | | | | | | | ├─Token(Dot) |.|
+//@[101:00109) | | | | | | | └─IdentifierSyntax
+//@[101:00109) | | | | | | | | └─Token(Identifier) |location|
+//@[109:00111) | | | | | | └─Token(StringRightPiece) |}'|
+//@[111:00112) | | | | ├─Token(Comma) |,|
+//@[113:00128) | | | | ├─FunctionArgumentSyntax
+//@[113:00128) | | | | | └─PropertyAccessSyntax
+//@[113:00124) | | | | | | ├─VariableAccessSyntax
+//@[113:00124) | | | | | | | └─IdentifierSyntax
+//@[113:00124) | | | | | | | | └─Token(Identifier) |runtimefoo4|
+//@[124:00125) | | | | | | ├─Token(Dot) |.|
+//@[125:00128) | | | | | | └─IdentifierSyntax
+//@[125:00128) | | | | | | | └─Token(Identifier) |hop|
+//@[128:00129) | | | | └─Token(RightParen) |)|
+//@[129:00131) | | ├─Token(NewLine) |\r\n|
 }
 //@[000:00001) | | └─Token(RightBrace) |}|
 //@[001:00005) ├─Token(NewLine) |\r\n\r\n|

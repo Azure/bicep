@@ -945,15 +945,17 @@ module runtimeInvalidModule5 'empty.bicep' = {
 //@[043:044) Assignment |=|
 //@[045:046) LeftBrace |{|
 //@[046:047) NewLine |\n|
-  name: runtimeValidRes1.sku.name
+  name: runtimeValidRes1['sku']['name']
 //@[002:006) Identifier |name|
 //@[006:007) Colon |:|
 //@[008:024) Identifier |runtimeValidRes1|
-//@[024:025) Dot |.|
-//@[025:028) Identifier |sku|
-//@[028:029) Dot |.|
-//@[029:033) Identifier |name|
-//@[033:034) NewLine |\n|
+//@[024:025) LeftSquare |[|
+//@[025:030) StringComplete |'sku'|
+//@[030:031) RightSquare |]|
+//@[031:032) LeftSquare |[|
+//@[032:038) StringComplete |'name'|
+//@[038:039) RightSquare |]|
+//@[039:040) NewLine |\n|
 }
 //@[000:001) RightBrace |}|
 //@[001:003) NewLine |\n\n|
