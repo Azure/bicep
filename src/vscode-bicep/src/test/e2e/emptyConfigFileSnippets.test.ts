@@ -74,18 +74,20 @@ describe("empty config file snippets", (): void => {
         normalizeLineEndings(expectedAfterInsertion)
       );
 
-      // Verify that the snippet placed VS Code into an "insertion" state with the dropdown for the first rule open to show
-      //   the available diagnostic levels (the current one should be "warning").
-      // Verify this by moving down to the next suggestion ("off") and selecting it
-      const expectedAfterSelectingOffInsteadOfWarning =
-        expectedAfterInsertion.replace(/warning/, "off");
-      await executeSelectNextSuggestion();
-      await executeAcceptSelectedSuggestion();
-      const textAfterSelectingOffInsteadOfWarningtext =
-        editor.document.getText();
-      expect(
-        normalizeLineEndings(textAfterSelectingOffInsteadOfWarningtext)
-      ).toBe(normalizeLineEndings(expectedAfterSelectingOffInsteadOfWarning));
+      // TODO: DISABLED (FLAKY) - see https://github.com/Azure/bicep/issues/6766
+      //
+      // // Verify that the snippet placed VS Code into an "insertion" state with the dropdown for the first rule open to show
+      // //   the available diagnostic levels (the current one should be "warning").
+      // // Verify this by moving down to the next suggestion ("off") and selecting it
+      // const expectedAfterSelectingOffInsteadOfWarning =
+      //   expectedAfterInsertion.replace(/warning/, "off");
+      // await executeSelectNextSuggestion();
+      // await executeAcceptSelectedSuggestion();
+      // const textAfterSelectingOffInsteadOfWarningtext =
+      //   editor.document.getText();
+      // expect(
+      //   normalizeLineEndings(textAfterSelectingOffInsteadOfWarningtext)
+      // ).toBe(normalizeLineEndings(expectedAfterSelectingOffInsteadOfWarning));
     } finally {
       fse.rmdirSync(tempFolder, {
         recursive: true,
