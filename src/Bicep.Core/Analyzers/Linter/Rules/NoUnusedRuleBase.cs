@@ -14,9 +14,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 
 public abstract class NoUnusedRuleBase : LinterRuleBase
 {
-    private readonly string type;
+    public enum NoUnusedRuleType
+    {
+        Variable,
+        Parameter
+    }
 
-    protected NoUnusedRuleBase(string type, string code, string description, DiagnosticStyling diagnosticStyling, Uri? docUri = null, DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning) :
+    private readonly NoUnusedRuleType type;
+
+    protected NoUnusedRuleBase(NoUnusedRuleType type, string code, string description, DiagnosticStyling diagnosticStyling, Uri? docUri = null, DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning) :
         base(code, description, docUri, diagnosticLevel, diagnosticStyling)
     {
         this.type = type;
@@ -34,12 +40,12 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
     {
         switch (type)
         {
-            case "parameter":
+            case NoUnusedRuleType.Parameter:
                 return "Remove unused parameter";
-            case "variable":
+            case NoUnusedRuleType.Variable:
                 return "Remove unused variable";
             default:
-                return "Remove unused";
+                throw new NotSupportedException($"NoUnusedRuleType={type} is not supported!");
         }
     }
 

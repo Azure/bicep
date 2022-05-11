@@ -16,7 +16,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-unused-params";
 
         public NoUnusedParametersRule() : base(
-            "parameter",
+            NoUnusedRuleType.Parameter,
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),

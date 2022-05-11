@@ -15,7 +15,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-unused-vars";
 
         public NoUnusedVariablesRule() : base(
-            "variable",
+            NoUnusedRuleType.Variable,
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
