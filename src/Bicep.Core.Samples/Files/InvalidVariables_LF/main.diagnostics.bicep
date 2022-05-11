@@ -33,16 +33,13 @@ var missingValue =
 // malformed identifier
 var 2 
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) |2|
-//@[4:5) [no-unused-vars (Warning)] Variable "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |2|
 //@[6:6) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 var $ = 23
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) |$|
 //@[4:5) [BCP001 (Error)] The following token is not recognized: "$". (CodeDescription: none) |$|
-//@[4:5) [no-unused-vars (Warning)] Variable "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |$|
 var # 33 = 43
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) |#|
 //@[4:5) [BCP001 (Error)] The following token is not recognized: "#". (CodeDescription: none) |#|
-//@[4:8) [no-unused-vars (Warning)] Variable "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |# 33|
 
 // no value assigned
 var foo =
@@ -63,7 +60,6 @@ var badEquals2 3 true
 // malformed identifier but type check should happen regardless
 var 2 = x
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) |2|
-//@[4:5) [no-unused-vars (Warning)] Variable "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |2|
 //@[8:9) [BCP062 (Error)] The referenced declaration with name "x" is not valid. (CodeDescription: none) |x|
 
 // bad token value
@@ -278,7 +274,6 @@ var anotherThing = true
 var ☕ = true
 //@[4:5) [BCP015 (Error)] Expected a variable identifier at this location. (CodeDescription: none) |☕|
 //@[4:5) [BCP001 (Error)] The following token is not recognized: "☕". (CodeDescription: none) |☕|
-//@[4:5) [no-unused-vars (Warning)] Variable "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |☕|
 var a☕ = true
 //@[4:5) [no-unused-vars (Warning)] Variable "a" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |a|
 //@[5:6) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) |☕|
