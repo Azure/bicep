@@ -28,9 +28,7 @@ describe("empty config file snippets", (): void => {
 
   it.each([...Array(30).keys()])(
     `scaffolding snippet should work as expected in an empty file: %i`,
-    async (i) => {
-      const timeout = i * 100;
-
+    async () => {
       const expectedAfterInsertion = `{
     // See https://aka.ms/bicep/config for more information on Bicep configuration options
     // Press CTRL+SPACE/CMD+SPACE at any location to see IntelliSense suggestions
