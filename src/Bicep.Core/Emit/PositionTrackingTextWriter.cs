@@ -43,7 +43,7 @@ namespace Bicep.Core.Emit
         public int CurrentPos => _trackingWriter.CurrentPos;
         public List<int> CommaPositions => _trackingWriter.CommaPositions;
 
-        private readonly PositionTrackingTextWriter _trackingWriter;
+        public readonly PositionTrackingTextWriter _trackingWriter; // debug
 
         public static PositionTrackingJsonTextWriter Create(TextWriter textWriter)
         {
