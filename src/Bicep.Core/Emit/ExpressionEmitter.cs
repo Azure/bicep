@@ -32,9 +32,9 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
+        public readonly IDictionary<string, IDictionary<int, IList<(int start, int end, string content)>>> rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, IDictionary<string, IDictionary<int, IList<(int, int)>>> rawSourceMap)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, IDictionary<string, IDictionary<int, IList<(int, int, string)>>> rawSourceMap)
         {
             this.writer = writer;
             this.context = context;
@@ -489,15 +489,16 @@ namespace Bicep.Core.Emit
 
             if (!this.rawSourceMap.ContainsKey(bicepFileName))
             {
-                this.rawSourceMap[bicepFileName] = new Dictionary<int, IList<(int, int)>>();
+                this.rawSourceMap[bicepFileName] = new Dictionary<int, IList<(int, int, string)>>();
             }
 
             if (!this.rawSourceMap[bicepFileName].ContainsKey(bicepLine))
             {
-                this.rawSourceMap[bicepFileName][bicepLine] = new List<(int, int)>();
+                this.rawSourceMap[bicepFileName][bicepLine] = new List<(int, int, string)>();
             }
 
-            this.rawSourceMap[bicepFileName][bicepLine].Add((startPosition, this.writer.CurrentPos - 1));
+            string content = this.writer._trackingWriter._debugString[startPosition..(this.writer.CurrentPos - 1)];
+            this.rawSourceMap[bicepFileName][bicepLine].Add((startPosition, this.writer.CurrentPos - 1, content));
         }
     }
 }
