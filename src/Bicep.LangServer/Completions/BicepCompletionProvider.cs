@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -105,7 +106,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = resourceSnippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+                    var command = TelemetryHelper.CreateCommand
+                    (
+                        title: "top level snippet completion",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                                                                    resourceSnippet.Detail,
@@ -127,8 +133,12 @@ namespace Bicep.LanguageServer.Completions
                     {
                         string prefix = snippet.Prefix;
                         BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
-                        Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                        var command = TelemetryHelper.CreateCommand
+                        (
+                            title: "nested resource declaration completion snippet",
+                            name: TelemetryConstants.CommandName,
+                            args: JArray.FromObject(new List<object> { telemetryEvent })
+                        );
                         yield return CreateContextualSnippetCompletion(prefix,
                             snippet.Detail,
                             snippet.Text,
@@ -509,7 +519,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = snippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, resourceType.Type.Name);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+                    Command command = TelemetryHelper.CreateCommand
+                    (
+                        title: "resource body completion snippet",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
@@ -531,8 +546,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
-                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "module body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
@@ -934,8 +953,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateObjectBodySnippetInsertion(prefix);
-                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "object body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,

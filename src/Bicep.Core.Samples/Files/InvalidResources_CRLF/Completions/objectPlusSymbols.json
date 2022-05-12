@@ -5956,6 +5956,7 @@
       "newText": "{\n\t$0\n}"
     },
     "command": {
+      "title": "object body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {

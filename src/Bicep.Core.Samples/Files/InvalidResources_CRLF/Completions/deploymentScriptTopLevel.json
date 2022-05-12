@@ -103,6 +103,7 @@
       "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
     },
     "command": {
+      "title": "nested resource declaration completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -132,6 +133,7 @@
       "newText": "resource ${1:Identifier} '${2:Type}' = {\n  name: $3\n  $0\n}"
     },
     "command": {
+      "title": "nested resource declaration completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {

@@ -31,6 +31,7 @@
       "newText": "module ${1:Identifier} ${2:Path} = {\n  name: $3\n  $0\n}"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -74,6 +75,7 @@
       "newText": "output ${1:Identifier} ${2:Type} = $0"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -117,6 +119,7 @@
       "newText": "param ${1:Identifier} ${2:Type}"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -146,6 +149,7 @@
       "newText": "param ${1:Identifier} ${2:Type} = ${3:DefaultValue}"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -175,6 +179,7 @@
       "newText": "@allowed([\n  $3\n])\nparam ${1:Identifier} ${2:Type} = $4"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -204,6 +209,7 @@
       "newText": "@secure()\nparam ${1:Identifier} string"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -233,6 +239,7 @@
       "newText": "resource ${1:aksCluster} 'Microsoft.ContainerService/managedClusters@2021-03-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  identity: {\n    type: 'SystemAssigned'\n  }\n  properties: {\n    kubernetesVersion: '${4|1.19.7,1.19.6,1.18.14,1.18.10,1.17.16,1.17.13|}'\n    dnsPrefix: ${5:'dnsprefix'}\n    enableRBAC: true\n    agentPoolProfiles: [\n      {\n        name: 'agentpool'\n        count: ${6:3}\n        vmSize: ${7:'Standard_DS2_v2'}\n        osType: 'Linux'\n        mode: 'System'\n      }\n    ]\n    linuxProfile: {\n      adminUsername: ${8:'adminUserName'}\n      ssh: {\n        publicKeys: [\n          {\n            keyData: ${9:'REQUIRED'}\n          }\n        ]\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -262,6 +269,7 @@
       "newText": "resource ${1:apiManagementInstance} 'Microsoft.ApiManagement/service@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku:{\n    capacity: ${4|0,1|}\n    name: ${5|'Developer','Consumption'|}\n  }\n  properties:{\n    virtualNetworkType: ${6:'None'}\n    publisherEmail: ${7:'publisherEmail@contoso.com'}\n    publisherName: ${8:'publisherName'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -291,6 +299,7 @@
       "newText": "resource ${1:applicationGateway} 'Microsoft.Network/applicationGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      name: '${4|Standard_Small,Standard_Medium,Standard_Large,WAF_Medium,WAF_Large,Standard_v2,WAF_v2|}'\n      tier: '${5|Standard,WAF,Standard_v2,WAF_v2|}'\n      capacity: ${6:'capacity'}\n    }\n    gatewayIPConfigurations: [\n      {\n        name: ${7:'name'}\n        properties: {\n          subnet: {\n            id: ${8:'id'}\n          }\n        }\n      }\n    ]\n    frontendIPConfigurations: [\n      {\n        name: ${9:'name'}\n        properties: {\n          publicIPAddress: {\n            id: ${10:'id'}\n          }\n        }\n      }\n    ]\n    frontendPorts: [\n      {\n        name: ${11:'name'}\n        properties: {\n          port: ${12:'port'}\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${13:'name'}\n      }\n    ]\n    backendHttpSettingsCollection: [\n      {\n        name: ${14:'name'}\n        properties: {\n          port: ${15:'port'}\n          protocol: '${16|Http,Https|}'\n          cookieBasedAffinity: 'Disabled'\n        }\n      }\n    ]\n    httpListeners: [\n      {\n        name: ${17:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: ${18:'id'}\n          }\n          frontendPort: {\n            id: ${19:'id'}\n          }\n          protocol: '${20|Http,Https|}'\n          sslCertificate: null\n        }\n      }\n    ]\n    requestRoutingRules: [\n      {\n        name: ${21:'name'}\n        properties: {\n          ruleType: '${22|Basic,PathBasedRouting|}'\n          httpListener: {\n            id: ${23:'id'}\n          }\n          backendAddressPool: {\n            id: ${24:'id'}\n          }\n          backendHttpSettings: {\n            id: ${25:'id'}\n          }\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -320,6 +329,7 @@
       "newText": "resource ${1:applicationGatewayFirewall} 'Microsoft.Network/ApplicationGatewayWebApplicationFirewallPolicies@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    policySettings: {\n      requestBodyCheck: ${4|true,false|}\n      maxRequestBodySizeInKb: ${5:'maxRequestBodySizeInKb'}\n      fileUploadLimitInMb: ${6:'fileUploadLimitInMb'}\n      state: '${7|Enabled,Disabled|}'\n      mode: '${8|Detection,Prevention|}'\n    }\n    managedRules: {\n      managedRuleSets: [\n        {\n          ruleSetType: ${9:'ruleSetType'}\n          ruleSetVersion: ${10:'ruleSetVersion'}\n        }\n      ]\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -349,6 +359,7 @@
       "newText": "resource ${1:appInsightsComponents} 'Microsoft.Insights/components@2020-02-02-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  kind: 'web'\n  properties: {\n    Application_Type: '${4|web,other|}'\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -378,6 +389,7 @@
       "newText": "resource ${1:appInsightsAlertRules} 'Microsoft.Insights/alertrules@2016-03-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    name: ${4:'name'}\n    description: ${5:'description'}\n    isEnabled: false\n    condition: {\n      failedLocationCount: ${6:'failedLocationCount'}\n      'odata.type': '${7|Microsoft.Azure.Management.Insights.Models.LocationThresholdRuleCondition,Microsoft.Azure.Management.Insights.Models.ManagementEventRuleCondition,Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition|}'\n      dataSource: {\n        'odata.type': '${8|Microsoft.Azure.Management.Insights.Models.RuleManagementEventDataSource,Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource|}'\n        resourceUri: ${9:'resourceUri'}\n      }\n      windowSize: ${10:'windowSize'}\n    }\n    action: {\n      'odata.type': '${11|Microsoft.Azure.Management.Insights.Models.RuleEmailAction,Microsoft.Azure.Management.Insights.Models.RuleWebhookAction|}'\n      sendToServiceOwners: true\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -407,6 +419,7 @@
       "newText": "resource ${1:appInsightsAutoScaleSettings} 'Microsoft.Insights/autoscalesettings@2015-04-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  tags: {\n    Application_Type: '${4|web,other|}'\n    'hidden-link:${5:appServiceId}': 'Resource'\n  }\n  properties: {\n    name: ${6:'name'}\n    profiles: [\n      {\n        name: ${7:'name'}\n        capacity: {\n          minimum: ${8:'minimum'}\n          maximum: ${9:'maximum'}\n          default: ${10:'default'}\n        }\n        rules: [\n          {\n            metricTrigger: {\n              metricName: ${11:'name'}\n              metricResourceUri: ${12:'metricResourceUri'}\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT10M'\n              timeAggregation: 'Average'\n              operator: 'GreaterThan'\n              threshold: 80\n            }\n            scaleAction: {\n              direction: 'Increase'\n              type: 'ChangeCount'\n              value:  ${13:'value'}\n              cooldown: 'PT10M'\n            }\n          }\n          {\n            metricTrigger: {\n              metricName: ${14:'metricName'}\n              metricResourceUri: ${15:'metricResourceUri'}\n              timeGrain: 'PT1M'\n              statistic: 'Average'\n              timeWindow: 'PT1H'\n              timeAggregation: 'Average'\n              operator: 'LessThan'\n              threshold: 60\n            }\n            scaleAction: {\n              direction: 'Decrease'\n              type: 'ChangeCount'\n              value: ${16:'value'}\n              cooldown: 'PT1H'\n            }\n          }\n        ]\n      }\n    ]\n    enabled: false\n    targetResourceUri: ${17:'targetResourceUri'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -436,6 +449,7 @@
       "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku: {\n    name: 'F1'\n    capacity: 1\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -465,6 +479,7 @@
       "newText": "resource ${1:applicationSecurityGroup} 'Microsoft.Network/applicationSecurityGroups@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -494,6 +509,7 @@
       "newText": "resource ${1:automationAccount} 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      name: ${4|'Free','Basic'|}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -523,6 +539,7 @@
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationCertificate} 'Microsoft.Automation/automationAccounts/certificates@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    base64Value: ${4:'base64Value'}\n    description: ${5:'description'}\n    thumbprint: ${6:'thumbprint'}\n    isExportable: ${7|true,false|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -552,6 +569,7 @@
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationCredential} 'Microsoft.Automation/automationAccounts/credentials@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    userName: ${4:'userName'}\n    password: ${5:'password'}\n    description: ${6:'description'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -581,6 +599,7 @@
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationJobSchedule} 'Microsoft.Automation/automationAccounts/jobSchedules@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    schedule: {\n      name: ${4:'name'}\n    }\n    runbook: {\n      name: ${5:'name'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -610,6 +629,7 @@
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2015-10-31' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationAccountVariable} 'Microsoft.Automation/automationAccounts/modules@2015-10-31' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    contentLink: {\n      uri: ${4:'https://content-url.nupkg'}\n    }\n  }\n}"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -639,6 +659,7 @@
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationRunbook} 'Microsoft.Automation/automationAccounts/runbooks@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  location: ${4:location}\n  properties: {\n    logVerbose: ${5|true,false|}\n    logProgress: ${6|true,false|}\n    runbookType: '${7|Script,Graph,PowerShellWorkflow,PowerShell,GraphPowerShellWorkflow,GraphPowerShell|}'\n    publishContentLink: {\n      uri: ${8:'uri'}\n      version: ${9:'1.0.0.0'}\n    }\n    description: ${10:'description'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -668,6 +689,7 @@
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationSchedule} 'Microsoft.Automation/automationAccounts/schedules@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    description: ${4:'description'}\n    startTime: ${5:'startTime'}\n    interval: ${6:'interval'}\n    frequency: '${7|OneTime,Day,Hour,Week,Month|}'\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -697,6 +719,7 @@
       "newText": "resource automationAccount 'Microsoft.Automation/automationAccounts@2019-06-01' = {\n  name: ${1:'name'}\n}\n\nresource ${2:automationVariable} 'Microsoft.Automation/automationAccounts/variables@2019-06-01' = {\n  parent: automationAccount\n  name: ${3:'name'}\n  properties: {\n    value: ${4:'value'}\n    description: ${5:'description'}\n    isEncrypted: ${6|true,false|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -726,6 +749,7 @@
       "newText": "resource ${1:availabilitySet} 'Microsoft.Compute/availabilitySets@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -755,6 +779,7 @@
       "newText": "resource ${1:containerGroup} 'Microsoft.ContainerInstance/containerGroups@2021-03-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    containers: [\n      {\n        name: ${4:'containername'}\n        properties: {\n          image: ${5:'mcr.microsoft.com/azuredocs/aci-helloworld:latest'}\n          ports: [\n            {\n              port: ${6:80}\n            }\n          ]\n          resources: {\n            requests: {\n              cpu: ${7:1}\n              memoryInGB: ${8:4}\n            }\n          }\n        }\n      }\n    ]\n    restartPolicy: ${9|'OnFailure','Always','Never'|}\n    osType: ${10|'Linux','Windows'|}\n    ipAddress: {\n      type: 'Public'\n      ports: [\n        {\n          protocol: ${11|'TCP','UDP'|}\n          port: ${12:80}\n        }\n      ]\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -784,6 +809,7 @@
       "newText": "resource ${1:containerRegistry} 'Microsoft.ContainerRegistry/registries@2021-06-01-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku: {\n    name: ${4|'Basic','Standard','Premium'|}\n  }\n  properties: {\n    adminUserEnabled: ${5|true,false|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -813,6 +839,7 @@
       "newText": "resource ${1:cosmosDbAccount} 'Microsoft.DocumentDB/databaseAccounts@2021-03-15' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  kind: ${4|'GlobalDocumentDB','MongoDB','Parse'|}\n  properties: {\n    consistencyPolicy: {\n      defaultConsistencyLevel: ${5|'Eventual','Session','BoundedStaleness','Strong','ConsistentPrefix'|}\n      maxStalenessPrefix: ${6:1}\n      maxIntervalInSeconds: ${7:5}\n    }\n    locations: [\n      {\n        locationName: ${3:location}\n        failoverPriority: ${8:0}\n      }\n    ]\n    databaseAccountOfferType: 'Standard'\n    enableAutomaticFailover: ${9|true,false|}\n    capabilities: [\n      {\n        name: ${10|'EnableTable','EnableGremlin'|}\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -842,6 +869,7 @@
       "newText": "resource ${1:cassandraKeyspace} 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -871,6 +899,7 @@
       "newText": "resource cassandraKeyspace 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces@2021-06-15' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:cassandraKeyspaceTable} 'Microsoft.DocumentDB/databaseAccounts/cassandraKeyspaces/tables@2021-06-15' = {\n  parent: cassandraKeyspace\n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n    }\n    options: {}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -900,6 +929,7 @@
       "newText": "resource ${1:gremlinDb} 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -929,6 +959,7 @@
       "newText": "resource gremlinDb 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases@2021-06-15' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {\n      throughput: ${3:'throughput'}\n    }\n  }\n}\n\nresource ${4:cosmosDbGremlinGraph} 'Microsoft.DocumentDB/databaseAccounts/gremlinDatabases/graphs@2021-06-15' = {\n  parent: gremlinDb\n  name: ${5:'name'}\n  properties: {\n    resource: {\n      id: ${6:'id'}\n      partitionKey: {\n        paths: [\n          ${7:'paths'}\n        ]\n        kind: '${8|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${9|consistent,lazy,none|}'\n        includedPaths: [\n          {\n            path: ${10:'path'}\n            indexes: [\n              {\n                kind: '${11|Hash,Range,Spatial|}'\n                dataType: '${12|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${13:-1}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${14:'path'}\n          }\n        ]\n      }\n    }\n    options: {\n      throughput: ${15:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -958,6 +989,7 @@
       "newText": "resource ${1:mongoDb} 'Microsoft.DocumentDB/databaseAccounts/mongodbDatabases@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -987,6 +1019,7 @@
       "newText": "resource sqlDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: ${1:'name'}\n  properties: {\n    resource: {\n      id: ${2:'id'}\n    }\n    options: {}\n  }\n}\n\nresource ${3:sqlContainerName} 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-06-15' = {\n  parent: sqlDb \n  name: ${4:'name'}\n  properties: {\n    resource: {\n      id: ${5:'id'}\n      partitionKey: {\n        paths: [\n          ${6:'paths'}\n        ]\n        kind: '${7|Hash,Range|}'\n      }\n      indexingPolicy: {\n        indexingMode: '${8|consistent,lazy,none|}'\n        includedPaths: [\n          {\n            path: ${9:'path'}\n            indexes: [\n              {\n                kind: '${10|Hash,Range,Spatial|}'\n                dataType: '${11|String,Number,Point,Polygon,LineString,MultiPolygon|}'\n                precision: ${12:'precision'}\n              }\n            ]\n          }\n        ]\n        excludedPaths: [\n          {\n            path: ${13:'path'}\n          }\n        ]\n      }\n    }\n    options: {}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1016,6 +1049,7 @@
       "newText": "resource ${1:sqlDb} 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1045,6 +1079,7 @@
       "newText": "resource ${1:cosmosTable} 'Microsoft.DocumentDB/databaseAccounts/tables@2021-06-15' = {\n  name: ${2:'name'}\n  properties: {\n    resource: {\n      id: ${3:'id'}\n    }\n    options: {\n      throughput: ${4:'throughput'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1074,6 +1109,7 @@
       "newText": "resource ${1:dataLakeStore} 'Microsoft.DataLakeStore/accounts@2016-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    newTier: ${4|'Consumption','Commitment_1TB','Commitment_10TB','Commitment_100TB','Commitment_500TB','Commitment_1PB','Commitment_5PB'|}\n    encryptionState: ${5|'Enabled','Disabled'|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1103,6 +1139,7 @@
       "newText": "resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:dnsRecord} 'Microsoft.Network/dnsZones/${4|A,AAAA,CNAME,MX,NS,PTR,SOA,SRV,TXT|}@2018-05-01' = {\n  parent: dnsZone\n  name: ${5:'name'}\n  properties: {\n    TTL: 3600\n    '${6|ARecords,AAAARecords,MXRecords,NSRecords,PTRRecords,SRVRecords,TXTRecords,CNAMERecord,SOARecord|}': []\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1132,6 +1169,7 @@
       "newText": "resource ${1:dnsZone} 'Microsoft.Network/dnsZones@2018-05-01' = {\n  name: ${2:'name'}\n  location: 'global'\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1161,6 +1199,7 @@
       "newText": "resource ${1:expressRouteCircuit} 'Microsoft.Network/expressRouteCircuits@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku:{\n    family: ${4|'MeteredData','UnlimitedData'|}\n    tier: ${5|'Local','Standard','Premium'|}\n    name: ${6|'Local_MeteredData','Standard_MeteredData','Premium_MeteredData','Basic_UnlimitedData','Local_UnlimitedData','Standard_UnlimitedData','Premium_UnlimitedData'|}\n  }\n  properties:{\n    serviceProviderProperties:{\n      bandwidthInMbps: ${7|50,100,200,500,1000,2000,5000,10000|}\n        peeringLocation: ${8:'Amsterdam'}\n      serviceProviderName: ${9:'Telia Carrier'}\n    }\n    allowClassicOperations:${10|true,false|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1190,6 +1229,7 @@
       "newText": "resource ${1:expressRouteGateways} 'Microsoft.Network/expressRouteGateways@2021-02-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    virtualHub: {\n      id: ${4:'virtualHub.id'}\n    }\n    autoScaleConfiguration: {\n      bounds: {\n        min: ${5|1,2,3,4,5,6,7,8|}\n        max: ${6|1,2,3,4,5,6,7,8|}\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1219,6 +1259,7 @@
       "newText": "resource ${1:firewall} 'Microsoft.Network/azureFirewalls@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    applicationRuleCollections: [\n      {\n        name: ${4:'name'}\n        properties: {\n          priority: ${5:'priority'}\n          action: {\n            type: '${6|Allow,Deny|}'\n          }\n          rules: [\n            {\n              name: ${7:'name'}\n              description: ${8:'description'}\n              sourceAddresses: [\n                ${9:'sourceAddress'}\n              ]\n              protocols: [\n                {\n                  protocolType: '${10|Http,Https,Mssql|}'\n                  port: ${11|80,443,1433|}\n                }\n              ]\n              targetFqdns: [\n                ${12:'www.microsoft.com'}\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    natRuleCollections: [\n      {\n        name: ${13:'name'}\n        properties: {\n          priority: ${14:'priority'}\n          action: {\n            type: '${15|Dnat, Snat|}'\n          }\n          rules: [\n            {\n              name: ${16:'name'}\n              description: ${17:'description'}\n              sourceAddresses: [\n                ${18:'sourceAddress'}\n              ]\n              destinationAddresses: [\n                ${19:'destinationAddress'}\n              ]\n              destinationPorts: [\n                ${20:'port'}\n              ]\n              protocols: [\n                '${21|TCP,UDP,Any,ICMP|}'\n              ]\n              translatedAddress: ${22:'translatedAddress'}\n              translatedPort: ${23:'translatedPort'}\n            }\n          ]\n        }\n      }\n    ]\n    networkRuleCollections: [\n      {\n        name: ${24:'name'}\n        properties: {\n          priority: ${25:'priority'}\n          action: {\n            type: '${26|Deny,Allow|}'\n          }\n          rules: [\n            {\n              name: ${27:'name'}\n              description: ${28:'description'}\n              sourceAddresses: [\n                ${29:'sourceAddress'}\n              ]\n              destinationAddresses: [\n                ${30:'destinationAddress'}\n              ]\n              destinationPorts: [\n                ${31:'destinationPort'}\n              ]\n              protocols: [\n                '${32|TCP,UDP,Any,ICMP|}'\n              ]\n            }\n          ]\n        }\n      }\n    ]\n    ipConfigurations: [\n      {\n        name: ${33:'name'}\n        properties: {\n          subnet: {\n            id: ${34:'id'}\n          }\n          publicIPAddress: {\n            id: ${35:'id'}\n          }\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1248,6 +1289,7 @@
       "newText": "resource ${1:firewallPolicy} 'Microsoft.Network/firewallPolicies@2021-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      tier: 'Standard'\n    }\n    dnsSettings: {\n      enableProxy: ${4|true,false|}\n    }\n    threatIntelMode: '${5|Alert,Deny,Off|}'\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1277,6 +1319,7 @@
       "newText": "resource ${1:azureFunction} 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  kind: 'functionapp'\n  properties: {\n    serverFarmId: ${4:'serverfarms.id'}\n    siteConfig: {\n      appSettings: [\n        {\n          name: 'AzureWebJobsDashboard'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${5:storageAccountName1};AccountKey=${listKeys(${6:'storageAccountID1'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'AzureWebJobsStorage'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${7:storageAccountName2};AccountKey=${listKeys(${8:'storageAccountID2'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'\n          value: 'DefaultEndpointsProtocol=https;AccountName=${9:storageAccountName3};AccountKey=${listKeys(${10:'storageAccountID3'}, '2019-06-01').key1}'\n        }\n        {\n          name: 'WEBSITE_CONTENTSHARE'\n          value: toLower(${11:'name'})\n        }\n        {\n          name: 'FUNCTIONS_EXTENSION_VERSION'\n          value: '~2'\n        }\n        {\n          name: 'APPINSIGHTS_INSTRUMENTATIONKEY'\n          value: reference(${12:'insightsComponents.id'}, '2015-05-01').InstrumentationKey\n        }\n        {\n          name: 'FUNCTIONS_WORKER_RUNTIME'\n          value: '${13|dotnet,node,java|}'\n        }\n      ]\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1306,6 +1349,7 @@
       "newText": "resource ${1:publicIPAddress} 'Microsoft.Network/publicIPAddresses@2019-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    publicIPAllocationMethod: 'Dynamic'\n    dnsSettings: {\n      domainNameLabel: ${4:'dnsname'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1335,6 +1379,7 @@
       "newText": "resource ${1:publicIPPrefix} 'Microsoft.Network/publicIPPrefixes@2019-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku: {\n    name: 'Standard'\n  }\n  properties: {\n    publicIPAddressVersion: 'IPv4'\n    prefixLength: ${4:28}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1364,6 +1409,7 @@
       "newText": "resource ${1:keyVault} 'Microsoft.KeyVault/vaults@2019-09-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    enabledForDeployment: true\n    enabledForTemplateDeployment: true\n    enabledForDiskEncryption: true\n    tenantId: ${4:'tenantId'}\n    accessPolicies: [\n      {\n        tenantId: ${4:'tenantId'}\n        objectId: ${5:'objectId'}\n        permissions: {\n          keys: [\n            'get'\n          ]\n          secrets: [\n            'list'\n            'get'\n          ]\n        }\n      }\n    ]\n    sku: {\n      name: 'standard'\n      family: 'A'\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1393,6 +1439,7 @@
       "newText": "resource ${1:keyVaultSecret} 'Microsoft.KeyVault/vaults/secrets@2019-09-01' = {\n  name: ${2:'keyVaultName/name'}\n  properties: {\n    value: ${3:'value'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1422,6 +1469,7 @@
       "newText": "resource ${1:loadBalancerExternal} 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: ${4:'name'}\n        properties: {\n          publicIPAddress: {\n            id: ${5:'publicIPAddresses.id'}\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${6:'name'}\n      }\n    ]\n    inboundNatRules: [\n      {\n        name: ${7:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: ${8:'frontendIPConfiguration.id'}\n          }\n          protocol: '${9|Tcp,Udp,All|}'\n          frontendPort: ${10:50001}\n          backendPort: ${11:3389}\n          enableFloatingIP: false\n        }\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: ${12:'name'}\n        properties: {\n          frontendIPConfiguration: {\n             id: ${13:'frontendIPConfiguration.id'}\n          }\n          backendAddressPool: {\n            id: ${14:'backendAddressPool.id'}\n          }\n          protocol: '${15|Tcp,Udp,All|}'\n          frontendPort: ${16:80}\n          backendPort: ${17:80}\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: ${18:'probe.id'}\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: ${19:'name'}\n        properties: {\n          protocol: '${20|Tcp,Udp,All|}'\n          port: ${21:80}\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1451,6 +1499,7 @@
       "newText": "resource ${1:loadBalancerInternal} 'Microsoft.Network/loadBalancers@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    frontendIPConfigurations: [\n      {\n        name: ${4:'name'}\n        properties: {\n          privateIPAddress: ${5:'0.0.0.0'}\n          privateIPAllocationMethod: 'Static'\n          subnet: {\n            id: ${6:'subnet.id'}\n          }\n        }\n      }\n    ]\n    backendAddressPools: [\n      {\n        name: ${7:'name'}\n      }\n    ]\n    loadBalancingRules: [\n      {\n        name: ${8:'name'}\n        properties: {\n          frontendIPConfiguration: {\n            id: ${9:'frontendIPConfiguration.id'}\n          }\n          backendAddressPool: {\n            id: ${10:'backendAddressPool.id'}\n          }\n          protocol: '${11|Tcp,Udp,All|}'\n          frontendPort: ${12:80}\n          backendPort: ${13:80}\n          enableFloatingIP: false\n          idleTimeoutInMinutes: 5\n          probe: {\n            id: ${14:'probe.id'}\n          }\n        }\n      }\n    ]\n    probes: [\n      {\n        name: ${15:'name'}\n        properties: {\n          protocol: '${16|Tcp,Udp,All|}'\n          port: ${17:80}\n          intervalInSeconds: 5\n          numberOfProbes: 2\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1480,6 +1529,7 @@
       "newText": "resource ${1:logAnalyticsSolution} 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    workspaceResourceId: ${4:'operationalInsightsWorkspace.id'}\n    containedResources: [\n      ${5:'view.id'}\n    ]\n  }\n  plan: {\n    name: ${6:'name'}\n    product: ${7:'product'}\n    publisher: ${8:'publisher'}\n    promotionCode: ${9:'promotionCode'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1509,6 +1559,7 @@
       "newText": "resource ${1:logAnalyticsWorkspace} 'Microsoft.OperationalInsights/workspaces@2020-10-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      name: ${4|'Free','Standard','Premium','Unlimited','PerNode','PerGB2018','Standalone'|}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1538,6 +1589,7 @@
       "newText": "resource ${1:logicApp} 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    definition: {\n      '$schema': 'https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json'\n      contentVersion: '1.0.0.0'\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1567,6 +1619,7 @@
       "newText": "resource ${1:logicAppConnector} 'Microsoft.Web/connections@2015-08-01-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    name: ${4:'name'}\n    api: any({\n      id: subscriptionResourceId('Microsoft.Web/locations/managedApis', ${3:location}, ${5:'logicAppConnectorApi'})\n    })\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1596,6 +1649,7 @@
       "newText": "resource ${1:logicApp} 'Microsoft.Logic/workflows@2019-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    definition: json(loadTextContent(${4:'REQUIRED'})).definition\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1625,6 +1679,7 @@
       "newText": "resource ${1:logicAppIntegrationAccount} 'Microsoft.Logic/integrationAccounts@2016-06-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1654,6 +1709,7 @@
       "newText": "resource ${1:managedIdentity} 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {\n  name: ${2:'name'}\n  location: ${3:location}\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1683,6 +1739,7 @@
       "newText": "resource ${1:mediaServices} 'Microsoft.Media/mediaServices@2020-05-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    storageAccounts: [\n      {\n        id: ${4:'storageAccount.id'}\n        type: '${5|Primary,Secondary|}'\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1712,6 +1769,7 @@
       "newText": "resource ${1:'managementGroup'} 'Microsoft.Management/managementGroups@2021-04-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    details: {\n      parent: {\n        id: ${4:'id'}\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1741,6 +1799,7 @@
       "newText": "resource ${1:mySQLdb} 'Microsoft.DBforMySQL/servers@2017-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    administratorLogin: ${4:'administratorLogin'}\n    administratorLoginPassword: ${5:'administratorLoginPassword'}\n    createMode: ${6|'Default','GeoRestore','PointInTimeRestore','Replica'|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1770,6 +1829,7 @@
       "newText": "resource ${1:networkInterface} 'Microsoft.Network/networkInterfaces@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${4:'name'}\n        properties: {\n          privateIPAllocationMethod: '${5|Dynamic,Static|}'\n          subnet: {\n            id: ${6:'subnet.id'}\n          }\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1799,6 +1859,7 @@
       "newText": "resource ${1:networkSecurityGroup} 'Microsoft.Network/networkSecurityGroups@2019-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    securityRules: [\n      {\n        name: ${4:'nsgRule'}\n        properties: {\n          description: ${5:'description'}\n          protocol: ${6|'Tcp','Udp','*'|}\n          sourcePortRange: ${7:'*'}\n          destinationPortRange: ${8:'*'}\n          sourceAddressPrefix: ${9:'*'}\n          destinationAddressPrefix: ${10:'*'}\n          access: ${11|'Allow','Deny'|}\n          priority: ${12:100}\n          direction: ${13|'Inbound','Outbound'|}\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1828,6 +1889,7 @@
       "newText": "resource ${1:networkSecurityGroupSecurityRule} 'Microsoft.Network/networkSecurityGroups/securityRules@2019-11-01' = {\n  name: ${2:'networkSecurityGroup/name'}\n  properties: {\n    description: ${3:'description'}\n    protocol: ${4|'*','Ah','Esp','Icmp','Tcp','Udb'|}\n    sourcePortRange: ${5:'sourcePortRange'}\n    destinationPortRange: ${6:'destinationPortRange'}\n    sourceAddressPrefix: ${7:'sourceAddressPrefix'}\n    destinationAddressPrefix: ${8:'destinationAddressPrefix'}\n    access: ${9|'Allow','Deny'|}\n    priority: ${10:100}\n    direction: ${11|'Inbound','Outbound'|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1857,6 +1919,7 @@
       "newText": "resource ${1:appServicePlan} 'Microsoft.Web/serverfarms@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku: {\n    name: ${4:'name'}\n    capacity: ${5:capacity}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1886,6 +1949,7 @@
       "newText": "resource ${1:policyAssignment} 'Microsoft.Authorization/policyAssignments@2020-09-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  identity: {\n    type: ${4|'SystemAssigned','None'|}\n  }\n  properties: {\n    displayName: ${5:'displayName'}\n    description: ${6:'description'}\n    enforcementMode: ${7|'Default','DoNotEnforce'|}\n    metadata: {\n      source: ${8:'source'}\n      version: ${9:'0.1.0'}\n    }\n    policyDefinitionId: ${10:'policyDefinitionId'}\n    parameters: {\n      ${11:parameterName}: {\n        value: ${12:'value'}\n      }\n    }\n    nonComplianceMessages: [\n      {\n        message: ${13:'message'}\n      }\n      {\n        message: ${14:'message'}\n        policyDefinitionReferenceId: ${15:'policyDefinitionReferenceId'}\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1915,6 +1979,7 @@
       "newText": "resource ${1:policyDefinition} 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    mode: ${5|'All','Indexed'|}\n    description: ${6:'description'}\n    metadata: {\n      version: ${7:'0.1.0'}\n      category: ${8:'category'}\n      source: ${9:'source'}\n    }\n    parameters: {\n      ${10:parameterName}: {\n        type: ${11|'String','Array'|}\n        defaultValue: ${12:'defaultValue'}\n        metadata: {\n          displayName: ${13:'displayName'}\n          description: ${14:'description'}\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        ${15|allOf,anyOf|}: [\n          {\n            field: ${16:'field'}\n            ${17|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${18:'conditionValue'}\n          }\n        ]\n      }\n      then: {\n        effect: ${19|'Audit','AuditIfNotExists','Deny','DeployIfNotExists','Disabled','Modify'|}\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1944,6 +2009,7 @@
       "newText": "resource ${1:policyDefinition} 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    mode: ${5|'All','Indexed'|}\n    description: ${6:'description'}\n    metadata: {\n      version: ${7:'0.1.0'}\n      category: ${8:'category'}\n      source: ${9:'source'}\n    }\n    parameters: {\n      ${10:parameterName}: {\n        type: ${11|'String','Array'|}\n        defaultValue: ${12:'defaultValue'}\n        metadata: {\n          displayName: ${13:'displayName'}\n          description: ${14:'description'}\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        ${15|allOf,anyOf|}: [\n          {\n            field: ${16:'field'}\n            ${17|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${18:'conditionValue'}\n          }\n        ]\n      }\n      then: {\n        effect: ${19|'Audit','AuditIfNotExists','Deny','DeployIfNotExists','Disabled','Modify'|}\n        details: {\n          roleDefinitionIds: [\n            ${20:'roleDefinitionIds'}\n          ]\n          type: ${21:'type'}\n          existenceCondition: {\n            allOf: [\n              {\n                field: ${22:'field'}\n                ${23|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${24:'conditionValue'}\n              }\n            ]\n          }\n          deployment: {\n            properties: {\n              mode: ${25|'incremental','complete'|}\n              template: {\n                '$schema': ${26:'schema'}\n                contentVersion: ${27:'1.0.0.0'}\n                parameters: {\n                  ${28:parameterName}: {\n                    type: ${29|'String','Array'|}\n                    metadata: {\n                      displayName: ${30:'displayName'}\n                      description: ${31:'description'}\n                    }\n                  }\n                }\n                variables: {}\n                resources: [\n                  {\n                    name: ${32:'name'}\n                    type: ${33:'type'}\n                    apiVersion: ${34:'apiVersion'}\n                    location: ${35:location}\n                    properties: {}\n                  }\n                ]\n              }\n              parameters: {\n                ${36:parameterName}: {\n                  value: ${37:'value'}\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -1973,6 +2039,7 @@
       "newText": "resource ${1:policyDefinition} 'Microsoft.Authorization/policyDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    mode: ${5|'All','Indexed'|}\n    description: ${6:'description'}\n    metadata: {\n      version: ${7:'0.1.0'}\n      category: ${8:'category'}\n      source: ${9:'source'}\n    }\n    parameters: {\n      ${10:parameterName}: {\n        type: ${11|'String','Array'|}\n        defaultValue: ${12:'defaultValue'}\n        metadata: {\n          displayName: ${13:'displayName'}\n          description: ${14:'description'}\n        }\n      }\n    }\n    policyRule: {\n      if: {\n        ${15|allOf,anyOf|}: [\n          {\n            field: ${16:'field'}\n            ${17|equals,notEquals,like,notLike,match,matchInsensitively,notMatch,notMatchInsensitively,contains,notContains,in,notIn,containsKey,notContainsKey,less,lessOrEquals,greater,greaterOrEquals,exists|}: ${18:'conditionValue'}\n          }\n        ]\n      }\n      then: {\n        effect: ${19|'Audit','AuditIfNotExists','Deny','DeployIfNotExists','Disabled','Modify'|}\n        details: {\n          roleDefinitionIds: [\n            ${20:'roleDefinitionIds'}\n          ]\n          operations: [\n            {\n              operation: ${21|'add','addOrReplace'|}\n              field: ${22:'field'}\n              value: ${23:'value'}\n            }\n          ]\n        }\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2002,6 +2069,7 @@
       "newText": "resource ${1:policyExemption} 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {\n  name: ${2:'name'}\n  properties: {\n    policyAssignmentId: ${3:'policyAssignmentId'}\n    policyDefinitionReferenceIds: [\n      ${4:'policyDefinitionReferenceIds'}\n    ]\n    exemptionCategory: ${5|'Mitigated','Waiver'|}\n    expiresOn: ${6:'expiresOn'}\n    displayName: ${7:'displayName'}\n    description: ${8:'description'}\n    metadata: {\n      version: ${9:'0.1.0'}\n      source: ${10:'source'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2031,6 +2099,7 @@
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${4:'name'}\n  scope: virtualMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2060,6 +2129,7 @@
       "newText": "resource arcEnabledMachine 'Microsoft.HybridCompute/machines@2021-05-20' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${4:'name'}\n  scope: arcEnabledMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2089,6 +2159,7 @@
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:guestConfigAssignment} 'Microsoft.GuestConfiguration/guestConfigurationAssignments@2020-06-25' = {\n  name: ${4:'name'}\n  scope: virtualMachine\n  location: ${2:location}\n  properties: {\n    guestConfiguration: {\n      name: ${5:'configurationName'}\n      assignmentType: ${6|'ApplyAndMonitor','ApplyAndAutoCorrect','Audit'|}\n      version: ${7:'1.*'}\n      configurationParameter: [\n        {\n          name: ${8:'parameter1[dscResourceType]dscResourceName;propertyName'}\n          value: ${9:'parameter1Value'}\n        }\n        {\n          name: ${10:'parameter2[dscResourceType]dscResourceName;propertyName'}\n          value: ${11:'parameter2Value'}\n        }\n      ]\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2118,6 +2189,7 @@
       "newText": "resource ${1:policyRemediation} 'Microsoft.PolicyInsights/remediations@2019-07-01' = {\n  name: ${2:'name'}\n  properties: {\n    policyAssignmentId: ${3:'policyAssignmentId'}\n    policyDefinitionReferenceId: ${4:'policyDefinitionReferenceId'}\n    resourceDiscoveryMode: ${5|'ExistingNonCompliant','ReEvaluateCompliance'|}\n    filters: {\n      locations: [\n        ${6:location}\n      ]\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2147,6 +2219,7 @@
       "newText": "resource ${1:policySetDefinition} 'Microsoft.Authorization/policySetDefinitions@2020-09-01' = {\n  name: ${2:'name'}\n  properties: {\n    displayName: ${3:'displayName'}\n    policyType: ${4:'Custom'}\n    description: ${5:'description'}\n    metadata: {\n      version: ${6:'0.1.0'}\n      category: ${7:'category'}\n      source: ${8:'source'}\n    }\n    parameters: {\n      ${9:parameterName}: {\n        type: ${10|'String','Array'|}\n        metadata: {\n          displayName: ${11:'displayName'}\n          description: ${12:'description'}\n        }\n      }\n    }\n    policyDefinitions: [\n      {\n        policyDefinitionId: ${13:'policyDefinitionId'}\n        policyDefinitionReferenceId: ${14:'policyDefinitionReferenceId'}\n        parameters: {\n          ${15:parameterName}: {\n            value: ${16:'value'}\n          }\n        }\n      }\n      {\n        policyDefinitionId: ${17:'policyDefinitionId'}\n        policyDefinitionReferenceId: ${18:'policyDefinitionReferenceId'}\n        parameters: {\n          ${19:parameterName}: {\n            value: ${20:'value'}\n          }\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2176,6 +2249,7 @@
       "newText": "resource ${1:recoveryServiceVault} 'Microsoft.RecoveryServices/vaults@2021-01-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  sku: {\n    name: ${4|'RS0','Standard'|}\n    tier: ${5:'Standard'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2205,6 +2279,7 @@
       "newText": "resource ${1:redisCache} 'Microsoft.Cache/Redis@2019-07-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    sku: {\n      name: 'Basic'\n      family: 'C'\n      capacity: 0\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2234,6 +2309,7 @@
       "newText": "resource ${1:resourceGroup} 'Microsoft.Resources/resourceGroups@2021-04-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2263,6 +2339,7 @@
       "newText": "resource virtualHub 'Microsoft.Network/virtualHubs@2021-02-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n  properties: {\n    sku: 'Standard'\n  }\n}\n\nresource ${3:ipConfiguration} 'Microsoft.Network/virtualHubs/ipConfigurations@2021-02-01' = {\n  name: ${4:'name'}\n  parent: virtualHub\n  properties: {\n    subnet: {\n      id: ${5:'subnet.id'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2292,6 +2369,7 @@
       "newText": "resource ${1:routeTable} 'Microsoft.Network/routeTables@2019-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    routes: [\n      {\n        name: ${4:'name'}\n        properties: {\n          addressPrefix: ${5:'destinationCIDR'}\n          nextHopType: ${6|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n          nextHopIpAddress: ${7:'nextHopIp'}\n        }\n      }\n    ]\n    disableBgpRoutePropagation: ${8|true,false|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2321,6 +2399,7 @@
       "newText": "resource ${1:routeTableRoute} 'Microsoft.Network/routeTables/routes@2019-11-01' = {\n  name: ${2:'routeTableName/name'}\n  properties: {\n    addressPrefix: ${3:'addressPrefix'}\n    nextHopType: ${4|'VirtualNetworkGateway','VnetLocal','Internet','VirtualAppliance','None'|}\n    nextHopIpAddress: ${5:'nextHopIp'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2350,6 +2429,7 @@
       "newText": "resource ${1:sharedImageGallery} 'Microsoft.Compute/galleries@2020-09-30' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    description: ${4:'description'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2379,6 +2459,7 @@
       "newText": "resource sqlServer 'Microsoft.Sql/servers@2014-04-01' ={\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:sqlServerDatabase} 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  parent: sqlServer\n  name: ${4:'name'}\n  location: ${2:location}\n  properties: {\n    collation: ${5:'collation'}\n    edition: '${6|Basic,Business,BusinessCritical,DataWarehouse,Free,GeneralPurpose,Hyperscale,Premium,PremiumRS,Standard,Stretch,System,System2,Web|}'\n    maxSizeBytes: ${7:'maxSizeBytes'}\n    requestedServiceObjectiveName: '${8|Basic,DS100,DS1000,DS1200,DS1500,DS200,DS2000,DS300,DS400,DS500,DS600,DW100,DW1000,DW10000c,DW1000c,DW1200,DW1500,DW15000c,DW1500c,DW200,DW2000,DW2000c,DW2500c,DW300,DW3000,DW30000c,DW3000c,DW400,DW500,DW5000c,DW600,DW6000,DW6000c,DW7500c,ElasticPool,Free,P1,P11,P15,P2,P3,P4,P6,PRS1,PRS2,PRS4,PRS6,S0,S1,S12,S2,S3,S4,S6,S7,S9,System,System0,System1,System2,System2L,System3,System3L,System4,System4L|}'\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2408,6 +2489,7 @@
       "newText": "resource sqlServerDatabase 'Microsoft.Sql/servers/databases@2014-04-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:sqlDatabaseImport} 'Microsoft.Sql/servers/databases/extensions@2014-04-01' = {\n  parent: sqlServerDatabase\n  name: 'import'\n  properties: {\n    storageKeyType: '${4|StorageAccessKey,SharedAccessKey|}'\n    storageKey: ${5:'storageKey'}\n    storageUri: ${6:'storageUri'}\n    administratorLogin: ${7:'administratorLogin'}\n    administratorLoginPassword: ${8:'administratorLoginPassword'}\n    operationMode: 'Import'\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2437,6 +2519,7 @@
       "newText": "resource sqlServer 'Microsoft.Sql/servers@2020-11-01-preview' = {\n  name: ${1:'name'}\n  location: ${2:location}\n  properties: {\n    administratorLogin: ${3:'administratorLogin'}\n    administratorLoginPassword: ${4:'administratorLoginPassword'}\n  }\n}\n\nresource ${5:sqlServerFirewallRules} 'Microsoft.Sql/servers/firewallRules@2020-11-01-preview' = {\n  parent: sqlServer\n  name: ${6:'name'}\n  properties: {\n    startIpAddress: ${7:'startIpAddress'}\n    endIpAddress: ${8:'endIpAddress'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2466,6 +2549,7 @@
       "newText": "resource ${1:storageaccount} 'Microsoft.Storage/storageAccounts@2021-02-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  kind: ${4|'StorageV2','Storage','BlobStorage','BlockBlobStorage','FileStorage'|}\n  sku: {\n    name: ${5:'Premium_LRS'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2495,6 +2579,7 @@
       "newText": "resource ${1:templateSpec} 'Microsoft.Resources/templateSpecs@2019-06-01-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    description: ${4:'description'}\n    displayName: ${5:'displayName'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2524,6 +2609,7 @@
       "newText": "resource ${1:trafficManagerProfile} 'Microsoft.Network/trafficManagerProfiles@2018-04-01' = {\n  name: ${2:'name'}\n  location: 'global'\n  properties: {\n    profileStatus: 'Enabled'\n    trafficRoutingMethod: ${3|'Performance','Priority','Weighted','Geographic'|}\n    dnsConfig: {\n      relativeName: ${4:'dnsConfigRelativeName'}\n      ttl: 30\n    }\n    monitorConfig: {\n      protocol: ${5|'HTTP','HTTPS','TCP'|}\n      port: ${6:80}\n      path: ${7:'path'}\n      intervalInSeconds: ${8:30}\n      timeoutInSeconds: ${9:5}\n      toleratedNumberOfFailures: ${10:3}\n    }\n    endpoints: [\n      {\n        properties: {\n          targetResourceId: ${11:'targetResourceId'}\n          endpointStatus: ${12|'Enabled','Disabled'|}\n          weight: ${13:100}\n          priority: ${14:1}\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2553,6 +2639,7 @@
       "newText": "resource ${1:virtualWan} 'Microsoft.Network/virtualWans@2020-07-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: any({\n    type: ${4|'Standard','Basic'|}\n    disableVpnEncryption: false\n    allowBranchToBranchTraffic: true\n    allowVnetToVnetTraffic: true\n    office365LocalBreakoutCategory: ${5|'Optimize','OptimizeAndAllow','All','None'|}\n  })\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2582,6 +2669,7 @@
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:windowsVMDsc} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: ${4:'name'}\n  location: ${2:location}\n  properties: {\n    publisher: 'Microsoft.Powershell'\n    type: 'DSC'\n    typeHandlerVersion: '2.9'\n    autoUpgradeMinorVersion: true\n    settings: {\n      modulesUrl: ${5:'modulesUrl'}\n      sasToken: ${6:'sasToken'}\n      configurationFunction: ${7:'configurationFunction'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2611,6 +2699,7 @@
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${3:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforLinux'\n  location: ${2:location}\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforLinux'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2640,6 +2729,7 @@
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:linuxVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2019-07-01' = {\n  parent: virtualMachine\n  name: ${4:'name'}\n  location: ${2:location}\n  properties: {\n    publisher: 'Microsoft.Azure.Extensions'\n    type: 'CustomScript'\n    typeHandlerVersion: '2.1'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        ${5:'fileUris'}\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'sh ${6:customScript.sh}'\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2669,6 +2759,7 @@
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:windowsVMExtensions} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: ${4:'name'}\n  location: ${2:location}\n  properties: {\n    publisher: 'Microsoft.Compute'\n    type: 'CustomScriptExtension'\n    typeHandlerVersion: '1.10'\n    autoUpgradeMinorVersion: true\n    settings: {\n      fileUris: [\n        ${5:'fileUris'}\n      ]\n    }\n    protectedSettings: {\n      commandToExecute: 'powershell -ExecutionPolicy Bypass -file ${6:customScript.ps1}'\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2698,6 +2789,7 @@
       "newText": "resource ${1:ubuntuVM} 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: ${4:'computerName'}\n      adminUsername: ${5:'adminUsername'}\n      adminPassword: ${6:'adminPassword'}\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'Canonical'\n        offer: 'UbuntuServer'\n        sku: '16.04-LTS'\n        version: 'latest'\n      }\n      osDisk: {\n        name: ${7:'name'}\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: ${8:'id'}\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri: ${9:'storageUri'}\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2727,6 +2819,7 @@
       "newText": "resource ${1:windowsVM} 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    hardwareProfile: {\n      vmSize: 'Standard_A2_v2'\n    }\n    osProfile: {\n      computerName: ${4:'computerName'}\n      adminUsername: ${5:'adminUsername'}\n      adminPassword: ${6:'adminPassword'}\n    }\n    storageProfile: {\n      imageReference: {\n        publisher: 'MicrosoftWindowsServer'\n        offer: 'WindowsServer'\n        sku: '2012-R2-Datacenter'\n        version: 'latest'\n      }\n      osDisk: {\n        name: ${7:'name'}\n        caching: 'ReadWrite'\n        createOption: 'FromImage'\n      }\n    }\n    networkProfile: {\n      networkInterfaces: [\n        {\n          id: ${8:'id'}\n        }\n      ]\n    }\n    diagnosticsProfile: {\n      bootDiagnostics: {\n        enabled: true\n        storageUri:  ${9:'storageUri'}\n      }\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2756,6 +2849,7 @@
       "newText": "resource ${1:windowsVMDiagnostics} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    publisher: 'Microsoft.Azure.Diagnostics'\n    type: 'IaaSDiagnostics'\n    typeHandlerVersion: '1.5'\n    autoUpgradeMinorVersion: true\n    settings: {\n      xmlCfg: base64('<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\"4096\" xmlns=\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\"Error\"/> <Logs scheduledTransferPeriod=\"PT1M\" scheduledTransferLogLevelFilter=\"Error\" /> <Directories scheduledTransferPeriod=\"PT1M\"> <IISLogs containerName =\"wad-iis-logfiles\" /> <FailedRequestLogs containerName =\"wad-failedrequestlogs\" /> </Directories> <WindowsEventLog scheduledTransferPeriod=\"PT1M\" > <DataSource name=\"Application!*\" /> </WindowsEventLog> <CrashDumps containerName=\"wad-crashdumps\" dumpType=\"Mini\"> <CrashDumpConfiguration processName=\"WaIISHost.exe\"/> <CrashDumpConfiguration processName=\"WaWorkerHost.exe\"/> <CrashDumpConfiguration processName=\"w3wp.exe\"/> </CrashDumps> <PerformanceCounters scheduledTransferPeriod=\"PT1M\"> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Memory\\\\\\\\\\\\\\\\Available MBytes\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\ISAPI Extension Requests/sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Web Service(_Total)\\\\\\\\\\\\\\\\Bytes Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Requests/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET Applications(__Total__)\\\\\\\\\\\\\\\\Errors Total/Sec\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Queued\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\ASP.NET\\\\\\\\\\\\\\\\Requests Rejected\" sampleRate=\"PT3M\" /> <PerformanceCounterConfiguration counterSpecifier=\"\\\\\\\\\\\\\\\\Processor(_Total)\\\\\\\\\\\\\\\\% Processor Time\" sampleRate=\"PT3M\" /> </PerformanceCounters> </DiagnosticMonitorConfiguration> </WadCfg>')\n      storageAccount: ${4:'storageAccount'}\n    }\n    protectedSettings: {\n      storageAccountName: ${5:'storageAccountName'}\n      storageAccountKey: ${6:'storageAccountKey'}\n      storageAccountEndPoint: ${7:'storageAccountEndPoint'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2785,6 +2879,7 @@
       "newText": "resource virtualMachine 'Microsoft.Compute/virtualMachines@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n  identity: {\n    type:'SystemAssigned'\n  }\n}\n\nresource ${3:windowsVMGuestConfigExtension} 'Microsoft.Compute/virtualMachines/extensions@2020-12-01' = {\n  parent: virtualMachine\n  name: 'AzurePolicyforWindows'\n  location: ${2:location}\n  properties: {\n    publisher: 'Microsoft.GuestConfiguration'\n    type: 'ConfigurationforWindows'\n    typeHandlerVersion: '1.0'\n    autoUpgradeMinorVersion: true\n    enableAutomaticUpgrade: true\n    settings: {}\n    protectedSettings: {}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2814,6 +2909,7 @@
       "newText": "resource ${1:virtualNetwork} 'Microsoft.Network/virtualNetworks@2019-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    addressSpace: {\n      addressPrefixes: [\n        '10.0.0.0/16'\n      ]\n    }\n    subnets: [\n      {\n        name: 'Subnet-1'\n        properties: {\n          addressPrefix: '10.0.0.0/24'\n        }\n      }\n      {\n        name: 'Subnet-2'\n        properties: {\n          addressPrefix: '10.0.1.0/24'\n        }\n      }\n    ]\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2843,6 +2939,7 @@
       "newText": "resource ${1:peering} 'Microsoft.Network/virtualNetworks/virtualNetworkPeerings@2020-07-01' = {\n  name: ${2:'virtualNetwork/name'}\n  properties: {\n    allowVirtualNetworkAccess: ${3|true,false|}\n    allowForwardedTraffic: ${4|true,false|}\n    allowGatewayTransit: ${5|true,false|}\n    useRemoteGateways: ${6|true,false|}\n    remoteVirtualNetwork: {\n      id: ${7:'virtualNetworks.id'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2872,6 +2969,7 @@
       "newText": "resource ${1:localNetworkGateway} 'Microsoft.Network/localNetworkGateways@2019-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    localNetworkAddressSpace: {\n      addressPrefixes: [\n        ${4:'REQUIRED'}\n      ]\n    }\n    gatewayIpAddress: ${5:'gatewayIpAddress'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2901,6 +2999,7 @@
       "newText": "resource ${1:vpnVnetConnection} 'Microsoft.Network/connections@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    virtualNetworkGateway1: {\n      id: ${4:'virtualNetworkGateways.id'}\n      properties:{}\n    }\n    localNetworkGateway2: {\n      id: ${5:'localNetworkGateways.id'}\n      properties:{}\n    }\n    connectionType: '${6|IPsec,Vnet2Vnet,ExpressRoute,VPNClient|}'\n    routingWeight: ${7:0}\n    sharedKey: ${8:'sharedkey'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2930,6 +3029,7 @@
       "newText": "resource ${1:virtualNetworkGateway} 'Microsoft.Network/virtualNetworkGateways@2020-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    ipConfigurations: [\n      {\n        name: ${4:'name'}\n        properties: {\n          privateIPAllocationMethod: 'Dynamic'\n          subnet: {\n            id: ${5:'subnet.id'}\n          }\n          publicIPAddress: {\n            id: ${6:'publicIPAdresses.id'}\n          }\n        }\n      }\n    ]\n    sku: {\n      name: '${7|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n      tier: '${8|Basic,HighPerformance,Standard,UltraPerformance,VpnGw1,VpnGw2,VpnGw3,VpnGw1AZ,VpnGw2AZ,VpnGw3AZ,ErGw1AZ,ErGw2AZ,ErGw3AZ|}'\n    }\n    gatewayType: '${9|Vpn,ExpressRoute|}'\n    vpnType: '${10|PolicyBased,RouteBased|}'\n    enableBgp: ${11|true,false|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2959,6 +3059,7 @@
       "newText": "resource ${1:webApplication} 'Microsoft.Web/sites@2018-11-01' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  tags: {\n    'hidden-related:${resourceGroup().id}/providers/Microsoft.Web/serverfarms/${4:appServicePlan}': 'Resource'\n  }\n  properties: {\n    serverFarmId: ${5:'webServerFarms.id'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -2988,6 +3089,7 @@
       "newText": "resource webApplication 'Microsoft.Web/sites@2020-12-01' = {\n  name: ${1:'name'}\n  location: ${2:location}\n}\n\nresource ${3:webApplicationExtension} 'Microsoft.Web/sites/extensions@2020-12-01' = {\n  parent: webApplication\n  name: 'MSDeploy'\n  properties: {\n    packageUri: ${4:'packageUri'}\n    dbType: 'None'\n    connectionString: ${5:'connectionString'}\n    setParameters: {\n      'IIS Web Application Name': ${6:'name'}\n    }\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3017,6 +3119,7 @@
       "newText": "resource ${1:applicationGroup} 'Microsoft.DesktopVirtualization/applicationgroups@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    friendlyName: ${4:'friendlyName'}\n    applicationGroupType: ${5|'Desktop','RemoteApp'|}\n    hostPoolArmPath: ${6:'desktopVirtualizationHostPools.id'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3046,6 +3149,7 @@
       "newText": "resource ${1:hostPool} 'Microsoft.DesktopVirtualization/hostpools@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    friendlyName: ${4:'hostpoolFriendlyName'}\n    hostPoolType: ${5|'Personal','Pooled'|}\n    loadBalancerType: ${6|'BreadthFirst','DepthFirst','Persistent'|}\n    preferredAppGroupType: ${7|'Desktop','RailApplications','None'|}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3075,6 +3179,7 @@
       "newText": "resource ${1:workSpace} 'Microsoft.DesktopVirtualization/workspaces@2019-12-10-preview' = {\n  name: ${2:'name'}\n  location: ${3:location}\n  properties: {\n    friendlyName: ${4:'friendlyName'}\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3118,6 +3223,7 @@
       "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  properties: {\n    $0\n  }\n}"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3147,6 +3253,7 @@
       "newText": "resource ${1:Identifier} '${2:Provider/ParentType/ChildType@Version}' = {\n  name: $3\n  $0\n}"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3176,6 +3283,7 @@
       "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  location: ${4:location}\n  properties: {\n    $0\n  }\n}\n"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3205,6 +3313,7 @@
       "newText": "resource ${1:Identifier} '${2:Provider/Type@Version}' = {\n  name: $3\n  $0\n}"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {
@@ -3262,6 +3371,7 @@
       "newText": "var ${1:Identifier} = $0"
     },
     "command": {
+      "title": "top level snippet completion",
       "command": "bicep.Telemetry",
       "arguments": [
         {

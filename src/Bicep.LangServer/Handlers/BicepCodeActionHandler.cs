@@ -22,6 +22,7 @@ using Bicep.LanguageServer.Completions;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -160,7 +161,11 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateDisableNextLineDiagnostics(diagnosticCode.String);
-            var telemetryCommand = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+            var telemetryCommand = TelemetryHelper.CreateCommand(
+                title: "disable next line diagnostics code action",
+                name: TelemetryConstants.CommandName,
+                args: JArray.FromObject(new List<object> { telemetryEvent })
+            );
 
             return new CodeAction
             {
@@ -181,8 +186,13 @@ namespace Bicep.LanguageServer.Handlers
             return new CodeAction
             {
                 Title = String.Format(LangServerResources.EditLinterRuleActionTitle, ruleName),
-                Command = Command.Create(LanguageConstants.EditLinterRuleCommandName, documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */)
-        };
+                Command = TelemetryHelper.CreateCommand
+                (
+                    title: "edit linter rule code action",
+                    name: LanguageConstants.EditLinterRuleCommandName,
+                    args: JArray.FromObject(new List<object> { documentUri, ruleName, bicepConfigFilePath ?? string.Empty /* (passing null not allowed) */ })
+                )
+            };
         }
 
         public override Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken)
