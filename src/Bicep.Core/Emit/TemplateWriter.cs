@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -30,24 +29,6 @@ using System.Diagnostics;
 
 namespace Bicep.Core.Emit
 {
-    public static class SourceMapExtensions
-    {
-        public static void AddMapping(this IDictionary<string, IDictionary<int, IList<(int start, int end, string content)>>> sourceMap, string bicepFileName, int bicepLine, (int, int, string) mapping)
-        {
-            if (!sourceMap.ContainsKey(bicepFileName))
-            {
-                sourceMap[bicepFileName] = new Dictionary<int, IList<(int start, int end, string content)>>();
-            }
-
-            if (!sourceMap[bicepFileName].ContainsKey(bicepLine))
-            {
-                sourceMap[bicepFileName][bicepLine] = new List<(int, int, string)>();
-            }
-
-            sourceMap[bicepFileName][bicepLine].Add(mapping);
-        }
-    }
-
     // TODO: Are there discrepancies between parameter, variable, and output names between bicep and ARM?
     public class TemplateWriter : ITemplateWriter
     {
@@ -115,7 +96,7 @@ namespace Bicep.Core.Emit
         private readonly EmitterSettings settings;
         private readonly IDictionary<string, IDictionary<int, IList<(int start, int end, string content)>>> rawSourceMap;
 
-        public (string, int)[]? sourceMap; // [arm line] -> (bicep file, bicep line)
+        public Dictionary<int, (string, int)>? SourceMap;
 
         public TemplateWriter(SemanticModel semanticModel, EmitterSettings settings)
         {
@@ -241,9 +222,8 @@ namespace Bicep.Core.Emit
                         mapping.content)).ToList()));
 
             // unfold key-values in bicep-to-json map to convert to json-to-bicep map
-            this.sourceMap = new (string, int)[unformattedLineStarts.Count];
+            this.SourceMap = new();
             var weights = new int[unformattedLineStarts.Count];
-            Array.Clear(this.sourceMap);
             Array.Fill(weights, int.MaxValue);
 
             formattedSourceMap.ForEach(fileKvp =>
@@ -257,7 +237,7 @@ namespace Bicep.Core.Emit
                             // write new mapping if weight is stronger than existing mapping
                             if (weight < weights[i])
                             {
-                                this.sourceMap[i] = (fileKvp.Key, lineKvp.Key);
+                                this.SourceMap[i] = (fileKvp.Key, lineKvp.Key);
                                 weights[i] = weight;
                             }
                             else if (weight == weights[i])
@@ -266,6 +246,8 @@ namespace Bicep.Core.Emit
                             }
                         }
                     })));
+
+            string serializedSourceMap = JsonConvert.SerializeObject(this.SourceMap, Formatting.Indented);
         }
 
         private void ProcessRawSourceMap(JToken rawTemplate)
