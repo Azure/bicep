@@ -1,0 +1,18 @@
+{
+  "12": {
+    "Item1": "main.bicep",
+    "Item2": 3
+  },
+  "14": {
+    "Item1": "main.bicep",
+    "Item2": 6
+  },
+  "13": {
+    "Item1": "main.bicep",
+    "Item2": 5
+  },
+  "15": {
+    "Item1": "main.bicep",
+    "Item2": 5
+  }
+}

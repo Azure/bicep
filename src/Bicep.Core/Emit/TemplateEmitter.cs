@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -16,7 +17,7 @@ namespace Bicep.Core.Emit
 
         private readonly EmitterSettings settings;
 
-        private (string,int)[]? sourceMap;
+        private Dictionary<int, (string, int)>? sourceMap;
 
         public TemplateEmitter(SemanticModel model, EmitterSettings settings)
         {
@@ -43,7 +44,7 @@ namespace Bicep.Core.Emit
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.sourceMap;
+            this.sourceMap = emitter.SourceMap;
         });
 
         /// <summary>
@@ -61,7 +62,7 @@ namespace Bicep.Core.Emit
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.sourceMap;
+            this.sourceMap = emitter.SourceMap;
         });
 
         /// <summary>
@@ -72,7 +73,7 @@ namespace Bicep.Core.Emit
         {
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
-            this.sourceMap = emitter.sourceMap;
+            this.sourceMap = emitter.SourceMap;
         });
 
         private EmitResult EmitOrFail(Action write)
