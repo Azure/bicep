@@ -17,7 +17,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="16.1.25" />
+    <PackageReference Include="System.IO.Abstractions.TestingHelpers" Version="17.0.10" />
   </ItemGroup>
 
   <ItemGroup>
