@@ -1,6 +1,4 @@
-﻿module stg './storage.bicep' = {
-  name: 'myStorageDeployment'
-  params: {
-    storageAccountName: 'stcontoso'
-  }
-}
+﻿
+@sys.description('string output description')
+output myStr string = 'hello'
+
