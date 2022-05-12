@@ -41,6 +41,7 @@ namespace Bicep.Core.IntegrationTests.Emit
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
             var bicepFileUri = PathHelper.FilePathToFileUrl(bicepFilePath);
             var compiledFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainCompiled));
+            var sourceMapFilePath = FileHelper.GetResultFilePath(this.TestContext, Path.Combine(dataSet.Name, DataSet.TestFileMainSourceMap));
             var configuration = BicepTestConstants.ConfigurationManager.GetConfiguration(bicepFileUri);
 
             // emitting the template should be successful
@@ -65,9 +66,13 @@ namespace Bicep.Core.IntegrationTests.Emit
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
 
-            // TODO:
-            // 1. add dataSet.SourceMap
-            // 2. check with compiler SourceMap here
+            var actualSourceMapJson = JToken.FromObject(result.SourceMap!);
+
+            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                JToken.Parse(dataSet.SourceMap!),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualLocation: sourceMapFilePath);
 
             // validate that the template is parseable by the deployment engine
             TemplateHelper.TemplateShouldBeValid(outputFile);
@@ -172,7 +177,7 @@ namespace Bicep.Core.IntegrationTests.Emit
 
         [DataTestMethod]
         [DynamicData(nameof(GetInvalidDataSets), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
-        public void InvalidBicep_TemplateEmiterShouldNotProduceAnyTemplate(DataSet dataSet)
+        public void InvalidBicep_TemplateEmitterShouldNotProduceAnyTemplate(DataSet dataSet)
         {
             var outputDirectory = dataSet.SaveFilesToTestDirectory(TestContext);
             var bicepFilePath = Path.Combine(outputDirectory, DataSet.TestFileMain);
