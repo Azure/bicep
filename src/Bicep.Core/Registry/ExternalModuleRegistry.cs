@@ -16,7 +16,6 @@ namespace Bicep.Core.Registry
 {
     public abstract class ExternalModuleRegistry<TModuleReference, TModuleEntity> : ModuleRegistry<TModuleReference>
         where TModuleReference : ModuleReference
-        where TModuleEntity : class
     {
         // if we're unable to acquire a lock on the module directory in the cache, we will retry until this timeout is reached
         private static readonly TimeSpan ModuleDirectoryContentionTimeout = TimeSpan.FromSeconds(5);
