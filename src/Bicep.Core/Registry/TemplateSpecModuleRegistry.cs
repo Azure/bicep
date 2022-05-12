@@ -14,9 +14,12 @@ using Bicep.Core.Tracing;
 
 namespace Bicep.Core.Registry
 {
+    public readonly record struct TemplateSpecEntity(string Content);
+
     public class TemplateSpecModuleRegistry : ExternalModuleRegistry<TemplateSpecModuleReference, TemplateSpecEntity>
     {
         private readonly ITemplateSpecRepositoryFactory repositoryFactory;
+
         private readonly IFeatureProvider featureProvider;
 
         public TemplateSpecModuleRegistry(IFileResolver fileResolver, ITemplateSpecRepositoryFactory repositoryFactory, IFeatureProvider featureProvider)
@@ -82,7 +85,7 @@ namespace Bicep.Core.Registry
         }
 
         protected override void WriteModuleContent(TemplateSpecModuleReference reference, TemplateSpecEntity entity) =>
-            File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.ToUtf8Json());
+            File.WriteAllText(this.GetModuleEntryPointPath(reference), entity.Content);
 
         protected override string GetModuleDirectoryPath(TemplateSpecModuleReference reference) => Path.Combine(
             this.featureProvider.CacheRootDirectory,

@@ -26,7 +26,7 @@ namespace Bicep.Core.Registry
             var credential = this.credentialFactory.CreateChain(configuration.Cloud.CredentialPrecedence, configuration.Cloud.ActiveDirectoryAuthorityUri);
             var armClient = new ArmClient(credential, subscriptionId, options);
 
-            return new TemplateSpecRepository(armClient, new TemplateSpecVersionProvider());
+            return new TemplateSpecRepository(armClient);
         }
     }
 }
