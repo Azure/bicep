@@ -66,9 +66,13 @@ namespace Bicep.Core.IntegrationTests.Emit
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
 
-            // TODO:
-            // 1. add dataSet.SourceMap
-            // 2. check with compiler SourceMap here
+            var actualSourceMapJson = JToken.FromObject(result.SourceMap!);
+
+            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
+                TestContext,
+                JToken.Parse(dataSet.SourceMap!),
+                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
+                actualLocation: sourceMapFilePath);
 
             // validate that the template is parseable by the deployment engine
             TemplateHelper.TemplateShouldBeValid(outputFile);
