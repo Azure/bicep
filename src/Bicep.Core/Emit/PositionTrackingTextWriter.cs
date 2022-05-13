@@ -14,36 +14,30 @@ namespace Bicep.Core.Emit
         {
             private readonly TextWriter _internalWriter;
 
-        public int CurrentPos;
+            public int CurrentPos;
 
             public List<int> CommaPositions = new();
 
-        public string _debugString = string.Empty;
-        public List<int> CommaPositions = new List<int>();
-
-        public PositionTrackingTextWriter(TextWriter textWriter)
-        {
-            _internalWriter = textWriter;
-        }
-
-        public override Encoding Encoding => _internalWriter.Encoding;
-
-        public override void Write(char value)
-        {
-            if (value == ',')
+            public PositionTrackingTextWriter(TextWriter textWriter)
             {
-                    CommaPositions.Add(CurrentPos);
+                _internalWriter = textWriter;
             }
 
-            _internalWriter.Write(value);
-            _debugString += value;
+            public override Encoding Encoding => _internalWriter.Encoding;
 
-            CurrentPos++;
+            public override void Write(char value)
+            {
+                if (value == ',')
+                {
+                    CommaPositions.Add(CurrentPos);
+                }
+
+                _internalWriter.Write(value);
+
+                CurrentPos++;
+            }
         }
-    }
 
-    public class PositionTrackingJsonTextWriter : JsonTextWriter
-    {
         public int CurrentPos => _trackingWriter.CurrentPos;
         public List<int> CommaPositions => _trackingWriter.CommaPositions;
         
