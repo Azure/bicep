@@ -12,7 +12,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 {
     public sealed class NoUnusedParametersRule : NoUnusedRuleBase
     {
-        private const string MissingName = "<missing>";
         public new const string Code = "no-unused-params";
 
         public NoUnusedParametersRule() : base(
@@ -34,7 +33,7 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             //  2) VariableAccessSyntax indicates a reference to the parameter
             var unreferencedParams = model.Root.ParameterDeclarations
                 .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
-                .Where(sym => sym.Name != MissingName);
+                .Where(sym => sym.NameSyntax.IsValid);
 
             return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax));
         }

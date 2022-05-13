@@ -14,14 +14,11 @@ param
 
 param 3
 //@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |3|
-//@[6:7) [no-unused-params (Warning)] Parameter "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |3|
 //@[7:7) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 param % string
 //@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |%|
-//@[6:7) [no-unused-params (Warning)] Parameter "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |%|
 param % string 3 = 's'
 //@[6:7) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |%|
-//@[6:7) [no-unused-params (Warning)] Parameter "<error>" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |%|
 //@[15:16) [BCP008 (Error)] Expected the "=" token, or a newline at this location. (CodeDescription: none) |3|
 
 param myBool bool
