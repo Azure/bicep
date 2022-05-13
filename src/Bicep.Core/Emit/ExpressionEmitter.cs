@@ -312,8 +312,6 @@ namespace Bicep.Core.Emit
             // emit loop properties first (if any)
             if (propertyLookup.Contains(true))
             {
-                // TODO: bicep 
-
                 // we have properties whose value is a for-expression
                 this.EmitProperty("copy", () =>
                 {
@@ -441,19 +439,13 @@ namespace Bicep.Core.Emit
             => EmitPropertyInternal(new JTokenExpression(name), value);
 
         public void EmitProperty(string name, SyntaxBase expressionValue)
-        {
-            EmitPropertyInternal(new JTokenExpression(name), expressionValue);
-        }
+            => EmitPropertyInternal(new JTokenExpression(name), expressionValue);
 
         public void EmitProperty(SyntaxBase syntaxKey, SyntaxBase syntaxValue)
-        {
-            EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
-        }
+            => EmitPropertyInternal(converter.ConvertExpression(syntaxKey), syntaxValue);
 
         private void EmitPropertyInternal(LanguageExpression expressionKey, Action valueFunc)
         {
-            // cannot create mapping without access to SyntaxBase object (use IPositionable to get position in bicep)
-
             var serializedName = ExpressionSerializer.SerializeExpression(expressionKey);
             writer.WritePropertyName(serializedName);
 

@@ -9,7 +9,6 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Azure.Deployments.Core.Definitions.Schema;
-using Azure.Deployments.Core.Extensions;
 using Azure.Deployments.Core.Helpers;
 using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Extensions;
@@ -24,6 +23,7 @@ using Bicep.Core.TypeSystem.Az;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Emit
 {
