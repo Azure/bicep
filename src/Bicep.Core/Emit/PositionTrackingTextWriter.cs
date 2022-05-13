@@ -8,42 +8,40 @@ using Newtonsoft.Json;
 
 namespace Bicep.Core.Emit
 {
-    public class PositionTrackingTextWriter : TextWriter
-    {
-        public int CurrentPos;
-
-        private readonly TextWriter _internalWriter;
-
-        public string _debugString = string.Empty;
-        public List<int> CommaPositions = new List<int>();
-
-        public PositionTrackingTextWriter(TextWriter textWriter)
-        {
-            _internalWriter = textWriter;
-        }
-
-        public override Encoding Encoding => _internalWriter.Encoding;
-
-        public override void Write(char value)
-        {
-            if (value == ',')
-            {
-                CommaPositions.Add(CurrentPos);
-            }
-
-            _internalWriter.Write(value);
-            _debugString += value;
-
-            CurrentPos++;
-        }
-    }
-
     public class PositionTrackingJsonTextWriter : JsonTextWriter
     {
+        private class PositionTrackingTextWriter : TextWriter
+        {
+            private readonly TextWriter _internalWriter;
+
+            public int CurrentPos;
+
+            public List<int> CommaPositions = new();
+
+            public PositionTrackingTextWriter(TextWriter textWriter)
+            {
+                _internalWriter = textWriter;
+            }
+
+            public override Encoding Encoding => _internalWriter.Encoding;
+
+            public override void Write(char value)
+            {
+                if (value == ',')
+                {
+                    CommaPositions.Add(CurrentPos);
+                }
+
+                _internalWriter.Write(value);
+
+                CurrentPos++;
+            }
+        }
+
         public int CurrentPos => _trackingWriter.CurrentPos;
         public List<int> CommaPositions => _trackingWriter.CommaPositions;
 
-        public readonly PositionTrackingTextWriter _trackingWriter; // debug
+        private readonly PositionTrackingTextWriter _trackingWriter;
 
         public static PositionTrackingJsonTextWriter Create(TextWriter textWriter)
         {
