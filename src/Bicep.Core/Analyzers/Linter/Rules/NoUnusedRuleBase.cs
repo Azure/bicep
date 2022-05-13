@@ -14,18 +14,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules;
 
 public abstract class NoUnusedRuleBase : LinterRuleBase
 {
-    public enum NoUnusedRuleType
-    {
-        Variable,
-        Parameter
-    }
-
-    private readonly NoUnusedRuleType type;
-
-    protected NoUnusedRuleBase(NoUnusedRuleType type, string code, string description, DiagnosticStyling diagnosticStyling, Uri? docUri = null, DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning) :
+    protected NoUnusedRuleBase(string code, string description, DiagnosticStyling diagnosticStyling, Uri? docUri = null, DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning) :
         base(code, description, docUri, diagnosticLevel, diagnosticStyling)
     {
-        this.type = type;
     }
 
     protected AnalyzerFixableDiagnostic CreateRemoveUnusedDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
@@ -34,19 +25,6 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
         var codeFix = new CodeFix(GetCodeFixDescription(), true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
         var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(nameSyntax.Span, codeFix, name);
         return fixableDiagnosticForSpan;
-    }
-
-    private string GetCodeFixDescription()
-    {
-        switch (type)
-        {
-            case NoUnusedRuleType.Parameter:
-                return "Remove unused parameter";
-            case NoUnusedRuleType.Variable:
-                return "Remove unused variable";
-            default:
-                throw new NotSupportedException($"NoUnusedRuleType={type} is not supported!");
-        }
     }
 
     private static TextSpan GetSpanForRow(ProgramSyntax programSyntax, SyntaxBase declaringSyntax)
@@ -74,4 +52,9 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
 
         return TextSpan.Between(startPosSpan, endPosSpan);
     }
+
+    /// <summary>
+    /// Abstract method each rule must implement to get description of code fix
+    /// </summary>
+    abstract protected string GetCodeFixDescription();
 }

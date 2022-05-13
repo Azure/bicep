@@ -15,7 +15,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-unused-vars";
 
         public NoUnusedVariablesRule() : base(
-            NoUnusedRuleType.Variable,
             code: Code,
             description: CoreResources.UnusedVariableRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
@@ -55,6 +54,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             {
                 yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax);
             }
+        }
+
+        override protected string  GetCodeFixDescription()
+        {
+            return "Remove unused variable";
         }
     }
 }

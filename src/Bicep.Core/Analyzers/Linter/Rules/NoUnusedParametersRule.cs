@@ -16,7 +16,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
         public new const string Code = "no-unused-params";
 
         public NoUnusedParametersRule() : base(
-            NoUnusedRuleType.Parameter,
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
@@ -38,6 +37,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .Where(sym => sym.Name != MissingName);
 
             return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax));
+        }
+
+        override protected string GetCodeFixDescription()
+        {
+            return "Remove unused parameter";
         }
     }
 }
