@@ -102,14 +102,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            var returnType = matches.Single().ReturnTypeBuilder(
+            var returnType = matches.Single().ResultBuilder(
                 Repository.Create<IBinder>().Object,
                 Repository.Create<IFileResolver>().Object,
                 Repository.Create<IDiagnosticWriter>().Object,
                 arguments.ToImmutableArray(),
                 argumentTypes.ToImmutableArray()
             );
-            returnType.Should().BeAssignableTo<StringLiteralType>().Subject.RawStringValue.Should().Be(returnTypeLiteral);
+            returnType.Should().NotBeNull().And.Subject.As<FunctionResult>().Type.Should().BeAssignableTo<StringLiteralType>().Subject.RawStringValue.Should().Be(returnTypeLiteral);
         }
 
         private static IEnumerable<object[]> GetStringLiteralTransformations()
