@@ -11,8 +11,6 @@ namespace Bicep.Core.Samples
 {
     public static class DataSets
     {
-        //public static DataSet AAA_LF => CreateDataSet();
-
         public static DataSet AKS_LF => CreateDataSet();
 
         public static DataSet Dependencies_LF => CreateDataSet();
