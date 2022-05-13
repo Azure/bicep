@@ -32,9 +32,9 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly ExpressionConverter converter;
 
-        public readonly IDictionary<string, IDictionary<int, IList<(int start, int end, string content)>>> rawSourceMap;
+        public readonly IDictionary<string, IDictionary<int, IList<(int start, int end)>>> rawSourceMap;
 
-        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, IDictionary<string, IDictionary<int, IList<(int, int, string)>>> rawSourceMap)
+        public ExpressionEmitter(PositionTrackingJsonTextWriter writer, EmitterContext context, IDictionary<string, IDictionary<int, IList<(int, int)>>> rawSourceMap)
         {
             this.writer = writer;
             this.context = context;
@@ -476,29 +476,17 @@ namespace Bicep.Core.Emit
             }
         }
 
-        private void AddSourceMapping(IPositionable bicepPosition, int startPosition)
+        private void AddSourceMapping(SyntaxBase bicepSyntax, int startPosition)
         {
-            var bicepFileName = Path.GetFileName(this.context.SemanticModel.SourceFile.FileUri.AbsolutePath);
-            (int bicepLine, _) = TextCoordinateConverter.GetPosition(this.context.SemanticModel.SourceFile.LineStarts, bicepPosition.GetPosition());
-
-            // increment start position if starting on a comma (happens when outputting successive items in objects and arrays)
-            if (this.writer.CommaPositions.Contains(startPosition))
+            if (this.context.Settings.EnableSourceMapping)
             {
-                startPosition++;
+                SourceMapHelper.AddMapping(
+                    this.rawSourceMap,
+                    this.context.SemanticModel.SourceFile,
+                    bicepSyntax,
+                    this.writer,
+                    startPosition);
             }
-
-            if (!this.rawSourceMap.ContainsKey(bicepFileName))
-            {
-                this.rawSourceMap[bicepFileName] = new Dictionary<int, IList<(int, int, string)>>();
-            }
-
-            if (!this.rawSourceMap[bicepFileName].ContainsKey(bicepLine))
-            {
-                this.rawSourceMap[bicepFileName][bicepLine] = new List<(int, int, string)>();
-            }
-
-            string content = this.writer._trackingWriter._debugString[startPosition..(this.writer.CurrentPos - 1)];
-            this.rawSourceMap[bicepFileName][bicepLine].Add((startPosition, this.writer.CurrentPos - 1, content));
         }
     }
 }
