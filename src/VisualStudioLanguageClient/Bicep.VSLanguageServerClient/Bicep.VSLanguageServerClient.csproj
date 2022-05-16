@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<AssemblyName>Azure.Bicep.VSLanguageServerClient</AssemblyName>
+		<RootNamespace>Bicep.VSLanguageServerClient</RootNamespace>
+		<EnableNuget>true</EnableNuget>
+		<PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+		<Description>Bicep VS Language Server Client</Description>
+		<TargetFramework>net472</TargetFramework>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Reference Include="C:\EnlistmentsNew\bicep\src\Bicep.Core\bin\Debug\net6.0\Azure.Bicep.Core.dll" />
+		<Reference Include="C:\EnlistmentsNew\bicep\src\Bicep.LangServer\bin\Debug\net6.0\Bicep.LangServer.dll" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.2.41" />
+		<PackageReference Include="Microsoft.VisualStudio.CoreUtility" Version="17.2.3194" />
+		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.2.2105" />
+		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Protocol" Version="17.1.8" />
+		<PackageReference Include="Microsoft.VisualStudio.Utilities" Version="17.2.32505.113" />
+		<PackageReference Include="OmniSharp.Extensions.LanguageServer" Version="0.19.5" />
+	</ItemGroup>
+
+</Project>
