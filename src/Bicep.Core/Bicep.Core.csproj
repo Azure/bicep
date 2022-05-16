@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyName>Azure.Bicep.Core</AssemblyName>
     <RootNamespace>Bicep.Core</RootNamespace>
@@ -35,7 +35,7 @@
     <PackageReference Include="Azure.Bicep.Types" Version="0.1.486" />
     <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.486" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.11" />
-    <PackageReference Include="System.IO.Abstractions" Version="16.1.25" />
+    <PackageReference Include="System.IO.Abstractions" Version="17.0.12" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">
