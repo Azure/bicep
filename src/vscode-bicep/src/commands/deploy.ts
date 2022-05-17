@@ -470,7 +470,7 @@ export class DeployCommand implements Command {
       let id: string = missingParamName;
 
       if (sourceUri) {
-        id = id + sourceUri.fsPath;
+        id = id + sourceUri.path;
 
         if (parameterFilePath) {
           id = id + parameterFilePath;
@@ -484,7 +484,6 @@ export class DeployCommand implements Command {
         ),
         data: undefined,
         alwaysShow: true,
-        id: sourceUri?.path,
       };
 
       const entries: IAzureQuickPickItem[] = [];
@@ -496,13 +495,14 @@ export class DeployCommand implements Command {
           label: previouslyUsedValue,
           data: undefined,
           alwaysShow: true,
-          id: sourceUri?.path,
         };
         entries.push(previouslyUsedValueQuickPickItem);
       }
 
       const missingParamQuickPick = await _context.ui.showQuickPick(entries, {
         placeHolder: "Select missing parameter: " + missingParamName,
+        id: id,
+        canPickMany: false,
       });
 
       if (missingParamQuickPick == enterMissingParameter) {
