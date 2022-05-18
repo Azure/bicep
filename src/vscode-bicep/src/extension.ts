@@ -12,6 +12,7 @@ import {
   BuildCommand,
   CommandManager,
   DeployCommand,
+  ForceModulesRestoreCommand,
   GenerateParamsCommand,
   InsertResourceCommand,
   ShowSourceCommand,
