@@ -85,13 +85,14 @@
       "newText": "{\n\tname: $1\n\tparams: {\n\t\tarrayParam: $2\n\t\tobjParam: {\n\t\t}\n\t\tstringParamB: $3\n\t}\n}$0"
     },
     "command": {
+      "title": "module body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
+          "EventName": "snippet/modulebody",
           "Properties": {
             "name": "required-properties"
-          },
-          "EventName": "snippet/modulebody"
+          }
         }
       ]
     }
@@ -114,13 +115,14 @@
       "newText": "{\n\t$0\n}"
     },
     "command": {
+      "title": "module body completion snippet",
       "command": "bicep.Telemetry",
       "arguments": [
         {
+          "EventName": "snippet/modulebody",
           "Properties": {
             "name": "{}"
-          },
-          "EventName": "snippet/modulebody"
+          }
         }
       ]
     }

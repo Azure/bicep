@@ -3135,6 +3135,26 @@
     }
   },
   {
+    "label": "managementGroupResourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroupResourceId(resourceType: string, ... : string): string\nmanagementGroupResourceId(managementGroupId: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the management group level.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroupResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroupResourceId($0)"
+    },
+    "command": {
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "max",
     "kind": "function",
     "documentation": {

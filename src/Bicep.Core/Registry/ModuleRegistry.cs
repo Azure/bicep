@@ -24,6 +24,8 @@ namespace Bicep.Core.Registry
 
         public abstract Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<T> references);
 
+        public abstract Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<T> references);
+
         public abstract Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, T reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         public abstract ModuleReference? TryParseModuleReference(string? aliasName, string reference, RootConfiguration configuration, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
@@ -34,6 +36,9 @@ namespace Bicep.Core.Registry
 
         public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> references) =>
             this.RestoreModules(configuration, references.Select(ConvertReference));
+
+        public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<ModuleReference> references) =>
+             this.InvalidateModulesCache(configuration, references.Select(ConvertReference));
 
         public Uri? TryGetLocalModuleEntryPointUri(Uri? parentModuleUri, ModuleReference reference, out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder) =>
             this.TryGetLocalModuleEntryPointUri(parentModuleUri, ConvertReference(reference), out failureBuilder);

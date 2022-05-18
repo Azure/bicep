@@ -40,6 +40,7 @@
     "onCommand:bicep.generateParams",
     "onCommand:bicep.createConfigFile",
     "onCommand:bicep.deploy",
+    "onCommand:bicep.forceModulesRestore",
     "onCommand:bicep.insertResource",
     "onCommand:bicep.showSource",
     "onCommand:bicep.showVisualizer",
@@ -170,8 +171,13 @@
         "icon": "$(cloud-upload)"
       },
       {
+        "command": "bicep.forceModulesRestore",
+        "title": "Restore Bicep File (Force)",
+        "category": "Bicep"
+      },
+      {
         "command": "bicep.insertResource",
-        "title": "Insert Resource",
+        "title": "Insert Resource...",
         "category": "Bicep",
         "icon": "$(cloud-download)"
       },
@@ -205,9 +211,21 @@
         "when": "resourceLangId == bicep"
       },
       {
+        "command": "bicep.forceModulesRestore",
+        "key": "ctrl+m r",
+        "mac": "cmd+m r",
+        "when": "resourceLangId == bicep"
+      },
+      {
         "command": "bicep.showVisualizerToSide",
         "key": "ctrl+k v",
         "mac": "cmd+k v",
+        "when": "resourceLangId == bicep"
+      },
+      {
+        "command": "bicep.insertResource",
+        "key": "ctrl+k i",
+        "mac": "cmd+k i",
         "when": "resourceLangId == bicep"
       }
     ],
@@ -223,6 +241,11 @@
           "command": "bicep.showSource",
           "when": "bicepVisualizerFocus",
           "group": "navigation"
+        },
+        {
+          "command": "bicep.insertResource",
+          "when": "editorLangId == bicep",
+          "group": "edit"
         }
       ],
       "explorer/context": [
@@ -249,6 +272,16 @@
         {
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.forceModulesRestore",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.insertResource",
+          "when": "resourceLangId == bicep",
           "group": "0_bicep"
         }
       ],
@@ -277,6 +310,16 @@
           "command": "bicep.deploy",
           "when": "resourceLangId == bicep && config.bicep.enableDeploy",
           "group": "0_bicep"
+        },
+        {
+          "command": "bicep.forceModulesRestore",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.insertResource",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
         }
       ],
       "editor/context": [
@@ -296,12 +339,22 @@
           "group": "0_bicep"
         },
         {
+          "command": "bicep.forceModulesRestore",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
           "command": "bicep.showVisualizer",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
         },
         {
           "command": "bicep.showVisualizerToSide",
+          "when": "resourceLangId == bicep",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.insertResource",
           "when": "resourceLangId == bicep",
           "group": "0_bicep"
         }
@@ -318,6 +371,10 @@
         {
           "command": "bicep.deploy",
           "when": "config.bicep.enableDeploy",
+          "group": "0_bicep"
+        },
+        {
+          "command": "bicep.forceModulesRestore",
           "group": "0_bicep"
         },
         {
@@ -350,6 +407,12 @@
         }
       ]
     },
+    "snippets": [
+      {
+        "language": "jsonc",
+        "path": "vscode-snippets/jsonc-snippets.jsonc"
+      }
+    ],
     "walkthroughs.$comments": [
       "Documentation: https://code.visualstudio.com/api/references/contribution-points#contributes.walkthroughs",
       "",
@@ -360,7 +423,14 @@
       "  onContext:contextKeyExpression: Check off step when a context key expression evaluates true.",
       "  extensionInstalled:myExt.id: Check off step if the given extension is installed.",
       "  onView:myView.id: Check off step once a given view becomes visible.",
-      "  onLink:https://...: Check off step once a given link has been opened via a Walkthrough."
+      "  onLink:https://...: Check off step once a given link has been opened via a Walkthrough.",
+      "",
+      "Passing arguments to commands: See https://github.com/Microsoft/vscode/issues/69757,",
+      "  Example: [Copy code to clipboard](command:bicep.gettingStarted.copyToClipboard?%7B%22step%22%3A%22resources%22%7D)",
+      "",
+      "Walkthrough commands (bicep.gettingStarted.xxx) are automatically marked in telemetry as being from the walkthrough.  Regular commands",
+      "  which are called from the walkthrough markdown should be marked with a query string ?walkthrough=true to have it marked in telemetry.",
+      "  Example: [Open Visualizer](command:bicep.showVisualizerToSide?%7B%22walkthrough%22%3A%22true%22%7D)"
     ],
     "walkthroughs": [
       {
@@ -401,7 +471,7 @@
           {
             "id": "visualizeYourResources",
             "title": "Visualize your resources",
-            "description": "The Visualizer gives you a representation of the resources in your Bicep file.\n[Open Visualizer](command:bicep.showVisualizerToSide)",
+            "description": "The Visualizer gives you a representation of the resources in your Bicep file.\n[Open Visualizer](command:bicep.showVisualizerToSide?%7B%22walkthrough%22%3A%22true%22%7D)",
             "media": {
               "markdown": "media/walkthroughs/gettingStarted/4_Show_Visualizer.md"
             },
@@ -413,7 +483,7 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy)",
+            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
@@ -458,25 +528,25 @@
     "@types/cytoscape": "^3.14.19",
     "@types/fs-extra": "^9.0.13",
     "@types/jest": "^27.0.2",
-    "@types/mocha": "^9.1.0",
-    "@types/node": "^17.0.25",
-    "@types/react": "^18.0.5",
-    "@types/react-dom": "^18.0.1",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^17.0.33",
+    "@types/react": "^18.0.8",
+    "@types/react-dom": "^18.0.2",
     "@types/react-test-renderer": "^18.0.0",
     "@types/semver": "^7.3.9",
     "@types/styled-components": "^5.1.25",
     "@types/triple-beam": "^1.3.2",
     "@types/vscode": "^1.52.0",
     "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^5.20.0",
-    "@typescript-eslint/parser": "^5.20.0",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.23.0",
     "@vscode/test-electron": "^2.1.3",
     "copy-webpack-plugin": "^10.2.4",
     "esbuild-loader": "^2.16.0",
-    "eslint": "^8.13.0",
+    "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^26.1.4",
+    "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
     "fork-ts-checker-webpack-plugin": "^7.2.6",
@@ -485,14 +555,14 @@
     "ncp": "^2.0.0",
     "nerdbank-gitversioning": "^3.4.244",
     "prettier": "^2.6.2",
-    "react-test-renderer": "^18.0.0",
+    "react-test-renderer": "^18.1.0",
     "rimraf": "^3.0.2",
     "semver": "^7.3.7",
     "svg-inline-loader": "^0.8.2",
     "terser-webpack-plugin": "5.3.1",
     "ts-jest": "^27.1.4",
     "ts-node": "^10.7.0",
-    "typescript": "^4.6.3",
+    "typescript": "^4.6.4",
     "vsce": "^2.7.0",
     "webpack": "^5.72.0",
     "webpack-cli": "^4.8.0"
@@ -502,13 +572,13 @@
     "@azure/arm-resources": "^5.0.1",
     "@azure/arm-subscriptions": "^5.0.0",
     "@azure/identity": "^2.0.4",
-    "@microsoft/vscode-azext-azureutils": "^0.2.0",
-    "@microsoft/vscode-azext-utils": "^0.2.0",
+    "@microsoft/vscode-azext-azureutils": "^0.3.0",
+    "@microsoft/vscode-azext-utils": "0.3.0",
     "cytoscape": "^3.21.1",
     "cytoscape-elk": "^2.0.2",
     "fs-extra": "^10.1.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0",
+    "react-dom": "^18.1.0",
     "react-icons": "^4.3.1",
     "styled-components": "^5.3.5",
     "triple-beam": "^1.3.0",

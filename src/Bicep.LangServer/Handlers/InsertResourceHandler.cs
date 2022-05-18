@@ -281,16 +281,9 @@ namespace Bicep.LanguageServer.Handlers
                 case JsonValueKind.String:
                     return SyntaxFactory.CreateStringLiteral(element.GetString()!);
                 case JsonValueKind.Number:
-                    if (element.TryGetInt64(out var intValue))
+                    if (element.TryGetInt64(out long intValue))
                     {
-                        if (intValue >= 0)
-                        {
-                            return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
-                        }
-                        else
-                        {
-                            return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
-                        }
+                        return SyntaxFactory.CreatePositiveOrNegativeInteger(intValue);
                     }
                     return SyntaxFactory.CreateStringLiteral(element.ToString()!);
                 case JsonValueKind.True:

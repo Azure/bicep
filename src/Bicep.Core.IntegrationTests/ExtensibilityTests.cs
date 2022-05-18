@@ -301,7 +301,7 @@ Hello from Bicep!"));
     ""_generator"": {
       ""name"": ""bicep"",
       ""version"": ""dev"",
-      ""templateHash"": ""4434568493241081408""
+      ""templateHash"": ""102018899127935696""
     }
   },
   ""parameters"": {
@@ -343,13 +343,16 @@ Hello from Bicep!"));
             ""_generator"": {
               ""name"": ""bicep"",
               ""version"": ""dev"",
-              ""templateHash"": ""10447496472055117853""
+              ""templateHash"": ""16652946131126277045""
             }
           },
           ""parameters"": {
             ""connectionString"": {
               ""type"": ""secureString""
             }
+          },
+          ""variables"": {
+            ""$fxv#0"": ""\nHello from Bicep!""            
           },
           ""imports"": {
             ""stg"": {
@@ -374,7 +377,7 @@ Hello from Bicep!"));
               ""properties"": {
                 ""name"": ""blob.txt"",
                 ""containerName"": ""[reference('container').name]"",
-                ""base64Content"": ""[base64('\nHello from Bicep!')]""
+                ""base64Content"": ""[base64(variables('$fxv#0'))]""
               },
               ""dependsOn"": [
                 ""container""

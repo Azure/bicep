@@ -19,6 +19,7 @@ namespace Bicep.LanguageServer.Telemetry
 
             public const string DeployResult = "deploy/result";
             public const string DeployStart = "deploy/start";
+            public const string DeployStartResult = "deploy/startresult";
             public const string DisableNextLineDiagnostics = "diagnostics/disablenextline";
             public const string EditLinterRule = "diagnostics/editLinterRule";
 

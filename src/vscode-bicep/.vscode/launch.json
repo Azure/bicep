@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Launch Extension",
+      "name": "Launch Extension (dev)",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
@@ -75,7 +75,7 @@
       }
     },
     {
-      "name": "Launch Tests: E2E (development)",
+      "name": "Launch Tests: E2E (dev)",
       "type": "extensionHost",
       "request": "launch",
       "args": [
@@ -88,6 +88,52 @@
       "env": {
         "BICEP_LANGUAGE_SERVER_PATH": "${workspaceRoot}/../Bicep.LangServer/bin/Debug/net6.0/Bicep.LangServer.dll",
         "TEST_MODE": "e2e"
+      }
+    },
+    {
+      "name": "Launch Tests: Unit Tests (dev)",
+      "type": "extensionHost",
+      "request": "launch",
+      "args": [
+        "--enable-proposed-api",
+        "--extensionDevelopmentPath=${workspaceFolder}",
+        "--extensionTestsPath=${workspaceFolder}/out/test/unit/index"
+      ],
+      "outFiles": [
+        "${workspaceRoot}/out/test/unit/**/*.js"
+      ],
+      "preLaunchTask": "build:unit:dev",
+      "env": {}
+    },
+    {
+      "name": "Launch Tests: Unit Tests",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "--config",
+        "jest.config.unit.js",
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
+    {
+      "name": "Launch Tests: Unit Tests: Current File",
+      "type": "node",
+      "request": "launch",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": [
+        "${fileBasenameNoExtension}",
+        "--config",
+        "jest.config.unit.js",
+        "--coverage=false"
+      ],
+      "console": "integratedTerminal",
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
       }
     }
   ]

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -58,6 +58,34 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, null);
             var expected = workspaceFolders[0];
+
+            actual.Should().Be(expected);
+        }
+
+        [TestMethod]
+        public void SingleWorkspaceFolder_CurrentFileUnsaved_ShouldReturnFirstWorkspaceFolder()
+        {
+            string[] workspaceFolders = new string[]
+            {
+                Environment.CurrentDirectory,
+                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
+            };
+
+            var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, "Untitled-1");
+            var expected = Environment.CurrentDirectory;
+
+            actual.Should().Be(expected);
+        }
+
+        [TestMethod]
+        public void NoWorkspaceFolder_CurrentFileUnsaved_ShouldReturnProfileFolder()
+        {
+            string[] workspaceFolders = new string[]
+            {
+            };
+
+            var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation(workspaceFolders, "Untitled-1");
+            var expected = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
             actual.Should().Be(expected);
         }

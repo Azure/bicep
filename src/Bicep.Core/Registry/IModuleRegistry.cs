@@ -53,8 +53,17 @@ namespace Bicep.Core.Registry
         /// Downloads the specified modules from the registry and caches them locally.
         /// Returns a mapping of module references to error builders for modules that failed to be downloaded.
         /// </summary>
+        /// <param name="configuration">The configuration</param>
         /// <param name="references">module references</param>
         Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> RestoreModules(RootConfiguration configuration, IEnumerable<ModuleReference> references);
+
+       /// <summary>
+        /// Invalidate the specified cached modules from the registry.
+        /// Returns a mapping of module references to error builders for modules that failed to be invalidated.
+        /// </summary>
+        /// <param name="configuration">The configuration</param>
+        /// <param name="references">module references</param>
+        Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<ModuleReference> references);
 
         /// <summary>
         /// Publishes the module at the specified path to the registry.

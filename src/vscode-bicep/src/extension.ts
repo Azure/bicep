@@ -99,6 +99,7 @@ export async function activate(
         new GenerateParamsCommand(languageClient, outputChannelManager),
         new CreateBicepConfigurationFile(languageClient),
         new DeployCommand(languageClient, outputChannelManager, treeManager),
+        new ForceModulesRestoreCommand(languageClient, outputChannelManager),
         new InsertResourceCommand(languageClient),
         new ShowVisualizerCommand(viewManager),
         new ShowVisualizerToSideCommand(viewManager),
