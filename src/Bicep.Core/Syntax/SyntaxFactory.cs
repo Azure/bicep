@@ -149,13 +149,13 @@ namespace Bicep.Core.Syntax
         public static ExpressionSyntax CreatePositiveOrNegativeInteger(long intValue)
         {
             if (intValue >= 0)
-                        {
-                            return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
-                        }
-                        else
-                        {
-                            return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
-                        }
+            {
+                return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
+            }
+            else
+            {
+                return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
+            }
         }
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
