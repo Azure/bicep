@@ -146,6 +146,18 @@ namespace Bicep.Core.Syntax
 
         public static UnaryOperationSyntax CreateNegativeIntegerLiteral(ulong value) => new(MinusToken, CreateIntegerLiteral(value));
 
+        public static ExpressionSyntax CreatePositiveOrNegativeInteger(long intValue)
+        {
+            if (intValue >= 0)
+                        {
+                            return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
+                        }
+                        else
+                        {
+                            return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
+                        }
+        }
+
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
 
         public static BooleanLiteralSyntax CreateBooleanLiteral(bool value) => new(TrueKeywordToken, value);

@@ -615,14 +615,7 @@ namespace Bicep.Decompiler
 
         private static ExpressionSyntax ParseIntegerJToken(JValue value)
         {
-            var longValue = value.Value<long>();
-            if (longValue < 0)
-            {
-                return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)longValue);
-            } else
-            {
-                return SyntaxFactory.CreateIntegerLiteral((ulong)longValue);
-            }
+            return SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>());
         }
 
         private SyntaxBase ParseJValue(JValue value)
