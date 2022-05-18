@@ -72,6 +72,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepSemanticTokensHandler>()
                     .WithHandler<BicepTelemetryHandler>()
                     .WithHandler<BicepBuildCommandHandler>()
+                    .WithHandler<BicepGenerateParamsCommandHandler>()
                     .WithHandler<BicepDeployCommandHandler>()
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
