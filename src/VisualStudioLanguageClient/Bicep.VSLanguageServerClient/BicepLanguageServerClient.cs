@@ -4,83 +4,98 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.LanguageServer;
 using Bicep.VSLanguageServerClient.ContentType;
 using Bicep.VSLanguageServerClient.Helpers;
+using Bicep.VSLanguageServerClient.MiddleLayerProviders;
+using Bicep.VSLanguageServerClient.ProcessTracker;
+using Bicep.VSLanguageServerClient.Tracing;
 using Microsoft.VisualStudio.LanguageServer.Client;
 using Microsoft.VisualStudio.Threading;
 using Microsoft.VisualStudio.Utilities;
-using Nerdbank.Streams;
-using static Bicep.LanguageServer.Server;
+using StreamJsonRpc;
 
 namespace Bicep.VSLanguageServerClient
 {
     [Export(typeof(ILanguageClient))]
     [ContentType(BicepContentTypeDefinition.ContentType)]
-    public class BicepLanguageServerClient : ILanguageClient, IDisposable
+    public class BicepLanguageServerClient : ILanguageClient, ILanguageClientCustomMessage2
     {
-        private Server? _languageServer;
+        private readonly IProcessTracker _processTracker;
+        private readonly ILanguageClientMiddleLayer _middleLayer;
         private readonly IThreadingContext _threadingContext;
 
-        private Server LanguageServer
-        {
-            get
-            {
-                if (_languageServer is null)
-                {
-                    throw new InvalidOperationException($"{nameof(LanguageServer)} called before it's initialized");
-                }
-
-                return _languageServer;
-            }
-            set
-            {
-                _languageServer = value;
-            }
-        }
-
         [ImportingConstructor]
-        public BicepLanguageServerClient(
-            IThreadingContext threadingContext)
+        public BicepLanguageServerClient(IProcessTracker processTracker, IThreadingContext threadingContext)
         {
+            _processTracker = processTracker;
             _threadingContext = threadingContext;
+            _middleLayer = new AggregatingMiddleLayer(
+                new CodeActionMiddleLayer(),
+                new HoverMiddleLayer(),
+                new RemoveSnippetCompletionsMiddleLayer()); ;
         }
 
-        public string Name => "Bicep Language Server Client";
+        public string Name => "Bicep Language Server";
 
-        public IEnumerable<string>? ConfigurationSections => null;
+        // this is allowed to return null, but can't be marked nullabe due to signature
+        public virtual IEnumerable<string> ConfigurationSections => null!;
 
-        public object? InitializationOptions => null;
+        public virtual object InitializationOptions => new object();
 
-        public IEnumerable<string>? FilesToWatch => null;
+        public IEnumerable<string> FilesToWatch => Array.Empty<string>();
 
         public bool ShowNotificationOnInitializeFailed => true;
 
         public event AsyncEventHandler<EventArgs>? StartAsync;
-
-        public event AsyncEventHandler<EventArgs>? StopAsync
-        {
-            add { }
-            remove { }
-        }
+#pragma warning disable 0067
+        public event AsyncEventHandler<EventArgs>? StopAsync;
+#pragma warning restore 0067
 
         public async Task<Connection?> ActivateAsync(CancellationToken token)
         {
             await _threadingContext.JoinableTaskFactory.SwitchToMainThreadAsync(CancellationToken.None);
 
-            var (clientStream, serverStream) = FullDuplexStream.CreatePair();
+            ProcessStartInfo info = new ProcessStartInfo
+            {
+                FileName = "\"c:\\Users\\bhsubra\\AppData\\Roaming\\Code\\User\\globalStorage\\ms-dotnettools.vscode-dotnet-runtime\\.dotnet\\6.0.5\\dotnet.exe\" \"C:\\EnlistmentsNew\\bicep\\src\\Bicep.LangServer\\bin\\Debug\\net6.0\\Bicep.LangServer.dll\"",
+                //FileName = "\"C:\\EnlistmentsNew\\bicep\\src\\Bicep.LangServer\\bin\\Debug\\net6.0\\Bicep.LangServer.exe\"",
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
 
-            LanguageServer = new Server(new CreationOptions(), options => options.WithInput(clientStream).WithOutput(serverStream));
+            Process process = new Process()
+            {
+                StartInfo = info
+            };
 
-            var connection = new Connection(clientStream, clientStream);
-            return connection;
+            try
+            {
+                if (process.Start())
+                {
+                    _processTracker.AddProcess(process);
+                    Connection connection = new Connection(new EtwTeeStream(process.StandardOutput.BaseStream, Name),
+                        new EtwTeeStream(process.StandardInput.BaseStream, Name));
+
+                    return connection;
+                }
+            }
+            catch (Exception)
+            {
+                // TODO: log failure
+            }
+
+            return null;
         }
 
-        public Task OnLoadedAsync()
+        public async Task OnLoadedAsync()
         {
-            return StartAsync.InvokeAsync(this, EventArgs.Empty);
+            await StartAsync.InvokeAsync(this, EventArgs.Empty);
         }
 
         public Task OnServerInitializedAsync()
@@ -88,20 +103,18 @@ namespace Bicep.VSLanguageServerClient
             return Task.CompletedTask;
         }
 
-        public void Dispose()
-        {
-            LanguageServer.Dispose();
-        }
-
         public Task<InitializationFailureContext?> OnServerInitializeFailedAsync(ILanguageClientInitializationInfo initializationState)
         {
-            var initializationFailureContext = new InitializationFailureContext
-            {
-                // Localize
-                FailureMessage = string.Format("Language Server Initialization Failed",
-                    Name, initializationState.StatusMessage, initializationState.InitializationException?.ToString())
-            };
-            return Task.FromResult<InitializationFailureContext?>(initializationFailureContext);
+            return Task.FromResult<InitializationFailureContext?>(new InitializationFailureContext());
         }
+
+        public Task AttachForCustomMessageAsync(JsonRpc rpc)
+        {
+            return Task.CompletedTask;
+        }
+
+        public object MiddleLayer => _middleLayer;
+
+        public object CustomMessageTarget => null!;
     }
 }

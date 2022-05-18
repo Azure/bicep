@@ -56,5 +56,4 @@ namespace Bicep.VSLanguageServerClient.MiddleLayerProviders
             await sendNotification(methodParam);
         }
     }
-
 }

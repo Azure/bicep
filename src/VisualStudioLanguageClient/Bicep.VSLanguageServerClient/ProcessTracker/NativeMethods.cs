@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace Bicep.VSLanguageServerClient.ProcessTracker
 {
+#pragma warning disable 0649
 #pragma warning disable IDE1006 // Naming Styles
     /// <summary>
     /// Pinvoke and other win32 declarations.
@@ -217,6 +218,35 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// A <see cref="JOBOBJECT_BASIC_LIMIT_INFORMATION"/> structure that contains basic limit information.
         /// </summary>
         internal JOBOBJECT_BASIC_LIMIT_INFORMATION BasicLimitInformation;
+
+        /// <summary>
+        /// Reserved.
+        /// </summary>
+        internal IO_COUNTERS IoInfo;
+
+        /// <summary>
+        /// If the <see cref="JOBOBJECT_BASIC_LIMIT_INFORMATION.LimitFlags"/> member of the <see cref="JOBOBJECT_BASIC_LIMIT_INFORMATION"/> structure specifies the
+        /// <see cref="JOB_OBJECT_LIMIT_FLAGS.JOB_OBJECT_LIMIT_PROCESS_MEMORY"/> value, this member specifies the limit for the virtual memory that can be committed by a process.
+        /// Otherwise, this member is ignored.
+        /// </summary>
+        internal UIntPtr ProcessMemoryLimit;
+
+        /// <summary>
+        /// If the <see cref="JOBOBJECT_BASIC_LIMIT_INFORMATION.LimitFlags"/> member of the <see cref="JOBOBJECT_BASIC_LIMIT_INFORMATION"/> structure specifies the
+        /// <see cref="JOB_OBJECT_LIMIT_FLAGS.JOB_OBJECT_LIMIT_JOB_MEMORY"/> value,
+        /// this member specifies the limit for the virtual memory that can be committed for the job. Otherwise, this member is ignored.
+        /// </summary>
+        internal UIntPtr JobMemoryLimit;
+
+        /// <summary>
+        /// The peak memory used by any process ever associated with the job.
+        /// </summary>
+        internal UIntPtr PeakProcessMemoryUsed;
+
+        /// <summary>
+        /// The peak memory usage of all processes currently associated with the job.
+        /// </summary>
+        internal UIntPtr PeakJobMemoryUsed;
     }
 
     /// <summary>
@@ -225,9 +255,87 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
     internal struct JOBOBJECT_BASIC_LIMIT_INFORMATION
     {
         /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_PROCESS_TIME, this member is the per-process user-mode execution time limit, in 100-nanosecond ticks. Otherwise, this member is ignored.
+        /// </summary>
+        internal long PerProcessUserTimeLimit;
+
+        /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_JOB_TIME, this member is the per-job user-mode execution time limit, in 100-nanosecond ticks. Otherwise, this member is ignored.
+        /// </summary>
+        internal long PerJobUserTimeLimit;
+
+        /// <summary>
         /// The limit flags that are in effect. This member is a bitfield that determines whether other structure members are used.
         /// </summary>
         internal JOB_OBJECT_LIMIT_FLAGS LimitFlags;
+
+        /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_WORKINGSET, this member is the minimum working set size in bytes for each process associated with the job. Otherwise, this member is ignored.
+        /// </summary>
+        internal UIntPtr MinWorkingSetSize;
+
+        /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_WORKINGSET, this member is the maximum working set size in bytes for each process associated with the job. Otherwise, this member is ignored.
+        /// </summary>
+        internal UIntPtr MaxWorkingSetSize;
+
+        /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_ACTIVE_PROCESS, this member is the active process limit for the job. Otherwise, this member is ignored.
+        /// </summary>
+        internal uint ActiveProcessLimit;
+
+        /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_AFFINITY, this member is the processor affinity for all processes associated with the job. Otherwise, this member is ignored.
+        /// </summary>
+        internal UIntPtr Affinity;
+
+        /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_PRIORITY_CLASS, this member is the priority class for all processes associated with the job. Otherwise, this member is ignored.
+        /// </summary>
+        internal uint PriorityClass;
+
+        /// <summary>
+        /// If LimitFlags specifies JOB_OBJECT_LIMIT_SCHEDULING_CLASS, this member is the scheduling class for all processes associated with the job. Otherwise, this member is ignored.
+        /// </summary>
+        internal uint SchedulingClass;
+    }
+
+    /// <summary>
+    /// Contains I/O accounting information for a process or a job object.
+    /// For a job object, the counters include all operations performed by all processes that have ever been associated with the job,
+    /// in addition to all processes currently associated with the job.
+    /// </summary>
+    internal struct IO_COUNTERS
+    {
+        /// <summary>
+        /// The number of read operations performed.
+        /// </summary>
+        internal ulong ReadOperationCount;
+
+        /// <summary>
+        /// The number of write operations performed.
+        /// </summary>
+        internal ulong WriteOperationCount;
+
+        /// <summary>
+        /// The number of I/O operations performed, other than read and write operations.
+        /// </summary>
+        internal ulong OtherOperationCount;
+
+        /// <summary>
+        /// The number of bytes read.
+        /// </summary>
+        internal ulong ReadTransferCount;
+
+        /// <summary>
+        /// The number of bytes written.
+        /// </summary>
+        internal ulong WriteTransferCount;
+
+        /// <summary>
+        /// The number of bytes transferred during operations other than read and write operations.
+        /// </summary>
+        internal ulong OtherTransferCount;
     }
 
     /// <summary>
@@ -255,6 +363,11 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// Establishes a maximum number of simultaneously active processes associated with the job.
         /// </summary>
         JOB_OBJECT_LIMIT_ACTIVE_PROCESS = 0x8,
+
+        /// <summary>
+        /// Causes all processes associated with the job to use the same processor affinity.
+        /// </summary>
+        JOB_OBJECT_LIMIT_AFFINITY = 0x10,
 
         /// <summary>
         /// Causes all processes associated with the job to use the same priority class.
@@ -383,6 +496,6 @@ namespace Bicep.VSLanguageServerClient.ProcessTracker
         /// </summary>
         JobObjectLimitViolationInformation2 = 35,
     }
-
+#pragma warning restore 649
 #pragma warning restore IDE1006 // Naming Styles
 }

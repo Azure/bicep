@@ -10,11 +10,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Reference Include="C:\EnlistmentsNew\bicep\src\Bicep.Core\bin\Debug\net6.0\Azure.Bicep.Core.dll" />
-		<Reference Include="C:\EnlistmentsNew\bicep\src\Bicep.LangServer\bin\Debug\net6.0\Bicep.LangServer.dll" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Microsoft.VisualStudio.Composition" Version="17.2.41" />
 		<PackageReference Include="Microsoft.VisualStudio.CoreUtility" Version="17.2.3194" />
 		<PackageReference Include="Microsoft.VisualStudio.LanguageServer.Client" Version="17.2.2105" />
