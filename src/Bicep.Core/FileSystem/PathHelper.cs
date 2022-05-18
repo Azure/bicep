@@ -73,7 +73,7 @@ namespace Bicep.Core.FileSystem
 
             var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(path);
 
-            var outputPath = $"{pathWithoutFileName}{Path.DirectorySeparatorChar}{fileNameWithoutExtension}-parameters.json";
+            var outputPath = $"{pathWithoutFileName}{Path.DirectorySeparatorChar}{fileNameWithoutExtension}.parameters.json";
 
             return outputPath;
         }
