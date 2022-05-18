@@ -12,6 +12,7 @@ import {
   BuildCommand,
   CommandManager,
   DeployCommand,
+  GenerateParamsCommand,
   InsertResourceCommand,
   ShowSourceCommand,
   ShowVisualizerCommand,
@@ -95,6 +96,7 @@ export async function activate(
       .register(new CommandManager(context))
       .registerCommands(
         new BuildCommand(languageClient, outputChannelManager),
+        new GenerateParamsCommand(languageClient, outputChannelManager),
         new CreateBicepConfigurationFile(languageClient),
         new DeployCommand(languageClient, outputChannelManager, treeManager),
         new InsertResourceCommand(languageClient),
