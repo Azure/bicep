@@ -16,6 +16,7 @@
       "newText": "description($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -33,6 +34,7 @@
       "newText": "sys."
     },
     "command": {
+      "title": "symbol completion",
       "command": "editor.action.triggerSuggest"
     }
   }
