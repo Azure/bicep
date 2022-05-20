@@ -141,15 +141,21 @@ namespace Bicep.LanguageServer.Handlers
 
         private static Task<LocationOrLocationLinks> HandleDeclaredDefinitionLocationAsync(DefinitionParams request, SymbolResolutionResult result, DeclaredSymbol declaration)
         {
+            var range = new Range()
+            {
+                Start = request.Position,
+                End = request.Position
+            };
+
             return Task.FromResult(new LocationOrLocationLinks(new LocationOrLocationLink(new LocationLink
             {
                 // source of the link. Underline only the symbolic name
-                OriginSelectionRange = (result.Origin is ITopLevelNamedDeclarationSyntax named ? named.Name : result.Origin).ToRange(result.Context.LineStarts),
+                OriginSelectionRange = range,
                 TargetUri = request.TextDocument.Uri,
 
-                // entire span of the declaredSymbol
-                TargetRange = declaration.DeclaringSyntax.ToRange(result.Context.LineStarts),
-                TargetSelectionRange = declaration.NameSyntax.ToRange(result.Context.LineStarts)
+            // entire span of the declaredSymbol
+            TargetRange = range,
+            TargetSelectionRange = range
             })));
         }
 

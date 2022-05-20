@@ -42,10 +42,16 @@ namespace Bicep.LanguageServer.Handlers
                 return Task.FromResult<Hover?>(null);
             }
 
+            var range = new Range()
+            {
+                Start = request.Position,
+                End = request.Position
+            };
+
             return Task.FromResult<Hover?>(new Hover
             {
                 Contents = markdown,
-                Range = PositionHelper.GetNameRange(result.Context.LineStarts, result.Origin)
+                Range = range
             });
         }
 

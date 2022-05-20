@@ -34,7 +34,7 @@ namespace Bicep.VSLanguageServerClient
             _threadingContext = threadingContext;
             _middleLayer = new AggregatingMiddleLayer(
                 new CodeActionMiddleLayer(),
-                new HoverMiddleLayer(),
+                //new HoverMiddleLayer(),
                 new RemoveSnippetCompletionsMiddleLayer()); ;
         }
 
