@@ -3,6 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <RootNamespace>Bicep.LanguageServer</RootNamespace>
+	<EnableNuget>true</EnableNuget>
+	<PackageTags>Azure;ResourceManager;ARM;Deployments;Templates;Bicep</PackageTags>
+	<Description>Bicep language server</Description>
   </PropertyGroup>
 
   <ItemGroup>

@@ -372,7 +372,7 @@ namespace Bicep.LanguageServer.Completions
                         context.ReplacementRange,
                         CompletionItemKind.Folder,
                         CompletionPriority.Low)
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "module path completion" })
                     .Build());
 
             return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
@@ -1196,7 +1196,7 @@ namespace Bicep.LanguageServer.Completions
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
                     .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "resource type completion" })
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
@@ -1304,7 +1304,7 @@ namespace Bicep.LanguageServer.Completions
                 if (hasParameters)
                 {
                     // if parameters may need to be specified, automatically request signature help
-                    completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp });
+                    completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp, Title = "signature help" });
                 }
 
                 ImmutableArray<FunctionOverload> overloads = function.Overloads;
@@ -1329,7 +1329,7 @@ namespace Bicep.LanguageServer.Completions
                 return completion
                     .WithDetail(insertText)
                     .WithPlainTextEdit(replacementRange, insertText + ".")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "symbol completion" })
                     .Build();
             }
 

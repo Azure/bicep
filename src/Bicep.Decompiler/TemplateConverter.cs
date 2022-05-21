@@ -613,10 +613,9 @@ namespace Bicep.Decompiler
             }
         }
 
-        private static IntegerLiteralSyntax ParseIntegerJToken(JValue value)
+        private static ExpressionSyntax ParseIntegerJToken(JValue value)
         {
-            var ulongValue = value.Value<ulong>();
-            return SyntaxFactory.CreateIntegerLiteral(ulongValue);
+            return SyntaxFactory.CreatePositiveOrNegativeInteger(value.Value<long>());
         }
 
         private SyntaxBase ParseJValue(JValue value)
@@ -990,7 +989,7 @@ namespace Bicep.Decompiler
             return (bodySyntax, decoratorAndNewLines);
         }
 
-        private static IntegerLiteralSyntax ParseBatchSize(JToken? batchSize, JObject resource)
+        private static ExpressionSyntax ParseBatchSize(JToken? batchSize, JObject resource)
         {
             if (batchSize is null)
             {

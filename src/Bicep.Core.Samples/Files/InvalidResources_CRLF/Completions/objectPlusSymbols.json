@@ -16,6 +16,7 @@
       "newText": "any($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -155,6 +156,7 @@
       "newText": "array($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -206,6 +208,7 @@
       "newText": "az."
     },
     "command": {
+      "title": "symbol completion",
       "command": "editor.action.triggerSuggest"
     }
   },
@@ -345,6 +348,7 @@
       "newText": "base64($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -365,6 +369,7 @@
       "newText": "base64ToJson($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -385,6 +390,7 @@
       "newText": "base64ToString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -422,6 +428,7 @@
       "newText": "bool($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -459,6 +466,7 @@
       "newText": "coalesce($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -615,6 +623,7 @@
       "newText": "concat($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -635,6 +644,7 @@
       "newText": "contains($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -754,6 +764,7 @@
       "newText": "dataUri($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -774,6 +785,7 @@
       "newText": "dataUriToString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -794,6 +806,7 @@
       "newText": "dateTimeAdd($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -814,6 +827,7 @@
       "newText": "dateTimeFromEpoch($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -834,6 +848,7 @@
       "newText": "dateTimeToEpoch($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -1799,6 +1814,7 @@
       "newText": "empty($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -1833,6 +1849,7 @@
       "newText": "endsWith($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2275,6 +2292,7 @@
       "newText": "extensionResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2295,6 +2313,7 @@
       "newText": "first($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2349,6 +2368,7 @@
       "newText": "format($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2369,6 +2389,7 @@
       "newText": "guid($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2420,6 +2441,7 @@
       "newText": "indexOf($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2440,6 +2462,7 @@
       "newText": "int($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2474,6 +2497,7 @@
       "newText": "intersection($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2833,6 +2857,7 @@
       "newText": "items($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2853,6 +2878,7 @@
       "newText": "json($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2873,6 +2899,7 @@
       "newText": "last($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2893,6 +2920,7 @@
       "newText": "lastIndexOf($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2913,6 +2941,7 @@
       "newText": "length($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -2961,6 +2990,7 @@
       "newText": "loadFileAsBase64($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -3001,6 +3031,7 @@
       "newText": "loadTextContent($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -3134,6 +3165,7 @@
       "newText": "managementGroup($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -3154,6 +3186,7 @@
       "newText": "managementGroupResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -3174,6 +3207,7 @@
       "newText": "max($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -3194,6 +3228,7 @@
       "newText": "min($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4350,6 +4385,7 @@
       "newText": "padLeft($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4370,6 +4406,7 @@
       "newText": "pickZones($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4441,6 +4478,7 @@
       "newText": "providers($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4461,6 +4499,7 @@
       "newText": "range($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4498,6 +4537,7 @@
       "newText": "reference($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4518,6 +4558,7 @@
       "newText": "replace($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4538,6 +4579,7 @@
       "newText": "resourceGroup($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -4558,6 +4600,7 @@
       "newText": "resourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5253,6 +5296,7 @@
       "newText": "skip($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5273,6 +5317,7 @@
       "newText": "split($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5327,6 +5372,7 @@
       "newText": "startsWith($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5347,6 +5393,7 @@
       "newText": "string($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5384,6 +5431,7 @@
       "newText": "subscription($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5404,6 +5452,7 @@
       "newText": "subscriptionResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5424,6 +5473,7 @@
       "newText": "substring($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5441,6 +5491,7 @@
       "newText": "sys."
     },
     "command": {
+      "title": "symbol completion",
       "command": "editor.action.triggerSuggest"
     }
   },
@@ -5475,6 +5526,7 @@
       "newText": "take($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5529,6 +5581,7 @@
       "newText": "tenantResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5549,6 +5602,7 @@
       "newText": "toLower($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5569,6 +5623,7 @@
       "newText": "toUpper($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5606,6 +5661,7 @@
       "newText": "trim($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5643,6 +5699,7 @@
       "newText": "union($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5663,6 +5720,7 @@
       "newText": "uniqueString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5683,6 +5741,7 @@
       "newText": "uri($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5703,6 +5762,7 @@
       "newText": "uriComponent($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -5723,6 +5783,7 @@
       "newText": "uriComponentToString($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
