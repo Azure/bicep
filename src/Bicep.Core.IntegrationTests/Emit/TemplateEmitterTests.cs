@@ -53,7 +53,7 @@ namespace Bicep.Core.IntegrationTests.Emit
                 sourceFileGrouping = SourceFileGroupingBuilder.Rebuild(dispatcher, workspace, sourceFileGrouping, configuration);
             }
 
-            var result = this.EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettings, compiledFilePath);
+            var result = EmitTemplate(sourceFileGrouping, BicepTestConstants.EmitterSettings, compiledFilePath);
             result.Diagnostics.Should().NotHaveErrors();
             result.Status.Should().Be(EmitStatus.Succeeded);
 
@@ -66,14 +66,6 @@ namespace Bicep.Core.IntegrationTests.Emit
                 expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainCompiled),
                 actualLocation: compiledFilePath);
 
-            var actualSourceMapJson = JToken.FromObject(result.SourceMap!);
-
-            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.SourceMap!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualLocation: sourceMapFilePath);
-
             // validate that the template is parseable by the deployment engine
             TemplateHelper.TemplateShouldBeValid(outputFile);
 
@@ -88,27 +80,6 @@ namespace Bicep.Core.IntegrationTests.Emit
 
             // validate that the template is parseable by the deployment engine
             TemplateHelper.TemplateShouldBeValid(outputFile);
-
-            // validate source map
-            var actualSourceMapJson = JToken.FromObject(result.SourceMap!);
-
-            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.SourceMap!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualLocation: sourceMapFilePath);
-
-            // validate that the template is parseable by the deployment engine
-            TemplateHelper.TemplateShouldBeValid(outputFile);
-
-            // validate source map
-            var actualSourceMapJson = JToken.FromObject(result.SourceMap!);
-
-            actualSourceMapJson.Should().EqualWithJsonDiffOutput(
-                TestContext,
-                JToken.Parse(dataSet.SourceMap!),
-                expectedLocation: DataSet.GetBaselineUpdatePath(dataSet, DataSet.TestFileMainSourceMap),
-                actualLocation: sourceMapFilePath);
         }
 
         [DataTestMethod]

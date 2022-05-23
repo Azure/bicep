@@ -28,6 +28,7 @@ namespace Bicep.Core.Emit
                 throw new ArgumentNullException(nameof(rawSourceMap));
             }
 
+            var bicepFileName = Path.GetFileName(bicepFile.FileUri.AbsolutePath);
             (int bicepLine, _) = TextCoordinateConverter.GetPosition(bicepFile.LineStarts, bicepSyntax.GetPosition());
 
             // account for leading nodes (decorators)
@@ -45,6 +46,7 @@ namespace Bicep.Core.Emit
             var jsonEndPos = jsonWriter.CurrentPos - 1;
 
             rawSourceMap.AddMapping(
+                bicepFileName,
                 bicepLine,
                 jsonStartPos,
                 jsonEndPos);
@@ -61,6 +63,7 @@ namespace Bicep.Core.Emit
                     lineKvp.Value.ForEach(mapping =>
                     {
                         parentSourceMap.AddMapping(
+                            fileKvp.Key,
                             lineKvp.Key,
                             mapping.start + offset,
                             mapping.end + offset);
@@ -74,12 +77,17 @@ namespace Bicep.Core.Emit
             int jsonStartPos,
             int jsonEndPos)
         {
+            if (!rawSourceMap.ContainsKey(bicepFileName))
             {
+                rawSourceMap[bicepFileName] = new Dictionary<int, IList<(int, int)>>();
             }
 
+            if (!rawSourceMap[bicepFileName].ContainsKey(bicepLine))
             {
+                rawSourceMap[bicepFileName][bicepLine] = new List<(int, int)>();
             }
 
+            rawSourceMap[bicepFileName][bicepLine].Add((jsonStartPos, jsonEndPos));
         }
     }
 }
