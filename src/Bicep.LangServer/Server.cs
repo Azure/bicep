@@ -75,6 +75,7 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepDeploymentStartCommandHandler>()
                     .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>()
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
+                    .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()
