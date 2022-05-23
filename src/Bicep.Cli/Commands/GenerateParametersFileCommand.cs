@@ -65,5 +65,7 @@ namespace Bicep.Cli.Commands
             // return non-zero exit code on errors
             return diagnosticLogger.ErrorCount > 0 ? 1 : 0;
         }
+
+        private bool IsBicepFile(string inputPath) => PathHelper.HasBicepExtension(PathHelper.FilePathToFileUrl(inputPath));
     }
 }
