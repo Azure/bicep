@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Semantics;
+using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -48,7 +49,27 @@ namespace Bicep.Core.Emit
 
             this.EmitMetadata(jsonWriter, emitter);
 
-            this.EmitParametersIfPresent(jsonWriter, emitter);
+            if (this.context.SemanticModel.Root.ParameterDeclarations.Length > 0)
+            {
+                jsonWriter.WritePropertyName("parameters");
+                jsonWriter.WriteStartObject();
+
+                foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
+                {
+                    jsonWriter.WritePropertyName(parameterSymbol.Name);
+
+                    jsonWriter.WriteStartObject();
+
+                    if (parameterSymbol.DeclaringParameter.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
+                    {
+                        emitter.EmitProperty("value", defaultValueSyntax.DefaultValue);
+                    }
+
+                    jsonWriter.WriteEndObject();
+                }
+
+                jsonWriter.WriteEndObject();
+            }
 
             jsonWriter.WriteEndObject();
 
