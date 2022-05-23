@@ -69,6 +69,8 @@ namespace Bicep.Core.Emit
 
             var emitter = new TemplateWriter(this.model, this.settings);
             emitter.Write(writer);
+            writer.Flush();
+
             this.sourceMap = emitter.SourceMap;
         });
 
