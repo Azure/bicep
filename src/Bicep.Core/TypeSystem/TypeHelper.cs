@@ -67,11 +67,6 @@ namespace Bicep.Core.TypeSystem
             }
 
             IEnumerable<ITypeReference> intermediateMembers = flattenedMembers;
-            if (flattenedMembers.Any(member => member.Type == LanguageConstants.String))
-            {
-                // the union has the base "string" type, so we can drop all string literal types from it
-                intermediateMembers = intermediateMembers.Where(member => member.Type is not StringLiteralType);
-            }
 
             if (flattenedMembers.Any(member => member.Type == LanguageConstants.Array))
             {
