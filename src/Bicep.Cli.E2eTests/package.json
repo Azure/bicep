@@ -6,7 +6,7 @@
     "@types/jest": "^27.4.1",
     "@types/rimraf": "^3.0.2",
     "@types/uuid": "^8.3.4",
-    "@typescript-eslint/eslint-plugin": "^5.23.0",
+    "@typescript-eslint/eslint-plugin": "^5.26.0",
     "@typescript-eslint/parser": "^5.23.0",
     "cross-spawn": "^7.0.3",
     "eslint": "^8.15.0",
