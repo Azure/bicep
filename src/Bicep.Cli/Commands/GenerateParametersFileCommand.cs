@@ -46,6 +46,12 @@ namespace Bicep.Cli.Commands
                 logger.LogWarning(CliResources.ResourceTypesDisclaimerMessage);
             }
 
+            if (!IsBicepFile(inputPath))
+            {
+                logger.LogError(CliResources.UnrecognizedFileExtensionMessage, inputPath);
+                return 1;
+            }
+
             var compilation = await compilationService.CompileAsync(inputPath, args.NoRestore);
 
             if (diagnosticLogger.ErrorCount < 1)
