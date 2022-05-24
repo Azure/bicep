@@ -40,6 +40,8 @@ namespace Bicep.Core.Emit
             }
         }
 
+        private readonly PositionTrackingTextWriter _trackingWriter;
+
         public int CurrentPos => _trackingWriter.CurrentPos;
         public List<int> CommaPositions => _trackingWriter.CommaPositions;
         
@@ -49,11 +51,6 @@ namespace Bicep.Core.Emit
         {
             var trackingWriter = new PositionTrackingTextWriter(textWriter);
             return new PositionTrackingJsonTextWriter(trackingWriter);
-        }
-
-        private PositionTrackingJsonTextWriter(PositionTrackingTextWriter textWriter) : base(textWriter)
-        {
-            _trackingWriter = textWriter;
         }
     }
 }
