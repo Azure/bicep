@@ -39,7 +39,7 @@ namespace Bicep.Core.Emit
         }
 
         public int CurrentPos => _trackingWriter.CurrentPos;
-        public List<int> CommaPositions => _trackingWriter.CommaPositions;
+        public IReadOnlyList<int> CommaPositions => _trackingWriter.CommaPositions.AsReadOnly();
 
         private readonly PositionTrackingTextWriter _trackingWriter;
 
