@@ -80,6 +80,18 @@ export interface BicepDeploymentWaitForCompletionParams {
   documentPath: string;
 }
 
+export interface BicepUpdatedDeploymentParameter {
+  name: string;
+  value?: string;
+  isMissingParam: boolean;
+  showDefaultValue: boolean;
+}
+
+export interface BicepDeploymentParametersResponse {
+  bicepUpdatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
+  errorMessage?: string;
+}
+
 export interface BicepCacheResponse {
   content: string;
 }

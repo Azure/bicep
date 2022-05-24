@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer.Handlers;
@@ -48,7 +49,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.Should().BeEmpty();
+            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -80,7 +82,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.Should().BeEmpty();
+            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -126,11 +129,9 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
 
-            var updatedDeploymentParameters = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            updatedDeploymentParameters.Should().NotBeEmpty();
-
-            updatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
@@ -145,6 +146,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.isMissingParam.Should().BeFalse();
                     updatedParam.showDefaultValue.Should().BeTrue();
                 });
+            expected.errorMessage.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -192,11 +194,9 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
 
-            var updatedDeploymentParameters = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
-            updatedDeploymentParameters.Should().NotBeEmpty();
-
-            updatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
@@ -204,6 +204,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.isMissingParam.Should().BeFalse();
                     updatedParam.showDefaultValue.Should().BeTrue();
                 });
+            expected.errorMessage.Should().BeEmpty();
         }
 
         [TestMethod]
@@ -245,11 +246,9 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
 
-            var updatedDeploymentParameters = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            updatedDeploymentParameters.Should().NotBeEmpty();
-
-            updatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
@@ -264,10 +263,11 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.isMissingParam.Should().BeTrue();
                     updatedParam.showDefaultValue.Should().BeFalse();
                 });
+            expected.errorMessage.Should().BeEmpty();
         }
 
         [TestMethod]
-        public async Task Handle_ParameterWithDefaultValueAndInParametersFile_ShouldIgnoreParameter()
+        public async Task Handle_ParameterWithDefaultValueAndEntryInParametersFile_ShouldIgnoreParameter()
         {
             var bicepFileContents = @"param name string = 'test'
 param location string = 'eastus'
@@ -311,11 +311,9 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
             var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
 
-            var updatedDeploymentParameters = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
-            updatedDeploymentParameters.Should().NotBeEmpty();
-
-            updatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
@@ -323,6 +321,160 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.isMissingParam.Should().BeFalse();
                     updatedParam.showDefaultValue.Should().BeTrue();
                 });
+            expected.errorMessage.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task Handle_WithParameterOfTypeObjectAndDefaultValue_ShouldReturnEmptyListOfUpdatedDeploymentParameters()
+        {
+            var bicepFileContents = @"resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@2018-11-01-preview' = {
+  name: 'name/policyArtifact'
+  kind: 'policyAssignment'
+  properties: testProperties
+}
+param testProperties object = {
+  displayName: 'Blocked Resource Types policy definition'
+  description: 'Block certain resource types'
+}";
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.6.44.5715"",
+      ""templateHash"": ""15862569082920623108""
+    }
+  },
+  ""parameters"": {
+    ""testProperties"": {
+      ""type"": ""object"",
+      ""defaultValue"": {
+        ""displayName"": ""Blocked Resource Types policy definition"",
+        ""description"": ""Block certain resource types""
+      }
+    }
+  },
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Blueprint/blueprints/artifacts"",
+      ""apiVersion"": ""2018-11-01-preview"",
+      ""name"": ""name/policyArtifact"",
+      ""kind"": ""policyAssignment"",
+      ""properties"": ""[parameters('testProperties')]""
+    }
+  ]
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+
+            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task Handle_WithParameterOfTypeArrayAndDefaultValue_ShouldReturnEmptyListOfUpdatedDeploymentParameters()
+        {
+            var bicepFileContents = @"resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@2018-11-01-preview' = {
+  name: 'name/policyArtifact'
+  kind: 'policyAssignment'
+  allowedOrigins: allowedOrigins
+}
+param allowedOrigins array = [
+  'https://foo.com'
+  'https://bar.com'
+]";
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.6.44.5715"",
+      ""templateHash"": ""15862569082920623108""
+    }
+  },
+  ""parameters"": {
+    ""testProperties"": {
+      ""type"": ""object"",
+      ""defaultValue"": {
+        ""displayName"": ""Blocked Resource Types policy definition"",
+        ""description"": ""Block certain resource types""
+      }
+    }
+  },
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Blueprint/blueprints/artifacts"",
+      ""apiVersion"": ""2018-11-01-preview"",
+      ""name"": ""name/policyArtifact"",
+      ""kind"": ""policyAssignment"",
+      ""properties"": ""[parameters('testProperties')]""
+    }
+  ]
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+
+            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public async Task Handle_WithParameterOfTypeObjectAndNoDefaultValue_ShouldReturnUpdatedDeploymentParameterWithShowDefaultSetToFalse()
+        {
+            var bicepFileContents = @"resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@2018-11-01-preview' = {
+  name: 'name/policyArtifact'
+  kind: 'policyAssignment'
+  properties: testProperties
+}
+param testProperties object";
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.6.44.5715"",
+      ""templateHash"": ""15862569082920623108""
+    }
+  },
+  ""parameters"": {
+    ""testProperties"": {
+      ""type"": ""object"",
+      ""defaultValue"": {
+        ""displayName"": ""Blocked Resource Types policy definition"",
+        ""description"": ""Block certain resource types""
+      }
+    }
+  },
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Blueprint/blueprints/artifacts"",
+      ""apiVersion"": ""2018-11-01-preview"",
+      ""name"": ""name/policyArtifact"",
+      ""kind"": ""policyAssignment"",
+      ""properties"": ""[parameters('testProperties')]""
+    }
+  ]
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+
+            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeEquivalentToIgnoringNewlines("Following parameters of type object should either contain a default value in bicep file or must be specified in parameters.json file: testProperties");
         }
     }
 }

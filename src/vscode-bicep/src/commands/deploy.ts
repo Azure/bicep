@@ -28,8 +28,11 @@ import {
   BicepDeploymentWaitForCompletionParams,
   BicepDeploymentStartParams,
   BicepDeploymentStartResponse,
+  BicepUpdatedDeploymentParameter,
+  BicepDeploymentParametersResponse,
 } from "../language";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import fs from "fs";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -330,6 +333,14 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
+      const [updateParameterFile, updatedParamsWithValues] =
+        await this.handleMissingAndDefaultParams(
+          context,
+          documentPath,
+          parameterFilePath,
+          template
+        );
+
       const deploymentStartParams: BicepDeploymentStartParams = {
         documentPath,
         parameterFilePath,
@@ -425,6 +436,151 @@ export class DeployCommand implements Command {
     }
 
     return undefined;
+  }
+
+  private async handleMissingAndDefaultParams(
+    _context: IActionContext,
+    documentPath: string | undefined,
+    parameterFilePath: string | undefined,
+    template: string | undefined
+  ): Promise<[boolean, BicepUpdatedDeploymentParameter[]]> {
+    const bicepDeploymentParametersResponse: BicepDeploymentParametersResponse =
+      await this.client.sendRequest("workspace/executeCommand", {
+        command: "getDeploymentParameters",
+        arguments: [documentPath, parameterFilePath, template],
+      });
+
+    if (bicepDeploymentParametersResponse.errorMessage) {
+      throw new Error(bicepDeploymentParametersResponse.errorMessage);
+    }
+
+    const updatedParamsWithValues: BicepUpdatedDeploymentParameter[] = [];
+    let showUpdateParametersFileInformationMessage = false;
+    let updateParametersFile = false;
+
+    for (const deployParam of bicepDeploymentParametersResponse.bicepUpdatedDeploymentParameters) {
+      const paramName = deployParam.name;
+      if (deployParam.isMissingParam) {
+        showUpdateParametersFileInformationMessage = true;
+        const missingParamValue = await vscode.window.showInputBox({
+          placeHolder: "Please enter value for param: " + paramName,
+          title: "Please enter value for missing parameter: " + paramName,
+        });
+
+        const updatedParam: BicepUpdatedDeploymentParameter = {
+          name: paramName,
+          value: missingParamValue,
+          isMissingParam: true,
+          showDefaultValue: deployParam.showDefaultValue,
+        };
+        updatedParamsWithValues.push(updatedParam);
+      } else {
+        let options: vscode.InputBoxOptions;
+        if (deployParam.showDefaultValue) {
+          options = {
+            title:
+              "Please update the default value for parameter: " + paramName,
+            prompt: "Press enter to select the default value",
+            value: deployParam.value,
+            placeHolder: "Please enter value for param: " + paramName,
+          };
+        } else {
+          options = {
+            title:
+              "Please update the default value for parameter: " + paramName,
+            prompt: "Press enter to select the default value",
+            value: deployParam.value,
+            placeHolder: "Please enter value for param: " + paramName,
+          };
+        }
+        const defaultParamValue = await vscode.window.showInputBox(options);
+        const updatedParam: BicepUpdatedDeploymentParameter = {
+          name: paramName,
+          value: defaultParamValue,
+          isMissingParam: true,
+          showDefaultValue: deployParam.showDefaultValue,
+        };
+        updatedParamsWithValues.push(updatedParam);
+      }
+    }
+
+    if (showUpdateParametersFileInformationMessage) {
+      if (template && fs.existsSync(template)) {
+        vscode.window
+          .showInformationMessage(
+            `Do you want to update ${path.basename(template)}?`,
+            "Yes",
+            "No"
+          )
+          .then((answer) => {
+            if (answer === "Yes") {
+              updateParametersFile = true;
+            }
+          });
+      } else {
+        vscode.window
+          .showInformationMessage(
+            `Do you want to create parameters.json file?`,
+            "Yes",
+            "No"
+          )
+          .then((answer) => {
+            if (answer === "Yes") {
+              updateParametersFile = true;
+            }
+          });
+      }
+    }
+
+    return [updateParametersFile, updatedParamsWithValues];
+  }
+
+  private async selectValueForParameterOfTypeExpression(
+    _context: IActionContext,
+    paramName: string,
+    paramValue: string
+  ) {
+    const quickPickItems: IAzureQuickPickItem[] = [];
+    const useExpressionValue: IAzureQuickPickItem = {
+      label: localize(
+        "useExpressionValue",
+        "Use value of expression " + paramValue
+      ),
+      data: undefined,
+    };
+    quickPickItems.push(useExpressionValue);
+    const leaveBlank: IAzureQuickPickItem = {
+      label: localize("leaveBlank", `"" (leave blank)`),
+      data: undefined,
+    };
+    quickPickItems.push(leaveBlank);
+    const enterNewValue: IAzureQuickPickItem = {
+      label: localize(
+        "enterNewValueForParameter",
+        "Enter value for param: " + paramName
+      ),
+      data: undefined,
+    };
+    quickPickItems.push(enterNewValue);
+
+    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+      quickPickItems,
+      {
+        canPickMany: false,
+        placeHolder: `Select value for parameter: ` + paramName,
+        suppressPersistence: true,
+      }
+    );
+
+    if (result == leaveBlank || result == useExpressionValue) {
+      return result.label;
+    } else {
+      const defaultParamValue = await vscode.window.showInputBox({
+        placeHolder: "Please enter value for param: " + paramName,
+      });
+
+      return defaultParamValue;
+    }
   }
 
   private async createParameterFileQuickPickList(): Promise<
