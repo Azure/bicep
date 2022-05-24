@@ -15,7 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl, IEnumerable<BicepDeploymentMissingParam> missingParamsWithValues) : IRequest<string>;
+    public record BicepDeploymentStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl, bool updateParameterFile, IEnumerable<BicepDeploymentMissingParam> missingParamsWithValues) : IRequest<string>;
 
     public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 

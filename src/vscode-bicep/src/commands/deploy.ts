@@ -28,7 +28,7 @@ import {
   BicepDeploymentWaitForCompletionParams,
   BicepDeploymentStartParams,
   BicepDeploymentStartResponse,
-  BicepDeploymentMissingParameters,
+  BicepDeploymentParams,
 } from "../language";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 
@@ -214,11 +214,12 @@ export class DeployCommand implements Command {
           documentUri
         );
 
-        const missingParamsWithValues = await this.handleMissingParams(
-          context,
-          documentUri,
-          parameterFilePath
-        );
+        const [updateParameterFile, updatedParamsWithValues] =
+          await this.handleMissingAndDefaultParams(
+            context,
+            documentUri,
+            parameterFilePath
+          );
 
         return await this.sendDeployStartCommand(
           context,
@@ -230,7 +231,8 @@ export class DeployCommand implements Command {
           template,
           managementGroupTreeItem.subscription,
           deployId,
-          missingParamsWithValues
+          updateParameterFile,
+          updatedParamsWithValues
         );
       }
     }
@@ -258,11 +260,12 @@ export class DeployCommand implements Command {
         documentUri
       );
 
-      const missingParamsWithValues = await this.handleMissingParams(
-        context,
-        documentUri,
-        parameterFilePath
-      );
+      const [updateParameterFile, updatedParamsWithValues] =
+        await this.handleMissingAndDefaultParams(
+          context,
+          documentUri,
+          parameterFilePath
+        );
 
       return await this.sendDeployStartCommand(
         context,
@@ -274,7 +277,8 @@ export class DeployCommand implements Command {
         template,
         resourceGroupTreeItem.subscription,
         deployId,
-        missingParamsWithValues
+        updateParameterFile,
+        updatedParamsWithValues
       );
     }
 
@@ -302,11 +306,12 @@ export class DeployCommand implements Command {
       documentUri
     );
 
-    const missingParamsWithValues = await this.handleMissingParams(
-      context,
-      documentUri,
-      parameterFilePath
-    );
+    const [updateParameterFile, updatedParamsWithValues] =
+      await this.handleMissingAndDefaultParams(
+        context,
+        documentUri,
+        parameterFilePath
+      );
 
     return await this.sendDeployStartCommand(
       context,
@@ -318,7 +323,8 @@ export class DeployCommand implements Command {
       template,
       subscription,
       deployId,
-      missingParamsWithValues
+      updateParameterFile,
+      updatedParamsWithValues
     );
   }
 
@@ -332,7 +338,8 @@ export class DeployCommand implements Command {
     template: string,
     subscription: ISubscriptionContext,
     deployId: string,
-    missingParamsWithValues: BicepDeploymentMissingParameters[]
+    updateParameterFile: boolean,
+    deploymentParams: BicepDeploymentParams[]
   ): Promise<BicepDeploymentStartResponse | undefined> {
     if (!parameterFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
@@ -364,7 +371,8 @@ export class DeployCommand implements Command {
         expiresOnTimestamp,
         deployId,
         portalUrl,
-        missingParamsWithValues,
+        updateParameterFile,
+        deploymentParams,
       };
       const deploymentStartResponse: BicepDeploymentStartResponse =
         await this.client.sendRequest("workspace/executeCommand", {
@@ -452,79 +460,75 @@ export class DeployCommand implements Command {
     return parameterFilePath;
   }
 
-  private async handleMissingParams(
+  private async handleMissingAndDefaultParams(
     _context: IActionContext,
     sourceUri: Uri | undefined,
     parameterFilePath: string | undefined
-  ) {
-    const missingParams: BicepDeploymentMissingParameters[] =
-      await this.client.sendRequest("workspace/executeCommand", {
-        command: "getMissingParameters",
+  ): Promise<[boolean, BicepDeploymentParams[]]> {
+    const deployParams: BicepDeploymentParams[] = await this.client.sendRequest(
+      "workspace/executeCommand",
+      {
+        command: "getParametersInfo",
         arguments: [sourceUri?.fsPath, parameterFilePath],
-      });
-
-    const missingParamsWithValues: BicepDeploymentMissingParameters[] = [];
-
-    for (const missingParam of missingParams) {
-      const missingParamName = missingParam.name;
-      let id: string = missingParamName;
-
-      if (sourceUri) {
-        id = id + sourceUri.path;
-
-        if (parameterFilePath) {
-          id = id + parameterFilePath;
-        }
       }
+    );
 
-      const enterMissingParameter: IAzureQuickPickItem = {
-        label: localize(
-          "enterMissingParameter",
-          "Enter value for missing parameter: " + missingParamName
-        ),
-        data: undefined,
-        alwaysShow: true,
-      };
+    const updatedParamsWithValues: BicepDeploymentParams[] = [];
+    let showUpdateParametersFileInformationMessage = false;
+    let updateParametersFile = false;
 
-      const entries: IAzureQuickPickItem[] = [];
-      entries.push(enterMissingParameter);
-
-      const previouslyUsedValue = missingParam.value;
-      if (previouslyUsedValue) {
-        const previouslyUsedValueQuickPickItem: IAzureQuickPickItem = {
-          label: previouslyUsedValue,
-          data: undefined,
-          alwaysShow: true,
-        };
-        entries.push(previouslyUsedValueQuickPickItem);
-      }
-
-      const missingParamQuickPick = await _context.ui.showQuickPick(entries, {
-        placeHolder: "Select missing parameter: " + missingParamName,
-        id: id,
-        canPickMany: false,
-      });
-
-      if (missingParamQuickPick == enterMissingParameter) {
+    for (const deployParam of deployParams) {
+      const paramName = deployParam.name;
+      if (deployParam.isMissingParam) {
+        showUpdateParametersFileInformationMessage = true;
         const missingParamValue = await vscode.window.showInputBox({
-          placeHolder: "Please enter value for param: " + missingParamName,
+          placeHolder: "Please enter value for param: " + paramName,
         });
 
-        if (missingParamValue) {
-          missingParamsWithValues.push({
-            name: missingParamName,
-            value: missingParamValue,
-          });
-        }
+        const updatedParam: BicepDeploymentParams = {
+          name: paramName,
+          value: missingParamValue,
+          isMissingParam: true,
+          displayActualDefault: deployParam.displayActualDefault,
+        };
+        updatedParamsWithValues.push(updatedParam);
       } else {
-        missingParamsWithValues.push({
-          name: missingParamName,
-          value: missingParamQuickPick.label,
-        });
+        let options: vscode.InputBoxOptions;
+        if (deployParam.displayActualDefault) {
+          options = {
+            prompt: "Press enter to select the default value",
+            value: deployParam.value,
+            placeHolder: "Please enter value for param: " + paramName,
+          };
+        } else {
+          options = {
+            prompt: "Press enter to select the default value",
+            value: deployParam.value,
+            placeHolder: "Please enter value for param: " + paramName,
+          };
+        }
+        const defaultParamValue = await vscode.window.showInputBox(options);
+        const updatedParam: BicepDeploymentParams = {
+          name: paramName,
+          value: defaultParamValue,
+          isMissingParam: true,
+          displayActualDefault: deployParam.displayActualDefault,
+        };
+        updatedParamsWithValues.push(updatedParam);
+      }
+
+      if (showUpdateParametersFileInformationMessage) {
+        vscode.window
+          .showInformationMessage("Do you want to do this?", "Yes", "No")
+          .then((answer) => {
+            if (answer === "Yes") {
+              updateParametersFile = true;
+            }
+          });
       }
     }
 
-    return missingParamsWithValues;
+    return [updateParametersFile, updatedParamsWithValues];
   }
 
   private async createParameterFileQuickPickList(): Promise<

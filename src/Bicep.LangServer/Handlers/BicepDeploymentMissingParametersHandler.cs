@@ -3,12 +3,10 @@
 
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
-using Bicep.LanguageServer.Deploy;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -16,87 +14,82 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public class BicepDeploymentMissingParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, List<BicepDeploymentMissingParam>>
+    public record BicepDeploymentParam(string name, string? value, bool isMissingParam, bool displayActualDefault);
+
+    public class BicepDeploymentMissingParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, List<BicepDeploymentParam>>
     {
         private readonly ICompilationManager compilationManager;
-        private readonly IMissingParamsCache missingParamsCache;
 
-        public BicepDeploymentMissingParametersHandler(ICompilationManager compilationManager, IMissingParamsCache missingParamsCache, ISerializer serializer)
+        public BicepDeploymentMissingParametersHandler(ICompilationManager compilationManager, ISerializer serializer)
             : base(LangServerConstants.GetDeployMissingParameters, serializer)
         {
             this.compilationManager = compilationManager;
-            this.missingParamsCache = missingParamsCache;
         }
 
-        public override Task<List<BicepDeploymentMissingParam>> Handle(string documentPath, string parametersFilePath, CancellationToken cancellationToken)
+        public override Task<List<BicepDeploymentParam>> Handle(string documentPath, string parametersFilePath, CancellationToken cancellationToken)
         {
             var documentUri = DocumentUri.FromFileSystemPath(documentPath);
             var compilationContext = compilationManager.GetCompilation(documentUri);
 
             if (compilationContext is null)
             {
-                return Task.FromResult(new List<BicepDeploymentMissingParam>());
+                return Task.FromResult(new List<BicepDeploymentParam>());
             }
 
             var semanticModel = compilationContext.Compilation.GetEntrypointSemanticModel();
-            var parameterDeclarations = semanticModel.Root.ParameterDeclarations;
-            var paramsWithoutModifiers = new List<ParameterDeclarationSyntax>();
+            var paramsFromProvidedParametersFile = GetParametersInfoFromProvidedFile(parametersFilePath);
+            var bicepDeploymentParams = new List<BicepDeploymentParam>();
 
             foreach (var parameterDeclaration in semanticModel.Root.ParameterDeclarations)
             {
-                if (parameterDeclaration.DeclaringParameter is ParameterDeclarationSyntax parameterDeclarationSyntax &&
-                    parameterDeclarationSyntax.Modifier is null)
+                if (parameterDeclaration.DeclaringParameter is ParameterDeclarationSyntax parameterDeclarationSyntax)
                 {
-                    paramsWithoutModifiers.Add(parameterDeclarationSyntax);
+                    var parameterName = parameterDeclarationSyntax.Name.IdentifierName;
+                    var modifier = parameterDeclarationSyntax.Modifier;
+                    var displayActualDefault = true;
+
+                    if (modifier is not null)
+                    {
+                        if (modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
+                            parameterDefaultValueSyntax.DefaultValue is PropertyAccessSyntax propertyAccessSyntax &&
+                            propertyAccessSyntax is not null)
+                        {
+                            displayActualDefault = false;
+                        }
+
+                        var bicepDeploymentParam = new BicepDeploymentParam(parameterName, modifier.ToString(), false, displayActualDefault);
+                        bicepDeploymentParams.Add(bicepDeploymentParam);
+                    }
+                    else
+                    {
+                        if (paramsFromProvidedParametersFile is null ||
+                            !paramsFromProvidedParametersFile.ContainsKey(parameterName))
+                        {
+                            var bicepDeploymentParam = new BicepDeploymentParam(parameterName, null, true, false);
+                            bicepDeploymentParams.Add(bicepDeploymentParam);
+                        }
+                    }
                 }
             }
 
-            if (!string.IsNullOrEmpty(parametersFilePath))
-            {
-                var parametersFileContents = File.ReadAllText(parametersFilePath);
-                Dictionary<string, dynamic>? dict = JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
-
-                if (dict is not null)
-                {
-                    var missingParameters = paramsWithoutModifiers
-                        .Where(x => !dict.ContainsKey(x.Name.IdentifierName))
-                        .Select(x => x.Name.IdentifierName);
-                    var missingParams = GetMissingParams(documentUri, missingParameters);
-
-                    return Task.FromResult(missingParams);
-                }
-            }
-
-            var missingParamsUsingSemanticModel = GetMissingParams(
-                documentUri,
-                paramsWithoutModifiers.Select(x => x.Name.IdentifierName));
-            return Task.FromResult(missingParamsUsingSemanticModel);
+            return Task.FromResult(bicepDeploymentParams);
         }
 
-        private List<BicepDeploymentMissingParam> GetMissingParams(DocumentUri documentUri,IEnumerable<string> missingParams)
+        private Dictionary<string, dynamic>? GetParametersInfoFromProvidedFile(string parametersFilePath)
         {
-            var missingParamsFromCache = missingParamsCache.GetBicepDeploymentMissingParams(documentUri);
-            List<BicepDeploymentMissingParam> result = new List<BicepDeploymentMissingParam>();
-
-            foreach (var missingParam in missingParams)
+            if (string.IsNullOrWhiteSpace(parametersFilePath))
             {
-                var previouslyUsedBicepDeploymentMissingParamWithValue = missingParamsFromCache.FirstOrDefault(x => x.name == missingParam);
-                BicepDeploymentMissingParam bicepDeploymentMissingParam;
-
-                if (previouslyUsedBicepDeploymentMissingParamWithValue is null ||
-                    string.IsNullOrEmpty(previouslyUsedBicepDeploymentMissingParamWithValue.value))
-                {
-                    bicepDeploymentMissingParam = new BicepDeploymentMissingParam(missingParam, string.Empty);
-                }
-                else
-                {
-                    bicepDeploymentMissingParam = new BicepDeploymentMissingParam(missingParam, previouslyUsedBicepDeploymentMissingParamWithValue.value);
-                }
-
-                result.Add(bicepDeploymentMissingParam);
+                return null;
             }
 
-            return result;
+            var parametersFileContents = File.ReadAllText(parametersFilePath);
+
+            return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
+        }
+
+        public string GetParameterValue(ParameterDeclarationSyntax parameterDeclarationSyntax, string bicepFileContents)
+        {
+            return string.Empty; 
         }
     }
 }
