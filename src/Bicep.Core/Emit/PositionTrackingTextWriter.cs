@@ -10,6 +10,8 @@ namespace Bicep.Core.Emit
 {
     public class PositionTrackingJsonTextWriter : JsonTextWriter
     {
+
+
         private class PositionTrackingTextWriter : TextWriter
         {
             private readonly TextWriter _internalWriter;
