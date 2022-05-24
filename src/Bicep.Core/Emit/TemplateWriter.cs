@@ -60,6 +60,8 @@ namespace Bicep.Core.Emit
             LanguageConstants.MetadataDescriptionPropertyName,
         }.ToImmutableHashSet();
 
+        private static readonly Regex JsonWhitespaceStrippingRegex = new(@"(""(?:[^""\\]|\\.)*"")|\s+", RegexOptions.Compiled);
+
         private static ISemanticModel GetModuleSemanticModel(ModuleSymbol moduleSymbol)
         {
             if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out _))
@@ -169,7 +171,7 @@ namespace Bicep.Core.Emit
                     new List<int>() { 0 }, // first line starts at position 0
                     (lineStarts, line) =>
                     {
-                        var unformattedLine = Regex.Replace(line, @"(""(?:[^""\\]|\\.)*"")|\s+", "$1");
+                        var unformattedLine = JsonWhitespaceStrippingRegex.Replace(line, "$1");
                         lineStarts.Add(lineStarts.Last() + unformattedLine.Length);
                         return lineStarts;
                     });
