@@ -76,17 +76,17 @@ namespace Bicep.Core.Emit
             int jsonStartPos,
             int jsonEndPos)
         {
-            if (!rawSourceMap.ContainsKey(bicepFileName))
+            if (!rawSourceMap.TryGetValue(bicepFileName, out var innerDict))
             {
-                rawSourceMap[bicepFileName] = new Dictionary<int, IList<(int, int)>>();
+                rawSourceMap[bicepFileName] = innerDict = new Dictionary<int, IList<(int, int)>>();
             }
 
-            if (!rawSourceMap[bicepFileName].ContainsKey(bicepLine))
+            if (!innerDict.TryGetValue(bicepLine, out var tupleList))
             {
-                rawSourceMap[bicepFileName][bicepLine] = new List<(int, int)>();
+                innerDict[bicepLine] = tupleList = new List<(int, int)>();
             }
 
-            rawSourceMap[bicepFileName][bicepLine].Add((jsonStartPos, jsonEndPos));
+            tupleList.Add((jsonStartPos, jsonEndPos));
         }
     }
 }
