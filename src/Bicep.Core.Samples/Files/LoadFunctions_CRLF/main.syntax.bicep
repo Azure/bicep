@@ -802,6 +802,210 @@ var testJsonNestedString = testJson.object.nestedString
 //@[42:43)   Dot |.|
 //@[43:55)   IdentifierSyntax
 //@[43:55)    Identifier |nestedString|
-//@[55:57) NewLine |\r\n|
+//@[55:59) NewLine |\r\n\r\n|
+
+var testJson2 = loadJsonContent('./Assets/test.json.txt')
+//@[0:57) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:13)  IdentifierSyntax
+//@[4:13)   Identifier |testJson2|
+//@[14:15)  Assignment |=|
+//@[16:57)  FunctionCallSyntax
+//@[16:31)   IdentifierSyntax
+//@[16:31)    Identifier |loadJsonContent|
+//@[31:32)   LeftParen |(|
+//@[32:56)   FunctionArgumentSyntax
+//@[32:56)    StringSyntax
+//@[32:56)     StringComplete |'./Assets/test.json.txt'|
+//@[56:57)   RightParen |)|
+//@[57:59) NewLine |\r\n|
+var testJsonString2 = testJson.string
+//@[0:37) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |testJsonString2|
+//@[20:21)  Assignment |=|
+//@[22:37)  PropertyAccessSyntax
+//@[22:30)   VariableAccessSyntax
+//@[22:30)    IdentifierSyntax
+//@[22:30)     Identifier |testJson|
+//@[30:31)   Dot |.|
+//@[31:37)   IdentifierSyntax
+//@[31:37)    Identifier |string|
+//@[37:39) NewLine |\r\n|
+var testJsonString2_1 = loadJsonContent('./Assets/test.json.txt', '.string')
+//@[0:76) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |testJsonString2_1|
+//@[22:23)  Assignment |=|
+//@[24:76)  FunctionCallSyntax
+//@[24:39)   IdentifierSyntax
+//@[24:39)    Identifier |loadJsonContent|
+//@[39:40)   LeftParen |(|
+//@[40:65)   FunctionArgumentSyntax
+//@[40:64)    StringSyntax
+//@[40:64)     StringComplete |'./Assets/test.json.txt'|
+//@[64:65)    Comma |,|
+//@[66:75)   FunctionArgumentSyntax
+//@[66:75)    StringSyntax
+//@[66:75)     StringComplete |'.string'|
+//@[75:76)   RightParen |)|
+//@[76:78) NewLine |\r\n|
+var testJsonInt2 = testJson.int
+//@[0:31) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:16)  IdentifierSyntax
+//@[4:16)   Identifier |testJsonInt2|
+//@[17:18)  Assignment |=|
+//@[19:31)  PropertyAccessSyntax
+//@[19:27)   VariableAccessSyntax
+//@[19:27)    IdentifierSyntax
+//@[19:27)     Identifier |testJson|
+//@[27:28)   Dot |.|
+//@[28:31)   IdentifierSyntax
+//@[28:31)    Identifier |int|
+//@[31:33) NewLine |\r\n|
+var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
+//@[0:70) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:18)  IdentifierSyntax
+//@[4:18)   Identifier |testJsonInt2_1|
+//@[19:20)  Assignment |=|
+//@[21:70)  FunctionCallSyntax
+//@[21:36)   IdentifierSyntax
+//@[21:36)    Identifier |loadJsonContent|
+//@[36:37)   LeftParen |(|
+//@[37:62)   FunctionArgumentSyntax
+//@[37:61)    StringSyntax
+//@[37:61)     StringComplete |'./Assets/test.json.txt'|
+//@[61:62)    Comma |,|
+//@[63:69)   FunctionArgumentSyntax
+//@[63:69)    StringSyntax
+//@[63:69)     StringComplete |'.int'|
+//@[69:70)   RightParen |)|
+//@[70:72) NewLine |\r\n|
+var testJsonArrayVal2 = testJson.array[0]
+//@[0:41) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |testJsonArrayVal2|
+//@[22:23)  Assignment |=|
+//@[24:41)  ArrayAccessSyntax
+//@[24:38)   PropertyAccessSyntax
+//@[24:32)    VariableAccessSyntax
+//@[24:32)     IdentifierSyntax
+//@[24:32)      Identifier |testJson|
+//@[32:33)    Dot |.|
+//@[33:38)    IdentifierSyntax
+//@[33:38)     Identifier |array|
+//@[38:39)   LeftSquare |[|
+//@[39:40)   IntegerLiteralSyntax
+//@[39:40)    Integer |0|
+//@[40:41)   RightSquare |]|
+//@[41:43) NewLine |\r\n|
+var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
+//@[0:80) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:23)  IdentifierSyntax
+//@[4:23)   Identifier |testJsonArrayVal2_1|
+//@[24:25)  Assignment |=|
+//@[26:80)  FunctionCallSyntax
+//@[26:41)   IdentifierSyntax
+//@[26:41)    Identifier |loadJsonContent|
+//@[41:42)   LeftParen |(|
+//@[42:67)   FunctionArgumentSyntax
+//@[42:66)    StringSyntax
+//@[42:66)     StringComplete |'./Assets/test.json.txt'|
+//@[66:67)    Comma |,|
+//@[68:79)   FunctionArgumentSyntax
+//@[68:79)    StringSyntax
+//@[68:79)     StringComplete |'.array[0]'|
+//@[79:80)   RightParen |)|
+//@[80:82) NewLine |\r\n|
+var testJsonObject2 = testJson.object
+//@[0:37) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:19)  IdentifierSyntax
+//@[4:19)   Identifier |testJsonObject2|
+//@[20:21)  Assignment |=|
+//@[22:37)  PropertyAccessSyntax
+//@[22:30)   VariableAccessSyntax
+//@[22:30)    IdentifierSyntax
+//@[22:30)     Identifier |testJson|
+//@[30:31)   Dot |.|
+//@[31:37)   IdentifierSyntax
+//@[31:37)    Identifier |object|
+//@[37:39) NewLine |\r\n|
+var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
+//@[0:76) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:21)  IdentifierSyntax
+//@[4:21)   Identifier |testJsonObject2_1|
+//@[22:23)  Assignment |=|
+//@[24:76)  FunctionCallSyntax
+//@[24:39)   IdentifierSyntax
+//@[24:39)    Identifier |loadJsonContent|
+//@[39:40)   LeftParen |(|
+//@[40:65)   FunctionArgumentSyntax
+//@[40:64)    StringSyntax
+//@[40:64)     StringComplete |'./Assets/test.json.txt'|
+//@[64:65)    Comma |,|
+//@[66:75)   FunctionArgumentSyntax
+//@[66:75)    StringSyntax
+//@[66:75)     StringComplete |'.object'|
+//@[75:76)   RightParen |)|
+//@[76:78) NewLine |\r\n|
+var testJsonNestedString2 = testJson.object.nestedString
+//@[0:56) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:25)  IdentifierSyntax
+//@[4:25)   Identifier |testJsonNestedString2|
+//@[26:27)  Assignment |=|
+//@[28:56)  PropertyAccessSyntax
+//@[28:43)   PropertyAccessSyntax
+//@[28:36)    VariableAccessSyntax
+//@[28:36)     IdentifierSyntax
+//@[28:36)      Identifier |testJson|
+//@[36:37)    Dot |.|
+//@[37:43)    IdentifierSyntax
+//@[37:43)     Identifier |object|
+//@[43:44)   Dot |.|
+//@[44:56)   IdentifierSyntax
+//@[44:56)    Identifier |nestedString|
+//@[56:58) NewLine |\r\n|
+var testJsonNestedString2_1 = testJsonObject2_1.nestedString
+//@[0:60) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:27)  IdentifierSyntax
+//@[4:27)   Identifier |testJsonNestedString2_1|
+//@[28:29)  Assignment |=|
+//@[30:60)  PropertyAccessSyntax
+//@[30:47)   VariableAccessSyntax
+//@[30:47)    IdentifierSyntax
+//@[30:47)     Identifier |testJsonObject2_1|
+//@[47:48)   Dot |.|
+//@[48:60)   IdentifierSyntax
+//@[48:60)    Identifier |nestedString|
+//@[60:62) NewLine |\r\n|
+var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
+//@[0:95) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:27)  IdentifierSyntax
+//@[4:27)   Identifier |testJsonNestedString2_2|
+//@[28:29)  Assignment |=|
+//@[30:95)  FunctionCallSyntax
+//@[30:45)   IdentifierSyntax
+//@[30:45)    Identifier |loadJsonContent|
+//@[45:46)   LeftParen |(|
+//@[46:71)   FunctionArgumentSyntax
+//@[46:70)    StringSyntax
+//@[46:70)     StringComplete |'./Assets/test.json.txt'|
+//@[70:71)    Comma |,|
+//@[72:94)   FunctionArgumentSyntax
+//@[72:94)    StringSyntax
+//@[72:94)     StringComplete |'.object.nestedString'|
+//@[94:95)   RightParen |)|
+//@[95:97) NewLine |\r\n|
 
 //@[0:0) EndOfFile ||

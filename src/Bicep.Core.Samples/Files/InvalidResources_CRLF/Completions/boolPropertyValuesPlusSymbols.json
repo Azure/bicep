@@ -3025,6 +3025,7 @@
       "newText": "loadJsonContent($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },

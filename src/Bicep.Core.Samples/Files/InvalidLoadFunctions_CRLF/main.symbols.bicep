@@ -98,3 +98,15 @@ var binaryOversize = loadFileAsBase64('Assets/oversizeBinary')
 
 var binaryAsText = loadTextContent('Assets/binary')
 //@[4:16) Variable binaryAsText. Type: '���G�T���h�3q�a$�W���\t��6;�lg{[�2U�H��5�k��م\'���Rs���\\�&�h��\\�+���hN���wo\\��ð�!��f�$\n�]����g.t�-�a����8 ���1N���"!���U���&��k��$Y���E��E��W���ݗ�K�ٯ܆Mw_�p��߳�����\'��QL�Pv����O�aw��g3�������k���ėk.��S�R���%@y�"���(���-�s�(L�%]e�`��\r�]���1JD��0�u�\t��A�-�|�9yz�0ix�mؤG>���)�F�"�U�O��d�n���o<{�@�"�53��5�d�������ɶ\r2�,��}��18��nl��@�`R����*N��t�&G+5}�� �|��.P�Q(�}�߶��1ꩴN�f#�<��{��Q-�l\\�*�t�;�뤞��j�\rr�;hh2�B��ݜ,,)ŮYEhٕ��I;��L�HȊ�i3ƣw3��ӿ��7,]VT��z�9�7XR�O@�01�V�DU�m}=Z������M��D�t��Mb���M�R�t|W�0dB�*0��&�!�y����=p��h��\tJ���Ni�������ʥ����(���@$���.VYad���`�/U[7�|`;ރ��LH*���b׮ּ-Y�:�T��Q�*e�ȧ(]�nڠ�T����pW�>[|�e�9oA���&�:ʗ��cPL~G����]m��[����rO��66 @��Os�.�A}ylWBjV��x4ӈ���^iLf�r�v �?$�d�\'� �$�tP��1ßT�v.��wd\\j6�uj\rA]$��p�j�`i!�\\_��un������� :�7�s3��!���DMp�"��j9�ô�ģ��f�0B}���fZ�v�25� <hJja�7�31tHD��ԓ��>�@��I�1��K��0f;1v�;8Ҟ�b1|wq�z8��i�b����׵A9k�us�;�<@���?_iUB1D ��E�'. Declaration start char: 0, length: 51
+
+var jsonObject1 = loadJsonContent('Assets/jsonInvalid.json.txt')
+//@[4:15) Variable jsonObject1. Type: object. Declaration start char: 0, length: 64
+var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
+//@[4:15) Variable jsonObject2. Type: any. Declaration start char: 0, length: 67
+var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
+//@[4:15) Variable jsonObject3. Type: any. Declaration start char: 0, length: 68
+var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoesNotExist')
+//@[4:15) Variable jsonObject4. Type: any. Declaration start char: 0, length: 91
+var jsonObject5 = loadJsonContent('Assets/fileNotExists')
+//@[4:15) Variable jsonObject5. Type: any. Declaration start char: 0, length: 57
+

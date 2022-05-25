@@ -74,3 +74,16 @@ var testJsonInt = testJson.int
 var testJsonArrayVal = testJson.array[0]
 var testJsonObject = testJson.object
 var testJsonNestedString = testJson.object.nestedString
+
+var testJson2 = loadJsonContent('./Assets/test.json.txt')
+var testJsonString2 = testJson.string
+var testJsonString2_1 = loadJsonContent('./Assets/test.json.txt', '.string')
+var testJsonInt2 = testJson.int
+var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
+var testJsonArrayVal2 = testJson.array[0]
+var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
+var testJsonObject2 = testJson.object
+var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
+var testJsonNestedString2 = testJson.object.nestedString
+var testJsonNestedString2_1 = testJsonObject2_1.nestedString
+var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')

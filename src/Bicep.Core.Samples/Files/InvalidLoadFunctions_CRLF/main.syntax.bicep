@@ -802,4 +802,94 @@ var binaryAsText = loadTextContent('Assets/binary')
 //@[35:50)    StringSyntax
 //@[35:50)     StringComplete |'Assets/binary'|
 //@[50:51)   RightParen |)|
-//@[51:51) EndOfFile ||
+//@[51:55) NewLine |\r\n\r\n|
+
+var jsonObject1 = loadJsonContent('Assets/jsonInvalid.json.txt')
+//@[0:64) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |jsonObject1|
+//@[16:17)  Assignment |=|
+//@[18:64)  FunctionCallSyntax
+//@[18:33)   IdentifierSyntax
+//@[18:33)    Identifier |loadJsonContent|
+//@[33:34)   LeftParen |(|
+//@[34:63)   FunctionArgumentSyntax
+//@[34:63)    StringSyntax
+//@[34:63)     StringComplete |'Assets/jsonInvalid.json.txt'|
+//@[63:64)   RightParen |)|
+//@[64:66) NewLine |\r\n|
+var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
+//@[0:67) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |jsonObject2|
+//@[16:17)  Assignment |=|
+//@[18:67)  FunctionCallSyntax
+//@[18:33)   IdentifierSyntax
+//@[18:33)    Identifier |loadJsonContent|
+//@[33:34)   LeftParen |(|
+//@[34:62)   FunctionArgumentSyntax
+//@[34:61)    StringSyntax
+//@[34:61)     StringComplete |'Assets/jsonValid.json.txt'|
+//@[61:62)    Comma |,|
+//@[63:66)   FunctionArgumentSyntax
+//@[63:66)    StringSyntax
+//@[63:66)     StringComplete |'.'|
+//@[66:67)   RightParen |)|
+//@[67:69) NewLine |\r\n|
+var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
+//@[0:68) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |jsonObject3|
+//@[16:17)  Assignment |=|
+//@[18:68)  FunctionCallSyntax
+//@[18:33)   IdentifierSyntax
+//@[18:33)    Identifier |loadJsonContent|
+//@[33:34)   LeftParen |(|
+//@[34:62)   FunctionArgumentSyntax
+//@[34:61)    StringSyntax
+//@[34:61)     StringComplete |'Assets/jsonValid.json.txt'|
+//@[61:62)    Comma |,|
+//@[63:67)   FunctionArgumentSyntax
+//@[63:67)    StringSyntax
+//@[63:67)     StringComplete |'$.'|
+//@[67:68)   RightParen |)|
+//@[68:70) NewLine |\r\n|
+var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoesNotExist')
+//@[0:91) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |jsonObject4|
+//@[16:17)  Assignment |=|
+//@[18:91)  FunctionCallSyntax
+//@[18:33)   IdentifierSyntax
+//@[18:33)    Identifier |loadJsonContent|
+//@[33:34)   LeftParen |(|
+//@[34:62)   FunctionArgumentSyntax
+//@[34:61)    StringSyntax
+//@[34:61)     StringComplete |'Assets/jsonValid.json.txt'|
+//@[61:62)    Comma |,|
+//@[63:90)   FunctionArgumentSyntax
+//@[63:90)    StringSyntax
+//@[63:90)     StringComplete |'.propertyThatDoesNotExist'|
+//@[90:91)   RightParen |)|
+//@[91:93) NewLine |\r\n|
+var jsonObject5 = loadJsonContent('Assets/fileNotExists')
+//@[0:57) VariableDeclarationSyntax
+//@[0:3)  Identifier |var|
+//@[4:15)  IdentifierSyntax
+//@[4:15)   Identifier |jsonObject5|
+//@[16:17)  Assignment |=|
+//@[18:57)  FunctionCallSyntax
+//@[18:33)   IdentifierSyntax
+//@[18:33)    Identifier |loadJsonContent|
+//@[33:34)   LeftParen |(|
+//@[34:56)   FunctionArgumentSyntax
+//@[34:56)    StringSyntax
+//@[34:56)     StringComplete |'Assets/fileNotExists'|
+//@[56:57)   RightParen |)|
+//@[57:59) NewLine |\r\n|
+
+//@[0:0) EndOfFile ||
