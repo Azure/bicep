@@ -63,7 +63,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error, result) = await Bicep("generate-params", bicepFilePath);
 
-            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json"));
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
 
             using (new AssertionScope())
             {
@@ -83,7 +83,7 @@ namespace Bicep.Cli.IntegrationTests
       ""value"": ""sampleparameter""
     }
   }
-}");
+}".ReplaceLineEndings());
             }
         }
 
@@ -101,7 +101,7 @@ namespace Bicep.Cli.IntegrationTests
 
             var (output, error, result) = await Bicep("generate-params", bicepFilePath);
 
-            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json"));
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
 
             using (new AssertionScope())
             {
@@ -124,7 +124,7 @@ namespace Bicep.Cli.IntegrationTests
       ""value"": ""westus2""
     }
   }
-}");
+}".ReplaceLineEndings());
             }
         }
     }
