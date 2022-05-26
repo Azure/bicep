@@ -3196,5 +3196,193 @@ resource existingStg4 'Microsoft.Storage/storageAccounts@2021-04-01' existing = 
 ");
             result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_5461()
+        {
+            var result = CompilationHelper.Compile(@"
+var deployServerlessCosmosDb = true
+
+resource cosmosDbServer 'Microsoft.DocumentDB/databaseAccounts@2021-07-01-preview' = {
+  kind: 'GlobalDocumentDB'
+  name: 'cosmosdbname'
+  location: resourceGroup().location
+  properties: {
+    createMode: 'Default'
+    locations: [
+      {
+        locationName: resourceGroup().location
+        failoverPriority: 0
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+      maxIntervalInSeconds: 5
+      maxStalenessPrefix: 100
+    }
+    diagnosticLogSettings: {
+      enableFullTextQuery: 'None'
+    }
+  }
+}
+
+resource PassDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = {
+  parent: cosmosDbServer
+  name: 'PassDb'
+  properties: {
+    resource: {
+      id: 'PassDb'
+    }
+  }
+}
+
+resource QPDB 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = if(!deployServerlessCosmosDb) {
+  parent: cosmosDbServer
+  name: 'QPDB'
+  properties: {
+    resource: {
+      id: 'QPDB'
+    }
+  }
+}
+
+resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-07-01-preview' = {
+  parent: deployServerlessCosmosDb? PassDb: QPDB
+  name: 'ActorColdStorage'
+  properties: {
+    resource: {
+      id: 'ActorColdStorage'
+      partitionKey: {
+        paths: [
+          '/Type'
+        ]
+        kind: 'Hash'
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers')].name", "[if(variables('deployServerlessCosmosDb'), format('{0}/{1}/{2}', 'cosmosdbname', 'PassDb', 'ActorColdStorage'), format('{0}/{1}/{2}', 'cosmosdbname', 'QPDB', 'ActorColdStorage'))]");
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_5461_2()
+        {
+            var result = CompilationHelper.Compile(@"
+var deployServerlessCosmosDb = true
+
+resource cosmosDbServer 'Microsoft.DocumentDB/databaseAccounts@2021-07-01-preview' = {
+  kind: 'GlobalDocumentDB'
+  name: 'cosmosdbname'
+  location: resourceGroup().location
+  properties: {
+    createMode: 'Default'
+    locations: [
+      {
+        locationName: resourceGroup().location
+        failoverPriority: 0
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+      maxIntervalInSeconds: 5
+      maxStalenessPrefix: 100
+    }
+    diagnosticLogSettings: {
+      enableFullTextQuery: 'None'
+    }
+  }
+}
+
+resource differentCosmosDbServer 'Microsoft.DocumentDB/databaseAccounts@2021-07-01-preview' = {
+  kind: 'GlobalDocumentDB'
+  name: 'differentcosmosdb'
+  location: resourceGroup().location
+  properties: {
+    createMode: 'Default'
+    locations: [
+      {
+        locationName: resourceGroup().location
+        failoverPriority: 0
+      }
+    ]
+    databaseAccountOfferType: 'Standard'
+    consistencyPolicy: {
+      defaultConsistencyLevel: 'Session'
+      maxIntervalInSeconds: 5
+      maxStalenessPrefix: 100
+    }
+    diagnosticLogSettings: {
+      enableFullTextQuery: 'None'
+    }
+  }
+}
+
+resource differentDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = if(!deployServerlessCosmosDb) {
+  parent: differentCosmosDbServer
+  name: 'differentDb'
+  properties: {
+    resource: {
+      id: 'differentDb'
+    }
+  }
+}
+
+resource PassDb 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = {
+  parent: cosmosDbServer
+  name: 'PassDb'
+  properties: {
+    resource: {
+      id: 'PassDb'
+    }
+  }
+}
+
+resource QPDB 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases@2021-07-01-preview' = if(!deployServerlessCosmosDb) {
+  parent: cosmosDbServer
+  name: 'QPDB'
+  properties: {
+    resource: {
+      id: 'QPDB'
+    }
+  }
+}
+
+resource container_ActorColdStorage 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers@2021-07-01-preview' = {
+  parent: deployServerlessCosmosDb? PassDb: differentDb
+  name: 'ActorColdStorage'
+  properties: {
+    resource: {
+      id: 'ActorColdStorage'
+      partitionKey: {
+        paths: [
+          '/Type'
+        ]
+        kind: 'Hash'
+      }
+      conflictResolutionPolicy: {
+        mode: 'LastWriterWins'
+        conflictResolutionPath: '/_ts'
+      }
+    }
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.type == 'Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers')].name", "[if(variables('deployServerlessCosmosDb'), format('{0}/{1}/{2}', 'cosmosdbname', 'PassDb', 'ActorColdStorage'), format('{0}/{1}/{2}', 'differentcosmosdb', 'differentDb', 'ActorColdStorage'))]");
+        }
     }
 }

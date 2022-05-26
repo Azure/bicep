@@ -14,7 +14,8 @@ namespace Bicep.Core.Semantics.Metadata
         ResourceType Type,
         bool IsExistingResource,
         ResourceSymbol Symbol,
-        ResourceMetadataParent? Parent)
+        ResourceMetadataParent? Parent,
+        TernaryOperationSyntax? TernaryOperationSyntax)
         : ResourceMetadata(Type, IsExistingResource)
     {
         private readonly ImmutableDictionary<string, SyntaxBase> UniqueIdentifiers = GetUniqueIdentifiers(Type, Symbol);

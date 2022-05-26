@@ -659,6 +659,21 @@ namespace Bicep.Core.Emit
             return rewritten;
         }
 
+        public IEnumerable<LanguageExpression> GetResourceNameSegmentsForVariableAccessSyntax(VariableAccessSyntax variableAccessSyntax)
+        {
+            var declaredResources = this.context.SemanticModel.DeclaredResources;
+
+            foreach (DeclaredResourceMetadata declaredResource in declaredResources)
+            {
+                if (declaredResource.TryGetNameSyntax() is StringSyntax stringSyntax && stringSyntax.TryGetLiteralValue() == variableAccessSyntax.Name.IdentifierName)
+                {
+                    return GetResourceNameSegments(declaredResource);
+                }
+            }
+
+            return Enumerable.Empty<LanguageExpression>();
+        }
+
         public LanguageExpression GetFullyQualifiedResourceName(DeclaredResourceMetadata resource)
         {
             var nameValueSyntax = resource.NameSyntax;
@@ -668,6 +683,25 @@ namespace Bicep.Core.Emit
             if (ancestors.Length == 0)
             {
                 return ConvertExpression(nameValueSyntax);
+            }
+ 
+            if (resource.TernaryOperationSyntax != null && resource.TernaryOperationSyntax.TrueExpression is VariableAccessSyntax variableAccessSyntaxTrueExpression && resource.TernaryOperationSyntax.FalseExpression is VariableAccessSyntax variableAccessSyntaxFalseExpression)
+            {
+                var resourceNameSegments = GetResourceNameSegments(resource);
+                var resourceFormatString = string.Join("/", resourceNameSegments.Select((_, i) => $"{{{i}}}"));
+
+                var conditionExpression = ConvertExpression(resource.TernaryOperationSyntax.ConditionExpression);
+
+                //build the format functions for both true and false expressions
+                var trueExpressionParentNameSegments = GetResourceNameSegmentsForVariableAccessSyntax(variableAccessSyntaxTrueExpression);
+                var falseExpressionParentNameSegments = GetResourceNameSegmentsForVariableAccessSyntax(variableAccessSyntaxFalseExpression);
+                var childNameSegment = ConvertExpression(resource.NameSyntax);
+
+                var trueFormatFunctionExpression = CreateFunction("format", new JTokenExpression(resourceFormatString).AsEnumerable().Concat(trueExpressionParentNameSegments.Concat(childNameSegment.AsEnumerable())));
+                var falseFormatFunctionExpression = CreateFunction("format", new JTokenExpression(resourceFormatString).AsEnumerable().Concat(falseExpressionParentNameSegments.Concat(childNameSegment.AsEnumerable())));
+
+                LanguageExpression[] languageExpressions = {conditionExpression, trueFormatFunctionExpression, falseFormatFunctionExpression};
+                return CreateFunction("if", languageExpressions);
             }
 
             // Build an expression like '${parent.name}/${child.name}'

@@ -87,6 +87,38 @@ namespace Bicep.Core.Semantics.Metadata
                     // Access to a module array output might be a resource metadata.
                     return this.TryAdd(module, propertyAccessSyntax.PropertyName.IdentifierName);
                 }
+                case TernaryOperationSyntax ternaryOperationSyntax:
+                {
+                        if (ternaryOperationSyntax.ConditionExpression is VariableAccessSyntax variableAccessSyntax)
+                        {
+                            var symbol = semanticModel.GetSymbolInfo(variableAccessSyntax);
+                            if (symbol is DeclaredSymbol declaredSymbol && semanticModel.Binder.TryGetCycle(declaredSymbol) is null)
+                            {
+                                if (declaredSymbol.DeclaringSyntax is VariableDeclarationSyntax variableDeclarationSyntax)
+                                {
+                                    if (variableDeclarationSyntax.Value is BooleanLiteralSyntax booleanLiteralSyntax && booleanLiteralSyntax.Value)
+                                    {
+                                        return this.TryLookup(ternaryOperationSyntax.TrueExpression);
+                                    }
+                                    else
+                                    {
+                                        return this.TryLookup(ternaryOperationSyntax.TrueExpression);
+                                    }
+                                }
+                            }
+                        }
+                        return null;
+
+                        /*//commented code below is needed for the BooleanLiteralSyntax switch statement
+                        if (TryLookup(ternaryOperationSyntax.ConditionExpression) is { } conditionMetadata)
+                        {
+                            return this.TryLookup(ternaryOperationSyntax.TrueExpression);
+                        }
+                        else
+                        {
+                            return this.TryLookup(ternaryOperationSyntax.FalseExpression);
+                        }*/
+                }
                 case ResourceDeclarationSyntax resourceDeclarationSyntax:
                     {
                         // Skip analysis for ErrorSymbol and similar cases, these are invalid cases, and won't be emitted.
@@ -110,7 +142,8 @@ namespace Bicep.Core.Semantics.Metadata
                                     resourceType,
                                     symbol.DeclaringResource.IsExistingResource(),
                                     symbol,
-                                    new(parentMetadata, null, true));
+                                    new(parentMetadata, null, true),
+                                    null);
                             }
                         }
                         else if (symbol.TryGetBodyPropertyValue(LanguageConstants.ResourceParentPropertyName) is { } referenceParentSyntax)
@@ -129,7 +162,8 @@ namespace Bicep.Core.Semantics.Metadata
                                     resourceType,
                                     symbol.DeclaringResource.IsExistingResource(),
                                     symbol,
-                                    new(parentMetadata, indexExpression, false));
+                                    new(parentMetadata, indexExpression, false),
+                                    referenceParentSyntax is TernaryOperationSyntax ternaryOperationSyntax ? ternaryOperationSyntax : null);
                             }
                         }
                         else
@@ -138,6 +172,7 @@ namespace Bicep.Core.Semantics.Metadata
                                 resourceType,
                                 symbol.DeclaringResource.IsExistingResource(),
                                 symbol,
+                                null,
                                 null);
                         }
 
@@ -145,6 +180,10 @@ namespace Bicep.Core.Semantics.Metadata
                     }
                 case VariableDeclarationSyntax variableDeclarationSyntax:
                     return this.TryLookup(variableDeclarationSyntax.Value);
+
+                /*// could also just return null and the Parent property of DeclaredResourceMetadata would always be set to the FalseExpression
+                case BooleanLiteralSyntax booleanLiteralSyntax:
+                    return null;*/
             }
 
             return null;
