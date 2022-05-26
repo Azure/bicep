@@ -51,9 +51,9 @@ namespace Bicep.Core.Emit
         /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="writer">The json writer to write the template</param>
-        public EmitResult EmitParametersFile(JsonTextWriter writer) => this.EmitOrFail(() =>
+        public EmitResult EmitParametersFile(JsonTextWriter writer, string existingContent) => this.EmitOrFail(() =>
         {
-            new ParametersFileTemplateWriter(this.model, this.settings).Write(writer);
+            new ParametersFileTemplateWriter(this.model, this.settings).Write(writer, existingContent);
         });
 
         /// <summary>
