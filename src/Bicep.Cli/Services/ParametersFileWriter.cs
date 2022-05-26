@@ -24,9 +24,7 @@ namespace Bicep.Cli.Services
             var fileStream = CreateFileStream(outputPath);
             using (fileStream)
             {
-                var semanticModel = compilation.GetEntrypointSemanticModel();
-
-                return new TemplateEmitter(semanticModel, invocationContext.EmitterSettings).EmitParametersFile(fileStream);
+                return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(fileStream);
             }
         }
 
