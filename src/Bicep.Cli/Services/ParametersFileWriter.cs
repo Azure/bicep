@@ -40,9 +40,7 @@ namespace Bicep.Cli.Services
                 Formatting = Formatting.Indented
             };
 
-            var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings);
-
-            return emitter.EmitParametersFile(writer);
+            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(writer);
         }
 
         private static FileStream CreateFileStream(string path)
