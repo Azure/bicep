@@ -50,6 +50,7 @@
       "newText": "extensionResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -70,6 +71,28 @@
       "newText": "managementGroup($0)"
     },
     "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
+    "label": "managementGroupResourceId",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nmanagementGroupResourceId(resourceType: string, ... : string): string\nmanagementGroupResourceId(managementGroupId: string, resourceType: string, ... : string): string\n\n```\nReturns the unique identifier for a resource deployed at the management group level.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_managementGroupResourceId",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "managementGroupResourceId($0)"
+    },
+    "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -90,6 +113,7 @@
       "newText": "pickZones($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -110,6 +134,7 @@
       "newText": "providers($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -130,6 +155,7 @@
       "newText": "reference($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -150,6 +176,7 @@
       "newText": "resourceGroup($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -170,6 +197,7 @@
       "newText": "resourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -190,6 +218,7 @@
       "newText": "subscription($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -210,6 +239,7 @@
       "newText": "subscriptionResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   },
@@ -247,6 +277,7 @@
       "newText": "tenantResourceId($0)"
     },
     "command": {
+      "title": "signature help",
       "command": "editor.action.triggerParameterHints"
     }
   }

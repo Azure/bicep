@@ -3,7 +3,7 @@ param name string
 //@[0:5)  Identifier |param|
 //@[6:10)  IdentifierSyntax
 //@[6:10)   Identifier |name|
-//@[11:17)  TypeSyntax
+//@[11:17)  SimpleTypeSyntax
 //@[11:17)   Identifier |string|
 //@[17:18) NewLine |\n|
 param accounts array
@@ -11,7 +11,7 @@ param accounts array
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |accounts|
-//@[15:20)  TypeSyntax
+//@[15:20)  SimpleTypeSyntax
 //@[15:20)   Identifier |array|
 //@[20:21) NewLine |\n|
 param index int
@@ -19,7 +19,7 @@ param index int
 //@[0:5)  Identifier |param|
 //@[6:11)  IdentifierSyntax
 //@[6:11)   Identifier |index|
-//@[12:15)  TypeSyntax
+//@[12:15)  SimpleTypeSyntax
 //@[12:15)   Identifier |int|
 //@[15:17) NewLine |\n\n|
 
@@ -637,7 +637,7 @@ output indexedCollectionBlobEndpoint string = storageAccounts[index].properties.
 //@[0:6)  Identifier |output|
 //@[7:36)  IdentifierSyntax
 //@[7:36)   Identifier |indexedCollectionBlobEndpoint|
-//@[37:43)  TypeSyntax
+//@[37:43)  SimpleTypeSyntax
 //@[37:43)   Identifier |string|
 //@[44:45)  Assignment |=|
 //@[46:101)  PropertyAccessSyntax
@@ -667,7 +667,7 @@ output indexedCollectionName string = storageAccounts[index].name
 //@[0:6)  Identifier |output|
 //@[7:28)  IdentifierSyntax
 //@[7:28)   Identifier |indexedCollectionName|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |string|
 //@[36:37)  Assignment |=|
 //@[38:65)  PropertyAccessSyntax
@@ -689,7 +689,7 @@ output indexedCollectionId string = storageAccounts[index].id
 //@[0:6)  Identifier |output|
 //@[7:26)  IdentifierSyntax
 //@[7:26)   Identifier |indexedCollectionId|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[34:35)  Assignment |=|
 //@[36:61)  PropertyAccessSyntax
@@ -711,7 +711,7 @@ output indexedCollectionType string = storageAccounts[index].type
 //@[0:6)  Identifier |output|
 //@[7:28)  IdentifierSyntax
 //@[7:28)   Identifier |indexedCollectionType|
-//@[29:35)  TypeSyntax
+//@[29:35)  SimpleTypeSyntax
 //@[29:35)   Identifier |string|
 //@[36:37)  Assignment |=|
 //@[38:65)  PropertyAccessSyntax
@@ -733,7 +733,7 @@ output indexedCollectionVersion string = storageAccounts[index].apiVersion
 //@[0:6)  Identifier |output|
 //@[7:31)  IdentifierSyntax
 //@[7:31)   Identifier |indexedCollectionVersion|
-//@[32:38)  TypeSyntax
+//@[32:38)  SimpleTypeSyntax
 //@[32:38)   Identifier |string|
 //@[39:40)  Assignment |=|
 //@[41:74)  PropertyAccessSyntax
@@ -758,7 +758,7 @@ output indexedCollectionIdentity object = storageAccounts[index].identity
 //@[0:6)  Identifier |output|
 //@[7:32)  IdentifierSyntax
 //@[7:32)   Identifier |indexedCollectionIdentity|
-//@[33:39)  TypeSyntax
+//@[33:39)  SimpleTypeSyntax
 //@[33:39)   Identifier |object|
 //@[40:41)  Assignment |=|
 //@[42:73)  PropertyAccessSyntax
@@ -783,7 +783,7 @@ output indexedEndpointPair object = {
 //@[0:6)  Identifier |output|
 //@[7:26)  IdentifierSyntax
 //@[7:26)   Identifier |indexedEndpointPair|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |object|
 //@[34:35)  Assignment |=|
 //@[36:181)  ObjectSyntax
@@ -858,7 +858,7 @@ output indexViaReference string = storageAccounts[int(storageAccounts[index].pro
 //@[0:6)  Identifier |output|
 //@[7:24)  IdentifierSyntax
 //@[7:24)   Identifier |indexViaReference|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |string|
 //@[32:33)  Assignment |=|
 //@[34:124)  PropertyAccessSyntax
@@ -2288,7 +2288,7 @@ output indexedModulesName string = moduleCollectionWithSingleDependency[index].n
 //@[0:6)  Identifier |output|
 //@[7:25)  IdentifierSyntax
 //@[7:25)   Identifier |indexedModulesName|
-//@[26:32)  TypeSyntax
+//@[26:32)  SimpleTypeSyntax
 //@[26:32)   Identifier |string|
 //@[33:34)  Assignment |=|
 //@[35:83)  PropertyAccessSyntax
@@ -2310,7 +2310,7 @@ output indexedModuleOutput string = moduleCollectionWithSingleDependency[index *
 //@[0:6)  Identifier |output|
 //@[7:26)  IdentifierSyntax
 //@[7:26)   Identifier |indexedModuleOutput|
-//@[27:33)  TypeSyntax
+//@[27:33)  SimpleTypeSyntax
 //@[27:33)   Identifier |string|
 //@[34:35)  Assignment |=|
 //@[36:100)  PropertyAccessSyntax
@@ -2402,7 +2402,7 @@ output existingIndexedResourceName string = existingStorageAccounts[index * 0].n
 //@[0:6)  Identifier |output|
 //@[7:34)  IdentifierSyntax
 //@[7:34)   Identifier |existingIndexedResourceName|
-//@[35:41)  TypeSyntax
+//@[35:41)  SimpleTypeSyntax
 //@[35:41)   Identifier |string|
 //@[42:43)  Assignment |=|
 //@[44:83)  PropertyAccessSyntax
@@ -2428,7 +2428,7 @@ output existingIndexedResourceId string = existingStorageAccounts[index * 1].id
 //@[0:6)  Identifier |output|
 //@[7:32)  IdentifierSyntax
 //@[7:32)   Identifier |existingIndexedResourceId|
-//@[33:39)  TypeSyntax
+//@[33:39)  SimpleTypeSyntax
 //@[33:39)   Identifier |string|
 //@[40:41)  Assignment |=|
 //@[42:79)  PropertyAccessSyntax
@@ -2454,7 +2454,7 @@ output existingIndexedResourceType string = existingStorageAccounts[index+2].typ
 //@[0:6)  Identifier |output|
 //@[7:34)  IdentifierSyntax
 //@[7:34)   Identifier |existingIndexedResourceType|
-//@[35:41)  TypeSyntax
+//@[35:41)  SimpleTypeSyntax
 //@[35:41)   Identifier |string|
 //@[42:43)  Assignment |=|
 //@[44:81)  PropertyAccessSyntax
@@ -2480,7 +2480,7 @@ output existingIndexedResourceApiVersion string = existingStorageAccounts[index-
 //@[0:6)  Identifier |output|
 //@[7:40)  IdentifierSyntax
 //@[7:40)   Identifier |existingIndexedResourceApiVersion|
-//@[41:47)  TypeSyntax
+//@[41:47)  SimpleTypeSyntax
 //@[41:47)   Identifier |string|
 //@[48:49)  Assignment |=|
 //@[50:93)  PropertyAccessSyntax
@@ -2506,7 +2506,7 @@ output existingIndexedResourceLocation string = existingStorageAccounts[index/2]
 //@[0:6)  Identifier |output|
 //@[7:38)  IdentifierSyntax
 //@[7:38)   Identifier |existingIndexedResourceLocation|
-//@[39:45)  TypeSyntax
+//@[39:45)  SimpleTypeSyntax
 //@[39:45)   Identifier |string|
 //@[46:47)  Assignment |=|
 //@[48:89)  PropertyAccessSyntax
@@ -2532,7 +2532,7 @@ output existingIndexedResourceAccessTier string = existingStorageAccounts[index%
 //@[0:6)  Identifier |output|
 //@[7:40)  IdentifierSyntax
 //@[7:40)   Identifier |existingIndexedResourceAccessTier|
-//@[41:47)  TypeSyntax
+//@[41:47)  SimpleTypeSyntax
 //@[41:47)   Identifier |string|
 //@[48:49)  Assignment |=|
 //@[50:104)  PropertyAccessSyntax

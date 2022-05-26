@@ -1,4 +1,4 @@
-//Policy Exemption
+// Policy Exemption
 resource /*${1:policyExemption}*/policyExemption 'Microsoft.Authorization/policyExemptions@2020-07-01-preview' = {
   name: /*${2:'name'}*/'name'
   properties: {

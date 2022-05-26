@@ -21,6 +21,26 @@ resource vnet 'Microsoft.Network/virtualNetworks@2019-12-01' = {
         properties: {
           addressPrefix: subnetPrefix
           privateEndpointNetworkPolicies: 'Disabled'
+          networkSecurityGroup: {
+            properties: {
+              securityRules: [
+                {
+                  properties: {
+                    direction: 'Inbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+                {
+                  properties: {
+                    direction: 'Outbound'
+                    protocol: '*'
+                    access: 'Allow'
+                  }
+                }
+              ]
+            }
+          }
         }
       }
     ]

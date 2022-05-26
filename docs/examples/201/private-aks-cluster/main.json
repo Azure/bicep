@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "18366288123290894733"
+      "templateHash": "2829340296346019027"
     }
   },
   "parameters": {
@@ -535,7 +535,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "16544072065088913224"
+              "templateHash": "14784418504334794988"
             }
           },
           "parameters": {
@@ -754,7 +754,27 @@
                     "properties": {
                       "addressPrefix": "[parameters('aksSubnetAddressPrefix')]",
                       "privateEndpointNetworkPolicies": "Disabled",
-                      "privateLinkServiceNetworkPolicies": "Enabled"
+                      "privateLinkServiceNetworkPolicies": "Enabled",
+                      "networkSecurityGroup": {
+                        "properties": {
+                          "securityRules": [
+                            {
+                              "properties": {
+                                "direction": "Inbound",
+                                "protocol": "*",
+                                "access": "Allow"
+                              }
+                            },
+                            {
+                              "properties": {
+                                "direction": "Outbound",
+                                "protocol": "*",
+                                "access": "Allow"
+                              }
+                            }
+                          ]
+                        }
+                      }
                     }
                   },
                   {

@@ -8,7 +8,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000002",
+    "sortText": "00000003",
     "filterText": "'Microsoft.Resources/templateSpecs@2019-06-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -26,7 +26,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000001",
+    "sortText": "00000002",
     "filterText": "'Microsoft.Resources/templateSpecs@2021-03-01-preview'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
@@ -44,13 +44,31 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "00000000",
+    "sortText": "00000001",
     "filterText": "'Microsoft.Resources/templateSpecs@2021-05-01'",
     "insertTextFormat": "plainText",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
       "newText": "'Microsoft.Resources/templateSpecs@2021-05-01'"
+    }
+  },
+  {
+    "label": "2022-02-01",
+    "kind": "class",
+    "documentation": {
+      "kind": "markdown",
+      "value": "Type: `Microsoft.Resources/templateSpecs`  \nAPI Version: `2022-02-01`"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "00000000",
+    "filterText": "'Microsoft.Resources/templateSpecs@2022-02-01'",
+    "insertTextFormat": "plainText",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "'Microsoft.Resources/templateSpecs@2022-02-01'"
     }
   }
 ]

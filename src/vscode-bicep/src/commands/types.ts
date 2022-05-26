@@ -1,7 +1,8 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import { IActionContext } from "vscode-azureextensionui";
+import { IActionContext } from "@microsoft/vscode-azext-utils";
+import { Uri } from "vscode";
 
 export interface Command {
   readonly id: string;
@@ -11,5 +12,9 @@ export interface Command {
    * @param context Optionally used to control telemetry and error-handling behavior
    * @param args Optional arguments that are being passed to the command
    */
-  execute(context: IActionContext, ...args: unknown[]): unknown;
+  execute(
+    context: IActionContext,
+    documentUri: Uri | undefined,
+    ...args: unknown[]
+  ): unknown | Promise<unknown>;
 }

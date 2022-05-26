@@ -105,7 +105,6 @@ module StorageRoleDeploymentResource './nested_StorageRoleDeploymentResource.bic
 }
 
 module UpdateStorageAccountNetworkingAcls './nested_UpdateStorageAccountNetworkingAcls.bicep' = if (setWorkspaceMsiByPassOnStorageAccount) {
-//@[42:93) [BCP104 (Error)] The referenced module has errors. (CodeDescription: none) |'./nested_UpdateStorageAccountNetworkingAcls.bicep'|
   name: 'UpdateStorageAccountNetworkingAcls'
   scope: resourceGroup(storageSubscriptionID, storageResourceGroupName)
   params: {

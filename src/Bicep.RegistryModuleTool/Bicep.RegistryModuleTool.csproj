@@ -1,6 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <AssemblyName>Azure.Bicep.RegistryModuleTool</AssemblyName>
+    <RootNamespace>Bicep.RegistryModuleTool</RootNamespace>
     <OutputType>Exe</OutputType>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>brm</ToolCommandName>
@@ -14,23 +16,29 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DiffPlex" Version="1.7.0" />
-    <PackageReference Include="FluentAssertions" Version="6.4.0" />
-    <PackageReference Include="JsonPath.Net" Version="0.1.14" />
-    <PackageReference Include="JsonSchema.Net" Version="1.12.0" />
+    <PackageReference Include="DiffPlex" Version="1.7.1" />
+    <PackageReference Include="FluentAssertions" Version="6.6.0" />
+    <PackageReference Include="JsonPath.Net" Version="0.2.1" />
+    <PackageReference Include="JsonSchema.Net" Version="2.3.0" />
+    <PackageReference Include="Markdig" Version="0.30.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Extensions.Hosting" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.0.1" />
     <PackageReference Include="Serilog.Sinks.TextWriter" Version="2.1.0" />
-    <PackageReference Include="System.CommandLine" Version="2.0.0-beta1.21308.1" />
-    <PackageReference Include="System.CommandLine.Hosting" Version="0.3.0-alpha.21216.1" />
-    <PackageReference Include="System.CommandLine.Rendering" Version="0.3.0-alpha.21216.1" />
-    <PackageReference Include="System.IO.Abstractions" Version="14.0.13" />
+    <PackageReference Include="System.CommandLine" Version="2.0.0-beta3.22114.1" />
+    <PackageReference Include="System.CommandLine.Hosting" Version="0.4.0-alpha.22114.1" />
+    <PackageReference Include="System.CommandLine.NamingConventionBinder" Version="2.0.0-beta3.22114.1" />
+    <PackageReference Include="System.CommandLine.Rendering" Version="0.4.0-alpha.22114.1" />
+    <PackageReference Include="System.IO.Abstractions" Version="16.1.25" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Bicep.Core\Bicep.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="Nerdbank.GitVersioning" Version="3.4.255" />
   </ItemGroup>
   
   <!-- TF_BUILD is a read-only predefined variable in ADO. It is set to True when starting a build task. -->

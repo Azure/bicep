@@ -692,7 +692,7 @@ output siteUrls array = [for (site, i) in websites: siteDeploy[i].outputs.siteUr
 //@[0:6)  Identifier |output|
 //@[7:15)  IdentifierSyntax
 //@[7:15)   Identifier |siteUrls|
-//@[16:21)  TypeSyntax
+//@[16:21)  SimpleTypeSyntax
 //@[16:21)   Identifier |array|
 //@[22:23)  Assignment |=|
 //@[24:82)  ForSyntax

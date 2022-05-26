@@ -3,7 +3,6 @@
 using System;
 using System.Linq;
 using System.Text;
-using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;

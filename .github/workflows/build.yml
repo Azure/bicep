@@ -9,6 +9,7 @@ on:
 
 jobs:
   build-bicep:
+
     name: 'Build CLI (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
 
@@ -72,27 +73,27 @@ jobs:
           runTests: 'false'
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
-      
+        uses: actions/setup-dotnet@v2
+
       - name: Build
         run: dotnet build --configuration ${{ matrix.configuration }}
 
       - name: Pack
         if: ${{ matrix.publishPackages == 'true' }}
         run: dotnet pack --configuration ${{ matrix.configuration }}
-      
+
       - name: Test
         if: ${{ matrix.runTests == 'true' }}
         run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ always() && matrix.runTests == 'true' }}
         with:
           name: Bicep.TestResults.${{ matrix.rid }}
@@ -102,7 +103,7 @@ jobs:
       - name: Publish Language Server
         if: ${{ matrix.publishLanguageServer == 'true' }}
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
-      
+
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
@@ -121,24 +122,24 @@ jobs:
           args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm test --prefix ./src/Bicep.Cli.E2eTests"
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
-      
+
       - name: Upload Language Server
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ matrix.publishLanguageServer == 'true' }}
         with:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net6.0/publish/*
           if-no-files-found: error
-      
+
       - name: Upload Bicep
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: bicep-${{ matrix.configuration }}-${{ matrix.rid }}
           path: ./src/Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/*
           if-no-files-found: error
 
       - name: Upload Packages
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: ${{ matrix.publishPackages == 'true' }}
         with:
           name: bicep-nupkg-any
@@ -147,14 +148,31 @@ jobs:
 
       - name: Upload Code Coverage
         if: ${{ matrix.runTests == 'true' }}
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
         with:
           flags: dotnet
+
+  can-run-live-tests:
+    name: Check if the workflow run can access secrets
+    runs-on: ubuntu-latest
+    outputs:
+      access_verified: ${{ steps.check-access.outputs.verified }}
+    steps:
+      - name: Check access
+        id: check-access
+        env:
+          BICEP_SPN_PASSWORD: ${{ secrets.BICEP_SPN_PASSWORD }}
+        if: ${{ env.BICEP_SPN_PASSWORD != '' }}
+        run: |
+          echo "::set-output name=verified::true"
 
   test-cli-live:
     name: 'Test CLI (live) (${{ matrix.rid }})'
     runs-on: ${{ matrix.os }}
-    needs: build-bicep
+    needs:
+      - build-bicep
+      - can-run-live-tests
+    if: needs.can-run-live-tests.outputs.access_verified == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
 
     env:
       CI: true
@@ -179,20 +197,20 @@ jobs:
         - os: 'macos-latest'
           rid: 'osx-x64'
           configuration: 'release'
-    
+
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.5.1
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
+          node-version: '14'
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
@@ -230,25 +248,25 @@ jobs:
     needs: build-bicep
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
-      
+        uses: actions/setup-dotnet@v2
+
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-release-win-x64
           path: ./src/installer-win/bicep
-      
+
       - name: Build Windows Installer
         run: dotnet build --configuration release ./src/installer-win/installer.proj
-      
+
       - name: Upload Windows Installer
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: bicep-setup-win-x64
           path: ./src/installer-win/bin/release/net472/bicep-setup-win-x64.exe
@@ -265,7 +283,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      
+
       # should be the full list of RIDs that we support in the CLI
       matrix:
         include:
@@ -287,20 +305,20 @@ jobs:
         - os: 'ubuntu-latest'
           rid: 'osx-arm64'
           runTests: 'false'
-    
+
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.5.1
+        uses: actions/setup-node@v3
         with:
-          node-version: 10.x
+          node-version: '14'
 
       - name: npm ci
         if: ${{ matrix.runTests == 'true' }}
@@ -318,30 +336,30 @@ jobs:
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Download Bicep CLI
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-release-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/tools
 
       - name: Download .Net Packages
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-nupkg-any
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
 
       - name: Build CLI Package
         run: dotnet build --configuration release /p:RuntimeSuffix=${{ matrix.rid }} ./src/Bicep.Cli.Nuget/nuget.proj
-      
+
       - name: Upload CLI Package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.Cli.Nuget/*.nupkg
           if-no-files-found: error
-      
+
       - name: Download CLI Package
         if: ${{ matrix.runTests == 'true' }}
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
@@ -374,24 +392,24 @@ jobs:
           rid: 'osx-x64'
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.5.1
+        uses: actions/setup-node@v3
         with:
-          node-version: 12.x
+          node-version: '14'
 
       - name: npm ci
         run: npm ci
         working-directory: ./src/vscode-bicep
-        
+
       - name: Run lint
         run: npm run lint
         working-directory: ./src/vscode-bicep
-          
+
       - name: Run unit tests
         run: npm run test:unit
         working-directory: ./src/vscode-bicep
@@ -401,7 +419,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Download Language Server
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: Bicep.LangServer
           path: ./src/vscode-bicep/bicepLanguageServer
@@ -409,7 +427,7 @@ jobs:
       - name: Build prod
         run: npm run build:prod
         working-directory: ./src/vscode-bicep
-        
+
       - name: Build E2E tests
         run: npm run build:e2e
         working-directory: ./src/vscode-bicep
@@ -431,7 +449,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
-        uses: codecov/codecov-action@v2.1.0
+        uses: codecov/codecov-action@v3
         with:
           flags: typescript
           directory: ./src/vscode-bicep/coverage
@@ -442,7 +460,7 @@ jobs:
         working-directory: ./src/vscode-bicep
 
       - name: Upload VSIX
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         if: runner.os == 'Linux'
         with:
           name: vscode-bicep.vsix
@@ -454,19 +472,19 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.5.1
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
-      
+          node-version: '14'
+
       - name: npm ci
         run: npm ci
         working-directory: ./src/playground
@@ -480,7 +498,7 @@ jobs:
         working-directory: ./src/playground
 
       - name: Upload
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: playground
           path: ./src/playground/dist/*
@@ -491,33 +509,33 @@ jobs:
     runs-on: 'ubuntu-latest'
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
           submodules: true
 
       - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1.9.0
+        uses: actions/setup-dotnet@v2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v2.5.1
+        uses: actions/setup-node@v3
         with:
-          node-version: 14.x
-      
+          node-version: '16'
+
       - name: TextMate Grammar
         run: |
           npm ci
           npm run lint
           npm test
         working-directory: ./src/textmate
-      
+
       - name: HighlightJs Grammar
         run: |
           npm ci
           npm run lint
           npm test
         working-directory: ./src/highlightjs
-      
+
       - name: Monarch Grammar
         run: |
           npm ci

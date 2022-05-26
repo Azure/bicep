@@ -2,9 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 // TODO: Test with different configs

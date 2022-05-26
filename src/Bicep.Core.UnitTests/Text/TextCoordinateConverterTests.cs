@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using Bicep.Core.Text;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -123,7 +122,7 @@ namespace Bicep.Core.UnitTests.Text
 
         [DataTestMethod]
         [DynamicData(nameof(GetTestDataForGetPosition), DynamicDataSourceType.Method)]
-        public void GetPosition_ValidLineStartsAndOffset_ReturnsConvertedPosition(ImmutableArray<int> lineStarts, int offset, (int line, int character) expectedPosition)
+        public void GetPosition_ValidLineStartsAndOffset_ReturnsConvertedPosition(int[] lineStarts, int offset, (int line, int character) expectedPosition)
         {
             var position = TextCoordinateConverter.GetPosition(lineStarts, offset);
             position.Should().Be(expectedPosition);
@@ -131,7 +130,7 @@ namespace Bicep.Core.UnitTests.Text
 
         [DataTestMethod]
         [DynamicData(nameof(GetTestDataForGetPosition), DynamicDataSourceType.Method)]
-        public void GetOffset_ValidLineStartsAndOffset_ReturnsConvertedOffset(ImmutableArray<int> lineStarts, int expectedOffset, (int line, int character) position)
+        public void GetOffset_ValidLineStartsAndOffset_ReturnsConvertedOffset(int[] lineStarts, int expectedOffset, (int line, int character) position)
         {
             var offset = TextCoordinateConverter.GetOffset(lineStarts, position.line, position.character);
             offset.Should().Be(expectedOffset);
@@ -139,15 +138,15 @@ namespace Bicep.Core.UnitTests.Text
 
         public static IEnumerable<object[]> GetTestDataForGetPosition()
         {
-            yield return new object[] { new List<int> { 0, 7, 9 }.ToImmutableArray(), 0, (0, 0) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 0, (0, 0) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 5, (0, 5) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 11, (0, 11) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 12, (1, 0) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 34, (1, 22) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 44, (1, 32) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 45, (2, 0) };
-            yield return new object[] { new List<int> { 0, 12, 45 }.ToImmutableArray(), 99, (2, 54) };
+            yield return new object[] { new[] { 0, 7, 9 }, 0, (0, 0) };
+            yield return new object[] { new[] { 0, 12, 45 }, 0, (0, 0) };
+            yield return new object[] { new[] { 0, 12, 45 }, 5, (0, 5) };
+            yield return new object[] { new[] { 0, 12, 45 }, 11, (0, 11) };
+            yield return new object[] { new[] { 0, 12, 45 }, 12, (1, 0) };
+            yield return new object[] { new[] { 0, 12, 45 }, 34, (1, 22) };
+            yield return new object[] { new[] { 0, 12, 45 }, 44, (1, 32) };
+            yield return new object[] { new[] { 0, 12, 45 }, 45, (2, 0) };
+            yield return new object[] { new[] { 0, 12, 45 }, 99, (2, 54) };
         }
     }
 }

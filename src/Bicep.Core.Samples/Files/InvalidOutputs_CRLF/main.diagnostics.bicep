@@ -231,6 +231,7 @@ resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
 output keyVaultSecretOutput string = kv.getSecret('mySecret')
 //@[37:61) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
+//@[49:78) [simplify-interpolation (Warning)] Remove unnecessary string interpolation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/simplify-interpolation)) |'${kv.getSecret('mySecret')}'|
 //@[52:76) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 output keyVaultSecretObjectOutput object = {
   secret: kv.getSecret('mySecret')

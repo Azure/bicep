@@ -18,7 +18,6 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             code: Code,
             description: CoreResources.MaxNumberResourcesRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-            diagnosticLabel: Diagnostics.DiagnosticLabel.Unnecessary,
             diagnosticLevel: DiagnosticLevel.Error)
         { }
 
@@ -29,9 +28,9 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
         override public IEnumerable<IDiagnostic> AnalyzeInternal(SemanticModel model)
         {
-            if (model.AllResources.Length > MaxNumber)
+            if (model.DeclaredResources.Length > MaxNumber)
             {
-                var firstItem = model.AllResources.Where(r => r.Parent is null).First();
+                var firstItem = model.DeclaredResources.Where(r => r.Parent is null).First();
                 return new IDiagnostic[] { CreateDiagnosticForSpan(firstItem.Symbol.NameSyntax.Span, MaxNumber) };
             }
             return Enumerable.Empty<IDiagnostic>();

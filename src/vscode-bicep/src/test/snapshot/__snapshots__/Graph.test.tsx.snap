@@ -169,7 +169,7 @@ Array [
       <div
         className="c2"
       >
-        Layout
+        Reset layout
       </div>
       <div
         onMouseDown={[Function]}

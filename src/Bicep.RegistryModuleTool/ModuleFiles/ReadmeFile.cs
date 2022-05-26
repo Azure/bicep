@@ -3,7 +3,12 @@
 
 using Bicep.RegistryModuleTool.Extensions;
 using Bicep.RegistryModuleTool.ModuleFileValidators;
+using Markdig;
+using Markdig.Syntax;
+using Markdig.Syntax.Inlines;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
 using System.Text;
@@ -14,16 +19,40 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "README.md";
 
-        public ReadmeFile(string path, string content)
+        public ReadmeFile(string path, string contents)
             : base(path)
         {
-            this.Content = content;
+            this.Contents = contents;
         }
 
-        public string Content { get; }
+        public string Contents { get; }
 
         public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metadataFile, MainArmTemplateFile mainArmTemplateFile)
         {
+            var examplesSection = @"## Examples
+### Example 1
+```bicep
+```
+### Example 2
+```bicep
+```".ReplaceLineEndings();
+
+            try
+            {
+                var existingFile = ReadFromFileSystem(fileSystem);
+                var existingExamplesSection = TryReadSection(existingFile.Contents, 2, "Examples");
+
+                if (existingExamplesSection is not null && !existingExamplesSection.Equals("## Examples", StringComparison.Ordinal))
+                {
+                    // The existing examples section is not empty.
+                    examplesSection = existingExamplesSection;
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                // Do thing.
+            }
+
             var builder = new StringBuilder();
 
             builder.AppendLine($"# {metadataFile.Name}");
@@ -35,7 +64,12 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             BuildParametersTable(builder, mainArmTemplateFile.Parameters);
             BuildOutputsTable(builder, mainArmTemplateFile.Outputs);
 
-            return new(fileSystem.Path.GetFullPath(FileName), builder.ToString());
+            builder.AppendLine(examplesSection);
+
+            var contents = builder.ToString();
+            var normalizedContents = Markdown.Normalize(contents);
+
+            return new(fileSystem.Path.GetFullPath(FileName), normalizedContents);
         }
 
         public static ReadmeFile ReadFromFileSystem(IFileSystem fileSystem)
@@ -48,7 +82,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public ReadmeFile WriteToFileSystem(IFileSystem fileSystem)
         {
-            fileSystem.File.WriteAllText(FileName, this.Content);
+            fileSystem.File.WriteAllText(FileName, this.Contents);
 
             return this;
         }
@@ -65,7 +99,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                     Name = $"`{p.Name}`",
                     Type = $"`{p.Type}`",
                     Required = p.Required ? "Yes" : "No",
-                    p.Description,
+                    Description = p.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
                 })
                 .ToMarkdownTable(columnName => columnName switch
                 {
@@ -85,6 +119,29 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                     ? MarkdownTableColumnAlignment.Center
                     : MarkdownTableColumnAlignment.Left));
             builder.AppendLine();
+        }
+
+        private static string? TryReadSection(string markdownText, int level, string title)
+        {
+            var document = Markdown.Parse(markdownText);
+            var headingBlock = document.Descendants<HeadingBlock>().FirstOrDefault(x =>
+                x.Level == level &&
+                x.Inline?.Descendants<LiteralInline>().SingleOrDefault()?.ToString().Equals(title, StringComparison.Ordinal) == true);
+
+            if (headingBlock is null)
+            {
+                return null;
+            }
+
+            var nextHeadingBlock = document.Descendants<HeadingBlock>()
+                .FirstOrDefault(x => x.Level <= level && x.Line > headingBlock.Line);
+
+            var section = nextHeadingBlock is not null
+                ? markdownText[headingBlock.Span.Start..nextHeadingBlock.Span.Start]
+                : markdownText[headingBlock.Span.Start..];
+
+            // Normlize the section to remove trivia characters.
+            return Markdown.Normalize(section);
         }
     }
 }

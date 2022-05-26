@@ -8,7 +8,6 @@ using System.Reflection;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
-using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
@@ -91,6 +90,50 @@ namespace Bicep.Core.UnitTests.TypeSystem
                 argumentType.Should().Be(argumentTypes[argumentIndex]);
                 parameterType.Should().Be(expectedParameterType);
             }
+        }
+
+        [DataTestMethod]
+        [DynamicData(nameof(GetStringLiteralTransformations), DynamicDataSourceType.Method, DynamicDataDisplayName = nameof(GetDisplayName))]
+        public void StringLiteralTransformationsYieldStringLiteralReturnType(string displayName, string functionName, string[] argumentTypeLiterals, string returnTypeLiteral)
+        {
+            var arguments = argumentTypeLiterals.Select(atl => new FunctionArgumentSyntax(TestSyntaxFactory.CreateString(atl))).ToList();
+            var argumentTypes = argumentTypeLiterals.Select(atl => new StringLiteralType(atl) as TypeSymbol).ToList();
+
+            var matches = GetMatches(functionName, argumentTypes, out _, out _);
+            matches.Should().HaveCount(1);
+
+            var returnType = matches.Single().ReturnTypeBuilder(
+                Repository.Create<IBinder>().Object,
+                Repository.Create<IFileResolver>().Object,
+                Repository.Create<IDiagnosticWriter>().Object,
+                arguments.ToImmutableArray(),
+                argumentTypes.ToImmutableArray()
+            );
+            returnType.Should().BeAssignableTo<StringLiteralType>().Subject.RawStringValue.Should().Be(returnTypeLiteral);
+        }
+
+        private static IEnumerable<object[]> GetStringLiteralTransformations()
+        {
+            object[] CreateRow(string returnedLiteral, string functionName, params string[] argumentLiterals)
+            {
+                string displayName = $@"{functionName}({string.Join(", ", argumentLiterals.Select(l => $@"""{l}"""))}): ""{returnedLiteral}""";
+                return new object[] { displayName, functionName, argumentLiterals, returnedLiteral };
+            }
+
+            yield return CreateRow("IEZpenog", "base64", " Fizz ");
+            yield return CreateRow(" Fizz ", "base64ToString", "IEZpenog");
+            yield return CreateRow("data:text/plain;charset=utf8;base64,IEZpenog", "dataUri", " Fizz ");
+            yield return CreateRow(" Fizz ", "dataUriToString", "data:text/plain;charset=utf-8;base64,IEZpenog");
+            yield return CreateRow("F", "first", "Fizz");
+            yield return CreateRow("z", "last", "Fizz");
+            yield return CreateRow(" fizz ", "toLower", " Fizz ");
+            yield return CreateRow(" FIZZ ", "toUpper", " Fizz ");
+            yield return CreateRow("Fizz", "trim", " Fizz ");
+            yield return CreateRow("%20Fizz%20", "uriComponent", " Fizz ");
+            yield return CreateRow(" Fizz ", "uriComponentToString", "%20Fizz%20");
+            yield return CreateRow("byghxckddilkc", "uniqueString", "snap", "crackle", "pop");
+            yield return CreateRow("2ed86837-7c7c-5eaa-9864-dd077fd19b0d", "guid", "foo", "bar", "baz");
+            yield return CreateRow("food", "replace", "foot", "t", "d");
         }
 
         public static string GetDisplayName(MethodInfo method, object[] row)
@@ -255,4 +298,3 @@ namespace Bicep.Core.UnitTests.TypeSystem
         }
     }
 }
-

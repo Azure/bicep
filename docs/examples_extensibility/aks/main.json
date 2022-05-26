@@ -7,7 +7,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "3946576466075641134"
+      "templateHash": "15309690455475659537"
     }
   },
   "parameters": {
@@ -64,7 +64,7 @@
             "_generator": {
               "name": "bicep",
               "version": "dev",
-              "templateHash": "6455952491638494487"
+              "templateHash": "14191993925451111251"
             }
           },
           "parameters": {
@@ -88,7 +88,7 @@
           "variables": {
             "osDiskSizeGB": 0,
             "agentCount": 3,
-            "agentVMSize": "Standard_DS2_v2"
+            "agentVMSize": "standard_f2s_v2"
           },
           "resources": {
             "aks": {

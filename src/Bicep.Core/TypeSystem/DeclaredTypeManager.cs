@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
@@ -109,9 +110,42 @@ namespace Bicep.Core.TypeSystem
             return null;
         }
 
-        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
+        private DeclaredTypeAssignment GetParameterType(ParameterDeclarationSyntax syntax)
+        {
+            var declaredType = TryGetTypeFromTypeSyntax(syntax.ParameterType);
+            declaredType ??= ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidParameterType());
 
-        private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax) => new(syntax.GetDeclaredType(), syntax);
+            return new(declaredType, syntax);
+        }
+
+        private DeclaredTypeAssignment GetOutputType(OutputDeclarationSyntax syntax)
+        {
+            TypeSymbol declaredType;
+            if (syntax.Type is ResourceTypeSyntax resourceTypeSyntax && resourceTypeSyntax.Type is null)
+            {
+                // The resource type of an output can be inferred.
+                declaredType = this.typeManager.GetTypeInfo(syntax.Value);
+            }
+            else
+            {
+                declaredType = TryGetTypeFromTypeSyntax(syntax.OutputType) ??
+                    ErrorType.Create(DiagnosticBuilder.ForPosition(syntax.Type).InvalidOutputType());
+            }
+
+            return new(declaredType, syntax);
+        }
+
+        private TypeSymbol? TryGetTypeFromTypeSyntax(TypeSyntax? syntax)
+        {
+            // assume "any" type when the parameter has parse errors (either missing or was skipped)
+            return syntax switch
+            {
+                null => LanguageConstants.Any,
+                SimpleTypeSyntax simple => LanguageConstants.TryGetDeclarationType(simple.TypeName),
+                ResourceTypeSyntax resource => GetDeclaredResourceType(this.binder, resource),
+                _ => null
+            };
+        }
 
         private DeclaredTypeAssignment? GetImportType(ImportDeclarationSyntax syntax)
         {
@@ -135,7 +169,7 @@ namespace Bicep.Core.TypeSystem
 
         private DeclaredTypeAssignment GetModuleType(ModuleDeclarationSyntax syntax)
         {
-            var declaredModuleType = syntax.GetDeclaredType(this.binder);
+            var declaredModuleType = GetDeclaredModuleType(syntax);
 
             // if the value is a loop (not a condition or object), the type is an array of the declared module type
             return new DeclaredTypeAssignment(
@@ -183,7 +217,19 @@ namespace Bicep.Core.TypeSystem
 
             var baseExpressionAssignment = GetDeclaredTypeAssignment(syntax.BaseExpression);
 
-            // it's ok to rely on useSyntax=true because those types have already been established
+            // As a special case, a 'resource' parameter or output is a reference to an existing resource
+            // we can't rely on it's syntax because it doesn't declare the resource body.
+            if (baseExpressionAssignment?.DeclaringSyntax is ParameterDeclarationSyntax parameterSyntax &&
+                baseExpressionAssignment.Reference.Type is ResourceType parameterResourceType)
+            {
+                return GetObjectPropertyType(
+                    parameterResourceType.Body.Type,
+                    null,
+                    syntax.PropertyName.IdentifierName,
+                    useSyntax: false);
+            }
+
+            // If we get here, it's ok to rely on useSyntax=true because those types have already been established
 
             var body = baseExpressionAssignment?.DeclaringSyntax switch
             {
@@ -191,6 +237,7 @@ namespace Bicep.Core.TypeSystem
                 ModuleDeclarationSyntax moduleDeclarationSyntax => moduleDeclarationSyntax.TryGetBody(),
                 _ => baseExpressionAssignment?.DeclaringSyntax as ObjectSyntax,
             };
+
             return GetObjectPropertyType(
                 baseExpressionAssignment?.Reference.Type,
                 body,
@@ -593,6 +640,15 @@ namespace Bicep.Core.TypeSystem
                 }
             }
 
+            if (type is ResourceType resourceType)
+            {
+                // We can see a resource type here for an expression like: `mod.outputs.foo.|properties|.bar`
+                // The type of foo is a resource type, but since it's part of the module there's no corresponding declaration.
+                //
+                // For that case resolve the property lookup against the body.
+                type = resourceType.Body.Type;
+            }
+
             // could not get the declared type via syntax
             // let's use the type info instead
             switch (type)
@@ -675,12 +731,39 @@ namespace Bicep.Core.TypeSystem
         private bool IsCycleFree(DeclaredSymbol declaredSymbol) => this.binder.TryGetCycle(declaredSymbol) is null;
 
         /// <summary>
+        /// Returns the declared type of the parameter/output based on a resource type.
+        /// </summary>
+        /// <param name="resourceTypeProvider">resource type provider</param>
+        private TypeSymbol GetDeclaredResourceType(IBinder binder, ResourceTypeSyntax typeSyntax)
+        {
+            // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
+            var stringSyntax = typeSyntax.TypeString;
+            if (stringSyntax != null && stringSyntax.IsInterpolated())
+            {
+                // TODO: in the future, we can relax this check to allow interpolation with compile-time constants.
+                // right now, codegen will still generate a format string however, which will cause problems for the type.
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(typeSyntax.Type!).ResourceTypeInterpolationUnsupported());
+            }
+
+            var stringContent = stringSyntax?.TryGetLiteralValue();
+            if (stringContent == null)
+            {
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(typeSyntax.Type!).InvalidResourceType());
+            }
+
+            // A parameter/output always refers to an 'existing' resource.
+            var typeGenerationFlags = ResourceTypeGenerationFlags.ExistingResource;
+            return GetResourceTypeFromString(typeSyntax.Type!.Span, stringContent, typeGenerationFlags, parentResourceType: null);
+        }
+
+        /// <summary>
         /// Returns the declared type of the resource body (based on the type string).
         /// Returns the same value for single resource or resource loops declarations.
         /// </summary>
         /// <param name="resourceTypeProvider">resource type provider</param>
         private TypeSymbol GetDeclaredResourceType(ResourceDeclarationSyntax resource)
         {
+            // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
             var stringSyntax = resource.TypeString;
 
             if (stringSyntax != null && stringSyntax.IsInterpolated())
@@ -697,7 +780,65 @@ namespace Bicep.Core.TypeSystem
             }
 
             var (typeGenerationFlags, parentResourceType) = GetResourceTypeGenerationFlags(resource);
+            return GetResourceTypeFromString(resource.Type.Span, stringContent, typeGenerationFlags, parentResourceType);
+        }
 
+        private TypeSymbol GetDeclaredModuleType(ModuleDeclarationSyntax module)
+        {
+            if (binder.GetSymbolInfo(module) is not ModuleSymbol moduleSymbol)
+            {
+                // TODO: Ideally we'd still be able to return a type here, but we'd need access to the compilation to get it.
+                return ErrorType.Empty();
+            }
+
+            if (!moduleSymbol.TryGetSemanticModel(out var moduleSemanticModel, out var failureDiagnostic))
+            {
+                return ErrorType.Create(failureDiagnostic);
+            }
+
+            // We need to bind and validate all of the parameters and outputs that declare resource types
+            // within the context of this type manager. This will surface any issues where the type declared by
+            // a module is not understood inside this compilation unit.
+            var parameters = new List<TypeProperty>();
+            foreach (var parameter in moduleSemanticModel.Parameters)
+            {
+                var type = parameter.TypeReference.Type;
+                if (type is UnboundResourceType unboundType)
+                {
+                    var boundType = GetResourceTypeFromString(module.Span, unboundType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
+                    if (boundType is ResourceType resourceType)
+                    {
+                        // We use a special type for Resource type parameters because they have different assignability rules.
+                        type = new ResourceParameterType(resourceType.DeclaringNamespace, unboundType.TypeReference);
+                    }
+                }
+
+                var flags = parameter.IsRequired ? TypePropertyFlags.Required | TypePropertyFlags.WriteOnly : TypePropertyFlags.WriteOnly;
+                parameters.Add(new TypeProperty(parameter.Name, type, flags, parameter.Description));
+            }
+
+            var outputs = new List<TypeProperty>();
+            foreach (var output in moduleSemanticModel.Outputs)
+            {
+                var type = output.TypeReference.Type;
+                if (type is UnboundResourceType unboundType)
+                {
+                    type = GetResourceTypeFromString(module.Span, unboundType.TypeReference.FormatName(), ResourceTypeGenerationFlags.ExistingResource, parentResourceType: null);
+                }
+
+                outputs.Add(new TypeProperty(output.Name, type, TypePropertyFlags.ReadOnly, output.Description));
+            }
+
+            return LanguageConstants.CreateModuleType(
+                parameters,
+                outputs,
+                moduleSemanticModel.TargetScope,
+                binder.TargetScope,
+                LanguageConstants.TypeNameModule);
+        }
+
+        private TypeSymbol GetResourceTypeFromString(TextSpan span, string stringContent, ResourceTypeGenerationFlags typeGenerationFlags, ResourceType? parentResourceType)
+        {
             var colonIndex = stringContent.IndexOf(':');
             if (colonIndex > 0)
             {
@@ -706,16 +847,16 @@ namespace Bicep.Core.TypeSystem
 
                 if (binder.NamespaceResolver.TryGetNamespace(scheme) is not { } namespaceType)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).UnknownResourceReferenceScheme(scheme, binder.NamespaceResolver.GetNamespaceNames().OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(span).UnknownResourceReferenceScheme(scheme, binder.NamespaceResolver.GetNamespaceNames().OrderBy(x => x, StringComparer.OrdinalIgnoreCase)));
                 }
 
                 if (parentResourceType is not null &&
                     parentResourceType.DeclaringNamespace != namespaceType)
                 {
-                    return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).ParentResourceInDifferentNamespace(namespaceType.Name, parentResourceType.DeclaringNamespace.Name));
+                    return ErrorType.Create(DiagnosticBuilder.ForPosition(span).ParentResourceInDifferentNamespace(namespaceType.Name, parentResourceType.DeclaringNamespace.Name));
                 }
 
-                var (errorType, typeReference) = GetCombinedTypeReference(typeGenerationFlags, resource, parentResourceType, typeString);
+                var (errorType, typeReference) = GetCombinedTypeReference(span, typeGenerationFlags, parentResourceType, typeString);
                 if (errorType is not null)
                 {
                     return errorType;
@@ -738,11 +879,11 @@ namespace Bicep.Core.TypeSystem
                     return defaultResource;
                 }
 
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).FailedToFindResourceTypeInNamespace(namespaceType.ProviderName, typeReference.FormatName()));
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(span).FailedToFindResourceTypeInNamespace(namespaceType.ProviderName, typeReference.FormatName()));
             }
             else
             {
-                var (errorType, typeReference) = GetCombinedTypeReference(typeGenerationFlags, resource, parentResourceType, stringContent);
+                var (errorType, typeReference) = GetCombinedTypeReference(span, typeGenerationFlags, parentResourceType, stringContent);
                 if (errorType is not null)
                 {
                     return errorType;
@@ -760,7 +901,7 @@ namespace Bicep.Core.TypeSystem
                     return resourceType;
                 }
 
-                return ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType());
+                return ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceType());
             }
         }
 
@@ -803,11 +944,11 @@ namespace Bicep.Core.TypeSystem
             return (flags, parentType as ResourceType);
         }
 
-        private static (ErrorType? error, ResourceTypeReference? typeReference) GetCombinedTypeReference(ResourceTypeGenerationFlags flags, ResourceDeclarationSyntax resource, ResourceType? parentResourceType, string typeString)
+        private static (ErrorType? error, ResourceTypeReference? typeReference) GetCombinedTypeReference(TextSpan span, ResourceTypeGenerationFlags flags, ResourceType? parentResourceType, string typeString)
         {
             if (ResourceTypeReference.TryParse(typeString) is not { } typeReference)
             {
-                return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceType()), null);
+                return (ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceType()), null);
             }
 
             if (!flags.HasFlag(ResourceTypeGenerationFlags.NestedResource))
@@ -819,13 +960,13 @@ namespace Bicep.Core.TypeSystem
             // we're dealing with a syntactically nested resource here
             if (parentResourceType is null)
             {
-                return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidAncestorResourceType()), null);
+                return (ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidAncestorResourceType()), null);
             }
 
             if (typeReference.TypeSegments.Length > 1)
             {
                 // OK this resource is the one that's wrong.
-                return (ErrorType.Create(DiagnosticBuilder.ForPosition(resource.Type).InvalidResourceTypeSegment(typeString)), null);
+                return (ErrorType.Create(DiagnosticBuilder.ForPosition(span).InvalidResourceTypeSegment(typeString)), null);
             }
 
             return (null, ResourceTypeReference.Combine(

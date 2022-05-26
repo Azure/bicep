@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "17315306733794399610"
+      "templateHash": "5779196382786257629"
     }
   },
   "parameters": {
@@ -101,6 +101,26 @@
               "addressPrefix": "[parameters('subnetaddressPrefix')]",
               "routeTable": {
                 "id": "[resourceId('Microsoft.Network/routeTables', parameters('udrName'))]"
+              },
+              "networkSecurityGroup": {
+                "properties": {
+                  "securityRules": [
+                    {
+                      "properties": {
+                        "direction": "Inbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    },
+                    {
+                      "properties": {
+                        "direction": "Outbound",
+                        "protocol": "*",
+                        "access": "Allow"
+                      }
+                    }
+                  ]
+                }
               }
             }
           }

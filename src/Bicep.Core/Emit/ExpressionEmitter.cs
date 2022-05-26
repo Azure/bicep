@@ -103,7 +103,7 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitUnqualifiedResourceId(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitUnqualifiedResourceId(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
             var converterForContext = converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
 
@@ -113,7 +113,7 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public void EmitIndexedSymbolReference(ResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
+        public void EmitIndexedSymbolReference(DeclaredResourceMetadata resource, SyntaxBase indexExpression, SyntaxBase newContext)
         {
             var expression = converter.CreateConverterForIndexReplacement(resource.Symbol.NameSyntax, indexExpression, newContext)
                 .GenerateSymbolicReference(resource.Symbol.Name, indexExpression);
@@ -129,9 +129,11 @@ namespace Bicep.Core.Emit
             writer.WriteValue(ExpressionSerializer.SerializeExpression(expression));
         }
 
-        public void EmitResourceIdReference(ResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
+        public void EmitResourceIdReference(DeclaredResourceMetadata resource, SyntaxBase? indexExpression, SyntaxBase newContext)
         {
-            var converterForContext = this.converter.CreateConverterForIndexReplacement(resource.NameSyntax, indexExpression, newContext);
+            var nameComponents = SyntaxFactory.CreateArray(this.converter.GetResourceNameSyntaxSegments(resource));
+
+            var converterForContext = this.converter.CreateConverterForIndexReplacement(nameComponents, indexExpression, newContext);
 
             var resourceIdExpression = converterForContext.GetFullyQualifiedResourceId(resource);
             var serialized = ExpressionSerializer.SerializeExpression(resourceIdExpression);
@@ -149,7 +151,7 @@ namespace Bicep.Core.Emit
             writer.WriteValue(serialized);
         }
 
-        public LanguageExpression GetFullyQualifiedResourceName(ResourceMetadata resource)
+        public LanguageExpression GetFullyQualifiedResourceName(DeclaredResourceMetadata resource)
         {
             return converter.GetFullyQualifiedResourceName(resource);
         }
@@ -363,8 +365,9 @@ namespace Bicep.Core.Emit
 
                 var keyVaultId = instanceFunctionCall.BaseExpression switch
                 {
-                    ArrayAccessSyntax arrayAccessSyntax => converter.CreateConverterForIndexReplacement(resource.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCall)
-                                                                    .GetFullyQualifiedResourceId(resource),
+                    ArrayAccessSyntax arrayAccessSyntax when resource is DeclaredResourceMetadata declared => converter
+                        .CreateConverterForIndexReplacement(declared.NameSyntax, arrayAccessSyntax.IndexExpression, instanceFunctionCall)
+                        .GetFullyQualifiedResourceId(resource),
                     _ => converter.GetFullyQualifiedResourceId(resource)
                 };
 

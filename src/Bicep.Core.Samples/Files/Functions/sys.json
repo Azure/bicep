@@ -192,7 +192,7 @@
   },
   {
     "name": "contains",
-    "description": "Checks whether an array contains a value.",
+    "description": "Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
     "fixedParameters": [
       {
         "name": "array",
@@ -311,6 +311,44 @@
       "base: string",
       "duration: string",
       "[format: string]"
+    ]
+  },
+  {
+    "name": "dateTimeFromEpoch",
+    "description": "Converts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.",
+    "fixedParameters": [
+      {
+        "name": "epochTime",
+        "description": "An epoch time value that will be converted to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime formatted string.",
+        "type": "int",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "([epochTime: int]): string",
+    "parameterTypeSignatures": [
+      "[epochTime: int]"
+    ]
+  },
+  {
+    "name": "dateTimeToEpoch",
+    "description": "Converts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.",
+    "fixedParameters": [
+      {
+        "name": "dateTime",
+        "description": "An [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted dateTime string to be converted to epoch time.",
+        "type": "string",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 0,
+    "maximumArgumentCount": 1,
+    "flags": "default",
+    "typeSignature": "([dateTime: string]): int",
+    "parameterTypeSignatures": [
+      "[dateTime: string]"
     ]
   },
   {
@@ -462,6 +500,32 @@
     "parameterTypeSignatures": [
       "stringToSearch: string",
       "stringToFind: string"
+    ]
+  },
+  {
+    "name": "indexOf",
+    "description": "Returns the first position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array that contains the item to find.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "itemToFind",
+        "description": "The value to find.",
+        "type": "any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, itemToFind: any): int",
+    "parameterTypeSignatures": [
+      "array: array",
+      "itemToFind: any"
     ]
   },
   {
@@ -617,6 +681,32 @@
     "parameterTypeSignatures": [
       "stringToSearch: string",
       "stringToFind: string"
+    ]
+  },
+  {
+    "name": "lastIndexOf",
+    "description": "Returns the last position of a value within an array. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.",
+    "fixedParameters": [
+      {
+        "name": "array",
+        "description": "The array that contains the item to find.",
+        "type": "array",
+        "required": true
+      },
+      {
+        "name": "itemToFind",
+        "description": "The value to find.",
+        "type": "any",
+        "required": true
+      }
+    ],
+    "minimumArgumentCount": 2,
+    "maximumArgumentCount": 2,
+    "flags": "default",
+    "typeSignature": "(array: array, itemToFind: any): int",
+    "parameterTypeSignatures": [
+      "array: array",
+      "itemToFind: any"
     ]
   },
   {

@@ -112,7 +112,7 @@ namespace Bicep.Core.UnitTests.TypeSystem.Az
         {
             var configuration = BicepTestConstants.BuiltInConfigurationWithAnalyzersDisabled;
             Compilation createCompilation(string program)
-                    => new Compilation(new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configuration, BicepTestConstants.LinterAnalyzer);
+                    => new Compilation(BicepTestConstants.Features, new DefaultNamespaceProvider(new AzResourceTypeLoader(), BicepTestConstants.Features), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), configuration, BicepTestConstants.LinterAnalyzer);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
@@ -126,19 +126,30 @@ resource missingResource 'Mock.Rp/madeUpResourceType@2020-01-01' = {
         }
 
         [TestMethod]
-        public void AzResourceTypeProvider_should_error_for_top_level_and_warn_for_nested_properties()
+        public void AzResourceTypeProvider_should_error_for_top_level_system_properties_and_warn_for_rest()
         {
             Compilation createCompilation(string program)
-                => new Compilation(BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
+                => new Compilation(BicepTestConstants.Features, BuiltInTestTypes.Create(), SourceFileGroupingFactory.CreateFromText(program, new Mock<IFileResolver>(MockBehavior.Strict).Object), BicepTestConstants.BuiltInConfiguration, BicepTestConstants.LinterAnalyzer);
 
             // Missing top-level properties - should be an error
             var compilation = createCompilation(@"
+resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {  
+  properties: {
+    required: 'hello!'
+  }
+}
+");
+            compilation.Should().HaveDiagnostics(new[] {
+                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"name\".")
+            });
+
+            compilation = createCompilation(@"
 resource missingRequired 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequired'
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP035", DiagnosticLevel.Error, "The specified \"resource\" declaration is missing the following required properties: \"properties\".")
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"resource\" declaration is missing the following required properties: \"properties\". If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
             });
 
             // Top-level properties that aren't part of the type definition - should be an error
@@ -159,12 +170,12 @@ resource unexpectedTopLevel 'Test.Rp/readWriteTests@2020-01-01' = {
             compilation = createCompilation(@"
 resource missingRequiredProperty 'Test.Rp/readWriteTests@2020-01-01' = {
   name: 'missingRequiredProperty'
-  properties: {    
+  properties: {
   }
 }
 ");
             compilation.Should().HaveDiagnostics(new[] {
-                ("BCP035", DiagnosticLevel.Warning, "The specified \"object\" declaration is missing the following required properties: \"required\"."),
+                ("BCP035", DiagnosticLevel.Warning, "The specified \"object\" declaration is missing the following required properties: \"required\". If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
             });
 
             // Non top-level properties that aren't part of the type definition - should be a warning

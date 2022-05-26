@@ -2,16 +2,10 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Interfaces;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Analyzers.Linter.Rules;
-using Bicep.Core.Diagnostics;
-using Bicep.Core.Semantics;
 using Bicep.Core.UnitTests.Assertions;
-using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
-using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
@@ -119,6 +113,29 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ExpectDiagnosticWithFix(text, expectedFix);
         }
 
+        [DataRow(
+            @"
+            var s = '${concat('a', 'b')}'
+            ",
+            "concat('a', 'b')"
+        )]
+        [DataRow(
+            @"
+                resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
+                    name: 'name'
+                    location: '${resourceGroup().location}'
+                    properties: {
+                        encryption: 'a'
+                    }
+                }",
+            "resourceGroup().location"
+        )]
+        [DataTestMethod]
+        public void StringExpression(string text, string expectedFix)
+        {
+            ExpectDiagnosticWithFix(text, expectedFix);
+        }
+
         [DataRow(@"
                     param AutomationAccountName string
                     resource AutomationAccount 'Microsoft.Automation/automationAccounts@2020-01-13-preview' = {
@@ -146,11 +163,6 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
                         name: '${AutomationAccountName}${AutomationAccountName}'
                         location: resourceGroup().location
                     }"
-        )]
-        [DataRow(
-            @"
-            var s = '${concat('a','b')}'
-            "
         )]
         [DataTestMethod]
         public void InterpolationMoreThanJustParamOrVar_Passes(string text)
@@ -228,6 +240,23 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
             ]
             var stringVal = '${arrayOfStrings}'
         ")]
+        [DataRow(@"
+            var arrayOne = [
+                'a'
+                'b'
+            ]
+            var arrayTwo = [
+                'c'
+            ]
+
+            var stringVal = '${concat(arrayOne, arrayTwo)}'
+        ")]
+        [DataRow(@"
+            var stringVal = '${max(1, 2)}'
+        ")]
+        [DataRow(@"
+            var stringVal = '${resourceGroup().tags}'
+        ")]
         [DataTestMethod]
         public void TypeIsNotString_Passes(string text)
         {
@@ -258,4 +287,3 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         }
     }
 }
-

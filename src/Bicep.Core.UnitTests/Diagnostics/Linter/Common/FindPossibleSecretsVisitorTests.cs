@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Core.Analyzers.Linter.Common;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;

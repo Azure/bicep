@@ -234,7 +234,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP034",
                 $"The enclosing array expected an item of type \"{expectedType}\", but the provided item was of type \"{actualType}\".");
 
-            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, ObjectSyntax objectSyntax, IEnumerable<string> properties, string blockName)
+            public Diagnostic MissingRequiredProperties(bool warnInsteadOfError, Symbol? sourceDeclaration, ObjectSyntax objectSyntax, ICollection<string> properties, string blockName, bool showTypeInaccuracy)
             {
                 var sourceDeclarationClause = sourceDeclaration is not null
                     ? $" from source declaration \"{sourceDeclaration.Name}\""
@@ -250,13 +250,13 @@ namespace Bicep.Core.Diagnostics
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP035",
-                    $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.",
-                    null,
-                    null,
+                    $"The specified \"{blockName}\" declaration is missing the following required properties{sourceDeclarationClause}: {ToQuotedString(properties)}.{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}",
+                    showTypeInaccuracy ? TypeInaccuracyLink : null,
+                    DiagnosticStyling.Default,
                     codeFix);
             }
 
-            public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType)
+            public Diagnostic PropertyTypeMismatch(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol expectedType, TypeSymbol actualType, bool showTypeInaccuracy = false)
             {
                 var sourceDeclarationClause = sourceDeclaration is not null
                     ? $" in source declaration \"{sourceDeclaration.Name}\""
@@ -266,10 +266,11 @@ namespace Bicep.Core.Diagnostics
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP036",
-                    $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".");
+                    $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value{sourceDeclarationClause} is of type \"{actualType}\".{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}",
+                    showTypeInaccuracy ? TypeInaccuracyLink : null);
             }
 
-            public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, ICollection<string> validUnspecifiedProperties, bool isResourceSyntax)
+            public Diagnostic DisallowedProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, string property, TypeSymbol type, ICollection<string> validUnspecifiedProperties, bool showTypeInaccuracy)
             {
                 var permissiblePropertiesClause = validUnspecifiedProperties.Any()
                     ? $" Permissible properties include {ToQuotedString(validUnspecifiedProperties)}."
@@ -283,7 +284,7 @@ namespace Bicep.Core.Diagnostics
                     TextSpan,
                     warnInsteadOfError ? DiagnosticLevel.Warning : DiagnosticLevel.Error,
                     "BCP037",
-                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{(isResourceSyntax ? TypeInaccuracyClause : string.Empty)}", isResourceSyntax ? TypeInaccuracyLink : null);
+                    $"The property \"{property}\"{sourceDeclarationClause} is not allowed on objects of type \"{type}\".{permissiblePropertiesClause}{(showTypeInaccuracy ? TypeInaccuracyClause : string.Empty)}", showTypeInaccuracy ? TypeInaccuracyLink : null);
             }
 
             public Diagnostic DisallowedInterpolatedKeyProperty(bool warnInsteadOfError, Symbol? sourceDeclaration, TypeSymbol type, ICollection<string> validUnspecifiedProperties)
@@ -550,7 +551,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP082",
                 $"The name \"{name}\" does not exist in the current context. Did you mean \"{suggestedName}\"?",
                 null,
-                null,
+                DiagnosticStyling.Default,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public FixableDiagnostic UnknownPropertyWithSuggestion(bool warnInsteadOfError, TypeSymbol type, string badProperty, string suggestedProperty) => new(
@@ -559,7 +560,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP083",
                 $"The type \"{type}\" does not contain property \"{badProperty}\". Did you mean \"{suggestedProperty}\"?",
                 null,
-                null,
+                DiagnosticStyling.Default,
                 new CodeFix($"Change \"{badProperty}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
             public ErrorDiagnostic SymbolicNameCannotUseReservedNamespaceName(string name, IEnumerable<string> namespaces) => new(
@@ -588,7 +589,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP088",
                 $"The property \"{property}\" expected a value of type \"{expectedType}\" but the provided value is of type \"{actualStringLiteral}\". Did you mean \"{suggestedStringLiteral}\"?",
                 null,
-                null,
+                DiagnosticStyling.Default,
                 new CodeFix($"Change \"{actualStringLiteral}\" to \"{suggestedStringLiteral}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedStringLiteral)));
 
             public FixableDiagnostic DisallowedPropertyWithSuggestion(bool warnInsteadOfError, string property, TypeSymbol type, string suggestedProperty) => new(
@@ -597,7 +598,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP089",
                 $"The property \"{property}\" is not allowed on objects of type \"{type}\". Did you mean \"{suggestedProperty}\"?",
                 null,
-                null,
+                DiagnosticStyling.Default,
                 new CodeFix($"Change \"{property}\" to \"{suggestedProperty}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedProperty)));
 
             public ErrorDiagnostic ModulePathHasNotBeenSpecified() => new(
@@ -695,7 +696,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP108",
                 $"The function \"{name}\" does not exist in namespace \"{namespaceType.Name}\". Did you mean \"{suggestedName}\"?",
                 null,
-                null,
+                DiagnosticStyling.Default,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public ErrorDiagnostic FunctionDoesNotExistOnObject(TypeSymbol type, string name) => new(
@@ -708,7 +709,7 @@ namespace Bicep.Core.Diagnostics
                 "BCP110",
                 $"The type \"{type}\" does not contain function \"{name}\". Did you mean \"{suggestedName}\"?",
                 null,
-                null,
+                DiagnosticStyling.Default,
                 new CodeFix($"Change \"{name}\" to \"{suggestedName}\"", true, CodeFixKind.QuickFix, CodeManipulator.Replace(TextSpan, suggestedName)));
 
             public ErrorDiagnostic FilePathContainsControlChars() => new(
@@ -1344,14 +1345,57 @@ namespace Bicep.Core.Diagnostics
                 "Expected at least one diagnostic code at this location. Valid format is \"#disable-next-line diagnosticCode1 diagnosticCode2 ...\""
             );
 
-            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+            public ErrorDiagnostic UnsupportedResourceTypeParameterType(string resourceType) => new(
                 TextSpan,
                 "BCP227",
+                $"The type \"{resourceType}\" cannot be used as a parameter type. Extensibility types are currently not supported as parameters or outputs.");
+
+            public ErrorDiagnostic UnsupportedResourceTypeOutputType(string resourceType) => new(
+                TextSpan,
+                "BCP228",
+                $"The type \"{resourceType}\" cannot be used as an output type. Extensibility types are currently not supported as parameters or outputs.");
+
+            public ErrorDiagnostic InvalidResourceScopeCannotBeResourceTypeParameter(string parameterName) => new(
+                TextSpan,
+                "BCP229",
+                $"The parameter \"{parameterName}\" cannot be used as a resource scope or parent. Resources passed as parameters cannot be used as a scope or parent of a resource.");
+
+            public Diagnostic ModuleParamOrOutputResourceTypeUnavailable(ResourceTypeReference resourceTypeReference) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP230",
+                $"The referenced module uses resource type \"{resourceTypeReference.FormatName()}\" which does not have types available.");
+
+            public ErrorDiagnostic ParamOrOutputResourceTypeUnsupported() => new(
+                TextSpan,
+                "BCP231",
+                "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
+
+
+            public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
+                TextSpan,
+                "BCP232",
+                $"Unable to delete the module with reference \"{moduleRef}\" from cache.");
+
+            public ErrorDiagnostic ModuleDeleteFailedWithMessage(string moduleRef, string message) => new(
+                TextSpan,
+                "BCP233",
+                $"Unable to delete the module with reference \"{moduleRef}\" from cache: {message}");
+
+            public Diagnostic ArmFunctionLiteralTypeConversionFailedWithMessage(string literalValue, string armFunctionName, string message) => new(
+                TextSpan,
+                DiagnosticLevel.Warning,
+                "BCP234",
+                $"The ARM function \"{armFunctionName}\" failed when invoked on the value [{literalValue}]: {message}");
+
+            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+                TextSpan,
+                "BCP235",
                 "Expected a new line or comma character at this location.");
 
             public ErrorDiagnostic ExpectedCommaSeparator() => new(
                 TextSpan,
-                "BCP228",
+                "BCP236",
                 "Expected a comma character at this location.");
         }
 

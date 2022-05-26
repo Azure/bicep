@@ -11,7 +11,6 @@ using Bicep.Core.Semantics;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter
@@ -25,14 +24,14 @@ namespace Bicep.Core.Analyzers.Linter
             string description,
             Uri? docUri = null,
             DiagnosticLevel diagnosticLevel = DiagnosticLevel.Warning,
-            DiagnosticLabel? diagnosticLabel = null)
+            DiagnosticStyling diagnosticStyling = DiagnosticStyling.Default)
         {
             this.AnalyzerName = LinterAnalyzer.AnalyzerName;
             this.Code = code;
             this.Description = description;
             this.Uri = docUri;
             this.DiagnosticLevel = diagnosticLevel;
-            this.DiagnosticLabel = diagnosticLabel;
+            this.DiagnosticStyling = diagnosticStyling;
         }
 
         public string AnalyzerName { get; }
@@ -48,8 +47,8 @@ namespace Bicep.Core.Analyzers.Linter
         public Uri? Uri { get; }
 
         // If specified, adds the given diagnostic label to every diagnostic created for this rule (such as for unnecessary or obsolete code).
-        // Should be left null for most rules.
-        public DiagnosticLabel? DiagnosticLabel { get; }
+        // Should be left as None/null for most rules.
+        public DiagnosticStyling DiagnosticStyling { get; }
 
 
         /// <summary>
@@ -131,7 +130,7 @@ namespace Bicep.Core.Analyzers.Linter
                 code: this.Code,
                 message: this.GetMessage(),
                 documentationUri: this.Uri,
-                label: this.DiagnosticLabel);
+                styling: this.DiagnosticStyling);
 
         /// <summary>
         /// Create a diagnostic message for a span that has a customized string
@@ -147,7 +146,7 @@ namespace Bicep.Core.Analyzers.Linter
                 code: this.Code,
                 message: this.GetMessage(values),
                 documentationUri: this.Uri,
-                label: this.DiagnosticLabel);
+                styling: this.DiagnosticStyling);
 
         protected virtual AnalyzerFixableDiagnostic CreateFixableDiagnosticForSpan(TextSpan span, CodeFix fix, params object[] values) =>
             CreateFixableDiagnosticForSpan(span, new[] { fix }, values);
@@ -160,6 +159,6 @@ namespace Bicep.Core.Analyzers.Linter
                 message: this.GetMessage(values),
                 documentationUri: this.Uri,
                 codeFixes: fixes,
-                label: this.DiagnosticLabel);
+                styling: this.DiagnosticStyling);
     }
 }

@@ -31,5 +31,18 @@ namespace Bicep.Core.TypeSystem
                 ArrayType { Item: ModuleType moduleType } => moduleType,
                 _ => null
             };
+
+        public TypeSymbol? TryGetParameterType(string propertyName)
+        {
+            if (this.Body is ObjectType objectType &&
+                objectType.Properties.TryGetValue(LanguageConstants.ModuleParamsPropertyName, out var paramsProperty) &&
+                paramsProperty.TypeReference.Type is ObjectType paramsType &&
+                paramsType.Properties.TryGetValue(propertyName, out var property))
+            {
+                return property.TypeReference.Type;
+            }
+
+            return null;
+        }
     }
 }

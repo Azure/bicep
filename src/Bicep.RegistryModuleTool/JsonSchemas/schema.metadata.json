@@ -3,7 +3,7 @@
     "$schema": {
       "type": "string",
       "enum": [
-        "https://aka.ms/bicep-registry-module-metadata-schema#"
+        "https://aka.ms/bicep-registry-module-metadata-file-schema#"
       ],
       "description": "Bicep registry module metadata file JSON schema reference."
     },
@@ -21,7 +21,7 @@
     },
     "owner": {
       "type": "string",
-      "pattern": "^[a-zA-Z\\d](?:[a-zA-Z\\d]|-(?=[a-zA-Z\\d])){0,38}$",
+      "pattern": "^(?:Azure\\/)?[a-zA-Z\\d](?:[a-zA-Z\\d]|-(?=[a-zA-Z\\d])){0,38}$",
       "description": "The owner of the module. Must be a GitHub username or team under the Azure organization."
     }
   },

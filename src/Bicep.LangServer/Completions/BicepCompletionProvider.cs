@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -105,7 +106,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = resourceSnippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+                    var command = TelemetryHelper.CreateCommand
+                    (
+                        title: "top level snippet completion",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                                                                    resourceSnippet.Detail,
@@ -127,8 +133,12 @@ namespace Bicep.LanguageServer.Completions
                     {
                         string prefix = snippet.Prefix;
                         BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
-                        Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                        var command = TelemetryHelper.CreateCommand
+                        (
+                            title: "nested resource declaration completion snippet",
+                            name: TelemetryConstants.CommandName,
+                            args: JArray.FromObject(new List<object> { telemetryEvent })
+                        );
                         yield return CreateContextualSnippetCompletion(prefix,
                             snippet.Detail,
                             snippet.Text,
@@ -183,12 +193,26 @@ namespace Bicep.LanguageServer.Completions
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.ParameterType))
             {
-                return GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets(compilation, context));
+                // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
+                var completions = GetPrimitiveTypeCompletions().Concat(GetParameterTypeSnippets(compilation, context));
+                if (this.featureProvider.ResourceTypedParamsAndOutputsEnabled)
+                {
+                    completions = completions.Concat(CreateResourceTypeKeywordCompletion(context.ReplacementRange));
+                }
+
+                return completions;
             }
 
             if (context.Kind.HasFlag(BicepCompletionContextKind.OutputType))
             {
-                return GetPrimitiveTypeCompletions();
+                // Only show the resource type as a completion if the resource-typed parameter feature is enabled.
+                var completions = GetPrimitiveTypeCompletions();
+                if (this.featureProvider.ResourceTypedParamsAndOutputsEnabled)
+                {
+                    completions = completions.Concat(CreateResourceTypeKeywordCompletion(context.ReplacementRange));
+                }
+
+                return completions;
             }
 
             return Enumerable.Empty<CompletionItem>();
@@ -232,17 +256,35 @@ namespace Bicep.LanguageServer.Completions
                 return items;
             }
 
+            static string? TryGetFullyQualifiedType(StringSyntax? stringSyntax)
+            {
+                if (stringSyntax?.TryGetLiteralValue() is string entered && ResourceTypeReference.HasResourceTypePrefix(entered))
+                {
+                    return entered;
+                }
+
+                return null;
+            }
+
+            static string? TryGetFullyQualfiedResourceType(SyntaxBase? enclosingDeclaration)
+            {
+                return enclosingDeclaration switch
+                {
+                    ResourceDeclarationSyntax resourceSyntax => TryGetFullyQualifiedType(resourceSyntax.TypeString),
+                    ParameterDeclarationSyntax parameterSyntax when parameterSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.TypeString),
+                    OutputDeclarationSyntax outputSyntax when outputSyntax.Type is ResourceTypeSyntax resourceType => TryGetFullyQualifiedType(resourceType.TypeString),
+                    _ => null,
+                };
+            }
+
             // ResourceType completions are divided into 2 parts.
             // If the current value passes the namespace and type notation ("<Namespace>/<type>") format, we return the fully qualified resource types
-            if (context.EnclosingDeclaration is ResourceDeclarationSyntax declarationSyntax
-                && declarationSyntax.Type is StringSyntax stringSyntax
-                && stringSyntax.TryGetLiteralValue() is string entered
-                && ResourceTypeReference.HasResourceTypePrefix(entered))
+            if (TryGetFullyQualfiedResourceType(context.EnclosingDeclaration) is string qualified)
             {
                 // newest api versions should be shown first
                 // strict filtering on type so that we show api versions for only the selected type
                 return model.Binder.NamespaceResolver.GetAvailableResourceTypes()
-                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(entered.Split('@')[0], rt.FormatType()))
+                    .Where(rt => StringComparer.OrdinalIgnoreCase.Equals(qualified.Split('@')[0], rt.FormatType()))
                     .OrderBy(rt => rt.FormatType(), StringComparer.OrdinalIgnoreCase)
                     .ThenByDescending(rt => rt.ApiVersion, ApiVersionComparer.Instance)
                     .Select((reference, index) => CreateResourceTypeCompletion(reference, index, context.ReplacementRange, showApiVersion: true))
@@ -330,7 +372,7 @@ namespace Bicep.LanguageServer.Completions
                         context.ReplacementRange,
                         CompletionItemKind.Folder,
                         CompletionPriority.Low)
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "module path completion" })
                     .Build());
 
             return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
@@ -477,7 +519,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = snippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, resourceType.Type.Name);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+                    Command command = TelemetryHelper.CreateCommand
+                    (
+                        title: "resource body completion snippet",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
@@ -499,8 +546,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
-                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "module body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
@@ -901,8 +952,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateObjectBodySnippetInsertion(prefix);
-                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "object body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
@@ -920,7 +975,7 @@ namespace Bicep.LanguageServer.Completions
                 yield return CreateConditionCompletion(context.ReplacementRange);
             }
         }
-        
+
         private IEnumerable<CompletionItem> GetDisableNextLineDiagnosticsDirectiveCompletion(BicepCompletionContext context)
         {
             if (context.Kind.HasFlag(BicepCompletionContextKind.DisableNextLineDiagnosticsDirectiveStart))
@@ -986,7 +1041,7 @@ namespace Bicep.LanguageServer.Completions
 
             return null;
         }
-        
+
         private static CompletionItem CreateResourceOrModuleConditionCompletion(Range replacementRange)
         {
             const string conditionLabel = "if";
@@ -1106,6 +1161,13 @@ namespace Bicep.LanguageServer.Completions
                 .WithSortText(GetSortText(type.Name, priority))
                 .Build();
 
+        private static CompletionItem CreateResourceTypeKeywordCompletion(Range replacementRange, CompletionPriority priority = CompletionPriority.Medium) =>
+            CompletionItemBuilder.Create(CompletionItemKind.Class, LanguageConstants.ResourceKeyword)
+                .WithPlainTextEdit(replacementRange, LanguageConstants.ResourceKeyword)
+                .WithDetail(LanguageConstants.ResourceKeyword)
+                .WithSortText(GetSortText(LanguageConstants.ResourceKeyword, priority))
+                .Build();
+
         private static CompletionItem CreateOperatorCompletion(string op, Range replacementRange, bool preselect = false, CompletionPriority priority = CompletionPriority.Medium) =>
             CompletionItemBuilder.Create(CompletionItemKind.Operator, op)
                 .WithPlainTextEdit(replacementRange, op)
@@ -1133,7 +1195,7 @@ namespace Bicep.LanguageServer.Completions
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
                     .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "resource type completion" })
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
@@ -1213,7 +1275,7 @@ namespace Bicep.LanguageServer.Completions
                 .WithDocumentation($"```bicep\n{new Snippet(snippet).FormatDocumentation()}\n```")
                 .WithSortText(GetSortText(label, priority))
                 .Build();
-        
+
         private static CompletionItem CreateSymbolCompletion(Symbol symbol, Range replacementRange, bool disableFollowUp = false, string? insertText = null)
         {
             insertText ??= symbol.Name;
@@ -1241,7 +1303,7 @@ namespace Bicep.LanguageServer.Completions
                 if (hasParameters)
                 {
                     // if parameters may need to be specified, automatically request signature help
-                    completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp });
+                    completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp, Title = "signature help" });
                 }
 
                 ImmutableArray<FunctionOverload> overloads = function.Overloads;
@@ -1266,7 +1328,7 @@ namespace Bicep.LanguageServer.Completions
                 return completion
                     .WithDetail(insertText)
                     .WithPlainTextEdit(replacementRange, insertText + ".")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "symbol completion" })
                     .Build();
             }
 

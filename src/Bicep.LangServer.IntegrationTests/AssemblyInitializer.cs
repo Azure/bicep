@@ -9,7 +9,7 @@ namespace Bicep.LangServer.IntegrationTests
     [TestClass]
     public static class AssemblyInitializer
     {
-        [AssemblyInitialize()]
+        [AssemblyInitialize]
         public static void AssemblyInitialize(TestContext testContext)
         {
             BicepDeploymentsInterop.Initialize();

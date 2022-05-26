@@ -5,7 +5,7 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "4897965198946026578"
+      "templateHash": "2564861032733655849"
     }
   },
   "parameters": {
@@ -309,7 +309,7 @@
       "name": "extensionDependencies",
       "properties": {
         "res1": "[resourceId('Microsoft.Compute/virtualMachines', 'vmName')]",
-        "res1runtime": "[reference(resourceId('Microsoft.Compute/virtualMachines', 'vmName')).something]",
+        "res1runtime": "[reference(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), '2020-06-01').something]",
         "res2": "[extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')]",
         "res2runtime": "[reference(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension')).something]",
         "res3": "[extensionResourceId(extensionResourceId(resourceId('Microsoft.Compute/virtualMachines', 'vmName'), 'My.Rp/extensionResource', 'extension'), 'My.Rp/extensionResource', 'extension')]",

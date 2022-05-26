@@ -3,7 +3,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Azure.Deployments.Core.Json;
 using Bicep.Core.UnitTests.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -32,6 +31,7 @@ using Bicep.Core.Extensions;
 using System.Linq;
 using System;
 using Bicep.LangServer.IntegrationTests.Assertions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -192,7 +192,8 @@ output myOutput string = 'myOutput'
                 "/subscriptions/23775d31-d753-4290-805b-e5bde53eba6e/resourceGroups/myRg",
                 "Microsoft.Resources/resourceGroups",
                 "myRg",
-                "myRg");
+                "myRg",
+                "23775d31-d753-4290-805b-e5bde53eba6e");
             var mockResource = new JObject
             {
                 ["id"] = resourceId.FullyQualifiedId,

@@ -57,7 +57,12 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""moduleAliases"": {
     ""ts"": {},
-    ""br"": {}
+    ""br"": {
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
+      }
+    }
   },
   ""analyzers"": {
     ""core"": {
@@ -67,22 +72,22 @@ namespace Bicep.Core.UnitTests.Configuration
         ""no-hardcoded-env-urls"": {
           ""level"": ""warning"",
           ""disallowedhosts"": [
-            ""gallery.azure.com"",
-            ""management.core.windows.net"",
-            ""management.azure.com"",
-            ""database.windows.net"",
-            ""core.windows.net"",
-            ""login.microsoftonline.com"",
-            ""graph.windows.net"",
-            ""trafficmanager.net"",
-            ""datalake.azure.net"",
-            ""azuredatalakestore.net"",
-            ""azuredatalakeanalytics.net"",
-            ""vault.azure.net"",
             ""api.loganalytics.io"",
             ""asazure.windows.net"",
+            ""azuredatalakeanalytics.net"",
+            ""azuredatalakestore.net"",
+            ""batch.core.windows.net"",
+            ""core.windows.net"",
+            ""database.windows.net"",
+            ""datalake.azure.net"",
+            ""gallery.azure.com"",
+            ""graph.windows.net"",
+            ""login.microsoftonline.com"",
+            ""management.azure.com"",
+            ""management.core.windows.net"",
             ""region.asazure.windows.net"",
-            ""batch.core.windows.net""
+            ""trafficmanager.net"",
+            ""vault.azure.net""
           ],
           ""excludedhosts"": [
             ""schema.management.azure.com""
@@ -92,6 +97,15 @@ namespace Bicep.Core.UnitTests.Configuration
     }
   }
 }");
+        }
+
+        [TestMethod]
+        public void GetBuiltInConfiguration_CoreLinterShouldDefaultToEnabled()
+        {
+            var sut = new ConfigurationManager(new IOFileSystem());
+            var configuration = sut.GetBuiltInConfiguration();
+
+            configuration.Analyzers.GetValue<bool>("core.enabled", false).Should().Be(true, "Core linters should default to enabled");
         }
 
         [TestMethod]
@@ -128,7 +142,12 @@ namespace Bicep.Core.UnitTests.Configuration
   },
   ""moduleAliases"": {
     ""ts"": {},
-    ""br"": {}
+    ""br"": {
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
+      }
+    }
   },
   ""analyzers"": {}
 }");
@@ -384,6 +403,10 @@ namespace Bicep.Core.UnitTests.Configuration
       ""myRegistry"": {
         ""registry"": ""localhost:8000"",
         ""modulePath"": null
+      },
+      ""public"": {
+        ""registry"": ""mcr.microsoft.com"",
+        ""modulePath"": ""bicep""
       }
     }
   },

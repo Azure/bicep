@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Analyzers.Interfaces;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 
 namespace Bicep.Core.Analyzers.Linter
 {
@@ -40,7 +40,7 @@ namespace Bicep.Core.Analyzers.Linter
             (this.ruleSet, this.ruleCreationErrors) = CreateLinterRules();
         }
 
-        private bool LinterEnabled => this.configuration.Analyzers.GetValue(LinterEnabledSetting, false);
+        private bool LinterEnabled => this.configuration.Analyzers.GetValue(LinterEnabledSetting, false); // defaults to true in base bicepconfig.json file
 
         private bool LinterVerbose => this.configuration.Analyzers.GetValue(LinterVerboseSetting, false);
 

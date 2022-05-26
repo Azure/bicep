@@ -18,7 +18,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         private static readonly JsonElement EmptyFileElement = JsonElementFactory.CreateElement(new Dictionary<string, string>
         {
-            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-schema#",
+            ["$schema"] = "https://aka.ms/bicep-registry-module-metadata-file-schema#",
             ["name"] = "",
             ["description"] = "",
             ["owner"] = "",

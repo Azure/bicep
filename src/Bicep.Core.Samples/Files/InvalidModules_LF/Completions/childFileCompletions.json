@@ -27,6 +27,7 @@
       "newText": "'ChildModules/folder with space/$0'"
     },
     "command": {
+      "title": "module path completion",
       "command": "editor.action.triggerSuggest"
     }
   },

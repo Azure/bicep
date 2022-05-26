@@ -21,7 +21,7 @@ param deployTimeSuffix string = newGuid()
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |deployTimeSuffix|
-//@[23:29)  TypeSyntax
+//@[23:29)  SimpleTypeSyntax
 //@[23:29)   Identifier |string|
 //@[30:41)  ParameterDefaultValueSyntax
 //@[30:31)   Assignment |=|
@@ -929,7 +929,7 @@ output stringOutputA string = modATest.outputs.stringOutputA
 //@[0:6)  Identifier |output|
 //@[7:20)  IdentifierSyntax
 //@[7:20)   Identifier |stringOutputA|
-//@[21:27)  TypeSyntax
+//@[21:27)  SimpleTypeSyntax
 //@[21:27)   Identifier |string|
 //@[28:29)  Assignment |=|
 //@[30:60)  PropertyAccessSyntax
@@ -949,7 +949,7 @@ output stringOutputB string = modATest.outputs.stringOutputB
 //@[0:6)  Identifier |output|
 //@[7:20)  IdentifierSyntax
 //@[7:20)   Identifier |stringOutputB|
-//@[21:27)  TypeSyntax
+//@[21:27)  SimpleTypeSyntax
 //@[21:27)   Identifier |string|
 //@[28:29)  Assignment |=|
 //@[30:60)  PropertyAccessSyntax
@@ -969,7 +969,7 @@ output objOutput object = modATest.outputs.objOutput
 //@[0:6)  Identifier |output|
 //@[7:16)  IdentifierSyntax
 //@[7:16)   Identifier |objOutput|
-//@[17:23)  TypeSyntax
+//@[17:23)  SimpleTypeSyntax
 //@[17:23)   Identifier |object|
 //@[24:25)  Assignment |=|
 //@[26:52)  PropertyAccessSyntax
@@ -989,7 +989,7 @@ output arrayOutput array = modATest.outputs.arrayOutput
 //@[0:6)  Identifier |output|
 //@[7:18)  IdentifierSyntax
 //@[7:18)   Identifier |arrayOutput|
-//@[19:24)  TypeSyntax
+//@[19:24)  SimpleTypeSyntax
 //@[19:24)   Identifier |array|
 //@[25:26)  Assignment |=|
 //@[27:55)  PropertyAccessSyntax
@@ -1009,7 +1009,7 @@ output modCalculatedNameOutput object = moduleWithCalculatedName.outputs.outputO
 //@[0:6)  Identifier |output|
 //@[7:30)  IdentifierSyntax
 //@[7:30)   Identifier |modCalculatedNameOutput|
-//@[31:37)  TypeSyntax
+//@[31:37)  SimpleTypeSyntax
 //@[31:37)   Identifier |object|
 //@[38:39)  Assignment |=|
 //@[40:82)  PropertyAccessSyntax

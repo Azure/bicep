@@ -90,7 +90,6 @@ namespace Bicep.Core.UnitTests.Diagnostics
                                                     DiagnosticLevel.Warning,
                                                     "fakeRule",
                                                     "Fake Rule",
-                                                    null,
                                                     null);
                 // Now throw an exception
                 throw new System.NotImplementedException();

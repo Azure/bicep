@@ -1,11 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Navigation;
@@ -15,13 +10,13 @@ using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.Core.Syntax.Visitors;
 using Bicep.Core.Text;
-using Bicep.Core.TypeSystem.Az;
 using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
 using Bicep.LangServer.IntegrationTests.Assertions;
 using Bicep.LangServer.IntegrationTests.Extensions;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -29,16 +24,41 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
 
 namespace Bicep.LangServer.IntegrationTests
 {
     [TestClass]
-    [SuppressMessage("Style", "VSTHRD200:Use \"Async\" suffix for async methods", Justification = "Test methods do not need to follow this convention.")]
     public class HoverTests
     {
+        private static readonly SharedLanguageHelperManager DefaultServer = new();
+        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
+        private static readonly SharedLanguageHelperManager ServerWithTestNamespaceProvider = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
+            ServerWithTestNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver)));
+        }
+
+        [ClassCleanup]
+        public static async Task ClassCleanup()
+        {
+            await DefaultServer.DisposeAsync();
+            await ServerWithBuiltInTypes.DisposeAsync();
+            await ServerWithTestNamespaceProvider.DisposeAsync();
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -46,8 +66,9 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider, FileResolver: BicepTestConstants.FileResolver));
-            var client = helper.Client;
+
+            var helper = await ServerWithTestNamespaceProvider.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -78,7 +99,7 @@ namespace Bicep.LangServer.IntegrationTests
                     _ => symbolReference,
                 };
 
-                var hover = await client.RequestHover(new HoverParams
+                var hover = await helper.Client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
                     Position = TextCoordinateConverter.GetPosition(lineStarts, nodeForHover.Span.Position)
@@ -134,8 +155,9 @@ namespace Bicep.LangServer.IntegrationTests
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
 
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -158,7 +180,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (SyntaxBase node in nonHoverableNodes)
             {
-                var hover = await client.RequestHover(new HoverParams
+                var hover = await helper.Client.RequestHover(new HoverParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
                     Position = TextCoordinateConverter.GetPosition(lineStarts, node.Span.Position)
@@ -189,10 +211,12 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
@@ -221,10 +245,12 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = [for i in range(0, 10): {
 output string test = testRes[3].prop|erties.rea|donly
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
@@ -253,10 +279,12 @@ resource testRes 'Test.Rp/readWriteTests@2020-01-01' = if (true) {
 output string test = testRes.prop|erties.rea|donly
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nname: string\n```\nThe resource name\n"),
@@ -292,10 +320,12 @@ resource test|Res 'Test.Rp/discriminatorTests@2020-01-01' = {
 resource test|Output string = 'str'
 ");
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().EndWith("```\nthis is my module\n"),
@@ -373,8 +403,8 @@ var nsConcatFunc = sys.c|oncat('abc', 'def')
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction resourceGroup(): resourceGroup\n```\nReturns the current resource group scope.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat('abc', 'def'): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
+                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
         }
 
         [TestMethod]
@@ -419,8 +449,12 @@ var nsConcatFunc = sys.conc|at(any('hello'))
 ");
 
             hovers.Should().SatisfyRespectively(
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"),
-                h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nfunction concat(any): any\n```\n"));
+                h => h!.Contents.MarkedStrings.Should().ContainInOrder(
+                    "```bicep\nfunction concat(... : array): array\n```\nCombines multiple arrays and returns the concatenated array.\n",
+                    "```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"),
+                h => h!.Contents.MarkedStrings.Should().ContainInOrder(
+                    "```bicep\nfunction concat(... : array): array\n```\nCombines multiple arrays and returns the concatenated array.\n",
+                    "```bicep\nfunction concat(... : bool | int | string): string\n```\nCombines multiple string, integer, or boolean values and returns them as a concatenated string.\n"));
         }
 
         [TestMethod]
@@ -496,11 +530,12 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
   ki|nd
 }
 ");
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var hovers = await RequestHovers(client, bicepFile, cursors);
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var hovers = await RequestHovers(helper.Client, bicepFile, cursors);
 
             hovers.Should().SatisfyRespectively(
                 h => h!.Contents.MarkupContent!.Value.Should().Be("```bicep\nkind: 'BodyA' | 'BodyB'\n```\n"));
@@ -512,57 +547,73 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
             hover!.Range!.Should().NotBeNull();
             hover.Contents.Should().NotBeNull();
 
-            hover.Contents.HasMarkedStrings.Should().BeFalse();
-            hover.Contents.HasMarkupContent.Should().BeTrue();
-            hover.Contents.MarkedStrings.Should().BeNull();
-            hover.Contents.MarkupContent.Should().NotBeNull();
-
-            hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
-            hover.Contents.MarkupContent.Value.Should().StartWith("```bicep\n");
-            Regex.Matches(hover.Contents.MarkupContent.Value, "```").Count.Should().Be(2);
-
-            switch (symbol)
+            List<string> tooltips = new();
+            if (hover.Contents.HasMarkedStrings)
             {
-                case ParameterSymbol parameter:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"param {parameter.Name}: {parameter.Type}");
-                    break;
+                tooltips.AddRange(hover.Contents.MarkedStrings!.Select(ms => ms.Value));
+            }
+            else
+            {
+                hover.Contents.MarkupContent!.Kind.Should().Be(MarkupKind.Markdown);
+                tooltips.Add(hover.Contents.MarkupContent!.Value);
+            }
 
-                case VariableSymbol variable:
-                    // the hovers with errors don't appear in VS code and only occur in tests
-                    hover.Contents.MarkupContent.Value.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
-                    break;
+            foreach (var tooltip in tooltips)
+            {
+                tooltip.Should().StartWith("```bicep\n");
+                Regex.Matches(tooltip, "```").Count.Should().Be(2);
 
-                case ResourceSymbol resource:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"resource {resource.Name}");
-                    hover.Contents.MarkupContent.Value.Should().Contain(resource.Type.Name);
-                    break;
+                switch (symbol)
+                {
+                    case ParameterSymbol parameter:
+                        tooltip.Should().Contain($"param {parameter.Name}: {parameter.Type}");
+                        break;
 
-                case ModuleSymbol module:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"module {module.Name}");
-                    break;
+                    case VariableSymbol variable:
+                        // the hovers with errors don't appear in VS code and only occur in tests
+                        tooltip.Should().ContainAny(new[] { $"var {variable.Name}: {variable.Type}", $"var {variable.Name}: error" });
+                        break;
 
-                case OutputSymbol output:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"output {output.Name}: {output.Type}");
-                    break;
+                    case ResourceSymbol resource:
+                        tooltip.Should().Contain($"resource {resource.Name}");
+                        tooltip.Should().Contain(resource.Type.Name);
+                        break;
 
-                case FunctionSymbol function:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"function {function.Name}(");
-                    break;
+                    case ModuleSymbol module:
+                        tooltip.Should().Contain($"module {module.Name}");
+                        break;
 
-                case LocalVariableSymbol local:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"{local.Name}: {local.Type}");
-                    break;
+                    case OutputSymbol output:
+                        tooltip.Should().Contain($"output {output.Name}: {output.Type}");
+                        break;
 
-                case ImportedNamespaceSymbol import:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"{import.Name} namespace");
-                    break;
+                    case FunctionSymbol function:
+                        if (function.Overloads.All(fo => fo is FunctionWildcardOverload))
+                        {
+                            tooltip.Should().Contain($"function ");
+                            tooltip.Should().Contain($"*(");
+                        }
+                        else
+                        {
+                            tooltip.Should().Contain($"function {function.Name}(");
+                        }
+                        break;
 
-                case BuiltInNamespaceSymbol @namespace:
-                    hover.Contents.MarkupContent.Value.Should().Contain($"{@namespace.Name} namespace");
-                    break;
+                    case LocalVariableSymbol local:
+                        tooltip.Should().Contain($"{local.Name}: {local.Type}");
+                        break;
 
-                default:
-                    throw new AssertFailedException($"Unexpected symbol type '{symbol.GetType().Name}'");
+                    case ImportedNamespaceSymbol import:
+                        tooltip.Should().Contain($"{import.Name} namespace");
+                        break;
+
+                    case BuiltInNamespaceSymbol @namespace:
+                        tooltip.Should().Contain($"{@namespace.Name} namespace");
+                        break;
+
+                    default:
+                        throw new AssertFailedException($"Unexpected symbol type '{symbol.GetType().Name}'");
+                }
             }
         }
 
@@ -592,12 +643,12 @@ resource testRes 'Test.Rp/discriminatorTests@2020-01-01' = {
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
 
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{TestContext.TestName}-path/to/main.bicep"), file);
+            
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
 
-
-            return await RequestHovers(client, bicepFile, cursors);
+            return await RequestHovers(helper.Client, bicepFile, cursors);
         }
     }
 }

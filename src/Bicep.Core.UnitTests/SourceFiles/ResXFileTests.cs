@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
-using Bicep.Core.FileSystem;
 using Bicep.Core.UnitTests.Assertions;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -28,9 +26,9 @@ namespace Bicep.Core.UnitTests.SourceFiles
 
         private void AssertDoesNotContainTabs(string relativePath, string text)
         {
-            if (text.Contains("\t"))
+            if (text.Contains('\t'))
             {
-                throw new Exception($"{relativePath} should be indented with spaces, not tabs. ${Info}");
+                throw new Exception($"{relativePath} should be indented with spaces, not tabs. {Info}");
             }
         }
 

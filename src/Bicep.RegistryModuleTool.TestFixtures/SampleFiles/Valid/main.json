@@ -4,8 +4,8 @@
   "metadata": {
     "_generator": {
       "name": "bicep",
-      "version": "0.4.1008.15138",
-      "templateHash": "7959995366596346262"
+      "version": "0.5.6.12127",
+      "templateHash": "16759655392678672335"
     }
   },
   "parameters": {
@@ -58,7 +58,7 @@
       "maxValue": 1023,
       "minValue": 0,
       "metadata": {
-        "description": "The OS disk size (in GB)"
+        "description": "The OS disk size (in GB)\n- Minimum value is 0\n- Maximum value is 1023\n"
       }
     },
     "agentCount": {
@@ -78,7 +78,6 @@
       }
     }
   },
-  "functions": [],
   "resources": [
     {
       "type": "Microsoft.ContainerService/managedClusters",

@@ -1,6 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using Bicep.Core;
 using Bicep.Core.Configuration;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Registry;
@@ -15,12 +22,6 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Bicep.Cli.IntegrationTests
 {
@@ -42,6 +43,21 @@ namespace Bicep.Cli.IntegrationTests
 
                 error.Should().NotBeEmpty();
                 error.Should().Contain($"The input file path was not specified");
+            }
+        }
+
+        [TestMethod]
+        public async Task Build_NonBicepFiles_ShouldFail_WithExpectedErrorMessage()
+        {
+            var (output, error, result) = await Bicep("build", "/dev/zero");
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(1);
+                output.Should().BeEmpty();
+
+                error.Should().NotBeEmpty();
+                error.Should().Contain($@"The specified input ""/dev/zero"" was not recognized as a bicep file. Bicep files must use the {LanguageConstants.LanguageFileExtension} extension.");
             }
         }
 
@@ -176,7 +192,7 @@ namespace Bicep.Cli.IntegrationTests
             var client = new MockRegistryBlobClient();
 
             var clientFactory = StrictMock.Of<IContainerRegistryClientFactory>();
-            clientFactory.Setup(m => m.CreateBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
+            clientFactory.Setup(m => m.CreateAuthenticatedBlobClient(It.IsAny<RootConfiguration>(), registryUri, repository)).Returns(client);
 
             var templateSpecRepositoryFactory = BicepTestConstants.TemplateSpecRepositoryFactory;
 
@@ -426,4 +442,3 @@ output myOutput string = 'hello!'
             .ToDynamicTestData();
     }
 }
-

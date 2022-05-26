@@ -22,7 +22,7 @@ namespace Bicep.LanguageServer {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class LangServerResources {
+    public class LangServerResources {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
@@ -36,7 +36,7 @@ namespace Bicep.LanguageServer {
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
                     global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bicep.LanguageServer.LangServerResources", typeof(LangServerResources).Assembly);
@@ -51,7 +51,7 @@ namespace Bicep.LanguageServer {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,11 +61,92 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}..
+        /// </summary>
+        public static string DeploymentFailedMessage {
+            get {
+                return ResourceManager.GetString("DeploymentFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. {1}.
+        /// </summary>
+        public static string DeploymentFailedWithExceptionMessage {
+            get {
+                return ResourceManager.GetString("DeploymentFailedWithExceptionMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment started for {0}..
+        /// </summary>
+        public static string DeploymentStartedMessage {
+            get {
+                return ResourceManager.GetString("DeploymentStartedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment succeeded for {0}..
+        /// </summary>
+        public static string DeploymentSucceededMessage {
+            get {
+                return ResourceManager.GetString("DeploymentSucceededMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Disable {0} for this line.
         /// </summary>
-        internal static string DisableDiagnosticForThisLine {
+        public static string DisableDiagnosticForThisLine {
             get {
                 return ResourceManager.GetString("DisableDiagnosticForThisLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Edit {0} in bicepconfig.json.
+        /// </summary>
+        public static string EditLinterRuleActionTitle {
+            get {
+                return ResourceManager.GetString("EditLinterRuleActionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please fix the following issues in the parameter file: {1}.
+        /// </summary>
+        public static string InvalidParameterFileDeploymentFailedMessage {
+            get {
+                return ResourceManager.GetString("InvalidParameterFileDeploymentFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid location..
+        /// </summary>
+        public static string MissingLocationDeploymentFailedMessage {
+            get {
+                return ResourceManager.GetString("MissingLocationDeploymentFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unsupported target scope: {0}..
+        /// </summary>
+        public static string UnsupportedTargetScopeMessage {
+            get {
+                return ResourceManager.GetString("UnsupportedTargetScopeMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View deployment in portal: {0}..
+        /// </summary>
+        public static string ViewDeploymentInPortalMessage {
+            get {
+                return ResourceManager.GetString("ViewDeploymentInPortalMessage", resourceCulture);
             }
         }
     }

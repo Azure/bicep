@@ -24,8 +24,8 @@ using Bicep.Core.Workspaces;
 using System;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using Bicep.Core.Text;
-using Bicep.Core.UnitTests;
 using Bicep.Core.Navigation;
+using Bicep.LangServer.IntegrationTests.Helpers;
 
 namespace Bicep.LangServer.IntegrationTests
 {
@@ -36,14 +36,29 @@ namespace Bicep.LangServer.IntegrationTests
         [NotNull]
         public TestContext? TestContext { get; set; }
 
+        private static readonly SharedLanguageHelperManager DefaultServer = new();
+
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+        }
+
+        [ClassCleanup]
+        public static async Task ClassCleanup()
+        {
+            await DefaultServer.DisposeAsync();
+        }
+
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
         public async Task GoToDefinitionRequestOnValidSymbolReferenceShouldReturnLocationOfDeclaredSymbol(DataSet dataSet)
         {
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
@@ -56,7 +71,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (var (syntax, symbol) in declaredSymbolBindings)
             {
-                var response = await client.RequestDefinition(new DefinitionParams
+                var response = await helper.Client.RequestDefinition(new DefinitionParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
                     Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
@@ -97,8 +112,10 @@ namespace Bicep.LangServer.IntegrationTests
         {
             var uri = DocumentUri.From($"/{dataSet.Name}");
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+            //using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
             var (compilation, _, _) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
@@ -107,7 +124,7 @@ namespace Bicep.LangServer.IntegrationTests
 
             foreach (var (syntax, _) in undeclaredSymbolBindings)
             {
-                var response = await client.RequestDefinition(new DefinitionParams
+                var response = await helper.Client.RequestDefinition(new DefinitionParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
                     Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
@@ -131,8 +148,10 @@ namespace Bicep.LangServer.IntegrationTests
 
             var (compilation, _, fileUri) = await dataSet.SetupPrerequisitesAndCreateCompilation(TestContext);
             var uri = DocumentUri.From(fileUri);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri);
-            var client = helper.Client;
+
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
             var symbolTable = compilation.ReconstructSymbolTable();
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
@@ -160,7 +179,7 @@ namespace Bicep.LangServer.IntegrationTests
                 {
                     continue;
                 }
-                var response = await client.RequestDefinition(new DefinitionParams
+                var response = await helper.Client.RequestDefinition(new DefinitionParams
                 {
                     TextDocument = new TextDocumentIdentifier(uri),
                     Position = IntegrationTestHelper.GetPosition(lineStarts, syntax)
@@ -199,11 +218,12 @@ module appPlanDeploy2 'wrong|.bicep' = {
         private static async Task RunDefinitionScenarioTest(TestContext testContext, string fileWithCursors, Action<List<LocationOrLocationLinks>> assertAction)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///path/to/main.bicep"), file);
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file:///{testContext.TestName}/path/to/main.bicep"), file);
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(testContext, file, bicepFile.FileUri, creationOptions: new LanguageServer.Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            var client = helper.Client;
-            var results = await RequestDefinitions(client, bicepFile, cursors);
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(testContext, file, bicepFile.FileUri);
+
+            var results = await RequestDefinitions(helper.Client, bicepFile, cursors);
 
             assertAction(results);
         }

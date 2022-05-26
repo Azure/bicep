@@ -11,7 +11,7 @@ param ownerPrincipalId string
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |ownerPrincipalId|
-//@[23:29)  TypeSyntax
+//@[23:29)  SimpleTypeSyntax
 //@[23:29)   Identifier |string|
 //@[29:33) NewLine |\r\n\r\n|
 
@@ -20,7 +20,7 @@ param contributorPrincipals array
 //@[0:5)  Identifier |param|
 //@[6:27)  IdentifierSyntax
 //@[6:27)   Identifier |contributorPrincipals|
-//@[28:33)  TypeSyntax
+//@[28:33)  SimpleTypeSyntax
 //@[28:33)   Identifier |array|
 //@[33:35) NewLine |\r\n|
 param readerPrincipals array
@@ -28,7 +28,7 @@ param readerPrincipals array
 //@[0:5)  Identifier |param|
 //@[6:22)  IdentifierSyntax
 //@[6:22)   Identifier |readerPrincipals|
-//@[23:28)  TypeSyntax
+//@[23:28)  SimpleTypeSyntax
 //@[23:28)   Identifier |array|
 //@[28:32) NewLine |\r\n\r\n|
 

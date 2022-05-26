@@ -7,7 +7,6 @@ using FluentAssertions.Execution;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
@@ -74,11 +73,11 @@ output out object = script
     ("script.sh", TEXT_CONTENT));
 
             diags.ExcludingLinterDiagnostics().Should().BeEmpty();
-            template!.Should().NotBeNull();
-            var testToken = template!.SelectToken("$.variables.script.content");
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual(ExpectedResult(function));
+                template!.Should().NotBeNull();
+                template!.SelectToken("$.variables.script.content").Should().DeepEqual("[variables('$fxv#0')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().DeepEqual(ExpectedResult(function));
             }
         }
 
@@ -97,10 +96,10 @@ output out string = message
 
             diags.ExcludingLinterDiagnostics().Should().BeEmpty();
             template!.Should().NotBeNull();
-            var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual("[format('Body: {0}', '" + ExpectedResult(function) + "')]");
+                template!.SelectToken("$.variables['$fxv#0']").Should().NotBeNull().And.DeepEqual(ExpectedResult(function));
+                template!.SelectToken("$.variables.message").Should().NotBeNull().And.DeepEqual("[format('Body: {0}', variables('$fxv#0'))]");
             }
         }
 
@@ -115,7 +114,7 @@ output out string = message
         {
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
-var message = 'Body: ${loadTextContent('message.txt', '" + encoding + @"')}'
+var message = loadTextContent('message.txt', '" + encoding + @"')
 
 output out string = message
 "),
@@ -126,7 +125,7 @@ output out string = message
             var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual("[format('Body: {0}', '" + TEXT_CONTENT + "')]");
+                testToken.Should().NotBeNull().And.DeepEqual(TEXT_CONTENT);
             }
         }
 
@@ -202,7 +201,7 @@ var message = 'Body: ${loadTextContent('message.txt', encoding)}'
             var (template, diags, _) = CompilationHelper.Compile(
     ("main.bicep", @"
 " + declaration + @"
-var message = 'Body: ${" + function.ToString() + @"(" + filePath + ((encoding is null) ? string.Empty : (", " + encoding)) + @")}'
+var message = " + function.ToString() + @"(" + filePath + ((encoding is null) ? string.Empty : (", " + encoding)) + @")
 output out string = message
 "),
     ("message.txt", TEXT_CONTENT));
@@ -212,7 +211,7 @@ output out string = message
             var testToken = template!.SelectToken("$.variables.message");
             using (new AssertionScope())
             {
-                testToken.Should().NotBeNull().And.DeepEqual("[format('Body: {0}', '" + ExpectedResult(function) + "')]");
+                testToken.Should().NotBeNull().And.DeepEqual(ExpectedResult(function));
             }
         }
 

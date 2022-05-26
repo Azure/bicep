@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using Bicep.Cli.Arguments;
-using Bicep.Cli.Services;
 using System;
 
 namespace Bicep.Cli.Commands
@@ -74,14 +73,12 @@ Usage:
     Options:
       --outdir <dir>    Saves the output at the specified directory.
       --outfile <file>  Saves the output as the specified file path.
-      --no-summary      Omits the summary at the end of the build.
       --stdout          Prints the output to stdout.
       --no-restore      Builds the bicep file without restoring external modules.
 
     Examples:
       bicep build file.bicep
       bicep build file.bicep --stdout
-      bicep build file.bicep --no-summary
       bicep build file.bicep --outdir dir1
       bicep build file.bicep --outfile file.json
       bicep build file.bicep --no-restore
@@ -96,11 +93,13 @@ Usage:
       --outdir <dir>    Saves the output at the specified directory.
       --outfile <file>  Saves the output as the specified file path.
       --stdout          Prints the output to stdout.
+      --force           Allows overwriting the output file if it exists (applies only to 'bicep decompile').
 
     Examples:
       bicep decompile file.json
       bicep decompile file.json --stdout
       bicep decompile file.json --outdir dir1
+      bicep decompile file.json --force
       bicep decompile file.json --outfile file.bicep
 {registryPlaceholder}  {exeName} [options]
     Options:

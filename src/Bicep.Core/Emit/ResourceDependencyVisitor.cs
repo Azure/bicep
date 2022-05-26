@@ -7,8 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using Bicep.Core.DataFlow;
 using Bicep.Core.Extensions;
-using Bicep.Core.Navigation;
 using Bicep.Core.Semantics;
+using Bicep.Core.Semantics.Metadata;
 using Bicep.Core.Syntax;
 
 namespace Bicep.Core.Emit
@@ -65,7 +65,7 @@ namespace Bicep.Core.Emit
 
         public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
         {
-            if (model.ResourceMetadata.TryLookup(syntax) is not { } resource)
+            if (model.ResourceMetadata.TryLookup(syntax) is not DeclaredResourceMetadata resource)
             {
                 // When invoked by BicepDeploymentGraphHandler, it's possible that the declaration is unbound.
                 return;
@@ -73,12 +73,13 @@ namespace Bicep.Core.Emit
 
             // Resource ancestors are always dependencies.
             var ancestors = this.model.ResourceAncestors.GetAncestors(resource);
+            var lastAncestorIndex = ancestors.Length - 1;
 
             // save previous declaration as we may call this recursively
             var prevDeclaration = this.currentDeclaration;
 
             this.currentDeclaration = resource.Symbol;
-            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select(a => new ResourceDependency(a.Resource.Symbol, a.IndexExpression)));
+            this.resourceDependencies[resource.Symbol] = new HashSet<ResourceDependency>(ancestors.Select((a, i) => new ResourceDependency(a.Resource.Symbol, a.IndexExpression, i == lastAncestorIndex ? ResourceDependencyKind.Primary : ResourceDependencyKind.Transitive)));
             base.VisitResourceDeclarationSyntax(syntax);
 
             // restore previous declaration
@@ -167,11 +168,11 @@ namespace Bicep.Core.Emit
                         return;
                     }
 
-                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), ResourceDependencyKind.Primary));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection), ResourceDependencyKind.Primary));
                     return;
             }
         }
@@ -200,11 +201,11 @@ namespace Bicep.Core.Emit
                         return;
                     }
 
-                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(resourceSymbol, GetIndexExpression(syntax, resourceSymbol.IsCollection), ResourceDependencyKind.Primary));
                     return;
 
                 case ModuleSymbol moduleSymbol:
-                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection)));
+                    currentResourceDependencies.Add(new ResourceDependency(moduleSymbol, GetIndexExpression(syntax, moduleSymbol.IsCollection), ResourceDependencyKind.Primary));
                     return;
             }
         }
@@ -236,7 +237,7 @@ namespace Bicep.Core.Emit
                 _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
             };
 
-            // using the resource/module body as the context to allow indexed depdnencies relying on the resource/module loop index to work as expected
+            // using the resource/module body as the context to allow indexed dependencies relying on the resource/module loop index to work as expected
             var inaccessibleLocals = dfa.GetInaccessibleLocalsAfterSyntaxMove(candidateIndexExpression, context);
             if (inaccessibleLocals.Any())
             {

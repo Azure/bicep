@@ -9,10 +9,11 @@ namespace Bicep.Core.Emit
 {
     public class ResourceDependency
     {
-        public ResourceDependency(DeclaredSymbol resource, SyntaxBase? indexExpression)
+        public ResourceDependency(DeclaredSymbol resource, SyntaxBase? indexExpression, ResourceDependencyKind kind)
         {
             this.Resource = resource;
             this.IndexExpression = indexExpression;
+            this.Kind = kind;
         }
 
         public DeclaredSymbol Resource { get; }
@@ -22,6 +23,8 @@ namespace Bicep.Core.Emit
         /// </summary>
         public SyntaxBase? IndexExpression { get; }
 
+        public ResourceDependencyKind Kind { get; }
+
         public override bool Equals(object? obj)
         {
             if (obj is not ResourceDependency other)
@@ -29,9 +32,9 @@ namespace Bicep.Core.Emit
                 return false;
             }
 
-            return ReferenceEquals(this.Resource, other.Resource) && ReferenceEquals(this.IndexExpression, other.IndexExpression);
+            return ReferenceEquals(this.Resource, other.Resource) && ReferenceEquals(this.IndexExpression, other.IndexExpression) && this.Kind == other.Kind;
         }
 
-        public override int GetHashCode() => HashCode.Combine(this.Resource, this.IndexExpression);
+        public override int GetHashCode() => HashCode.Combine(this.Resource, this.IndexExpression, this.Kind);
     }
 }

@@ -5,7 +5,7 @@ param dnsPrefix string
 //@[0:5)  Identifier |param|
 //@[6:15)  IdentifierSyntax
 //@[6:15)   Identifier |dnsPrefix|
-//@[16:22)  TypeSyntax
+//@[16:22)  SimpleTypeSyntax
 //@[16:22)   Identifier |string|
 //@[22:23) NewLine |\n|
 param linuxAdminUsername string
@@ -13,7 +13,7 @@ param linuxAdminUsername string
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |linuxAdminUsername|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |string|
 //@[31:32) NewLine |\n|
 param sshRSAPublicKey string
@@ -21,7 +21,7 @@ param sshRSAPublicKey string
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |sshRSAPublicKey|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[28:30) NewLine |\n\n|
 
@@ -39,7 +39,7 @@ param servcePrincipalClientId string
 //@[0:5)  Identifier |param|
 //@[6:29)  IdentifierSyntax
 //@[6:29)   Identifier |servcePrincipalClientId|
-//@[30:36)  TypeSyntax
+//@[30:36)  SimpleTypeSyntax
 //@[30:36)   Identifier |string|
 //@[36:38) NewLine |\n\n|
 
@@ -57,7 +57,7 @@ param servicePrincipalClientSecret string
 //@[0:5)  Identifier |param|
 //@[6:34)  IdentifierSyntax
 //@[6:34)   Identifier |servicePrincipalClientSecret|
-//@[35:41)  TypeSyntax
+//@[35:41)  SimpleTypeSyntax
 //@[35:41)   Identifier |string|
 //@[41:43) NewLine |\n\n|
 
@@ -68,7 +68,7 @@ param clusterName string = 'aks101cluster'
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |clusterName|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |string|
 //@[25:42)  ParameterDefaultValueSyntax
 //@[25:26)   Assignment |=|
@@ -80,7 +80,7 @@ param location string = resourceGroup().location
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |location|
-//@[15:21)  TypeSyntax
+//@[15:21)  SimpleTypeSyntax
 //@[15:21)   Identifier |string|
 //@[22:48)  ParameterDefaultValueSyntax
 //@[22:23)   Assignment |=|
@@ -124,7 +124,7 @@ param osDiskSizeGB int = 0
 //@[0:5)  Identifier |param|
 //@[6:18)  IdentifierSyntax
 //@[6:18)   Identifier |osDiskSizeGB|
-//@[19:22)  TypeSyntax
+//@[19:22)  SimpleTypeSyntax
 //@[19:22)   Identifier |int|
 //@[23:26)  ParameterDefaultValueSyntax
 //@[23:24)   Assignment |=|
@@ -161,7 +161,7 @@ param agentCount int = 3
 //@[0:5)  Identifier |param|
 //@[6:16)  IdentifierSyntax
 //@[6:16)   Identifier |agentCount|
-//@[17:20)  TypeSyntax
+//@[17:20)  SimpleTypeSyntax
 //@[17:20)   Identifier |int|
 //@[21:24)  ParameterDefaultValueSyntax
 //@[21:22)   Assignment |=|
@@ -174,7 +174,7 @@ param agentVMSize string = 'Standard_DS2_v2'
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |agentVMSize|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |string|
 //@[25:44)  ParameterDefaultValueSyntax
 //@[25:26)   Assignment |=|

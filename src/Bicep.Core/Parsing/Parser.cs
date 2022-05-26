@@ -233,7 +233,7 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.ParameterKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedParameterIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedParameterType(), allowOptionalResourceType: false), GetSuppressionFlag(name), TokenType.Assignment, TokenType.LeftBrace, TokenType.NewLine);
 
             // TODO: Need a better way to choose the terminating token
             SyntaxBase? modifier = this.WithRecoveryNullable(
@@ -280,7 +280,7 @@ namespace Bicep.Core.Parsing
         {
             var keyword = ExpectKeyword(LanguageConstants.OutputKeyword);
             var name = this.IdentifierWithRecovery(b => b.ExpectedOutputIdentifier(), RecoveryFlags.None, TokenType.Identifier, TokenType.NewLine);
-            var type = this.WithRecovery(() => Type(b => b.ExpectedOutputType()), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
+            var type = this.WithRecovery(() => Type(b => b.ExpectedOutputType(), allowOptionalResourceType: true), GetSuppressionFlag(name), TokenType.Assignment, TokenType.NewLine);
             var assignment = this.WithRecovery(this.Assignment, GetSuppressionFlag(type), TokenType.NewLine);
             var value = this.WithRecovery(() => this.Expression(ExpressionFlags.AllowComplexLiterals), GetSuppressionFlag(assignment), TokenType.NewLine);
 
@@ -727,11 +727,30 @@ namespace Bicep.Core.Parsing
             return new SkippedTriviaSyntax(span, ImmutableArray<SyntaxBase>.Empty, errorFunc(DiagnosticBuilder.ForPosition(span)).AsEnumerable());
         }
 
-        private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc)
+        private TypeSyntax Type(DiagnosticBuilder.ErrorBuilderDelegate errorFunc, bool allowOptionalResourceType)
         {
-            var identifier = Expect(TokenType.Identifier, errorFunc);
+            if (GetOptionalKeyword(LanguageConstants.ResourceKeyword) is {} resourceKeyword)
+            {
+                var type = this.WithRecoveryNullable(
+                    () =>
+                    {
+                        // The resource type is optional for an output
+                        if (allowOptionalResourceType && !this.Check(this.reader.Peek(), TokenType.StringComplete, TokenType.StringLeftPiece))
+                        {
+                            return null;
+                        }
+                        else
+                        {
+                            return ThrowIfSkipped(this.InterpolableString, b => b.ExpectedResourceTypeString());
+                        }
+                    },
+                    RecoveryFlags.None,
+                    TokenType.Assignment, TokenType.NewLine);
+                return new ResourceTypeSyntax(resourceKeyword, type);
+            }
 
-            return new TypeSyntax(identifier);
+            var identifier = Expect(TokenType.Identifier, errorFunc);
+            return new SimpleTypeSyntax(identifier);
         }
 
         private IntegerLiteralSyntax NumericLiteral()

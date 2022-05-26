@@ -1,9 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using FluentAssertions;
-using FluentAssertions.Execution;
 using FluentAssertions.Primitives;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Bicep.Core.UnitTests.Assertions;
 

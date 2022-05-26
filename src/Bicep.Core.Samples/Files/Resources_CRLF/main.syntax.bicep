@@ -462,7 +462,7 @@ param applicationName string = 'to-do-app${uniqueString(resourceGroup().id)}'
 //@[0:5)  Identifier |param|
 //@[6:21)  IdentifierSyntax
 //@[6:21)   Identifier |applicationName|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:77)  ParameterDefaultValueSyntax
 //@[29:30)   Assignment |=|
@@ -501,7 +501,7 @@ param appServicePlanTier string
 //@[0:5)  Identifier |param|
 //@[6:24)  IdentifierSyntax
 //@[6:24)   Identifier |appServicePlanTier|
-//@[25:31)  TypeSyntax
+//@[25:31)  SimpleTypeSyntax
 //@[25:31)   Identifier |string|
 //@[31:33) NewLine |\r\n|
 param appServicePlanInstances int
@@ -509,7 +509,7 @@ param appServicePlanInstances int
 //@[0:5)  Identifier |param|
 //@[6:29)  IdentifierSyntax
 //@[6:29)   Identifier |appServicePlanInstances|
-//@[30:33)  TypeSyntax
+//@[30:33)  SimpleTypeSyntax
 //@[30:33)   Identifier |int|
 //@[33:37) NewLine |\r\n\r\n|
 
@@ -683,7 +683,7 @@ param webSiteName string
 //@[0:5)  Identifier |param|
 //@[6:17)  IdentifierSyntax
 //@[6:17)   Identifier |webSiteName|
-//@[18:24)  TypeSyntax
+//@[18:24)  SimpleTypeSyntax
 //@[18:24)   Identifier |string|
 //@[24:26) NewLine |\r\n|
 param cosmosDb object
@@ -691,7 +691,7 @@ param cosmosDb object
 //@[0:5)  Identifier |param|
 //@[6:14)  IdentifierSyntax
 //@[6:14)   Identifier |cosmosDb|
-//@[15:21)  TypeSyntax
+//@[15:21)  SimpleTypeSyntax
 //@[15:21)   Identifier |object|
 //@[21:23) NewLine |\r\n|
 resource site 'Microsoft.Web/sites@2019-08-01' = {
@@ -928,7 +928,7 @@ output siteApiVersion string = site.apiVersion
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |siteApiVersion|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:30)  Assignment |=|
 //@[31:46)  PropertyAccessSyntax
@@ -944,7 +944,7 @@ output siteType string = site.type
 //@[0:6)  Identifier |output|
 //@[7:15)  IdentifierSyntax
 //@[7:15)   Identifier |siteType|
-//@[16:22)  TypeSyntax
+//@[16:22)  SimpleTypeSyntax
 //@[16:22)   Identifier |string|
 //@[23:24)  Assignment |=|
 //@[25:34)  PropertyAccessSyntax
@@ -1631,7 +1631,7 @@ param shouldDeployVm bool = true
 //@[0:5)  Identifier |param|
 //@[6:20)  IdentifierSyntax
 //@[6:20)   Identifier |shouldDeployVm|
-//@[21:25)  TypeSyntax
+//@[21:25)  SimpleTypeSyntax
 //@[21:25)   Identifier |bool|
 //@[26:32)  ParameterDefaultValueSyntax
 //@[26:27)   Assignment |=|
@@ -3255,7 +3255,7 @@ output p1_subnet1prefix string = p1_subnet1.properties.addressPrefix
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p1_subnet1prefix|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:68)  PropertyAccessSyntax
@@ -3275,7 +3275,7 @@ output p1_subnet1name string = p1_subnet1.name
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |p1_subnet1name|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:30)  Assignment |=|
 //@[31:46)  PropertyAccessSyntax
@@ -3291,7 +3291,7 @@ output p1_subnet1type string = p1_subnet1.type
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |p1_subnet1type|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:30)  Assignment |=|
 //@[31:46)  PropertyAccessSyntax
@@ -3307,7 +3307,7 @@ output p1_subnet1id string = p1_subnet1.id
 //@[0:6)  Identifier |output|
 //@[7:19)  IdentifierSyntax
 //@[7:19)   Identifier |p1_subnet1id|
-//@[20:26)  TypeSyntax
+//@[20:26)  SimpleTypeSyntax
 //@[20:26)   Identifier |string|
 //@[27:28)  Assignment |=|
 //@[29:42)  PropertyAccessSyntax
@@ -3445,7 +3445,7 @@ output p2_res2childprop string = p2_res2child.properties.someProp
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p2_res2childprop|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:65)  PropertyAccessSyntax
@@ -3465,7 +3465,7 @@ output p2_res2childname string = p2_res2child.name
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p2_res2childname|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:50)  PropertyAccessSyntax
@@ -3481,7 +3481,7 @@ output p2_res2childtype string = p2_res2child.type
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p2_res2childtype|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:50)  PropertyAccessSyntax
@@ -3497,7 +3497,7 @@ output p2_res2childid string = p2_res2child.id
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |p2_res2childid|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:30)  Assignment |=|
 //@[31:46)  PropertyAccessSyntax
@@ -3572,7 +3572,7 @@ output p3_res1childprop string = p3_child1.properties.someProp
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p3_res1childprop|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:62)  PropertyAccessSyntax
@@ -3592,7 +3592,7 @@ output p3_res1childname string = p3_child1.name
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p3_res1childname|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:47)  PropertyAccessSyntax
@@ -3608,7 +3608,7 @@ output p3_res1childtype string = p3_child1.type
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p3_res1childtype|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:47)  PropertyAccessSyntax
@@ -3624,7 +3624,7 @@ output p3_res1childid string = p3_child1.id
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |p3_res1childid|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:30)  Assignment |=|
 //@[31:43)  PropertyAccessSyntax
@@ -3711,7 +3711,7 @@ output p4_res1childprop string = p4_child1.properties.someProp
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p4_res1childprop|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:62)  PropertyAccessSyntax
@@ -3731,7 +3731,7 @@ output p4_res1childname string = p4_child1.name
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p4_res1childname|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:47)  PropertyAccessSyntax
@@ -3747,7 +3747,7 @@ output p4_res1childtype string = p4_child1.type
 //@[0:6)  Identifier |output|
 //@[7:23)  IdentifierSyntax
 //@[7:23)   Identifier |p4_res1childtype|
-//@[24:30)  TypeSyntax
+//@[24:30)  SimpleTypeSyntax
 //@[24:30)   Identifier |string|
 //@[31:32)  Assignment |=|
 //@[33:47)  PropertyAccessSyntax
@@ -3763,7 +3763,7 @@ output p4_res1childid string = p4_child1.id
 //@[0:6)  Identifier |output|
 //@[7:21)  IdentifierSyntax
 //@[7:21)   Identifier |p4_res1childid|
-//@[22:28)  TypeSyntax
+//@[22:28)  SimpleTypeSyntax
 //@[22:28)   Identifier |string|
 //@[29:30)  Assignment |=|
 //@[31:43)  PropertyAccessSyntax

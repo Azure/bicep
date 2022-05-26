@@ -19,7 +19,6 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.IO.Abstractions;
 using System.Linq;
@@ -181,6 +180,11 @@ namespace Bicep.LangServer.UnitTests.Registry
             public bool IsModuleRestoreRequired(ModuleReference reference) => true;
 
             public Task PublishModule(RootConfiguration configuration, ModuleReference moduleReference, Stream compiled)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCache(RootConfiguration configuration, IEnumerable<ModuleReference> references)
             {
                 throw new NotImplementedException();
             }

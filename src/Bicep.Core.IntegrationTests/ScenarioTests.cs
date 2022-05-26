@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 using System;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Security.Cryptography;
-using Bicep.Core.Analyzers.Linter.Rules;
 using Bicep.Core.Diagnostics;
-using Bicep.Core.Parsing;
+using Bicep.Core.FileSystem;
 using Bicep.Core.Resources;
+using Bicep.Core.Semantics;
 using Bicep.Core.TypeSystem;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
-using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 
@@ -19,6 +21,9 @@ namespace Bicep.Core.IntegrationTests
     [TestClass]
     public class ScenarioTests
     {
+        [NotNull]
+        public TestContext? TestContext { get; set; }
+
         [TestMethod]
         // https://github.com/azure/bicep/issues/3636
         public void Test_Issue3636()
@@ -2754,7 +2759,7 @@ resource resourceA 'My.Rp/myResource@2020-01-01' = {
   }
 }
 "));
-            result.Should().GenerateATemplate().And.HaveDiagnostics(new []
+            result.Should().GenerateATemplate().And.HaveDiagnostics(new[]
             {
                 ("BCP073", DiagnosticLevel.Warning, "The property \"tags\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team."),
                 ("BCP073", DiagnosticLevel.Warning, "The property \"properties\" is read-only. Expressions cannot be assigned to read-only properties. If this is an inaccuracy in the documentation, please report it to the Bicep Team.")
@@ -2775,7 +2780,7 @@ module mod 'module.bicep' = {
   outputs: {}
 }
 "));
-            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new []
+            result.Should().NotGenerateATemplate().And.HaveDiagnostics(new[]
             {
                 ("BCP073", DiagnosticLevel.Error, "The property \"outputs\" is read-only. Expressions cannot be assigned to read-only properties.")
             });
@@ -2783,7 +2788,7 @@ module mod 'module.bicep' = {
 
         /// <summary>
         /// https://github.com/Azure/bicep/issues/3114
-        /// </summary>    
+        /// </summary>
         [TestMethod]
         public void Test_Issue3114()
         {
@@ -2792,6 +2797,254 @@ output contentVersion string = deployment().properties.template.contentVersion
 ");
             result.Template.Should().NotBeNull();
             result.Template.Should().HaveValueAtPath("$.outputs['contentVersion'].value", "[deployment().properties.template.contentVersion]");
+        }
+
+        // https://github.com/Azure/bicep/issues/4833
+        [TestMethod]
+        public void Test_Issue4833()
+        {
+            var result = CompilationHelper.Compile(@"
+param storageName string
+
+resource stg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: storageName
+}
+
+var storage = stg
+
+output badResult object = {
+  value: storage.listAnything().keys[0].value
+}");
+
+            result.Template.Should().HaveValueAtPath("$.outputs['badResult'].value", new JObject
+            {
+                ["value"] = "[listAnything(resourceId('Microsoft.Storage/storageAccounts', parameters('storageName')), '2021-04-01').keys[0].value]",
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5530
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_5530()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'subscription'
+
+resource foo 'Microsoft.AAD/domainServices@2021-05-01' existing = {
+  scope: resourceGroup
+  name: 'foo'
+}
+
+resource resourceGroup 'Microsoft.Resources/resourceGroups@2021-04-01'
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/5530
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_5530_2()
+        {
+            var result = CompilationHelper.Compile(@"
+targetScope = 'tenant'
+
+resource foo 'Microsoft.Authorization/policyAssignments@2021-06-01' existing = {
+  scope: managementGroup
+  name: 'foo'
+}
+
+resource managementGroup 'Microsoft.Management/managementGroups@2021-04-01'
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP018", DiagnosticLevel.Error, "Expected the \"=\" character at this location.")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/6224
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_6224()
+        {
+            var inputFile = FileHelper.SaveResultFile(TestContext, "main.bicep", @"
+var text = loadTextContent('./con')
+var text2 = loadTextContent('./con.txt')
+var base64 = loadFileAsBase64('./con')
+var base64_2 = loadFileAsBase64('./con.txt')
+
+module test './con'
+
+module test './con.txt'
+
+");
+            var fileResolver = new FileResolver();
+            var configuration = BicepTestConstants.BuiltInConfiguration;
+            var features = BicepTestConstants.Features;
+            var sourceFileGrouping = SourceFileGroupingFactory.CreateForFiles(ImmutableDictionary.Create<Uri, string>(), new Uri(inputFile), fileResolver, configuration, features);
+
+            // the bug was that the compilation would not complete
+            var compilation = new Compilation(features, BicepTestConstants.NamespaceProvider, sourceFileGrouping, configuration, BicepTestConstants.LinterAnalyzer);
+            compilation.GetEntrypointSemanticModel().GetAllDiagnostics().Should().NotBeEmpty();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_2()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+
+resource foo 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: existingStg.name
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP120", DiagnosticLevel.Error, "This expression is being used in an assignment to the \"name\" property of the \"Microsoft.Storage/storageAccounts\" type, which requires a value that can be calculated at the start of the deployment. Properties of existingStg which can be calculated at the start include \"apiVersion\", \"id\", \"type\".")
+            });
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_3()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.name
+}
+
+resource newStg2 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: existingStg.name
+  kind: 'BlobStorage'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.Template.Should().HaveValueAtPath("$.resources[?(@.kind == 'BlobStorage')].name", "test");
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_4()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg1 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg2.name
+}
+
+resource existingStg2 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+
+resource existingStg3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg1.name
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+        }
+
+        /// <summary>
+        /// https://github.com/Azure/bicep/issues/3169
+        /// </summary>
+        [TestMethod]
+        public void Test_Issue_3169_5()
+        {
+            var result = CompilationHelper.Compile(@"
+resource newStg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
+  name: 'test'
+  kind: 'StorageV2'
+  location: resourceGroup().location
+  sku: {
+    name: 'Standard_LRS'
+  }
+}
+
+resource existingStg1 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg2.name
+}
+
+resource existingStg2 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: newStg.properties.accessTier
+}
+
+resource existingStg3 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg2.name
+}
+
+resource existingStg4 'Microsoft.Storage/storageAccounts@2021-04-01' existing = {
+  name: existingStg1.name
+}
+");
+            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
         }
     }
 }

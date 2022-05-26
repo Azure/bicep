@@ -90,6 +90,15 @@ namespace Bicep.Cli {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to WARNING: Resource-typed parameters and outputs in ARM are experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
+        /// </summary>
+        internal static string ResourceTypesDisclaimerMessage {
+            get {
+                return ResourceManager.GetString("ResourceTypesDisclaimerMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to WARNING: Symbolic name support in ARM is experimental, and should be enabled for testing purposes only. Do not enable this setting for any production usage, or you may be unexpectedly broken at any time!.
         /// </summary>
         internal static string SymbolicNamesDisclaimerMessage {
@@ -104,6 +113,15 @@ namespace Bicep.Cli {
         internal static string UnrecognizedArgumentsFormat {
             get {
                 return ResourceManager.GetString("UnrecognizedArgumentsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The specified input &quot;{0}&quot; was not recognized as a bicep file. Bicep files must use the .bicep extension..
+        /// </summary>
+        internal static string UnrecognizedFileExtensionMessage {
+            get {
+                return ResourceManager.GetString("UnrecognizedFileExtensionMessage", resourceCulture);
             }
         }
     }

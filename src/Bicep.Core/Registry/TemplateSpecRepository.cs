@@ -4,6 +4,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Azure;
+using Azure.Core;
 using Azure.ResourceManager;
 using Azure.ResourceManager.Resources;
 
@@ -22,9 +23,10 @@ namespace Bicep.Core.Registry
         {
             try
             {
-                var response = await this.client.GetTemplateSpecVersion(templateSpecId).GetAsync(cancellationToken);
-
-                return TemplateSpecEntity.FromSdkModel(response.Value.Data);
+                var resourceIdentifier = new ResourceIdentifier(templateSpecId);
+                var response = await this.client.GetTemplateSpecVersionResource(resourceIdentifier).GetAsync(cancellationToken);
+                var content = response.GetRawResponse().Content.ToString();
+                return new TemplateSpecEntity(content);
             }
             catch (RequestFailedException exception)
             {

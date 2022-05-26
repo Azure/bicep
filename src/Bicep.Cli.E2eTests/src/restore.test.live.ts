@@ -55,7 +55,8 @@ module storageAccountModuleV2 'ts/test-specs:STORAGEACCOUNTSPEC-${environment.re
 
 module webAppModuleV1 'ts/test-specs:webAppSpec-${environment.resourceSuffix}:1.0.0' = {
   name: 'webAppModuleV1'
-}`;
+}
+`;
 
     const bicepPath = writeTempFile("restore-ts", "main.bicep", bicep);
     const exampleConfig = readFileSync(
@@ -158,8 +159,15 @@ module storage '${storageRef}' = {
   }
 }
 
+module mcrModule 'br/public:samples/hello-world:1.0.1' = {
+  name: 'mcrModule'
+  params: {
+    name: 'BicepE2E'
+  }
+}
+
 output blobEndpoint string = storage.outputs.blobEndpoint
-    `;
+`;
 
     const bicepPath = writeTempFile("restore-br", "main.bicep", bicep);
 
@@ -183,6 +191,12 @@ output blobEndpoint string = storage.outputs.blobEndpoint
       builder.registry,
       "restore$storage",
       `v1_${builder.tagSuffix}$4002000`
+    );
+
+    expectBrModuleStructure(
+      "mcr.microsoft.com",
+      "bicep$samples$hello-world",
+      "1.0.1$"
     );
   });
 });

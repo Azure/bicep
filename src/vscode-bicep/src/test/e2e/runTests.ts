@@ -76,4 +76,5 @@ async function go() {
   }
 }
 
+// eslint-disable-next-line jest/require-hook
 go();
