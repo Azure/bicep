@@ -47,7 +47,7 @@ namespace Bicep.Cli.Services
         {
             try
             {
-                return new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None);
+                return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
             }
             catch (Exception exception)
             {
