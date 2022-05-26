@@ -22,7 +22,7 @@ namespace Bicep.Core.Emit
         private readonly EmitterContext context;
         private readonly EmitterSettings settings;
 
-        public new void Write(JsonTextWriter writer)
+        public void Write(JsonTextWriter writer, string existingContent)
         {
             // Template is used for calcualting template hash, template jtoken is used for writing to file.
             var templateJToken = GenerateTemplate();
