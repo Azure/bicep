@@ -636,7 +636,7 @@ var fileObj = loadJsonContent('file.json', '" + path + @"')
             using (new AssertionScope())
             {
                 template!.Should().BeNull();
-                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP235", DiagnosticLevel.Error, "Specified path does not exist in given JSON file or is invalid.") });
+                diags.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] { ("BCP235", DiagnosticLevel.Error, "Specified JSONPath does not exist in the given file or is invalid.") });
             }
         }
 

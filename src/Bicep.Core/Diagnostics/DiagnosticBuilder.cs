@@ -1390,7 +1390,7 @@ namespace Bicep.Core.Diagnostics
             public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
                 TextSpan,
                 "BCP235",
-                $"Specified path does not exist in given JSON file or is invalid.");
+                $"Specified JSONPath does not exist in the given file or is invalid.");
 
         }
 

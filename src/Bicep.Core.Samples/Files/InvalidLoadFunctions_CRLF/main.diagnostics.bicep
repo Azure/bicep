@@ -130,13 +130,13 @@ var jsonObject1 = loadJsonContent('Assets/jsonInvalid.json.txt')
 //@[4:15) [no-unused-vars (Warning)] Variable "jsonObject1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |jsonObject1|
 var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
 //@[4:15) [no-unused-vars (Warning)] Variable "jsonObject2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |jsonObject2|
-//@[63:66) [BCP235 (Error)] Specified path does not exist in given JSON file or is invalid. (CodeDescription: none) |'.'|
+//@[63:66) [BCP235 (Error)] Specified JSONPath does not exist in the given file or is invalid. (CodeDescription: none) |'.'|
 var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
 //@[4:15) [no-unused-vars (Warning)] Variable "jsonObject3" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |jsonObject3|
-//@[63:67) [BCP235 (Error)] Specified path does not exist in given JSON file or is invalid. (CodeDescription: none) |'$.'|
+//@[63:67) [BCP235 (Error)] Specified JSONPath does not exist in the given file or is invalid. (CodeDescription: none) |'$.'|
 var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoesNotExist')
 //@[4:15) [no-unused-vars (Warning)] Variable "jsonObject4" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |jsonObject4|
-//@[63:90) [BCP235 (Error)] Specified path does not exist in given JSON file or is invalid. (CodeDescription: none) |'.propertyThatDoesNotExist'|
+//@[63:90) [BCP235 (Error)] Specified JSONPath does not exist in the given file or is invalid. (CodeDescription: none) |'.propertyThatDoesNotExist'|
 var jsonObject5 = loadJsonContent('Assets/fileNotExists')
 //@[4:15) [no-unused-vars (Warning)] Variable "jsonObject5" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |jsonObject5|
 //@[34:56) [BCP091 (Error)] An error occurred reading file. Could not find file '${TEST_OUTPUT_DIR}/Assets/fileNotExists'. (CodeDescription: none) |'Assets/fileNotExists'|

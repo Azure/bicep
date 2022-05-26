@@ -487,9 +487,9 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("loadJsonContent")
                 .WithGenericDescription($"Loads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.")
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
-                .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath string to narrow down loaded file. If not provided, root element indicator '$' is used")
+                .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
-                .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.String)
+                .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.Any)
                 .WithEvaluator(JsonContentFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(JsonContentFunctionVariableGenerator)
                 .Build(),
