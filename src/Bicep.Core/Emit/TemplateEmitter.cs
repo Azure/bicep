@@ -33,6 +33,12 @@ namespace Bicep.Core.Emit
         /// <param name="stream">The stream to write the template</param>
         public EmitResult EmitParametersFile(Stream stream) => EmitOrFail(() =>
         {
+            // read content of the stream into a string
+            using var reader = new StreamReader(stream);
+            var content = reader.ReadToEndAsync().GetAwaiter().GetResult();
+
+            stream.Seek(0, SeekOrigin.Begin);
+
             using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true))
             {
                 Formatting = Formatting.Indented
