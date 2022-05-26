@@ -4,7 +4,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
@@ -19,9 +18,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentParametersResponse(List<BicepUpdatedDeploymentParameter> bicepUpdatedDeploymentParameters, string? errorMessage);
+    public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, string? errorMessage);
 
-    public record BicepUpdatedDeploymentParameter(string name, string? value, bool isMissingParam, bool showDefaultValue);
+    public record BicepDeploymentParameter(string name, string? value, bool isMissingParam, bool isExpression);
 
     public class BicepDeploymentParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, BicepDeploymentParametersResponse>
     {
@@ -43,7 +42,7 @@ namespace Bicep.LanguageServer.Handlers
         private BicepDeploymentParametersResponse GetUpdatedParams(string documentPath, string parametersFilePath, string template)
         {
             var parametersFromProvidedParametersFile = GetParametersInfoFromProvidedFile(parametersFilePath);
-            var updatedDeploymentParameters = new List<BicepUpdatedDeploymentParameter>();
+            var updatedDeploymentParameters = new List<BicepDeploymentParameter>();
             var templateObj = JObject.Parse(template);
             var defaultParametersFromTemplate = templateObj["parameters"];
             var missingArrayOrObjectTypes = new List<string>();
@@ -53,7 +52,6 @@ namespace Bicep.LanguageServer.Handlers
                 var parameterDeclarationSyntax = parameterSymbol.DeclaringParameter;
                 var modifier = parameterDeclarationSyntax.Modifier;
                 var parameterName = parameterSymbol.Name;
-                var displayActualDefault = true;
 
                 if (modifier is null)
                 {
@@ -65,12 +63,13 @@ namespace Bicep.LanguageServer.Handlers
 
                     if (parametersFromProvidedParametersFile is null || !parametersFromProvidedParametersFile.ContainsKey(parameterName))
                     {
-                        var updatedDeploymentParameter = new BicepUpdatedDeploymentParameter(parameterName, null, true, false);
+                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, null, true, false);
                         updatedDeploymentParameters.Add(updatedDeploymentParameter);
                     }
                 }
                 else
                 {
+                    bool isExpression = false;
                     // If param is of type array or object, we don't want to provide an option to override.
                     // We'll simply ignore and continue
                     if (IsOfTypeArrayOrObject(parameterDeclarationSyntax))
@@ -92,14 +91,14 @@ namespace Bicep.LanguageServer.Handlers
                         parameterDefaultValueSyntax.DefaultValue is PropertyAccessSyntax propertyAccessSyntax &&
                         propertyAccessSyntax is not null)
                     {
-                        displayActualDefault = false;
+                        isExpression = true;
                     }
 
                     var defaultValue = defaultParametersFromTemplate?[parameterName]?["defaultValue"];
 
                     if (defaultValue is not null)
                     {
-                        var updatedDeploymentParameter = new BicepUpdatedDeploymentParameter(parameterName, defaultValue.ToString(), false, displayActualDefault);
+                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, defaultValue.ToString(), false, isExpression);
                         updatedDeploymentParameters.Add(updatedDeploymentParameter);
                     }
                 }

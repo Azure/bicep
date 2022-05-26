@@ -28,8 +28,9 @@ import {
   BicepDeploymentWaitForCompletionParams,
   BicepDeploymentStartParams,
   BicepDeploymentStartResponse,
-  BicepUpdatedDeploymentParameter,
+  BicepDeploymentParameter,
   BicepDeploymentParametersResponse,
+  BicepUpdatedDeploymentParameter,
 } from "../language";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import fs from "fs";
@@ -333,7 +334,7 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
-      const [updateParameterFile, updatedParamsWithValues] =
+      const [updateOrCreateParametersFile, updatedDeploymentParameters] =
         await this.handleMissingAndDefaultParams(
           context,
           documentPath,
@@ -352,6 +353,8 @@ export class DeployCommand implements Command {
         expiresOnTimestamp,
         deployId,
         portalUrl,
+        updateOrCreateParametersFile,
+        updatedDeploymentParameters,
       };
       const deploymentStartResponse: BicepDeploymentStartResponse =
         await this.client.sendRequest("workspace/executeCommand", {
@@ -440,7 +443,7 @@ export class DeployCommand implements Command {
 
   private async handleMissingAndDefaultParams(
     _context: IActionContext,
-    documentPath: string | undefined,
+    documentPath: string,
     parameterFilePath: string | undefined,
     template: string | undefined
   ): Promise<[boolean, BicepUpdatedDeploymentParameter[]]> {
@@ -454,133 +457,129 @@ export class DeployCommand implements Command {
       throw new Error(bicepDeploymentParametersResponse.errorMessage);
     }
 
-    const updatedParamsWithValues: BicepUpdatedDeploymentParameter[] = [];
-    let showUpdateParametersFileInformationMessage = false;
-    let updateParametersFile = false;
+    const updatedDeploymentParameters: BicepUpdatedDeploymentParameter[] = [];
+    const parameterFileExists =
+      parameterFilePath != undefined && fs.existsSync(parameterFilePath);
 
-    for (const deployParam of bicepDeploymentParametersResponse.bicepUpdatedDeploymentParameters) {
-      const paramName = deployParam.name;
-      if (deployParam.isMissingParam) {
-        showUpdateParametersFileInformationMessage = true;
-        const missingParamValue = await vscode.window.showInputBox({
-          placeHolder: "Please enter value for param: " + paramName,
-          title: "Please enter value for missing parameter: " + paramName,
+    for (const deploymentParameter of bicepDeploymentParametersResponse.deploymentParameters) {
+      const paramName = deploymentParameter.name;
+      let paramValue = undefined;
+      if (deploymentParameter.isMissingParam) {
+        paramValue = await vscode.window.showInputBox({
+          title: "Parameter: " + paramName,
+          placeHolder: 'Please enter value for parameter "' + paramName + '"',
         });
-
-        const updatedParam: BicepUpdatedDeploymentParameter = {
-          name: paramName,
-          value: missingParamValue,
-          isMissingParam: true,
-          showDefaultValue: deployParam.showDefaultValue,
-        };
-        updatedParamsWithValues.push(updatedParam);
       } else {
-        let options: vscode.InputBoxOptions;
-        if (deployParam.showDefaultValue) {
-          options = {
-            title:
-              "Please update the default value for parameter: " + paramName,
-            prompt: "Press enter to select the default value",
-            value: deployParam.value,
-            placeHolder: "Please enter value for param: " + paramName,
-          };
+        if (deploymentParameter.isExpression) {
+          paramValue = await this.selectValueForParameterOfTypeExpression(
+            _context,
+            paramName,
+            deploymentParameter.value
+          );
         } else {
-          options = {
-            title:
-              "Please update the default value for parameter: " + paramName,
-            prompt: "Press enter to select the default value",
-            value: deployParam.value,
-            placeHolder: "Please enter value for param: " + paramName,
+          const options = {
+            title: "Parameter: " + paramName,
+            value: deploymentParameter.value,
+            placeHolder: `Please enter value for parameter "${paramName}"`,
           };
+          paramValue = await vscode.window.showInputBox(options);
         }
-        const defaultParamValue = await vscode.window.showInputBox(options);
-        const updatedParam: BicepUpdatedDeploymentParameter = {
+      }
+
+      if (paramValue) {
+        const updatedDeploymentParameter: BicepUpdatedDeploymentParameter = {
           name: paramName,
-          value: defaultParamValue,
-          isMissingParam: true,
-          showDefaultValue: deployParam.showDefaultValue,
+          value: paramValue,
         };
-        updatedParamsWithValues.push(updatedParam);
+        updatedDeploymentParameters.push(updatedDeploymentParameter);
       }
     }
 
-    if (showUpdateParametersFileInformationMessage) {
-      if (template && fs.existsSync(template)) {
+    let updateOrCreateParametersFile = false;
+    if (updatedDeploymentParameters.length > 0) {
+      if (parameterFileExists) {
         vscode.window
           .showInformationMessage(
-            `Do you want to update ${path.basename(template)}?`,
+            `Do you want to update ${path.basename(
+              parameterFilePath
+            )} with values used in this deployment?`,
             "Yes",
             "No"
           )
           .then((answer) => {
             if (answer === "Yes") {
-              updateParametersFile = true;
+              updateOrCreateParametersFile = true;
             }
           });
       } else {
+        const fileNameWithExtension = path.basename(documentPath);
+        const parameterFileName =
+          fileNameWithExtension.replace(".bicep", "") + ".parameters.json";
         vscode.window
           .showInformationMessage(
-            `Do you want to create parameters.json file?`,
+            `Do you want to create ${parameterFileName} with values used in this deployment?`,
             "Yes",
             "No"
           )
           .then((answer) => {
             if (answer === "Yes") {
-              updateParametersFile = true;
+              updateOrCreateParametersFile = true;
             }
           });
       }
     }
 
-    return [updateParametersFile, updatedParamsWithValues];
+    return [updateOrCreateParametersFile, updatedDeploymentParameters];
   }
 
   private async selectValueForParameterOfTypeExpression(
     _context: IActionContext,
     paramName: string,
-    paramValue: string
+    paramValue: string | undefined
   ) {
     const quickPickItems: IAzureQuickPickItem[] = [];
     const useExpressionValue: IAzureQuickPickItem = {
       label: localize(
         "useExpressionValue",
-        "Use value of expression " + paramValue
+        `Use value of expression "${paramValue}"`
       ),
       data: undefined,
     };
     quickPickItems.push(useExpressionValue);
+    const enterNewValue: IAzureQuickPickItem = {
+      label: localize(
+        "enterNewValueForParameter",
+        `Enter value for "${paramName}"`
+      ),
+      data: undefined,
+    };
+    quickPickItems.push(enterNewValue);
     const leaveBlank: IAzureQuickPickItem = {
       label: localize("leaveBlank", `"" (leave blank)`),
       data: undefined,
     };
     quickPickItems.push(leaveBlank);
-    const enterNewValue: IAzureQuickPickItem = {
-      label: localize(
-        "enterNewValueForParameter",
-        "Enter value for param: " + paramName
-      ),
-      data: undefined,
-    };
-    quickPickItems.push(enterNewValue);
 
     const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
       quickPickItems,
       {
         canPickMany: false,
-        placeHolder: `Select value for parameter: ` + paramName,
+        placeHolder: `Select value for parameter "${paramName}"`,
         suppressPersistence: true,
       }
     );
 
-    if (result == leaveBlank || result == useExpressionValue) {
-      return result.label;
-    } else {
-      const defaultParamValue = await vscode.window.showInputBox({
-        placeHolder: "Please enter value for param: " + paramName,
+    if (result == leaveBlank) {
+      return "";
+    } else if (result == enterNewValue) {
+      const paramValue = await vscode.window.showInputBox({
+        placeHolder: `Please enter value for parameter "${paramName}"`,
       });
 
-      return defaultParamValue;
+      return paramValue;
     }
+
+    return undefined;
   }
 
   private async createParameterFileQuickPickList(): Promise<

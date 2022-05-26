@@ -49,8 +49,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
-            expected.errorMessage.Should().BeEmpty();
+            expected.deploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -82,8 +82,8 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
-            expected.errorMessage.Should().BeEmpty();
+            expected.deploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -131,22 +131,22 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.deploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.showDefaultValue.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeTrue();
                 },
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("location");
                     updatedParam.value.Should().Be("global");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.showDefaultValue.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeTrue();
                 });
-            expected.errorMessage.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -196,15 +196,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.deploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.showDefaultValue.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeTrue();
                 });
-            expected.errorMessage.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -248,22 +248,22 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.deploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.showDefaultValue.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeTrue();
                 },
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("location");
                     updatedParam.value.Should().BeNull();
                     updatedParam.isMissingParam.Should().BeTrue();
-                    updatedParam.showDefaultValue.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeFalse();
                 });
-            expected.errorMessage.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -313,15 +313,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().SatisfyRespectively(
+            expected.deploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.showDefaultValue.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeTrue();
                 });
-            expected.errorMessage.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -372,8 +372,8 @@ param testProperties object = {
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
-            expected.errorMessage.Should().BeEmpty();
+            expected.deploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -424,8 +424,8 @@ param allowedOrigins array = [
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
-            expected.errorMessage.Should().BeEmpty();
+            expected.deploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeNull();
         }
 
         [TestMethod]
@@ -473,8 +473,8 @@ param testProperties object";
 
             var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            expected.bicepUpdatedDeploymentParameters.Should().BeEmpty();
-            expected.errorMessage.Should().BeEquivalentToIgnoringNewlines("Following parameters of type object should either contain a default value in bicep file or must be specified in parameters.json file: testProperties");
+            expected.deploymentParameters.Should().BeEmpty();
+            expected.errorMessage.Should().BeEquivalentToIgnoringNewlines("Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for following parameters: testProperties");
         }
     }
 }

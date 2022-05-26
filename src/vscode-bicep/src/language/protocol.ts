@@ -67,6 +67,8 @@ export interface BicepDeploymentStartParams {
   expiresOnTimestamp: string;
   deployId: string;
   portalUrl: string;
+  updateOrCreateParametersFile: boolean;
+  updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
 }
 
 export interface BicepDeploymentStartResponse {
@@ -80,16 +82,21 @@ export interface BicepDeploymentWaitForCompletionParams {
   documentPath: string;
 }
 
-export interface BicepUpdatedDeploymentParameter {
+export interface BicepDeploymentParameter {
   name: string;
   value?: string;
   isMissingParam: boolean;
-  showDefaultValue: boolean;
+  isExpression: boolean;
 }
 
 export interface BicepDeploymentParametersResponse {
-  bicepUpdatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
+  deploymentParameters: BicepDeploymentParameter[];
   errorMessage?: string;
+}
+
+export interface BicepUpdatedDeploymentParameter {
+  name: string;
+  value: string;
 }
 
 export interface BicepCacheResponse {

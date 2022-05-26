@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.ResourceManager;
@@ -13,7 +14,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentStartParams(string documentPath, string parameterFilePath, string id, string deploymentScope, string location, string template, string token, string expiresOnTimestamp, string deployId, string portalUrl) : IRequest<string>;
+    public record BicepUpdatedDeploymentParameter(string name, string value);
+
+    public record BicepDeploymentStartParams(
+        string documentPath,
+        string parameterFilePath,
+        string id,
+        string deploymentScope,
+        string location,
+        string template,
+        string token,
+        string expiresOnTimestamp,
+        string deployId,
+        string portalUrl,
+        bool updateOrCreateParametersFile,
+        List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters) : IRequest<string>;
 
     public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
 
