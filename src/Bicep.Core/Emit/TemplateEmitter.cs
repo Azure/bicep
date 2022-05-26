@@ -38,7 +38,7 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            new ParametersFileTemplateWriter(this.model, this.settings).Write(writer);
+            this.EmitParametersFile(writer);
         });
 
         /// <summary>
