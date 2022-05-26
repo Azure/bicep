@@ -88,16 +88,21 @@ namespace Bicep.LanguageServer.Handlers
                     }
 
                     if (modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
-                        parameterDefaultValueSyntax.DefaultValue is PropertyAccessSyntax propertyAccessSyntax &&
-                        propertyAccessSyntax is not null)
+                        parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
+                        expressionSyntax is not null &&
+                        expressionSyntax is not StringSyntax)
                     {
                         isExpression = true;
                     }
 
-                    var defaultValue = defaultParametersFromTemplate?[parameterName]?["defaultValue"];
-
-                    if (defaultValue is not null)
+                    if (defaultParametersFromTemplate?[parameterName]?["defaultValue"] is JToken defaultValueObject &&
+                        defaultValueObject is not null &&
+                        defaultValueObject.ToString() is string defaultValue)
                     {
+                        if (isExpression)
+                        {
+                            defaultValue = defaultValue.TrimStart('[').TrimEnd(']');
+                        }
                         var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, defaultValue.ToString(), false, isExpression);
                         updatedDeploymentParameters.Add(updatedDeploymentParameter);
                     }

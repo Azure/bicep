@@ -137,14 +137,14 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.isExpression.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeFalse();
                 },
                 updatedParam =>
                 {
                     updatedParam.name.Should().Be("location");
                     updatedParam.value.Should().Be("global");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.isExpression.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeFalse();
                 });
             expected.errorMessage.Should().BeNull();
         }
@@ -202,7 +202,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.isExpression.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeFalse();
                 });
             expected.errorMessage.Should().BeNull();
         }
@@ -254,7 +254,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.isExpression.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeFalse();
                 },
                 updatedParam =>
                 {
@@ -319,7 +319,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
                     updatedParam.name.Should().Be("name");
                     updatedParam.value.Should().Be("test");
                     updatedParam.isMissingParam.Should().BeFalse();
-                    updatedParam.isExpression.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeFalse();
                 });
             expected.errorMessage.Should().BeNull();
         }
@@ -475,6 +475,77 @@ param testProperties object";
 
             expected.deploymentParameters.Should().BeEmpty();
             expected.errorMessage.Should().BeEquivalentToIgnoringNewlines("Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for following parameters: testProperties");
+        }
+
+        [TestMethod]
+        public async Task Handle_ParameterWithDefaultValuesOfTypeExpression_ShouldReturnUpdatedDeploymentParametersWithIsExpressionSetToTrue()
+        {
+            var bicepFileContents = @"param location string = resourceGroup().location
+param policyDefinitionId string = resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetworkName_var', 'subnet1Name')
+resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@2018-11-01-preview' = {
+  name: 'name/policyArtifact'
+  kind: 'policyAssignment'
+  location: location
+  properties: {
+    policyDefinitionId: policyDefinitionId
+  }
+}";
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.6.46.5435"",
+      ""templateHash"": ""8792531277105895125""
+    }
+  },
+  ""parameters"": {
+    ""location"": {
+      ""type"": ""string"",
+      ""defaultValue"": ""[resourceGroup().location]""
+    },
+    ""policyDefinitionId"": {
+      ""type"": ""string"",
+      ""defaultValue"": ""[resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetworkName_var', 'subnet1Name')]""
+    }
+  },
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Blueprint/blueprints/artifacts"",
+      ""apiVersion"": ""2018-11-01-preview"",
+      ""name"": ""name/policyArtifact"",
+      ""kind"": ""policyAssignment"",
+      ""location"": ""[parameters('location')]"",
+      ""properties"": {
+        ""policyDefinitionId"": ""[parameters('policyDefinitionId')]""
+      }
+    }
+  ]
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var expected = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+
+            expected.deploymentParameters.Should().SatisfyRespectively(
+                updatedParam =>
+                {
+                    updatedParam.name.Should().Be("location");
+                    updatedParam.value.Should().Be("resourceGroup().location");
+                    updatedParam.isMissingParam.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeTrue();
+                },
+                updatedParam =>
+                {
+                    updatedParam.name.Should().Be("policyDefinitionId");
+                    updatedParam.value.Should().Be("resourceId('Microsoft.Network/virtualNetworks/subnets', 'virtualNetworkName_var', 'subnet1Name')");
+                    updatedParam.isMissingParam.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeTrue();
+                });
+            expected.errorMessage.Should().BeNull();
         }
     }
 }

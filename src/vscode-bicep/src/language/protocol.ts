@@ -84,7 +84,7 @@ export interface BicepDeploymentWaitForCompletionParams {
 
 export interface BicepDeploymentParameter {
   name: string;
-  value?: string;
+  value?: string | undefined;
   isMissingParam: boolean;
   isExpression: boolean;
 }

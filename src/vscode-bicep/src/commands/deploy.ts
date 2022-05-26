@@ -28,7 +28,6 @@ import {
   BicepDeploymentWaitForCompletionParams,
   BicepDeploymentStartParams,
   BicepDeploymentStartResponse,
-  BicepDeploymentParameter,
   BicepDeploymentParametersResponse,
   BicepUpdatedDeploymentParameter,
 } from "../language";
@@ -334,13 +333,22 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
-      const [updateOrCreateParametersFile, updatedDeploymentParameters] =
+      const updatedDeploymentParameters =
         await this.handleMissingAndDefaultParams(
           context,
           documentPath,
           parameterFilePath,
           template
         );
+
+      let updateOrCreateParametersFile = false;
+      if (updatedDeploymentParameters.length > 0) {
+        updateOrCreateParametersFile = await this.updateOrCreateParametersFile(
+          context,
+          documentPath,
+          parameterFilePath
+        );
+      }
 
       const deploymentStartParams: BicepDeploymentStartParams = {
         documentPath,
@@ -446,7 +454,7 @@ export class DeployCommand implements Command {
     documentPath: string,
     parameterFilePath: string | undefined,
     template: string | undefined
-  ): Promise<[boolean, BicepUpdatedDeploymentParameter[]]> {
+  ): Promise<BicepUpdatedDeploymentParameter[]> {
     const bicepDeploymentParametersResponse: BicepDeploymentParametersResponse =
       await this.client.sendRequest("workspace/executeCommand", {
         command: "getDeploymentParameters",
@@ -458,8 +466,6 @@ export class DeployCommand implements Command {
     }
 
     const updatedDeploymentParameters: BicepUpdatedDeploymentParameter[] = [];
-    const parameterFileExists =
-      parameterFilePath != undefined && fs.existsSync(parameterFilePath);
 
     for (const deploymentParameter of bicepDeploymentParametersResponse.deploymentParameters) {
       const paramName = deploymentParameter.name;
@@ -495,41 +501,51 @@ export class DeployCommand implements Command {
       }
     }
 
-    let updateOrCreateParametersFile = false;
-    if (updatedDeploymentParameters.length > 0) {
-      if (parameterFileExists) {
-        vscode.window
-          .showInformationMessage(
-            `Do you want to update ${path.basename(
-              parameterFilePath
-            )} with values used in this deployment?`,
-            "Yes",
-            "No"
-          )
-          .then((answer) => {
-            if (answer === "Yes") {
-              updateOrCreateParametersFile = true;
-            }
-          });
-      } else {
-        const fileNameWithExtension = path.basename(documentPath);
-        const parameterFileName =
-          fileNameWithExtension.replace(".bicep", "") + ".parameters.json";
-        vscode.window
-          .showInformationMessage(
-            `Do you want to create ${parameterFileName} with values used in this deployment?`,
-            "Yes",
-            "No"
-          )
-          .then((answer) => {
-            if (answer === "Yes") {
-              updateOrCreateParametersFile = true;
-            }
-          });
-      }
+    return updatedDeploymentParameters;
+  }
+
+  private async updateOrCreateParametersFile(
+    _context: IActionContext,
+    documentPath: string,
+    parameterFilePath: string | undefined
+  ) {
+    let placeholder: string;
+    if (parameterFilePath && fs.existsSync(parameterFilePath)) {
+      placeholder = `Do you want to update ${path.basename(
+        parameterFilePath
+      )} with values used in this deployment?`;
+    } else {
+      const fileNameWithExtension = path.basename(documentPath);
+      const parameterFileName =
+        fileNameWithExtension.replace(".bicep", "") + ".parameters.json";
+      placeholder = `Do you want to create ${parameterFileName} with values used in this deployment?`;
     }
 
-    return [updateOrCreateParametersFile, updatedDeploymentParameters];
+    const quickPickItems: IAzureQuickPickItem[] = [];
+    const yes: IAzureQuickPickItem = {
+      label: localize("yes", "Yes"),
+      data: undefined,
+    };
+    quickPickItems.push(yes);
+    const no: IAzureQuickPickItem = {
+      label: localize("no", "No"),
+      data: undefined,
+    };
+    quickPickItems.push(no);
+
+    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+      quickPickItems,
+      {
+        canPickMany: false,
+        placeHolder: placeholder,
+        suppressPersistence: true,
+      }
+    );
+
+    if (result == yes) {
+      return true;
+    }
+    return false;
   }
 
   private async selectValueForParameterOfTypeExpression(
@@ -538,14 +554,16 @@ export class DeployCommand implements Command {
     paramValue: string | undefined
   ) {
     const quickPickItems: IAzureQuickPickItem[] = [];
-    const useExpressionValue: IAzureQuickPickItem = {
-      label: localize(
-        "useExpressionValue",
-        `Use value of expression "${paramValue}"`
-      ),
-      data: undefined,
-    };
-    quickPickItems.push(useExpressionValue);
+    if (paramValue) {
+      const useExpressionValue: IAzureQuickPickItem = {
+        label: localize(
+          "useExpressionValue",
+          `Use value of expression "${paramValue}"`
+        ),
+        data: undefined,
+      };
+      quickPickItems.push(useExpressionValue);
+    }
     const enterNewValue: IAzureQuickPickItem = {
       label: localize(
         "enterNewValueForParameter",
