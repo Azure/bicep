@@ -30,6 +30,30 @@ namespace Bicep.Core.Emit
             {
                 throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
             }
+
+            if (!string.IsNullOrWhiteSpace(existingContent))
+            {
+                var fileJToken = JToken.Parse(existingContent);
+                var existingParameters = fileJToken.SelectToken("parameters")?.ToObject<JObject>();
+                if (existingParameters is not null)
+                {
+                    var mergeSettings = new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union };
+                    foreach (var existingParameter in existingParameters)
+                    {
+                        var existingParameterName = existingParameter.Key;
+                        var existingParameterValue = existingParameter.Value;
+
+                        if (existingParameterValue is not null)
+                        {
+                            if (templateJToken.SelectToken($"parameters.{existingParameterName}") is JObject existingParameterObject)
+                            {
+                                existingParameterObject.Merge(existingParameterValue, mergeSettings);
+                            }
+                        }
+                    }
+                }
+            }
+
             templateJToken.WriteTo(writer);
         }
 
