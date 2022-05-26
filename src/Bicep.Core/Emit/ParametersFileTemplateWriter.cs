@@ -35,8 +35,6 @@ namespace Bicep.Core.Emit
 
         private JToken GenerateTemplate()
         {
-            // TODO: since we merely return a JToken, refactor the emitter logic to add properties to a JObject
-            // instead of writing to a JsonWriter and converting it to JToken at the end
             using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
             var emitter = new ExpressionEmitter(jsonWriter, this.context);
