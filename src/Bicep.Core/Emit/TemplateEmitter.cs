@@ -44,7 +44,7 @@ namespace Bicep.Core.Emit
                 Formatting = Formatting.Indented
             };
 
-            this.EmitParametersFile(writer);
+            this.EmitParametersFile(writer, content);
         });
 
         /// <summary>
