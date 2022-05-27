@@ -1,1080 +1,1081 @@
 
-//@[0:2) NewLine |\r\n|
+//@[000:3447) ProgramSyntax
+//@[000:0002) ├─Token(NewLine) |\r\n|
 // wrong declaration
-//@[20:22) NewLine |\r\n|
+//@[020:0022) ├─Token(NewLine) |\r\n|
 bad
-//@[0:3) SkippedTriviaSyntax
-//@[0:3)  Identifier |bad|
-//@[3:7) NewLine |\r\n\r\n|
+//@[000:0003) ├─SkippedTriviaSyntax
+//@[000:0003) | └─Token(Identifier) |bad|
+//@[003:0007) ├─Token(NewLine) |\r\n\r\n|
 
 // incomplete #completionTest(7) -> empty
-//@[41:43) NewLine |\r\n|
+//@[041:0043) ├─Token(NewLine) |\r\n|
 output 
-//@[0:7) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:7)  IdentifierSyntax
-//@[7:7)   SkippedTriviaSyntax
-//@[7:7)  SkippedTriviaSyntax
-//@[7:7)  SkippedTriviaSyntax
-//@[7:7)  SkippedTriviaSyntax
-//@[7:11) NewLine |\r\n\r\n|
+//@[000:0007) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0007) | ├─IdentifierSyntax
+//@[007:0007) | | └─SkippedTriviaSyntax
+//@[007:0007) | ├─SkippedTriviaSyntax
+//@[007:0007) | ├─SkippedTriviaSyntax
+//@[007:0007) | └─SkippedTriviaSyntax
+//@[007:0011) ├─Token(NewLine) |\r\n\r\n|
 
 var testSymbol = 42
-//@[0:19) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:14)  IdentifierSyntax
-//@[4:14)   Identifier |testSymbol|
-//@[15:16)  Assignment |=|
-//@[17:19)  IntegerLiteralSyntax
-//@[17:19)   Integer |42|
-//@[19:23) NewLine |\r\n\r\n|
+//@[000:0019) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0014) | ├─IdentifierSyntax
+//@[004:0014) | | └─Token(Identifier) |testSymbol|
+//@[015:0016) | ├─Token(Assignment) |=|
+//@[017:0019) | └─IntegerLiteralSyntax
+//@[017:0019) | | └─Token(Integer) |42|
+//@[019:0023) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(28,29) -> symbols
-//@[36:38) NewLine |\r\n|
+//@[036:0038) ├─Token(NewLine) |\r\n|
 output missingValueAndType = 
-//@[0:29) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:26)  IdentifierSyntax
-//@[7:26)   Identifier |missingValueAndType|
-//@[27:27)  SkippedTriviaSyntax
-//@[27:28)  Assignment |=|
-//@[29:29)  SkippedTriviaSyntax
-//@[29:33) NewLine |\r\n\r\n|
+//@[000:0029) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0026) | ├─IdentifierSyntax
+//@[007:0026) | | └─Token(Identifier) |missingValueAndType|
+//@[027:0027) | ├─SkippedTriviaSyntax
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0029) | └─SkippedTriviaSyntax
+//@[029:0033) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(28,29) -> symbols
-//@[36:38) NewLine |\r\n|
+//@[036:0038) ├─Token(NewLine) |\r\n|
 output missingValue string = 
-//@[0:29) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:19)  IdentifierSyntax
-//@[7:19)   Identifier |missingValue|
-//@[20:26)  SimpleTypeSyntax
-//@[20:26)   Identifier |string|
-//@[27:28)  Assignment |=|
-//@[29:29)  SkippedTriviaSyntax
-//@[29:33) NewLine |\r\n\r\n|
+//@[000:0029) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0019) | ├─IdentifierSyntax
+//@[007:0019) | | └─Token(Identifier) |missingValue|
+//@[020:0026) | ├─SimpleTypeSyntax
+//@[020:0026) | | └─Token(Identifier) |string|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0029) | └─SkippedTriviaSyntax
+//@[029:0033) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(31,32) -> arrayPlusSymbols
-//@[45:47) NewLine |\r\n|
+//@[045:0047) ├─Token(NewLine) |\r\n|
 output arrayCompletions array = 
-//@[0:32) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:23)  IdentifierSyntax
-//@[7:23)   Identifier |arrayCompletions|
-//@[24:29)  SimpleTypeSyntax
-//@[24:29)   Identifier |array|
-//@[30:31)  Assignment |=|
-//@[32:32)  SkippedTriviaSyntax
-//@[32:36) NewLine |\r\n\r\n|
+//@[000:0032) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0023) | ├─IdentifierSyntax
+//@[007:0023) | | └─Token(Identifier) |arrayCompletions|
+//@[024:0029) | ├─SimpleTypeSyntax
+//@[024:0029) | | └─Token(Identifier) |array|
+//@[030:0031) | ├─Token(Assignment) |=|
+//@[032:0032) | └─SkippedTriviaSyntax
+//@[032:0036) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(33,34) -> objectPlusSymbols
-//@[46:48) NewLine |\r\n|
+//@[046:0048) ├─Token(NewLine) |\r\n|
 output objectCompletions object = 
-//@[0:34) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:24)  IdentifierSyntax
-//@[7:24)   Identifier |objectCompletions|
-//@[25:31)  SimpleTypeSyntax
-//@[25:31)   Identifier |object|
-//@[32:33)  Assignment |=|
-//@[34:34)  SkippedTriviaSyntax
-//@[34:38) NewLine |\r\n\r\n|
+//@[000:0034) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |objectCompletions|
+//@[025:0031) | ├─SimpleTypeSyntax
+//@[025:0031) | | └─Token(Identifier) |object|
+//@[032:0033) | ├─Token(Assignment) |=|
+//@[034:0034) | └─SkippedTriviaSyntax
+//@[034:0038) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(29,30) -> boolPlusSymbols
-//@[44:46) NewLine |\r\n|
+//@[044:0046) ├─Token(NewLine) |\r\n|
 output boolCompletions bool = 
-//@[0:30) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:22)  IdentifierSyntax
-//@[7:22)   Identifier |boolCompletions|
-//@[23:27)  SimpleTypeSyntax
-//@[23:27)   Identifier |bool|
-//@[28:29)  Assignment |=|
-//@[30:30)  SkippedTriviaSyntax
-//@[30:34) NewLine |\r\n\r\n|
+//@[000:0030) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0022) | ├─IdentifierSyntax
+//@[007:0022) | | └─Token(Identifier) |boolCompletions|
+//@[023:0027) | ├─SimpleTypeSyntax
+//@[023:0027) | | └─Token(Identifier) |bool|
+//@[028:0029) | ├─Token(Assignment) |=|
+//@[030:0030) | └─SkippedTriviaSyntax
+//@[030:0034) ├─Token(NewLine) |\r\n\r\n|
 
 output foo
-//@[0:10) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |foo|
-//@[10:10)  SkippedTriviaSyntax
-//@[10:10)  SkippedTriviaSyntax
-//@[10:10)  SkippedTriviaSyntax
-//@[10:14) NewLine |\r\n\r\n|
+//@[000:0010) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |foo|
+//@[010:0010) | ├─SkippedTriviaSyntax
+//@[010:0010) | ├─SkippedTriviaSyntax
+//@[010:0010) | └─SkippedTriviaSyntax
+//@[010:0014) ├─Token(NewLine) |\r\n\r\n|
 
 // space after identifier #completionTest(20) -> outputTypes
-//@[60:62) NewLine |\r\n|
+//@[060:0062) ├─Token(NewLine) |\r\n|
 output spaceAfterId 
-//@[0:20) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:19)  IdentifierSyntax
-//@[7:19)   Identifier |spaceAfterId|
-//@[20:20)  SkippedTriviaSyntax
-//@[20:20)  SkippedTriviaSyntax
-//@[20:20)  SkippedTriviaSyntax
-//@[20:24) NewLine |\r\n\r\n|
+//@[000:0020) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0019) | ├─IdentifierSyntax
+//@[007:0019) | | └─Token(Identifier) |spaceAfterId|
+//@[020:0020) | ├─SkippedTriviaSyntax
+//@[020:0020) | ├─SkippedTriviaSyntax
+//@[020:0020) | └─SkippedTriviaSyntax
+//@[020:0024) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(25) -> outputTypes
-//@[37:39) NewLine |\r\n|
+//@[037:0039) ├─Token(NewLine) |\r\n|
 output spacesAfterCursor  
-//@[0:26) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:24)  IdentifierSyntax
-//@[7:24)   Identifier |spacesAfterCursor|
-//@[26:26)  SkippedTriviaSyntax
-//@[26:26)  SkippedTriviaSyntax
-//@[26:26)  SkippedTriviaSyntax
-//@[26:30) NewLine |\r\n\r\n|
+//@[000:0026) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0024) | ├─IdentifierSyntax
+//@[007:0024) | | └─Token(Identifier) |spacesAfterCursor|
+//@[026:0026) | ├─SkippedTriviaSyntax
+//@[026:0026) | ├─SkippedTriviaSyntax
+//@[026:0026) | └─SkippedTriviaSyntax
+//@[026:0030) ├─Token(NewLine) |\r\n\r\n|
 
 // partial type #completionTest(19, 20, 21, 22) -> outputTypes
-//@[62:64) NewLine |\r\n|
+//@[062:0064) ├─Token(NewLine) |\r\n|
 output partialType obj
-//@[0:22) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:18)  IdentifierSyntax
-//@[7:18)   Identifier |partialType|
-//@[19:22)  SimpleTypeSyntax
-//@[19:22)   Identifier |obj|
-//@[22:22)  SkippedTriviaSyntax
-//@[22:22)  SkippedTriviaSyntax
-//@[22:26) NewLine |\r\n\r\n|
+//@[000:0022) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0018) | ├─IdentifierSyntax
+//@[007:0018) | | └─Token(Identifier) |partialType|
+//@[019:0022) | ├─SimpleTypeSyntax
+//@[019:0022) | | └─Token(Identifier) |obj|
+//@[022:0022) | ├─SkippedTriviaSyntax
+//@[022:0022) | └─SkippedTriviaSyntax
+//@[022:0026) ├─Token(NewLine) |\r\n\r\n|
 
 // malformed identifier
-//@[23:25) NewLine |\r\n|
+//@[023:0025) ├─Token(NewLine) |\r\n|
 output 2
-//@[0:8) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   SkippedTriviaSyntax
-//@[7:8)    Integer |2|
-//@[8:8)  SkippedTriviaSyntax
-//@[8:8)  SkippedTriviaSyntax
-//@[8:8)  SkippedTriviaSyntax
-//@[8:12) NewLine |\r\n\r\n|
+//@[000:0008) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─SkippedTriviaSyntax
+//@[007:0008) | | | └─Token(Integer) |2|
+//@[008:0008) | ├─SkippedTriviaSyntax
+//@[008:0008) | ├─SkippedTriviaSyntax
+//@[008:0008) | └─SkippedTriviaSyntax
+//@[008:0012) ├─Token(NewLine) |\r\n\r\n|
 
 // malformed type
-//@[17:19) NewLine |\r\n|
+//@[017:0019) ├─Token(NewLine) |\r\n|
 output malformedType 3
-//@[0:22) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:20)  IdentifierSyntax
-//@[7:20)   Identifier |malformedType|
-//@[21:22)  SkippedTriviaSyntax
-//@[21:22)   Integer |3|
-//@[22:22)  SkippedTriviaSyntax
-//@[22:22)  SkippedTriviaSyntax
-//@[22:26) NewLine |\r\n\r\n|
+//@[000:0022) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |malformedType|
+//@[021:0022) | ├─SkippedTriviaSyntax
+//@[021:0022) | | └─Token(Integer) |3|
+//@[022:0022) | ├─SkippedTriviaSyntax
+//@[022:0022) | └─SkippedTriviaSyntax
+//@[022:0026) ├─Token(NewLine) |\r\n\r\n|
 
 // malformed type but type check should still happen
-//@[52:54) NewLine |\r\n|
+//@[052:0054) ├─Token(NewLine) |\r\n|
 output malformedType2 3 = 2 + null
-//@[0:34) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:21)  IdentifierSyntax
-//@[7:21)   Identifier |malformedType2|
-//@[22:23)  SkippedTriviaSyntax
-//@[22:23)   Integer |3|
-//@[24:25)  Assignment |=|
-//@[26:34)  BinaryOperationSyntax
-//@[26:27)   IntegerLiteralSyntax
-//@[26:27)    Integer |2|
-//@[28:29)   Plus |+|
-//@[30:34)   NullLiteralSyntax
-//@[30:34)    NullKeyword |null|
-//@[34:38) NewLine |\r\n\r\n|
+//@[000:0034) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0021) | ├─IdentifierSyntax
+//@[007:0021) | | └─Token(Identifier) |malformedType2|
+//@[022:0023) | ├─SkippedTriviaSyntax
+//@[022:0023) | | └─Token(Integer) |3|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0034) | └─BinaryOperationSyntax
+//@[026:0027) | | ├─IntegerLiteralSyntax
+//@[026:0027) | | | └─Token(Integer) |2|
+//@[028:0029) | | ├─Token(Plus) |+|
+//@[030:0034) | | └─NullLiteralSyntax
+//@[030:0034) | | | └─Token(NullKeyword) |null|
+//@[034:0038) ├─Token(NewLine) |\r\n\r\n|
 
 // malformed type assignment
-//@[28:30) NewLine |\r\n|
+//@[028:0030) ├─Token(NewLine) |\r\n|
 output malformedAssignment 2 = 2
-//@[0:32) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:26)  IdentifierSyntax
-//@[7:26)   Identifier |malformedAssignment|
-//@[27:28)  SkippedTriviaSyntax
-//@[27:28)   Integer |2|
-//@[29:30)  Assignment |=|
-//@[31:32)  IntegerLiteralSyntax
-//@[31:32)   Integer |2|
-//@[32:36) NewLine |\r\n\r\n|
+//@[000:0032) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0026) | ├─IdentifierSyntax
+//@[007:0026) | | └─Token(Identifier) |malformedAssignment|
+//@[027:0028) | ├─SkippedTriviaSyntax
+//@[027:0028) | | └─Token(Integer) |2|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0032) | └─IntegerLiteralSyntax
+//@[031:0032) | | └─Token(Integer) |2|
+//@[032:0036) ├─Token(NewLine) |\r\n\r\n|
 
 // malformed type before assignment
-//@[35:37) NewLine |\r\n|
+//@[035:0037) ├─Token(NewLine) |\r\n|
 output lol 2 = true
-//@[0:19) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |lol|
-//@[11:12)  SkippedTriviaSyntax
-//@[11:12)   Integer |2|
-//@[13:14)  Assignment |=|
-//@[15:19)  BooleanLiteralSyntax
-//@[15:19)   TrueKeyword |true|
-//@[19:23) NewLine |\r\n\r\n|
+//@[000:0019) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |lol|
+//@[011:0012) | ├─SkippedTriviaSyntax
+//@[011:0012) | | └─Token(Integer) |2|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0019) | └─BooleanLiteralSyntax
+//@[015:0019) | | └─Token(TrueKeyword) |true|
+//@[019:0023) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong type + missing value
-//@[29:31) NewLine |\r\n|
+//@[029:0031) ├─Token(NewLine) |\r\n|
 output foo fluffy
-//@[0:17) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |foo|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |fluffy|
-//@[17:17)  SkippedTriviaSyntax
-//@[17:17)  SkippedTriviaSyntax
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:0017) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |foo|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |fluffy|
+//@[017:0017) | ├─SkippedTriviaSyntax
+//@[017:0017) | └─SkippedTriviaSyntax
+//@[017:0021) ├─Token(NewLine) |\r\n\r\n|
 
 // missing value
-//@[16:18) NewLine |\r\n|
+//@[016:0018) ├─Token(NewLine) |\r\n|
 output foo string
-//@[0:17) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |foo|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[17:17)  SkippedTriviaSyntax
-//@[17:17)  SkippedTriviaSyntax
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:0017) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |foo|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[017:0017) | ├─SkippedTriviaSyntax
+//@[017:0017) | └─SkippedTriviaSyntax
+//@[017:0021) ├─Token(NewLine) |\r\n\r\n|
 
 // missing value
-//@[16:18) NewLine |\r\n|
+//@[016:0018) ├─Token(NewLine) |\r\n|
 output foo string =
-//@[0:19) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |foo|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[18:19)  Assignment |=|
-//@[19:19)  SkippedTriviaSyntax
-//@[19:23) NewLine |\r\n\r\n|
+//@[000:0019) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |foo|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[019:0019) | └─SkippedTriviaSyntax
+//@[019:0023) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong string output values
-//@[29:31) NewLine |\r\n|
+//@[029:0031) ├─Token(NewLine) |\r\n|
 output str string = true
-//@[0:24) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |str|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[18:19)  Assignment |=|
-//@[20:24)  BooleanLiteralSyntax
-//@[20:24)   TrueKeyword |true|
-//@[24:26) NewLine |\r\n|
+//@[000:0024) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |str|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0024) | └─BooleanLiteralSyntax
+//@[020:0024) | | └─Token(TrueKeyword) |true|
+//@[024:0026) ├─Token(NewLine) |\r\n|
 output str string = false
-//@[0:25) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |str|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[18:19)  Assignment |=|
-//@[20:25)  BooleanLiteralSyntax
-//@[20:25)   FalseKeyword |false|
-//@[25:27) NewLine |\r\n|
+//@[000:0025) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |str|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0025) | └─BooleanLiteralSyntax
+//@[020:0025) | | └─Token(FalseKeyword) |false|
+//@[025:0027) ├─Token(NewLine) |\r\n|
 output str string = [
-//@[0:24) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |str|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[18:19)  Assignment |=|
-//@[20:24)  ArraySyntax
-//@[20:21)   LeftSquare |[|
-//@[21:23)   NewLine |\r\n|
+//@[000:0024) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |str|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0024) | └─ArraySyntax
+//@[020:0021) | | ├─Token(LeftSquare) |[|
+//@[021:0023) | | ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output str string = {
-//@[0:24) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |str|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[18:19)  Assignment |=|
-//@[20:24)  ObjectSyntax
-//@[20:21)   LeftBrace |{|
-//@[21:23)   NewLine |\r\n|
+//@[000:0024) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |str|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0024) | └─ObjectSyntax
+//@[020:0021) | | ├─Token(LeftBrace) |{|
+//@[021:0023) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output str string = 52
-//@[0:22) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |str|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[18:19)  Assignment |=|
-//@[20:22)  IntegerLiteralSyntax
-//@[20:22)   Integer |52|
-//@[22:26) NewLine |\r\n\r\n|
+//@[000:0022) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |str|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0022) | └─IntegerLiteralSyntax
+//@[020:0022) | | └─Token(Integer) |52|
+//@[022:0026) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong int output values
-//@[26:28) NewLine |\r\n|
+//@[026:0028) ├─Token(NewLine) |\r\n|
 output i int = true
-//@[0:19) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |i|
-//@[9:12)  SimpleTypeSyntax
-//@[9:12)   Identifier |int|
-//@[13:14)  Assignment |=|
-//@[15:19)  BooleanLiteralSyntax
-//@[15:19)   TrueKeyword |true|
-//@[19:21) NewLine |\r\n|
+//@[000:0019) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |i|
+//@[009:0012) | ├─SimpleTypeSyntax
+//@[009:0012) | | └─Token(Identifier) |int|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0019) | └─BooleanLiteralSyntax
+//@[015:0019) | | └─Token(TrueKeyword) |true|
+//@[019:0021) ├─Token(NewLine) |\r\n|
 output i int = false
-//@[0:20) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |i|
-//@[9:12)  SimpleTypeSyntax
-//@[9:12)   Identifier |int|
-//@[13:14)  Assignment |=|
-//@[15:20)  BooleanLiteralSyntax
-//@[15:20)   FalseKeyword |false|
-//@[20:22) NewLine |\r\n|
+//@[000:0020) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |i|
+//@[009:0012) | ├─SimpleTypeSyntax
+//@[009:0012) | | └─Token(Identifier) |int|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0020) | └─BooleanLiteralSyntax
+//@[015:0020) | | └─Token(FalseKeyword) |false|
+//@[020:0022) ├─Token(NewLine) |\r\n|
 output i int = [
-//@[0:19) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |i|
-//@[9:12)  SimpleTypeSyntax
-//@[9:12)   Identifier |int|
-//@[13:14)  Assignment |=|
-//@[15:19)  ArraySyntax
-//@[15:16)   LeftSquare |[|
-//@[16:18)   NewLine |\r\n|
+//@[000:0019) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |i|
+//@[009:0012) | ├─SimpleTypeSyntax
+//@[009:0012) | | └─Token(Identifier) |int|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0019) | └─ArraySyntax
+//@[015:0016) | | ├─Token(LeftSquare) |[|
+//@[016:0018) | | ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output i int = }
-//@[0:16) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |i|
-//@[9:12)  SimpleTypeSyntax
-//@[9:12)   Identifier |int|
-//@[13:14)  Assignment |=|
-//@[15:16)  SkippedTriviaSyntax
-//@[15:16)   RightBrace |}|
-//@[16:18) NewLine |\r\n|
+//@[000:0016) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |i|
+//@[009:0012) | ├─SimpleTypeSyntax
+//@[009:0012) | | └─Token(Identifier) |int|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0016) | └─SkippedTriviaSyntax
+//@[015:0016) | | └─Token(RightBrace) |}|
+//@[016:0018) ├─Token(NewLine) |\r\n|
 }
-//@[0:1) SkippedTriviaSyntax
-//@[0:1)  RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) ├─SkippedTriviaSyntax
+//@[000:0001) | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output i int = 'test'
-//@[0:21) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |i|
-//@[9:12)  SimpleTypeSyntax
-//@[9:12)   Identifier |int|
-//@[13:14)  Assignment |=|
-//@[15:21)  StringSyntax
-//@[15:21)   StringComplete |'test'|
-//@[21:25) NewLine |\r\n\r\n|
+//@[000:0021) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |i|
+//@[009:0012) | ├─SimpleTypeSyntax
+//@[009:0012) | | └─Token(Identifier) |int|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0021) | └─StringSyntax
+//@[015:0021) | | └─Token(StringComplete) |'test'|
+//@[021:0025) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong bool output values
-//@[27:29) NewLine |\r\n|
+//@[027:0029) ├─Token(NewLine) |\r\n|
 output b bool = [
-//@[0:20) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |b|
-//@[9:13)  SimpleTypeSyntax
-//@[9:13)   Identifier |bool|
-//@[14:15)  Assignment |=|
-//@[16:20)  ArraySyntax
-//@[16:17)   LeftSquare |[|
-//@[17:19)   NewLine |\r\n|
+//@[000:0020) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |b|
+//@[009:0013) | ├─SimpleTypeSyntax
+//@[009:0013) | | └─Token(Identifier) |bool|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0020) | └─ArraySyntax
+//@[016:0017) | | ├─Token(LeftSquare) |[|
+//@[017:0019) | | ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output b bool = {
-//@[0:20) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |b|
-//@[9:13)  SimpleTypeSyntax
-//@[9:13)   Identifier |bool|
-//@[14:15)  Assignment |=|
-//@[16:20)  ObjectSyntax
-//@[16:17)   LeftBrace |{|
-//@[17:19)   NewLine |\r\n|
+//@[000:0020) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |b|
+//@[009:0013) | ├─SimpleTypeSyntax
+//@[009:0013) | | └─Token(Identifier) |bool|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0020) | └─ObjectSyntax
+//@[016:0017) | | ├─Token(LeftBrace) |{|
+//@[017:0019) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output b bool = 32
-//@[0:18) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |b|
-//@[9:13)  SimpleTypeSyntax
-//@[9:13)   Identifier |bool|
-//@[14:15)  Assignment |=|
-//@[16:18)  IntegerLiteralSyntax
-//@[16:18)   Integer |32|
-//@[18:20) NewLine |\r\n|
+//@[000:0018) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |b|
+//@[009:0013) | ├─SimpleTypeSyntax
+//@[009:0013) | | └─Token(Identifier) |bool|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0018) | └─IntegerLiteralSyntax
+//@[016:0018) | | └─Token(Integer) |32|
+//@[018:0020) ├─Token(NewLine) |\r\n|
 output b bool = 'str'
-//@[0:21) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |b|
-//@[9:13)  SimpleTypeSyntax
-//@[9:13)   Identifier |bool|
-//@[14:15)  Assignment |=|
-//@[16:21)  StringSyntax
-//@[16:21)   StringComplete |'str'|
-//@[21:25) NewLine |\r\n\r\n|
+//@[000:0021) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |b|
+//@[009:0013) | ├─SimpleTypeSyntax
+//@[009:0013) | | └─Token(Identifier) |bool|
+//@[014:0015) | ├─Token(Assignment) |=|
+//@[016:0021) | └─StringSyntax
+//@[016:0021) | | └─Token(StringComplete) |'str'|
+//@[021:0025) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong array output values
-//@[28:30) NewLine |\r\n|
+//@[028:0030) ├─Token(NewLine) |\r\n|
 output arr array = 32
-//@[0:21) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |arr|
-//@[11:16)  SimpleTypeSyntax
-//@[11:16)   Identifier |array|
-//@[17:18)  Assignment |=|
-//@[19:21)  IntegerLiteralSyntax
-//@[19:21)   Integer |32|
-//@[21:23) NewLine |\r\n|
+//@[000:0021) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |arr|
+//@[011:0016) | ├─SimpleTypeSyntax
+//@[011:0016) | | └─Token(Identifier) |array|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0021) | └─IntegerLiteralSyntax
+//@[019:0021) | | └─Token(Integer) |32|
+//@[021:0023) ├─Token(NewLine) |\r\n|
 output arr array = true
-//@[0:23) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |arr|
-//@[11:16)  SimpleTypeSyntax
-//@[11:16)   Identifier |array|
-//@[17:18)  Assignment |=|
-//@[19:23)  BooleanLiteralSyntax
-//@[19:23)   TrueKeyword |true|
-//@[23:25) NewLine |\r\n|
+//@[000:0023) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |arr|
+//@[011:0016) | ├─SimpleTypeSyntax
+//@[011:0016) | | └─Token(Identifier) |array|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0023) | └─BooleanLiteralSyntax
+//@[019:0023) | | └─Token(TrueKeyword) |true|
+//@[023:0025) ├─Token(NewLine) |\r\n|
 output arr array = false
-//@[0:24) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |arr|
-//@[11:16)  SimpleTypeSyntax
-//@[11:16)   Identifier |array|
-//@[17:18)  Assignment |=|
-//@[19:24)  BooleanLiteralSyntax
-//@[19:24)   FalseKeyword |false|
-//@[24:26) NewLine |\r\n|
+//@[000:0024) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |arr|
+//@[011:0016) | ├─SimpleTypeSyntax
+//@[011:0016) | | └─Token(Identifier) |array|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0024) | └─BooleanLiteralSyntax
+//@[019:0024) | | └─Token(FalseKeyword) |false|
+//@[024:0026) ├─Token(NewLine) |\r\n|
 output arr array = {
-//@[0:23) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |arr|
-//@[11:16)  SimpleTypeSyntax
-//@[11:16)   Identifier |array|
-//@[17:18)  Assignment |=|
-//@[19:23)  ObjectSyntax
-//@[19:20)   LeftBrace |{|
-//@[20:22)   NewLine |\r\n|
+//@[000:0023) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |arr|
+//@[011:0016) | ├─SimpleTypeSyntax
+//@[011:0016) | | └─Token(Identifier) |array|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0023) | └─ObjectSyntax
+//@[019:0020) | | ├─Token(LeftBrace) |{|
+//@[020:0022) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output arr array = 'str'
-//@[0:24) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |arr|
-//@[11:16)  SimpleTypeSyntax
-//@[11:16)   Identifier |array|
-//@[17:18)  Assignment |=|
-//@[19:24)  StringSyntax
-//@[19:24)   StringComplete |'str'|
-//@[24:28) NewLine |\r\n\r\n|
+//@[000:0024) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |arr|
+//@[011:0016) | ├─SimpleTypeSyntax
+//@[011:0016) | | └─Token(Identifier) |array|
+//@[017:0018) | ├─Token(Assignment) |=|
+//@[019:0024) | └─StringSyntax
+//@[019:0024) | | └─Token(StringComplete) |'str'|
+//@[024:0028) ├─Token(NewLine) |\r\n\r\n|
 
 // wrong object output values
-//@[29:31) NewLine |\r\n|
+//@[029:0031) ├─Token(NewLine) |\r\n|
 output o object = 32
-//@[0:20) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |o|
-//@[9:15)  SimpleTypeSyntax
-//@[9:15)   Identifier |object|
-//@[16:17)  Assignment |=|
-//@[18:20)  IntegerLiteralSyntax
-//@[18:20)   Integer |32|
-//@[20:22) NewLine |\r\n|
+//@[000:0020) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |o|
+//@[009:0015) | ├─SimpleTypeSyntax
+//@[009:0015) | | └─Token(Identifier) |object|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0020) | └─IntegerLiteralSyntax
+//@[018:0020) | | └─Token(Integer) |32|
+//@[020:0022) ├─Token(NewLine) |\r\n|
 output o object = true
-//@[0:22) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |o|
-//@[9:15)  SimpleTypeSyntax
-//@[9:15)   Identifier |object|
-//@[16:17)  Assignment |=|
-//@[18:22)  BooleanLiteralSyntax
-//@[18:22)   TrueKeyword |true|
-//@[22:24) NewLine |\r\n|
+//@[000:0022) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |o|
+//@[009:0015) | ├─SimpleTypeSyntax
+//@[009:0015) | | └─Token(Identifier) |object|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0022) | └─BooleanLiteralSyntax
+//@[018:0022) | | └─Token(TrueKeyword) |true|
+//@[022:0024) ├─Token(NewLine) |\r\n|
 output o object = false
-//@[0:23) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |o|
-//@[9:15)  SimpleTypeSyntax
-//@[9:15)   Identifier |object|
-//@[16:17)  Assignment |=|
-//@[18:23)  BooleanLiteralSyntax
-//@[18:23)   FalseKeyword |false|
-//@[23:25) NewLine |\r\n|
+//@[000:0023) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |o|
+//@[009:0015) | ├─SimpleTypeSyntax
+//@[009:0015) | | └─Token(Identifier) |object|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0023) | └─BooleanLiteralSyntax
+//@[018:0023) | | └─Token(FalseKeyword) |false|
+//@[023:0025) ├─Token(NewLine) |\r\n|
 output o object = [
-//@[0:22) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |o|
-//@[9:15)  SimpleTypeSyntax
-//@[9:15)   Identifier |object|
-//@[16:17)  Assignment |=|
-//@[18:22)  ArraySyntax
-//@[18:19)   LeftSquare |[|
-//@[19:21)   NewLine |\r\n|
+//@[000:0022) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |o|
+//@[009:0015) | ├─SimpleTypeSyntax
+//@[009:0015) | | └─Token(Identifier) |object|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0022) | └─ArraySyntax
+//@[018:0019) | | ├─Token(LeftSquare) |[|
+//@[019:0021) | | ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output o object = 'str'
-//@[0:23) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:8)  IdentifierSyntax
-//@[7:8)   Identifier |o|
-//@[9:15)  SimpleTypeSyntax
-//@[9:15)   Identifier |object|
-//@[16:17)  Assignment |=|
-//@[18:23)  StringSyntax
-//@[18:23)   StringComplete |'str'|
-//@[23:27) NewLine |\r\n\r\n|
+//@[000:0023) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0008) | ├─IdentifierSyntax
+//@[007:0008) | | └─Token(Identifier) |o|
+//@[009:0015) | ├─SimpleTypeSyntax
+//@[009:0015) | | └─Token(Identifier) |object|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0023) | └─StringSyntax
+//@[018:0023) | | └─Token(StringComplete) |'str'|
+//@[023:0027) ├─Token(NewLine) |\r\n\r\n|
 
 // a few expression cases
-//@[25:27) NewLine |\r\n|
+//@[025:0027) ├─Token(NewLine) |\r\n|
 output exp string = 2 + 3
-//@[0:25) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |exp|
-//@[11:17)  SimpleTypeSyntax
-//@[11:17)   Identifier |string|
-//@[18:19)  Assignment |=|
-//@[20:25)  BinaryOperationSyntax
-//@[20:21)   IntegerLiteralSyntax
-//@[20:21)    Integer |2|
-//@[22:23)   Plus |+|
-//@[24:25)   IntegerLiteralSyntax
-//@[24:25)    Integer |3|
-//@[25:27) NewLine |\r\n|
+//@[000:0025) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |exp|
+//@[011:0017) | ├─SimpleTypeSyntax
+//@[011:0017) | | └─Token(Identifier) |string|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0025) | └─BinaryOperationSyntax
+//@[020:0021) | | ├─IntegerLiteralSyntax
+//@[020:0021) | | | └─Token(Integer) |2|
+//@[022:0023) | | ├─Token(Plus) |+|
+//@[024:0025) | | └─IntegerLiteralSyntax
+//@[024:0025) | | | └─Token(Integer) |3|
+//@[025:0027) ├─Token(NewLine) |\r\n|
 output union string = true ? 's' : 1
-//@[0:36) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:12)  IdentifierSyntax
-//@[7:12)   Identifier |union|
-//@[13:19)  SimpleTypeSyntax
-//@[13:19)   Identifier |string|
-//@[20:21)  Assignment |=|
-//@[22:36)  TernaryOperationSyntax
-//@[22:26)   BooleanLiteralSyntax
-//@[22:26)    TrueKeyword |true|
-//@[27:28)   Question |?|
-//@[29:32)   StringSyntax
-//@[29:32)    StringComplete |'s'|
-//@[33:34)   Colon |:|
-//@[35:36)   IntegerLiteralSyntax
-//@[35:36)    Integer |1|
-//@[36:38) NewLine |\r\n|
+//@[000:0036) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0012) | ├─IdentifierSyntax
+//@[007:0012) | | └─Token(Identifier) |union|
+//@[013:0019) | ├─SimpleTypeSyntax
+//@[013:0019) | | └─Token(Identifier) |string|
+//@[020:0021) | ├─Token(Assignment) |=|
+//@[022:0036) | └─TernaryOperationSyntax
+//@[022:0026) | | ├─BooleanLiteralSyntax
+//@[022:0026) | | | └─Token(TrueKeyword) |true|
+//@[027:0028) | | ├─Token(Question) |?|
+//@[029:0032) | | ├─StringSyntax
+//@[029:0032) | | | └─Token(StringComplete) |'s'|
+//@[033:0034) | | ├─Token(Colon) |:|
+//@[035:0036) | | └─IntegerLiteralSyntax
+//@[035:0036) | | | └─Token(Integer) |1|
+//@[036:0038) ├─Token(NewLine) |\r\n|
 output bad int = true && !4
-//@[0:27) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:10)  IdentifierSyntax
-//@[7:10)   Identifier |bad|
-//@[11:14)  SimpleTypeSyntax
-//@[11:14)   Identifier |int|
-//@[15:16)  Assignment |=|
-//@[17:27)  BinaryOperationSyntax
-//@[17:21)   BooleanLiteralSyntax
-//@[17:21)    TrueKeyword |true|
-//@[22:24)   LogicalAnd |&&|
-//@[25:27)   UnaryOperationSyntax
-//@[25:26)    Exclamation |!|
-//@[26:27)    IntegerLiteralSyntax
-//@[26:27)     Integer |4|
-//@[27:29) NewLine |\r\n|
+//@[000:0027) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0010) | ├─IdentifierSyntax
+//@[007:0010) | | └─Token(Identifier) |bad|
+//@[011:0014) | ├─SimpleTypeSyntax
+//@[011:0014) | | └─Token(Identifier) |int|
+//@[015:0016) | ├─Token(Assignment) |=|
+//@[017:0027) | └─BinaryOperationSyntax
+//@[017:0021) | | ├─BooleanLiteralSyntax
+//@[017:0021) | | | └─Token(TrueKeyword) |true|
+//@[022:0024) | | ├─Token(LogicalAnd) |&&|
+//@[025:0027) | | └─UnaryOperationSyntax
+//@[025:0026) | | | ├─Token(Exclamation) |!|
+//@[026:0027) | | | └─IntegerLiteralSyntax
+//@[026:0027) | | | | └─Token(Integer) |4|
+//@[027:0029) ├─Token(NewLine) |\r\n|
 output deeper bool = true ? -true : (14 && 's') + 10
-//@[0:52) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:13)  IdentifierSyntax
-//@[7:13)   Identifier |deeper|
-//@[14:18)  SimpleTypeSyntax
-//@[14:18)   Identifier |bool|
-//@[19:20)  Assignment |=|
-//@[21:52)  TernaryOperationSyntax
-//@[21:25)   BooleanLiteralSyntax
-//@[21:25)    TrueKeyword |true|
-//@[26:27)   Question |?|
-//@[28:33)   UnaryOperationSyntax
-//@[28:29)    Minus |-|
-//@[29:33)    BooleanLiteralSyntax
-//@[29:33)     TrueKeyword |true|
-//@[34:35)   Colon |:|
-//@[36:52)   BinaryOperationSyntax
-//@[36:47)    ParenthesizedExpressionSyntax
-//@[36:37)     LeftParen |(|
-//@[37:46)     BinaryOperationSyntax
-//@[37:39)      IntegerLiteralSyntax
-//@[37:39)       Integer |14|
-//@[40:42)      LogicalAnd |&&|
-//@[43:46)      StringSyntax
-//@[43:46)       StringComplete |'s'|
-//@[46:47)     RightParen |)|
-//@[48:49)    Plus |+|
-//@[50:52)    IntegerLiteralSyntax
-//@[50:52)     Integer |10|
-//@[52:56) NewLine |\r\n\r\n|
+//@[000:0052) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0013) | ├─IdentifierSyntax
+//@[007:0013) | | └─Token(Identifier) |deeper|
+//@[014:0018) | ├─SimpleTypeSyntax
+//@[014:0018) | | └─Token(Identifier) |bool|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0052) | └─TernaryOperationSyntax
+//@[021:0025) | | ├─BooleanLiteralSyntax
+//@[021:0025) | | | └─Token(TrueKeyword) |true|
+//@[026:0027) | | ├─Token(Question) |?|
+//@[028:0033) | | ├─UnaryOperationSyntax
+//@[028:0029) | | | ├─Token(Minus) |-|
+//@[029:0033) | | | └─BooleanLiteralSyntax
+//@[029:0033) | | | | └─Token(TrueKeyword) |true|
+//@[034:0035) | | ├─Token(Colon) |:|
+//@[036:0052) | | └─BinaryOperationSyntax
+//@[036:0047) | | | ├─ParenthesizedExpressionSyntax
+//@[036:0037) | | | | ├─Token(LeftParen) |(|
+//@[037:0046) | | | | ├─BinaryOperationSyntax
+//@[037:0039) | | | | | ├─IntegerLiteralSyntax
+//@[037:0039) | | | | | | └─Token(Integer) |14|
+//@[040:0042) | | | | | ├─Token(LogicalAnd) |&&|
+//@[043:0046) | | | | | └─StringSyntax
+//@[043:0046) | | | | | | └─Token(StringComplete) |'s'|
+//@[046:0047) | | | | └─Token(RightParen) |)|
+//@[048:0049) | | | ├─Token(Plus) |+|
+//@[050:0052) | | | └─IntegerLiteralSyntax
+//@[050:0052) | | | | └─Token(Integer) |10|
+//@[052:0056) ├─Token(NewLine) |\r\n\r\n|
 
 output myOutput string = 'hello'
-//@[0:32) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:15)  IdentifierSyntax
-//@[7:15)   Identifier |myOutput|
-//@[16:22)  SimpleTypeSyntax
-//@[16:22)   Identifier |string|
-//@[23:24)  Assignment |=|
-//@[25:32)  StringSyntax
-//@[25:32)   StringComplete |'hello'|
-//@[32:34) NewLine |\r\n|
+//@[000:0032) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0015) | ├─IdentifierSyntax
+//@[007:0015) | | └─Token(Identifier) |myOutput|
+//@[016:0022) | ├─SimpleTypeSyntax
+//@[016:0022) | | └─Token(Identifier) |string|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0032) | └─StringSyntax
+//@[025:0032) | | └─Token(StringComplete) |'hello'|
+//@[032:0034) ├─Token(NewLine) |\r\n|
 var attemptToReferenceAnOutput = myOutput
-//@[0:41) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:30)  IdentifierSyntax
-//@[4:30)   Identifier |attemptToReferenceAnOutput|
-//@[31:32)  Assignment |=|
-//@[33:41)  VariableAccessSyntax
-//@[33:41)   IdentifierSyntax
-//@[33:41)    Identifier |myOutput|
-//@[41:45) NewLine |\r\n\r\n|
+//@[000:0041) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0030) | ├─IdentifierSyntax
+//@[004:0030) | | └─Token(Identifier) |attemptToReferenceAnOutput|
+//@[031:0032) | ├─Token(Assignment) |=|
+//@[033:0041) | └─VariableAccessSyntax
+//@[033:0041) | | └─IdentifierSyntax
+//@[033:0041) | | | └─Token(Identifier) |myOutput|
+//@[041:0045) ├─Token(NewLine) |\r\n\r\n|
 
 @sys.maxValue(20)
-//@[0:73) OutputDeclarationSyntax
-//@[0:17)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:17)   InstanceFunctionCallSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:13)    IdentifierSyntax
-//@[5:13)     Identifier |maxValue|
-//@[13:14)    LeftParen |(|
-//@[14:16)    FunctionArgumentSyntax
-//@[14:16)     IntegerLiteralSyntax
-//@[14:16)      Integer |20|
-//@[16:17)    RightParen |)|
-//@[17:19)  NewLine |\r\n|
+//@[000:0073) ├─OutputDeclarationSyntax
+//@[000:0017) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0017) | | └─InstanceFunctionCallSyntax
+//@[001:0004) | | | ├─VariableAccessSyntax
+//@[001:0004) | | | | └─IdentifierSyntax
+//@[001:0004) | | | | | └─Token(Identifier) |sys|
+//@[004:0005) | | | ├─Token(Dot) |.|
+//@[005:0013) | | | ├─IdentifierSyntax
+//@[005:0013) | | | | └─Token(Identifier) |maxValue|
+//@[013:0014) | | | ├─Token(LeftParen) |(|
+//@[014:0016) | | | ├─FunctionArgumentSyntax
+//@[014:0016) | | | | └─IntegerLiteralSyntax
+//@[014:0016) | | | | | └─Token(Integer) |20|
+//@[016:0017) | | | └─Token(RightParen) |)|
+//@[017:0019) | ├─Token(NewLine) |\r\n|
 @minValue(10)
-//@[0:13)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:13)   FunctionCallSyntax
-//@[1:9)    IdentifierSyntax
-//@[1:9)     Identifier |minValue|
-//@[9:10)    LeftParen |(|
-//@[10:12)    FunctionArgumentSyntax
-//@[10:12)     IntegerLiteralSyntax
-//@[10:12)      Integer |10|
-//@[12:13)    RightParen |)|
-//@[13:15)  NewLine |\r\n|
+//@[000:0013) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0013) | | └─FunctionCallSyntax
+//@[001:0009) | | | ├─IdentifierSyntax
+//@[001:0009) | | | | └─Token(Identifier) |minValue|
+//@[009:0010) | | | ├─Token(LeftParen) |(|
+//@[010:0012) | | | ├─FunctionArgumentSyntax
+//@[010:0012) | | | | └─IntegerLiteralSyntax
+//@[010:0012) | | | | | └─Token(Integer) |10|
+//@[012:0013) | | | └─Token(RightParen) |)|
+//@[013:0015) | ├─Token(NewLine) |\r\n|
 output notAttachableDecorators int = 32
-//@[0:6)  Identifier |output|
-//@[7:30)  IdentifierSyntax
-//@[7:30)   Identifier |notAttachableDecorators|
-//@[31:34)  SimpleTypeSyntax
-//@[31:34)   Identifier |int|
-//@[35:36)  Assignment |=|
-//@[37:39)  IntegerLiteralSyntax
-//@[37:39)   Integer |32|
-//@[39:43) NewLine |\r\n\r\n|
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0030) | ├─IdentifierSyntax
+//@[007:0030) | | └─Token(Identifier) |notAttachableDecorators|
+//@[031:0034) | ├─SimpleTypeSyntax
+//@[031:0034) | | └─Token(Identifier) |int|
+//@[035:0036) | ├─Token(Assignment) |=|
+//@[037:0039) | └─IntegerLiteralSyntax
+//@[037:0039) | | └─Token(Integer) |32|
+//@[039:0043) ├─Token(NewLine) |\r\n\r\n|
 
 // nested loops inside output loops are not supported
-//@[53:55) NewLine |\r\n|
+//@[053:0055) ├─Token(NewLine) |\r\n|
 output noNestedLoops array = [for thing in things: {
-//@[0:110) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:20)  IdentifierSyntax
-//@[7:20)   Identifier |noNestedLoops|
-//@[21:26)  SimpleTypeSyntax
-//@[21:26)   Identifier |array|
-//@[27:28)  Assignment |=|
-//@[29:110)  ForSyntax
-//@[29:30)   LeftSquare |[|
-//@[30:33)   Identifier |for|
-//@[34:39)   LocalVariableSyntax
-//@[34:39)    IdentifierSyntax
-//@[34:39)     Identifier |thing|
-//@[40:42)   Identifier |in|
-//@[43:49)   VariableAccessSyntax
-//@[43:49)    IdentifierSyntax
-//@[43:49)     Identifier |things|
-//@[49:50)   Colon |:|
-//@[51:109)   ObjectSyntax
-//@[51:52)    LeftBrace |{|
-//@[52:54)    NewLine |\r\n|
+//@[000:0110) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0020) | ├─IdentifierSyntax
+//@[007:0020) | | └─Token(Identifier) |noNestedLoops|
+//@[021:0026) | ├─SimpleTypeSyntax
+//@[021:0026) | | └─Token(Identifier) |array|
+//@[027:0028) | ├─Token(Assignment) |=|
+//@[029:0110) | └─ForSyntax
+//@[029:0030) | | ├─Token(LeftSquare) |[|
+//@[030:0033) | | ├─Token(Identifier) |for|
+//@[034:0039) | | ├─LocalVariableSyntax
+//@[034:0039) | | | └─IdentifierSyntax
+//@[034:0039) | | | | └─Token(Identifier) |thing|
+//@[040:0042) | | ├─Token(Identifier) |in|
+//@[043:0049) | | ├─VariableAccessSyntax
+//@[043:0049) | | | └─IdentifierSyntax
+//@[043:0049) | | | | └─Token(Identifier) |things|
+//@[049:0050) | | ├─Token(Colon) |:|
+//@[051:0109) | | ├─ObjectSyntax
+//@[051:0052) | | | ├─Token(LeftBrace) |{|
+//@[052:0054) | | | ├─Token(NewLine) |\r\n|
   something: [
-//@[2:52)    ObjectPropertySyntax
-//@[2:11)     IdentifierSyntax
-//@[2:11)      Identifier |something|
-//@[11:12)     Colon |:|
-//@[13:52)     ArraySyntax
-//@[13:14)      LeftSquare |[|
-//@[14:16)      NewLine |\r\n|
+//@[002:0052) | | | ├─ObjectPropertySyntax
+//@[002:0011) | | | | ├─IdentifierSyntax
+//@[002:0011) | | | | | └─Token(Identifier) |something|
+//@[011:0012) | | | | ├─Token(Colon) |:|
+//@[013:0052) | | | | └─ArraySyntax
+//@[013:0014) | | | | | ├─Token(LeftSquare) |[|
+//@[014:0016) | | | | | ├─Token(NewLine) |\r\n|
     [for thing in things: true]
-//@[4:31)      ArrayItemSyntax
-//@[4:31)       ForSyntax
-//@[4:5)        LeftSquare |[|
-//@[5:8)        Identifier |for|
-//@[9:14)        LocalVariableSyntax
-//@[9:14)         IdentifierSyntax
-//@[9:14)          Identifier |thing|
-//@[15:17)        Identifier |in|
-//@[18:24)        VariableAccessSyntax
-//@[18:24)         IdentifierSyntax
-//@[18:24)          Identifier |things|
-//@[24:25)        Colon |:|
-//@[26:30)        BooleanLiteralSyntax
-//@[26:30)         TrueKeyword |true|
-//@[30:31)        RightSquare |]|
-//@[31:33)      NewLine |\r\n|
+//@[004:0031) | | | | | ├─ArrayItemSyntax
+//@[004:0031) | | | | | | └─ForSyntax
+//@[004:0005) | | | | | | | ├─Token(LeftSquare) |[|
+//@[005:0008) | | | | | | | ├─Token(Identifier) |for|
+//@[009:0014) | | | | | | | ├─LocalVariableSyntax
+//@[009:0014) | | | | | | | | └─IdentifierSyntax
+//@[009:0014) | | | | | | | | | └─Token(Identifier) |thing|
+//@[015:0017) | | | | | | | ├─Token(Identifier) |in|
+//@[018:0024) | | | | | | | ├─VariableAccessSyntax
+//@[018:0024) | | | | | | | | └─IdentifierSyntax
+//@[018:0024) | | | | | | | | | └─Token(Identifier) |things|
+//@[024:0025) | | | | | | | ├─Token(Colon) |:|
+//@[026:0030) | | | | | | | ├─BooleanLiteralSyntax
+//@[026:0030) | | | | | | | | └─Token(TrueKeyword) |true|
+//@[030:0031) | | | | | | | └─Token(RightSquare) |]|
+//@[031:0033) | | | | | ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)      RightSquare |]|
-//@[3:5)    NewLine |\r\n|
+//@[002:0003) | | | | | └─Token(RightSquare) |]|
+//@[003:0005) | | | ├─Token(NewLine) |\r\n|
 }]
-//@[0:1)    RightBrace |}|
-//@[1:2)   RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:0001) | | | └─Token(RightBrace) |}|
+//@[001:0002) | | └─Token(RightSquare) |]|
+//@[002:0006) ├─Token(NewLine) |\r\n\r\n|
 
 // loops in inner properties inside outputs are not supported
-//@[61:63) NewLine |\r\n|
+//@[061:0063) ├─Token(NewLine) |\r\n|
 output noInnerLoopsInOutputs object = {
-//@[0:74) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:28)  IdentifierSyntax
-//@[7:28)   Identifier |noInnerLoopsInOutputs|
-//@[29:35)  SimpleTypeSyntax
-//@[29:35)   Identifier |object|
-//@[36:37)  Assignment |=|
-//@[38:74)  ObjectSyntax
-//@[38:39)   LeftBrace |{|
-//@[39:41)   NewLine |\r\n|
+//@[000:0074) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0028) | ├─IdentifierSyntax
+//@[007:0028) | | └─Token(Identifier) |noInnerLoopsInOutputs|
+//@[029:0035) | ├─SimpleTypeSyntax
+//@[029:0035) | | └─Token(Identifier) |object|
+//@[036:0037) | ├─Token(Assignment) |=|
+//@[038:0074) | └─ObjectSyntax
+//@[038:0039) | | ├─Token(LeftBrace) |{|
+//@[039:0041) | | ├─Token(NewLine) |\r\n|
   a: [for i in range(0,10): i]
-//@[2:30)   ObjectPropertySyntax
-//@[2:3)    IdentifierSyntax
-//@[2:3)     Identifier |a|
-//@[3:4)    Colon |:|
-//@[5:30)    ForSyntax
-//@[5:6)     LeftSquare |[|
-//@[6:9)     Identifier |for|
-//@[10:11)     LocalVariableSyntax
-//@[10:11)      IdentifierSyntax
-//@[10:11)       Identifier |i|
-//@[12:14)     Identifier |in|
-//@[15:26)     FunctionCallSyntax
-//@[15:20)      IdentifierSyntax
-//@[15:20)       Identifier |range|
-//@[20:21)      LeftParen |(|
-//@[21:23)      FunctionArgumentSyntax
-//@[21:22)       IntegerLiteralSyntax
-//@[21:22)        Integer |0|
-//@[22:23)       Comma |,|
-//@[23:25)      FunctionArgumentSyntax
-//@[23:25)       IntegerLiteralSyntax
-//@[23:25)        Integer |10|
-//@[25:26)      RightParen |)|
-//@[26:27)     Colon |:|
-//@[28:29)     VariableAccessSyntax
-//@[28:29)      IdentifierSyntax
-//@[28:29)       Identifier |i|
-//@[29:30)     RightSquare |]|
-//@[30:32)   NewLine |\r\n|
+//@[002:0030) | | ├─ObjectPropertySyntax
+//@[002:0003) | | | ├─IdentifierSyntax
+//@[002:0003) | | | | └─Token(Identifier) |a|
+//@[003:0004) | | | ├─Token(Colon) |:|
+//@[005:0030) | | | └─ForSyntax
+//@[005:0006) | | | | ├─Token(LeftSquare) |[|
+//@[006:0009) | | | | ├─Token(Identifier) |for|
+//@[010:0011) | | | | ├─LocalVariableSyntax
+//@[010:0011) | | | | | └─IdentifierSyntax
+//@[010:0011) | | | | | | └─Token(Identifier) |i|
+//@[012:0014) | | | | ├─Token(Identifier) |in|
+//@[015:0026) | | | | ├─FunctionCallSyntax
+//@[015:0020) | | | | | ├─IdentifierSyntax
+//@[015:0020) | | | | | | └─Token(Identifier) |range|
+//@[020:0021) | | | | | ├─Token(LeftParen) |(|
+//@[021:0023) | | | | | ├─FunctionArgumentSyntax
+//@[021:0022) | | | | | | ├─IntegerLiteralSyntax
+//@[021:0022) | | | | | | | └─Token(Integer) |0|
+//@[022:0023) | | | | | | └─Token(Comma) |,|
+//@[023:0025) | | | | | ├─FunctionArgumentSyntax
+//@[023:0025) | | | | | | └─IntegerLiteralSyntax
+//@[023:0025) | | | | | | | └─Token(Integer) |10|
+//@[025:0026) | | | | | └─Token(RightParen) |)|
+//@[026:0027) | | | | ├─Token(Colon) |:|
+//@[028:0029) | | | | ├─VariableAccessSyntax
+//@[028:0029) | | | | | └─IdentifierSyntax
+//@[028:0029) | | | | | | └─Token(Identifier) |i|
+//@[029:0030) | | | | └─Token(RightSquare) |]|
+//@[030:0032) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output noInnerLoopsInOutputs2 object = {
-//@[0:116) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:29)  IdentifierSyntax
-//@[7:29)   Identifier |noInnerLoopsInOutputs2|
-//@[30:36)  SimpleTypeSyntax
-//@[30:36)   Identifier |object|
-//@[37:38)  Assignment |=|
-//@[39:116)  ObjectSyntax
-//@[39:40)   LeftBrace |{|
-//@[40:42)   NewLine |\r\n|
+//@[000:0116) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0029) | ├─IdentifierSyntax
+//@[007:0029) | | └─Token(Identifier) |noInnerLoopsInOutputs2|
+//@[030:0036) | ├─SimpleTypeSyntax
+//@[030:0036) | | └─Token(Identifier) |object|
+//@[037:0038) | ├─Token(Assignment) |=|
+//@[039:0116) | └─ObjectSyntax
+//@[039:0040) | | ├─Token(LeftBrace) |{|
+//@[040:0042) | | ├─Token(NewLine) |\r\n|
   a: [for i in range(0,10): {
-//@[2:71)   ObjectPropertySyntax
-//@[2:3)    IdentifierSyntax
-//@[2:3)     Identifier |a|
-//@[3:4)    Colon |:|
-//@[5:71)    ForSyntax
-//@[5:6)     LeftSquare |[|
-//@[6:9)     Identifier |for|
-//@[10:11)     LocalVariableSyntax
-//@[10:11)      IdentifierSyntax
-//@[10:11)       Identifier |i|
-//@[12:14)     Identifier |in|
-//@[15:26)     FunctionCallSyntax
-//@[15:20)      IdentifierSyntax
-//@[15:20)       Identifier |range|
-//@[20:21)      LeftParen |(|
-//@[21:23)      FunctionArgumentSyntax
-//@[21:22)       IntegerLiteralSyntax
-//@[21:22)        Integer |0|
-//@[22:23)       Comma |,|
-//@[23:25)      FunctionArgumentSyntax
-//@[23:25)       IntegerLiteralSyntax
-//@[23:25)        Integer |10|
-//@[25:26)      RightParen |)|
-//@[26:27)     Colon |:|
-//@[28:70)     ObjectSyntax
-//@[28:29)      LeftBrace |{|
-//@[29:31)      NewLine |\r\n|
+//@[002:0071) | | ├─ObjectPropertySyntax
+//@[002:0003) | | | ├─IdentifierSyntax
+//@[002:0003) | | | | └─Token(Identifier) |a|
+//@[003:0004) | | | ├─Token(Colon) |:|
+//@[005:0071) | | | └─ForSyntax
+//@[005:0006) | | | | ├─Token(LeftSquare) |[|
+//@[006:0009) | | | | ├─Token(Identifier) |for|
+//@[010:0011) | | | | ├─LocalVariableSyntax
+//@[010:0011) | | | | | └─IdentifierSyntax
+//@[010:0011) | | | | | | └─Token(Identifier) |i|
+//@[012:0014) | | | | ├─Token(Identifier) |in|
+//@[015:0026) | | | | ├─FunctionCallSyntax
+//@[015:0020) | | | | | ├─IdentifierSyntax
+//@[015:0020) | | | | | | └─Token(Identifier) |range|
+//@[020:0021) | | | | | ├─Token(LeftParen) |(|
+//@[021:0023) | | | | | ├─FunctionArgumentSyntax
+//@[021:0022) | | | | | | ├─IntegerLiteralSyntax
+//@[021:0022) | | | | | | | └─Token(Integer) |0|
+//@[022:0023) | | | | | | └─Token(Comma) |,|
+//@[023:0025) | | | | | ├─FunctionArgumentSyntax
+//@[023:0025) | | | | | | └─IntegerLiteralSyntax
+//@[023:0025) | | | | | | | └─Token(Integer) |10|
+//@[025:0026) | | | | | └─Token(RightParen) |)|
+//@[026:0027) | | | | ├─Token(Colon) |:|
+//@[028:0070) | | | | ├─ObjectSyntax
+//@[028:0029) | | | | | ├─Token(LeftBrace) |{|
+//@[029:0031) | | | | | ├─Token(NewLine) |\r\n|
     b: [for j in range(0,10): i+j]
-//@[4:34)      ObjectPropertySyntax
-//@[4:5)       IdentifierSyntax
-//@[4:5)        Identifier |b|
-//@[5:6)       Colon |:|
-//@[7:34)       ForSyntax
-//@[7:8)        LeftSquare |[|
-//@[8:11)        Identifier |for|
-//@[12:13)        LocalVariableSyntax
-//@[12:13)         IdentifierSyntax
-//@[12:13)          Identifier |j|
-//@[14:16)        Identifier |in|
-//@[17:28)        FunctionCallSyntax
-//@[17:22)         IdentifierSyntax
-//@[17:22)          Identifier |range|
-//@[22:23)         LeftParen |(|
-//@[23:25)         FunctionArgumentSyntax
-//@[23:24)          IntegerLiteralSyntax
-//@[23:24)           Integer |0|
-//@[24:25)          Comma |,|
-//@[25:27)         FunctionArgumentSyntax
-//@[25:27)          IntegerLiteralSyntax
-//@[25:27)           Integer |10|
-//@[27:28)         RightParen |)|
-//@[28:29)        Colon |:|
-//@[30:33)        BinaryOperationSyntax
-//@[30:31)         VariableAccessSyntax
-//@[30:31)          IdentifierSyntax
-//@[30:31)           Identifier |i|
-//@[31:32)         Plus |+|
-//@[32:33)         VariableAccessSyntax
-//@[32:33)          IdentifierSyntax
-//@[32:33)           Identifier |j|
-//@[33:34)        RightSquare |]|
-//@[34:36)      NewLine |\r\n|
+//@[004:0034) | | | | | ├─ObjectPropertySyntax
+//@[004:0005) | | | | | | ├─IdentifierSyntax
+//@[004:0005) | | | | | | | └─Token(Identifier) |b|
+//@[005:0006) | | | | | | ├─Token(Colon) |:|
+//@[007:0034) | | | | | | └─ForSyntax
+//@[007:0008) | | | | | | | ├─Token(LeftSquare) |[|
+//@[008:0011) | | | | | | | ├─Token(Identifier) |for|
+//@[012:0013) | | | | | | | ├─LocalVariableSyntax
+//@[012:0013) | | | | | | | | └─IdentifierSyntax
+//@[012:0013) | | | | | | | | | └─Token(Identifier) |j|
+//@[014:0016) | | | | | | | ├─Token(Identifier) |in|
+//@[017:0028) | | | | | | | ├─FunctionCallSyntax
+//@[017:0022) | | | | | | | | ├─IdentifierSyntax
+//@[017:0022) | | | | | | | | | └─Token(Identifier) |range|
+//@[022:0023) | | | | | | | | ├─Token(LeftParen) |(|
+//@[023:0025) | | | | | | | | ├─FunctionArgumentSyntax
+//@[023:0024) | | | | | | | | | ├─IntegerLiteralSyntax
+//@[023:0024) | | | | | | | | | | └─Token(Integer) |0|
+//@[024:0025) | | | | | | | | | └─Token(Comma) |,|
+//@[025:0027) | | | | | | | | ├─FunctionArgumentSyntax
+//@[025:0027) | | | | | | | | | └─IntegerLiteralSyntax
+//@[025:0027) | | | | | | | | | | └─Token(Integer) |10|
+//@[027:0028) | | | | | | | | └─Token(RightParen) |)|
+//@[028:0029) | | | | | | | ├─Token(Colon) |:|
+//@[030:0033) | | | | | | | ├─BinaryOperationSyntax
+//@[030:0031) | | | | | | | | ├─VariableAccessSyntax
+//@[030:0031) | | | | | | | | | └─IdentifierSyntax
+//@[030:0031) | | | | | | | | | | └─Token(Identifier) |i|
+//@[031:0032) | | | | | | | | ├─Token(Plus) |+|
+//@[032:0033) | | | | | | | | └─VariableAccessSyntax
+//@[032:0033) | | | | | | | | | └─IdentifierSyntax
+//@[032:0033) | | | | | | | | | | └─Token(Identifier) |j|
+//@[033:0034) | | | | | | | └─Token(RightSquare) |]|
+//@[034:0036) | | | | | ├─Token(NewLine) |\r\n|
   }]
-//@[2:3)      RightBrace |}|
-//@[3:4)     RightSquare |]|
-//@[4:6)   NewLine |\r\n|
+//@[002:0003) | | | | | └─Token(RightBrace) |}|
+//@[003:0004) | | | | └─Token(RightSquare) |]|
+//@[004:0006) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 //KeyVault Secret Reference
-//@[27:29) NewLine |\r\n|
+//@[027:0029) ├─Token(NewLine) |\r\n|
 resource kv 'Microsoft.KeyVault/vaults@2019-09-01' existing = {
-//@[0:90) ResourceDeclarationSyntax
-//@[0:8)  Identifier |resource|
-//@[9:11)  IdentifierSyntax
-//@[9:11)   Identifier |kv|
-//@[12:50)  StringSyntax
-//@[12:50)   StringComplete |'Microsoft.KeyVault/vaults@2019-09-01'|
-//@[51:59)  Identifier |existing|
-//@[60:61)  Assignment |=|
-//@[62:90)  ObjectSyntax
-//@[62:63)   LeftBrace |{|
-//@[63:65)   NewLine |\r\n|
+//@[000:0090) ├─ResourceDeclarationSyntax
+//@[000:0008) | ├─Token(Identifier) |resource|
+//@[009:0011) | ├─IdentifierSyntax
+//@[009:0011) | | └─Token(Identifier) |kv|
+//@[012:0050) | ├─StringSyntax
+//@[012:0050) | | └─Token(StringComplete) |'Microsoft.KeyVault/vaults@2019-09-01'|
+//@[051:0059) | ├─Token(Identifier) |existing|
+//@[060:0061) | ├─Token(Assignment) |=|
+//@[062:0090) | └─ObjectSyntax
+//@[062:0063) | | ├─Token(LeftBrace) |{|
+//@[063:0065) | | ├─Token(NewLine) |\r\n|
   name: 'testkeyvault'
-//@[2:22)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:22)    StringSyntax
-//@[8:22)     StringComplete |'testkeyvault'|
-//@[22:24)   NewLine |\r\n|
+//@[002:0022) | | ├─ObjectPropertySyntax
+//@[002:0006) | | | ├─IdentifierSyntax
+//@[002:0006) | | | | └─Token(Identifier) |name|
+//@[006:0007) | | | ├─Token(Colon) |:|
+//@[008:0022) | | | └─StringSyntax
+//@[008:0022) | | | | └─Token(StringComplete) |'testkeyvault'|
+//@[022:0024) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 output keyVaultSecretOutput string = kv.getSecret('mySecret')
-//@[0:61) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:27)  IdentifierSyntax
-//@[7:27)   Identifier |keyVaultSecretOutput|
-//@[28:34)  SimpleTypeSyntax
-//@[28:34)   Identifier |string|
-//@[35:36)  Assignment |=|
-//@[37:61)  InstanceFunctionCallSyntax
-//@[37:39)   VariableAccessSyntax
-//@[37:39)    IdentifierSyntax
-//@[37:39)     Identifier |kv|
-//@[39:40)   Dot |.|
-//@[40:49)   IdentifierSyntax
-//@[40:49)    Identifier |getSecret|
-//@[49:50)   LeftParen |(|
-//@[50:60)   FunctionArgumentSyntax
-//@[50:60)    StringSyntax
-//@[50:60)     StringComplete |'mySecret'|
-//@[60:61)   RightParen |)|
-//@[61:63) NewLine |\r\n|
+//@[000:0061) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0027) | ├─IdentifierSyntax
+//@[007:0027) | | └─Token(Identifier) |keyVaultSecretOutput|
+//@[028:0034) | ├─SimpleTypeSyntax
+//@[028:0034) | | └─Token(Identifier) |string|
+//@[035:0036) | ├─Token(Assignment) |=|
+//@[037:0061) | └─InstanceFunctionCallSyntax
+//@[037:0039) | | ├─VariableAccessSyntax
+//@[037:0039) | | | └─IdentifierSyntax
+//@[037:0039) | | | | └─Token(Identifier) |kv|
+//@[039:0040) | | ├─Token(Dot) |.|
+//@[040:0049) | | ├─IdentifierSyntax
+//@[040:0049) | | | └─Token(Identifier) |getSecret|
+//@[049:0050) | | ├─Token(LeftParen) |(|
+//@[050:0060) | | ├─FunctionArgumentSyntax
+//@[050:0060) | | | └─StringSyntax
+//@[050:0060) | | | | └─Token(StringComplete) |'mySecret'|
+//@[060:0061) | | └─Token(RightParen) |)|
+//@[061:0063) ├─Token(NewLine) |\r\n|
 output keyVaultSecretInterpolatedOutput string = '${kv.getSecret('mySecret')}'
-//@[0:78) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:39)  IdentifierSyntax
-//@[7:39)   Identifier |keyVaultSecretInterpolatedOutput|
-//@[40:46)  SimpleTypeSyntax
-//@[40:46)   Identifier |string|
-//@[47:48)  Assignment |=|
-//@[49:78)  StringSyntax
-//@[49:52)   StringLeftPiece |'${|
-//@[52:76)   InstanceFunctionCallSyntax
-//@[52:54)    VariableAccessSyntax
-//@[52:54)     IdentifierSyntax
-//@[52:54)      Identifier |kv|
-//@[54:55)    Dot |.|
-//@[55:64)    IdentifierSyntax
-//@[55:64)     Identifier |getSecret|
-//@[64:65)    LeftParen |(|
-//@[65:75)    FunctionArgumentSyntax
-//@[65:75)     StringSyntax
-//@[65:75)      StringComplete |'mySecret'|
-//@[75:76)    RightParen |)|
-//@[76:78)   StringRightPiece |}'|
-//@[78:80) NewLine |\r\n|
+//@[000:0078) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0039) | ├─IdentifierSyntax
+//@[007:0039) | | └─Token(Identifier) |keyVaultSecretInterpolatedOutput|
+//@[040:0046) | ├─SimpleTypeSyntax
+//@[040:0046) | | └─Token(Identifier) |string|
+//@[047:0048) | ├─Token(Assignment) |=|
+//@[049:0078) | └─StringSyntax
+//@[049:0052) | | ├─Token(StringLeftPiece) |'${|
+//@[052:0076) | | ├─InstanceFunctionCallSyntax
+//@[052:0054) | | | ├─VariableAccessSyntax
+//@[052:0054) | | | | └─IdentifierSyntax
+//@[052:0054) | | | | | └─Token(Identifier) |kv|
+//@[054:0055) | | | ├─Token(Dot) |.|
+//@[055:0064) | | | ├─IdentifierSyntax
+//@[055:0064) | | | | └─Token(Identifier) |getSecret|
+//@[064:0065) | | | ├─Token(LeftParen) |(|
+//@[065:0075) | | | ├─FunctionArgumentSyntax
+//@[065:0075) | | | | └─StringSyntax
+//@[065:0075) | | | | | └─Token(StringComplete) |'mySecret'|
+//@[075:0076) | | | └─Token(RightParen) |)|
+//@[076:0078) | | └─Token(StringRightPiece) |}'|
+//@[078:0080) ├─Token(NewLine) |\r\n|
 output keyVaultSecretObjectOutput object = {
-//@[0:83) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:33)  IdentifierSyntax
-//@[7:33)   Identifier |keyVaultSecretObjectOutput|
-//@[34:40)  SimpleTypeSyntax
-//@[34:40)   Identifier |object|
-//@[41:42)  Assignment |=|
-//@[43:83)  ObjectSyntax
-//@[43:44)   LeftBrace |{|
-//@[44:46)   NewLine |\r\n|
+//@[000:0083) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0033) | ├─IdentifierSyntax
+//@[007:0033) | | └─Token(Identifier) |keyVaultSecretObjectOutput|
+//@[034:0040) | ├─SimpleTypeSyntax
+//@[034:0040) | | └─Token(Identifier) |object|
+//@[041:0042) | ├─Token(Assignment) |=|
+//@[043:0083) | └─ObjectSyntax
+//@[043:0044) | | ├─Token(LeftBrace) |{|
+//@[044:0046) | | ├─Token(NewLine) |\r\n|
   secret: kv.getSecret('mySecret')
-//@[2:34)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |secret|
-//@[8:9)    Colon |:|
-//@[10:34)    InstanceFunctionCallSyntax
-//@[10:12)     VariableAccessSyntax
-//@[10:12)      IdentifierSyntax
-//@[10:12)       Identifier |kv|
-//@[12:13)     Dot |.|
-//@[13:22)     IdentifierSyntax
-//@[13:22)      Identifier |getSecret|
-//@[22:23)     LeftParen |(|
-//@[23:33)     FunctionArgumentSyntax
-//@[23:33)      StringSyntax
-//@[23:33)       StringComplete |'mySecret'|
-//@[33:34)     RightParen |)|
-//@[34:36)   NewLine |\r\n|
+//@[002:0034) | | ├─ObjectPropertySyntax
+//@[002:0008) | | | ├─IdentifierSyntax
+//@[002:0008) | | | | └─Token(Identifier) |secret|
+//@[008:0009) | | | ├─Token(Colon) |:|
+//@[010:0034) | | | └─InstanceFunctionCallSyntax
+//@[010:0012) | | | | ├─VariableAccessSyntax
+//@[010:0012) | | | | | └─IdentifierSyntax
+//@[010:0012) | | | | | | └─Token(Identifier) |kv|
+//@[012:0013) | | | | ├─Token(Dot) |.|
+//@[013:0022) | | | | ├─IdentifierSyntax
+//@[013:0022) | | | | | └─Token(Identifier) |getSecret|
+//@[022:0023) | | | | ├─Token(LeftParen) |(|
+//@[023:0033) | | | | ├─FunctionArgumentSyntax
+//@[023:0033) | | | | | └─StringSyntax
+//@[023:0033) | | | | | | └─Token(StringComplete) |'mySecret'|
+//@[033:0034) | | | | └─Token(RightParen) |)|
+//@[034:0036) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output keyVaultSecretArrayOutput array = [
-//@[0:73) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:32)  IdentifierSyntax
-//@[7:32)   Identifier |keyVaultSecretArrayOutput|
-//@[33:38)  SimpleTypeSyntax
-//@[33:38)   Identifier |array|
-//@[39:40)  Assignment |=|
-//@[41:73)  ArraySyntax
-//@[41:42)   LeftSquare |[|
-//@[42:44)   NewLine |\r\n|
+//@[000:0073) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0032) | ├─IdentifierSyntax
+//@[007:0032) | | └─Token(Identifier) |keyVaultSecretArrayOutput|
+//@[033:0038) | ├─SimpleTypeSyntax
+//@[033:0038) | | └─Token(Identifier) |array|
+//@[039:0040) | ├─Token(Assignment) |=|
+//@[041:0073) | └─ArraySyntax
+//@[041:0042) | | ├─Token(LeftSquare) |[|
+//@[042:0044) | | ├─Token(NewLine) |\r\n|
   kv.getSecret('mySecret')
-//@[2:26)   ArrayItemSyntax
-//@[2:26)    InstanceFunctionCallSyntax
-//@[2:4)     VariableAccessSyntax
-//@[2:4)      IdentifierSyntax
-//@[2:4)       Identifier |kv|
-//@[4:5)     Dot |.|
-//@[5:14)     IdentifierSyntax
-//@[5:14)      Identifier |getSecret|
-//@[14:15)     LeftParen |(|
-//@[15:25)     FunctionArgumentSyntax
-//@[15:25)      StringSyntax
-//@[15:25)       StringComplete |'mySecret'|
-//@[25:26)     RightParen |)|
-//@[26:28)   NewLine |\r\n|
+//@[002:0026) | | ├─ArrayItemSyntax
+//@[002:0026) | | | └─InstanceFunctionCallSyntax
+//@[002:0004) | | | | ├─VariableAccessSyntax
+//@[002:0004) | | | | | └─IdentifierSyntax
+//@[002:0004) | | | | | | └─Token(Identifier) |kv|
+//@[004:0005) | | | | ├─Token(Dot) |.|
+//@[005:0014) | | | | ├─IdentifierSyntax
+//@[005:0014) | | | | | └─Token(Identifier) |getSecret|
+//@[014:0015) | | | | ├─Token(LeftParen) |(|
+//@[015:0025) | | | | ├─FunctionArgumentSyntax
+//@[015:0025) | | | | | └─StringSyntax
+//@[015:0025) | | | | | | └─Token(StringComplete) |'mySecret'|
+//@[025:0026) | | | | └─Token(RightParen) |)|
+//@[026:0028) | | ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightSquare) |]|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 output keyVaultSecretArrayInterpolatedOutput array = [
-//@[0:90) OutputDeclarationSyntax
-//@[0:6)  Identifier |output|
-//@[7:44)  IdentifierSyntax
-//@[7:44)   Identifier |keyVaultSecretArrayInterpolatedOutput|
-//@[45:50)  SimpleTypeSyntax
-//@[45:50)   Identifier |array|
-//@[51:52)  Assignment |=|
-//@[53:90)  ArraySyntax
-//@[53:54)   LeftSquare |[|
-//@[54:56)   NewLine |\r\n|
+//@[000:0090) ├─OutputDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |output|
+//@[007:0044) | ├─IdentifierSyntax
+//@[007:0044) | | └─Token(Identifier) |keyVaultSecretArrayInterpolatedOutput|
+//@[045:0050) | ├─SimpleTypeSyntax
+//@[045:0050) | | └─Token(Identifier) |array|
+//@[051:0052) | ├─Token(Assignment) |=|
+//@[053:0090) | └─ArraySyntax
+//@[053:0054) | | ├─Token(LeftSquare) |[|
+//@[054:0056) | | ├─Token(NewLine) |\r\n|
   '${kv.getSecret('mySecret')}'
-//@[2:31)   ArrayItemSyntax
-//@[2:31)    StringSyntax
-//@[2:5)     StringLeftPiece |'${|
-//@[5:29)     InstanceFunctionCallSyntax
-//@[5:7)      VariableAccessSyntax
-//@[5:7)       IdentifierSyntax
-//@[5:7)        Identifier |kv|
-//@[7:8)      Dot |.|
-//@[8:17)      IdentifierSyntax
-//@[8:17)       Identifier |getSecret|
-//@[17:18)      LeftParen |(|
-//@[18:28)      FunctionArgumentSyntax
-//@[18:28)       StringSyntax
-//@[18:28)        StringComplete |'mySecret'|
-//@[28:29)      RightParen |)|
-//@[29:31)     StringRightPiece |}'|
-//@[31:33)   NewLine |\r\n|
+//@[002:0031) | | ├─ArrayItemSyntax
+//@[002:0031) | | | └─StringSyntax
+//@[002:0005) | | | | ├─Token(StringLeftPiece) |'${|
+//@[005:0029) | | | | ├─InstanceFunctionCallSyntax
+//@[005:0007) | | | | | ├─VariableAccessSyntax
+//@[005:0007) | | | | | | └─IdentifierSyntax
+//@[005:0007) | | | | | | | └─Token(Identifier) |kv|
+//@[007:0008) | | | | | ├─Token(Dot) |.|
+//@[008:0017) | | | | | ├─IdentifierSyntax
+//@[008:0017) | | | | | | └─Token(Identifier) |getSecret|
+//@[017:0018) | | | | | ├─Token(LeftParen) |(|
+//@[018:0028) | | | | | ├─FunctionArgumentSyntax
+//@[018:0028) | | | | | | └─StringSyntax
+//@[018:0028) | | | | | | | └─Token(StringComplete) |'mySecret'|
+//@[028:0029) | | | | | └─Token(RightParen) |)|
+//@[029:0031) | | | | └─Token(StringRightPiece) |}'|
+//@[031:0033) | | ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightSquare) |]|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 // WARNING!!!!! dangling decorators
-//@[35:39) NewLine |\r\n\r\n|
+//@[035:0039) ├─Token(NewLine) |\r\n\r\n|
 
 // #completionTest(1) -> decoratorsPlusNamespace
-//@[48:50) NewLine |\r\n|
+//@[048:0050) ├─Token(NewLine) |\r\n|
 @
-//@[0:49) MissingDeclarationSyntax
-//@[0:1)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:1)   SkippedTriviaSyntax
-//@[1:3)  NewLine |\r\n|
+//@[000:0049) ├─MissingDeclarationSyntax
+//@[000:0001) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0001) | | └─SkippedTriviaSyntax
+//@[001:0003) | ├─Token(NewLine) |\r\n|
 // #completionTest(5) -> decorators
-//@[35:37)  NewLine |\r\n|
+//@[035:0037) | ├─Token(NewLine) |\r\n|
 @sys.
-//@[0:5)  DecoratorSyntax
-//@[0:1)   At |@|
-//@[1:5)   PropertyAccessSyntax
-//@[1:4)    VariableAccessSyntax
-//@[1:4)     IdentifierSyntax
-//@[1:4)      Identifier |sys|
-//@[4:5)    Dot |.|
-//@[5:5)    IdentifierSyntax
-//@[5:5)     SkippedTriviaSyntax
-//@[5:9)  NewLine |\r\n\r\n|
+//@[000:0005) | ├─DecoratorSyntax
+//@[000:0001) | | ├─Token(At) |@|
+//@[001:0005) | | └─PropertyAccessSyntax
+//@[001:0004) | | | ├─VariableAccessSyntax
+//@[001:0004) | | | | └─IdentifierSyntax
+//@[001:0004) | | | | | └─Token(Identifier) |sys|
+//@[004:0005) | | | ├─Token(Dot) |.|
+//@[005:0005) | | | └─IdentifierSyntax
+//@[005:0005) | | | | └─SkippedTriviaSyntax
+//@[005:0009) | └─Token(NewLine) |\r\n\r\n|
 
 // WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 
-//@[110:110) EndOfFile ||
+//@[110:0110) └─Token(EndOfFile) ||
