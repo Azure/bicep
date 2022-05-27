@@ -27,7 +27,9 @@ namespace Bicep.LanguageServer.Handlers
         string expiresOnTimestamp,
         string deployId,
         string portalUrl,
-        bool updateOrCreateParametersFile,
+        bool parametersFileExists,
+        string parametersFileName,
+        bool shouldUpdateOrCreateParametersFile,
         List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters) : IRequest<string>;
 
     public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
@@ -65,6 +67,10 @@ namespace Bicep.LanguageServer.Handlers
                 request.deploymentScope,
                 request.location,
                 request.deployId,
+                request.parametersFileExists,
+                request.parametersFileName,
+                request.shouldUpdateOrCreateParametersFile,
+                request.updatedDeploymentParameters,
                 request.portalUrl,
                 deploymentName,
                 deploymentOperationsCache);

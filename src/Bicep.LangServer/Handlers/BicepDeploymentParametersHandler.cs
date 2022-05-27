@@ -18,7 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, string? errorMessage);
+    public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, bool parametersFileExists, string parametersFileName, string? errorMessage);
 
     public record BicepDeploymentParameter(string name, string? value, bool isMissingParam, bool isExpression);
 
@@ -109,7 +109,23 @@ namespace Bicep.LanguageServer.Handlers
                 }
             }
 
-            return new BicepDeploymentParametersResponse(updatedDeploymentParameters, GetErrorMessage(missingArrayOrObjectTypes));
+            var parametersFileExists = !string.IsNullOrWhiteSpace(parametersFilePath) && File.Exists(parametersFilePath);
+
+            return new BicepDeploymentParametersResponse(
+                updatedDeploymentParameters,
+                parametersFileExists,
+                GetParameterFileName(documentPath, parametersFileExists, parametersFilePath),
+                GetErrorMessage(missingArrayOrObjectTypes));
+        }
+
+        private string GetParameterFileName(string documentPath, bool parametersFileExists, string parametersFilePath)
+        {
+            if (parametersFileExists)
+            {
+                return Path.GetFileName(parametersFilePath);
+            }
+
+            return Path.GetFileNameWithoutExtension(documentPath) + ".parameters.json";
         }
 
         private string? GetErrorMessage(List<string> missingArrayOrObjectTypes)
@@ -133,7 +149,7 @@ namespace Bicep.LanguageServer.Handlers
 
             return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
         }
- 
+
 
         public IEnumerable<ParameterSymbol> GetParameterSymbols(string documentPath)
         {

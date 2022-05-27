@@ -67,7 +67,9 @@ export interface BicepDeploymentStartParams {
   expiresOnTimestamp: string;
   deployId: string;
   portalUrl: string;
-  updateOrCreateParametersFile: boolean;
+  parametersFileExists: boolean;
+  parametersFileName: string;
+  shouldUpdateOrCreateParametersFile: boolean;
   updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
 }
 
@@ -91,6 +93,8 @@ export interface BicepDeploymentParameter {
 
 export interface BicepDeploymentParametersResponse {
   deploymentParameters: BicepDeploymentParameter[];
+  parametersFileExists: boolean;
+  parametersFileName: string;
   errorMessage?: string;
 }
 

@@ -333,21 +333,25 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
-      const updatedDeploymentParameters =
-        await this.handleMissingAndDefaultParams(
-          context,
-          documentPath,
-          parameterFilePath,
-          template
-        );
+      const [
+        parametersFileExists,
+        parametersFileName,
+        updatedDeploymentParameters,
+      ] = await this.handleMissingAndDefaultParams(
+        context,
+        documentPath,
+        parameterFilePath,
+        template
+      );
 
-      let updateOrCreateParametersFile = false;
+      let shouldUpdateOrCreateParametersFile = false;
       if (updatedDeploymentParameters.length > 0) {
-        updateOrCreateParametersFile = await this.updateOrCreateParametersFile(
-          context,
-          documentPath,
-          parameterFilePath
-        );
+        shouldUpdateOrCreateParametersFile =
+          await this.updateOrCreateParametersFile(
+            context,
+            parametersFileExists,
+            parametersFileName
+          );
       }
 
       const deploymentStartParams: BicepDeploymentStartParams = {
@@ -361,7 +365,9 @@ export class DeployCommand implements Command {
         expiresOnTimestamp,
         deployId,
         portalUrl,
-        updateOrCreateParametersFile,
+        parametersFileExists,
+        parametersFileName,
+        shouldUpdateOrCreateParametersFile,
         updatedDeploymentParameters,
       };
       const deploymentStartResponse: BicepDeploymentStartResponse =
@@ -454,7 +460,7 @@ export class DeployCommand implements Command {
     documentPath: string,
     parameterFilePath: string | undefined,
     template: string | undefined
-  ): Promise<BicepUpdatedDeploymentParameter[]> {
+  ): Promise<[boolean, string, BicepUpdatedDeploymentParameter[]]> {
     const bicepDeploymentParametersResponse: BicepDeploymentParametersResponse =
       await this.client.sendRequest("workspace/executeCommand", {
         command: "getDeploymentParameters",
@@ -501,24 +507,23 @@ export class DeployCommand implements Command {
       }
     }
 
-    return updatedDeploymentParameters;
+    return [
+      bicepDeploymentParametersResponse.parametersFileExists,
+      bicepDeploymentParametersResponse.parametersFileName,
+      updatedDeploymentParameters,
+    ];
   }
 
   private async updateOrCreateParametersFile(
     _context: IActionContext,
-    documentPath: string,
-    parameterFilePath: string | undefined
+    parametersFileExists: boolean,
+    parametersFileName: string
   ) {
     let placeholder: string;
-    if (parameterFilePath && fs.existsSync(parameterFilePath)) {
-      placeholder = `Do you want to update ${path.basename(
-        parameterFilePath
-      )} with values used in this deployment?`;
+    if (parametersFileExists) {
+      placeholder = `Do you want to update ${parametersFileName} with values used in this deployment?`;
     } else {
-      const fileNameWithExtension = path.basename(documentPath);
-      const parameterFileName =
-        fileNameWithExtension.replace(".bicep", "") + ".parameters.json";
-      placeholder = `Do you want to create ${parameterFileName} with values used in this deployment?`;
+      placeholder = `Do you want to create ${parametersFileName} with values used in this deployment?`;
     }
 
     const quickPickItems: IAzureQuickPickItem[] = [];
