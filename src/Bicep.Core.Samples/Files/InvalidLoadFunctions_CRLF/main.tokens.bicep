@@ -1,6 +1,6 @@
 var textLoadDirectory = loadTextContent('Assets/path/to/nothing')
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |textLoadDirectory|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |textLoadDirectory|
 //@[22:23) Assignment |=|
 //@[24:39) Identifier |loadTextContent|
 //@[39:40) LeftParen |(|
@@ -8,8 +8,8 @@ var textLoadDirectory = loadTextContent('Assets/path/to/nothing')
 //@[64:65) RightParen |)|
 //@[65:67) NewLine |\r\n|
 var binaryLoadDirectory = loadFileAsBase64('Assets/path/to/nothing')
-//@[0:3) Identifier |var|
-//@[4:23) Identifier |binaryLoadDirectory|
+//@[00:03) Identifier |var|
+//@[04:23) Identifier |binaryLoadDirectory|
 //@[24:25) Assignment |=|
 //@[26:42) Identifier |loadFileAsBase64|
 //@[42:43) LeftParen |(|
@@ -18,8 +18,8 @@ var binaryLoadDirectory = loadFileAsBase64('Assets/path/to/nothing')
 //@[68:72) NewLine |\r\n\r\n|
 
 var textLoadFileMissing = loadTextContent('Assets/nothing.file')
-//@[0:3) Identifier |var|
-//@[4:23) Identifier |textLoadFileMissing|
+//@[00:03) Identifier |var|
+//@[04:23) Identifier |textLoadFileMissing|
 //@[24:25) Assignment |=|
 //@[26:41) Identifier |loadTextContent|
 //@[41:42) LeftParen |(|
@@ -27,8 +27,8 @@ var textLoadFileMissing = loadTextContent('Assets/nothing.file')
 //@[63:64) RightParen |)|
 //@[64:66) NewLine |\r\n|
 var binaryLoadFileMissing = loadFileAsBase64('Assets/nothing.file')
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |binaryLoadFileMissing|
+//@[00:03) Identifier |var|
+//@[04:25) Identifier |binaryLoadFileMissing|
 //@[26:27) Assignment |=|
 //@[28:44) Identifier |loadFileAsBase64|
 //@[44:45) LeftParen |(|
@@ -37,8 +37,8 @@ var binaryLoadFileMissing = loadFileAsBase64('Assets/nothing.file')
 //@[67:71) NewLine |\r\n\r\n|
 
 var textLoadFilePathEmpty = loadTextContent('')
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |textLoadFilePathEmpty|
+//@[00:03) Identifier |var|
+//@[04:25) Identifier |textLoadFilePathEmpty|
 //@[26:27) Assignment |=|
 //@[28:43) Identifier |loadTextContent|
 //@[43:44) LeftParen |(|
@@ -46,8 +46,8 @@ var textLoadFilePathEmpty = loadTextContent('')
 //@[46:47) RightParen |)|
 //@[47:49) NewLine |\r\n|
 var binaryLoadFilePathEmpty = loadFileAsBase64('')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |binaryLoadFilePathEmpty|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |binaryLoadFilePathEmpty|
 //@[28:29) Assignment |=|
 //@[30:46) Identifier |loadFileAsBase64|
 //@[46:47) LeftParen |(|
@@ -56,8 +56,8 @@ var binaryLoadFilePathEmpty = loadFileAsBase64('')
 //@[50:54) NewLine |\r\n\r\n|
 
 var textLoadInvalidCharactersPath1 = loadTextContent('Assets\\TextFile.txt')
-//@[0:3) Identifier |var|
-//@[4:34) Identifier |textLoadInvalidCharactersPath1|
+//@[00:03) Identifier |var|
+//@[04:34) Identifier |textLoadInvalidCharactersPath1|
 //@[35:36) Assignment |=|
 //@[37:52) Identifier |loadTextContent|
 //@[52:53) LeftParen |(|
@@ -65,8 +65,8 @@ var textLoadInvalidCharactersPath1 = loadTextContent('Assets\\TextFile.txt')
 //@[75:76) RightParen |)|
 //@[76:78) NewLine |\r\n|
 var binaryLoadInvalidCharactersPath1 = loadFileAsBase64('Assets\\binary')
-//@[0:3) Identifier |var|
-//@[4:36) Identifier |binaryLoadInvalidCharactersPath1|
+//@[00:03) Identifier |var|
+//@[04:36) Identifier |binaryLoadInvalidCharactersPath1|
 //@[37:38) Assignment |=|
 //@[39:55) Identifier |loadFileAsBase64|
 //@[55:56) LeftParen |(|
@@ -75,8 +75,8 @@ var binaryLoadInvalidCharactersPath1 = loadFileAsBase64('Assets\\binary')
 //@[73:77) NewLine |\r\n\r\n|
 
 var textLoadInvalidCharactersPath2 = loadTextContent('/Assets/TextFile.txt')
-//@[0:3) Identifier |var|
-//@[4:34) Identifier |textLoadInvalidCharactersPath2|
+//@[00:03) Identifier |var|
+//@[04:34) Identifier |textLoadInvalidCharactersPath2|
 //@[35:36) Assignment |=|
 //@[37:52) Identifier |loadTextContent|
 //@[52:53) LeftParen |(|
@@ -84,8 +84,8 @@ var textLoadInvalidCharactersPath2 = loadTextContent('/Assets/TextFile.txt')
 //@[75:76) RightParen |)|
 //@[76:78) NewLine |\r\n|
 var binaryLoadInvalidCharactersPath2 = loadFileAsBase64('/Assets/binary')
-//@[0:3) Identifier |var|
-//@[4:36) Identifier |binaryLoadInvalidCharactersPath2|
+//@[00:03) Identifier |var|
+//@[04:36) Identifier |binaryLoadInvalidCharactersPath2|
 //@[37:38) Assignment |=|
 //@[39:55) Identifier |loadFileAsBase64|
 //@[55:56) LeftParen |(|
@@ -94,8 +94,8 @@ var binaryLoadInvalidCharactersPath2 = loadFileAsBase64('/Assets/binary')
 //@[73:77) NewLine |\r\n\r\n|
 
 var textLoadInvalidCharactersPath3 = loadTextContent('file://Assets/TextFile.txt')
-//@[0:3) Identifier |var|
-//@[4:34) Identifier |textLoadInvalidCharactersPath3|
+//@[00:03) Identifier |var|
+//@[04:34) Identifier |textLoadInvalidCharactersPath3|
 //@[35:36) Assignment |=|
 //@[37:52) Identifier |loadTextContent|
 //@[52:53) LeftParen |(|
@@ -103,8 +103,8 @@ var textLoadInvalidCharactersPath3 = loadTextContent('file://Assets/TextFile.txt
 //@[81:82) RightParen |)|
 //@[82:84) NewLine |\r\n|
 var binaryLoadInvalidCharactersPath3 = loadFileAsBase64('file://Assets/binary')
-//@[0:3) Identifier |var|
-//@[4:36) Identifier |binaryLoadInvalidCharactersPath3|
+//@[00:03) Identifier |var|
+//@[04:36) Identifier |binaryLoadInvalidCharactersPath3|
 //@[37:38) Assignment |=|
 //@[39:55) Identifier |loadFileAsBase64|
 //@[55:56) LeftParen |(|
@@ -114,8 +114,8 @@ var binaryLoadInvalidCharactersPath3 = loadFileAsBase64('file://Assets/binary')
 
 
 var textLoadUnsupportedEncoding = loadTextContent('Assets/TextFile.txt', 'windows-1250')
-//@[0:3) Identifier |var|
-//@[4:31) Identifier |textLoadUnsupportedEncoding|
+//@[00:03) Identifier |var|
+//@[04:31) Identifier |textLoadUnsupportedEncoding|
 //@[32:33) Assignment |=|
 //@[34:49) Identifier |loadTextContent|
 //@[49:50) LeftParen |(|
@@ -126,8 +126,8 @@ var textLoadUnsupportedEncoding = loadTextContent('Assets/TextFile.txt', 'window
 //@[88:92) NewLine |\r\n\r\n|
 
 var textLoadWrongEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'us-ascii')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding01|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding01|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -137,8 +137,8 @@ var textLoadWrongEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'us-asc
 //@[83:84) RightParen |)|
 //@[84:86) NewLine |\r\n|
 var textLoadWrongEncoding02 = loadTextContent('Assets/encoding-iso.txt', 'utf-8')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding02|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding02|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -148,8 +148,8 @@ var textLoadWrongEncoding02 = loadTextContent('Assets/encoding-iso.txt', 'utf-8'
 //@[80:81) RightParen |)|
 //@[81:83) NewLine |\r\n|
 var textLoadWrongEncoding03 = loadTextContent('Assets/encoding-iso.txt', 'utf-16BE')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding03|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding03|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -159,8 +159,8 @@ var textLoadWrongEncoding03 = loadTextContent('Assets/encoding-iso.txt', 'utf-16
 //@[83:84) RightParen |)|
 //@[84:86) NewLine |\r\n|
 var textLoadWrongEncoding04 = loadTextContent('Assets/encoding-iso.txt', 'utf-16')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding04|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding04|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -170,8 +170,8 @@ var textLoadWrongEncoding04 = loadTextContent('Assets/encoding-iso.txt', 'utf-16
 //@[81:82) RightParen |)|
 //@[82:84) NewLine |\r\n|
 var textLoadWrongEncoding05 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding05|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding05|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -181,8 +181,8 @@ var textLoadWrongEncoding05 = loadTextContent('Assets/encoding-ascii.txt', 'iso-
 //@[87:88) RightParen |)|
 //@[88:90) NewLine |\r\n|
 var textLoadWrongEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding06|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding06|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -192,8 +192,8 @@ var textLoadWrongEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[82:83) RightParen |)|
 //@[83:85) NewLine |\r\n|
 var textLoadWrongEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'utf-16BE')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding07|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding07|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -203,8 +203,8 @@ var textLoadWrongEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[85:86) RightParen |)|
 //@[86:88) NewLine |\r\n|
 var textLoadWrongEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-16')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding08|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding08|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -214,8 +214,8 @@ var textLoadWrongEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-
 //@[83:84) RightParen |)|
 //@[84:86) NewLine |\r\n|
 var textLoadWrongEncoding09 = loadTextContent('Assets/encoding-utf16.txt', 'iso-8859-1')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding09|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding09|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -225,8 +225,8 @@ var textLoadWrongEncoding09 = loadTextContent('Assets/encoding-utf16.txt', 'iso-
 //@[87:88) RightParen |)|
 //@[88:90) NewLine |\r\n|
 var textLoadWrongEncoding10 = loadTextContent('Assets/encoding-utf16.txt', 'utf-8')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding10|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding10|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -236,8 +236,8 @@ var textLoadWrongEncoding10 = loadTextContent('Assets/encoding-utf16.txt', 'utf-
 //@[82:83) RightParen |)|
 //@[83:85) NewLine |\r\n|
 var textLoadWrongEncoding11 = loadTextContent('Assets/encoding-utf16.txt', 'utf-16BE')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding11|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding11|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -247,8 +247,8 @@ var textLoadWrongEncoding11 = loadTextContent('Assets/encoding-utf16.txt', 'utf-
 //@[85:86) RightParen |)|
 //@[86:88) NewLine |\r\n|
 var textLoadWrongEncoding12 = loadTextContent('Assets/encoding-utf16.txt', 'us-ascii')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding12|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding12|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -258,8 +258,8 @@ var textLoadWrongEncoding12 = loadTextContent('Assets/encoding-utf16.txt', 'us-a
 //@[85:86) RightParen |)|
 //@[86:88) NewLine |\r\n|
 var textLoadWrongEncoding13 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-16')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding13|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding13|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -269,8 +269,8 @@ var textLoadWrongEncoding13 = loadTextContent('Assets/encoding-utf16be.txt', 'ut
 //@[85:86) RightParen |)|
 //@[86:88) NewLine |\r\n|
 var textLoadWrongEncoding14 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-8')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding14|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding14|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -280,8 +280,8 @@ var textLoadWrongEncoding14 = loadTextContent('Assets/encoding-utf16be.txt', 'ut
 //@[84:85) RightParen |)|
 //@[85:87) NewLine |\r\n|
 var textLoadWrongEncoding15 = loadTextContent('Assets/encoding-utf16be.txt', 'us-ascii')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding15|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding15|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -291,8 +291,8 @@ var textLoadWrongEncoding15 = loadTextContent('Assets/encoding-utf16be.txt', 'us
 //@[87:88) RightParen |)|
 //@[88:90) NewLine |\r\n|
 var textLoadWrongEncoding16 = loadTextContent('Assets/encoding-utf16be.txt', 'iso-8859-1')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding16|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding16|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -302,8 +302,8 @@ var textLoadWrongEncoding16 = loadTextContent('Assets/encoding-utf16be.txt', 'is
 //@[89:90) RightParen |)|
 //@[90:92) NewLine |\r\n|
 var textLoadWrongEncoding17 = loadTextContent('Assets/encoding-windows1250.txt', 'utf-16BE')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding17|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding17|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -313,8 +313,8 @@ var textLoadWrongEncoding17 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[91:92) RightParen |)|
 //@[92:94) NewLine |\r\n|
 var textLoadWrongEncoding18 = loadTextContent('Assets/encoding-windows1250.txt', 'utf-16')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding18|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding18|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -324,8 +324,8 @@ var textLoadWrongEncoding18 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[89:90) RightParen |)|
 //@[90:92) NewLine |\r\n|
 var textLoadWrongEncoding19 = loadTextContent('Assets/encoding-windows1250.txt', 'utf-8')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding19|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding19|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -335,8 +335,8 @@ var textLoadWrongEncoding19 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[88:89) RightParen |)|
 //@[89:91) NewLine |\r\n|
 var textLoadWrongEncoding20 = loadTextContent('Assets/encoding-windows1250.txt', 'us-ascii')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding20|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding20|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -346,8 +346,8 @@ var textLoadWrongEncoding20 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[91:92) RightParen |)|
 //@[92:94) NewLine |\r\n|
 var textLoadWrongEncoding21 = loadTextContent('Assets/encoding-windows1250.txt', 'iso-8859-1')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding21|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding21|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -357,8 +357,8 @@ var textLoadWrongEncoding21 = loadTextContent('Assets/encoding-windows1250.txt',
 //@[93:94) RightParen |)|
 //@[94:96) NewLine |\r\n|
 var textLoadWrongEncoding22 = loadTextContent('Assets/encoding-utf8.txt', 'iso-8859-1')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding22|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding22|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -368,8 +368,8 @@ var textLoadWrongEncoding22 = loadTextContent('Assets/encoding-utf8.txt', 'iso-8
 //@[86:87) RightParen |)|
 //@[87:89) NewLine |\r\n|
 var textLoadWrongEncoding23 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding23|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding23|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -379,8 +379,8 @@ var textLoadWrongEncoding23 = loadTextContent('Assets/encoding-utf8.txt', 'utf-1
 //@[82:83) RightParen |)|
 //@[83:85) NewLine |\r\n|
 var textLoadWrongEncoding24 = loadTextContent('Assets/encoding-utf8.txt', 'utf-16BE')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding24|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding24|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -390,8 +390,8 @@ var textLoadWrongEncoding24 = loadTextContent('Assets/encoding-utf8.txt', 'utf-1
 //@[84:85) RightParen |)|
 //@[85:87) NewLine |\r\n|
 var textLoadWrongEncoding25 = loadTextContent('Assets/encoding-utf8.txt', 'us-ascii')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding25|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding25|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -401,8 +401,8 @@ var textLoadWrongEncoding25 = loadTextContent('Assets/encoding-utf8.txt', 'us-as
 //@[84:85) RightParen |)|
 //@[85:87) NewLine |\r\n|
 var textLoadWrongEncoding26 = loadTextContent('Assets/encoding-utf8-bom.txt', 'iso-8859-1')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding26|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding26|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -412,8 +412,8 @@ var textLoadWrongEncoding26 = loadTextContent('Assets/encoding-utf8-bom.txt', 'i
 //@[90:91) RightParen |)|
 //@[91:93) NewLine |\r\n|
 var textLoadWrongEncoding27 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding27|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding27|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -423,8 +423,8 @@ var textLoadWrongEncoding27 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[86:87) RightParen |)|
 //@[87:89) NewLine |\r\n|
 var textLoadWrongEncoding28 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-16BE')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding28|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding28|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -434,8 +434,8 @@ var textLoadWrongEncoding28 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[88:89) RightParen |)|
 //@[89:91) NewLine |\r\n|
 var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'us-ascii')
-//@[0:3) Identifier |var|
-//@[4:27) Identifier |textLoadWrongEncoding29|
+//@[00:03) Identifier |var|
+//@[04:27) Identifier |textLoadWrongEncoding29|
 //@[28:29) Assignment |=|
 //@[30:45) Identifier |loadTextContent|
 //@[45:46) LeftParen |(|
@@ -446,8 +446,8 @@ var textLoadWrongEncoding29 = loadTextContent('Assets/encoding-utf8-bom.txt', 'u
 //@[89:93) NewLine |\r\n\r\n|
 
 var textOversize = loadTextContent('Assets/oversizeText.txt')
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |textOversize|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |textOversize|
 //@[17:18) Assignment |=|
 //@[19:34) Identifier |loadTextContent|
 //@[34:35) LeftParen |(|
@@ -455,8 +455,8 @@ var textOversize = loadTextContent('Assets/oversizeText.txt')
 //@[60:61) RightParen |)|
 //@[61:63) NewLine |\r\n|
 var binaryOversize = loadFileAsBase64('Assets/oversizeBinary')
-//@[0:3) Identifier |var|
-//@[4:18) Identifier |binaryOversize|
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |binaryOversize|
 //@[19:20) Assignment |=|
 //@[21:37) Identifier |loadFileAsBase64|
 //@[37:38) LeftParen |(|
@@ -465,8 +465,8 @@ var binaryOversize = loadFileAsBase64('Assets/oversizeBinary')
 //@[62:66) NewLine |\r\n\r\n|
 
 var binaryAsText = loadTextContent('Assets/binary')
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |binaryAsText|
+//@[00:03) Identifier |var|
+//@[04:16) Identifier |binaryAsText|
 //@[17:18) Assignment |=|
 //@[19:34) Identifier |loadTextContent|
 //@[34:35) LeftParen |(|

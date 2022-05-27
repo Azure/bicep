@@ -1,61 +1,62 @@
 targetScope='subscription'
-//@[0:26) TargetScopeSyntax
-//@[0:11)  Identifier |targetScope|
-//@[11:12)  Assignment |=|
-//@[12:26)  StringSyntax
-//@[12:26)   StringComplete |'subscription'|
-//@[26:28) NewLine |\n\n|
+//@[00:164) ProgramSyntax
+//@[00:026) ├─TargetScopeSyntax
+//@[00:011) | ├─Token(Identifier) |targetScope|
+//@[11:012) | ├─Token(Assignment) |=|
+//@[12:026) | └─StringSyntax
+//@[12:026) | | └─Token(StringComplete) |'subscription'|
+//@[26:028) ├─Token(NewLine) |\n\n|
 
 var deploymentLocation = deployment().location
-//@[0:46) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |deploymentLocation|
-//@[23:24)  Assignment |=|
-//@[25:46)  PropertyAccessSyntax
-//@[25:37)   FunctionCallSyntax
-//@[25:35)    IdentifierSyntax
-//@[25:35)     Identifier |deployment|
-//@[35:36)    LeftParen |(|
-//@[36:37)    RightParen |)|
-//@[37:38)   Dot |.|
-//@[38:46)   IdentifierSyntax
-//@[38:46)    Identifier |location|
-//@[46:48) NewLine |\n\n|
+//@[00:046) ├─VariableDeclarationSyntax
+//@[00:003) | ├─Token(Identifier) |var|
+//@[04:022) | ├─IdentifierSyntax
+//@[04:022) | | └─Token(Identifier) |deploymentLocation|
+//@[23:024) | ├─Token(Assignment) |=|
+//@[25:046) | └─PropertyAccessSyntax
+//@[25:037) | | ├─FunctionCallSyntax
+//@[25:035) | | | ├─IdentifierSyntax
+//@[25:035) | | | | └─Token(Identifier) |deployment|
+//@[35:036) | | | ├─Token(LeftParen) |(|
+//@[36:037) | | | └─Token(RightParen) |)|
+//@[37:038) | | ├─Token(Dot) |.|
+//@[38:046) | | └─IdentifierSyntax
+//@[38:046) | | | └─Token(Identifier) |location|
+//@[46:048) ├─Token(NewLine) |\n\n|
 
 var scopesWithArmRepresentation = {
-//@[0:87) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:31)  IdentifierSyntax
-//@[4:31)   Identifier |scopesWithArmRepresentation|
-//@[32:33)  Assignment |=|
-//@[34:87)  ObjectSyntax
-//@[34:35)   LeftBrace |{|
-//@[35:36)   NewLine |\n|
+//@[00:087) ├─VariableDeclarationSyntax
+//@[00:003) | ├─Token(Identifier) |var|
+//@[04:031) | ├─IdentifierSyntax
+//@[04:031) | | └─Token(Identifier) |scopesWithArmRepresentation|
+//@[32:033) | ├─Token(Assignment) |=|
+//@[34:087) | └─ObjectSyntax
+//@[34:035) | | ├─Token(LeftBrace) |{|
+//@[35:036) | | ├─Token(NewLine) |\n|
   tenant: tenant()
-//@[2:18)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |tenant|
-//@[8:9)    Colon |:|
-//@[10:18)    FunctionCallSyntax
-//@[10:16)     IdentifierSyntax
-//@[10:16)      Identifier |tenant|
-//@[16:17)     LeftParen |(|
-//@[17:18)     RightParen |)|
-//@[18:19)   NewLine |\n|
+//@[02:018) | | ├─ObjectPropertySyntax
+//@[02:008) | | | ├─IdentifierSyntax
+//@[02:008) | | | | └─Token(Identifier) |tenant|
+//@[08:009) | | | ├─Token(Colon) |:|
+//@[10:018) | | | └─FunctionCallSyntax
+//@[10:016) | | | | ├─IdentifierSyntax
+//@[10:016) | | | | | └─Token(Identifier) |tenant|
+//@[16:017) | | | | ├─Token(LeftParen) |(|
+//@[17:018) | | | | └─Token(RightParen) |)|
+//@[18:019) | | ├─Token(NewLine) |\n|
   subscription: subscription()
-//@[2:30)   ObjectPropertySyntax
-//@[2:14)    IdentifierSyntax
-//@[2:14)     Identifier |subscription|
-//@[14:15)    Colon |:|
-//@[16:30)    FunctionCallSyntax
-//@[16:28)     IdentifierSyntax
-//@[16:28)      Identifier |subscription|
-//@[28:29)     LeftParen |(|
-//@[29:30)     RightParen |)|
-//@[30:31)   NewLine |\n|
+//@[02:030) | | ├─ObjectPropertySyntax
+//@[02:014) | | | ├─IdentifierSyntax
+//@[02:014) | | | | └─Token(Identifier) |subscription|
+//@[14:015) | | | ├─Token(Colon) |:|
+//@[16:030) | | | └─FunctionCallSyntax
+//@[16:028) | | | | ├─IdentifierSyntax
+//@[16:028) | | | | | └─Token(Identifier) |subscription|
+//@[28:029) | | | | ├─Token(LeftParen) |(|
+//@[29:030) | | | | └─Token(RightParen) |)|
+//@[30:031) | | ├─Token(NewLine) |\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:001) | | └─Token(RightBrace) |}|
+//@[01:002) ├─Token(NewLine) |\n|
 
-//@[0:0) EndOfFile ||
+//@[00:000) └─Token(EndOfFile) ||

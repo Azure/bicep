@@ -89,7 +89,7 @@ resource farm 'Microsoft.Web/serverFarms@2019-08-01' = {
   }
   properties: {
     name: hostingPlanName // just hostingPlanName results in an error
-//@[4:8) [BCP037 (Warning)] The property "name" is not allowed on objects of type "AppServicePlanProperties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |name|
+//@[04:08) [BCP037 (Warning)] The property "name" is not allowed on objects of type "AppServicePlanProperties". Permissible properties include "freeOfferExpirationTime", "hostingEnvironmentProfile", "hyperV", "isSpot", "isXenon", "maximumElasticWorkerCount", "perSiteScaling", "reserved", "spotExpirationTime", "targetWorkerCount", "targetWorkerSizeId", "workerTierName". If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |name|
   }
 }
 
@@ -99,7 +99,7 @@ var cosmosDbRef = reference(cosmosDbResourceId).documentEndpoint
 // this variable is not accessed anywhere in this template and depends on a run-time reference
 // it should not be present at all in the template output as there is nowhere logical to put it
 var cosmosDbEndpoint = cosmosDbRef.documentEndpoint
-//@[4:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |cosmosDbEndpoint|
+//@[04:20) [no-unused-vars (Warning)] Variable "cosmosDbEndpoint" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |cosmosDbEndpoint|
 
 param webSiteName string
 param cosmosDb object
@@ -132,9 +132,9 @@ resource site 'Microsoft.Web/sites@2019-08-01' = {
 }
 
 var _siteApiVersion = site.apiVersion
-//@[4:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteApiVersion|
+//@[04:19) [no-unused-vars (Warning)] Variable "_siteApiVersion" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteApiVersion|
 var _siteType = site.type
-//@[4:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteType|
+//@[04:13) [no-unused-vars (Warning)] Variable "_siteType" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |_siteType|
 
 output siteApiVersion string = site.apiVersion
 output siteType string = site.type
@@ -359,7 +359,7 @@ resource duplicateIdentifiersWithinLoop 'Microsoft.Network/virtualNetworks@2020-
 
 // duplicate identifers in global and single loop scope are allowed (inner variable hides the outer)
 var canHaveDuplicatesAcrossScopes = 'hello'
-//@[4:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |canHaveDuplicatesAcrossScopes|
+//@[04:33) [no-unused-vars (Warning)] Variable "canHaveDuplicatesAcrossScopes" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |canHaveDuplicatesAcrossScopes|
 resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for canHaveDuplicatesAcrossScopes in range(0, 3): {
   name: 'vnet-${canHaveDuplicatesAcrossScopes}'
   properties: {
@@ -371,7 +371,7 @@ resource duplicateInGlobalAndOneLoop 'Microsoft.Network/virtualNetworks@2020-06-
 
 // duplicate in global and multiple loop scopes are allowed (inner hides the outer)
 var duplicatesEverywhere = 'hello'
-//@[4:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicatesEverywhere|
+//@[04:24) [no-unused-vars (Warning)] Variable "duplicatesEverywhere" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |duplicatesEverywhere|
 resource duplicateInGlobalAndTwoLoops 'Microsoft.Network/virtualNetworks@2020-06-01' = [for duplicatesEverywhere in range(0, 3): {
   name: 'vnet-${duplicatesEverywhere}'
   properties: {

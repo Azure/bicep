@@ -70,22 +70,22 @@ resource baz 'Foo.Rp/bar@2019-06-01' = if (something == foo) {
 module module1Deploy 'nested/module1.bicep' = if ((1 + 2) == 3) {
   name: 'module1Deploy'
   params: {
-//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "bar", "baz", "foo". (CodeDescription: none) |params|
     location: location
-//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |location|
     objectParam: objectVar
-//@[4:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
+//@[04:15) [BCP037 (Error)] The property "objectParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |objectParam|
     arrayParam: arrayVar
-//@[4:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
+//@[04:14) [BCP037 (Error)] The property "arrayParam" is not allowed on objects of type "params". Permissible properties include "bar", "baz", "foo", "qux". (CodeDescription: none) |arrayParam|
   }
 }
 
 module module2Deploy 'nested/module2.bicep' = if ((1 + 2) == 3) {
   name: 'module2Deploy'
   params: {
-//@[2:8) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
+//@[02:08) [BCP035 (Error)] The specified "object" declaration is missing the following required properties: "stringParam". (CodeDescription: none) |params|
     location: location
-//@[4:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
+//@[04:12) [BCP037 (Error)] The property "location" is not allowed on objects of type "params". Permissible properties include "stringParam". (CodeDescription: none) |location|
     objectParam: objectVar
     arrayParam: arrayVar
   }

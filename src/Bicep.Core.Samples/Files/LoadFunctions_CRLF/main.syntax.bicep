@@ -1,807 +1,808 @@
 var loadedText1 = loadTextContent('Assets/TextFile.CRLF.txt')
-//@[0:61) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |loadedText1|
-//@[16:17)  Assignment |=|
-//@[18:61)  FunctionCallSyntax
-//@[18:33)   IdentifierSyntax
-//@[18:33)    Identifier |loadTextContent|
-//@[33:34)   LeftParen |(|
-//@[34:60)   FunctionArgumentSyntax
-//@[34:60)    StringSyntax
-//@[34:60)     StringComplete |'Assets/TextFile.CRLF.txt'|
-//@[60:61)   RightParen |)|
-//@[61:63) NewLine |\r\n|
+//@[000:2940) ProgramSyntax
+//@[000:0061) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |loadedText1|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0061) | └─FunctionCallSyntax
+//@[018:0033) | | ├─IdentifierSyntax
+//@[018:0033) | | | └─Token(Identifier) |loadTextContent|
+//@[033:0034) | | ├─Token(LeftParen) |(|
+//@[034:0060) | | ├─FunctionArgumentSyntax
+//@[034:0060) | | | └─StringSyntax
+//@[034:0060) | | | | └─Token(StringComplete) |'Assets/TextFile.CRLF.txt'|
+//@[060:0061) | | └─Token(RightParen) |)|
+//@[061:0063) ├─Token(NewLine) |\r\n|
 var loadedText2 = sys.loadTextContent('Assets/TextFile.LF.txt')
-//@[0:63) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |loadedText2|
-//@[16:17)  Assignment |=|
-//@[18:63)  InstanceFunctionCallSyntax
-//@[18:21)   VariableAccessSyntax
-//@[18:21)    IdentifierSyntax
-//@[18:21)     Identifier |sys|
-//@[21:22)   Dot |.|
-//@[22:37)   IdentifierSyntax
-//@[22:37)    Identifier |loadTextContent|
-//@[37:38)   LeftParen |(|
-//@[38:62)   FunctionArgumentSyntax
-//@[38:62)    StringSyntax
-//@[38:62)     StringComplete |'Assets/TextFile.LF.txt'|
-//@[62:63)   RightParen |)|
-//@[63:65) NewLine |\r\n|
+//@[000:0063) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |loadedText2|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0063) | └─InstanceFunctionCallSyntax
+//@[018:0021) | | ├─VariableAccessSyntax
+//@[018:0021) | | | └─IdentifierSyntax
+//@[018:0021) | | | | └─Token(Identifier) |sys|
+//@[021:0022) | | ├─Token(Dot) |.|
+//@[022:0037) | | ├─IdentifierSyntax
+//@[022:0037) | | | └─Token(Identifier) |loadTextContent|
+//@[037:0038) | | ├─Token(LeftParen) |(|
+//@[038:0062) | | ├─FunctionArgumentSyntax
+//@[038:0062) | | | └─StringSyntax
+//@[038:0062) | | | | └─Token(StringComplete) |'Assets/TextFile.LF.txt'|
+//@[062:0063) | | └─Token(RightParen) |)|
+//@[063:0065) ├─Token(NewLine) |\r\n|
 var loadedTextEncoding1 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |loadedTextEncoding1|
-//@[24:25)  Assignment |=|
-//@[26:82)  FunctionCallSyntax
-//@[26:41)   IdentifierSyntax
-//@[26:41)    Identifier |loadTextContent|
-//@[41:42)   LeftParen |(|
-//@[42:70)   FunctionArgumentSyntax
-//@[42:69)    StringSyntax
-//@[42:69)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[69:70)    Comma |,|
-//@[71:81)   FunctionArgumentSyntax
-//@[71:81)    StringSyntax
-//@[71:81)     StringComplete |'us-ascii'|
-//@[81:82)   RightParen |)|
-//@[82:84) NewLine |\r\n|
+//@[000:0082) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0023) | ├─IdentifierSyntax
+//@[004:0023) | | └─Token(Identifier) |loadedTextEncoding1|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0082) | └─FunctionCallSyntax
+//@[026:0041) | | ├─IdentifierSyntax
+//@[026:0041) | | | └─Token(Identifier) |loadTextContent|
+//@[041:0042) | | ├─Token(LeftParen) |(|
+//@[042:0070) | | ├─FunctionArgumentSyntax
+//@[042:0069) | | | ├─StringSyntax
+//@[042:0069) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[069:0070) | | | └─Token(Comma) |,|
+//@[071:0081) | | ├─FunctionArgumentSyntax
+//@[071:0081) | | | └─StringSyntax
+//@[071:0081) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[081:0082) | | └─Token(RightParen) |)|
+//@[082:0084) ├─Token(NewLine) |\r\n|
 var loadedTextEncoding2 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
-//@[0:78) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |loadedTextEncoding2|
-//@[24:25)  Assignment |=|
-//@[26:78)  FunctionCallSyntax
-//@[26:41)   IdentifierSyntax
-//@[26:41)    Identifier |loadTextContent|
-//@[41:42)   LeftParen |(|
-//@[42:69)   FunctionArgumentSyntax
-//@[42:68)    StringSyntax
-//@[42:68)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[68:69)    Comma |,|
-//@[70:77)   FunctionArgumentSyntax
-//@[70:77)    StringSyntax
-//@[70:77)     StringComplete |'utf-8'|
-//@[77:78)   RightParen |)|
-//@[78:80) NewLine |\r\n|
+//@[000:0078) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0023) | ├─IdentifierSyntax
+//@[004:0023) | | └─Token(Identifier) |loadedTextEncoding2|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0078) | └─FunctionCallSyntax
+//@[026:0041) | | ├─IdentifierSyntax
+//@[026:0041) | | | └─Token(Identifier) |loadTextContent|
+//@[041:0042) | | ├─Token(LeftParen) |(|
+//@[042:0069) | | ├─FunctionArgumentSyntax
+//@[042:0068) | | | ├─StringSyntax
+//@[042:0068) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
+//@[068:0069) | | | └─Token(Comma) |,|
+//@[070:0077) | | ├─FunctionArgumentSyntax
+//@[070:0077) | | | └─StringSyntax
+//@[070:0077) | | | | └─Token(StringComplete) |'utf-8'|
+//@[077:0078) | | └─Token(RightParen) |)|
+//@[078:0080) ├─Token(NewLine) |\r\n|
 var loadedTextEncoding3 = loadTextContent('Assets/encoding-utf16.txt', 'utf-16')
-//@[0:80) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |loadedTextEncoding3|
-//@[24:25)  Assignment |=|
-//@[26:80)  FunctionCallSyntax
-//@[26:41)   IdentifierSyntax
-//@[26:41)    Identifier |loadTextContent|
-//@[41:42)   LeftParen |(|
-//@[42:70)   FunctionArgumentSyntax
-//@[42:69)    StringSyntax
-//@[42:69)     StringComplete |'Assets/encoding-utf16.txt'|
-//@[69:70)    Comma |,|
-//@[71:79)   FunctionArgumentSyntax
-//@[71:79)    StringSyntax
-//@[71:79)     StringComplete |'utf-16'|
-//@[79:80)   RightParen |)|
-//@[80:82) NewLine |\r\n|
+//@[000:0080) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0023) | ├─IdentifierSyntax
+//@[004:0023) | | └─Token(Identifier) |loadedTextEncoding3|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0080) | └─FunctionCallSyntax
+//@[026:0041) | | ├─IdentifierSyntax
+//@[026:0041) | | | └─Token(Identifier) |loadTextContent|
+//@[041:0042) | | ├─Token(LeftParen) |(|
+//@[042:0070) | | ├─FunctionArgumentSyntax
+//@[042:0069) | | | ├─StringSyntax
+//@[042:0069) | | | | └─Token(StringComplete) |'Assets/encoding-utf16.txt'|
+//@[069:0070) | | | └─Token(Comma) |,|
+//@[071:0079) | | ├─FunctionArgumentSyntax
+//@[071:0079) | | | └─StringSyntax
+//@[071:0079) | | | | └─Token(StringComplete) |'utf-16'|
+//@[079:0080) | | └─Token(RightParen) |)|
+//@[080:0082) ├─Token(NewLine) |\r\n|
 var loadedTextEncoding4 = loadTextContent('Assets/encoding-utf16be.txt', 'utf-16BE')
-//@[0:84) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |loadedTextEncoding4|
-//@[24:25)  Assignment |=|
-//@[26:84)  FunctionCallSyntax
-//@[26:41)   IdentifierSyntax
-//@[26:41)    Identifier |loadTextContent|
-//@[41:42)   LeftParen |(|
-//@[42:72)   FunctionArgumentSyntax
-//@[42:71)    StringSyntax
-//@[42:71)     StringComplete |'Assets/encoding-utf16be.txt'|
-//@[71:72)    Comma |,|
-//@[73:83)   FunctionArgumentSyntax
-//@[73:83)    StringSyntax
-//@[73:83)     StringComplete |'utf-16BE'|
-//@[83:84)   RightParen |)|
-//@[84:86) NewLine |\r\n|
+//@[000:0084) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0023) | ├─IdentifierSyntax
+//@[004:0023) | | └─Token(Identifier) |loadedTextEncoding4|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0084) | └─FunctionCallSyntax
+//@[026:0041) | | ├─IdentifierSyntax
+//@[026:0041) | | | └─Token(Identifier) |loadTextContent|
+//@[041:0042) | | ├─Token(LeftParen) |(|
+//@[042:0072) | | ├─FunctionArgumentSyntax
+//@[042:0071) | | | ├─StringSyntax
+//@[042:0071) | | | | └─Token(StringComplete) |'Assets/encoding-utf16be.txt'|
+//@[071:0072) | | | └─Token(Comma) |,|
+//@[073:0083) | | ├─FunctionArgumentSyntax
+//@[073:0083) | | | └─StringSyntax
+//@[073:0083) | | | | └─Token(StringComplete) |'utf-16BE'|
+//@[083:0084) | | └─Token(RightParen) |)|
+//@[084:0086) ├─Token(NewLine) |\r\n|
 var loadedTextEncoding5 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
-//@[0:82) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:23)  IdentifierSyntax
-//@[4:23)   Identifier |loadedTextEncoding5|
-//@[24:25)  Assignment |=|
-//@[26:82)  FunctionCallSyntax
-//@[26:41)   IdentifierSyntax
-//@[26:41)    Identifier |loadTextContent|
-//@[41:42)   LeftParen |(|
-//@[42:68)   FunctionArgumentSyntax
-//@[42:67)    StringSyntax
-//@[42:67)     StringComplete |'Assets/encoding-iso.txt'|
-//@[67:68)    Comma |,|
-//@[69:81)   FunctionArgumentSyntax
-//@[69:81)    StringSyntax
-//@[69:81)     StringComplete |'iso-8859-1'|
-//@[81:82)   RightParen |)|
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:0082) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0023) | ├─IdentifierSyntax
+//@[004:0023) | | └─Token(Identifier) |loadedTextEncoding5|
+//@[024:0025) | ├─Token(Assignment) |=|
+//@[026:0082) | └─FunctionCallSyntax
+//@[026:0041) | | ├─IdentifierSyntax
+//@[026:0041) | | | └─Token(Identifier) |loadTextContent|
+//@[041:0042) | | ├─Token(LeftParen) |(|
+//@[042:0068) | | ├─FunctionArgumentSyntax
+//@[042:0067) | | | ├─StringSyntax
+//@[042:0067) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
+//@[067:0068) | | | └─Token(Comma) |,|
+//@[069:0081) | | ├─FunctionArgumentSyntax
+//@[069:0081) | | | └─StringSyntax
+//@[069:0081) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[081:0082) | | └─Token(RightParen) |)|
+//@[082:0086) ├─Token(NewLine) |\r\n\r\n|
 
 var loadedBinary1 = loadFileAsBase64('Assets/binary')
-//@[0:53) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:17)  IdentifierSyntax
-//@[4:17)   Identifier |loadedBinary1|
-//@[18:19)  Assignment |=|
-//@[20:53)  FunctionCallSyntax
-//@[20:36)   IdentifierSyntax
-//@[20:36)    Identifier |loadFileAsBase64|
-//@[36:37)   LeftParen |(|
-//@[37:52)   FunctionArgumentSyntax
-//@[37:52)    StringSyntax
-//@[37:52)     StringComplete |'Assets/binary'|
-//@[52:53)   RightParen |)|
-//@[53:55) NewLine |\r\n|
+//@[000:0053) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0017) | ├─IdentifierSyntax
+//@[004:0017) | | └─Token(Identifier) |loadedBinary1|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0053) | └─FunctionCallSyntax
+//@[020:0036) | | ├─IdentifierSyntax
+//@[020:0036) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[036:0037) | | ├─Token(LeftParen) |(|
+//@[037:0052) | | ├─FunctionArgumentSyntax
+//@[037:0052) | | | └─StringSyntax
+//@[037:0052) | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[052:0053) | | └─Token(RightParen) |)|
+//@[053:0055) ├─Token(NewLine) |\r\n|
 var loadedBinary2 = sys.loadFileAsBase64('Assets/binary')
-//@[0:57) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:17)  IdentifierSyntax
-//@[4:17)   Identifier |loadedBinary2|
-//@[18:19)  Assignment |=|
-//@[20:57)  InstanceFunctionCallSyntax
-//@[20:23)   VariableAccessSyntax
-//@[20:23)    IdentifierSyntax
-//@[20:23)     Identifier |sys|
-//@[23:24)   Dot |.|
-//@[24:40)   IdentifierSyntax
-//@[24:40)    Identifier |loadFileAsBase64|
-//@[40:41)   LeftParen |(|
-//@[41:56)   FunctionArgumentSyntax
-//@[41:56)    StringSyntax
-//@[41:56)     StringComplete |'Assets/binary'|
-//@[56:57)   RightParen |)|
-//@[57:61) NewLine |\r\n\r\n|
+//@[000:0057) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0017) | ├─IdentifierSyntax
+//@[004:0017) | | └─Token(Identifier) |loadedBinary2|
+//@[018:0019) | ├─Token(Assignment) |=|
+//@[020:0057) | └─InstanceFunctionCallSyntax
+//@[020:0023) | | ├─VariableAccessSyntax
+//@[020:0023) | | | └─IdentifierSyntax
+//@[020:0023) | | | | └─Token(Identifier) |sys|
+//@[023:0024) | | ├─Token(Dot) |.|
+//@[024:0040) | | ├─IdentifierSyntax
+//@[024:0040) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[040:0041) | | ├─Token(LeftParen) |(|
+//@[041:0056) | | ├─FunctionArgumentSyntax
+//@[041:0056) | | | └─StringSyntax
+//@[041:0056) | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[056:0057) | | └─Token(RightParen) |)|
+//@[057:0061) ├─Token(NewLine) |\r\n\r\n|
 
 var loadedTextInterpolation1 = 'Text: ${loadTextContent('Assets/TextFile.CRLF.txt')}'
-//@[0:85) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:28)  IdentifierSyntax
-//@[4:28)   Identifier |loadedTextInterpolation1|
-//@[29:30)  Assignment |=|
-//@[31:85)  StringSyntax
-//@[31:40)   StringLeftPiece |'Text: ${|
-//@[40:83)   FunctionCallSyntax
-//@[40:55)    IdentifierSyntax
-//@[40:55)     Identifier |loadTextContent|
-//@[55:56)    LeftParen |(|
-//@[56:82)    FunctionArgumentSyntax
-//@[56:82)     StringSyntax
-//@[56:82)      StringComplete |'Assets/TextFile.CRLF.txt'|
-//@[82:83)    RightParen |)|
-//@[83:85)   StringRightPiece |}'|
-//@[85:87) NewLine |\r\n|
+//@[000:0085) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0028) | ├─IdentifierSyntax
+//@[004:0028) | | └─Token(Identifier) |loadedTextInterpolation1|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0085) | └─StringSyntax
+//@[031:0040) | | ├─Token(StringLeftPiece) |'Text: ${|
+//@[040:0083) | | ├─FunctionCallSyntax
+//@[040:0055) | | | ├─IdentifierSyntax
+//@[040:0055) | | | | └─Token(Identifier) |loadTextContent|
+//@[055:0056) | | | ├─Token(LeftParen) |(|
+//@[056:0082) | | | ├─FunctionArgumentSyntax
+//@[056:0082) | | | | └─StringSyntax
+//@[056:0082) | | | | | └─Token(StringComplete) |'Assets/TextFile.CRLF.txt'|
+//@[082:0083) | | | └─Token(RightParen) |)|
+//@[083:0085) | | └─Token(StringRightPiece) |}'|
+//@[085:0087) ├─Token(NewLine) |\r\n|
 var loadedTextInterpolation2 = 'Text: ${loadTextContent('Assets/TextFile.LF.txt')}'
-//@[0:83) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:28)  IdentifierSyntax
-//@[4:28)   Identifier |loadedTextInterpolation2|
-//@[29:30)  Assignment |=|
-//@[31:83)  StringSyntax
-//@[31:40)   StringLeftPiece |'Text: ${|
-//@[40:81)   FunctionCallSyntax
-//@[40:55)    IdentifierSyntax
-//@[40:55)     Identifier |loadTextContent|
-//@[55:56)    LeftParen |(|
-//@[56:80)    FunctionArgumentSyntax
-//@[56:80)     StringSyntax
-//@[56:80)      StringComplete |'Assets/TextFile.LF.txt'|
-//@[80:81)    RightParen |)|
-//@[81:83)   StringRightPiece |}'|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:0083) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0028) | ├─IdentifierSyntax
+//@[004:0028) | | └─Token(Identifier) |loadedTextInterpolation2|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0083) | └─StringSyntax
+//@[031:0040) | | ├─Token(StringLeftPiece) |'Text: ${|
+//@[040:0081) | | ├─FunctionCallSyntax
+//@[040:0055) | | | ├─IdentifierSyntax
+//@[040:0055) | | | | └─Token(Identifier) |loadTextContent|
+//@[055:0056) | | | ├─Token(LeftParen) |(|
+//@[056:0080) | | | ├─FunctionArgumentSyntax
+//@[056:0080) | | | | └─StringSyntax
+//@[056:0080) | | | | | └─Token(StringComplete) |'Assets/TextFile.LF.txt'|
+//@[080:0081) | | | └─Token(RightParen) |)|
+//@[081:0083) | | └─Token(StringRightPiece) |}'|
+//@[083:0087) ├─Token(NewLine) |\r\n\r\n|
 
 var loadedTextObject1 = {
-//@[0:84) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:21)  IdentifierSyntax
-//@[4:21)   Identifier |loadedTextObject1|
-//@[22:23)  Assignment |=|
-//@[24:84)  ObjectSyntax
-//@[24:25)   LeftBrace |{|
-//@[25:27)   NewLine |\r\n|
+//@[000:0084) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0021) | ├─IdentifierSyntax
+//@[004:0021) | | └─Token(Identifier) |loadedTextObject1|
+//@[022:0023) | ├─Token(Assignment) |=|
+//@[024:0084) | └─ObjectSyntax
+//@[024:0025) | | ├─Token(LeftBrace) |{|
+//@[025:0027) | | ├─Token(NewLine) |\r\n|
   'text' : loadTextContent('Assets/TextFile.CRLF.txt')
-//@[2:54)   ObjectPropertySyntax
-//@[2:8)    StringSyntax
-//@[2:8)     StringComplete |'text'|
-//@[9:10)    Colon |:|
-//@[11:54)    FunctionCallSyntax
-//@[11:26)     IdentifierSyntax
-//@[11:26)      Identifier |loadTextContent|
-//@[26:27)     LeftParen |(|
-//@[27:53)     FunctionArgumentSyntax
-//@[27:53)      StringSyntax
-//@[27:53)       StringComplete |'Assets/TextFile.CRLF.txt'|
-//@[53:54)     RightParen |)|
-//@[54:56)   NewLine |\r\n|
+//@[002:0054) | | ├─ObjectPropertySyntax
+//@[002:0008) | | | ├─StringSyntax
+//@[002:0008) | | | | └─Token(StringComplete) |'text'|
+//@[009:0010) | | | ├─Token(Colon) |:|
+//@[011:0054) | | | └─FunctionCallSyntax
+//@[011:0026) | | | | ├─IdentifierSyntax
+//@[011:0026) | | | | | └─Token(Identifier) |loadTextContent|
+//@[026:0027) | | | | ├─Token(LeftParen) |(|
+//@[027:0053) | | | | ├─FunctionArgumentSyntax
+//@[027:0053) | | | | | └─StringSyntax
+//@[027:0053) | | | | | | └─Token(StringComplete) |'Assets/TextFile.CRLF.txt'|
+//@[053:0054) | | | | └─Token(RightParen) |)|
+//@[054:0056) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 var loadedTextObject2 = {
-//@[0:84) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:21)  IdentifierSyntax
-//@[4:21)   Identifier |loadedTextObject2|
-//@[22:23)  Assignment |=|
-//@[24:84)  ObjectSyntax
-//@[24:25)   LeftBrace |{|
-//@[25:27)   NewLine |\r\n|
+//@[000:0084) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0021) | ├─IdentifierSyntax
+//@[004:0021) | | └─Token(Identifier) |loadedTextObject2|
+//@[022:0023) | ├─Token(Assignment) |=|
+//@[024:0084) | └─ObjectSyntax
+//@[024:0025) | | ├─Token(LeftBrace) |{|
+//@[025:0027) | | ├─Token(NewLine) |\r\n|
   'text' : loadTextContent('Assets/TextFile.LF.txt')  
-//@[2:52)   ObjectPropertySyntax
-//@[2:8)    StringSyntax
-//@[2:8)     StringComplete |'text'|
-//@[9:10)    Colon |:|
-//@[11:52)    FunctionCallSyntax
-//@[11:26)     IdentifierSyntax
-//@[11:26)      Identifier |loadTextContent|
-//@[26:27)     LeftParen |(|
-//@[27:51)     FunctionArgumentSyntax
-//@[27:51)      StringSyntax
-//@[27:51)       StringComplete |'Assets/TextFile.LF.txt'|
-//@[51:52)     RightParen |)|
-//@[54:56)   NewLine |\r\n|
+//@[002:0052) | | ├─ObjectPropertySyntax
+//@[002:0008) | | | ├─StringSyntax
+//@[002:0008) | | | | └─Token(StringComplete) |'text'|
+//@[009:0010) | | | ├─Token(Colon) |:|
+//@[011:0052) | | | └─FunctionCallSyntax
+//@[011:0026) | | | | ├─IdentifierSyntax
+//@[011:0026) | | | | | └─Token(Identifier) |loadTextContent|
+//@[026:0027) | | | | ├─Token(LeftParen) |(|
+//@[027:0051) | | | | ├─FunctionArgumentSyntax
+//@[027:0051) | | | | | └─StringSyntax
+//@[027:0051) | | | | | | └─Token(StringComplete) |'Assets/TextFile.LF.txt'|
+//@[051:0052) | | | | └─Token(RightParen) |)|
+//@[054:0056) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0003) ├─Token(NewLine) |\r\n|
 var loadedBinaryInObject = {
-//@[0:74) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:24)  IdentifierSyntax
-//@[4:24)   Identifier |loadedBinaryInObject|
-//@[25:26)  Assignment |=|
-//@[27:74)  ObjectSyntax
-//@[27:28)   LeftBrace |{|
-//@[28:30)   NewLine |\r\n|
+//@[000:0074) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0024) | ├─IdentifierSyntax
+//@[004:0024) | | └─Token(Identifier) |loadedBinaryInObject|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0074) | └─ObjectSyntax
+//@[027:0028) | | ├─Token(LeftBrace) |{|
+//@[028:0030) | | ├─Token(NewLine) |\r\n|
   file: loadFileAsBase64('Assets/binary')
-//@[2:41)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |file|
-//@[6:7)    Colon |:|
-//@[8:41)    FunctionCallSyntax
-//@[8:24)     IdentifierSyntax
-//@[8:24)      Identifier |loadFileAsBase64|
-//@[24:25)     LeftParen |(|
-//@[25:40)     FunctionArgumentSyntax
-//@[25:40)      StringSyntax
-//@[25:40)       StringComplete |'Assets/binary'|
-//@[40:41)     RightParen |)|
-//@[41:43)   NewLine |\r\n|
+//@[002:0041) | | ├─ObjectPropertySyntax
+//@[002:0006) | | | ├─IdentifierSyntax
+//@[002:0006) | | | | └─Token(Identifier) |file|
+//@[006:0007) | | | ├─Token(Colon) |:|
+//@[008:0041) | | | └─FunctionCallSyntax
+//@[008:0024) | | | | ├─IdentifierSyntax
+//@[008:0024) | | | | | └─Token(Identifier) |loadFileAsBase64|
+//@[024:0025) | | | | ├─Token(LeftParen) |(|
+//@[025:0040) | | | | ├─FunctionArgumentSyntax
+//@[025:0040) | | | | | └─StringSyntax
+//@[025:0040) | | | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[040:0041) | | | | └─Token(RightParen) |)|
+//@[041:0043) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 var loadedTextArray = [
-//@[0:108) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:19)  IdentifierSyntax
-//@[4:19)   Identifier |loadedTextArray|
-//@[20:21)  Assignment |=|
-//@[22:108)  ArraySyntax
-//@[22:23)   LeftSquare |[|
-//@[23:25)   NewLine |\r\n|
+//@[000:0108) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0019) | ├─IdentifierSyntax
+//@[004:0019) | | └─Token(Identifier) |loadedTextArray|
+//@[020:0021) | ├─Token(Assignment) |=|
+//@[022:0108) | └─ArraySyntax
+//@[022:0023) | | ├─Token(LeftSquare) |[|
+//@[023:0025) | | ├─Token(NewLine) |\r\n|
   loadTextContent('Assets/TextFile.LF.txt')
-//@[2:43)   ArrayItemSyntax
-//@[2:43)    FunctionCallSyntax
-//@[2:17)     IdentifierSyntax
-//@[2:17)      Identifier |loadTextContent|
-//@[17:18)     LeftParen |(|
-//@[18:42)     FunctionArgumentSyntax
-//@[18:42)      StringSyntax
-//@[18:42)       StringComplete |'Assets/TextFile.LF.txt'|
-//@[42:43)     RightParen |)|
-//@[43:45)   NewLine |\r\n|
+//@[002:0043) | | ├─ArrayItemSyntax
+//@[002:0043) | | | └─FunctionCallSyntax
+//@[002:0017) | | | | ├─IdentifierSyntax
+//@[002:0017) | | | | | └─Token(Identifier) |loadTextContent|
+//@[017:0018) | | | | ├─Token(LeftParen) |(|
+//@[018:0042) | | | | ├─FunctionArgumentSyntax
+//@[018:0042) | | | | | └─StringSyntax
+//@[018:0042) | | | | | | └─Token(StringComplete) |'Assets/TextFile.LF.txt'|
+//@[042:0043) | | | | └─Token(RightParen) |)|
+//@[043:0045) | | ├─Token(NewLine) |\r\n|
   loadFileAsBase64('Assets/binary')
-//@[2:35)   ArrayItemSyntax
-//@[2:35)    FunctionCallSyntax
-//@[2:18)     IdentifierSyntax
-//@[2:18)      Identifier |loadFileAsBase64|
-//@[18:19)     LeftParen |(|
-//@[19:34)     FunctionArgumentSyntax
-//@[19:34)      StringSyntax
-//@[19:34)       StringComplete |'Assets/binary'|
-//@[34:35)     RightParen |)|
-//@[35:37)   NewLine |\r\n|
+//@[002:0035) | | ├─ArrayItemSyntax
+//@[002:0035) | | | └─FunctionCallSyntax
+//@[002:0018) | | | | ├─IdentifierSyntax
+//@[002:0018) | | | | | └─Token(Identifier) |loadFileAsBase64|
+//@[018:0019) | | | | ├─Token(LeftParen) |(|
+//@[019:0034) | | | | ├─FunctionArgumentSyntax
+//@[019:0034) | | | | | └─StringSyntax
+//@[019:0034) | | | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[034:0035) | | | | └─Token(RightParen) |)|
+//@[035:0037) | | ├─Token(NewLine) |\r\n|
 ]
-//@[0:1)   RightSquare |]|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightSquare) |]|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 var loadedTextArrayInObject = {
-//@[0:142) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:27)  IdentifierSyntax
-//@[4:27)   Identifier |loadedTextArrayInObject|
-//@[28:29)  Assignment |=|
-//@[30:142)  ObjectSyntax
-//@[30:31)   LeftBrace |{|
-//@[31:33)   NewLine |\r\n|
+//@[000:0142) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0027) | ├─IdentifierSyntax
+//@[004:0027) | | └─Token(Identifier) |loadedTextArrayInObject|
+//@[028:0029) | ├─Token(Assignment) |=|
+//@[030:0142) | └─ObjectSyntax
+//@[030:0031) | | ├─Token(LeftBrace) |{|
+//@[031:0033) | | ├─Token(NewLine) |\r\n|
   'files' : [
-//@[2:106)   ObjectPropertySyntax
-//@[2:9)    StringSyntax
-//@[2:9)     StringComplete |'files'|
-//@[10:11)    Colon |:|
-//@[12:106)    ArraySyntax
-//@[12:13)     LeftSquare |[|
-//@[13:15)     NewLine |\r\n|
+//@[002:0106) | | ├─ObjectPropertySyntax
+//@[002:0009) | | | ├─StringSyntax
+//@[002:0009) | | | | └─Token(StringComplete) |'files'|
+//@[010:0011) | | | ├─Token(Colon) |:|
+//@[012:0106) | | | └─ArraySyntax
+//@[012:0013) | | | | ├─Token(LeftSquare) |[|
+//@[013:0015) | | | | ├─Token(NewLine) |\r\n|
     loadTextContent('Assets/TextFile.CRLF.txt')
-//@[4:47)     ArrayItemSyntax
-//@[4:47)      FunctionCallSyntax
-//@[4:19)       IdentifierSyntax
-//@[4:19)        Identifier |loadTextContent|
-//@[19:20)       LeftParen |(|
-//@[20:46)       FunctionArgumentSyntax
-//@[20:46)        StringSyntax
-//@[20:46)         StringComplete |'Assets/TextFile.CRLF.txt'|
-//@[46:47)       RightParen |)|
-//@[47:49)     NewLine |\r\n|
+//@[004:0047) | | | | ├─ArrayItemSyntax
+//@[004:0047) | | | | | └─FunctionCallSyntax
+//@[004:0019) | | | | | | ├─IdentifierSyntax
+//@[004:0019) | | | | | | | └─Token(Identifier) |loadTextContent|
+//@[019:0020) | | | | | | ├─Token(LeftParen) |(|
+//@[020:0046) | | | | | | ├─FunctionArgumentSyntax
+//@[020:0046) | | | | | | | └─StringSyntax
+//@[020:0046) | | | | | | | | └─Token(StringComplete) |'Assets/TextFile.CRLF.txt'|
+//@[046:0047) | | | | | | └─Token(RightParen) |)|
+//@[047:0049) | | | | ├─Token(NewLine) |\r\n|
     loadFileAsBase64('Assets/binary')
-//@[4:37)     ArrayItemSyntax
-//@[4:37)      FunctionCallSyntax
-//@[4:20)       IdentifierSyntax
-//@[4:20)        Identifier |loadFileAsBase64|
-//@[20:21)       LeftParen |(|
-//@[21:36)       FunctionArgumentSyntax
-//@[21:36)        StringSyntax
-//@[21:36)         StringComplete |'Assets/binary'|
-//@[36:37)       RightParen |)|
-//@[37:39)     NewLine |\r\n|
+//@[004:0037) | | | | ├─ArrayItemSyntax
+//@[004:0037) | | | | | └─FunctionCallSyntax
+//@[004:0020) | | | | | | ├─IdentifierSyntax
+//@[004:0020) | | | | | | | └─Token(Identifier) |loadFileAsBase64|
+//@[020:0021) | | | | | | ├─Token(LeftParen) |(|
+//@[021:0036) | | | | | | ├─FunctionArgumentSyntax
+//@[021:0036) | | | | | | | └─StringSyntax
+//@[021:0036) | | | | | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[036:0037) | | | | | | └─Token(RightParen) |)|
+//@[037:0039) | | | | ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) | | | | └─Token(RightSquare) |]|
+//@[003:0005) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 var loadedTextArrayInObjectFunctions = {
-//@[0:277) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:36)  IdentifierSyntax
-//@[4:36)   Identifier |loadedTextArrayInObjectFunctions|
-//@[37:38)  Assignment |=|
-//@[39:277)  ObjectSyntax
-//@[39:40)   LeftBrace |{|
-//@[40:42)   NewLine |\r\n|
+//@[000:0277) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0036) | ├─IdentifierSyntax
+//@[004:0036) | | └─Token(Identifier) |loadedTextArrayInObjectFunctions|
+//@[037:0038) | ├─Token(Assignment) |=|
+//@[039:0277) | └─ObjectSyntax
+//@[039:0040) | | ├─Token(LeftBrace) |{|
+//@[040:0042) | | ├─Token(NewLine) |\r\n|
   'files' : [
-//@[2:232)   ObjectPropertySyntax
-//@[2:9)    StringSyntax
-//@[2:9)     StringComplete |'files'|
-//@[10:11)    Colon |:|
-//@[12:232)    ArraySyntax
-//@[12:13)     LeftSquare |[|
-//@[13:15)     NewLine |\r\n|
+//@[002:0232) | | ├─ObjectPropertySyntax
+//@[002:0009) | | | ├─StringSyntax
+//@[002:0009) | | | | └─Token(StringComplete) |'files'|
+//@[010:0011) | | | ├─Token(Colon) |:|
+//@[012:0232) | | | └─ArraySyntax
+//@[012:0013) | | | | ├─Token(LeftSquare) |[|
+//@[013:0015) | | | | ├─Token(NewLine) |\r\n|
     length(loadTextContent('Assets/TextFile.CRLF.txt'))
-//@[4:55)     ArrayItemSyntax
-//@[4:55)      FunctionCallSyntax
-//@[4:10)       IdentifierSyntax
-//@[4:10)        Identifier |length|
-//@[10:11)       LeftParen |(|
-//@[11:54)       FunctionArgumentSyntax
-//@[11:54)        FunctionCallSyntax
-//@[11:26)         IdentifierSyntax
-//@[11:26)          Identifier |loadTextContent|
-//@[26:27)         LeftParen |(|
-//@[27:53)         FunctionArgumentSyntax
-//@[27:53)          StringSyntax
-//@[27:53)           StringComplete |'Assets/TextFile.CRLF.txt'|
-//@[53:54)         RightParen |)|
-//@[54:55)       RightParen |)|
-//@[55:57)     NewLine |\r\n|
+//@[004:0055) | | | | ├─ArrayItemSyntax
+//@[004:0055) | | | | | └─FunctionCallSyntax
+//@[004:0010) | | | | | | ├─IdentifierSyntax
+//@[004:0010) | | | | | | | └─Token(Identifier) |length|
+//@[010:0011) | | | | | | ├─Token(LeftParen) |(|
+//@[011:0054) | | | | | | ├─FunctionArgumentSyntax
+//@[011:0054) | | | | | | | └─FunctionCallSyntax
+//@[011:0026) | | | | | | | | ├─IdentifierSyntax
+//@[011:0026) | | | | | | | | | └─Token(Identifier) |loadTextContent|
+//@[026:0027) | | | | | | | | ├─Token(LeftParen) |(|
+//@[027:0053) | | | | | | | | ├─FunctionArgumentSyntax
+//@[027:0053) | | | | | | | | | └─StringSyntax
+//@[027:0053) | | | | | | | | | | └─Token(StringComplete) |'Assets/TextFile.CRLF.txt'|
+//@[053:0054) | | | | | | | | └─Token(RightParen) |)|
+//@[054:0055) | | | | | | └─Token(RightParen) |)|
+//@[055:0057) | | | | ├─Token(NewLine) |\r\n|
     sys.length(loadTextContent('Assets/TextFile.LF.txt'))
-//@[4:57)     ArrayItemSyntax
-//@[4:57)      InstanceFunctionCallSyntax
-//@[4:7)       VariableAccessSyntax
-//@[4:7)        IdentifierSyntax
-//@[4:7)         Identifier |sys|
-//@[7:8)       Dot |.|
-//@[8:14)       IdentifierSyntax
-//@[8:14)        Identifier |length|
-//@[14:15)       LeftParen |(|
-//@[15:56)       FunctionArgumentSyntax
-//@[15:56)        FunctionCallSyntax
-//@[15:30)         IdentifierSyntax
-//@[15:30)          Identifier |loadTextContent|
-//@[30:31)         LeftParen |(|
-//@[31:55)         FunctionArgumentSyntax
-//@[31:55)          StringSyntax
-//@[31:55)           StringComplete |'Assets/TextFile.LF.txt'|
-//@[55:56)         RightParen |)|
-//@[56:57)       RightParen |)|
-//@[57:59)     NewLine |\r\n|
+//@[004:0057) | | | | ├─ArrayItemSyntax
+//@[004:0057) | | | | | └─InstanceFunctionCallSyntax
+//@[004:0007) | | | | | | ├─VariableAccessSyntax
+//@[004:0007) | | | | | | | └─IdentifierSyntax
+//@[004:0007) | | | | | | | | └─Token(Identifier) |sys|
+//@[007:0008) | | | | | | ├─Token(Dot) |.|
+//@[008:0014) | | | | | | ├─IdentifierSyntax
+//@[008:0014) | | | | | | | └─Token(Identifier) |length|
+//@[014:0015) | | | | | | ├─Token(LeftParen) |(|
+//@[015:0056) | | | | | | ├─FunctionArgumentSyntax
+//@[015:0056) | | | | | | | └─FunctionCallSyntax
+//@[015:0030) | | | | | | | | ├─IdentifierSyntax
+//@[015:0030) | | | | | | | | | └─Token(Identifier) |loadTextContent|
+//@[030:0031) | | | | | | | | ├─Token(LeftParen) |(|
+//@[031:0055) | | | | | | | | ├─FunctionArgumentSyntax
+//@[031:0055) | | | | | | | | | └─StringSyntax
+//@[031:0055) | | | | | | | | | | └─Token(StringComplete) |'Assets/TextFile.LF.txt'|
+//@[055:0056) | | | | | | | | └─Token(RightParen) |)|
+//@[056:0057) | | | | | | └─Token(RightParen) |)|
+//@[057:0059) | | | | ├─Token(NewLine) |\r\n|
     length(loadFileAsBase64('Assets/binary'))
-//@[4:45)     ArrayItemSyntax
-//@[4:45)      FunctionCallSyntax
-//@[4:10)       IdentifierSyntax
-//@[4:10)        Identifier |length|
-//@[10:11)       LeftParen |(|
-//@[11:44)       FunctionArgumentSyntax
-//@[11:44)        FunctionCallSyntax
-//@[11:27)         IdentifierSyntax
-//@[11:27)          Identifier |loadFileAsBase64|
-//@[27:28)         LeftParen |(|
-//@[28:43)         FunctionArgumentSyntax
-//@[28:43)          StringSyntax
-//@[28:43)           StringComplete |'Assets/binary'|
-//@[43:44)         RightParen |)|
-//@[44:45)       RightParen |)|
-//@[45:47)     NewLine |\r\n|
+//@[004:0045) | | | | ├─ArrayItemSyntax
+//@[004:0045) | | | | | └─FunctionCallSyntax
+//@[004:0010) | | | | | | ├─IdentifierSyntax
+//@[004:0010) | | | | | | | └─Token(Identifier) |length|
+//@[010:0011) | | | | | | ├─Token(LeftParen) |(|
+//@[011:0044) | | | | | | ├─FunctionArgumentSyntax
+//@[011:0044) | | | | | | | └─FunctionCallSyntax
+//@[011:0027) | | | | | | | | ├─IdentifierSyntax
+//@[011:0027) | | | | | | | | | └─Token(Identifier) |loadFileAsBase64|
+//@[027:0028) | | | | | | | | ├─Token(LeftParen) |(|
+//@[028:0043) | | | | | | | | ├─FunctionArgumentSyntax
+//@[028:0043) | | | | | | | | | └─StringSyntax
+//@[028:0043) | | | | | | | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[043:0044) | | | | | | | | └─Token(RightParen) |)|
+//@[044:0045) | | | | | | └─Token(RightParen) |)|
+//@[045:0047) | | | | ├─Token(NewLine) |\r\n|
     sys.length(loadFileAsBase64('Assets/binary'))
-//@[4:49)     ArrayItemSyntax
-//@[4:49)      InstanceFunctionCallSyntax
-//@[4:7)       VariableAccessSyntax
-//@[4:7)        IdentifierSyntax
-//@[4:7)         Identifier |sys|
-//@[7:8)       Dot |.|
-//@[8:14)       IdentifierSyntax
-//@[8:14)        Identifier |length|
-//@[14:15)       LeftParen |(|
-//@[15:48)       FunctionArgumentSyntax
-//@[15:48)        FunctionCallSyntax
-//@[15:31)         IdentifierSyntax
-//@[15:31)          Identifier |loadFileAsBase64|
-//@[31:32)         LeftParen |(|
-//@[32:47)         FunctionArgumentSyntax
-//@[32:47)          StringSyntax
-//@[32:47)           StringComplete |'Assets/binary'|
-//@[47:48)         RightParen |)|
-//@[48:49)       RightParen |)|
-//@[49:51)     NewLine |\r\n|
+//@[004:0049) | | | | ├─ArrayItemSyntax
+//@[004:0049) | | | | | └─InstanceFunctionCallSyntax
+//@[004:0007) | | | | | | ├─VariableAccessSyntax
+//@[004:0007) | | | | | | | └─IdentifierSyntax
+//@[004:0007) | | | | | | | | └─Token(Identifier) |sys|
+//@[007:0008) | | | | | | ├─Token(Dot) |.|
+//@[008:0014) | | | | | | ├─IdentifierSyntax
+//@[008:0014) | | | | | | | └─Token(Identifier) |length|
+//@[014:0015) | | | | | | ├─Token(LeftParen) |(|
+//@[015:0048) | | | | | | ├─FunctionArgumentSyntax
+//@[015:0048) | | | | | | | └─FunctionCallSyntax
+//@[015:0031) | | | | | | | | ├─IdentifierSyntax
+//@[015:0031) | | | | | | | | | └─Token(Identifier) |loadFileAsBase64|
+//@[031:0032) | | | | | | | | ├─Token(LeftParen) |(|
+//@[032:0047) | | | | | | | | ├─FunctionArgumentSyntax
+//@[032:0047) | | | | | | | | | └─StringSyntax
+//@[032:0047) | | | | | | | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[047:0048) | | | | | | | | └─Token(RightParen) |)|
+//@[048:0049) | | | | | | └─Token(RightParen) |)|
+//@[049:0051) | | | | ├─Token(NewLine) |\r\n|
   ]
-//@[2:3)     RightSquare |]|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) | | | | └─Token(RightSquare) |]|
+//@[003:0005) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:7) NewLine |\r\n\r\n\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0007) ├─Token(NewLine) |\r\n\r\n\r\n|
 
 
 module module1 'modulea.bicep' = {
-//@[0:127) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:14)  IdentifierSyntax
-//@[7:14)   Identifier |module1|
-//@[15:30)  StringSyntax
-//@[15:30)   StringComplete |'modulea.bicep'|
-//@[31:32)  Assignment |=|
-//@[33:127)  ObjectSyntax
-//@[33:34)   LeftBrace |{|
-//@[34:36)   NewLine |\r\n|
+//@[000:0127) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0014) | ├─IdentifierSyntax
+//@[007:0014) | | └─Token(Identifier) |module1|
+//@[015:0030) | ├─StringSyntax
+//@[015:0030) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[031:0032) | ├─Token(Assignment) |=|
+//@[033:0127) | └─ObjectSyntax
+//@[033:0034) | | ├─Token(LeftBrace) |{|
+//@[034:0036) | | ├─Token(NewLine) |\r\n|
   name: 'module1'
-//@[2:17)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:17)    StringSyntax
-//@[8:17)     StringComplete |'module1'|
-//@[17:19)   NewLine |\r\n|
+//@[002:0017) | | ├─ObjectPropertySyntax
+//@[002:0006) | | | ├─IdentifierSyntax
+//@[002:0006) | | | | └─Token(Identifier) |name|
+//@[006:0007) | | | ├─Token(Colon) |:|
+//@[008:0017) | | | └─StringSyntax
+//@[008:0017) | | | | └─Token(StringComplete) |'module1'|
+//@[017:0019) | | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:69)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:69)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0069) | | ├─ObjectPropertySyntax
+//@[002:0008) | | | ├─IdentifierSyntax
+//@[002:0008) | | | | └─Token(Identifier) |params|
+//@[008:0009) | | | ├─Token(Colon) |:|
+//@[010:0069) | | | └─ObjectSyntax
+//@[010:0011) | | | | ├─Token(LeftBrace) |{|
+//@[011:0013) | | | | ├─Token(NewLine) |\r\n|
     text: loadTextContent('Assets/TextFile.LF.txt')
-//@[4:51)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |text|
-//@[8:9)      Colon |:|
-//@[10:51)      FunctionCallSyntax
-//@[10:25)       IdentifierSyntax
-//@[10:25)        Identifier |loadTextContent|
-//@[25:26)       LeftParen |(|
-//@[26:50)       FunctionArgumentSyntax
-//@[26:50)        StringSyntax
-//@[26:50)         StringComplete |'Assets/TextFile.LF.txt'|
-//@[50:51)       RightParen |)|
-//@[51:53)     NewLine |\r\n|
+//@[004:0051) | | | | ├─ObjectPropertySyntax
+//@[004:0008) | | | | | ├─IdentifierSyntax
+//@[004:0008) | | | | | | └─Token(Identifier) |text|
+//@[008:0009) | | | | | ├─Token(Colon) |:|
+//@[010:0051) | | | | | └─FunctionCallSyntax
+//@[010:0025) | | | | | | ├─IdentifierSyntax
+//@[010:0025) | | | | | | | └─Token(Identifier) |loadTextContent|
+//@[025:0026) | | | | | | ├─Token(LeftParen) |(|
+//@[026:0050) | | | | | | ├─FunctionArgumentSyntax
+//@[026:0050) | | | | | | | └─StringSyntax
+//@[026:0050) | | | | | | | | └─Token(StringComplete) |'Assets/TextFile.LF.txt'|
+//@[050:0051) | | | | | | └─Token(RightParen) |)|
+//@[051:0053) | | | | ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) | | | | └─Token(RightBrace) |}|
+//@[003:0005) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 module module2 'modulea.bicep' = {
-//@[0:119) ModuleDeclarationSyntax
-//@[0:6)  Identifier |module|
-//@[7:14)  IdentifierSyntax
-//@[7:14)   Identifier |module2|
-//@[15:30)  StringSyntax
-//@[15:30)   StringComplete |'modulea.bicep'|
-//@[31:32)  Assignment |=|
-//@[33:119)  ObjectSyntax
-//@[33:34)   LeftBrace |{|
-//@[34:36)   NewLine |\r\n|
+//@[000:0119) ├─ModuleDeclarationSyntax
+//@[000:0006) | ├─Token(Identifier) |module|
+//@[007:0014) | ├─IdentifierSyntax
+//@[007:0014) | | └─Token(Identifier) |module2|
+//@[015:0030) | ├─StringSyntax
+//@[015:0030) | | └─Token(StringComplete) |'modulea.bicep'|
+//@[031:0032) | ├─Token(Assignment) |=|
+//@[033:0119) | └─ObjectSyntax
+//@[033:0034) | | ├─Token(LeftBrace) |{|
+//@[034:0036) | | ├─Token(NewLine) |\r\n|
   name: 'module2'
-//@[2:17)   ObjectPropertySyntax
-//@[2:6)    IdentifierSyntax
-//@[2:6)     Identifier |name|
-//@[6:7)    Colon |:|
-//@[8:17)    StringSyntax
-//@[8:17)     StringComplete |'module2'|
-//@[17:19)   NewLine |\r\n|
+//@[002:0017) | | ├─ObjectPropertySyntax
+//@[002:0006) | | | ├─IdentifierSyntax
+//@[002:0006) | | | | └─Token(Identifier) |name|
+//@[006:0007) | | | ├─Token(Colon) |:|
+//@[008:0017) | | | └─StringSyntax
+//@[008:0017) | | | | └─Token(StringComplete) |'module2'|
+//@[017:0019) | | ├─Token(NewLine) |\r\n|
   params: {
-//@[2:61)   ObjectPropertySyntax
-//@[2:8)    IdentifierSyntax
-//@[2:8)     Identifier |params|
-//@[8:9)    Colon |:|
-//@[10:61)    ObjectSyntax
-//@[10:11)     LeftBrace |{|
-//@[11:13)     NewLine |\r\n|
+//@[002:0061) | | ├─ObjectPropertySyntax
+//@[002:0008) | | | ├─IdentifierSyntax
+//@[002:0008) | | | | └─Token(Identifier) |params|
+//@[008:0009) | | | ├─Token(Colon) |:|
+//@[010:0061) | | | └─ObjectSyntax
+//@[010:0011) | | | | ├─Token(LeftBrace) |{|
+//@[011:0013) | | | | ├─Token(NewLine) |\r\n|
     text: loadFileAsBase64('Assets/binary')
-//@[4:43)     ObjectPropertySyntax
-//@[4:8)      IdentifierSyntax
-//@[4:8)       Identifier |text|
-//@[8:9)      Colon |:|
-//@[10:43)      FunctionCallSyntax
-//@[10:26)       IdentifierSyntax
-//@[10:26)        Identifier |loadFileAsBase64|
-//@[26:27)       LeftParen |(|
-//@[27:42)       FunctionArgumentSyntax
-//@[27:42)        StringSyntax
-//@[27:42)         StringComplete |'Assets/binary'|
-//@[42:43)       RightParen |)|
-//@[43:45)     NewLine |\r\n|
+//@[004:0043) | | | | ├─ObjectPropertySyntax
+//@[004:0008) | | | | | ├─IdentifierSyntax
+//@[004:0008) | | | | | | └─Token(Identifier) |text|
+//@[008:0009) | | | | | ├─Token(Colon) |:|
+//@[010:0043) | | | | | └─FunctionCallSyntax
+//@[010:0026) | | | | | | ├─IdentifierSyntax
+//@[010:0026) | | | | | | | └─Token(Identifier) |loadFileAsBase64|
+//@[026:0027) | | | | | | ├─Token(LeftParen) |(|
+//@[027:0042) | | | | | | ├─FunctionArgumentSyntax
+//@[027:0042) | | | | | | | └─StringSyntax
+//@[027:0042) | | | | | | | | └─Token(StringComplete) |'Assets/binary'|
+//@[042:0043) | | | | | | └─Token(RightParen) |)|
+//@[043:0045) | | | | ├─Token(NewLine) |\r\n|
   }
-//@[2:3)     RightBrace |}|
-//@[3:5)   NewLine |\r\n|
+//@[002:0003) | | | | └─Token(RightBrace) |}|
+//@[003:0005) | | ├─Token(NewLine) |\r\n|
 }
-//@[0:1)   RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:0001) | | └─Token(RightBrace) |}|
+//@[001:0005) ├─Token(NewLine) |\r\n\r\n|
 
 var textFileInSubdirectories = loadTextContent('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt')
-//@[0:145) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:28)  IdentifierSyntax
-//@[4:28)   Identifier |textFileInSubdirectories|
-//@[29:30)  Assignment |=|
-//@[31:145)  FunctionCallSyntax
-//@[31:46)   IdentifierSyntax
-//@[31:46)    Identifier |loadTextContent|
-//@[46:47)   LeftParen |(|
-//@[47:144)   FunctionArgumentSyntax
-//@[47:144)    StringSyntax
-//@[47:144)     StringComplete |'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt'|
-//@[144:145)   RightParen |)|
-//@[145:147) NewLine |\r\n|
+//@[000:0145) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0028) | ├─IdentifierSyntax
+//@[004:0028) | | └─Token(Identifier) |textFileInSubdirectories|
+//@[029:0030) | ├─Token(Assignment) |=|
+//@[031:0145) | └─FunctionCallSyntax
+//@[031:0046) | | ├─IdentifierSyntax
+//@[031:0046) | | | └─Token(Identifier) |loadTextContent|
+//@[046:0047) | | ├─Token(LeftParen) |(|
+//@[047:0144) | | ├─FunctionArgumentSyntax
+//@[047:0144) | | | └─StringSyntax
+//@[047:0144) | | | | └─Token(StringComplete) |'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/TextFile.txt'|
+//@[144:0145) | | └─Token(RightParen) |)|
+//@[145:0147) ├─Token(NewLine) |\r\n|
 var binaryFileInSubdirectories = loadFileAsBase64('Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary')
-//@[0:142) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:30)  IdentifierSyntax
-//@[4:30)   Identifier |binaryFileInSubdirectories|
-//@[31:32)  Assignment |=|
-//@[33:142)  FunctionCallSyntax
-//@[33:49)   IdentifierSyntax
-//@[33:49)    Identifier |loadFileAsBase64|
-//@[49:50)   LeftParen |(|
-//@[50:141)   FunctionArgumentSyntax
-//@[50:141)    StringSyntax
-//@[50:141)     StringComplete |'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary'|
-//@[141:142)   RightParen |)|
-//@[142:146) NewLine |\r\n\r\n|
+//@[000:0142) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0030) | ├─IdentifierSyntax
+//@[004:0030) | | └─Token(Identifier) |binaryFileInSubdirectories|
+//@[031:0032) | ├─Token(Assignment) |=|
+//@[033:0142) | └─FunctionCallSyntax
+//@[033:0049) | | ├─IdentifierSyntax
+//@[033:0049) | | | └─Token(Identifier) |loadFileAsBase64|
+//@[049:0050) | | ├─Token(LeftParen) |(|
+//@[050:0141) | | ├─FunctionArgumentSyntax
+//@[050:0141) | | | └─StringSyntax
+//@[050:0141) | | | | └─Token(StringComplete) |'Assets/../Assets/path/../path/../../Assets/path/to/deep/file/../../../to/deep/file/binary'|
+//@[141:0142) | | └─Token(RightParen) |)|
+//@[142:0146) ├─Token(NewLine) |\r\n\r\n|
 
 var loadWithEncoding01 = loadTextContent('Assets/encoding-iso.txt', 'iso-8859-1')
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |loadWithEncoding01|
-//@[23:24)  Assignment |=|
-//@[25:81)  FunctionCallSyntax
-//@[25:40)   IdentifierSyntax
-//@[25:40)    Identifier |loadTextContent|
-//@[40:41)   LeftParen |(|
-//@[41:67)   FunctionArgumentSyntax
-//@[41:66)    StringSyntax
-//@[41:66)     StringComplete |'Assets/encoding-iso.txt'|
-//@[66:67)    Comma |,|
-//@[68:80)   FunctionArgumentSyntax
-//@[68:80)    StringSyntax
-//@[68:80)     StringComplete |'iso-8859-1'|
-//@[80:81)   RightParen |)|
-//@[81:83) NewLine |\r\n|
+//@[000:0081) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |loadWithEncoding01|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0081) | └─FunctionCallSyntax
+//@[025:0040) | | ├─IdentifierSyntax
+//@[025:0040) | | | └─Token(Identifier) |loadTextContent|
+//@[040:0041) | | ├─Token(LeftParen) |(|
+//@[041:0067) | | ├─FunctionArgumentSyntax
+//@[041:0066) | | | ├─StringSyntax
+//@[041:0066) | | | | └─Token(StringComplete) |'Assets/encoding-iso.txt'|
+//@[066:0067) | | | └─Token(Comma) |,|
+//@[068:0080) | | ├─FunctionArgumentSyntax
+//@[068:0080) | | | └─StringSyntax
+//@[068:0080) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[080:0081) | | └─Token(RightParen) |)|
+//@[081:0083) ├─Token(NewLine) |\r\n|
 var loadWithEncoding06 = loadTextContent('Assets/encoding-ascii.txt', 'us-ascii')
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |loadWithEncoding06|
-//@[23:24)  Assignment |=|
-//@[25:81)  FunctionCallSyntax
-//@[25:40)   IdentifierSyntax
-//@[25:40)    Identifier |loadTextContent|
-//@[40:41)   LeftParen |(|
-//@[41:69)   FunctionArgumentSyntax
-//@[41:68)    StringSyntax
-//@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[68:69)    Comma |,|
-//@[70:80)   FunctionArgumentSyntax
-//@[70:80)    StringSyntax
-//@[70:80)     StringComplete |'us-ascii'|
-//@[80:81)   RightParen |)|
-//@[81:83) NewLine |\r\n|
+//@[000:0081) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |loadWithEncoding06|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0081) | └─FunctionCallSyntax
+//@[025:0040) | | ├─IdentifierSyntax
+//@[025:0040) | | | └─Token(Identifier) |loadTextContent|
+//@[040:0041) | | ├─Token(LeftParen) |(|
+//@[041:0069) | | ├─FunctionArgumentSyntax
+//@[041:0068) | | | ├─StringSyntax
+//@[041:0068) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[068:0069) | | | └─Token(Comma) |,|
+//@[070:0080) | | ├─FunctionArgumentSyntax
+//@[070:0080) | | | └─StringSyntax
+//@[070:0080) | | | | └─Token(StringComplete) |'us-ascii'|
+//@[080:0081) | | └─Token(RightParen) |)|
+//@[081:0083) ├─Token(NewLine) |\r\n|
 var loadWithEncoding07 = loadTextContent('Assets/encoding-ascii.txt', 'iso-8859-1')
-//@[0:83) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |loadWithEncoding07|
-//@[23:24)  Assignment |=|
-//@[25:83)  FunctionCallSyntax
-//@[25:40)   IdentifierSyntax
-//@[25:40)    Identifier |loadTextContent|
-//@[40:41)   LeftParen |(|
-//@[41:69)   FunctionArgumentSyntax
-//@[41:68)    StringSyntax
-//@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[68:69)    Comma |,|
-//@[70:82)   FunctionArgumentSyntax
-//@[70:82)    StringSyntax
-//@[70:82)     StringComplete |'iso-8859-1'|
-//@[82:83)   RightParen |)|
-//@[83:85) NewLine |\r\n|
+//@[000:0083) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |loadWithEncoding07|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0083) | └─FunctionCallSyntax
+//@[025:0040) | | ├─IdentifierSyntax
+//@[025:0040) | | | └─Token(Identifier) |loadTextContent|
+//@[040:0041) | | ├─Token(LeftParen) |(|
+//@[041:0069) | | ├─FunctionArgumentSyntax
+//@[041:0068) | | | ├─StringSyntax
+//@[041:0068) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[068:0069) | | | └─Token(Comma) |,|
+//@[070:0082) | | ├─FunctionArgumentSyntax
+//@[070:0082) | | | └─StringSyntax
+//@[070:0082) | | | | └─Token(StringComplete) |'iso-8859-1'|
+//@[082:0083) | | └─Token(RightParen) |)|
+//@[083:0085) ├─Token(NewLine) |\r\n|
 var loadWithEncoding08 = loadTextContent('Assets/encoding-ascii.txt', 'utf-8')
-//@[0:78) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |loadWithEncoding08|
-//@[23:24)  Assignment |=|
-//@[25:78)  FunctionCallSyntax
-//@[25:40)   IdentifierSyntax
-//@[25:40)    Identifier |loadTextContent|
-//@[40:41)   LeftParen |(|
-//@[41:69)   FunctionArgumentSyntax
-//@[41:68)    StringSyntax
-//@[41:68)     StringComplete |'Assets/encoding-ascii.txt'|
-//@[68:69)    Comma |,|
-//@[70:77)   FunctionArgumentSyntax
-//@[70:77)    StringSyntax
-//@[70:77)     StringComplete |'utf-8'|
-//@[77:78)   RightParen |)|
-//@[78:80) NewLine |\r\n|
+//@[000:0078) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |loadWithEncoding08|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0078) | └─FunctionCallSyntax
+//@[025:0040) | | ├─IdentifierSyntax
+//@[025:0040) | | | └─Token(Identifier) |loadTextContent|
+//@[040:0041) | | ├─Token(LeftParen) |(|
+//@[041:0069) | | ├─FunctionArgumentSyntax
+//@[041:0068) | | | ├─StringSyntax
+//@[041:0068) | | | | └─Token(StringComplete) |'Assets/encoding-ascii.txt'|
+//@[068:0069) | | | └─Token(Comma) |,|
+//@[070:0077) | | ├─FunctionArgumentSyntax
+//@[070:0077) | | | └─StringSyntax
+//@[070:0077) | | | | └─Token(StringComplete) |'utf-8'|
+//@[077:0078) | | └─Token(RightParen) |)|
+//@[078:0080) ├─Token(NewLine) |\r\n|
 var loadWithEncoding11 = loadTextContent('Assets/encoding-utf8.txt', 'utf-8')
-//@[0:77) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |loadWithEncoding11|
-//@[23:24)  Assignment |=|
-//@[25:77)  FunctionCallSyntax
-//@[25:40)   IdentifierSyntax
-//@[25:40)    Identifier |loadTextContent|
-//@[40:41)   LeftParen |(|
-//@[41:68)   FunctionArgumentSyntax
-//@[41:67)    StringSyntax
-//@[41:67)     StringComplete |'Assets/encoding-utf8.txt'|
-//@[67:68)    Comma |,|
-//@[69:76)   FunctionArgumentSyntax
-//@[69:76)    StringSyntax
-//@[69:76)     StringComplete |'utf-8'|
-//@[76:77)   RightParen |)|
-//@[77:79) NewLine |\r\n|
+//@[000:0077) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |loadWithEncoding11|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0077) | └─FunctionCallSyntax
+//@[025:0040) | | ├─IdentifierSyntax
+//@[025:0040) | | | └─Token(Identifier) |loadTextContent|
+//@[040:0041) | | ├─Token(LeftParen) |(|
+//@[041:0068) | | ├─FunctionArgumentSyntax
+//@[041:0067) | | | ├─StringSyntax
+//@[041:0067) | | | | └─Token(StringComplete) |'Assets/encoding-utf8.txt'|
+//@[067:0068) | | | └─Token(Comma) |,|
+//@[069:0076) | | ├─FunctionArgumentSyntax
+//@[069:0076) | | | └─StringSyntax
+//@[069:0076) | | | | └─Token(StringComplete) |'utf-8'|
+//@[076:0077) | | └─Token(RightParen) |)|
+//@[077:0079) ├─Token(NewLine) |\r\n|
 var loadWithEncoding12 = loadTextContent('Assets/encoding-utf8-bom.txt', 'utf-8')
-//@[0:81) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:22)  IdentifierSyntax
-//@[4:22)   Identifier |loadWithEncoding12|
-//@[23:24)  Assignment |=|
-//@[25:81)  FunctionCallSyntax
-//@[25:40)   IdentifierSyntax
-//@[25:40)    Identifier |loadTextContent|
-//@[40:41)   LeftParen |(|
-//@[41:72)   FunctionArgumentSyntax
-//@[41:71)    StringSyntax
-//@[41:71)     StringComplete |'Assets/encoding-utf8-bom.txt'|
-//@[71:72)    Comma |,|
-//@[73:80)   FunctionArgumentSyntax
-//@[73:80)    StringSyntax
-//@[73:80)     StringComplete |'utf-8'|
-//@[80:81)   RightParen |)|
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:0081) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0022) | ├─IdentifierSyntax
+//@[004:0022) | | └─Token(Identifier) |loadWithEncoding12|
+//@[023:0024) | ├─Token(Assignment) |=|
+//@[025:0081) | └─FunctionCallSyntax
+//@[025:0040) | | ├─IdentifierSyntax
+//@[025:0040) | | | └─Token(Identifier) |loadTextContent|
+//@[040:0041) | | ├─Token(LeftParen) |(|
+//@[041:0072) | | ├─FunctionArgumentSyntax
+//@[041:0071) | | | ├─StringSyntax
+//@[041:0071) | | | | └─Token(StringComplete) |'Assets/encoding-utf8-bom.txt'|
+//@[071:0072) | | | └─Token(Comma) |,|
+//@[073:0080) | | ├─FunctionArgumentSyntax
+//@[073:0080) | | | └─StringSyntax
+//@[073:0080) | | | | └─Token(StringComplete) |'utf-8'|
+//@[080:0081) | | └─Token(RightParen) |)|
+//@[081:0085) ├─Token(NewLine) |\r\n\r\n|
 
 var testJson = json(loadTextContent('./Assets/test.json.txt'))
-//@[0:62) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:12)  IdentifierSyntax
-//@[4:12)   Identifier |testJson|
-//@[13:14)  Assignment |=|
-//@[15:62)  FunctionCallSyntax
-//@[15:19)   IdentifierSyntax
-//@[15:19)    Identifier |json|
-//@[19:20)   LeftParen |(|
-//@[20:61)   FunctionArgumentSyntax
-//@[20:61)    FunctionCallSyntax
-//@[20:35)     IdentifierSyntax
-//@[20:35)      Identifier |loadTextContent|
-//@[35:36)     LeftParen |(|
-//@[36:60)     FunctionArgumentSyntax
-//@[36:60)      StringSyntax
-//@[36:60)       StringComplete |'./Assets/test.json.txt'|
-//@[60:61)     RightParen |)|
-//@[61:62)   RightParen |)|
-//@[62:64) NewLine |\r\n|
+//@[000:0062) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0012) | ├─IdentifierSyntax
+//@[004:0012) | | └─Token(Identifier) |testJson|
+//@[013:0014) | ├─Token(Assignment) |=|
+//@[015:0062) | └─FunctionCallSyntax
+//@[015:0019) | | ├─IdentifierSyntax
+//@[015:0019) | | | └─Token(Identifier) |json|
+//@[019:0020) | | ├─Token(LeftParen) |(|
+//@[020:0061) | | ├─FunctionArgumentSyntax
+//@[020:0061) | | | └─FunctionCallSyntax
+//@[020:0035) | | | | ├─IdentifierSyntax
+//@[020:0035) | | | | | └─Token(Identifier) |loadTextContent|
+//@[035:0036) | | | | ├─Token(LeftParen) |(|
+//@[036:0060) | | | | ├─FunctionArgumentSyntax
+//@[036:0060) | | | | | └─StringSyntax
+//@[036:0060) | | | | | | └─Token(StringComplete) |'./Assets/test.json.txt'|
+//@[060:0061) | | | | └─Token(RightParen) |)|
+//@[061:0062) | | └─Token(RightParen) |)|
+//@[062:0064) ├─Token(NewLine) |\r\n|
 var testJsonString = testJson.string
-//@[0:36) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:18)  IdentifierSyntax
-//@[4:18)   Identifier |testJsonString|
-//@[19:20)  Assignment |=|
-//@[21:36)  PropertyAccessSyntax
-//@[21:29)   VariableAccessSyntax
-//@[21:29)    IdentifierSyntax
-//@[21:29)     Identifier |testJson|
-//@[29:30)   Dot |.|
-//@[30:36)   IdentifierSyntax
-//@[30:36)    Identifier |string|
-//@[36:38) NewLine |\r\n|
+//@[000:0036) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |testJsonString|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0036) | └─PropertyAccessSyntax
+//@[021:0029) | | ├─VariableAccessSyntax
+//@[021:0029) | | | └─IdentifierSyntax
+//@[021:0029) | | | | └─Token(Identifier) |testJson|
+//@[029:0030) | | ├─Token(Dot) |.|
+//@[030:0036) | | └─IdentifierSyntax
+//@[030:0036) | | | └─Token(Identifier) |string|
+//@[036:0038) ├─Token(NewLine) |\r\n|
 var testJsonInt = testJson.int
-//@[0:30) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:15)  IdentifierSyntax
-//@[4:15)   Identifier |testJsonInt|
-//@[16:17)  Assignment |=|
-//@[18:30)  PropertyAccessSyntax
-//@[18:26)   VariableAccessSyntax
-//@[18:26)    IdentifierSyntax
-//@[18:26)     Identifier |testJson|
-//@[26:27)   Dot |.|
-//@[27:30)   IdentifierSyntax
-//@[27:30)    Identifier |int|
-//@[30:32) NewLine |\r\n|
+//@[000:0030) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0015) | ├─IdentifierSyntax
+//@[004:0015) | | └─Token(Identifier) |testJsonInt|
+//@[016:0017) | ├─Token(Assignment) |=|
+//@[018:0030) | └─PropertyAccessSyntax
+//@[018:0026) | | ├─VariableAccessSyntax
+//@[018:0026) | | | └─IdentifierSyntax
+//@[018:0026) | | | | └─Token(Identifier) |testJson|
+//@[026:0027) | | ├─Token(Dot) |.|
+//@[027:0030) | | └─IdentifierSyntax
+//@[027:0030) | | | └─Token(Identifier) |int|
+//@[030:0032) ├─Token(NewLine) |\r\n|
 var testJsonArrayVal = testJson.array[0]
-//@[0:40) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:20)  IdentifierSyntax
-//@[4:20)   Identifier |testJsonArrayVal|
-//@[21:22)  Assignment |=|
-//@[23:40)  ArrayAccessSyntax
-//@[23:37)   PropertyAccessSyntax
-//@[23:31)    VariableAccessSyntax
-//@[23:31)     IdentifierSyntax
-//@[23:31)      Identifier |testJson|
-//@[31:32)    Dot |.|
-//@[32:37)    IdentifierSyntax
-//@[32:37)     Identifier |array|
-//@[37:38)   LeftSquare |[|
-//@[38:39)   IntegerLiteralSyntax
-//@[38:39)    Integer |0|
-//@[39:40)   RightSquare |]|
-//@[40:42) NewLine |\r\n|
+//@[000:0040) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0020) | ├─IdentifierSyntax
+//@[004:0020) | | └─Token(Identifier) |testJsonArrayVal|
+//@[021:0022) | ├─Token(Assignment) |=|
+//@[023:0040) | └─ArrayAccessSyntax
+//@[023:0037) | | ├─PropertyAccessSyntax
+//@[023:0031) | | | ├─VariableAccessSyntax
+//@[023:0031) | | | | └─IdentifierSyntax
+//@[023:0031) | | | | | └─Token(Identifier) |testJson|
+//@[031:0032) | | | ├─Token(Dot) |.|
+//@[032:0037) | | | └─IdentifierSyntax
+//@[032:0037) | | | | └─Token(Identifier) |array|
+//@[037:0038) | | ├─Token(LeftSquare) |[|
+//@[038:0039) | | ├─IntegerLiteralSyntax
+//@[038:0039) | | | └─Token(Integer) |0|
+//@[039:0040) | | └─Token(RightSquare) |]|
+//@[040:0042) ├─Token(NewLine) |\r\n|
 var testJsonObject = testJson.object
-//@[0:36) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:18)  IdentifierSyntax
-//@[4:18)   Identifier |testJsonObject|
-//@[19:20)  Assignment |=|
-//@[21:36)  PropertyAccessSyntax
-//@[21:29)   VariableAccessSyntax
-//@[21:29)    IdentifierSyntax
-//@[21:29)     Identifier |testJson|
-//@[29:30)   Dot |.|
-//@[30:36)   IdentifierSyntax
-//@[30:36)    Identifier |object|
-//@[36:38) NewLine |\r\n|
+//@[000:0036) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0018) | ├─IdentifierSyntax
+//@[004:0018) | | └─Token(Identifier) |testJsonObject|
+//@[019:0020) | ├─Token(Assignment) |=|
+//@[021:0036) | └─PropertyAccessSyntax
+//@[021:0029) | | ├─VariableAccessSyntax
+//@[021:0029) | | | └─IdentifierSyntax
+//@[021:0029) | | | | └─Token(Identifier) |testJson|
+//@[029:0030) | | ├─Token(Dot) |.|
+//@[030:0036) | | └─IdentifierSyntax
+//@[030:0036) | | | └─Token(Identifier) |object|
+//@[036:0038) ├─Token(NewLine) |\r\n|
 var testJsonNestedString = testJson.object.nestedString
-//@[0:55) VariableDeclarationSyntax
-//@[0:3)  Identifier |var|
-//@[4:24)  IdentifierSyntax
-//@[4:24)   Identifier |testJsonNestedString|
-//@[25:26)  Assignment |=|
-//@[27:55)  PropertyAccessSyntax
-//@[27:42)   PropertyAccessSyntax
-//@[27:35)    VariableAccessSyntax
-//@[27:35)     IdentifierSyntax
-//@[27:35)      Identifier |testJson|
-//@[35:36)    Dot |.|
-//@[36:42)    IdentifierSyntax
-//@[36:42)     Identifier |object|
-//@[42:43)   Dot |.|
-//@[43:55)   IdentifierSyntax
-//@[43:55)    Identifier |nestedString|
-//@[55:57) NewLine |\r\n|
+//@[000:0055) ├─VariableDeclarationSyntax
+//@[000:0003) | ├─Token(Identifier) |var|
+//@[004:0024) | ├─IdentifierSyntax
+//@[004:0024) | | └─Token(Identifier) |testJsonNestedString|
+//@[025:0026) | ├─Token(Assignment) |=|
+//@[027:0055) | └─PropertyAccessSyntax
+//@[027:0042) | | ├─PropertyAccessSyntax
+//@[027:0035) | | | ├─VariableAccessSyntax
+//@[027:0035) | | | | └─IdentifierSyntax
+//@[027:0035) | | | | | └─Token(Identifier) |testJson|
+//@[035:0036) | | | ├─Token(Dot) |.|
+//@[036:0042) | | | └─IdentifierSyntax
+//@[036:0042) | | | | └─Token(Identifier) |object|
+//@[042:0043) | | ├─Token(Dot) |.|
+//@[043:0055) | | └─IdentifierSyntax
+//@[043:0055) | | | └─Token(Identifier) |nestedString|
+//@[055:0057) ├─Token(NewLine) |\r\n|
 
-//@[0:0) EndOfFile ||
+//@[000:0000) └─Token(EndOfFile) ||

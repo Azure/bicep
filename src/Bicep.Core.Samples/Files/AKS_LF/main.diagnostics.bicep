@@ -20,7 +20,7 @@ param osDiskSizeGB int = 0
 @minValue(1)
 @maxValue(50)
 param agentCount int = 3
-//@[6:16) [no-unused-params (Warning)] Parameter "agentCount" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |agentCount|
+//@[06:16) [no-unused-params (Warning)] Parameter "agentCount" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |agentCount|
 
 param agentVMSize string = 'Standard_DS2_v2'
 // osType was a defaultValue with only one allowedValue, which seems strange?, could be a good TTK test
