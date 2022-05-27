@@ -56,8 +56,10 @@ namespace Bicep.Core.UnitTests.Utils
                 })
                 .ToLookup(t => t.line);
 
-            var startCharPadding = CountDigits(diagsByLine.SelectMany(x => x).Max(x => x.startChar));
-            var endCharPadding = CountDigits(diagsByLine.SelectMany(x => x).Max(x => x.endChar));
+            var diags = diagsByLine.SelectMany(x => x);
+
+            var startCharPadding = diags.Any() ? CountDigits(diags.Max(x => x.startChar)) : 0;
+            var endCharPadding = diags.Any() ? CountDigits(diags.Max(x => x.endChar)) : 0;
 
             var sourceTextLines = bicepOutput.Split(newlineSequence);
             var stringBuilder = new StringBuilder();
