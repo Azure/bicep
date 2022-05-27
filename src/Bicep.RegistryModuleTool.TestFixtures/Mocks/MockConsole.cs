@@ -36,12 +36,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         public MockConsole ExpectOutLine(string expectedOutLine)
         {
-            if (expectedOutLine.Length > 0)
-            {
-                this.expectedOutLines.Add(expectedOutLine);
-            }
-
-            this.expectedOutLines.Add(Environment.NewLine);
+            this.expectedOutLines.Add(expectedOutLine + Environment.NewLine);
 
             this.outMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(actualOutLine => this.actualOutLines.Add(actualOutLine));
 
@@ -62,12 +57,7 @@ namespace Bicep.RegistryModuleTool.TestFixtures.Mocks
 
         public MockConsole ExpectErrorLine(string expectedErrorLine)
         {
-            if (expectedErrorLine.Length > 0)
-            {
-                this.expectedErrorLines.Add(expectedErrorLine);
-            }
-
-            this.expectedErrorLines.Add(Environment.NewLine);
+            this.expectedErrorLines.Add(expectedErrorLine + Environment.NewLine);
 
             this.errorMock.Setup(x => x.Write(It.IsAny<string>())).Callback<string>(actualErrorLine => this.actualErrorLines.Add(actualErrorLine));
 

@@ -237,7 +237,7 @@ namespace Bicep.Core.Emit
                 _ => throw new NotImplementedException($"Unexpected current declaration type '{this.currentDeclaration?.GetType().Name}'.")
             };
 
-            // using the resource/module body as the context to allow indexed depdnencies relying on the resource/module loop index to work as expected
+            // using the resource/module body as the context to allow indexed dependencies relying on the resource/module loop index to work as expected
             var inaccessibleLocals = dfa.GetInaccessibleLocalsAfterSyntaxMove(candidateIndexExpression, context);
             if (inaccessibleLocals.Any())
             {

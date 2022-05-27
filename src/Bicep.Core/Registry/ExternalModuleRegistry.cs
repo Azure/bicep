@@ -1,9 +1,13 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Bicep.Core.Configuration;
+using Bicep.Core.Diagnostics;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.Tracing;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -12,7 +16,6 @@ namespace Bicep.Core.Registry
 {
     public abstract class ExternalModuleRegistry<TModuleReference, TModuleEntity> : ModuleRegistry<TModuleReference>
         where TModuleReference : ModuleReference
-        where TModuleEntity : class
     {
         // if we're unable to acquire a lock on the module directory in the cache, we will retry until this timeout is reached
         private static readonly TimeSpan ModuleDirectoryContentionTimeout = TimeSpan.FromSeconds(5);
@@ -93,6 +96,94 @@ namespace Bicep.Core.Registry
             {
                 throw new ExternalModuleException($"Unable to create the local module directory \"{moduleDirectoryPath}\". {exception.Message}", exception);
             }
+        }
+
+        private static void DeleteModuleDirectory(string moduleDirectoryPath)
+        {
+            try
+            {
+                // recursively delete the directory 
+                Directory.Delete(moduleDirectoryPath, true);
+            }
+            catch (Exception exception)
+            {
+                throw new ExternalModuleException($"Unable to delete the local module directory \"{moduleDirectoryPath}\". {exception.Message}", exception);
+            }
+        }        
+
+        private async Task TryDeleteModuleDirectoryAsync(TModuleReference reference)
+        {
+            /*
+             * The following sections will attempt to synchronize the module directory delete with other
+             * instances of the language server running on the same machine.
+             * 
+             * We are not trying to prevent tampering with the module cache by the user.
+             */
+
+            var lockFileUri = this.GetModuleLockFileUri(reference);
+            var stopwatch = Stopwatch.StartNew();
+
+            while (stopwatch.Elapsed < ModuleDirectoryContentionTimeout)
+            {
+                if(!this.FileResolver.FileExists(lockFileUri))
+                {
+                    // no lock exists, proceed
+                    var moduleDirectoryPath = this.GetModuleDirectoryPath(reference);
+
+                    // delete the directory the contents to disk
+                    DeleteModuleDirectory(moduleDirectoryPath);
+
+                    return;
+                } else {
+                    try {
+                        // Even if the FileLock is disposed, the file remain there. See comments in FileLock.cs
+                        // saying there's a race condition on Linux with the DeleteOnClose flag on the FileStream.
+                        // We will attempt the delete the file. If it throws, the lock is still open and will continue 
+                        // to wait until retry interval expires
+                        File.Delete(lockFileUri.LocalPath);
+                    }
+                    catch (IOException) { break; }
+                }
+
+                // lock is still present - let's give the instance that has the lock some time to finish writing the content to the directory
+                // (the operation involves only writing the already downloaded content to disk, so it "should" complete fairly quickly)
+                await Task.Delay(ModuleDirectoryContentionRetryInterval);
+            }
+
+            // we have exceeded the timeout
+            throw new ExternalModuleException($"Exceeded the timeout of \"{ModuleDirectoryContentionTimeout}\" for the lock on file \"{lockFileUri}\" to be released.");
+        }
+
+        // base implementation for cache invalidation that should fit all external registries
+        protected async Task<IDictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>> InvalidateModulesCacheInternal(RootConfiguration configuration, IEnumerable<TModuleReference> references)
+        {
+            var statuses = new Dictionary<ModuleReference, DiagnosticBuilder.ErrorBuilderDelegate>();
+
+            foreach (var reference in references)
+            {
+                using var timer = new ExecutionTimer($"Delete module {reference.FullyQualifiedReference} from cache");
+                try
+                {
+                    if(Directory.Exists(GetModuleDirectoryPath(reference))) {
+                        await this.TryDeleteModuleDirectoryAsync(reference);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    if (exception.Message is { } message)
+                    {
+                        statuses.Add(reference, x => x.ModuleDeleteFailedWithMessage(reference.FullyQualifiedReference, message));
+                        timer.OnFail($"Unexpected exception {exception}: {message}");
+
+                        return statuses;
+                    }
+
+                    statuses.Add(reference, x => x.ModuleDeleteFailed(reference.FullyQualifiedReference));
+                    timer.OnFail($"Unexpected exception {exception}.");
+                }
+            }
+
+            return statuses;
         }
     }
 }

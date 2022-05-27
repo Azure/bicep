@@ -21,8 +21,9 @@ export class TreeManager extends Disposable {
   }
 
   get azManagementGroupTreeItem(): AzExtTreeDataProvider {
-    const azManagementGroupTreeItem: AzManagementGroupTreeItem =
-      new AzManagementGroupTreeItem();
+    const azManagementGroupTreeItem: AzManagementGroupTreeItem = this.register(
+      new AzManagementGroupTreeItem()
+    );
     return new AzExtTreeDataProvider(azManagementGroupTreeItem, "");
   }
 

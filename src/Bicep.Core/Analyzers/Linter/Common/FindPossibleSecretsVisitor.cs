@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Azure.Deployments.Core.Extensions;
 using Bicep.Core.Semantics;
 using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Syntax;
+using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 

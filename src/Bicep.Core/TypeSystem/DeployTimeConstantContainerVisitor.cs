@@ -30,6 +30,14 @@ namespace Bicep.Core.TypeSystem
             return visitor.deployTimeConstantContainers;
         }
 
+        public override void VisitResourceDeclarationSyntax(ResourceDeclarationSyntax syntax)
+        {
+            if (!syntax.IsExistingResource())
+            {
+                base.VisitResourceDeclarationSyntax(syntax);
+            }
+        }
+
         public override void VisitObjectPropertySyntax(ObjectPropertySyntax syntax)
         {
             if (syntax.TryGetTypeProperty(this.semanticModel.Binder, this.semanticModel.TypeManager) is { } typeProperty &&

@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using SymbolKind = Bicep.Core.Semantics.SymbolKind;
@@ -105,7 +106,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = resourceSnippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateTopLevelDeclarationSnippetInsertion(prefix);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+                    var command = TelemetryHelper.CreateCommand
+                    (
+                        title: "top level snippet completion",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                                                                    resourceSnippet.Detail,
@@ -127,8 +133,12 @@ namespace Bicep.LanguageServer.Completions
                     {
                         string prefix = snippet.Prefix;
                         BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateNestedResourceDeclarationSnippetInsertion(prefix);
-                        Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                        var command = TelemetryHelper.CreateCommand
+                        (
+                            title: "nested resource declaration completion snippet",
+                            name: TelemetryConstants.CommandName,
+                            args: JArray.FromObject(new List<object> { telemetryEvent })
+                        );
                         yield return CreateContextualSnippetCompletion(prefix,
                             snippet.Detail,
                             snippet.Text,
@@ -362,7 +372,7 @@ namespace Bicep.LanguageServer.Completions
                         context.ReplacementRange,
                         CompletionItemKind.Folder,
                         CompletionPriority.Low)
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "module path completion" })
                     .Build());
 
             return bicepFileItems.Concat(armTemplateFileItems).Concat(dirItems);
@@ -509,7 +519,12 @@ namespace Bicep.LanguageServer.Completions
                 {
                     string prefix = snippet.Prefix;
                     BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateResourceBodySnippetInsertion(prefix, resourceType.Type.Name);
-                    Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
+                    Command command = TelemetryHelper.CreateCommand
+                    (
+                        title: "resource body completion snippet",
+                        name: TelemetryConstants.CommandName,
+                        args: JArray.FromObject(new List<object> { telemetryEvent })
+                    );
 
                     yield return CreateContextualSnippetCompletion(prefix,
                         snippet.Detail,
@@ -531,8 +546,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateModuleBodySnippetInsertion(prefix);
-                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "module body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
@@ -934,8 +953,12 @@ namespace Bicep.LanguageServer.Completions
             {
                 string prefix = snippet.Prefix;
                 BicepTelemetryEvent telemetryEvent = BicepTelemetryEvent.CreateObjectBodySnippetInsertion(prefix);
-                Command command = Command.Create(TelemetryConstants.CommandName, telemetryEvent);
-
+                var command = TelemetryHelper.CreateCommand
+                (
+                    title: "object body completion snippet",
+                    name: TelemetryConstants.CommandName,
+                    args: JArray.FromObject(new List<object> { telemetryEvent })
+                );
                 yield return CreateContextualSnippetCompletion(prefix,
                     snippet.Detail,
                     snippet.Text,
@@ -1173,7 +1196,7 @@ namespace Bicep.LanguageServer.Completions
                 return CompletionItemBuilder.Create(CompletionItemKind.Class, insertText)
                     .WithSnippetEdit(replacementRange, $"{insertText.Substring(0, insertText.Length - 1)}@$0'")
                     .WithDocumentation($"Type: `{resourceType.FormatType()}`{MarkdownNewLine}`")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "resource type completion" })
                     // 8 hex digits is probably overkill :)
                     .WithSortText(index.ToString("x8"))
                     .Build();
@@ -1281,7 +1304,7 @@ namespace Bicep.LanguageServer.Completions
                 if (hasParameters)
                 {
                     // if parameters may need to be specified, automatically request signature help
-                    completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp });
+                    completion.WithCommand(new Command { Name = EditorCommands.SignatureHelp, Title = "signature help" });
                 }
 
                 ImmutableArray<FunctionOverload> overloads = function.Overloads;
@@ -1306,7 +1329,7 @@ namespace Bicep.LanguageServer.Completions
                 return completion
                     .WithDetail(insertText)
                     .WithPlainTextEdit(replacementRange, insertText + ".")
-                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions })
+                    .WithCommand(new Command { Name = EditorCommands.RequestCompletions, Title = "symbol completion" })
                     .Build();
             }
 

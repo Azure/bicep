@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Deployments.Core.Entities;
 using Azure.Deployments.Core.Helpers;
-using Azure.Deployments.Core.Json;
 using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
@@ -22,6 +21,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Utils;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -57,7 +57,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             if (string.IsNullOrWhiteSpace(bicepFilePath))
             {
-                throw new ArgumentException("Invalid input file");
+                throw new ArgumentException("Invalid input file path");
             }
 
             DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);

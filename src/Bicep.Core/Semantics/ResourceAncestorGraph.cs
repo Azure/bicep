@@ -17,21 +17,7 @@ namespace Bicep.Core.Semantics
             ParentProperty,
         }
 
-        public class ResourceAncestor
-        {
-            public ResourceAncestor(ResourceAncestorType ancestorType, DeclaredResourceMetadata resource, SyntaxBase? indexExpression)
-            {
-                AncestorType = ancestorType;
-                Resource = resource;
-                IndexExpression = indexExpression;
-            }
-
-            public ResourceAncestorType AncestorType { get; }
-
-            public DeclaredResourceMetadata Resource { get; }
-
-            public SyntaxBase? IndexExpression { get; }
-        }
+        public record ResourceAncestor(ResourceAncestorType AncestorType, DeclaredResourceMetadata Resource, SyntaxBase? IndexExpression);
 
         private readonly ImmutableDictionary<DeclaredResourceMetadata, ImmutableArray<ResourceAncestor>> data;
 

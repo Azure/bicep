@@ -61,7 +61,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed..
+        ///   Looks up a localized string similar to Deployment failed for {0}..
         /// </summary>
         public static string DeploymentFailedMessage {
             get {
@@ -70,7 +70,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed. {0}.
+        ///   Looks up a localized string similar to Deployment failed for {0}. {1}.
         /// </summary>
         public static string DeploymentFailedWithExceptionMessage {
             get {
@@ -79,7 +79,16 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment succeeded..
+        ///   Looks up a localized string similar to Deployment started for {0}..
+        /// </summary>
+        public static string DeploymentStartedMessage {
+            get {
+                return ResourceManager.GetString("DeploymentStartedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment succeeded for {0}..
         /// </summary>
         public static string DeploymentSucceededMessage {
             get {
@@ -97,7 +106,16 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed. Please fix the following issues in the parameter file: {0}.
+        ///   Looks up a localized string similar to Edit {0} in bicepconfig.json.
+        /// </summary>
+        public static string EditLinterRuleActionTitle {
+            get {
+                return ResourceManager.GetString("EditLinterRuleActionTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please fix the following issues in the parameter file: {1}.
         /// </summary>
         public static string InvalidParameterFileDeploymentFailedMessage {
             get {
@@ -106,7 +124,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed. Please provide a valid location..
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid location..
         /// </summary>
         public static string MissingLocationDeploymentFailedMessage {
             get {
@@ -120,6 +138,15 @@ namespace Bicep.LanguageServer {
         public static string UnsupportedTargetScopeMessage {
             get {
                 return ResourceManager.GetString("UnsupportedTargetScopeMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to View deployment in portal: {0}..
+        /// </summary>
+        public static string ViewDeploymentInPortalMessage {
+            get {
+                return ResourceManager.GetString("ViewDeploymentInPortalMessage", resourceCulture);
             }
         }
     }

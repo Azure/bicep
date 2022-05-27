@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bicep.Core.Diagnostics;
+using Bicep.Core.Extensions;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
@@ -16,11 +17,13 @@ namespace Bicep.Core.TypeSystem
         public DeployTimeConstantViolationVisitor(
             SyntaxBase deployTimeConstantContainer,
             SemanticModel semanticModel,
-            IDiagnosticWriter diagnosticWriter)
+            IDiagnosticWriter diagnosticWriter,
+            Dictionary<DeclaredSymbol, ObjectType> existingResourceBodyObjectTypeOverrides)
         {
             this.DeployTimeConstantContainer = deployTimeConstantContainer;
             this.SemanticModel = semanticModel;
             this.DiagnosticWriter = diagnosticWriter;
+            this.ExistingResourceBodyObjectTypeOverrides = existingResourceBodyObjectTypeOverrides;
         }
 
         protected SyntaxBase DeployTimeConstantContainer { get; }
@@ -28,6 +31,8 @@ namespace Bicep.Core.TypeSystem
         protected SemanticModel SemanticModel { get; }
 
         protected IDiagnosticWriter DiagnosticWriter { get; }
+
+        protected Dictionary<DeclaredSymbol, ObjectType> ExistingResourceBodyObjectTypeOverrides { get; }
 
         protected void FlagDeployTimeConstantViolation(SyntaxBase errorSyntax, DeclaredSymbol? accessedSymbol = null, ObjectType? accessedObjectType = null, IEnumerable<string>? variableDependencyChain = null)
         {
@@ -75,7 +80,7 @@ namespace Bicep.Core.TypeSystem
 
             return this.SemanticModel.GetSymbolInfo(syntax) switch
             {
-                ResourceSymbol resourceSymbol when resourceSymbol.IsCollection == isCollection => (resourceSymbol, resourceSymbol.TryGetBodyObjectType()),
+                ResourceSymbol resourceSymbol when resourceSymbol.IsCollection == isCollection => (resourceSymbol, this.ExistingResourceBodyObjectTypeOverrides.TryGetValue(resourceSymbol, out var value) ? value : resourceSymbol.TryGetBodyObjectType()),
                 ModuleSymbol moduleSymbol when moduleSymbol.IsCollection == isCollection => (moduleSymbol, moduleSymbol.TryGetBodyObjectType()),
                 _ => (null, null),
             };

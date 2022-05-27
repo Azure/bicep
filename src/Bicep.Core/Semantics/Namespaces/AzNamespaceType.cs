@@ -23,7 +23,7 @@ namespace Bicep.Core.Semantics.Namespaces
             ArmTemplateProviderName: "AzureResourceManager",
             ArmTemplateProviderVersion: "1.0");
 
-        private static SyntaxBase RestrictedObjectReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
+        private static SyntaxBase RestrictedObjectReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable)
         {
             return SyntaxFactory.CreateObject(ImmutableArray<ObjectPropertySyntax>.Empty);
         }
@@ -370,6 +370,22 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("resourceId", LanguageConstants.String, "The resource ID for the resource that the extension resource is applied to")
                 .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of the extension resource including resource provider namespace")
                 .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The extension resource name segment")
+                .Build();
+
+            const string managementGroupResourceIdDescription = "Returns the unique identifier for a resource deployed at the management group level.";
+            yield return new FunctionOverloadBuilder("managementGroupResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription(managementGroupResourceIdDescription)
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
+                .Build();
+
+            yield return new FunctionOverloadBuilder("managementGroupResourceId")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription(managementGroupResourceIdDescription)
+                .WithRequiredParameter("managementGroupId", LanguageConstants.String, "The management group ID")
+                .WithRequiredParameter("resourceType", LanguageConstants.String, "Type of resource including resource provider namespace")
+                .WithVariableParameter("resourceName", LanguageConstants.String, minimumCount: 1, "The resource name segment")
                 .Build();
 
             const string providersDescription = "Returns information about a resource provider and its supported resource types. If you don't provide a resource type, the function returns all the supported types for the resource provider.";

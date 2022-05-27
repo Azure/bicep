@@ -1,0 +1,13 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "variables": {
+    "emptyObject": "[createObject()]",
+    "simpleObject": "[createObject('foo', 'bar')]",
+    "emptyArray": "[createArray()]",
+    "singletonList": "[createArray('boo!')]",
+    "krispies": "[createArray('snap', 'crackle', 'pop')]",
+    "nestedArrays": "[createArray(createArray(1, 2), createObject('key1', createArray(3, 4), 'key2', createObject('nestedKey1', createArray(5, 6), 'nestedKey2', createObject())))]"
+  },
+  "resources": []
+}

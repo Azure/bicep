@@ -3,10 +3,10 @@
 
 using System;
 using System.Linq;
-using Azure.Deployments.Core.Utilities;
 using Azure.Deployments.Expression.Configuration;
 using Azure.Deployments.Expression.Engines;
 using Azure.Deployments.Expression.Expressions;
+using Microsoft.WindowsAzure.ResourceStack.Common.Utilities;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Decompiler.ArmHelpers

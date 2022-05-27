@@ -5,13 +5,15 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using Azure.Deployments.Core.Json;
+using Azure.Deployments.Expression.Expressions;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
 using Bicep.Core.Modules;
+using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
+using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -43,7 +45,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
-                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol) => {
+                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable) => {
                     return functionCall.Arguments.Single().Expression;
                 })
                 .Build(),
@@ -70,7 +72,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("base64")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("base64"), LanguageConstants.String)
                 .WithGenericDescription("Returns the base64 representation of the input string.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The value to return as a base64 representation.")
                 .Build(),
@@ -84,7 +86,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("replace")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("replace"), LanguageConstants.String)
                 .WithGenericDescription("Returns a new string with all instances of one string replaced by another string.")
                 .WithRequiredParameter("originalString", LanguageConstants.String, "The original string.")
                 .WithRequiredParameter("oldString", LanguageConstants.String, "The string to be removed from the original string.")
@@ -92,13 +94,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("toLower")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("toLower"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to lower case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to lower case.")
                 .Build(),
 
             new FunctionOverloadBuilder("toUpper")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("toUpper"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to upper case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to upper case.")
                 .Build(),
@@ -129,19 +131,19 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("uniqueString")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uniqueString"), LanguageConstants.String)
                 .WithGenericDescription("Creates a deterministic hash string based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create a unique string.")
                 .Build(),
 
             new FunctionOverloadBuilder("guid")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("guid"), LanguageConstants.String)
                 .WithGenericDescription("Creates a value in the format of a globally unique identifier based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create the GUID.")
                 .Build(),
 
             new FunctionOverloadBuilder("trim")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("trim"), LanguageConstants.String)
                 .WithGenericDescription("Removes all leading and trailing white-space characters from the specified string.")
                 .WithRequiredParameter("stringToTrim", LanguageConstants.String, "The value to trim.")
                 .Build(),
@@ -260,7 +262,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("first")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("first"), LanguageConstants.String)
                 .WithGenericDescription(firstDescription)
                 .WithDescription("Returns the first character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the first character.")
@@ -274,7 +276,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("last")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("last"), LanguageConstants.String)
                 .WithGenericDescription(lastDescription)
                 .WithDescription("Returns the last character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the last character.")
@@ -364,7 +366,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("base64ToString")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("base64ToString"), LanguageConstants.String)
                 .WithGenericDescription("Converts a base64 representation to a string.")
                 .WithRequiredParameter("base64Value", LanguageConstants.String, "The base64 representation to convert to a string.")
                 .Build(),
@@ -376,26 +378,26 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("uriComponentToString")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uriComponentToString"), LanguageConstants.String)
                 .WithGenericDescription("Returns a string of a URI encoded value.")
                 .WithRequiredParameter("uriEncodedString", LanguageConstants.String, "The URI encoded value to convert to a string.")
                 .Build(),
 
             new FunctionOverloadBuilder("uriComponent")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uriComponent"), LanguageConstants.String)
                 .WithGenericDescription("Encodes a URI.")
                 .WithRequiredParameter("stringToEncode", LanguageConstants.String, "The value to encode.")
                 .Build(),
 
             new FunctionOverloadBuilder("dataUriToString")
                 .WithGenericDescription("Converts a data URI formatted value to a string.")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("dataUriToString"), LanguageConstants.String)
                 .WithRequiredParameter("dataUriToConvert", LanguageConstants.String, "The data URI value to convert.")
                 .Build(),
 
             // TODO: Docs have wrong param type and param name (any is actually supported)
             new FunctionOverloadBuilder("dataUri")
-                .WithReturnType(LanguageConstants.String)
+                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("dataUri"), LanguageConstants.String)
                 .WithGenericDescription("Converts a value to a data URI.")
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to a data URI.")
                 .Build(),
@@ -439,6 +441,18 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("format", LanguageConstants.String, "The output format for the date time result. If not provided, the format of the base value is used. Use either [standard format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings) or [custom format strings](https://docs.microsoft.com/en-us/dotnet/standard/base-types/custom-date-and-time-format-strings).")
                 .Build(),
 
+            new FunctionOverloadBuilder("dateTimeToEpoch")
+                .WithReturnType(LanguageConstants.Int)
+                .WithGenericDescription("Converts an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string to an epoch time integer value.")
+                .WithOptionalParameter("dateTime", LanguageConstants.String, "An [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted dateTime string to be converted to epoch time.")
+                .Build(),
+
+            new FunctionOverloadBuilder("dateTimeFromEpoch")
+                .WithReturnType(LanguageConstants.String)
+                .WithGenericDescription("Converts an epoch time integer value to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime string.")
+                .WithOptionalParameter("epochTime", LanguageConstants.Int, "An epoch time value that will be converted to an [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) dateTime formatted string.")
+                .Build(),
+
             // newGuid and utcNow are only allowed in parameter default values
             new FunctionOverloadBuilder("utcNow")
                 .WithReturnType(LanguageConstants.String)
@@ -459,6 +473,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
                 .WithDynamicReturnType(LoadTextContentTypeBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
+                .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
                 .Build(),
 
             new FunctionOverloadBuilder("loadFileAsBase64")
@@ -466,6 +481,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
                 .WithDynamicReturnType(LoadContentAsBase64TypeBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
+                .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
                 .Build(),
 
             new FunctionOverloadBuilder("items")
@@ -498,6 +514,32 @@ namespace Bicep.Core.Semantics.Namespaces
             return fileUri;
         }
 
+        private static FunctionOverload.ReturnTypeBuilderDelegate PerformArmConversionOfStringLiterals(string armFunctionName) =>
+            (IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes) =>
+            {
+                if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType)) {
+                    var parameters = argumentTypes.OfType<StringLiteralType>().Select(slt => JValue.CreateString(slt.RawStringValue)).ToArray();
+                    try {
+                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters) is JValue jValue && jValue.Value is string stringValue)
+                        {
+                            return new StringLiteralType(stringValue);
+                        }
+                    } catch (Exception e) {
+                        // The ARM function invoked will almost certainly fail at runtime, but there's a chance a fix has been
+                        // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
+                        // be reported as a warning, and the fallback type will be used.
+                        diagnostics.Write(
+                            DiagnosticBuilder.ForPosition(TextSpan.Between(arguments.First().Span, arguments.Last().Span))
+                                .ArmFunctionLiteralTypeConversionFailedWithMessage(
+                                    string.Join(", ", parameters.Select(t => t.ToString())),
+                                    armFunctionName,
+                                    e.Message));
+                    }
+                }
+
+                return LanguageConstants.String;
+            };
+
         private static TypeSymbol LoadTextContentTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
             if (argumentTypes[0] is not StringLiteralType filePathType)
@@ -528,7 +570,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
                 return LanguageConstants.String;
             }
-            if (arguments.Length > 1 && fileEncoding != detectedEncoding)
+            if (arguments.Length > 1 && !Equals(fileEncoding, detectedEncoding))
             {
                 diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).FileEncodingMismatch(detectedEncoding.WebName));
             }
@@ -558,12 +600,32 @@ namespace Bicep.Core.Semantics.Namespaces
             return new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent);
         }
 
-        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol)
+        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable)
+        {
+            if (functionVariable is not null)
+            {
+                return SyntaxFactory.CreateExplicitVariableAccess(functionVariable.Name);
+            }
+
+            return CreateStringLiteral(typeSymbol);
+        }
+
+        private static SyntaxBase? StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment)
+        {
+            if (directVariableAssignment)
+            {
+                return null;
+            }
+            return CreateStringLiteral(typeSymbol);
+        }
+
+        private static SyntaxBase CreateStringLiteral(TypeSymbol typeSymbol)
         {
             if (typeSymbol is not StringLiteralType stringLiteral)
             {
                 throw new InvalidOperationException($"Expecting function to return {nameof(StringLiteralType)}, but {typeSymbol.GetType().Name} received.");
             }
+
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
         }
 
@@ -702,12 +764,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 // long.MaxValue + 1 (9,223,372,036,854,775,808) is the only invalid 64 bit integer value that may be passed. we avoid casting to a long because this causes overflow. we need to just return long.MinValue (-9,223,372,036,854,775,808)
                 // if integerLiteralSyntax.Value is outside the range, return null. it should have already been caught by a different validation
                 UnaryOperationSyntax { Operator: UnaryOperator.Minus } unaryOperatorSyntax
-                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value switch { 
+                    when unaryOperatorSyntax.Expression is IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value switch
+                    {
                         <= long.MaxValue => -(long)integerLiteralSyntax.Value,
                         (ulong)long.MaxValue + 1 => long.MinValue,
                         _ => null
                     },
-                
+
                 // this ternary check is to make sure that the integer value is within the range of a signed 64 bit integer before casting to a long type
                 // if not, it would have been caught already by a different validation
                 IntegerLiteralSyntax integerLiteralSyntax => integerLiteralSyntax.Value <= long.MaxValue ? (long)integerLiteralSyntax.Value : null,

@@ -21,11 +21,11 @@ namespace Bicep.Core.Syntax
         public static Token CreateToken(TokenType tokenType, string text = "")
             => new Token(tokenType, EmptySpan, string.IsNullOrEmpty(text) ? TryGetTokenText(tokenType) : text, EmptyTrivia, EmptyTrivia);
 
-        public static IdentifierSyntax CreateIdentifier(string text)
-            => new IdentifierSyntax(CreateToken(TokenType.Identifier, text));
+        public static IdentifierSyntax CreateIdentifier(string text) => new(CreateToken(TokenType.Identifier, text));
 
-        public static VariableAccessSyntax CreateVariableAccess(string text)
-            => new VariableAccessSyntax(CreateIdentifier(text));
+        public static VariableAccessSyntax CreateVariableAccess(string text) => new(CreateIdentifier(text));
+
+        public static ExplicitVariableAccessSyntax CreateExplicitVariableAccess(string text) => new(CreateIdentifier(text));
 
         public static Token NewlineToken => CreateToken(TokenType.NewLine, Environment.NewLine);
         public static Token AtToken => CreateToken(TokenType.At, "@");
@@ -130,6 +130,8 @@ namespace Bicep.Core.Syntax
                 RightSquareToken);
         }
 
+        public static ArrayAccessSyntax CreateArrayAccess(SyntaxBase baseExpression, SyntaxBase indexExpression) => new(baseExpression, LeftSquareToken, indexExpression, RightSquareToken);
+
         public static SyntaxBase CreateObjectPropertyKey(string text)
         {
             if (Regex.IsMatch(text, "^[a-zA-Z][a-zA-Z0-9_]*$"))
@@ -143,6 +145,18 @@ namespace Bicep.Core.Syntax
         public static IntegerLiteralSyntax CreateIntegerLiteral(ulong value) => new(CreateToken(TokenType.Integer, value.ToString()), value);
 
         public static UnaryOperationSyntax CreateNegativeIntegerLiteral(ulong value) => new(MinusToken, CreateIntegerLiteral(value));
+
+        public static ExpressionSyntax CreatePositiveOrNegativeInteger(long intValue)
+        {
+            if (intValue >= 0)
+            {
+                return SyntaxFactory.CreateIntegerLiteral((ulong)intValue);
+            }
+            else
+            {
+                return SyntaxFactory.CreateNegativeIntegerLiteral((ulong)-intValue);
+            }
+        }
 
         public static StringSyntax CreateStringLiteral(string value) => CreateString(value.AsEnumerable(), Enumerable.Empty<SyntaxBase>());
 

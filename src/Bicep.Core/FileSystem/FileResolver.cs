@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using Bicep.Core.Diagnostics;
 
@@ -36,6 +37,7 @@ namespace Bicep.Core.FileSystem
                     // A trailing backslash causes windows not to throw this exception.
                     throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
                 }
+                ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 fileContents = File.ReadAllText(fileUri.LocalPath);
                 return true;
             }
@@ -68,6 +70,7 @@ namespace Bicep.Core.FileSystem
                     // A trailing backslash causes windows not to throw this exception.
                     throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
                 }
+                ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 using var fileStream = File.OpenRead(fileUri.LocalPath);
                 using var sr = new StreamReader(fileStream, fileEncoding, true);
 
@@ -131,6 +134,7 @@ namespace Bicep.Core.FileSystem
                     }
                 }
 
+                ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 using var fileStream = File.OpenRead(fileUri.LocalPath);
 
                 Span<byte> buffer = stackalloc byte[102400];
@@ -173,6 +177,7 @@ namespace Bicep.Core.FileSystem
                     throw new UnauthorizedAccessException($"Access to the path '{fileUri.LocalPath}' is denied.");
                 }
 
+                ApplyWindowsConFileWorkaround(fileUri.LocalPath);
                 using var fileStream = File.OpenRead(fileUri.LocalPath);
                 using var sr = new StreamReader(fileStream, fileEncoding, true);
 
@@ -235,6 +240,36 @@ namespace Bicep.Core.FileSystem
             {
                 throw new ArgumentException($"Non-file URI is not supported by this file resolver.");
             }
+        }
+
+        private static void ApplyWindowsConFileWorkaround(string localPath)
+        {
+            /*
+             * Win10 (and possibly older versions) will block without returning when
+             * reading a file whose name is CON or CON.<any extension> which breaks the language server
+             * 
+             * as a workaround, we will simulate Win11+ behavior that throws a
+             * FileNotFoundException
+             * 
+             * https://github.com/Azure/bicep/issues/6224
+             */
+
+            if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                // not on windows - no need for the workaround
+                return;
+            }
+
+            string fileName = Path.GetFileNameWithoutExtension(localPath);
+            if(!string.Equals(fileName, "CON", StringComparison.InvariantCultureIgnoreCase))
+            {
+                // file is not named CON or CON.<any extension>, so we can proceed normally
+                return;
+            }
+
+            // on win11+ file not found exception is thrown
+            // simulate similar behavior
+            throw new FileNotFoundException($"Could not find file '{localPath}'.");
         }
     }
 }

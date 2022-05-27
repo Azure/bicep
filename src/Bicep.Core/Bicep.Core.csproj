@@ -16,26 +16,26 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.3" />
-    <PackageReference Include="Azure.Identity" Version="1.5.0" />
-    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0-beta.6" />
-    <PackageReference Include="JetBrains.Annotations" Version="2021.3.0">
+    <PackageReference Include="Azure.Containers.ContainerRegistry" Version="1.1.0-beta.4" />
+    <PackageReference Include="Azure.Identity" Version="1.6.0" />
+    <PackageReference Include="Azure.ResourceManager.Resources" Version="1.0.0" />
+    <PackageReference Include="JetBrains.Annotations" Version="2022.1.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="JsonPatch.Net" Version="1.1.2" />
-    <PackageReference Include="JsonPath.Net" Version="0.1.14" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+    <PackageReference Include="JsonPath.Net" Version="0.2.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="6.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-    <PackageReference Include="Azure.Deployments.Core" Version="1.0.546" />
-    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.546" />
-    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.546" />
-    <PackageReference Include="Azure.Bicep.Types" Version="0.1.410" />
-    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.410" />
+    <PackageReference Include="Azure.Deployments.Core" Version="1.0.594" />
+    <PackageReference Include="Azure.Deployments.Templates" Version="1.0.594" />
+    <PackageReference Include="Azure.Deployments.Expression" Version="1.0.594" />
+    <PackageReference Include="Azure.Bicep.Types" Version="0.1.486" />
+    <PackageReference Include="Azure.Bicep.Types.Az" Version="0.1.486" />
     <PackageReference Include="Azure.Bicep.Types.K8s" Version="0.1.11" />
-    <PackageReference Include="System.IO.Abstractions" Version="16.1.10" />
+    <PackageReference Include="System.IO.Abstractions" Version="16.1.25" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="CoreResources.Designer.cs">

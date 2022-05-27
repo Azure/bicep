@@ -99,7 +99,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
                     Name = $"`{p.Name}`",
                     Type = $"`{p.Type}`",
                     Required = p.Required ? "Yes" : "No",
-                    p.Description,
+                    Description = p.Description?.TrimStart().TrimEnd().ReplaceLineEndings("<br />"),
                 })
                 .ToMarkdownTable(columnName => columnName switch
                 {

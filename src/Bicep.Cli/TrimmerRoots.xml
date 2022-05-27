@@ -8,4 +8,5 @@
     <assembly fullname="System.Private.CoreLib"/>
     <assembly fullname="System.Collections.Immutable"/>
     <assembly fullname="System.ComponentModel.TypeConverter"/>
+    <assembly fullname="Microsoft.WindowsAzure.ResourceStack"/>
 </linker>

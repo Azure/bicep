@@ -1,14 +1,14 @@
 
 // wrong declaration
 bad
-//@[0:3) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
+//@[00:03) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |bad|
 
 // incomplete #completionTest(7) -> empty
 output 
-//@[7:7) [BCP016 (Error)] Expected an output identifier at this location. (CodeDescription: none) ||
+//@[07:07) [BCP016 (Error)] Expected an output identifier at this location. (CodeDescription: none) ||
 
 var testSymbol = 42
-//@[4:14) [no-unused-vars (Warning)] Variable "testSymbol" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testSymbol|
+//@[04:14) [no-unused-vars (Warning)] Variable "testSymbol" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testSymbol|
 
 // #completionTest(28,29) -> symbols
 output missingValueAndType = 
@@ -32,7 +32,7 @@ output boolCompletions bool =
 //@[30:30) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 output foo
-//@[7:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
+//@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[10:10) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // space after identifier #completionTest(20) -> outputTypes
@@ -50,8 +50,8 @@ output partialType obj
 
 // malformed identifier
 output 2
-//@[7:8) [BCP016 (Error)] Expected an output identifier at this location. (CodeDescription: none) |2|
-//@[8:8) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[07:08) [BCP016 (Error)] Expected an output identifier at this location. (CodeDescription: none) |2|
+//@[08:08) [BCP146 (Error)] Expected an output type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 
 // malformed type
 output malformedType 3
@@ -73,109 +73,109 @@ output lol 2 = true
 
 // wrong type + missing value
 output foo fluffy
-//@[7:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
+//@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[11:17) [BCP030 (Error)] The output type is not valid. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) |fluffy|
 //@[17:17) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // missing value
 output foo string
-//@[7:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
+//@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[17:17) [BCP018 (Error)] Expected the "=" character at this location. (CodeDescription: none) ||
 
 // missing value
 output foo string =
-//@[7:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
+//@[07:10) [BCP145 (Error)] Output "foo" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |foo|
 //@[19:19) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) ||
 
 // wrong string output values
 output str string = true
-//@[7:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
+//@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
 //@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "bool". (CodeDescription: none) |true|
 output str string = false
-//@[7:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
+//@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
 //@[20:25) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "bool". (CodeDescription: none) |false|
 output str string = [
-//@[7:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
+//@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
 //@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
 ]
 output str string = {
-//@[7:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
+//@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
 //@[20:24) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "object". (CodeDescription: none) |{\r\n}|
 }
 output str string = 52
-//@[7:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
+//@[07:10) [BCP145 (Error)] Output "str" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |str|
 //@[20:22) [BCP026 (Error)] The output expects a value of type "string" but the provided value is of type "int". (CodeDescription: none) |52|
 
 // wrong int output values
 output i int = true
-//@[7:8) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
+//@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:19) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "bool". (CodeDescription: none) |true|
 output i int = false
-//@[7:8) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
+//@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:20) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "bool". (CodeDescription: none) |false|
 output i int = [
-//@[7:8) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
+//@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:19) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
 ]
 output i int = }
-//@[7:8) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
+//@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:16) [BCP009 (Error)] Expected a literal value, an array, an object, a parenthesized expression, or a function call at this location. (CodeDescription: none) |}|
 }
-//@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |}|
+//@[00:01) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |}|
 output i int = 'test'
-//@[7:8) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
+//@[07:08) [BCP145 (Error)] Output "i" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |i|
 //@[15:21) [BCP026 (Error)] The output expects a value of type "int" but the provided value is of type "'test'". (CodeDescription: none) |'test'|
 
 // wrong bool output values
 output b bool = [
-//@[7:8) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
+//@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
 //@[16:20) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
 ]
 output b bool = {
-//@[7:8) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
+//@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
 //@[16:20) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "object". (CodeDescription: none) |{\r\n}|
 }
 output b bool = 32
-//@[7:8) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
+//@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
 //@[16:18) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "int". (CodeDescription: none) |32|
 output b bool = 'str'
-//@[7:8) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
+//@[07:08) [BCP145 (Error)] Output "b" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |b|
 //@[16:21) [BCP026 (Error)] The output expects a value of type "bool" but the provided value is of type "'str'". (CodeDescription: none) |'str'|
 
 // wrong array output values
 output arr array = 32
-//@[7:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
+//@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
 //@[19:21) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "int". (CodeDescription: none) |32|
 output arr array = true
-//@[7:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
+//@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
 //@[19:23) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "bool". (CodeDescription: none) |true|
 output arr array = false
-//@[7:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
+//@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
 //@[19:24) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "bool". (CodeDescription: none) |false|
 output arr array = {
-//@[7:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
+//@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
 //@[19:23) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "object". (CodeDescription: none) |{\r\n}|
 }
 output arr array = 'str'
-//@[7:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
+//@[07:10) [BCP145 (Error)] Output "arr" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |arr|
 //@[19:24) [BCP026 (Error)] The output expects a value of type "array" but the provided value is of type "'str'". (CodeDescription: none) |'str'|
 
 // wrong object output values
 output o object = 32
-//@[7:8) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
+//@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
 //@[18:20) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "int". (CodeDescription: none) |32|
 output o object = true
-//@[7:8) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
+//@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
 //@[18:22) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "bool". (CodeDescription: none) |true|
 output o object = false
-//@[7:8) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
+//@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
 //@[18:23) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "bool". (CodeDescription: none) |false|
 output o object = [
-//@[7:8) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
+//@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
 //@[18:22) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "array". (CodeDescription: none) |[\r\n]|
 ]
 output o object = 'str'
-//@[7:8) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
+//@[07:08) [BCP145 (Error)] Output "o" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |o|
 //@[18:23) [BCP026 (Error)] The output expects a value of type "object" but the provided value is of type "'str'". (CodeDescription: none) |'str'|
 
 // a few expression cases
@@ -191,13 +191,13 @@ output deeper bool = true ? -true : (14 && 's') + 10
 
 output myOutput string = 'hello'
 var attemptToReferenceAnOutput = myOutput
-//@[4:30) [no-unused-vars (Warning)] Variable "attemptToReferenceAnOutput" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |attemptToReferenceAnOutput|
+//@[04:30) [no-unused-vars (Warning)] Variable "attemptToReferenceAnOutput" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |attemptToReferenceAnOutput|
 //@[33:41) [BCP058 (Error)] The name "myOutput" is an output. Outputs cannot be referenced in expressions. (CodeDescription: none) |myOutput|
 
 @sys.maxValue(20)
-//@[5:13) [BCP129 (Error)] Function "maxValue" cannot be used as an output decorator. (CodeDescription: none) |maxValue|
+//@[05:13) [BCP129 (Error)] Function "maxValue" cannot be used as an output decorator. (CodeDescription: none) |maxValue|
 @minValue(10)
-//@[1:9) [BCP129 (Error)] Function "minValue" cannot be used as an output decorator. (CodeDescription: none) |minValue|
+//@[01:09) [BCP129 (Error)] Function "minValue" cannot be used as an output decorator. (CodeDescription: none) |minValue|
 output notAttachableDecorators int = 32
 
 // nested loops inside output loops are not supported
@@ -205,7 +205,7 @@ output noNestedLoops array = [for thing in things: {
 //@[43:49) [BCP057 (Error)] The name "things" does not exist in the current context. (CodeDescription: none) |things|
   something: [
     [for thing in things: true]
-//@[5:8) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
+//@[05:08) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
 //@[18:24) [BCP057 (Error)] The name "things" does not exist in the current context. (CodeDescription: none) |things|
   ]
 }]
@@ -213,13 +213,13 @@ output noNestedLoops array = [for thing in things: {
 // loops in inner properties inside outputs are not supported
 output noInnerLoopsInOutputs object = {
   a: [for i in range(0,10): i]
-//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
+//@[06:09) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
 }
 output noInnerLoopsInOutputs2 object = {
   a: [for i in range(0,10): {
-//@[6:9) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
+//@[06:09) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
     b: [for j in range(0,10): i+j]
-//@[8:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
+//@[08:11) [BCP138 (Error)] For-expressions are not supported in this context. For-expressions may be used as values of resource, module, variable, and output declarations, or values of resource and module properties. (CodeDescription: none) |for|
   }]
 }
 
@@ -239,20 +239,20 @@ output keyVaultSecretObjectOutput object = {
 }
 output keyVaultSecretArrayOutput array = [
   kv.getSecret('mySecret')
-//@[2:26) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
+//@[02:26) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 ]
 output keyVaultSecretArrayInterpolatedOutput array = [
   '${kv.getSecret('mySecret')}'
-//@[5:29) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
+//@[05:29) [BCP180 (Error)] Function "getSecret" is not valid at this location. It can only be used when directly assigning to a module parameter with a secure decorator. (CodeDescription: none) |kv.getSecret('mySecret')|
 ]
 
 // WARNING!!!!! dangling decorators
 
 // #completionTest(1) -> decoratorsPlusNamespace
 @
-//@[1:1) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
+//@[01:01) [BCP123 (Error)] Expected a namespace or decorator name at this location. (CodeDescription: none) ||
 // #completionTest(5) -> decorators
 @sys.
-//@[5:5) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
+//@[05:05) [BCP020 (Error)] Expected a function or property name at this location. (CodeDescription: none) ||
 
 // WARNING!!!!! dangling decorators - to make sure the tests work, please do not add contents after this line 

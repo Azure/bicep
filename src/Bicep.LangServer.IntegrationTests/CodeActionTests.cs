@@ -19,6 +19,7 @@ using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.Core.Workspaces;
+using Bicep.LangServer.IntegrationTests.Helpers;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Extensions;
 using Bicep.LanguageServer.Utils;
@@ -45,8 +46,37 @@ namespace Bicep.LangServer.IntegrationTests
         private const string RemoveUnusedVariableTitle = "Remove unused variable";
         private const string RemoveUnusedParameterTitle = "Remove unused parameter";
 
+        private static readonly SharedLanguageHelperManager DefaultServer = new();
+
+        private static readonly SharedLanguageHelperManager ServerWithFileResolver = new();
+
+        private static readonly SharedLanguageHelperManager ServerWithBuiltInTypes = new();
+
+        private static readonly SharedLanguageHelperManager ServerWithNamespaceProvider = new();
+
         [NotNull]
         public TestContext? TestContext { get; set; }
+        
+        [ClassInitialize]
+        public static void ClassInitialize(TestContext testContext)
+        {
+            DefaultServer.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext));
+
+            ServerWithFileResolver.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(FileResolver: new FileResolver())));
+
+            ServerWithBuiltInTypes.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create())));
+
+            ServerWithNamespaceProvider.Initialize(async () => await MultiFileLanguageServerHelper.StartLanguageServer(testContext, new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider)));
+        }
+
+        [ClassCleanup]
+        public static async Task ClassCleanup()
+        {
+            await DefaultServer.DisposeAsync();
+            await ServerWithFileResolver.DisposeAsync();
+            await ServerWithBuiltInTypes.DisposeAsync();
+            await ServerWithNamespaceProvider.DisposeAsync();
+        }
 
         [DataTestMethod]
         [DynamicData(nameof(GetData), DynamicDataSourceType.Method, DynamicDataDisplayNameDeclaringType = typeof(DataSet), DynamicDataDisplayName = nameof(DataSet.GetDisplayName))]
@@ -56,7 +86,9 @@ namespace Bicep.LangServer.IntegrationTests
             var uri = DocumentUri.From(fileUri);
 
             // start language server
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(this.TestContext, dataSet.Bicep, uri, creationOptions: new LanguageServer.Server.CreationOptions(FileResolver: new FileResolver()));
+            var helper = await ServerWithFileResolver.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, dataSet.Bicep, uri);
+
             var client = helper.Client;
 
             // construct a parallel compilation
@@ -189,16 +221,12 @@ namespace Bicep.LangServer.IntegrationTests
                     x.Code.Should().Be("no-unused-params");
                 });
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
-                this.TestContext,
-                bicepFileContents,
-                documentUri,
-                creationOptions: new Server.CreationOptions(NamespaceProvider: BuiltInTestTypes.Create()));
-            ILanguageClient client = helper.Client;
+            var helper = await ServerWithBuiltInTypes.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, bicepFileContents, documentUri);
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
-            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            var codeActions = await helper.Client.RequestCodeAction(new CodeActionParams
             {
                 TextDocument = new TextDocumentIdentifier(documentUri),
                 Range = diagnostics.First().ToRange(lineStarts)
@@ -305,16 +333,12 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                     x.Code.Should().Be("BCP037");
                 });
 
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(
-                this.TestContext,
-                bicepFileContents,
-                documentUri,
-                creationOptions: new Server.CreationOptions(NamespaceProvider: BicepTestConstants.NamespaceProvider));
-            ILanguageClient client = helper.Client;
+            var helper = await ServerWithNamespaceProvider.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, bicepFileContents, documentUri);
 
             var lineStarts = compilation.SourceFileGrouping.EntryPoint.LineStarts;
 
-            var codeActions = await client.RequestCodeAction(new CodeActionParams
+            var codeActions = await helper.Client.RequestCodeAction(new CodeActionParams
             {
                 TextDocument = new TextDocumentIdentifier(documentUri),
                 Range = diagnostics.First().ToRange(lineStarts)
@@ -507,11 +531,12 @@ param fo|o {paramType}
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunSyntaxTest(string fileWithCursors)
         {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
-            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri("file:///main.bicep"), file);
-            using var helper = await LanguageServerHelper.StartServerWithTextAsync(TestContext, file, bicepFile.FileUri);
-            var client = helper.Client;
+            var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
 
-            var codeActions = await RequestCodeActions(client, bicepFile, cursors.Single());
+            var helper = await DefaultServer.GetAsync();
+            await helper.OpenFileOnceAsync(TestContext, file, bicepFile.FileUri);
+
+            var codeActions = await RequestCodeActions(helper.Client, bicepFile, cursors.Single());
             return (codeActions, bicepFile);
         }
 
