@@ -4,7 +4,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Configuration;
@@ -115,7 +114,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded|  * ./localmodule2.bicep: Succeeded");
         }
-        
+
         [TestMethod]
         public async Task Handle_WithValidPath_AndTwoLocalModules_InInputFile_WhichOneDoNotExist_ReturnsSummaryMessage()
         {
@@ -152,7 +151,7 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
 
             expected.Should().Be(@"Restore (force) summary: |  * ./localmodule1.bicep: Succeeded");
         }
-        
+
 
         // One scenario not tested here is when we have an external module and another file than the module lock is locked, which prevent the directory delete. We don't have a test for the message
      }
