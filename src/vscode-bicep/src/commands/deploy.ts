@@ -1,5 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
+import * as fse from "fs-extra";
 import * as path from "path";
 import vscode, { commands, Uri } from "vscode";
 import { AccessToken } from "@azure/identity";
@@ -32,7 +33,6 @@ import {
   BicepUpdatedDeploymentParameter,
 } from "../language";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
-import fs from "fs";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem = {
@@ -421,10 +421,11 @@ export class DeployCommand implements Command {
 
   private async selectParameterFile(
     _context: IActionContext,
-    sourceUri: Uri | undefined
+    sourceUri: Uri
   ): Promise<string | undefined> {
+    const folder = path.dirname(sourceUri.fsPath);
     const quickPickItems: IAzureQuickPickItem[] =
-      await this.createParameterFileQuickPickList();
+      await this.createParameterFileQuickPickList(folder);
     const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
       quickPickItems,
       {
@@ -450,6 +451,10 @@ export class DeployCommand implements Command {
         );
         return parameterFilePath;
       }
+    } else if (result == this._none) {
+      return undefined;
+    } else {
+      return path.join(folder, result.label);
     }
 
     return undefined;
@@ -521,9 +526,9 @@ export class DeployCommand implements Command {
   ) {
     let placeholder: string;
     if (parametersFileExists) {
-      placeholder = `Do you want to update ${parametersFileName} with values used in this deployment?`;
+      placeholder = `Update ${parametersFileName} with values used in this deployment?`;
     } else {
-      placeholder = `Do you want to create ${parametersFileName} with values used in this deployment?`;
+      placeholder = `Create parameters file from values used in this deployment?`;
     }
 
     const quickPickItems: IAzureQuickPickItem[] = [];
@@ -605,9 +610,36 @@ export class DeployCommand implements Command {
     return undefined;
   }
 
-  private async createParameterFileQuickPickList(): Promise<
-    IAzureQuickPickItem[]
-  > {
-    return [this._none].concat([this._browse]);
+  private async createParameterFileQuickPickList(
+    folder: string
+  ): Promise<IAzureQuickPickItem[]> {
+    let parameterFilesQuickPickList = [this._none].concat([this._browse]);
+    const jsonFilesInFolder = await this.getJsonFilesInFolder(folder);
+
+    if (jsonFilesInFolder) {
+      parameterFilesQuickPickList =
+        parameterFilesQuickPickList.concat(jsonFilesInFolder);
+    }
+
+    return parameterFilesQuickPickList;
+  }
+
+  private async getJsonFilesInFolder(
+    folder: string
+  ): Promise<IAzureQuickPickItem[]> {
+    const quickPickItems: IAzureQuickPickItem[] = [];
+    const fileNames: string[] = await fse.readdir(folder);
+    for (const fileName of fileNames) {
+      const extension = path.extname(fileName).toLowerCase();
+      if (extension === ".json" || extension === ".jsonc") {
+        const quickPickItem: IAzureQuickPickItem = {
+          label: fileName,
+          data: undefined,
+        };
+        quickPickItems.push(quickPickItem);
+      }
+    }
+
+    return quickPickItems;
   }
 }
