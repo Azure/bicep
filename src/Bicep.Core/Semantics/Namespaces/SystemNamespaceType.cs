@@ -501,40 +501,45 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
         }.ToImmutableArray();
 
-        private static Uri? GetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, string filePath, SyntaxBase filePathArgument)
+        private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)
         {
             if (!LocalModuleReference.Validate(filePath, out var validateFilePathFailureBuilder))
             {
-                diagnostics.Write(validateFilePathFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument)));
-                return null;
+                fileUri = null;
+                error = validateFilePathFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument));
+                return false;
             }
-
-            var fileUri = fileResolver.TryResolveFilePath(binder.FileSymbol.FileUri, filePath);
+            fileUri = fileResolver.TryResolveFilePath(binder.FileSymbol.FileUri, filePath);
             if (fileUri is null)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument).FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath));
-                return null;
+                error = DiagnosticBuilder.ForPosition(filePathArgument).FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath);
+                return false;
             }
 
             if (!fileUri.IsFile)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument).UnableToLoadNonFileUri(fileUri));
-                return null;
+                error = DiagnosticBuilder.ForPosition(filePathArgument).UnableToLoadNonFileUri(fileUri);
+                return false;
             }
-            return fileUri;
+            error = null;
+            return true;
         }
 
         private static FunctionOverload.ResultBuilderDelegate PerformArmConversionOfStringLiterals(string armFunctionName) =>
             (_, _, diagnostics, arguments, argumentTypes) =>
             {
-                if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType)) {
+                if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType))
+                {
                     var parameters = argumentTypes.OfType<StringLiteralType>().Select(slt => JValue.CreateString(slt.RawStringValue)).ToArray();
-                    try {
-                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters) is JValue {Value: string stringValue})
+                    try
+                    {
+                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters) is JValue { Value: string stringValue })
                         {
                             return new(new StringLiteralType(stringValue));
                         }
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e)
+                    {
                         // The ARM function invoked will almost certainly fail at runtime, but there's a chance a fix has been
                         // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
                         // be reported as a warning, and the fallback type will be used.
@@ -556,9 +561,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 (arguments[0], argumentTypes[0]),
                 arguments.Length > 1 ? (arguments[1], argumentTypes[1]) : null,
                 out var fileContent,
+                out var errorDiagnostic,
                 LanguageConstants.MaxLiteralCharacterLimit)
                 ? new(new StringLiteralType(fileContent))
-                : new(LanguageConstants.String);
+                : new(ErrorType.Create(errorDiagnostic));
         }
 
         private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
@@ -568,8 +574,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired());
-                    return new(LanguageConstants.Any);
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired()));
                 }
                 tokenSelectorPath = tokenSelectorType.RawStringValue;
             }
@@ -577,17 +582,17 @@ namespace Bicep.Core.Semantics.Namespaces
                     (arguments[0], argumentTypes[0]),
                     arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null,
                     out var fileContent,
+                    out var errorDiagnostic,
                     LanguageConstants.MaxJsonFileCharacterLimit))
             {
-                return new(LanguageConstants.Any);
+                return new(ErrorType.Create(errorDiagnostic));
             }
 
             if (fileContent.TryFromJson<JToken>() is not { } token)
             {
                 // Instead of catching and returning the JSON parse exception, we simply return a generic error.
                 // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
-                var error = DiagnosticBuilder.ForPosition(arguments[0]).UnparseableJsonType();
-                return new(ErrorType.Create(error));
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).UnparseableJsonType()));
             }
 
             if (tokenSelectorPath is not null)
@@ -597,33 +602,32 @@ namespace Bicep.Core.Semantics.Namespaces
                     token = token.SelectToken(tokenSelectorPath, false);
                     if (token is null)
                     {
-                        diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid());
-                        return new(LanguageConstants.Any);
+                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
                     }
                 }
                 catch (JsonException)
                 {
                     //path is invalid or user hasn't finished typing it yet
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid());
-                    return new(LanguageConstants.Any);
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
                 }
             }
             return new(ConvertJsonToBicepType(token), token);
         }
 
-        private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, int maxCharacters = -1)
+        private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
         {
             fileContent = null;
+            errorDiagnostic = null;
 
             if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired());
+                errorDiagnostic = DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired();
                 return false;
             }
             var filePathValue = filePathType.RawStringValue;
 
-            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, filePathArgument.syntax);
-            if (fileUri is null)
+
+            if (!TryGetFileUriWithDiagnostics(binder, fileResolver, filePathValue, filePathArgument.syntax, out var fileUri, out errorDiagnostic))
             {
                 return false;
             }
@@ -633,7 +637,7 @@ namespace Bicep.Core.Semantics.Namespaces
             {
                 if (encodingArgument.Value.typeSymbol is not StringLiteralType encodingType)
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).CompileTimeConstantRequired());
+                    errorDiagnostic = DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).CompileTimeConstantRequired();
                     return false;
                 }
                 fileEncoding = LanguageConstants.SupportedEncodings.First(x => string.Equals(x.name, encodingType.RawStringValue, LanguageConstants.IdentifierComparison)).encoding;
@@ -641,7 +645,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             if (!fileResolver.TryRead(fileUri, out fileContent, out var fileReadFailureBuilder, fileEncoding, maxCharacters, out var detectedEncoding))
             {
-                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument.syntax)));
+                errorDiagnostic = fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument.syntax));
                 return false;
             }
 
@@ -662,15 +666,13 @@ namespace Bicep.Core.Semantics.Namespaces
             }
             var filePathValue = filePathType.RawStringValue;
 
-            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, arguments[0]);
-            if (fileUri is null)
+            if (!TryGetFileUriWithDiagnostics(binder, fileResolver, filePathValue, arguments[0], out var fileUri, out var errorDiagnostic))
             {
-                return new(LanguageConstants.String);
+                return new(ErrorType.Create(errorDiagnostic));
             }
             if (!fileResolver.TryReadAsBase64(fileUri, out var fileContent, out var fileReadFailureBuilder, LanguageConstants.MaxLiteralCharacterLimit))
             {
-                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
-                return new(LanguageConstants.String);
+                return new(ErrorType.Create(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0]))));
             }
 
             return new(new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent));
