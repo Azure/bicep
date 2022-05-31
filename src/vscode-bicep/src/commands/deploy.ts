@@ -35,13 +35,13 @@ import {
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 
 export class DeployCommand implements Command {
-  private _none: IAzureQuickPickItem = {
+  private _none: IAzureQuickPickItem<string> = {
     label: localize("none", "$(circle-slash) None"),
-    data: undefined,
+    data: "",
   };
-  private _browse: IAzureQuickPickItem = {
+  private _browse: IAzureQuickPickItem<string> = {
     label: localize("browse", "$(file-directory) Browse..."),
-    data: undefined,
+    data: "",
   };
 
   public readonly id = "bicep.deploy";
@@ -424,9 +424,9 @@ export class DeployCommand implements Command {
     sourceUri: Uri
   ): Promise<string | undefined> {
     const folder = path.dirname(sourceUri.fsPath);
-    const quickPickItems: IAzureQuickPickItem[] =
+    const quickPickItems: IAzureQuickPickItem<string>[] =
       await this.createParameterFileQuickPickList(folder);
-    const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+    const result: IAzureQuickPickItem<string> = await _context.ui.showQuickPick(
       quickPickItems,
       {
         canPickMany: false,
@@ -454,7 +454,7 @@ export class DeployCommand implements Command {
     } else if (result == this._none) {
       return undefined;
     } else {
-      return path.join(folder, result.label);
+      return path.join(folder, result.data);
     }
 
     return undefined;
@@ -612,7 +612,7 @@ export class DeployCommand implements Command {
 
   private async createParameterFileQuickPickList(
     folder: string
-  ): Promise<IAzureQuickPickItem[]> {
+  ): Promise<IAzureQuickPickItem<string>[]> {
     let parameterFilesQuickPickList = [this._none].concat([this._browse]);
     const jsonFilesInFolder = await this.getJsonFilesInFolder(folder);
 
@@ -626,15 +626,15 @@ export class DeployCommand implements Command {
 
   private async getJsonFilesInFolder(
     folder: string
-  ): Promise<IAzureQuickPickItem[]> {
-    const quickPickItems: IAzureQuickPickItem[] = [];
+  ): Promise<IAzureQuickPickItem<string>[]> {
+    const quickPickItems: IAzureQuickPickItem<string>[] = [];
     const fileNames: string[] = await fse.readdir(folder);
     for (const fileName of fileNames) {
       const extension = path.extname(fileName).toLowerCase();
       if (extension === ".json" || extension === ".jsonc") {
-        const quickPickItem: IAzureQuickPickItem = {
-          label: fileName,
-          data: undefined,
+        const quickPickItem: IAzureQuickPickItem<string> = {
+          label: `${"$(json) "} ${fileName}`,
+          data: fileName,
         };
         quickPickItems.push(quickPickItem);
       }
