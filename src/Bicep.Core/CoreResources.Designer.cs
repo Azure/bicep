@@ -430,7 +430,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax..
+        ///   Looks up a localized string similar to Use unquoted property names when possible..
         /// </summary>
         internal static string PreferPropertyNamesNoQuotationRuleDescription {
             get {

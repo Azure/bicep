@@ -294,6 +294,6 @@
     <comment>{0} is a programmatic language expression</comment>
   </data>
   <data name="PreferPropertyNamesNoQuotationRuleDescription" xml:space="preserve">
-    <value>Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax.</value>
+    <value>Use unquoted property names when possible.</value>
   </data>
 </root>
