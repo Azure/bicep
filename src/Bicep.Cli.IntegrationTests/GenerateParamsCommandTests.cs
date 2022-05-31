@@ -127,5 +127,133 @@ namespace Bicep.Cli.IntegrationTests
 }".ReplaceLineEndings());
             }
         }
+
+        [TestMethod]
+        public async Task GenerateParams_OneParameter_ExistingParamsFileWithTheSameParameter_Should_Succeed()
+        {
+            var bicep = $@"param name string = 'sampleparameter'";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var existingParamsFilePath = Path.Combine(tempDirectory, "built.parameters.json");
+            File.WriteAllText(existingParamsFilePath, @"{ ""parameters"": {
+""name"": { ""value"": ""existingparameter"" }
+} }".ReplaceLineEndings());
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""dev""
+    }
+  },
+  ""parameters"": {
+    ""name"": {
+      ""value"": ""existingparameter""
+    }
+  }
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_OneParameter_ExistingParamsFileWithExtraParameter_Should_RemoveExtraParameter()
+        {
+            var bicep = $@"param name string = 'sampleparameter'";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var existingParamsFilePath = Path.Combine(tempDirectory, "built.parameters.json");
+            File.WriteAllText(existingParamsFilePath, @"{ ""parameters"": {
+""name"": { ""value"": ""existingparameter"" },
+""location"": { ""value"": ""existinglocation"" }
+} }".ReplaceLineEndings());
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""dev""
+    }
+  },
+  ""parameters"": {
+    ""name"": {
+      ""value"": ""existingparameter""
+    }
+  }
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_OneParameter_ExistingParamsFileWithDifferentParameters_Should_RemoveExtraParameters()
+        {
+            var bicep = $@"param name string = 'sampleparameter'";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var existingParamsFilePath = Path.Combine(tempDirectory, "built.parameters.json");
+            File.WriteAllText(existingParamsFilePath, @"{ ""parameters"": {
+""param"": { ""value"": ""existingparameter"" },
+""location"": { ""value"": ""existinglocation"" }
+} }".ReplaceLineEndings());
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""dev""
+    }
+  },
+  ""parameters"": {
+    ""name"": {
+      ""value"": ""sampleparameter""
+    }
+  }
+}".ReplaceLineEndings());
+            }
+        }
     }
 }
