@@ -62,7 +62,21 @@ namespace Bicep.Cli.Commands
                 }
                 else
                 {
-                    var outputPath = PathHelper.ResolveParametersFileOutputPath(inputPath);
+                    var outputPath = string.Empty;
+                    if (!string.IsNullOrWhiteSpace(args.OutputDir))
+                    {
+                        outputPath = args.OutputDir;
+                    }
+                    else if (!string.IsNullOrWhiteSpace(args.OutputFile))
+                    {
+                        outputPath = args.OutputFile;
+                    }
+                    else
+                    {
+                        outputPath = inputPath;
+                    }
+
+                    outputPath = PathHelper.ResolveParametersFileOutputPath(outputPath);
 
                     writer.ToFile(compilation, outputPath);
                 }
