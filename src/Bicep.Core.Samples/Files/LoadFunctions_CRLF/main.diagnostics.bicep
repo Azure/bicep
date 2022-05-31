@@ -26,12 +26,12 @@ var loadedTextInterpolation2 = 'Text: ${loadTextContent('Assets/TextFile.LF.txt'
 var loadedTextObject1 = {
 //@[4:21) [no-unused-vars (Warning)] Variable "loadedTextObject1" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextObject1|
   'text' : loadTextContent('Assets/TextFile.CRLF.txt')
-//@[2:08) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'text'|
+//@[2:08) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'text'|
 }
 var loadedTextObject2 = {
 //@[4:21) [no-unused-vars (Warning)] Variable "loadedTextObject2" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextObject2|
   'text' : loadTextContent('Assets/TextFile.LF.txt')  
-//@[2:08) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'text'|
+//@[2:08) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'text'|
 }
 var loadedBinaryInObject = {
 //@[4:24) [no-unused-vars (Warning)] Variable "loadedBinaryInObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedBinaryInObject|
@@ -47,7 +47,7 @@ var loadedTextArray = [
 var loadedTextArrayInObject = {
 //@[4:27) [no-unused-vars (Warning)] Variable "loadedTextArrayInObject" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextArrayInObject|
   'files' : [
-//@[2:09) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'files'|
+//@[2:09) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'files'|
     loadTextContent('Assets/TextFile.CRLF.txt')
     loadFileAsBase64('Assets/binary')
   ]
@@ -56,7 +56,7 @@ var loadedTextArrayInObject = {
 var loadedTextArrayInObjectFunctions = {
 //@[4:36) [no-unused-vars (Warning)] Variable "loadedTextArrayInObjectFunctions" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |loadedTextArrayInObjectFunctions|
   'files' : [
-//@[2:09) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'files'|
+//@[2:09) [prefer-property-names-no-quotation (Warning)] Properties that are valid identifiers should be declared without quotations and accessed using dot notation. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'files'|
     length(loadTextContent('Assets/TextFile.CRLF.txt'))
     sys.length(loadTextContent('Assets/TextFile.LF.txt'))
     length(loadFileAsBase64('Assets/binary'))
