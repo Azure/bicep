@@ -9,13 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Bicep.Core.Diagnostics;
-using Microsoft.WindowsAzure.ResourceStack.Common.Extensions;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.IntegrationTests.Scenarios
 {
     /// <summary>
-    /// Tests below will not test actual loading file just the fact that bicep function accepts parameters and produces expected values in ARM template output. 
+    /// Tests below will not test actual loading file just the fact that bicep function accepts parameters and produces expected values in ARM template output.
     /// Loading file is done via IFileResolver - here we use InMemoryFileResolver, therefore no actual file reading can be tested.
     /// Testing FileResolver is covered in a separate place. E2E Testing is done in baseline tests
     /// </summary>
