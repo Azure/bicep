@@ -58,7 +58,7 @@ export interface BicepDeploymentScopeResponse {
 
 export interface BicepDeploymentStartParams {
   documentPath: string;
-  parameterFilePath: string;
+  parametersFilePath: string;
   id: string;
   deploymentScope: string;
   location: string;
@@ -67,9 +67,8 @@ export interface BicepDeploymentStartParams {
   expiresOnTimestamp: string;
   deployId: string;
   portalUrl: string;
-  parametersFileExists: boolean;
   parametersFileName: string;
-  shouldUpdateOrCreateParametersFile: boolean;
+  updateOrCreateParametersFile: ParametersFileCreateOrUpdate;
   updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
 }
 
@@ -93,7 +92,6 @@ export interface BicepDeploymentParameter {
 
 export interface BicepDeploymentParametersResponse {
   deploymentParameters: BicepDeploymentParameter[];
-  parametersFileExists: boolean;
   parametersFileName: string;
   errorMessage?: string;
 }
@@ -101,6 +99,12 @@ export interface BicepDeploymentParametersResponse {
 export interface BicepUpdatedDeploymentParameter {
   name: string;
   value: string;
+}
+
+export enum ParametersFileCreateOrUpdate {
+  Create = 1,
+  Update = 2,
+  None = 3,
 }
 
 export interface BicepCacheResponse {

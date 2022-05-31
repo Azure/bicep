@@ -18,7 +18,7 @@ namespace Bicep.LanguageServer.Handlers
 
     public record BicepDeploymentStartParams(
         string documentPath,
-        string parameterFilePath,
+        string parametersFilePath,
         string id,
         string deploymentScope,
         string location,
@@ -29,7 +29,7 @@ namespace Bicep.LanguageServer.Handlers
         string portalUrl,
         bool parametersFileExists,
         string parametersFileName,
-        bool shouldUpdateOrCreateParametersFile,
+        ParametersFileCreateOrUpdate updateOrCreateParametersFile,
         List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters) : IRequest<string>;
 
     public record BicepDeploymentStartResponse(bool isSuccess, string outputMessage, string? viewDeploymentInPortalMessage);
@@ -62,14 +62,13 @@ namespace Bicep.LanguageServer.Handlers
                 armClient,
                 request.documentPath,
                 request.template,
-                request.parameterFilePath,
+                request.parametersFilePath,
                 request.id,
                 request.deploymentScope,
                 request.location,
                 request.deployId,
-                request.parametersFileExists,
                 request.parametersFileName,
-                request.shouldUpdateOrCreateParametersFile,
+                request.updateOrCreateParametersFile,
                 request.updatedDeploymentParameters,
                 request.portalUrl,
                 deploymentName,

@@ -16,13 +16,13 @@ namespace Bicep.LanguageServer.Deploy
             string documentPath,
             string parametersFileName,
             string parametersFilePath,
-            bool parametersFileExists,
-            bool shouldUpdateOrCreateParametersFile,
+            ParametersFileCreateOrUpdate updateOrCreateParametersFile,
             IEnumerable<BicepUpdatedDeploymentParameter> updatedDeploymentParameters)
         {
             try
             {
-                string text = parametersFileExists ? File.ReadAllText(parametersFilePath) : "{}";
+                string text = !string.IsNullOrWhiteSpace(parametersFilePath) ? File.ReadAllText(parametersFilePath) : "{}";
+
                 var jObject = JObject.Parse(text);
 
                 foreach (var updatedDeploymentParameter in updatedDeploymentParameters)
@@ -44,13 +44,13 @@ namespace Bicep.LanguageServer.Deploy
                 }
 
                 var updatedParametersFileContents = jObject.ToString();
-                if (updatedDeploymentParameters.Any() && shouldUpdateOrCreateParametersFile)
+                if (updatedDeploymentParameters.Any())
                 {
-                    if (parametersFileExists)
+                    if (updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Update)
                     {
                         File.WriteAllText(parametersFilePath, updatedParametersFileContents);
                     }
-                    else
+                    else if(updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Create)
                     {
                         var directoryContainingBicepFile = Path.GetDirectoryName(documentPath);
                         if (directoryContainingBicepFile is not null)

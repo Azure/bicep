@@ -44,9 +44,8 @@ namespace Bicep.LanguageServer.Deploy
             string scope,
             string location,
             string deploymentId,
-            bool parametersFileExists,
             string parametersFileName,
-            bool shouldUpdateOrCreateParametersFile,
+            ParametersFileCreateOrUpdate updateOrCreateParametersFile,
             List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters,
             string portalUrl,
             string deploymentName,
@@ -77,7 +76,7 @@ namespace Bicep.LanguageServer.Deploy
 
                 try
                 {
-                    var updatedParametersFileContents = DeploymentParametersHelper.GetUpdatedParametersFileContents(documentPath, parametersFileName, parametersFilePath, parametersFileExists, shouldUpdateOrCreateParametersFile, updatedDeploymentParameters);
+                    var updatedParametersFileContents = DeploymentParametersHelper.GetUpdatedParametersFileContents(documentPath, parametersFileName, parametersFilePath, updateOrCreateParametersFile, updatedDeploymentParameters);
                     parameters = JsonElementFactory.CreateElement(updatedParametersFileContents);
                 }
                 catch (Exception e)

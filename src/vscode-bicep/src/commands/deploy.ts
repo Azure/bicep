@@ -2,20 +2,7 @@
 // Licensed under the MIT License.
 import * as fse from "fs-extra";
 import * as path from "path";
-import vscode, { commands, Uri } from "vscode";
-import { AccessToken } from "@azure/identity";
-import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
-import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
-import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
-import { Command } from "./types";
-import { localize } from "../utils/localize";
-import { LocationTreeItem } from "../tree/LocationTreeItem";
-import { OutputChannelManager } from "../utils/OutputChannelManager";
-import { TreeManager } from "../tree/TreeManager";
-import {
-  LanguageClient,
-  TextDocumentIdentifier,
-} from "vscode-languageclient/node";
+
 import {
   AzExtTreeDataProvider,
   IActionContext,
@@ -24,15 +11,31 @@ import {
   parseError,
 } from "@microsoft/vscode-azext-utils";
 import {
+  BicepDeploymentParametersResponse,
   BicepDeploymentScopeParams,
   BicepDeploymentScopeResponse,
-  BicepDeploymentWaitForCompletionParams,
   BicepDeploymentStartParams,
   BicepDeploymentStartResponse,
-  BicepDeploymentParametersResponse,
+  BicepDeploymentWaitForCompletionParams,
   BicepUpdatedDeploymentParameter,
+  ParametersFileCreateOrUpdate,
 } from "../language";
+import {
+  LanguageClient,
+  TextDocumentIdentifier,
+} from "vscode-languageclient/node";
+import vscode, { Uri, commands } from "vscode";
+
+import { AccessToken } from "@azure/identity";
+import { AzLoginTreeItem } from "../tree/AzLoginTreeItem";
+import { AzManagementGroupTreeItem } from "../tree/AzManagementGroupTreeItem";
+import { AzResourceGroupTreeItem } from "../tree/AzResourceGroupTreeItem";
+import { Command } from "./types";
+import { LocationTreeItem } from "../tree/LocationTreeItem";
+import { OutputChannelManager } from "../utils/OutputChannelManager";
+import { TreeManager } from "../tree/TreeManager";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import { localize } from "../utils/localize";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem<string> = {
@@ -306,7 +309,7 @@ export class DeployCommand implements Command {
   private async sendDeployStartCommand(
     context: IActionContext,
     documentPath: string,
-    parameterFilePath: string | undefined,
+    parametersFilePath: string | undefined,
     id: string,
     deploymentScope: string,
     location: string,
@@ -314,12 +317,12 @@ export class DeployCommand implements Command {
     subscription: ISubscriptionContext,
     deployId: string
   ): Promise<BicepDeploymentStartResponse | undefined> {
-    if (!parameterFilePath) {
+    if (!parametersFilePath) {
       context.telemetry.properties.parameterFileProvided = "false";
       this.outputChannelManager.appendToOutputChannel(
         `No parameter file was provided`
       );
-      parameterFilePath = "";
+      parametersFilePath = "";
     } else {
       context.telemetry.properties.parameterFileProvided = "true";
     }
@@ -333,30 +336,26 @@ export class DeployCommand implements Command {
       const expiresOnTimestamp = String(accessToken.expiresOnTimestamp);
       const portalUrl = subscription.environment.portalUrl;
 
-      const [
-        parametersFileExists,
-        parametersFileName,
-        updatedDeploymentParameters,
-      ] = await this.handleMissingAndDefaultParams(
-        context,
-        documentPath,
-        parameterFilePath,
-        template
-      );
+      const [parametersFileName, updatedDeploymentParameters] =
+        await this.handleMissingAndDefaultParams(
+          context,
+          documentPath,
+          parametersFilePath,
+          template
+        );
 
-      let shouldUpdateOrCreateParametersFile = false;
+      let updateOrCreateParametersFile = ParametersFileCreateOrUpdate.None;
       if (updatedDeploymentParameters.length > 0) {
-        shouldUpdateOrCreateParametersFile =
-          await this.updateOrCreateParametersFile(
-            context,
-            parametersFileExists,
-            parametersFileName
-          );
+        updateOrCreateParametersFile = await this.updateOrCreateParametersFile(
+          context,
+          await fse.pathExists(parametersFilePath),
+          parametersFileName
+        );
       }
 
       const deploymentStartParams: BicepDeploymentStartParams = {
         documentPath,
-        parameterFilePath,
+        parametersFilePath,
         id,
         deploymentScope,
         location,
@@ -365,9 +364,8 @@ export class DeployCommand implements Command {
         expiresOnTimestamp,
         deployId,
         portalUrl,
-        parametersFileExists,
         parametersFileName,
-        shouldUpdateOrCreateParametersFile,
+        updateOrCreateParametersFile,
         updatedDeploymentParameters,
       };
       const deploymentStartResponse: BicepDeploymentStartResponse =
@@ -376,6 +374,15 @@ export class DeployCommand implements Command {
           arguments: [deploymentStartParams],
         });
 
+      if (updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Create) {
+        parametersFilePath = path.join(
+          path.dirname(documentPath),
+          parametersFileName
+        );
+        const parametersFileTextDocument =
+          await vscode.workspace.openTextDocument(parametersFilePath);
+        await vscode.window.showTextDocument(parametersFileTextDocument);
+      }
       return deploymentStartResponse;
     }
 
@@ -465,7 +472,7 @@ export class DeployCommand implements Command {
     documentPath: string,
     parameterFilePath: string | undefined,
     template: string | undefined
-  ): Promise<[boolean, string, BicepUpdatedDeploymentParameter[]]> {
+  ): Promise<[string, BicepUpdatedDeploymentParameter[]]> {
     const bicepDeploymentParametersResponse: BicepDeploymentParametersResponse =
       await this.client.sendRequest("workspace/executeCommand", {
         command: "getDeploymentParameters",
@@ -513,7 +520,6 @@ export class DeployCommand implements Command {
     }
 
     return [
-      bicepDeploymentParametersResponse.parametersFileExists,
       bicepDeploymentParametersResponse.parametersFileName,
       updatedDeploymentParameters,
     ];
@@ -525,9 +531,12 @@ export class DeployCommand implements Command {
     parametersFileName: string
   ) {
     let placeholder: string;
+    let createOrUpdate: ParametersFileCreateOrUpdate;
     if (parametersFileExists) {
+      createOrUpdate = ParametersFileCreateOrUpdate.Update;
       placeholder = `Update ${parametersFileName} with values used in this deployment?`;
     } else {
+      createOrUpdate = ParametersFileCreateOrUpdate.Create;
       placeholder = `Create parameters file from values used in this deployment?`;
     }
 
@@ -553,9 +562,9 @@ export class DeployCommand implements Command {
     );
 
     if (result == yes) {
-      return true;
+      return createOrUpdate;
     }
-    return false;
+    return ParametersFileCreateOrUpdate.None;
   }
 
   private async selectValueForParameterOfTypeExpression(

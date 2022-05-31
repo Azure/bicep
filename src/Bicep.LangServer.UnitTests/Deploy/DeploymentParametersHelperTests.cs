@@ -34,8 +34,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 bicepFilePath,
                 "parameters.json",
                 parametersFilePath,
-                true,
-                false,
+                ParametersFileCreateOrUpdate.None,
                 new List<BicepUpdatedDeploymentParameter>());
 
             result.Should().Be(parametersFileContents);
@@ -63,8 +62,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 bicepFilePath,
                 "parameters.json",
                 parametersFilePath,
-                true,
-                false,
+                ParametersFileCreateOrUpdate.None,
                 bicepUpdatedDeploymentParameters);
             var expected = @"{
   ""location"": {
@@ -95,8 +93,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 bicepFilePath,
                 "input.parameters.json",
                 string.Empty,
-                false,
-                true,
+                ParametersFileCreateOrUpdate.Create,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
   ""location"": {
@@ -137,8 +134,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 bicepFilePath,
                 "input.parameters.json",
                 parametersFilePath,
-                true,
-                true,
+                ParametersFileCreateOrUpdate.Update,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
   ""location"": {
@@ -180,8 +176,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 bicepFilePath,
                 "input.parameters.json",
                 parametersFilePath,
-                true,
-                true,
+                ParametersFileCreateOrUpdate.Update,
                 bicepUpdatedDeploymentParameters);
 
             action.Should().Throw<Exception>();
