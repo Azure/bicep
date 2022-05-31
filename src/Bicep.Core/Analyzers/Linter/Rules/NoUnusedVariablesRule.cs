@@ -10,7 +10,7 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class NoUnusedVariablesRule : LinterRuleBase
+    public sealed class NoUnusedVariablesRule : NoUnusedRuleBase
     {
         public new const string Code = "no-unused-vars";
 
@@ -35,11 +35,11 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // variables must have a reference of type VariableAccessSyntax
             var unreferencedVariables = model.Root.Declarations.OfType<VariableSymbol>()
-                                    .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
-
+                .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
+                .Where(sym => sym.NameSyntax.IsValid);
             foreach (var sym in unreferencedVariables)
             {
-                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span, sym.Name);
+                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
 
             // TODO: This will not find local variables because they are not in the top-level scope.
@@ -47,13 +47,18 @@ namespace Bicep.Core.Analyzers.Linter.Rules
 
             // local variables must have a reference of type VariableAccessSyntax
             var unreferencedLocalVariables = model.Root.Declarations.OfType<LocalVariableSymbol>()
-                        .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
-
+                        .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
+                        .Where(sym => sym.NameSyntax.IsValid);
 
             foreach (var sym in unreferencedLocalVariables)
             {
-                yield return CreateDiagnosticForSpan(sym.NameSyntax.Span, sym.Name);
+                yield return CreateRemoveUnusedDiagnosticForSpan(sym.Name, sym.NameSyntax, sym.DeclaringSyntax, model.SourceFile.ProgramSyntax);
             }
+        }
+
+        override protected string  GetCodeFixDescription(string name)
+        {
+            return $"Remove unused variable {name}";
         }
     }
 }

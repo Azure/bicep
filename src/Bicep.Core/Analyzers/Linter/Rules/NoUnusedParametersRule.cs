@@ -10,14 +10,15 @@ using System.Linq;
 
 namespace Bicep.Core.Analyzers.Linter.Rules
 {
-    public sealed class NoUnusedParametersRule : LinterRuleBase
+    public sealed class NoUnusedParametersRule : NoUnusedRuleBase
     {
         public new const string Code = "no-unused-params";
+
         public NoUnusedParametersRule() : base(
             code: Code,
             description: CoreResources.ParameterMustBeUsedRuleDescription,
             docUri: new Uri($"https://aka.ms/bicep/linter/{Code}"),
-            diagnosticStyling: Diagnostics.DiagnosticStyling.ShowCodeAsUnused)
+            diagnosticStyling: DiagnosticStyling.ShowCodeAsUnused)
         { }
 
         public override string FormatMessage(params object[] values)
@@ -31,9 +32,15 @@ namespace Bicep.Core.Analyzers.Linter.Rules
             //  1) One reference will be the the paramater syntax declaration
             //  2) VariableAccessSyntax indicates a reference to the parameter
             var unreferencedParams = model.Root.ParameterDeclarations
-                                    .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
+                .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
+                .Where(sym => sym.NameSyntax.IsValid);
 
-            return unreferencedParams.Select(param => CreateDiagnosticForSpan(param.NameSyntax.Span, param.Name));
+            return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.ProgramSyntax));
+        }
+
+        override protected string GetCodeFixDescription(string name)
+        {
+            return $"Remove unused parameter {name}";
         }
     }
 }

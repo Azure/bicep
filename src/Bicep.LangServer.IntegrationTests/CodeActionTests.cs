@@ -43,6 +43,8 @@ namespace Bicep.LangServer.IntegrationTests
         private const string MaxLengthTitle = "Add @maxLength";
         private const string MinValueTitle = "Add @minValue";
         private const string MaxValueTitle = "Add @maxValue";
+        private const string RemoveUnusedVariableTitle = "Remove unused variable";
+        private const string RemoveUnusedParameterTitle = "Remove unused parameter";
 
         private static readonly SharedLanguageHelperManager DefaultServer = new();
 
@@ -438,6 +440,79 @@ param foo {type}
             codeActions.Should().NotContain(x => x.Title == title);
         }
 
+
+        [DataRow(@"var fo|o = 'foo'
+var foo2 = 'foo2'", "var foo2 = 'foo2'")]
+        [DataRow(@"var fo|o = 'foo'", "")]
+        [DataRow(@"var ad|sf = 'asdf' /* 
+        adf 
+        */", "")]
+        [DataRow(@"var as|df = {
+          abc: 'def'
+        }", "")]
+        [DataRow(@"var ab|cd = concat('foo',/*
+        */'bar')", "")]
+        [DataRow(@"var multi|line = '''
+        This
+        is
+        a
+        multiline
+        '''", "")]
+        [DataRow(@"@description('''
+        ''')
+        var as|df = 'asdf'", "")]
+        [DataRow(@"var fo|o = 'asdf' // asdef", "")]
+        [DataRow(@"/* asdfds */var fo|o = 'asdf'", "")]
+        [DataRow(@"/* asdf */var fo|o = 'asdf'
+var bar = 'asdf'", "var bar = 'asdf'")]
+        [DataTestMethod]
+        public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedVariableTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedVariableTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow(@"param fo|o string
+param foo2 string", "param foo2 string")]
+        [DataRow(@"param fo|o string", "")]
+        [DataRow(@"#disable-next-line foo
+param as|df string = '123'", "#disable-next-line foo\n")]
+        [DataRow(@"@secure()
+param fo|o string
+param foo2 string", "param foo2 string")]
+        [DataTestMethod]
+        public async Task Unused_parameter_actions_are_suggested(string fileWithCursors, string expectedText)
+        {
+            (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedParameterTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedParameterTitle)));
+            updatedFile.Should().HaveSourceText(expectedText);
+        }
+
+        [DataRow("var|")]
+        [DataRow("var |")]
+        [DataTestMethod]
+        public async Task Unused_variable_actions_are_not_suggested_for_invalid_variables(string fileWithCursors)
+        {
+            var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
+        }
+
+        [DataRow("param|")]
+        [DataRow("param |")]
+        [DataTestMethod]
+        public async Task Unused_parameter_actions_are_not_suggested_for_invalid_parameters(string fileWithCursors)
+        {
+            var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
+        }
+
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)
         {
             string fileWithCursors = @$"
@@ -450,7 +525,11 @@ param fo|o {paramType}
 param fo|o {paramType}
 ";
             }
+            return await RunSyntaxTest(fileWithCursors);
+        }
 
+        private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunSyntaxTest(string fileWithCursors)
+        {
             var (file, cursors) = ParserHelper.GetFileWithCursors(fileWithCursors);
             var bicepFile = SourceFileFactory.CreateBicepFile(new Uri($"file://{TestContext.TestName}_{Guid.NewGuid():D}/main.bicep"), file);
 
