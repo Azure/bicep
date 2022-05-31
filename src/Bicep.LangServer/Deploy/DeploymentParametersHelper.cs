@@ -28,18 +28,29 @@ namespace Bicep.LanguageServer.Deploy
                 foreach (var updatedDeploymentParameter in updatedDeploymentParameters)
                 {
                     var name = updatedDeploymentParameter.name;
-                    if (jObject.ContainsKey(name))
+                    var parameterType = updatedDeploymentParameter.parameterType;
+
+                    try
                     {
-                        var nameObject = jObject[name];
-                        var valueObject = JObject.Parse("{}");
-                        valueObject.Add("value", updatedDeploymentParameter.value);
-                        jObject[name] = valueObject;
+                        var valueObject = UpdateJObjectBasedOnParameterType(
+                            updatedDeploymentParameter.parameterType,
+                            name,
+                            updatedDeploymentParameter.value,
+                            JObject.Parse("{}"));
+
+                        if (jObject.ContainsKey(name))
+                        {
+                            var nameObject = jObject[name];
+                            jObject[name] = valueObject;
+                        }
+                        else
+                        {
+                            jObject.Add(updatedDeploymentParameter.name, JToken.Parse(valueObject.ToString()));
+                        }
                     }
-                    else
+                    catch (Exception)
                     {
-                        var valueObject = JObject.Parse("{}");
-                        valueObject.Add("value", updatedDeploymentParameter.value);
-                        jObject.Add(updatedDeploymentParameter.name, JToken.Parse(valueObject.ToString()));
+                        throw new Exception(string.Format(LangServerResources.InvalidParameterValueDeploymentFailedMessage, documentPath, name));
                     }
                 }
 
@@ -66,6 +77,42 @@ namespace Bicep.LanguageServer.Deploy
             {
                 throw new Exception(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, e.Message));
             }
+        }
+
+        public static JObject UpdateJObjectBasedOnParameterType(ParameterType? parameterType, string name, string? value, JObject valueObject)
+        {
+            try
+            {
+                if (parameterType is not null)
+                {
+                    if (parameterType == ParameterType.Int &&
+                        value is not null &&
+                        value.GetType() != typeof(int))
+                    {
+                        var updatedValue = int.Parse(value);
+                        valueObject.Add("value", updatedValue);
+
+                        return valueObject;
+                    }
+                    else if (parameterType == ParameterType.Bool &&
+                        value is not null &&
+                        value.GetType() != typeof(bool))
+                    {
+                        var updatedValue = bool.Parse(value);
+                        valueObject.Add("value", updatedValue);
+
+                        return valueObject;
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, "", e.Message));
+            }
+
+            valueObject.Add("value", value);
+
+            return valueObject;
         }
     }
 }

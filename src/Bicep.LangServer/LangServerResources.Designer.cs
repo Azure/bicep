@@ -124,6 +124,15 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid value for parameter: {1}.
+        /// </summary>
+        public static string InvalidParameterValueDeploymentFailedMessage {
+            get {
+                return ResourceManager.GetString("InvalidParameterValueDeploymentFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deployment failed for {0}. Please provide a valid location..
         /// </summary>
         public static string MissingLocationDeploymentFailedMessage {

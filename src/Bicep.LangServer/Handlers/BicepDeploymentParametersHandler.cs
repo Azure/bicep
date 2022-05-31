@@ -6,10 +6,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Bicep.Core;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Deploy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -20,7 +20,7 @@ namespace Bicep.LanguageServer.Handlers
 {
     public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, bool parametersFileExists, string parametersFileName, string? errorMessage);
 
-    public record BicepDeploymentParameter(string name, string? value, bool isMissingParam, bool isExpression);
+    public record BicepDeploymentParameter(string name, string? value, bool isMissingParam, bool isExpression, ParameterType? parameterType);
 
     public class BicepDeploymentParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, BicepDeploymentParametersResponse>
     {
@@ -33,6 +33,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             this.compilationManager = compilationManager;
         }
+
         public override Task<BicepDeploymentParametersResponse> Handle(string documentPath, string parametersFilePath, string template, CancellationToken cancellationToken)
         {
             var updatedParams = GetUpdatedParams(documentPath, parametersFilePath, template);
@@ -52,10 +53,11 @@ namespace Bicep.LanguageServer.Handlers
                 var parameterDeclarationSyntax = parameterSymbol.DeclaringParameter;
                 var modifier = parameterDeclarationSyntax.Modifier;
                 var parameterName = parameterSymbol.Name;
+                var parameterType = GetParameterType(parameterDeclarationSyntax);
 
                 if (modifier is null)
                 {
-                    if (IsOfTypeArrayOrObject(parameterDeclarationSyntax))
+                    if (IsOfTypeArrayOrObject(parameterType))
                     {
                         missingArrayOrObjectTypes.Add(parameterName);
                         continue;
@@ -63,7 +65,7 @@ namespace Bicep.LanguageServer.Handlers
 
                     if (parametersFromProvidedParametersFile is null || !parametersFromProvidedParametersFile.ContainsKey(parameterName))
                     {
-                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, null, true, false);
+                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, null, true, false, parameterType);
                         updatedDeploymentParameters.Add(updatedDeploymentParameter);
                     }
                 }
@@ -72,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
                     bool isExpression = false;
                     // If param is of type array or object, we don't want to provide an option to override.
                     // We'll simply ignore and continue
-                    if (IsOfTypeArrayOrObject(parameterDeclarationSyntax))
+                    if (IsOfTypeArrayOrObject(parameterType))
                     {
                         continue;
                     }
@@ -103,7 +105,7 @@ namespace Bicep.LanguageServer.Handlers
                         {
                             defaultValue = defaultValue.TrimStart('[').TrimEnd(']');
                         }
-                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, defaultValue.ToString(), false, isExpression);
+                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, defaultValue.ToString(), false, isExpression, parameterType);
                         updatedDeploymentParameters.Add(updatedDeploymentParameter);
                     }
                 }
@@ -150,7 +152,6 @@ namespace Bicep.LanguageServer.Handlers
             return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
         }
 
-
         public IEnumerable<ParameterSymbol> GetParameterSymbols(string documentPath)
         {
             var documentUri = DocumentUri.FromFileSystemPath(documentPath);
@@ -166,11 +167,29 @@ namespace Bicep.LanguageServer.Handlers
                 .Where(sym => semanticModel.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
         }
 
-        private bool IsOfTypeArrayOrObject(ParameterDeclarationSyntax parameterDeclarationSyntax)
+        private bool IsOfTypeArrayOrObject(ParameterType? parameterType)
         {
-            return parameterDeclarationSyntax.ParameterType is SimpleTypeSyntax simpleTypeSyntax &&
-                simpleTypeSyntax is not null &&
-                (simpleTypeSyntax.TypeName == LanguageConstants.objectType || simpleTypeSyntax.TypeName == LanguageConstants.arrayType);
+            return parameterType is not null &&
+                (parameterType == ParameterType.Array || parameterType == ParameterType.Object);
+        }
+
+        public ParameterType? GetParameterType(ParameterDeclarationSyntax parameterDeclarationSyntax)
+        {
+            if (parameterDeclarationSyntax.ParameterType is SimpleTypeSyntax simpleTypeSyntax &&
+                simpleTypeSyntax is not null)
+            {
+               return simpleTypeSyntax.TypeName switch
+               {
+                   "array" => ParameterType.Array,
+                   "bool" => ParameterType.Bool,
+                   "int" => ParameterType.Int,
+                   "object" => ParameterType.Object,
+                   "string" => ParameterType.String,
+                   _ => null,
+               };
+            }
+
+            return null;
         }
     }
 }

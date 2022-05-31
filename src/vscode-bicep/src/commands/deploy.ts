@@ -514,6 +514,7 @@ export class DeployCommand implements Command {
         const updatedDeploymentParameter: BicepUpdatedDeploymentParameter = {
           name: paramName,
           value: paramValue,
+          parameterType: deploymentParameter.parameterType,
         };
         updatedDeploymentParameters.push(updatedDeploymentParameter);
       }

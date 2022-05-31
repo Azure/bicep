@@ -14,7 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepUpdatedDeploymentParameter(string name, string value);
+    public record BicepUpdatedDeploymentParameter(string name, string value, ParameterType? parameterType);
 
     public record BicepDeploymentStartParams(
         string documentPath,

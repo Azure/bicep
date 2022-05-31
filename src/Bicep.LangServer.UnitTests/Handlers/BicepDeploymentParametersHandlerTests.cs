@@ -2,11 +2,14 @@
 // Licensed under the MIT License.
 
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -546,6 +549,37 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
                     updatedParam.isExpression.Should().BeTrue();
                 });
             result.errorMessage.Should().BeNull();
+        }
+
+        [DataTestMethod]
+        [DataRow("param test string = 'test'", ParameterType.String)]
+        [DataRow("param test int = 1", ParameterType.Int)]
+        [DataRow("param test bool = true", ParameterType.Bool)]
+        [DataRow(@"param test array = [
+  1
+  2
+]", ParameterType.Array)]
+        [DataRow(@"param test object = {
+  displayName: 'Blocked Resource Types policy definition'
+  description: 'Block certain resource types'
+}", ParameterType.Object)]
+        [DataRow("param test ", null)]
+        public void VerifyParameterType(string bicepFileContents, ParameterType? expected)
+        {
+            var programSyntax = ParserHelper.Parse(bicepFileContents);
+            programSyntax.Should().NotBeNull();
+
+            var parameterDeclarationSyntax = programSyntax.Declarations.First() as ParameterDeclarationSyntax;
+            parameterDeclarationSyntax.Should().NotBeNull();
+
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var result = bicepDeploymentParametersHandler.GetParameterType(parameterDeclarationSyntax!);
+
+            result.Should().Be(expected);
         }
     }
 }

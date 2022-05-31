@@ -88,6 +88,7 @@ export interface BicepDeploymentParameter {
   value?: string | undefined;
   isMissingParam: boolean;
   isExpression: boolean;
+  parameterType: ParameterType | undefined;
 }
 
 export interface BicepDeploymentParametersResponse {
@@ -99,12 +100,21 @@ export interface BicepDeploymentParametersResponse {
 export interface BicepUpdatedDeploymentParameter {
   name: string;
   value: string;
+  parameterType: ParameterType | undefined;
 }
 
 export enum ParametersFileCreateOrUpdate {
   Create = 1,
   Update = 2,
   None = 3,
+}
+
+export enum ParameterType {
+  Array = 1,
+  Bool = 2,
+  Int = 3,
+  Object = 4,
+  String = 5,
 }
 
 export interface BicepCacheResponse {
