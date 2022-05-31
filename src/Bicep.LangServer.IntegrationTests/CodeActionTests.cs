@@ -469,10 +469,10 @@ var bar = 'asdf'", "var bar = 'asdf'")]
         public async Task Unused_variable_actions_are_suggested(string fileWithCursors, string expectedText)
         {
             (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
-            codeActions.Should().Contain(x => x.Title == RemoveUnusedVariableTitle);
-            codeActions.First(x => x.Title == RemoveUnusedVariableTitle).Kind.Should().Be(CodeActionKind.QuickFix);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedVariableTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
 
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == RemoveUnusedVariableTitle));
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedVariableTitle)));
             updatedFile.Should().HaveSourceText(expectedText);
         }
 
@@ -488,10 +488,10 @@ param foo2 string", "param foo2 string")]
         public async Task Unused_parameter_actions_are_suggested(string fileWithCursors, string expectedText)
         {
             (var codeActions, var bicepFile) = await RunSyntaxTest(fileWithCursors);
-            codeActions.Should().Contain(x => x.Title == RemoveUnusedParameterTitle);
-            codeActions.First(x => x.Title == RemoveUnusedParameterTitle).Kind.Should().Be(CodeActionKind.QuickFix);
+            codeActions.Should().Contain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
+            codeActions.First(x => x.Title.StartsWith(RemoveUnusedParameterTitle)).Kind.Should().Be(CodeActionKind.QuickFix);
 
-            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == RemoveUnusedParameterTitle));
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title.StartsWith(RemoveUnusedParameterTitle)));
             updatedFile.Should().HaveSourceText(expectedText);
         }
 
@@ -501,7 +501,7 @@ param foo2 string", "param foo2 string")]
         public async Task Unused_variable_actions_are_not_suggested_for_invalid_variables(string fileWithCursors)
         {
             var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
-            codeActions.Should().NotContain(x => x.Title == RemoveUnusedVariableTitle);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedVariableTitle));
         }
 
         [DataRow("param|")]
@@ -510,7 +510,7 @@ param foo2 string", "param foo2 string")]
         public async Task Unused_parameter_actions_are_not_suggested_for_invalid_parameters(string fileWithCursors)
         {
             var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
-            codeActions.Should().NotContain(x => x.Title == RemoveUnusedParameterTitle);
+            codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
         }
 
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)

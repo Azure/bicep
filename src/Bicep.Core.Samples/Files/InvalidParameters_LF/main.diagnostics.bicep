@@ -10,15 +10,15 @@ wrong
 param myInt int
 //@[06:011) [no-unused-params (Warning)] Parameter "myInt" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-params)) |myInt|
 param
-//@[5:005) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) ||
+//@[05:005) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) ||
 
 param 3
-//@[6:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |3|
-//@[7:007) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
+//@[06:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |3|
+//@[07:007) [BCP014 (Error)] Expected a parameter type at this location. Please specify one of the following types: "array", "bool", "int", "object", "string". (CodeDescription: none) ||
 param % string
-//@[6:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |%|
+//@[06:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |%|
 param % string 3 = 's'
-//@[6:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |%|
+//@[06:007) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) |%|
 //@[15:016) [BCP008 (Error)] Expected the "=" token, or a newline at this location. (CodeDescription: none) |3|
 
 param myBool bool
@@ -336,7 +336,7 @@ param paramAccessingOutput string = sampleOutput
 
 // #completionTest(6) -> empty
 param 
-//@[6:006) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) ||
+//@[06:006) [BCP013 (Error)] Expected a parameter identifier at this location. (CodeDescription: none) ||
 
 // #completionTest(46,47) -> justSymbols
 param defaultValueOneLinerCompletions string = 

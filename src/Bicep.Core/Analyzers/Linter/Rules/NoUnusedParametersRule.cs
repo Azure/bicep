@@ -35,12 +35,12 @@ namespace Bicep.Core.Analyzers.Linter.Rules
                 .Where(sym => !model.FindReferences(sym).OfType<VariableAccessSyntax>().Any())
                 .Where(sym => sym.NameSyntax.IsValid);
 
-            return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.LineStarts, model.SourceFile.ProgramSyntax));
+            return unreferencedParams.Select(param => CreateRemoveUnusedDiagnosticForSpan(param.Name, param.NameSyntax, param.DeclaringSyntax, model.SourceFile.ProgramSyntax));
         }
 
-        override protected string GetCodeFixDescription()
+        override protected string GetCodeFixDescription(string name)
         {
-            return "Remove unused parameter";
+            return $"Remove unused parameter {name}";
         }
     }
 }

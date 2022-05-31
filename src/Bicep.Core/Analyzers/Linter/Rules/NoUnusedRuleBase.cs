@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using Bicep.Core.CodeAction;
 using Bicep.Core.Diagnostics;
@@ -19,10 +18,10 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
     {
     }
 
-    protected AnalyzerFixableDiagnostic CreateRemoveUnusedDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ImmutableArray<int> lineStarts, ProgramSyntax programSyntax)
+    protected AnalyzerFixableDiagnostic CreateRemoveUnusedDiagnosticForSpan(string name, IdentifierSyntax nameSyntax, SyntaxBase declaringSyntax, ProgramSyntax programSyntax)
     {
         var span = GetSpanForRow(programSyntax, declaringSyntax);
-        var codeFix = new CodeFix(GetCodeFixDescription(), true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
+        var codeFix = new CodeFix(GetCodeFixDescription(name), true, CodeFixKind.QuickFix, new CodeReplacement(span, String.Empty));
         var fixableDiagnosticForSpan = CreateFixableDiagnosticForSpan(nameSyntax.Span, codeFix, name);
         return fixableDiagnosticForSpan;
     }
@@ -56,5 +55,5 @@ public abstract class NoUnusedRuleBase : LinterRuleBase
     /// <summary>
     /// Abstract method each rule must implement to get description of code fix
     /// </summary>
-    abstract protected string GetCodeFixDescription();
+    abstract protected string GetCodeFixDescription(string name);
 }
