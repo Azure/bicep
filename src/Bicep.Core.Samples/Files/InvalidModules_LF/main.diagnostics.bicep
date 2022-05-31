@@ -127,7 +127,7 @@ module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-
 
 module modANoName './modulea.bicep' = if ({ 'a': b }.a == true) {
 //@[007:017) [BCP028 (Error)] Identifier "modANoName" is declared multiple times. Remove or rename the duplicates. (CodeDescription: none) |modANoName|
-//@[044:047) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |'a'|
+//@[044:047) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'a'|
 
 }
 
@@ -294,7 +294,7 @@ module runtimeInvalidModule1 'empty.bicep' = {
 module runtimeInvalidModule2 'empty.bicep' = {
   name: runtimeValidRes1['location']
 //@[008:036) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['location']|
-//@[024:036) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |['location']|
+//@[024:036) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['location']|
 }
 
 module runtimeInvalidModule3 'empty.bicep' = {
@@ -305,20 +305,20 @@ module runtimeInvalidModule3 'empty.bicep' = {
 module runtimeInvalidModule4 'empty.bicep' = {
   name: runtimeValidRes1.sku['name']
 //@[008:028) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1.sku|
-//@[028:036) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |['name']|
+//@[028:036) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['name']|
 }
 
 module runtimeInvalidModule5 'empty.bicep' = {
   name: runtimeValidRes1['sku']['name']
 //@[008:031) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
-//@[024:031) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |['sku']|
-//@[031:039) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |['name']|
+//@[024:031) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['sku']|
+//@[031:039) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['name']|
 }
 
 module runtimeInvalidModule6 'empty.bicep' = {
   name: runtimeValidRes1['sku'].name
 //@[008:031) [BCP120 (Error)] This expression is being used in an assignment to the "name" property of the "module" type, which requires a value that can be calculated at the start of the deployment. Properties of runtimeValidRes1 which can be calculated at the start include "apiVersion", "id", "name", "type". (CodeDescription: none) |runtimeValidRes1['sku']|
-//@[024:031) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |['sku']|
+//@[024:031) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |['sku']|
 }
 
 module singleModuleForRuntimeCheck 'modulea.bicep' = {

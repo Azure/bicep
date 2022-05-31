@@ -135,7 +135,7 @@ var test3 = {
 var testDupe = {
 //@[04:12) [no-unused-vars (Warning)] Variable "testDupe" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |testDupe|
   'duplicate': true
-//@[02:13) [prefer-bare-property-names (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-bare-property-names)) |'duplicate'|
+//@[02:13) [prefer-property-names-no-quotation (Warning)] Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax. (CodeDescription: bicep core(https://aka.ms/bicep/linter/prefer-property-names-no-quotation)) |'duplicate'|
 //@[02:13) [BCP025 (Error)] The property "duplicate" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |'duplicate'|
   duplicate: true
 //@[02:11) [BCP025 (Error)] The property "duplicate" is declared multiple times in this object. Remove or rename the duplicate properties. (CodeDescription: none) |duplicate|
