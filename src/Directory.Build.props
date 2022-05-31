@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <!-- NU5104: A stable release of a package should not have a prerelease dependency -->
-    <NoWarn>$(NoWarn);NU5104;CS1573;CS1591</NoWarn>
+    <NoWarn>$(NoWarn);NU5104</NoWarn>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
     <!-- Bubble up all unused usings https://github.com/dotnet/roslyn/issues/41640#issuecomment-985780130 -->
