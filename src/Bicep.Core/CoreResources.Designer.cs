@@ -412,29 +412,29 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replace quoted property name with {0}..
+        ///   Looks up a localized string similar to Remove quotes from property name..
         /// </summary>
-        internal static string PreferBarePropertyNamesDeclarationFixTitle {
+        internal static string PreferPropertyNamesNoQuotationDeclarationFixTitle {
             get {
-                return ResourceManager.GetString("PreferBarePropertyNamesDeclarationFixTitle", resourceCulture);
+                return ResourceManager.GetString("PreferPropertyNamesNoQuotationDeclarationFixTitle", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Replace array syntax with {0}..
+        ///   Looks up a localized string similar to Replace array syntax with &apos;{0}&apos;..
         /// </summary>
-        internal static string PreferBarePropertyNamesDereferenceFixTitle {
+        internal static string PreferPropertyNamesNoQuotationDereferenceFixTitle {
             get {
-                return ResourceManager.GetString("PreferBarePropertyNamesDereferenceFixTitle", resourceCulture);
+                return ResourceManager.GetString("PreferPropertyNamesNoQuotationDereferenceFixTitle", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax..
         /// </summary>
-        internal static string PreferBarePropertyNamesRuleDescription {
+        internal static string PreferPropertyNamesNoQuotationRuleDescription {
             get {
-                return ResourceManager.GetString("PreferBarePropertyNamesRuleDescription", resourceCulture);
+                return ResourceManager.GetString("PreferPropertyNamesNoQuotationRuleDescription", resourceCulture);
             }
         }
         

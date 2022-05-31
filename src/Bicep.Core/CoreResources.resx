@@ -286,15 +286,14 @@
   <data name="MaxNumberResourcesRuleMessageFormat" xml:space="preserve">
     <value>Too many resources. Number of resources is limited to {0}.</value>
   </data>
-  <data name="PreferBarePropertyNamesDeclarationFixTitle" xml:space="preserve">
-    <value>Replace quoted property name with {0}.</value>
+  <data name="PreferPropertyNamesNoQuotationDeclarationFixTitle" xml:space="preserve">
+    <value>Remove quotes from property name.</value>
+  </data>
+  <data name="PreferPropertyNamesNoQuotationDereferenceFixTitle" xml:space="preserve">
+    <value>Replace array syntax with '{0}'.</value>
     <comment>{0} is a programmatic language expression</comment>
   </data>
-  <data name="PreferBarePropertyNamesDereferenceFixTitle" xml:space="preserve">
-    <value>Replace array syntax with {0}.</value>
-    <comment>{0} is a programmatic language expression</comment>
-  </data>
-  <data name="PreferBarePropertyNamesRuleDescription" xml:space="preserve">
+  <data name="PreferPropertyNamesNoQuotationRuleDescription" xml:space="preserve">
     <value>Properties whose names are valid identifiers should be declared as bare tokens and dereferenced using dot syntax.</value>
   </data>
 </root>
