@@ -105,11 +105,11 @@ resource blobs2 'blob' = [for i in range(10, 10): {
 }]
 
 output sourceContainerName string = container.name
-#disable-next-line prefer-bare-property-names
+#disable-next-line prefer-property-names-no-quotation
 output sourceContainerNameSquare string = container['name']
 output miscBlobContainerName string = blobs[13 % 10].containerName
 output containerName string = blobs[5].containerName
-#disable-next-line prefer-bare-property-names
+#disable-next-line prefer-property-names-no-quotation
 output base64Content string = blobs[3]['base64Content']
 ");
             result.Should().NotHaveAnyDiagnostics();
@@ -136,10 +136,10 @@ resource myAppsLoop 'application' = [for i in range(0, numApps): {
 }]
 
 output myAppId string = myApp.appId
-#disable-next-line prefer-bare-property-names
+#disable-next-line prefer-property-names-no-quotation
 output myAppId2 string = myApp['appId']
 output myAppsLoopId string = myAppsLoop[13 % numApps].appId
-#disable-next-line prefer-bare-property-names
+#disable-next-line prefer-property-names-no-quotation
 output myAppsLoopId2 string = myAppsLoop[3]['appId']
 ");
             result.Should().NotHaveAnyDiagnostics();
