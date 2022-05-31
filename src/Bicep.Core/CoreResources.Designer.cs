@@ -430,7 +430,7 @@ namespace Bicep.Core {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use unquoted property names when possible..
+        ///   Looks up a localized string similar to Properties that are valid identifiers should be declared without quotations and accessed using dot notation..
         /// </summary>
         internal static string PreferPropertyNamesNoQuotationRuleDescription {
             get {

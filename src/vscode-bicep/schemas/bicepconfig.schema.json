@@ -365,7 +365,7 @@
                 "prefer-property-names-no-quotation": {
                   "allOf": [
                     {
-                      "description": "Use unquoted property names when possible. See https://aka.ms/bicep/linter/prefer-property-names-no-quotation"
+                      "description": "Properties that are valid identifiers should be declared without quotations and accessed using dot notation. See https://aka.ms/bicep/linter/prefer-property-names-no-quotation"
                     },
                     {
                       "$ref": "#/definitions/rule"
