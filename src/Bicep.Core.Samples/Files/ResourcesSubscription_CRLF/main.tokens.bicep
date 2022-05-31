@@ -1,183 +1,183 @@
 targetScope = 'subscription'
-//@[0:11) Identifier |targetScope|
-//@[12:13) Assignment |=|
-//@[14:28) StringComplete |'subscription'|
-//@[28:32) NewLine |\r\n\r\n|
+//@[000:011) Identifier |targetScope|
+//@[012:013) Assignment |=|
+//@[014:028) StringComplete |'subscription'|
+//@[028:032) NewLine |\r\n\r\n|
 
 param ownerPrincipalId string
-//@[0:5) Identifier |param|
-//@[6:22) Identifier |ownerPrincipalId|
-//@[23:29) Identifier |string|
-//@[29:33) NewLine |\r\n\r\n|
+//@[000:005) Identifier |param|
+//@[006:022) Identifier |ownerPrincipalId|
+//@[023:029) Identifier |string|
+//@[029:033) NewLine |\r\n\r\n|
 
 param contributorPrincipals array
-//@[0:5) Identifier |param|
-//@[6:27) Identifier |contributorPrincipals|
-//@[28:33) Identifier |array|
-//@[33:35) NewLine |\r\n|
+//@[000:005) Identifier |param|
+//@[006:027) Identifier |contributorPrincipals|
+//@[028:033) Identifier |array|
+//@[033:035) NewLine |\r\n|
 param readerPrincipals array
-//@[0:5) Identifier |param|
-//@[6:22) Identifier |readerPrincipals|
-//@[23:28) Identifier |array|
-//@[28:32) NewLine |\r\n\r\n|
+//@[000:005) Identifier |param|
+//@[006:022) Identifier |readerPrincipals|
+//@[023:028) Identifier |array|
+//@[028:032) NewLine |\r\n\r\n|
 
 resource owner 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |owner|
-//@[15:75) StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftBrace |{|
-//@[79:81) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |owner|
+//@[015:075) StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftBrace |{|
+//@[079:081) NewLine |\r\n|
   name: guid('owner', ownerPrincipalId)
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) Identifier |guid|
-//@[12:13) LeftParen |(|
-//@[13:20) StringComplete |'owner'|
-//@[20:21) Comma |,|
-//@[22:38) Identifier |ownerPrincipalId|
-//@[38:39) RightParen |)|
-//@[39:41) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:012) Identifier |guid|
+//@[012:013) LeftParen |(|
+//@[013:020) StringComplete |'owner'|
+//@[020:021) Comma |,|
+//@[022:038) Identifier |ownerPrincipalId|
+//@[038:039) RightParen |)|
+//@[039:041) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     principalId: ownerPrincipalId
-//@[4:15) Identifier |principalId|
-//@[15:16) Colon |:|
-//@[17:33) Identifier |ownerPrincipalId|
-//@[33:35) NewLine |\r\n|
+//@[004:015) Identifier |principalId|
+//@[015:016) Colon |:|
+//@[017:033) Identifier |ownerPrincipalId|
+//@[033:035) NewLine |\r\n|
     roleDefinitionId: '8e3af657-a8ff-443c-a75c-2fe8c4bcb635'
-//@[4:20) Identifier |roleDefinitionId|
-//@[20:21) Colon |:|
-//@[22:60) StringComplete |'8e3af657-a8ff-443c-a75c-2fe8c4bcb635'|
-//@[60:62) NewLine |\r\n|
+//@[004:020) Identifier |roleDefinitionId|
+//@[020:021) Colon |:|
+//@[022:060) StringComplete |'8e3af657-a8ff-443c-a75c-2fe8c4bcb635'|
+//@[060:062) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource contributors 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for contributor in contributorPrincipals: {
-//@[0:8) Identifier |resource|
-//@[9:21) Identifier |contributors|
-//@[22:82) StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftSquare |[|
-//@[86:89) Identifier |for|
-//@[90:101) Identifier |contributor|
+//@[000:008) Identifier |resource|
+//@[009:021) Identifier |contributors|
+//@[022:082) StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftSquare |[|
+//@[086:089) Identifier |for|
+//@[090:101) Identifier |contributor|
 //@[102:104) Identifier |in|
 //@[105:126) Identifier |contributorPrincipals|
 //@[126:127) Colon |:|
 //@[128:129) LeftBrace |{|
 //@[129:131) NewLine |\r\n|
   name: guid('contributor', contributor)
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) Identifier |guid|
-//@[12:13) LeftParen |(|
-//@[13:26) StringComplete |'contributor'|
-//@[26:27) Comma |,|
-//@[28:39) Identifier |contributor|
-//@[39:40) RightParen |)|
-//@[40:42) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:012) Identifier |guid|
+//@[012:013) LeftParen |(|
+//@[013:026) StringComplete |'contributor'|
+//@[026:027) Comma |,|
+//@[028:039) Identifier |contributor|
+//@[039:040) RightParen |)|
+//@[040:042) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     principalId: contributor
-//@[4:15) Identifier |principalId|
-//@[15:16) Colon |:|
-//@[17:28) Identifier |contributor|
-//@[28:30) NewLine |\r\n|
+//@[004:015) Identifier |principalId|
+//@[015:016) Colon |:|
+//@[017:028) Identifier |contributor|
+//@[028:030) NewLine |\r\n|
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-//@[4:20) Identifier |roleDefinitionId|
-//@[20:21) Colon |:|
-//@[22:60) StringComplete |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
-//@[60:62) NewLine |\r\n|
+//@[004:020) Identifier |roleDefinitionId|
+//@[020:021) Colon |:|
+//@[022:060) StringComplete |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
+//@[060:062) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   dependsOn: [
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     owner
-//@[4:9) Identifier |owner|
-//@[9:11) NewLine |\r\n|
+//@[004:009) Identifier |owner|
+//@[009:011) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 resource readers 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = [for reader in readerPrincipals: {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |readers|
-//@[17:77) StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
-//@[78:79) Assignment |=|
-//@[80:81) LeftSquare |[|
-//@[81:84) Identifier |for|
-//@[85:91) Identifier |reader|
-//@[92:94) Identifier |in|
-//@[95:111) Identifier |readerPrincipals|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |readers|
+//@[017:077) StringComplete |'Microsoft.Authorization/roleAssignments@2020-04-01-preview'|
+//@[078:079) Assignment |=|
+//@[080:081) LeftSquare |[|
+//@[081:084) Identifier |for|
+//@[085:091) Identifier |reader|
+//@[092:094) Identifier |in|
+//@[095:111) Identifier |readerPrincipals|
 //@[111:112) Colon |:|
 //@[113:114) LeftBrace |{|
 //@[114:116) NewLine |\r\n|
   name: guid('reader', reader)
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) Identifier |guid|
-//@[12:13) LeftParen |(|
-//@[13:21) StringComplete |'reader'|
-//@[21:22) Comma |,|
-//@[23:29) Identifier |reader|
-//@[29:30) RightParen |)|
-//@[30:32) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:012) Identifier |guid|
+//@[012:013) LeftParen |(|
+//@[013:021) StringComplete |'reader'|
+//@[021:022) Comma |,|
+//@[023:029) Identifier |reader|
+//@[029:030) RightParen |)|
+//@[030:032) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     principalId: reader
-//@[4:15) Identifier |principalId|
-//@[15:16) Colon |:|
-//@[17:23) Identifier |reader|
-//@[23:25) NewLine |\r\n|
+//@[004:015) Identifier |principalId|
+//@[015:016) Colon |:|
+//@[017:023) Identifier |reader|
+//@[023:025) NewLine |\r\n|
     roleDefinitionId: 'b24988ac-6180-42a0-ab88-20f7382dd24c'
-//@[4:20) Identifier |roleDefinitionId|
-//@[20:21) Colon |:|
-//@[22:60) StringComplete |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
-//@[60:62) NewLine |\r\n|
+//@[004:020) Identifier |roleDefinitionId|
+//@[020:021) Colon |:|
+//@[022:060) StringComplete |'b24988ac-6180-42a0-ab88-20f7382dd24c'|
+//@[060:062) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   dependsOn: [
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     owner
-//@[4:9) Identifier |owner|
-//@[9:11) NewLine |\r\n|
+//@[004:009) Identifier |owner|
+//@[009:011) NewLine |\r\n|
     contributors[0]
-//@[4:16) Identifier |contributors|
-//@[16:17) LeftSquare |[|
-//@[17:18) Integer |0|
-//@[18:19) RightSquare |]|
-//@[19:21) NewLine |\r\n|
+//@[004:016) Identifier |contributors|
+//@[016:017) LeftSquare |[|
+//@[017:018) Integer |0|
+//@[018:019) RightSquare |]|
+//@[019:021) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 
-//@[0:0) EndOfFile ||
+//@[000:000) EndOfFile ||
