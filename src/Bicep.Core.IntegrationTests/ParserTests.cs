@@ -14,7 +14,6 @@ using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
-using System;
 
 namespace Bicep.Core.IntegrationTests
 {

@@ -76,7 +76,7 @@ namespace Bicep.Core.FileSystem
         /// Tries to read a file and encode it as base64 string. If an exception is encoutered, returns null and sets a non-null failureMessage.
         /// </summary>
         /// <param name="fileUri">The file URI to read.</param>
-        /// <param name="fileContents">The base64 encoded contents of the file, if successful.</param>
+        /// <param name="fileBase64">The base64 encoded contents of the file, if successful.</param>
         /// <param name="failureBuilder">Builder for the failure to return, if unsuccessful.</param>
         /// <param name="maxCharacters">Maximum number of output base64 text characters to read. if negative - read all. Maximum file size is calculated using (maxCharacters/4)*3 formula.</param>
         bool TryReadAsBase64(Uri fileUri, [NotNullWhen(true)] out string? fileBase64, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder, int maxCharacters = -1);

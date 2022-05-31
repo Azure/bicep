@@ -660,7 +660,7 @@ namespace Bicep.Core.Parsing
         /// This method stops when a right paren is found without consuming it, a caller must
         /// consume the right paren token.
         /// </summary>
-        /// <param name="allowComplexLiterals"></param>
+        /// <param name="expressionFlags"></param>
         private IEnumerable<FunctionArgumentSyntax> FunctionCallArguments(ExpressionFlags expressionFlags)
         {
             SkippedTriviaSyntax CreateDummyArgument(Token current) =>
