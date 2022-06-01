@@ -149,5 +149,13 @@ namespace Bicep.Core.UnitTests.Diagnostics.LinterRuleTests
         {
             CompileAndTest(text, unusedParams);
         }
+
+        [DataRow(@"param")] // Don't show as unused - no param name
+        [DataRow(@"param // whoops")] // Don't show as unused - no param name
+        [DataTestMethod]
+        public void Errors(string text, params string[] unusedParams)
+        {
+            CompileAndTest(text, OnCompileErrors.Ignore);
+        }
     }
 }

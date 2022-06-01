@@ -733,7 +733,6 @@ namespace Bicep.Core.TypeSystem
         /// <summary>
         /// Returns the declared type of the parameter/output based on a resource type.
         /// </summary>
-        /// <param name="resourceTypeProvider">resource type provider</param>
         private TypeSymbol GetDeclaredResourceType(IBinder binder, ResourceTypeSyntax typeSyntax)
         {
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.
@@ -760,7 +759,6 @@ namespace Bicep.Core.TypeSystem
         /// Returns the declared type of the resource body (based on the type string).
         /// Returns the same value for single resource or resource loops declarations.
         /// </summary>
-        /// <param name="resourceTypeProvider">resource type provider</param>
         private TypeSymbol GetDeclaredResourceType(ResourceDeclarationSyntax resource)
         {
             // NOTE: this is closely related to the logic in the other overload. Keep them in sync.

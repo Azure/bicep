@@ -31,12 +31,12 @@ export const Playground : React.FC = () => {
   async function loadExample(filePath: string) {
     withLoader(async () => {
       const response = await fetch(`examples/${filePath}`);
-      
+
       if (!response.ok) {
         throw response.text();
       }
 
-      const bicepText = await response.text();  
+      const bicepText = await response.text();
       setInitialContent(bicepText);
     });
   }
@@ -47,7 +47,7 @@ export const Playground : React.FC = () => {
         setInitialContent(content);
       }
     }));
- 
+
     handleShareLink(content => {
       if (content !== null) {
         setInitialContent(content);
@@ -83,7 +83,7 @@ export const Playground : React.FC = () => {
   const filteredExamples = examples
     .filter(x => x.description.toLowerCase().indexOf(filterText.toLowerCase()) !== -1)
     .sort((a, b) => a.description > b.description ? 1 : -1);
-    
+
   const dropdownItems = filteredExamples.map(({ filePath, description }) => (
     <Dropdown.Item key={filePath} eventKey={filePath} active={false}>{description}</Dropdown.Item>
   ));
@@ -109,7 +109,7 @@ export const Playground : React.FC = () => {
           <OverlayTrigger placement="bottom" overlay={createTooltip('Select a sample Bicep file to start')}>
             <Dropdown.Toggle as={Button} size="sm" variant="primary" className="mx-1">Sample Template</Dropdown.Toggle>
           </OverlayTrigger>
-          <Dropdown.Menu align="right">
+          <Dropdown.Menu align="end">
           <Col>
             <FormControl
               autoFocus
@@ -123,7 +123,7 @@ export const Playground : React.FC = () => {
       </Nav>
     </Navbar>
     <div className="playground-container">
-      { loading ? 
+      { loading ?
       <Container className="d-flex vh-100">
         <Row className="m-auto align-self-center">
           <Spinner animation="border" variant="light" />

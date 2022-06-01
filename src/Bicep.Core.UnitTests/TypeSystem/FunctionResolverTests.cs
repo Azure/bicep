@@ -32,7 +32,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            matches.Single().ReturnTypeBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Should().BeSameAs(expectedReturnType);
+            matches.Single().ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type.Should().BeSameAs(expectedReturnType);
         }
 
         [DataTestMethod]
@@ -42,7 +42,7 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, Enumerable.Repeat(LanguageConstants.Any, numberOfArguments).ToList(), out _, out _);
             matches.Should().HaveCount(expectedReturnTypes.Count);
 
-            matches.Select(m => m.ReturnTypeBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray())).Should().BeEquivalentTo(expectedReturnTypes);
+            matches.Select(m => m.ResultBuilder(Repository.Create<IBinder>().Object, Repository.Create<IFileResolver>().Object, Repository.Create<IDiagnosticWriter>().Object, Enumerable.Empty<FunctionArgumentSyntax>().ToImmutableArray(), Enumerable.Empty<TypeSymbol>().ToImmutableArray()).Type).Should().BeEquivalentTo(expectedReturnTypes);
         }
 
         [DataTestMethod]
@@ -102,14 +102,14 @@ namespace Bicep.Core.UnitTests.TypeSystem
             var matches = GetMatches(functionName, argumentTypes, out _, out _);
             matches.Should().HaveCount(1);
 
-            var returnType = matches.Single().ReturnTypeBuilder(
+            var returnType = matches.Single().ResultBuilder(
                 Repository.Create<IBinder>().Object,
                 Repository.Create<IFileResolver>().Object,
                 Repository.Create<IDiagnosticWriter>().Object,
                 arguments.ToImmutableArray(),
                 argumentTypes.ToImmutableArray()
             );
-            returnType.Should().BeAssignableTo<StringLiteralType>().Subject.RawStringValue.Should().Be(returnTypeLiteral);
+            returnType.Should().NotBeNull().And.Subject.As<FunctionResult>().Type.Should().BeAssignableTo<StringLiteralType>().Subject.RawStringValue.Should().Be(returnTypeLiteral);
         }
 
         private static IEnumerable<object[]> GetStringLiteralTransformations()

@@ -226,7 +226,7 @@ namespace Bicep.Core.Syntax
 
             for (var i = 0; i < argumentExpressions.Length; i++)
             {
-                children.Add(argumentExpressions[i]);
+                children.Add(new FunctionArgumentSyntax(argumentExpressions[i]));
                 if (i < argumentExpressions.Length - 1)
                 {
                     children.Add(CommaToken);

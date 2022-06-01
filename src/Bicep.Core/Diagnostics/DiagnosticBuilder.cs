@@ -1371,7 +1371,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP231",
                 "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
 
-
             public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
                 TextSpan,
                 "BCP232",
@@ -1388,14 +1387,19 @@ namespace Bicep.Core.Diagnostics
                 "BCP234",
                 $"The ARM function \"{armFunctionName}\" failed when invoked on the value [{literalValue}]: {message}");
 
-            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+            public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
                 TextSpan,
                 "BCP235",
+                $"Specified JSONPath does not exist in the given file or is invalid.");
+
+            public ErrorDiagnostic ExpectedNewLineOrCommaSeparator() => new(
+                TextSpan,
+                "BCP236",
                 "Expected a new line or comma character at this location.");
 
             public ErrorDiagnostic ExpectedCommaSeparator() => new(
                 TextSpan,
-                "BCP236",
+                "BCP237",
                 "Expected a comma character at this location.");
         }
 

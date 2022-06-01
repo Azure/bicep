@@ -49,13 +49,13 @@ namespace Bicep.Core.Visitors
         private void GenerateVariableFromFunctionCall(FunctionCallSyntaxBase syntax)
         {
             var symbol = semanticModel.GetSymbolInfo(syntax);
-            if (symbol is not FunctionSymbol || semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not {VariableGenerator: { }} functionOverload)
+            if (symbol is not FunctionSymbol || semanticModel.TypeManager.GetMatchedFunctionOverload(syntax) is not { VariableGenerator: { } } functionOverload)
             {
                 return;
             }
 
             var directVariableAssignment = syntaxRecorder.Skip(1).FirstOrDefault() is VariableDeclarationSyntax;
-            var variable = functionOverload.VariableGenerator(syntax, symbol, semanticModel.GetTypeInfo(syntax), directVariableAssignment);
+            var variable = functionOverload.VariableGenerator(syntax, symbol, semanticModel.GetTypeInfo(syntax), directVariableAssignment, semanticModel.TypeManager.GetMatchedFunctionResultValue(syntax));
             if (variable is not null)
             {
                 variables.Add(syntax, new($"$fxv#{variables.Count}", variable));

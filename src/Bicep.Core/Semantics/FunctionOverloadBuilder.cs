@@ -17,7 +17,7 @@ namespace Bicep.Core.Semantics
             Description = string.Empty;
             ReturnType = LanguageConstants.Any;
             FixedParameters = ImmutableArray.CreateBuilder<FixedFunctionParameter>();
-            ReturnTypeBuilder = (_, _, _, _, _) => LanguageConstants.Any;
+            ResultBuilder = (_, _, _, _, _) => new(LanguageConstants.Any);
             VariableParameter = null;
         }
 
@@ -33,7 +33,7 @@ namespace Bicep.Core.Semantics
 
         protected VariableFunctionParameter? VariableParameter { get; private set; }
 
-        protected FunctionOverload.ReturnTypeBuilderDelegate ReturnTypeBuilder { get; private set; }
+        protected FunctionOverload.ResultBuilderDelegate ResultBuilder { get; private set; }
 
         protected FunctionOverload.EvaluatorDelegate? Evaluator { get; private set; }
 
@@ -52,7 +52,7 @@ namespace Bicep.Core.Semantics
                 Name,
                 GenericDescription,
                 Description,
-                ReturnTypeBuilder,
+                ResultBuilder,
                 ReturnType,
                 FixedParameters.ToImmutable(),
                 VariableParameter,
@@ -67,7 +67,7 @@ namespace Bicep.Core.Semantics
 
             return this;
         }
-        
+
         public FunctionOverloadBuilder WithDescription(string description)
         {
             Description = description;
@@ -78,15 +78,15 @@ namespace Bicep.Core.Semantics
         public FunctionOverloadBuilder WithReturnType(TypeSymbol returnType)
         {
             ReturnType = returnType;
-            ReturnTypeBuilder = (_, _, _, _, _) => returnType;
+            ResultBuilder = (_, _, _, _, _) => new(returnType);
 
             return this;
         }
 
-        public FunctionOverloadBuilder WithDynamicReturnType(FunctionOverload.ReturnTypeBuilderDelegate returnTypeBuilder, TypeSymbol signatureType)
+        public FunctionOverloadBuilder WithReturnResultBuilder(FunctionOverload.ResultBuilderDelegate resultBuilder, TypeSymbol signatureType)
         {
             ReturnType = signatureType;
-            ReturnTypeBuilder = returnTypeBuilder;
+            ResultBuilder = resultBuilder;
 
             return this;
         }

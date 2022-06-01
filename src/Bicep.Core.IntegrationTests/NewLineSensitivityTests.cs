@@ -75,7 +75,7 @@ output test1 string = concat('foo' 'bar')
 ");
 
             result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
-                ("BCP235", DiagnosticLevel.Error, "Expected a new line or comma character at this location."),
+                ("BCP236", DiagnosticLevel.Error, "Expected a new line or comma character at this location."),
             });
         }
 
