@@ -88,6 +88,7 @@ export interface BicepDeploymentParameter {
   value?: string | undefined;
   isMissingParam: boolean;
   isExpression: boolean;
+  isSecure: boolean;
   parameterType: ParameterType | undefined;
 }
 
@@ -100,6 +101,7 @@ export interface BicepDeploymentParametersResponse {
 export interface BicepUpdatedDeploymentParameter {
   name: string;
   value: string;
+  isSecure: boolean;
   parameterType: ParameterType | undefined;
 }
 

@@ -603,6 +603,91 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             result.errorMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFile, parametersFilePath, "Unexpected end of content while loading JObject. Path 'location', line 4, position 1."));
         }
 
+        [TestMethod]
+        public async Task Handle_WithSecureParams_ShouldReturnUpdatedDeploymentParameters()
+        {
+            var bicepFileContents = @"@secure()
+param adminUsername string = 'abc'
+@secure()
+param location string
+param zoneType string = 'Private'
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: adminUsername
+  location: location
+  properties:{
+    zoneType: zoneType
+  }
+}";
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.6.68.62354"",
+      ""templateHash"": ""2266028446417982813""
+    }
+  },
+  ""parameters"": {
+    ""adminUsername"": {
+      ""type"": ""secureString"",
+      ""defaultValue"": ""abc""
+    },
+    ""location"": {
+      ""type"": ""secureString""
+    },
+    ""zoneType"": {
+      ""type"": ""string"",
+      ""defaultValue"": ""Private""
+    }
+  },
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Network/dnsZones"",
+      ""apiVersion"": ""2018-05-01"",
+      ""name"": ""[parameters('adminUsername')]"",
+      ""location"": ""[parameters('location')]"",
+      ""properties"": {
+        ""zoneType"": ""[parameters('zoneType')]""
+      }
+    }
+  ]
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+
+            result.deploymentParameters.Should().SatisfyRespectively(
+                updatedParam =>
+                {
+                    updatedParam.name.Should().Be("adminUsername");
+                    updatedParam.value.Should().Be("abc");
+                    updatedParam.isMissingParam.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeFalse();
+                    updatedParam.isSecure.Should().BeTrue();
+                },
+                updatedParam =>
+                {
+                    updatedParam.name.Should().Be("location");
+                    updatedParam.value.Should().BeNull();
+                    updatedParam.isMissingParam.Should().BeTrue();
+                    updatedParam.isExpression.Should().BeFalse();
+                    updatedParam.isSecure.Should().BeTrue();
+                },
+                updatedParam =>
+                {
+                    updatedParam.name.Should().Be("zoneType");
+                    updatedParam.value.Should().Be("Private");
+                    updatedParam.isMissingParam.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeFalse();
+                    updatedParam.isSecure.Should().BeFalse();
+                });
+            result.errorMessage.Should().BeNull();
+        }
+
         [DataTestMethod]
         [DataRow("param test string = 'test'", ParameterType.String)]
         [DataRow("param test int = 1", ParameterType.Int)]

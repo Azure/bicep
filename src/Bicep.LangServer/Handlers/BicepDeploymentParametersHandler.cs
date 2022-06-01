@@ -21,7 +21,7 @@ namespace Bicep.LanguageServer.Handlers
 {
     public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, bool parametersFileExists, string parametersFileName, string? errorMessage);
 
-    public record BicepDeploymentParameter(string name, string? value, bool isMissingParam, bool isExpression, ParameterType? parameterType);
+    public record BicepDeploymentParameter(string name, string? value, bool isMissingParam, bool isExpression, bool isSecure, ParameterType? parameterType);
 
     public class BicepDeploymentParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, BicepDeploymentParametersResponse>
     {
@@ -72,7 +72,13 @@ namespace Bicep.LanguageServer.Handlers
 
                         if (parametersFromProvidedParametersFile is null || !parametersFromProvidedParametersFile.ContainsKey(parameterName))
                         {
-                            var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, null, true, false, parameterType);
+                            var updatedDeploymentParameter = new BicepDeploymentParameter(
+                                name: parameterName,
+                                value: null,
+                                isMissingParam: true,
+                                isExpression: false,
+                                isSecure: parameterSymbol.IsSecure(),
+                                parameterType: parameterType);
                             updatedDeploymentParameters.Add(updatedDeploymentParameter);
                         }
                     }
@@ -112,7 +118,13 @@ namespace Bicep.LanguageServer.Handlers
                             {
                                 defaultValue = defaultValue.TrimStart('[').TrimEnd(']');
                             }
-                            var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, defaultValue.ToString(), false, isExpression, parameterType);
+                            var updatedDeploymentParameter = new BicepDeploymentParameter(
+                                name: parameterName,
+                                value: defaultValue.ToString(),
+                                isMissingParam: false,
+                                isExpression: isExpression,
+                                isSecure: parameterSymbol.IsSecure(),
+                                parameterType: parameterType);
                             updatedDeploymentParameters.Add(updatedDeploymentParameter);
                         }
                     }

@@ -55,8 +55,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
 }";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("location", "eastus", ParameterType.String);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("sku", "testSku", ParameterType.String);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("location", "eastus", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("sku", "testSku", false, ParameterType.String);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2 };
 
@@ -86,8 +86,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
         {
             var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("location", "eastus", ParameterType.String);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("sku", "testSku", ParameterType.String);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("location", "eastus", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("sku", "testSku", false, ParameterType.String);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2 };
 
@@ -131,8 +131,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
   }
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", ParameterType.String);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("id", "testId", ParameterType.String);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("id", "testId", false, ParameterType.String);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2 };
 
@@ -173,8 +173,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
   ""sku"": {
     ""value"": ""testSku""";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", ParameterType.String);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("id", "testId", ParameterType.String);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("id", "testId", false, ParameterType.String);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2 };
 
@@ -199,9 +199,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
   }
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("id", "test", ParameterType.String);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("isSku", "false", ParameterType.Bool);
-            var bicepUpdatedDeploymentParameter3 = new BicepUpdatedDeploymentParameter("count", "2", ParameterType.Int);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("id", "test", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("isSku", "false", false, ParameterType.Bool);
+            var bicepUpdatedDeploymentParameter3 = new BicepUpdatedDeploymentParameter("count", "2", false, ParameterType.Int);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> {  bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2, bicepUpdatedDeploymentParameter3 };
 
@@ -244,7 +244,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
   }
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
-            var bicepUpdatedDeploymentParameter = new BicepUpdatedDeploymentParameter("location", "westus", ParameterType.String);
+            var bicepUpdatedDeploymentParameter = new BicepUpdatedDeploymentParameter("location", "westus", false, ParameterType.String);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter };
 
@@ -273,9 +273,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
   }
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", ParameterType.String);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("isSku", "true", ParameterType.Bool);
-            var bicepUpdatedDeploymentParameter3 = new BicepUpdatedDeploymentParameter("count", "3", ParameterType.Int);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("isSku", "true", false, ParameterType.Bool);
+            var bicepUpdatedDeploymentParameter3 = new BicepUpdatedDeploymentParameter("count", "3", false, ParameterType.Int);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2, bicepUpdatedDeploymentParameter3 };
 
@@ -324,8 +324,8 @@ namespace Bicep.LangServer.UnitTests.Deploy
   // comment 2
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.jsonc", parametersFileContents, testOutputPath);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", ParameterType.String);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("id", "testId", ParameterType.String);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("id", "testId", false, ParameterType.String);
             var bicepUpdatedDeploymentParameters =
                 new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2 };
 

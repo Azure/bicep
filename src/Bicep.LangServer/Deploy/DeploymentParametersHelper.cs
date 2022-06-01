@@ -22,14 +22,19 @@ namespace Bicep.LanguageServer.Deploy
         {
             try
             {
+                // Parameter file follows format mentioned here: https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/parameter-files
                 var armSchemaStyleParametersFile = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
   }
 }";
-                var text = !string.IsNullOrWhiteSpace(parametersFilePath) ? File.ReadAllText(parametersFilePath) : armSchemaStyleParametersFile;
-                var jObject = GetParametersObjectValue(text, out bool isArmStyleTemplate);
+                // We will send across the secure param values to the sdk that handles deployment,
+                // but will avoid writing it to the parameters file for security reasons
+                var updatedParametersFile = !string.IsNullOrWhiteSpace(parametersFilePath) ? File.ReadAllText(parametersFilePath) : armSchemaStyleParametersFile;
+                var updatedParametersFileWithoutSecureParams = updatedParametersFile;
+
+                var jObject = GetParametersObjectValue(updatedParametersFile, out bool isArmStyleTemplate);
 
                 foreach (var updatedDeploymentParameter in updatedDeploymentParameters)
                 {
@@ -40,21 +45,23 @@ namespace Bicep.LanguageServer.Deploy
                         updatedDeploymentParameter.value,
                         JObject.Parse("{}"));
 
+                    // Check to make sure parameters mentioned in parameters file are not overwritten
                     if (jObject.ContainsKey(name))
                     {
                         continue;
                     }
                     else
                     {
-                        var jsonEditor = new JsonEditor(text);
+                        var jsonEditor = new JsonEditor(updatedParametersFile);
 
-                       var propertyPaths = new List<string>();
+                        var propertyPaths = new List<string>();
                         if (isArmStyleTemplate)
                         {
                             propertyPaths.Add("parameters");
                             propertyPaths.Add(updatedDeploymentParameter.name);
                         }
-                        else {
+                        else
+                        {
                             propertyPaths.Add(updatedDeploymentParameter.name);
                         }
 
@@ -64,7 +71,12 @@ namespace Bicep.LanguageServer.Deploy
                         {
                             var (line, column, insertText) = insertion.Value;
 
-                            text = JsonEditor.ApplyInsertion(text, (line, column, insertText));
+                            updatedParametersFile = JsonEditor.ApplyInsertion(updatedParametersFile, (line, column, insertText));
+
+                            if (!updatedDeploymentParameter.isSecure)
+                            {
+                                updatedParametersFileWithoutSecureParams = JsonEditor.ApplyInsertion(updatedParametersFileWithoutSecureParams, (line, column, insertText));
+                            }
                         }
                     }
                 }
@@ -73,19 +85,19 @@ namespace Bicep.LanguageServer.Deploy
                 {
                     if (updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Update)
                     {
-                        File.WriteAllText(parametersFilePath, text);
+                        File.WriteAllText(parametersFilePath, updatedParametersFileWithoutSecureParams);
                     }
                     else if (updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Create)
                     {
                         var directoryContainingBicepFile = Path.GetDirectoryName(documentPath);
                         if (directoryContainingBicepFile is not null)
                         {
-                            File.WriteAllText(Path.Combine(directoryContainingBicepFile, parametersFileName), text);
+                            File.WriteAllText(Path.Combine(directoryContainingBicepFile, parametersFileName), updatedParametersFileWithoutSecureParams);
                         }
                     }
                 }
 
-                return text;
+                return updatedParametersFile;
             }
             catch (Exception e)
             {
