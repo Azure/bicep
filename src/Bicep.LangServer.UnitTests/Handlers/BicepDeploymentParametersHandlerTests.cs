@@ -9,10 +9,12 @@ using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
+using Bicep.LanguageServer;
 using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
@@ -551,6 +553,56 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
             result.errorMessage.Should().BeNull();
         }
 
+        [TestMethod]
+        public async Task Handle_WithInvalidParametersFileContents_ShouldReturnBicepDeploymentParametersResponseWithErrorMessage()
+        {
+            var bicepFileContents = @"param name string = 'test'
+param location string = 'eastus'
+resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: name
+  location: location
+}";
+            var template = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""metadata"": {
+    ""_generator"": {
+      ""name"": ""bicep"",
+      ""version"": ""0.6.18.56646"",
+      ""templateHash"": ""3422964353444461889""
+    }
+  },
+  ""parameters"": {
+    ""name"": {
+      ""type"": ""string"",
+      ""defaultValue"": ""test""
+    }
+  },
+  ""resources"": [
+    {
+      ""type"": ""Microsoft.Network/dnsZones"",
+      ""apiVersion"": ""2018-05-01"",
+      ""name"": ""[parameters('name')]"",
+      ""location"": ""[parameters('location')]""
+    }
+  ]
+}";
+            var parametersFileContents = @"{
+    ""location"": {
+      ""value"": ""westus""
+}";
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
+
+            result.errorMessage.Should().NotBeNull();
+            result.errorMessage.Should().Be(string.Format(LangServerResources.InvalidParameterFile, parametersFilePath, "Unexpected end of content while loading JObject. Path 'location', line 4, position 1."));
+        }
+
         [DataTestMethod]
         [DataRow("param test string = 'test'", ParameterType.String)]
         [DataRow("param test int = 1", ParameterType.Int)]
@@ -580,6 +632,133 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
             var result = bicepDeploymentParametersHandler.GetParameterType(parameterDeclarationSyntax!);
 
             result.Should().Be(expected);
+        }
+
+        [DataTestMethod]
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow("    ")]
+        [DataRow("some_path")]
+        public void GetParametersInfoFromProvidedFile_WithInvalidInput_ShouldReturnNull(string parametersFilePath)
+        {
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
+
+            result.Should().BeNull();
+        }
+
+        [TestMethod]
+        public void GetParametersInfoFromProvidedFile_WithoutArmSchemaFormatParametersFile_ShouldReturnParametersInfo()
+        {
+            var parametersFileContents = @"{
+    ""location"": {
+      ""value"": ""westus""
+    },
+    ""sku"": {
+      ""value"": 1
+    }
+}";
+            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
+
+            result.Should().NotBeNull();
+            result!.Should().ContainKey("location");
+            result!.Should().ContainKey("sku");
+
+            var locationObject = result!["location"] as JObject;
+
+            locationObject!.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+  ""value"": ""westus""
+}");
+
+            var skuObject = result!["sku"] as JObject;
+            skuObject!.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+  ""value"": 1
+}");
+        }
+
+        [TestMethod]
+        public void GetParametersInfoFromProvidedFile_WithArmSchemaFormatParametersFile_ShouldReturnParametersInfo()
+        {
+            var parametersFileContents = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""exampleString"": {
+      ""value"": ""test string""
+    },
+    ""exampleInt"": {
+      ""value"": 4
+    },
+    ""exampleBool"": {
+      ""value"": true
+    },
+    ""exampleArray"": {
+      ""value"": [
+        ""value 1"",
+        ""value 2""
+      ]
+    },
+    ""exampleObject"": {
+      ""value"": {
+        ""property1"": ""value1"",
+        ""property2"": ""value2""
+      }
+    }
+  }
+}";
+            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
+            var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+
+            var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
+
+            result.Should().NotBeNull();
+            result!.Count().Should().Be(5);
+            result!.Should().ContainKey("exampleString");
+            result!.Should().ContainKey("exampleInt");
+            result!.Should().ContainKey("exampleBool");
+            result!.Should().ContainKey("exampleArray");
+            result!.Should().ContainKey("exampleObject");
+
+            var exampleStringObject = result!["exampleString"] as JObject;
+            exampleStringObject!.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+  ""value"": ""test string""
+}");
+
+            var exampleIntObject = result!["exampleInt"] as JObject;
+            exampleIntObject!.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+  ""value"": 4
+}");
+            var exampleBoolObject = result!["exampleBool"] as JObject;
+            exampleBoolObject!.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+  ""value"": true
+}");
+            var exampleArrayObject = result!["exampleArray"] as JObject;
+            exampleArrayObject!.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+  ""value"": [
+    ""value 1"",
+    ""value 2""
+  ]
+}");
+            var exampleObject = result!["exampleObject"] as JObject;
+            exampleObject!.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
+  ""value"": {
+    ""property1"": ""value1"",
+    ""property2"": ""value2""
+  }
+}");
         }
     }
 }

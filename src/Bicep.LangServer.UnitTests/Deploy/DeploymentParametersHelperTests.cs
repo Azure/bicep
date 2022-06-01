@@ -51,7 +51,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
   },
   ""name"": {
     ""value"": ""test""
-  },
+  }
 }";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
@@ -67,18 +67,18 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileCreateOrUpdate.None,
                 bicepUpdatedDeploymentParameters);
             var expected = @"{
+  ""sku"": {
+    ""value"": ""testSku""
+  },
   ""location"": {
-    ""value"": ""eastus""
+    ""value"": ""westus""
   },
   ""name"": {
     ""value"": ""test""
-  },
-  ""sku"": {
-    ""value"": ""testSku""
   }
 }";
 
-            result.Should().Be(expected);
+            result.Should().BeEquivalentToIgnoringNewlines(expected);
         }
 
         [TestMethod]
@@ -98,19 +98,19 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileCreateOrUpdate.Create,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
-  ""location"": {
-    ""value"": ""eastus""
-  },
   ""sku"": {
     ""value"": ""testSku""
+  },
+  ""location"": {
+    ""value"": ""eastus""
   }
 }";
 
-            result.Should().Be(expectedParametersFileContents);
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
 
             var expectedParametersFilePath = Path.Combine(testOutputPath, "input.parameters.json");
             File.Exists(expectedParametersFilePath).Should().BeTrue();
-            File.ReadAllText(expectedParametersFilePath).Should().Be(expectedParametersFileContents);
+            File.ReadAllText(expectedParametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
         }
 
         [TestMethod]
@@ -139,22 +139,22 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileCreateOrUpdate.Update,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
+  ""id"": {
+    ""value"": ""testId""
+  },
+  ""name"": {
+    ""value"": ""test""
+  },
   ""location"": {
     ""value"": ""eastus""
   },
   ""sku"": {
     ""value"": ""testSku""
-  },
-  ""name"": {
-    ""value"": ""test""
-  },
-  ""id"": {
-    ""value"": ""testId""
   }
 }";
 
-            result.Should().Be(expectedParametersFileContents);
-            File.ReadAllText(parametersFilePath).Should().Be(expectedParametersFileContents);
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
         }
 
         [TestMethod]
@@ -192,20 +192,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
             var parametersFileContents = @"{
   ""location"": {
     ""value"": ""eastus""
-  },
-  ""isSku"": {
-    ""value"": false
-  },
-   ""count"": {
-    ""value"": 2
-  }, 
+  }
 }";
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
-            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("isSku", "true", ParameterType.Bool);
-            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("count", "3", ParameterType.Int);
-            var bicepUpdatedDeploymentParameter3 = new BicepUpdatedDeploymentParameter("id", "test", ParameterType.String);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("id", "test", ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("isSku", "false", ParameterType.Bool);
+            var bicepUpdatedDeploymentParameter3 = new BicepUpdatedDeploymentParameter("count", "2", ParameterType.Int);
             var bicepUpdatedDeploymentParameters =
-                new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2, bicepUpdatedDeploymentParameter3 };
+                new List<BicepUpdatedDeploymentParameter> {  bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2, bicepUpdatedDeploymentParameter3 };
 
             var result = DeploymentParametersHelper.GetUpdatedParametersFileContents(
                 bicepFilePath,
@@ -214,28 +208,104 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileCreateOrUpdate.Update,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
-  ""location"": {
-    ""value"": ""eastus""
+  ""count"": {
+    ""value"": 2
   },
   ""isSku"": {
-    ""value"": true
-  },
-  ""count"": {
-    ""value"": 3
+    ""value"": false
   },
   ""id"": {
     ""value"": ""test""
+  },
+  ""location"": {
+    ""value"": ""eastus""
   }
 }";
 
-            result.Should().Be(expectedParametersFileContents);
-            File.ReadAllText(parametersFilePath).Should().Be(expectedParametersFileContents);
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+        }
+
+        [TestMethod]
+        public void GetUpdatedParametersFileContents_WithBicepUpdatedDeploymentParameterThatIsAlreadyInParametersFile_DoesNothing()
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
+            var parametersFileContents = @"{
+  ""location"": {
+    ""value"": ""eastus""
+  },
+  ""sku"": {
+    ""value"": ""testSku""
+  }
+}";
+            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
+            var bicepUpdatedDeploymentParameter = new BicepUpdatedDeploymentParameter("location", "westus", ParameterType.String);
+            var bicepUpdatedDeploymentParameters =
+                new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter };
+
+            var result = DeploymentParametersHelper.GetUpdatedParametersFileContents(
+                bicepFilePath,
+                "input.parameters.json",
+                parametersFilePath,
+                ParametersFileCreateOrUpdate.Update,
+                bicepUpdatedDeploymentParameters);
+
+            result.Should().Be(parametersFileContents);
+        }
+
+        [TestMethod]
+        public void GetUpdatedParametersFileContents_WithNonEmptyBicepUpdatedDeploymentParametersAndParametersFileWithComments_ShouldNotRemoveComments()
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
+            var parametersFileContents = @"{
+  // comment 1
+  ""location"": {
+    ""value"": ""eastus""
+  },
+  ""sku"": {
+    ""value"": ""testSku""
+  }
+  // comment 2
+}";
+            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.jsonc", parametersFileContents, testOutputPath);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("id", "testId", ParameterType.String);
+            var bicepUpdatedDeploymentParameters =
+                new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2 };
+
+            var result = DeploymentParametersHelper.GetUpdatedParametersFileContents(
+                bicepFilePath,
+                "input.parameters.jsonc",
+                parametersFilePath,
+                ParametersFileCreateOrUpdate.Update,
+                bicepUpdatedDeploymentParameters);
+            var expectedParametersFileContents = @"{
+  ""id"": {
+    ""value"": ""testId""
+  },
+  ""name"": {
+    ""value"": ""test""
+  },
+  // comment 1
+  ""location"": {
+    ""value"": ""eastus""
+  },
+  ""sku"": {
+    ""value"": ""testSku""
+  }
+  // comment 2
+}";
+
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
         }
 
         [TestMethod]
         public void UpdateJObjectBasedOnParameterType_WithValidInputOfTypeInt_ReturnsUpdatedJObject()
         {
-            var result = DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.Int, "count", "1", JObject.Parse("{}"));
+            var result = DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.Int, "1", JObject.Parse("{}"));
 
             result.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
   ""value"": 1
@@ -245,7 +315,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void UpdateJObjectBasedOnParameterType_WithValidInputOfTypeBool_ReturnsUpdatedJObject()
         {
-            var result = DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.Bool, "isSku", "true", JObject.Parse("{}"));
+            var result = DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.Bool, "true", JObject.Parse("{}"));
 
             result.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
   ""value"": true
@@ -255,7 +325,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void UpdateJObjectBasedOnParameterType_WithValidInputOfTypeString_ReturnsUpdatedJObject()
         {
-            var result = DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.String, "location", "test", JObject.Parse("{}"));
+            var result = DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.String, "test", JObject.Parse("{}"));
 
             result.ToString().Should().BeEquivalentToIgnoringNewlines(@"{
   ""value"": ""test""
@@ -265,7 +335,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
         [TestMethod]
         public void UpdateJObjectBasedOnParameterType_WithInvalidInput_ThrowsException()
         {
-            Action action = () => DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.Int, "location", "test", JObject.Parse("{}"));
+            Action action = () => DeploymentParametersHelper.UpdateJObjectBasedOnParameterType(ParameterType.Int, "test", JObject.Parse("{}"));
 
             action.Should().Throw<Exception>();
         }

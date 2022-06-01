@@ -229,4 +229,3 @@ namespace Bicep.LanguageServer.Configuration
         }
     }
 }
-

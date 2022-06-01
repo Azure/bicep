@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -42,82 +43,92 @@ namespace Bicep.LanguageServer.Handlers
 
         private BicepDeploymentParametersResponse GetUpdatedParams(string documentPath, string parametersFilePath, string template)
         {
-            var parametersFromProvidedParametersFile = GetParametersInfoFromProvidedFile(parametersFilePath);
-            var updatedDeploymentParameters = new List<BicepDeploymentParameter>();
-            var templateObj = JObject.Parse(template);
-            var defaultParametersFromTemplate = templateObj["parameters"];
-            var missingArrayOrObjectTypes = new List<string>();
-
-            foreach (var parameterSymbol in GetParameterSymbols(documentPath))
-            {
-                var parameterDeclarationSyntax = parameterSymbol.DeclaringParameter;
-                var modifier = parameterDeclarationSyntax.Modifier;
-                var parameterName = parameterSymbol.Name;
-                var parameterType = GetParameterType(parameterDeclarationSyntax);
-
-                if (modifier is null)
-                {
-                    if (IsOfTypeArrayOrObject(parameterType))
-                    {
-                        missingArrayOrObjectTypes.Add(parameterName);
-                        continue;
-                    }
-
-                    if (parametersFromProvidedParametersFile is null || !parametersFromProvidedParametersFile.ContainsKey(parameterName))
-                    {
-                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, null, true, false, parameterType);
-                        updatedDeploymentParameters.Add(updatedDeploymentParameter);
-                    }
-                }
-                else
-                {
-                    bool isExpression = false;
-                    // If param is of type array or object, we don't want to provide an option to override.
-                    // We'll simply ignore and continue
-                    if (IsOfTypeArrayOrObject(parameterType))
-                    {
-                        continue;
-                    }
-
-                    // If the parameter:
-                    // - contains default value in bicep file
-                    // - is also mentioned in parameters file
-                    // then the value specified in the parameters file will take precendence.
-                    // We will not provide an option to override it in the UI
-                    if (parametersFromProvidedParametersFile is not null && parametersFromProvidedParametersFile.ContainsKey(parameterName))
-                    {
-                        continue;
-                    }
-
-                    if (modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
-                        parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
-                        expressionSyntax is not null &&
-                        expressionSyntax is not StringSyntax)
-                    {
-                        isExpression = true;
-                    }
-
-                    if (defaultParametersFromTemplate?[parameterName]?["defaultValue"] is JToken defaultValueObject &&
-                        defaultValueObject is not null &&
-                        defaultValueObject.ToString() is string defaultValue)
-                    {
-                        if (isExpression)
-                        {
-                            defaultValue = defaultValue.TrimStart('[').TrimEnd(']');
-                        }
-                        var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, defaultValue.ToString(), false, isExpression, parameterType);
-                        updatedDeploymentParameters.Add(updatedDeploymentParameter);
-                    }
-                }
-            }
-
             var parametersFileExists = !string.IsNullOrWhiteSpace(parametersFilePath) && File.Exists(parametersFilePath);
+            var parametersFileName = GetParameterFileName(documentPath, parametersFileExists, parametersFilePath);
 
-            return new BicepDeploymentParametersResponse(
-                updatedDeploymentParameters,
-                parametersFileExists,
-                GetParameterFileName(documentPath, parametersFileExists, parametersFilePath),
-                GetErrorMessage(missingArrayOrObjectTypes));
+            try
+            {
+                var parametersFromProvidedParametersFile = GetParametersInfoFromProvidedFile(parametersFilePath);
+                var templateObj = JObject.Parse(template);
+                var defaultParametersFromTemplate = templateObj["parameters"];
+
+                var missingArrayOrObjectTypes = new List<string>();
+                var updatedDeploymentParameters = new List<BicepDeploymentParameter>();
+
+                foreach (var parameterSymbol in GetParameterSymbols(documentPath))
+                {
+                    var parameterDeclarationSyntax = parameterSymbol.DeclaringParameter;
+                    var modifier = parameterDeclarationSyntax.Modifier;
+                    var parameterName = parameterSymbol.Name;
+                    var parameterType = GetParameterType(parameterDeclarationSyntax);
+
+                    if (modifier is null)
+                    {
+                        if (IsOfTypeArrayOrObject(parameterType))
+                        {
+                            missingArrayOrObjectTypes.Add(parameterName);
+                            continue;
+                        }
+
+                        if (parametersFromProvidedParametersFile is null || !parametersFromProvidedParametersFile.ContainsKey(parameterName))
+                        {
+                            var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, null, true, false, parameterType);
+                            updatedDeploymentParameters.Add(updatedDeploymentParameter);
+                        }
+                    }
+                    else
+                    {
+                        bool isExpression = false;
+                        // If param is of type array or object, we don't want to provide an option to override.
+                        // We'll simply ignore and continue
+                        if (IsOfTypeArrayOrObject(parameterType))
+                        {
+                            continue;
+                        }
+
+                        // If the parameter:
+                        // - contains default value in bicep file
+                        // - is also mentioned in parameters file
+                        // then the value specified in the parameters file will take precendence.
+                        // We will not provide an option to override it in the UI
+                        if (parametersFromProvidedParametersFile is not null && parametersFromProvidedParametersFile.ContainsKey(parameterName))
+                        {
+                            continue;
+                        }
+
+                        if (modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
+                            parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
+                            expressionSyntax is not null &&
+                            expressionSyntax is not StringSyntax)
+                        {
+                            isExpression = true;
+                        }
+
+                        if (defaultParametersFromTemplate?[parameterName]?["defaultValue"] is JToken defaultValueObject &&
+                            defaultValueObject is not null &&
+                            defaultValueObject.ToString() is string defaultValue)
+                        {
+                            if (isExpression)
+                            {
+                                defaultValue = defaultValue.TrimStart('[').TrimEnd(']');
+                            }
+                            var updatedDeploymentParameter = new BicepDeploymentParameter(parameterName, defaultValue.ToString(), false, isExpression, parameterType);
+                            updatedDeploymentParameters.Add(updatedDeploymentParameter);
+                        }
+                    }
+                }
+
+                return new BicepDeploymentParametersResponse(
+                    updatedDeploymentParameters,
+                    parametersFileExists,
+                    parametersFileName,
+                    GetErrorMessage(missingArrayOrObjectTypes));
+
+            }
+            catch (Exception e)
+            {
+                return new BicepDeploymentParametersResponse(new List<BicepDeploymentParameter>(), parametersFileExists, parametersFileName, e.Message);
+            }
         }
 
         private string GetParameterFileName(string documentPath, bool parametersFileExists, string parametersFilePath)
@@ -137,22 +148,40 @@ namespace Bicep.LanguageServer.Handlers
                 return null;
             }
 
-            return "Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for following parameters: " + string.Join(",", missingArrayOrObjectTypes);
+            return string.Format(LangServerResources.MissingParamValueForArrayOrObjectType, string.Join(",", missingArrayOrObjectTypes));
         }
 
-        private Dictionary<string, dynamic>? GetParametersInfoFromProvidedFile(string parametersFilePath)
+        public Dictionary<string, dynamic>? GetParametersInfoFromProvidedFile(string parametersFilePath)
         {
-            if (string.IsNullOrWhiteSpace(parametersFilePath))
+            if (string.IsNullOrWhiteSpace(parametersFilePath) || !File.Exists(parametersFilePath))
             {
                 return null;
             }
 
-            var parametersFileContents = File.ReadAllText(parametersFilePath);
+            try
+            {
+                var parametersFileContents = File.ReadAllText(parametersFilePath);
+                var jObject = JObject.Parse(parametersFileContents);
 
-            return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
+                if (jObject.ContainsKey("$schema") && jObject.ContainsKey("contentVersion") && jObject.ContainsKey("parameters"))
+                {
+                    var parametersObject = jObject["parameters"];
+
+                    if (parametersObject is not null)
+                    {
+                        parametersFileContents = parametersObject.ToString();
+                    }
+                }
+
+                return JsonConvert.DeserializeObject<Dictionary<string, dynamic>>(parametersFileContents);
+            }
+            catch(Exception e)
+            {
+                throw new Exception(string.Format(LangServerResources.InvalidParameterFile, parametersFilePath, e.Message));
+            }
         }
 
-        public IEnumerable<ParameterSymbol> GetParameterSymbols(string documentPath)
+        private IEnumerable<ParameterSymbol> GetParameterSymbols(string documentPath)
         {
             var documentUri = DocumentUri.FromFileSystemPath(documentPath);
             var compilationContext = compilationManager.GetCompilation(documentUri);
@@ -178,15 +207,15 @@ namespace Bicep.LanguageServer.Handlers
             if (parameterDeclarationSyntax.ParameterType is SimpleTypeSyntax simpleTypeSyntax &&
                 simpleTypeSyntax is not null)
             {
-               return simpleTypeSyntax.TypeName switch
-               {
-                   "array" => ParameterType.Array,
-                   "bool" => ParameterType.Bool,
-                   "int" => ParameterType.Int,
-                   "object" => ParameterType.Object,
-                   "string" => ParameterType.String,
-                   _ => null,
-               };
+                return simpleTypeSyntax.TypeName switch
+                {
+                    "array" => ParameterType.Array,
+                    "bool" => ParameterType.Bool,
+                    "int" => ParameterType.Int,
+                    "object" => ParameterType.Object,
+                    "string" => ParameterType.String,
+                    _ => null,
+                };
             }
 
             return null;

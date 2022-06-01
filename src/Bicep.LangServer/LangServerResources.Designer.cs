@@ -115,7 +115,16 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Deployment failed for {0}. Please fix the following issues in the parameter file: {1}.
+        ///   Looks up a localized string similar to Encountered issue while reading parameters file: {0}. Please fix the following issue: {1}.
+        /// </summary>
+        public static string InvalidParameterFile {
+            get {
+                return ResourceManager.GetString("InvalidParameterFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Deployment failed for {0}. Please fix following issues in the parameter file {1}: {2}.
         /// </summary>
         public static string InvalidParameterFileDeploymentFailedMessage {
             get {
@@ -138,6 +147,15 @@ namespace Bicep.LanguageServer {
         public static string MissingLocationDeploymentFailedMessage {
             get {
                 return ResourceManager.GetString("MissingLocationDeploymentFailedMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for following parameters: {0}.
+        /// </summary>
+        public static string MissingParamValueForArrayOrObjectType {
+            get {
+                return ResourceManager.GetString("MissingParamValueForArrayOrObjectType", resourceCulture);
             }
         }
         

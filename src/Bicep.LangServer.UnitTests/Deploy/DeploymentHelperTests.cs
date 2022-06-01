@@ -243,13 +243,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
+            var parametersFilePath = @"c:\parameter.json";
 
             var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
                 template,
-                @"c:\parameter.json",
+                parametersFilePath,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus",
@@ -261,7 +262,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
-            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file");
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, parametersFilePath, @"Could not find file");
 
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
             bicepDeployStartResponse.outputMessage.Should().Contain(expectedDeploymentOutputMessage);
@@ -308,7 +309,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
-            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, parametersFilePath, @"Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
 
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
             bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
