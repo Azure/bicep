@@ -1,5 +1,5 @@
 var textLoadDirectory = loadTextContent('Assets/path/to/nothing')
-//@[00:3707) ProgramSyntax
+//@[00:4068) ProgramSyntax
 //@[00:0065) ├─VariableDeclarationSyntax
 //@[00:0003) | ├─Token(Identifier) |var|
 //@[04:0021) | ├─IdentifierSyntax
@@ -803,4 +803,94 @@ var binaryAsText = loadTextContent('Assets/binary')
 //@[35:0050) | | | └─StringSyntax
 //@[35:0050) | | | | └─Token(StringComplete) |'Assets/binary'|
 //@[50:0051) | | └─Token(RightParen) |)|
-//@[51:0051) └─Token(EndOfFile) ||
+//@[51:0055) ├─Token(NewLine) |\r\n\r\n|
+
+var jsonObject1 = loadJsonContent('Assets/jsonInvalid.json.txt')
+//@[00:0064) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject1|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0064) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0063) | | ├─FunctionArgumentSyntax
+//@[34:0063) | | | └─StringSyntax
+//@[34:0063) | | | | └─Token(StringComplete) |'Assets/jsonInvalid.json.txt'|
+//@[63:0064) | | └─Token(RightParen) |)|
+//@[64:0066) ├─Token(NewLine) |\r\n|
+var jsonObject2 = loadJsonContent('Assets/jsonValid.json.txt', '.')
+//@[00:0067) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject2|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0067) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0062) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | ├─StringSyntax
+//@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
+//@[61:0062) | | | └─Token(Comma) |,|
+//@[63:0066) | | ├─FunctionArgumentSyntax
+//@[63:0066) | | | └─StringSyntax
+//@[63:0066) | | | | └─Token(StringComplete) |'.'|
+//@[66:0067) | | └─Token(RightParen) |)|
+//@[67:0069) ├─Token(NewLine) |\r\n|
+var jsonObject3 = loadJsonContent('Assets/jsonValid.json.txt', '$.')
+//@[00:0068) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject3|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0068) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0062) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | ├─StringSyntax
+//@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
+//@[61:0062) | | | └─Token(Comma) |,|
+//@[63:0067) | | ├─FunctionArgumentSyntax
+//@[63:0067) | | | └─StringSyntax
+//@[63:0067) | | | | └─Token(StringComplete) |'$.'|
+//@[67:0068) | | └─Token(RightParen) |)|
+//@[68:0070) ├─Token(NewLine) |\r\n|
+var jsonObject4 = loadJsonContent('Assets/jsonValid.json.txt', '.propertyThatDoesNotExist')
+//@[00:0091) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject4|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0091) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0062) | | ├─FunctionArgumentSyntax
+//@[34:0061) | | | ├─StringSyntax
+//@[34:0061) | | | | └─Token(StringComplete) |'Assets/jsonValid.json.txt'|
+//@[61:0062) | | | └─Token(Comma) |,|
+//@[63:0090) | | ├─FunctionArgumentSyntax
+//@[63:0090) | | | └─StringSyntax
+//@[63:0090) | | | | └─Token(StringComplete) |'.propertyThatDoesNotExist'|
+//@[90:0091) | | └─Token(RightParen) |)|
+//@[91:0093) ├─Token(NewLine) |\r\n|
+var jsonObject5 = loadJsonContent('Assets/fileNotExists')
+//@[00:0057) ├─VariableDeclarationSyntax
+//@[00:0003) | ├─Token(Identifier) |var|
+//@[04:0015) | ├─IdentifierSyntax
+//@[04:0015) | | └─Token(Identifier) |jsonObject5|
+//@[16:0017) | ├─Token(Assignment) |=|
+//@[18:0057) | └─FunctionCallSyntax
+//@[18:0033) | | ├─IdentifierSyntax
+//@[18:0033) | | | └─Token(Identifier) |loadJsonContent|
+//@[33:0034) | | ├─Token(LeftParen) |(|
+//@[34:0056) | | ├─FunctionArgumentSyntax
+//@[34:0056) | | | └─StringSyntax
+//@[34:0056) | | | | └─Token(StringComplete) |'Assets/fileNotExists'|
+//@[56:0057) | | └─Token(RightParen) |)|
+//@[57:0059) ├─Token(NewLine) |\r\n|
+
+//@[00:0000) └─Token(EndOfFile) ||

@@ -3,6 +3,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using Azure.Deployments.Expression.Expressions;
@@ -14,6 +16,7 @@ using Bicep.Core.Parsing;
 using Bicep.Core.Syntax;
 using Bicep.Core.TypeSystem;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace Bicep.Core.Semantics.Namespaces
@@ -21,18 +24,18 @@ namespace Bicep.Core.Semantics.Namespaces
     public static class SystemNamespaceType
     {
         public const string BuiltInName = "sys";
-        public const string concatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
-        public const string takeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
-        public const string skipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
-        public const string containsDescription = "Checks whether an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.";
-        public const string intersectionDescription = "Returns a single array or object with the common elements from the parameters.";
-        public const string unionDescription = "Returns a single array or object with all elements from the parameters. Duplicate values or keys are only included once.";
-        public const string firstDescription = "Returns the first element of the array, or first character of the string.";
-        public const string lastDescription = "Returns the last element of the array, or last character of the string.";
-        public const string minDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
-        public const string maxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
+        private const string ConcatDescription = "Combines multiple arrays and returns the concatenated array, or combines multiple string values and returns the concatenated string.";
+        private const string TakeDescription = "Returns an array or string. An array has the specified number of elements from the start of the array. A string has the specified number of characters from the start of the string.";
+        private const string SkipDescription = "Returns a string with all the characters after the specified number of characters, or an array with all the elements after the specified number of elements.";
+        private const string ContainsDescription = "Checks whether an array contains a value, an object contains a key, or a string contains a substring. The string comparison is case-sensitive. However, when testing if an object contains a key, the comparison is case-insensitive.";
+        private const string IntersectionDescription = "Returns a single array or object with the common elements from the parameters.";
+        private const string UnionDescription = "Returns a single array or object with all elements from the parameters. Duplicate values or keys are only included once.";
+        private const string FirstDescription = "Returns the first element of the array, or first character of the string.";
+        private const string LastDescription = "Returns the last element of the array, or last character of the string.";
+        private const string MinDescription = "Returns the minimum value from an array of integers or a comma-separated list of integers.";
+        private const string MaxDescription = "Returns the maximum value from an array of integers or a comma-separated list of integers.";
 
-        public static NamespaceSettings Settings { get; } = new(
+        private static NamespaceSettings Settings { get; } = new(
             IsSingleton: true,
             BicepProviderName: BuiltInName,
             ConfigurationType: null,
@@ -45,21 +48,19 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithReturnType(LanguageConstants.Any)
                 .WithGenericDescription("Converts the specified value to the `any` type.")
                 .WithRequiredParameter("value", LanguageConstants.Any, "The value to convert to `any` type")
-                .WithEvaluator((FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable) => {
-                    return functionCall.Arguments.Single().Expression;
-                })
+                .WithEvaluator((functionCall, _, _, _, _) => functionCall.Arguments.Single().Expression)
                 .Build(),
 
             new FunctionOverloadBuilder("concat")
                 .WithReturnType(LanguageConstants.Array)
-                .WithGenericDescription(concatDescription)
+                .WithGenericDescription(ConcatDescription)
                 .WithDescription("Combines multiple arrays and returns the concatenated array.")
                 .WithVariableParameter("arg", LanguageConstants.Array, minimumCount: 1, "The array for concatenation")
                 .Build(),
 
             new FunctionOverloadBuilder("concat")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription(concatDescription)
+                .WithGenericDescription(ConcatDescription)
                 .WithDescription("Combines multiple string, integer, or boolean values and returns them as a concatenated string.")
                 .WithVariableParameter("arg", TypeHelper.CreateTypeUnion(LanguageConstants.String, LanguageConstants.Int, LanguageConstants.Bool), minimumCount: 1, "The string, int, or boolean value for concatenation")
                 .Build(),
@@ -72,7 +73,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("base64")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("base64"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("base64"), LanguageConstants.String)
                 .WithGenericDescription("Returns the base64 representation of the input string.")
                 .WithRequiredParameter("inputString", LanguageConstants.String, "The value to return as a base64 representation.")
                 .Build(),
@@ -86,7 +87,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("replace")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("replace"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("replace"), LanguageConstants.String)
                 .WithGenericDescription("Returns a new string with all instances of one string replaced by another string.")
                 .WithRequiredParameter("originalString", LanguageConstants.String, "The original string.")
                 .WithRequiredParameter("oldString", LanguageConstants.String, "The string to be removed from the original string.")
@@ -94,13 +95,13 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("toLower")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("toLower"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("toLower"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to lower case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to lower case.")
                 .Build(),
 
             new FunctionOverloadBuilder("toUpper")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("toUpper"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("toUpper"), LanguageConstants.String)
                 .WithGenericDescription("Converts the specified string to upper case.")
                 .WithRequiredParameter("stringToChange", LanguageConstants.String, "The value to convert to upper case.")
                 .Build(),
@@ -131,19 +132,19 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("uniqueString")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uniqueString"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uniqueString"), LanguageConstants.String)
                 .WithGenericDescription("Creates a deterministic hash string based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create a unique string.")
                 .Build(),
 
             new FunctionOverloadBuilder("guid")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("guid"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("guid"), LanguageConstants.String)
                 .WithGenericDescription("Creates a value in the format of a globally unique identifier based on the values provided as parameters.")
                 .WithVariableParameter("arg", LanguageConstants.String, minimumCount: 1, "The value used in the hash function to create the GUID.")
                 .Build(),
 
             new FunctionOverloadBuilder("trim")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("trim"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("trim"), LanguageConstants.String)
                 .WithGenericDescription("Removes all leading and trailing white-space characters from the specified string.")
                 .WithRequiredParameter("stringToTrim", LanguageConstants.String, "The value to trim.")
                 .Build(),
@@ -166,7 +167,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("take")
                 .WithReturnType(LanguageConstants.Array)
-                .WithGenericDescription(takeDescription)
+                .WithGenericDescription(TakeDescription)
                 .WithDescription("Returns an array with the specified number of elements from the start of the array.")
                 .WithRequiredParameter("originalValue", LanguageConstants.Array, "The array to take the elements from.")
                 .WithRequiredParameter("numberToTake", LanguageConstants.Int, "The number of elements to take. If this value is 0 or less, an empty array is returned. If it is larger than the length of the given array, all the elements in the array are returned.")
@@ -174,7 +175,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("take")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription(takeDescription)
+                .WithGenericDescription(TakeDescription)
                 .WithDescription("Returns a string with the specified number of characters from the start of the string.")
                 .WithRequiredParameter("originalValue", LanguageConstants.String, "The string to take the elements from.")
                 .WithRequiredParameter("numberToTake", LanguageConstants.Int, "The number of characters to take. If this value is 0 or less, an empty string is returned. If it is larger than the length of the given string, all the characters are returned.")
@@ -182,7 +183,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("skip")
                 .WithReturnType(LanguageConstants.Array)
-                .WithGenericDescription(skipDescription)
+                .WithGenericDescription(SkipDescription)
                 .WithDescription("Returns an array with all the elements after the specified number in the array.")
                 .WithRequiredParameter("originalValue", LanguageConstants.Array, "The array to use for skipping.")
                 .WithRequiredParameter("numberToSkip", LanguageConstants.Int, "The number of elements to skip. If this value is 0 or less, all the elements in the value are returned. If it is larger than the length of the array, an empty array is returned.")
@@ -190,7 +191,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("skip")
                 .WithReturnType(LanguageConstants.String)
-                .WithGenericDescription(skipDescription)
+                .WithGenericDescription(SkipDescription)
                 .WithDescription("Returns a string with all the characters after the specified number in the string.")
                 .WithRequiredParameter("originalValue", LanguageConstants.String, "The string to use for skipping.")
                 .WithRequiredParameter("numberToSkip", LanguageConstants.Int, "The number of characters to skip. If this value is 0 or less, all the characters in the value are returned. If it is larger than the length of the string, an empty string is returned.")
@@ -204,7 +205,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
-                .WithGenericDescription(containsDescription)
+                .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether an object contains a property. The property name comparison is case-insensitive.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object")
                 .WithRequiredParameter("propertyName", LanguageConstants.String, "The property name.")
@@ -212,7 +213,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
-                .WithGenericDescription(containsDescription)
+                .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether an array contains a value. For arrays of simple values, exact match is done (case-sensitive for strings). For arrays of objects or arrays a deep comparison is done.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The array")
                 .WithRequiredParameter("itemToFind", LanguageConstants.Any, "The value to find.")
@@ -220,7 +221,7 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("contains")
                 .WithReturnType(LanguageConstants.Bool)
-                .WithGenericDescription(containsDescription)
+                .WithGenericDescription(ContainsDescription)
                 .WithDescription("Checks whether a string contains a substring. The string comparison is case-sensitive.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The string.")
                 .WithRequiredParameter("itemToFind", LanguageConstants.String, "The value to find.")
@@ -228,56 +229,56 @@ namespace Bicep.Core.Semantics.Namespaces
 
             new FunctionOverloadBuilder("intersection")
                 .WithReturnType(LanguageConstants.Object)
-                .WithGenericDescription(intersectionDescription)
+                .WithGenericDescription(IntersectionDescription)
                 .WithDescription("Returns a single object with the common elements from the parameters.")
                 .WithVariableParameter("object", LanguageConstants.Object, minimumCount: 2, "The object to use for finding common elements.")
                 .Build(),
 
             new FunctionOverloadBuilder("intersection")
                 .WithReturnType(LanguageConstants.Array)
-                .WithGenericDescription(intersectionDescription)
+                .WithGenericDescription(IntersectionDescription)
                 .WithDescription("Returns a single array with the common elements from the parameters.")
                 .WithVariableParameter("array", LanguageConstants.Array, minimumCount: 2, "The array to use for finding common elements.")
                 .Build(),
 
             new FunctionOverloadBuilder("union")
                 .WithReturnType(LanguageConstants.Object)
-                .WithGenericDescription(unionDescription)
+                .WithGenericDescription(UnionDescription)
                 .WithDescription("Returns a single object with all elements from the parameters. Duplicate keys are only included once.")
                 .WithVariableParameter("object", LanguageConstants.Object, minimumCount: 2, "The first object to use for joining elements.")
                 .Build(),
 
             new FunctionOverloadBuilder("union")
                 .WithReturnType(LanguageConstants.Array)
-                .WithGenericDescription(unionDescription)
+                .WithGenericDescription(UnionDescription)
                 .WithDescription("Returns a single array with all elements from the parameters. Duplicate values are only included once.")
                 .WithVariableParameter("object", LanguageConstants.Array, minimumCount: 2, "The first array to use for joining elements.")
                 .Build(),
 
             new FunctionOverloadBuilder("first")
                 .WithReturnType(LanguageConstants.Any)
-                .WithGenericDescription(firstDescription)
+                .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the first element.")
                 .Build(),
 
             new FunctionOverloadBuilder("first")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("first"), LanguageConstants.String)
-                .WithGenericDescription(firstDescription)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("first"), LanguageConstants.String)
+                .WithGenericDescription(FirstDescription)
                 .WithDescription("Returns the first character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the first character.")
                 .Build(),
 
             new FunctionOverloadBuilder("last")
                 .WithReturnType(LanguageConstants.Any)
-                .WithGenericDescription(lastDescription)
+                .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last element of the array.")
                 .WithRequiredParameter("array", LanguageConstants.Array, "The value to retrieve the last element.")
                 .Build(),
 
             new FunctionOverloadBuilder("last")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("last"), LanguageConstants.String)
-                .WithGenericDescription(lastDescription)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("last"), LanguageConstants.String)
+                .WithGenericDescription(LastDescription)
                 .WithDescription("Returns the last character of the string.")
                 .WithRequiredParameter("string", LanguageConstants.String, "The value to retrieve the last character.")
                 .Build(),
@@ -328,7 +329,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Docs need updates
             new FunctionOverloadBuilder("min")
                 .WithReturnType(LanguageConstants.Int)
-                .WithGenericDescription(minDescription)
+                .WithGenericDescription(MinDescription)
                 .WithDescription("Returns the minimum value from the specified integers.")
                 .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the minimum value")
                 .Build(),
@@ -336,7 +337,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Docs need updates
             new FunctionOverloadBuilder("min")
                 .WithReturnType(LanguageConstants.Int)
-                .WithGenericDescription(minDescription)
+                .WithGenericDescription(MinDescription)
                 .WithDescription("Returns the minimum value from an array of integers.")
                 .WithRequiredParameter("intArray", LanguageConstants.Array, "The array of integers.")
                 .Build(),
@@ -345,7 +346,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Docs need updates
             new FunctionOverloadBuilder("max")
                 .WithReturnType(LanguageConstants.Int)
-                .WithGenericDescription(maxDescription)
+                .WithGenericDescription(MaxDescription)
                 .WithDescription("Returns the maximum value from the specified integers.")
                 .WithVariableParameter("int", LanguageConstants.Int, minimumCount: 1, "One of the integers used to calculate the maximum value")
                 .Build(),
@@ -353,7 +354,7 @@ namespace Bicep.Core.Semantics.Namespaces
             // TODO: Docs need updates
             new FunctionOverloadBuilder("max")
                 .WithReturnType(LanguageConstants.Int)
-                .WithGenericDescription(maxDescription)
+                .WithGenericDescription(MaxDescription)
                 .WithDescription("Returns the maximum value from an array of integers.")
                 .WithRequiredParameter("intArray", LanguageConstants.Array, "The array of integers.")
                 .Build(),
@@ -366,7 +367,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("base64ToString")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("base64ToString"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("base64ToString"), LanguageConstants.String)
                 .WithGenericDescription("Converts a base64 representation to a string.")
                 .WithRequiredParameter("base64Value", LanguageConstants.String, "The base64 representation to convert to a string.")
                 .Build(),
@@ -378,26 +379,26 @@ namespace Bicep.Core.Semantics.Namespaces
                 .Build(),
 
             new FunctionOverloadBuilder("uriComponentToString")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uriComponentToString"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uriComponentToString"), LanguageConstants.String)
                 .WithGenericDescription("Returns a string of a URI encoded value.")
                 .WithRequiredParameter("uriEncodedString", LanguageConstants.String, "The URI encoded value to convert to a string.")
                 .Build(),
 
             new FunctionOverloadBuilder("uriComponent")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("uriComponent"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("uriComponent"), LanguageConstants.String)
                 .WithGenericDescription("Encodes a URI.")
                 .WithRequiredParameter("stringToEncode", LanguageConstants.String, "The value to encode.")
                 .Build(),
 
             new FunctionOverloadBuilder("dataUriToString")
                 .WithGenericDescription("Converts a data URI formatted value to a string.")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("dataUriToString"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("dataUriToString"), LanguageConstants.String)
                 .WithRequiredParameter("dataUriToConvert", LanguageConstants.String, "The data URI value to convert.")
                 .Build(),
 
             // TODO: Docs have wrong param type and param name (any is actually supported)
             new FunctionOverloadBuilder("dataUri")
-                .WithDynamicReturnType(PerformArmConversionOfStringLiterals("dataUri"), LanguageConstants.String)
+                .WithReturnResultBuilder(PerformArmConversionOfStringLiterals("dataUri"), LanguageConstants.String)
                 .WithGenericDescription("Converts a value to a data URI.")
                 .WithRequiredParameter("valueToConvert", LanguageConstants.Any, "The value to convert to a data URI.")
                 .Build(),
@@ -430,7 +431,7 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("json")
                 .WithGenericDescription("Converts a valid JSON string into a JSON data type.")
                 .WithRequiredParameter("json", LanguageConstants.String, "The value to convert to JSON. The string must be a properly formatted JSON string.")
-                .WithDynamicReturnType(JsonTypeBuilder, LanguageConstants.Any)
+                .WithReturnResultBuilder(JsonResultBuilder, LanguageConstants.Any)
                 .Build(),
 
             new FunctionOverloadBuilder("dateTimeAdd")
@@ -471,7 +472,7 @@ namespace Bicep.Core.Semantics.Namespaces
                 .WithGenericDescription($"Loads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is {LanguageConstants.MaxLiteralCharacterLimit} characters (including line endings).")
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
                 .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
-                .WithDynamicReturnType(LoadTextContentTypeBuilder, LanguageConstants.String)
+                .WithReturnResultBuilder(LoadTextContentResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
                 .Build(),
@@ -479,52 +480,66 @@ namespace Bicep.Core.Semantics.Namespaces
             new FunctionOverloadBuilder("loadFileAsBase64")
                 .WithGenericDescription($"Loads the specified file as base64 string. File loading occurs during compilation, not at runtime. The maximum allowed size is {LanguageConstants.MaxLiteralCharacterLimit / 4 * 3 / 1024} Kb.")
                 .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
-                .WithDynamicReturnType(LoadContentAsBase64TypeBuilder, LanguageConstants.String)
+                .WithReturnResultBuilder(LoadContentAsBase64ResultBuilder, LanguageConstants.String)
                 .WithEvaluator(StringLiteralFunctionReturnTypeEvaluator)
                 .WithVariableGenerator(StringLiteralFunctionVariableGenerator)
+                .Build(),
+            new FunctionOverloadBuilder("loadJsonContent")
+                .WithGenericDescription($"Loads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.")
+                .WithRequiredParameter("filePath", LanguageConstants.String, "The path to the file that will be loaded")
+                .WithOptionalParameter("jsonPath", LanguageConstants.String, "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used")
+                .WithOptionalParameter("encoding", LanguageConstants.LoadTextContentEncodings, "File encoding. If not provided, UTF-8 will be used.")
+                .WithReturnResultBuilder(LoadJsonContentResultBuilder, LanguageConstants.Any)
+                .WithEvaluator(JsonContentFunctionReturnTypeEvaluator)
+                .WithVariableGenerator(JsonContentFunctionVariableGenerator)
                 .Build(),
 
             new FunctionOverloadBuilder("items")
                 .WithGenericDescription("Returns an array of keys and values for an object. Elements are consistently ordered alphabetically by key.")
                 .WithRequiredParameter("object", LanguageConstants.Object, "The object to return keys and values for")
-                .WithDynamicReturnType(ItemsTypeBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
+                .WithReturnResultBuilder(ItemsResultBuilder, GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any))
                 .Build(),
         }.ToImmutableArray();
 
-        private static Uri? GetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, string filePath, SyntaxBase filePathArgument)
+        private static bool TryGetFileUriWithDiagnostics(IBinder binder, IFileResolver fileResolver, string filePath, SyntaxBase filePathArgument, [NotNullWhen(true)] out Uri? fileUri, [NotNullWhen(false)] out ErrorDiagnostic? error)
         {
             if (!LocalModuleReference.Validate(filePath, out var validateFilePathFailureBuilder))
             {
-                diagnostics.Write(validateFilePathFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument)));
-                return null;
+                fileUri = null;
+                error = validateFilePathFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument));
+                return false;
             }
-
-            var fileUri = fileResolver.TryResolveFilePath(binder.FileSymbol.FileUri, filePath);
+            fileUri = fileResolver.TryResolveFilePath(binder.FileSymbol.FileUri, filePath);
             if (fileUri is null)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument).FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath));
-                return null;
+                error = DiagnosticBuilder.ForPosition(filePathArgument).FilePathCouldNotBeResolved(filePath, binder.FileSymbol.FileUri.LocalPath);
+                return false;
             }
 
             if (!fileUri.IsFile)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(filePathArgument).UnableToLoadNonFileUri(fileUri));
-                return null;
+                error = DiagnosticBuilder.ForPosition(filePathArgument).UnableToLoadNonFileUri(fileUri);
+                return false;
             }
-            return fileUri;
+            error = null;
+            return true;
         }
 
-        private static FunctionOverload.ReturnTypeBuilderDelegate PerformArmConversionOfStringLiterals(string armFunctionName) =>
-            (IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes) =>
+        private static FunctionOverload.ResultBuilderDelegate PerformArmConversionOfStringLiterals(string armFunctionName) =>
+            (_, _, diagnostics, arguments, argumentTypes) =>
             {
-                if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType)) {
+                if (arguments.Length > 0 && argumentTypes.All(s => s is StringLiteralType))
+                {
                     var parameters = argumentTypes.OfType<StringLiteralType>().Select(slt => JValue.CreateString(slt.RawStringValue)).ToArray();
-                    try {
-                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters) is JValue jValue && jValue.Value is string stringValue)
+                    try
+                    {
+                        if (ExpressionBuiltInFunctions.Functions.EvaluateFunction(armFunctionName, parameters) is JValue { Value: string stringValue })
                         {
-                            return new StringLiteralType(stringValue);
+                            return new(new StringLiteralType(stringValue));
                         }
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e)
+                    {
                         // The ARM function invoked will almost certainly fail at runtime, but there's a chance a fix has been
                         // deployed to ARM since this version of Bicep was released. Given that context, this failure will only
                         // be reported as a warning, and the fallback type will be used.
@@ -537,70 +552,133 @@ namespace Bicep.Core.Semantics.Namespaces
                     }
                 }
 
-                return LanguageConstants.String;
+                return new(LanguageConstants.String);
             };
 
-        private static TypeSymbol LoadTextContentTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadTextContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
-            if (argumentTypes[0] is not StringLiteralType filePathType)
+            return TryLoadTextContentFromFile(binder, fileResolver, diagnostics,
+                (arguments[0], argumentTypes[0]),
+                arguments.Length > 1 ? (arguments[1], argumentTypes[1]) : null,
+                out var fileContent,
+                out var errorDiagnostic,
+                LanguageConstants.MaxLiteralCharacterLimit)
+                ? new(new StringLiteralType(fileContent))
+                : new(ErrorType.Create(errorDiagnostic));
+        }
+
+        private static FunctionResult LoadJsonContentResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
+            string? tokenSelectorPath = null;
+            if (arguments.Length > 1)
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired());
-                return LanguageConstants.String;
+                if (argumentTypes[1] is not StringLiteralType tokenSelectorType)
+                {
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired()));
+                }
+                tokenSelectorPath = tokenSelectorType.RawStringValue;
+            }
+            if (!TryLoadTextContentFromFile(binder, fileResolver, diagnostics,
+                    (arguments[0], argumentTypes[0]),
+                    arguments.Length > 2 ? (arguments[2], argumentTypes[2]) : null,
+                    out var fileContent,
+                    out var errorDiagnostic,
+                    LanguageConstants.MaxJsonFileCharacterLimit))
+            {
+                return new(ErrorType.Create(errorDiagnostic));
+            }
+
+            if (fileContent.TryFromJson<JToken>() is not { } token)
+            {
+                // Instead of catching and returning the JSON parse exception, we simply return a generic error.
+                // This avoids having to deal with localization, and avoids possible confusion regarding line endings in the message.
+                return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[0]).UnparseableJsonType()));
+            }
+
+            if (tokenSelectorPath is not null)
+            {
+                try
+                {
+                    token = token.SelectToken(tokenSelectorPath, false);
+                    if (token is null)
+                    {
+                        return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                    }
+                }
+                catch (JsonException)
+                {
+                    //path is invalid or user hasn't finished typing it yet
+                    return new(ErrorType.Create(DiagnosticBuilder.ForPosition(arguments[1]).NoJsonTokenOnPathOrPathInvalid()));
+                }
+            }
+            return new(ConvertJsonToBicepType(token), token);
+        }
+
+        private static bool TryLoadTextContentFromFile(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol) filePathArgument, (FunctionArgumentSyntax syntax, TypeSymbol typeSymbol)? encodingArgument, [NotNullWhen(true)] out string? fileContent, [NotNullWhen(false)] out ErrorDiagnostic? errorDiagnostic, int maxCharacters = -1)
+        {
+            fileContent = null;
+            errorDiagnostic = null;
+
+            if (filePathArgument.typeSymbol is not StringLiteralType filePathType)
+            {
+                errorDiagnostic = DiagnosticBuilder.ForPosition(filePathArgument.syntax).CompileTimeConstantRequired();
+                return false;
             }
             var filePathValue = filePathType.RawStringValue;
 
-            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, arguments[0]);
-            if (fileUri is null)
+
+            if (!TryGetFileUriWithDiagnostics(binder, fileResolver, filePathValue, filePathArgument.syntax, out var fileUri, out errorDiagnostic))
             {
-                return LanguageConstants.String;
+                return false;
             }
+
             var fileEncoding = Encoding.UTF8;
-            if (argumentTypes.Length > 1)
+            if (encodingArgument is not null)
             {
-                if (argumentTypes[1] is not StringLiteralType encodingType)
+                if (encodingArgument.Value.typeSymbol is not StringLiteralType encodingType)
                 {
-                    diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).CompileTimeConstantRequired());
-                    return LanguageConstants.String;
+                    errorDiagnostic = DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).CompileTimeConstantRequired();
+                    return false;
                 }
                 fileEncoding = LanguageConstants.SupportedEncodings.First(x => string.Equals(x.name, encodingType.RawStringValue, LanguageConstants.IdentifierComparison)).encoding;
             }
 
-            if (!fileResolver.TryRead(fileUri, out var fileContent, out var fileReadFailureBuilder, fileEncoding, LanguageConstants.MaxLiteralCharacterLimit, out var detectedEncoding))
+            if (!fileResolver.TryRead(fileUri, out fileContent, out var fileReadFailureBuilder, fileEncoding, maxCharacters, out var detectedEncoding))
             {
-                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
-                return LanguageConstants.String;
+                errorDiagnostic = fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(filePathArgument.syntax));
+                return false;
             }
-            if (arguments.Length > 1 && !Equals(fileEncoding, detectedEncoding))
+
+            if (encodingArgument is not null && !Equals(fileEncoding, detectedEncoding))
             {
-                diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[1]).FileEncodingMismatch(detectedEncoding.WebName));
+                diagnostics.Write(DiagnosticBuilder.ForPosition(encodingArgument.Value.syntax).FileEncodingMismatch(detectedEncoding.WebName));
             }
-            return new StringLiteralType(fileContent);
+
+            return true;
         }
 
-        private static TypeSymbol LoadContentAsBase64TypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult LoadContentAsBase64ResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
             if (argumentTypes[0] is not StringLiteralType filePathType)
             {
                 diagnostics.Write(DiagnosticBuilder.ForPosition(arguments[0]).CompileTimeConstantRequired());
-                return LanguageConstants.String;
+                return new(LanguageConstants.String);
             }
             var filePathValue = filePathType.RawStringValue;
 
-            var fileUri = GetFileUriWithDiagnostics(binder, fileResolver, diagnostics, filePathValue, arguments[0]);
-            if (fileUri is null)
+            if (!TryGetFileUriWithDiagnostics(binder, fileResolver, filePathValue, arguments[0], out var fileUri, out var errorDiagnostic))
             {
-                return LanguageConstants.String;
+                return new(ErrorType.Create(errorDiagnostic));
             }
             if (!fileResolver.TryReadAsBase64(fileUri, out var fileContent, out var fileReadFailureBuilder, LanguageConstants.MaxLiteralCharacterLimit))
             {
-                diagnostics.Write(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0])));
-                return LanguageConstants.String;
+                return new(ErrorType.Create(fileReadFailureBuilder.Invoke(DiagnosticBuilder.ForPosition(arguments[0]))));
             }
 
-            return new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent);
+            return new(new StringLiteralType(binder.FileSymbol.FileUri.MakeRelativeUri(fileUri).ToString(), fileContent));
         }
 
-        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable)
+        private static SyntaxBase StringLiteralFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionValue)
         {
             if (functionVariable is not null)
             {
@@ -610,7 +688,7 @@ namespace Bicep.Core.Semantics.Namespaces
             return CreateStringLiteral(typeSymbol);
         }
 
-        private static SyntaxBase? StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment)
+        private static SyntaxBase? StringLiteralFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionValue)
         {
             if (directVariableAssignment)
             {
@@ -629,6 +707,43 @@ namespace Bicep.Core.Semantics.Namespaces
             return SyntaxFactory.CreateStringLiteral(stringLiteral.RawStringValue);
         }
 
+        private static SyntaxBase JsonContentFunctionReturnTypeEvaluator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, FunctionVariable? functionVariable, object? functionValue)
+        {
+            if (functionVariable is null)
+            {
+                // TemplateEmitter when emitting ARM-json code instead function will use createObject functions instead putting raw JSON.
+                // This can be avoided using functionVariables where bicep syntax is processed by Emitter itself, not by ExpressionConverter.
+                throw new InvalidOperationException($"Function Variable must be used");
+            }
+
+            return SyntaxFactory.CreateExplicitVariableAccess(functionVariable.Name);
+
+        }
+
+        private static SyntaxBase JsonContentFunctionVariableGenerator(FunctionCallSyntaxBase functionCall, Symbol symbol, TypeSymbol typeSymbol, bool directVariableAssignment, object? functionValue)
+        {
+            //converting JSON to bicep syntax and then back to ARM-JSON escapes ARM template expressions (`[variables('')]`, etc.) out of the box
+            return ConvertJsonToBicepSyntax(functionValue as JToken ?? throw new InvalidOperationException($"Expecting function to return {nameof(JToken)}, but {functionValue?.GetType().ToString() ?? "null"} received."));
+        }
+
+        private static SyntaxBase ConvertJsonToBicepSyntax(JToken token) =>
+        token switch
+        {
+            JObject @object => SyntaxFactory.CreateObject(@object.Properties().Select(x => SyntaxFactory.CreateObjectProperty(x.Name, ConvertJsonToBicepSyntax(x.Value)))),
+            JArray @array => SyntaxFactory.CreateArray(@array.Select(ConvertJsonToBicepSyntax)),
+            JValue value => value.Type switch
+            {
+                JTokenType.String => SyntaxFactory.CreateStringLiteral(value.ToString(CultureInfo.InvariantCulture)),
+                JTokenType.Integer => value.ToObject<long>() < 0 ? SyntaxFactory.CreateNegativeIntegerLiteral((ulong)(0 - value.ToObject<long>())) : SyntaxFactory.CreateIntegerLiteral(value.ToObject<ulong>()),
+                // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
+                JTokenType.Float => SyntaxFactory.CreateFunctionCall("json", SyntaxFactory.CreateStringLiteral(value.ToObject<double>().ToString(CultureInfo.InvariantCulture))),
+                JTokenType.Boolean => SyntaxFactory.CreateBooleanLiteral(value.ToObject<bool>()),
+                JTokenType.Null => SyntaxFactory.CreateFunctionCall("null"),
+                _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported value token type: {value.Type}"),
+            },
+            _ => throw new InvalidOperationException($"Cannot parse JSON object. Unsupported token: {token.Type}")
+        };
+
         private static TypeSymbol GetItemsReturnType(TypeSymbol keyType, TypeSymbol valueType)
             => new TypedArrayType(
                 new ObjectType(
@@ -641,11 +756,11 @@ namespace Bicep.Core.Semantics.Namespaces
                     null),
                 TypeSymbolValidationFlags.Default);
 
-        private static TypeSymbol ItemsTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        private static FunctionResult ItemsResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
         {
             if (argumentTypes[0] is not ObjectType objectType)
             {
-                return GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any);
+                return new(GetItemsReturnType(LanguageConstants.String, LanguageConstants.Any));
             }
 
             var keyTypes = new List<TypeSymbol>();
@@ -668,40 +783,40 @@ namespace Bicep.Core.Semantics.Namespaces
                 valueTypes.Add(additionalPropertiesType);
             }
 
-            return GetItemsReturnType(
+            return new(GetItemsReturnType(
                 keyType: TypeHelper.CreateTypeUnion(keyTypes),
-                valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any);
+                valueType: TypeHelper.TryCollapseTypes(valueTypes) ?? LanguageConstants.Any));
         }
 
-        private static TypeSymbol JsonTypeBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
-        {
-            static TypeSymbol ToBicepType(JToken token)
-                => token switch
+        private static TypeSymbol ConvertJsonToBicepType(JToken token)
+            => token switch
+            {
+                JObject @object => new ObjectType(
+                    "object",
+                    TypeSymbolValidationFlags.Default,
+                    @object.Properties().Select(x => new TypeProperty(x.Name, ConvertJsonToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
+                    null),
+                JArray @array => new TypedArrayType(
+                    TypeHelper.CreateTypeUnion(@array.Select(ConvertJsonToBicepType)),
+                    TypeSymbolValidationFlags.Default),
+                JValue value => value.Type switch
                 {
-                    JObject @object => new ObjectType(
-                        "object",
-                        TypeSymbolValidationFlags.Default,
-                        @object.Properties().Select(x => new TypeProperty(x.Name, ToBicepType(x.Value), TypePropertyFlags.ReadOnly | TypePropertyFlags.ReadableAtDeployTime)),
-                        null),
-                    JArray @array => new TypedArrayType(
-                        TypeHelper.CreateTypeUnion(@array.Select(x => ToBicepType(x))),
-                        TypeSymbolValidationFlags.Default),
-                    JValue value => value.Type switch
-                    {
-                        JTokenType.String => new StringLiteralType(value.ToString()),
-                        JTokenType.Integer => LanguageConstants.Int,
-                        // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
-                        JTokenType.Float => LanguageConstants.Any,
-                        JTokenType.Boolean => LanguageConstants.Bool,
-                        JTokenType.Null => LanguageConstants.Null,
-                        _ => LanguageConstants.Any,
-                    },
+                    JTokenType.String => new StringLiteralType(value.ToString(CultureInfo.InvariantCulture)),
+                    JTokenType.Integer => LanguageConstants.Int,
+                    // Floats are currently not supported in Bicep, so fall back to the default behavior of "any"
+                    JTokenType.Float => LanguageConstants.Any,
+                    JTokenType.Boolean => LanguageConstants.Bool,
+                    JTokenType.Null => LanguageConstants.Null,
                     _ => LanguageConstants.Any,
-                };
+                },
+                _ => LanguageConstants.Any,
+            };
 
+        private static FunctionResult JsonResultBuilder(IBinder binder, IFileResolver fileResolver, IDiagnosticWriter diagnostics, ImmutableArray<FunctionArgumentSyntax> arguments, ImmutableArray<TypeSymbol> argumentTypes)
+        {
             if (argumentTypes.Length != 1 || argumentTypes[0] is not StringLiteralType stringLiteral)
             {
-                return LanguageConstants.Any;
+                return new(LanguageConstants.Any);
             }
 
             // Purposefully use the same method and parsing settings as the deployment engine,
@@ -714,10 +829,10 @@ namespace Bicep.Core.Semantics.Namespaces
                 // instead break it out into a separate file and use loadTextContent().
                 var error = DiagnosticBuilder.ForPosition(arguments[0].Expression).UnparseableJsonType();
 
-                return ErrorType.Create(error);
+                return new(ErrorType.Create(error));
             }
 
-            return ToBicepType(token);
+            return new(ConvertJsonToBicepType(token));
         }
 
         // TODO: Add copyIndex here when we support loops.
@@ -900,13 +1015,13 @@ namespace Bicep.Core.Semantics.Namespaces
                         diagnosticWriter.Write(DiagnosticBuilder.ForPosition(decoratorSyntax).BatchSizeNotAllowed(decoratorName));
                     }
 
-                    const long MinimumBatchSize = 1;
+                    const long minimumBatchSize = 1;
                     SyntaxBase batchSizeSyntax = SingleArgumentSelector(decoratorSyntax);
                     long? batchSize = TryGetIntegerLiteralValue(batchSizeSyntax);
 
-                    if (batchSize is not null and < MinimumBatchSize)
+                    if (batchSize is not null and < minimumBatchSize)
                     {
-                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, MinimumBatchSize));
+                        diagnosticWriter.Write(DiagnosticBuilder.ForPosition(batchSizeSyntax).BatchSizeTooSmall(batchSize.Value, minimumBatchSize));
                     }
                 })
                 .WithEvaluator(MergeToTargetObject(LanguageConstants.BatchSizePropertyName, SingleArgumentSelector))

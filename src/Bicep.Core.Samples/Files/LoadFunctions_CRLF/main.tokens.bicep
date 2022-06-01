@@ -487,6 +487,124 @@ var testJsonNestedString = testJson.object.nestedString
 //@[036:042) Identifier |object|
 //@[042:043) Dot |.|
 //@[043:055) Identifier |nestedString|
-//@[055:057) NewLine |\r\n|
+//@[055:059) NewLine |\r\n\r\n|
+
+var testJson2 = loadJsonContent('./Assets/test.json.txt')
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |testJson2|
+//@[014:015) Assignment |=|
+//@[016:031) Identifier |loadJsonContent|
+//@[031:032) LeftParen |(|
+//@[032:056) StringComplete |'./Assets/test.json.txt'|
+//@[056:057) RightParen |)|
+//@[057:059) NewLine |\r\n|
+var testJsonString2 = testJson.string
+//@[000:003) Identifier |var|
+//@[004:019) Identifier |testJsonString2|
+//@[020:021) Assignment |=|
+//@[022:030) Identifier |testJson|
+//@[030:031) Dot |.|
+//@[031:037) Identifier |string|
+//@[037:039) NewLine |\r\n|
+var testJsonString2_1 = loadJsonContent('./Assets/test.json.txt', '.string')
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |testJsonString2_1|
+//@[022:023) Assignment |=|
+//@[024:039) Identifier |loadJsonContent|
+//@[039:040) LeftParen |(|
+//@[040:064) StringComplete |'./Assets/test.json.txt'|
+//@[064:065) Comma |,|
+//@[066:075) StringComplete |'.string'|
+//@[075:076) RightParen |)|
+//@[076:078) NewLine |\r\n|
+var testJsonInt2 = testJson.int
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |testJsonInt2|
+//@[017:018) Assignment |=|
+//@[019:027) Identifier |testJson|
+//@[027:028) Dot |.|
+//@[028:031) Identifier |int|
+//@[031:033) NewLine |\r\n|
+var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |testJsonInt2_1|
+//@[019:020) Assignment |=|
+//@[021:036) Identifier |loadJsonContent|
+//@[036:037) LeftParen |(|
+//@[037:061) StringComplete |'./Assets/test.json.txt'|
+//@[061:062) Comma |,|
+//@[063:069) StringComplete |'.int'|
+//@[069:070) RightParen |)|
+//@[070:072) NewLine |\r\n|
+var testJsonArrayVal2 = testJson.array[0]
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |testJsonArrayVal2|
+//@[022:023) Assignment |=|
+//@[024:032) Identifier |testJson|
+//@[032:033) Dot |.|
+//@[033:038) Identifier |array|
+//@[038:039) LeftSquare |[|
+//@[039:040) Integer |0|
+//@[040:041) RightSquare |]|
+//@[041:043) NewLine |\r\n|
+var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
+//@[000:003) Identifier |var|
+//@[004:023) Identifier |testJsonArrayVal2_1|
+//@[024:025) Assignment |=|
+//@[026:041) Identifier |loadJsonContent|
+//@[041:042) LeftParen |(|
+//@[042:066) StringComplete |'./Assets/test.json.txt'|
+//@[066:067) Comma |,|
+//@[068:079) StringComplete |'.array[0]'|
+//@[079:080) RightParen |)|
+//@[080:082) NewLine |\r\n|
+var testJsonObject2 = testJson.object
+//@[000:003) Identifier |var|
+//@[004:019) Identifier |testJsonObject2|
+//@[020:021) Assignment |=|
+//@[022:030) Identifier |testJson|
+//@[030:031) Dot |.|
+//@[031:037) Identifier |object|
+//@[037:039) NewLine |\r\n|
+var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
+//@[000:003) Identifier |var|
+//@[004:021) Identifier |testJsonObject2_1|
+//@[022:023) Assignment |=|
+//@[024:039) Identifier |loadJsonContent|
+//@[039:040) LeftParen |(|
+//@[040:064) StringComplete |'./Assets/test.json.txt'|
+//@[064:065) Comma |,|
+//@[066:075) StringComplete |'.object'|
+//@[075:076) RightParen |)|
+//@[076:078) NewLine |\r\n|
+var testJsonNestedString2 = testJson.object.nestedString
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |testJsonNestedString2|
+//@[026:027) Assignment |=|
+//@[028:036) Identifier |testJson|
+//@[036:037) Dot |.|
+//@[037:043) Identifier |object|
+//@[043:044) Dot |.|
+//@[044:056) Identifier |nestedString|
+//@[056:058) NewLine |\r\n|
+var testJsonNestedString2_1 = testJsonObject2_1.nestedString
+//@[000:003) Identifier |var|
+//@[004:027) Identifier |testJsonNestedString2_1|
+//@[028:029) Assignment |=|
+//@[030:047) Identifier |testJsonObject2_1|
+//@[047:048) Dot |.|
+//@[048:060) Identifier |nestedString|
+//@[060:062) NewLine |\r\n|
+var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
+//@[000:003) Identifier |var|
+//@[004:027) Identifier |testJsonNestedString2_2|
+//@[028:029) Assignment |=|
+//@[030:045) Identifier |loadJsonContent|
+//@[045:046) LeftParen |(|
+//@[046:070) StringComplete |'./Assets/test.json.txt'|
+//@[070:071) Comma |,|
+//@[072:094) StringComplete |'.object.nestedString'|
+//@[094:095) RightParen |)|
+//@[095:097) NewLine |\r\n|
 
 //@[000:000) EndOfFile ||

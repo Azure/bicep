@@ -17,6 +17,12 @@ namespace Bicep.Core.FileSystem
         /// <param name="fileUri">The URI of the lock file</param>
         IDisposable? TryAcquireFileLock(Uri fileUri);
 
+        /// <summary>
+        /// Tries to read a file contents to string. If an exception is encountered, returns null and sets a non-null failureMessage.
+        /// </summary>
+        /// <param name="fileUri">The file URI to read.</param>
+        /// <param name="fileContents">The contents of the file, if successful.</param>
+        /// <param name="failureBuilder">Builder for the failure to return, if unsuccessful.</param>
         bool TryRead(Uri fileUri, [NotNullWhen(true)] out string? fileContents, [NotNullWhen(false)] out DiagnosticBuilder.ErrorBuilderDelegate? failureBuilder);
 
         /// <summary>

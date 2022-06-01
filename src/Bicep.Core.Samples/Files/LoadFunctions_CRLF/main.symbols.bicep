@@ -108,3 +108,28 @@ var testJsonObject = testJson.object
 var testJsonNestedString = testJson.object.nestedString
 //@[4:24) Variable testJsonNestedString. Type: 'someVal'. Declaration start char: 0, length: 55
 
+var testJson2 = loadJsonContent('./Assets/test.json.txt')
+//@[4:13) Variable testJson2. Type: object. Declaration start char: 0, length: 57
+var testJsonString2 = testJson.string
+//@[4:19) Variable testJsonString2. Type: 'someVal'. Declaration start char: 0, length: 37
+var testJsonString2_1 = loadJsonContent('./Assets/test.json.txt', '.string')
+//@[4:21) Variable testJsonString2_1. Type: 'someVal'. Declaration start char: 0, length: 76
+var testJsonInt2 = testJson.int
+//@[4:16) Variable testJsonInt2. Type: int. Declaration start char: 0, length: 31
+var testJsonInt2_1 = loadJsonContent('./Assets/test.json.txt', '.int')
+//@[4:18) Variable testJsonInt2_1. Type: int. Declaration start char: 0, length: 70
+var testJsonArrayVal2 = testJson.array[0]
+//@[4:21) Variable testJsonArrayVal2. Type: int. Declaration start char: 0, length: 41
+var testJsonArrayVal2_1 = loadJsonContent('./Assets/test.json.txt', '.array[0]')
+//@[4:23) Variable testJsonArrayVal2_1. Type: int. Declaration start char: 0, length: 80
+var testJsonObject2 = testJson.object
+//@[4:19) Variable testJsonObject2. Type: object. Declaration start char: 0, length: 37
+var testJsonObject2_1 = loadJsonContent('./Assets/test.json.txt', '.object')
+//@[4:21) Variable testJsonObject2_1. Type: object. Declaration start char: 0, length: 76
+var testJsonNestedString2 = testJson.object.nestedString
+//@[4:25) Variable testJsonNestedString2. Type: 'someVal'. Declaration start char: 0, length: 56
+var testJsonNestedString2_1 = testJsonObject2_1.nestedString
+//@[4:27) Variable testJsonNestedString2_1. Type: 'someVal'. Declaration start char: 0, length: 60
+var testJsonNestedString2_2 = loadJsonContent('./Assets/test.json.txt', '.object.nestedString')
+//@[4:27) Variable testJsonNestedString2_2. Type: 'someVal'. Declaration start char: 0, length: 95
+

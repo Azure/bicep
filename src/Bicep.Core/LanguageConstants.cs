@@ -27,6 +27,12 @@ namespace Bicep.Core
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
         public const int MaxLiteralCharacterLimit = 131072;
+        public const int MaxJsonFileCharacterLimit = 1048576; // arbitrary value of 1024*1024 characters.
+                                                              // since max ARM template size is 4MB, and it's encoded in UTF that each character can be 1-4 bytes,
+                                                              // we can limit maximum size of JSON file loaded to not exceed 1M characters.
+                                                              // even though loading files near this limit will make user eventually hit the 4MB limit
+                                                              // but it will not be hard to exceed the limit just by loading a single file.
+
 
         public const string ErrorName = "<error>";
         public const string MissingName = "<missing>";
