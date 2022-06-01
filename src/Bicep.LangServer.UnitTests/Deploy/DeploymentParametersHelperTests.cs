@@ -98,11 +98,15 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileCreateOrUpdate.Create,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
-  ""sku"": {
-    ""value"": ""testSku""
-  },
-  ""location"": {
-    ""value"": ""eastus""
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""sku"": {
+      ""value"": ""testSku""
+    },
+    ""location"": {
+      ""value"": ""eastus""
+    }
   }
 }";
 
@@ -252,6 +256,56 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 bicepUpdatedDeploymentParameters);
 
             result.Should().Be(parametersFileContents);
+        }
+
+        [TestMethod]
+        public void GetUpdatedParametersFileContents_WithArmSchemaStyleParametersFile_ShouldUpdateParametersFile()
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
+            var parametersFileContents = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""location"": {
+      ""value"": ""eastus""
+    }
+  }
+}";
+            var parametersFilePath = FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("name", "test", ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("isSku", "true", ParameterType.Bool);
+            var bicepUpdatedDeploymentParameter3 = new BicepUpdatedDeploymentParameter("count", "3", ParameterType.Int);
+            var bicepUpdatedDeploymentParameters =
+                new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2, bicepUpdatedDeploymentParameter3 };
+
+            var result = DeploymentParametersHelper.GetUpdatedParametersFileContents(
+                bicepFilePath,
+                "input.parameters.json",
+                parametersFilePath,
+                ParametersFileCreateOrUpdate.Update,
+                bicepUpdatedDeploymentParameters);
+            var expectedParametersFileContents = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""count"": {
+      ""value"": 3
+    },
+    ""isSku"": {
+      ""value"": true
+    },
+    ""name"": {
+      ""value"": ""test""
+    },
+    ""location"": {
+      ""value"": ""eastus""
+    }
+  }
+}";
+
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
         }
 
         [TestMethod]

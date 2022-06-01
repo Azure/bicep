@@ -432,7 +432,7 @@ export class DeployCommand implements Command {
   ): Promise<string | undefined> {
     const folder = path.dirname(sourceUri.fsPath);
     const quickPickItems: IAzureQuickPickItem<string>[] =
-      await this.createParameterFileQuickPickList(folder);
+      await this.createParameterFileQuickPickList();
     const result: IAzureQuickPickItem<string> = await _context.ui.showQuickPick(
       quickPickItems,
       {
@@ -461,7 +461,10 @@ export class DeployCommand implements Command {
     } else if (result == this._none) {
       return undefined;
     } else {
-      return path.join(folder, result.data);
+      this.outputChannelManager.appendToOutputChannel(
+        `Parameter file used in deployment -> ${result.data}`
+      );
+      return result.data;
     }
 
     return undefined;
@@ -620,11 +623,11 @@ export class DeployCommand implements Command {
     return undefined;
   }
 
-  private async createParameterFileQuickPickList(
-    folder: string
-  ): Promise<IAzureQuickPickItem<string>[]> {
+  private async createParameterFileQuickPickList(): Promise<
+    IAzureQuickPickItem<string>[]
+  > {
     let parameterFilesQuickPickList = [this._none].concat([this._browse]);
-    const jsonFilesInFolder = await this.getJsonFilesInFolder(folder);
+    const jsonFilesInFolder = await this.getJsonFilesInFolder();
 
     if (jsonFilesInFolder) {
       parameterFilesQuickPickList =
@@ -634,22 +637,38 @@ export class DeployCommand implements Command {
     return parameterFilesQuickPickList;
   }
 
-  private async getJsonFilesInFolder(
-    folder: string
-  ): Promise<IAzureQuickPickItem<string>[]> {
+  private async getJsonFilesInFolder(): Promise<IAzureQuickPickItem<string>[]> {
     const quickPickItems: IAzureQuickPickItem<string>[] = [];
-    const fileNames: string[] = await fse.readdir(folder);
-    for (const fileName of fileNames) {
-      const extension = path.extname(fileName).toLowerCase();
-      if (extension === ".json" || extension === ".jsonc") {
-        const quickPickItem: IAzureQuickPickItem<string> = {
-          label: `${"$(json) "} ${fileName}`,
-          data: fileName,
-        };
-        quickPickItems.push(quickPickItem);
-      }
+    const workspaceJsonFiles = (
+      await vscode.workspace.findFiles("**/*.json", undefined)
+    ).filter((f) => !!f.fsPath);
+
+    workspaceJsonFiles.sort((a, b) => compareStrings(a.path, b.path));
+
+    for (const uri of workspaceJsonFiles) {
+      const workspaceRoot: string | undefined =
+        vscode.workspace.getWorkspaceFolder(uri)?.uri.fsPath;
+      const relativePath = workspaceRoot
+        ? path.relative(workspaceRoot, uri.fsPath)
+        : path.basename(uri.fsPath);
+      const quickPickItem: IAzureQuickPickItem<string> = {
+        label: `${"$(json) "} ${relativePath}`,
+        data: uri.fsPath,
+        id: uri.path,
+      };
+      quickPickItems.push(quickPickItem);
     }
 
     return quickPickItems;
+  }
+}
+
+function compareStrings(a: string, b: string): number {
+  if (a > b) {
+    return 1;
+  } else if (b > a) {
+    return -1;
+  } else {
+    return 0;
   }
 }

@@ -22,8 +22,14 @@ namespace Bicep.LanguageServer.Deploy
         {
             try
             {
-                var text = !string.IsNullOrWhiteSpace(parametersFilePath) ? File.ReadAllText(parametersFilePath) : "{}";
-                var jObject = GetParametersObjectValueIfParametersFileIsArmSchema(text);
+                var armSchemaStyleParametersFile = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+  }
+}";
+                var text = !string.IsNullOrWhiteSpace(parametersFilePath) ? File.ReadAllText(parametersFilePath) : armSchemaStyleParametersFile;
+                var jObject = GetParametersObjectValue(text, out bool isArmStyleTemplate);
 
                 foreach (var updatedDeploymentParameter in updatedDeploymentParameters)
                 {
@@ -41,7 +47,18 @@ namespace Bicep.LanguageServer.Deploy
                     else
                     {
                         var jsonEditor = new JsonEditor(text);
-                        (int line, int column, string text)? insertion = jsonEditor.InsertIfNotExist(new string[] { updatedDeploymentParameter.name }, valueObject);
+
+                       var propertyPaths = new List<string>();
+                        if (isArmStyleTemplate)
+                        {
+                            propertyPaths.Add("parameters");
+                            propertyPaths.Add(updatedDeploymentParameter.name);
+                        }
+                        else {
+                            propertyPaths.Add(updatedDeploymentParameter.name);
+                        }
+
+                        (int line, int column, string text)? insertion = jsonEditor.InsertIfNotExist(propertyPaths.ToArray(), valueObject);
 
                         if (insertion.HasValue)
                         {
@@ -105,11 +122,13 @@ namespace Bicep.LanguageServer.Deploy
             return valueObject;
         }
 
-        public static JObject GetParametersObjectValueIfParametersFileIsArmSchema(string text)
+        private static JObject GetParametersObjectValue(string text, out bool isArmStyleTemplate)
         {
+            isArmStyleTemplate = false;
             var jObject = JObject.Parse(text);
             if (jObject.ContainsKey("$schema") && jObject.ContainsKey("contentVersion") && jObject.ContainsKey("parameters"))
             {
+                isArmStyleTemplate = true;
                 var parametersObject = jObject["parameters"];
                 if (parametersObject is not null)
                 {
