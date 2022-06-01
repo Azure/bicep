@@ -103,7 +103,7 @@ Usage:
       bicep decompile file.json --outfile file.bicep
 
   {exeName} generate-params [options] <file>
-    Builds .parameters.json file from the given bicep file.
+    Builds .parameters.json file from the given bicep file, updates if there is an existing parameters.json file.
 
     Arguments:
       <file>        The input file
