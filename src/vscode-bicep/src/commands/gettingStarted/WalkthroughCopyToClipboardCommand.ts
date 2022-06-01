@@ -7,7 +7,7 @@ import { Command } from "../types";
 
 const paramsCode =
   "param location string = resourceGroup().location\n" +
-  "param appPlanName string = 'myAppPlanName'\n" +
+  "param appPlanName string = '${uniqueString(resourceGroup().id)}plan'\n" +
   "\n";
 
 const resourcesCode = `
