@@ -562,9 +562,20 @@ export class DeployCommand implements Command {
       parametersFileUpdateOption = ParametersFileUpdateOption.Update;
       placeholder = `Update ${parametersFileName} with values used in this deployment?`;
     } else {
-      parametersFileUpdateOptionString = "Create";
-      parametersFileUpdateOption = ParametersFileUpdateOption.Create;
-      placeholder = `Create parameters file from values used in this deployment?`;
+      const folderContainingSourceFile = path.dirname(documentPath);
+      const parametersFilePath = path.join(
+        folderContainingSourceFile,
+        parametersFileName
+      );
+      if (fse.existsSync(parametersFilePath)) {
+        parametersFileUpdateOptionString = "Overwrite";
+        parametersFileUpdateOption = ParametersFileUpdateOption.Overwrite;
+        placeholder = `File ${parametersFileName} already exists. Do you want to overwrite it?`;
+      } else {
+        parametersFileUpdateOptionString = "Create";
+        parametersFileUpdateOption = ParametersFileUpdateOption.Create;
+        placeholder = `Create parameters file from values used in this deployment?`;
+      }
     }
 
     const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
@@ -576,38 +587,13 @@ export class DeployCommand implements Command {
       }
     );
 
-    if (result == this._yes) {
-      if (parametersFileUpdateOption == ParametersFileUpdateOption.Create) {
-        const folderContainingSourceFile = path.dirname(documentPath);
-        const parametersFilePath = path.join(
-          folderContainingSourceFile,
-          parametersFileName
-        );
-
-        if (fse.existsSync(parametersFilePath)) {
-          const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
-            this._yesNoQuickPickItems,
-            {
-              canPickMany: false,
-              placeHolder: `File ${parametersFileName} already exists. Do you want to overwrite it?`,
-              suppressPersistence: true,
-            }
-          );
-
-          if (result == this._yes) {
-            parametersFileUpdateOptionString = "Overwrite";
-            parametersFileUpdateOption = ParametersFileUpdateOption.Overwrite;
-          } else {
-            parametersFileUpdateOptionString = "None";
-            parametersFileUpdateOption = ParametersFileUpdateOption.None;
-          }
-        }
-      }
-    }
-
     _context.telemetry.properties.parametersFileUpdateOption =
       parametersFileUpdateOptionString;
-    return parametersFileUpdateOption;
+    if (result == this._yes) {
+      return parametersFileUpdateOption;
+    } else {
+      return ParametersFileUpdateOption.None;
+    }
   }
 
   private async selectValueForParameterOfTypeExpression(
