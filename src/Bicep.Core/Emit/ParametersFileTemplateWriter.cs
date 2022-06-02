@@ -24,36 +24,14 @@ namespace Bicep.Core.Emit
 
         public void Write(JsonTextWriter writer, string existingContent)
         {
-            // Template is used for calcualting template hash, template jtoken is used for writing to file.
-            var templateJToken = GenerateTemplate();
-            if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
-            {
-                throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
-            }
-
+            var existingParamsContent = null as JToken;
+            var existingContentVersion = "1.0.0.0";
             if (!string.IsNullOrWhiteSpace(existingContent))
             {
                 try
                 {
-                    var existingParamsContent = JToken.Parse(existingContent);
-                    var existingParameters = existingParamsContent.SelectToken("parameters")?.ToObject<JObject>();
-                    if (existingParameters is not null)
-                    {
-                        var mergeSettings = new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union };
-                        foreach (var existingParameter in existingParameters)
-                        {
-                            var existingParameterName = existingParameter.Key;
-                            var existingParameterValue = existingParameter.Value;
-
-                            if (existingParameterValue is not null)
-                            {
-                                if (templateJToken.SelectToken($"parameters.{existingParameterName}") is JObject existingParameterObject)
-                                {
-                                    existingParameterObject.Merge(existingParameterValue, mergeSettings);
-                                }
-                            }
-                        }
-                    }
+                    existingParamsContent = JToken.Parse(existingContent);
+                    existingContentVersion = existingParamsContent.Value<string>("contentVersion") ?? existingContentVersion;
                 }
                 catch
                 {
@@ -61,10 +39,39 @@ namespace Bicep.Core.Emit
                 }
             }
 
+            // Template is used for calcualting template hash, template jtoken is used for writing to file.
+            var templateJToken = GenerateTemplate(existingContentVersion);
+            if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
+            {
+                throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
+            }
+
+            if (existingParamsContent != null)
+            {
+                var existingParameters = existingParamsContent?.SelectToken("parameters")?.ToObject<JObject>();
+                if (existingParameters is not null)
+                {
+                    var mergeSettings = new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union };
+                    foreach (var existingParameter in existingParameters)
+                    {
+                        var existingParameterName = existingParameter.Key;
+                        var existingParameterValue = existingParameter.Value;
+
+                        if (existingParameterValue is not null)
+                        {
+                            if (templateJToken.SelectToken($"parameters.{existingParameterName}") is JObject existingParameterObject)
+                            {
+                                existingParameterObject.Merge(existingParameterValue, mergeSettings);
+                            }
+                        }
+                    }
+                }
+            }
+
             templateJToken.WriteTo(writer);
         }
 
-        private JToken GenerateTemplate()
+        private JToken GenerateTemplate(string contentVersion)
         {
             using var stringWriter = new StringWriter();
             using var jsonWriter = new JsonTextWriter(stringWriter);
@@ -74,7 +81,7 @@ namespace Bicep.Core.Emit
 
             emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#");
 
-            emitter.EmitProperty("contentVersion", "1.0.0.0");
+            emitter.EmitProperty("contentVersion", contentVersion);
 
             this.EmitMetadata(jsonWriter, emitter);
 
