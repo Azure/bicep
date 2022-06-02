@@ -54,6 +54,7 @@ export class DeployCommand implements Command {
   private _no: IAzureQuickPickItem = {
     label: localize("no", "No"),
     data: undefined,
+    priority: "highest",
   };
   private _yesNoQuickPickItems: IAzureQuickPickItem[] = [this._yes, this._no];
 
