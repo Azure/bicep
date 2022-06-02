@@ -58,7 +58,7 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             builder.AppendLine($"# {metadataFile.Name}");
             builder.AppendLine();
 
-            builder.AppendLine(metadataFile.Description);
+            builder.AppendLine(metadataFile.Summary);
             builder.AppendLine();
 
             BuildParametersTable(builder, mainArmTemplateFile.Parameters);

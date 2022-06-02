@@ -1,6 +1,6 @@
 # Sample module
 
-Sample description
+Sample summary
 
 ## Parameters
 
