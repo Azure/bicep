@@ -605,7 +605,7 @@ export class DeployCommand implements Command {
     }
 
     _context.telemetry.properties.parametersFileUpdateOption =
-    parametersFileUpdateOptionString;
+      parametersFileUpdateOptionString;
     return parametersFileUpdateOption;
   }
 
