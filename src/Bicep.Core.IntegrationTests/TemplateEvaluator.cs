@@ -78,22 +78,22 @@ namespace Bicep.Core.IntegrationTests
 
             var evaluationContext = TemplateEngine.GetExpressionEvaluationContext(config.ManagementGroup, config.SubscriptionId, config.ResourceGroup, template);
             var defaultEvaluateFunction = evaluationContext.EvaluateFunction;
-            evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, JToken[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
+            evaluationContext.EvaluateFunction = (FunctionExpression functionExpression, FunctionArgument[] parameters, TemplateErrorAdditionalInfo additionalInfo) =>
             {
                 if (functionExpression.Function.StartsWithOrdinalInsensitively("list") && config.OnListFunc is not null)
                 {
                     return config.OnListFunc(
                         functionExpression.Function,
-                        parameters[0].ToString(),
-                        parameters[1].ToString(),
-                        parameters.Length > 2 ? parameters[2] : null);
+                        parameters[0].Token.ToString(),
+                        parameters[1].Token.ToString(),
+                        parameters.Length > 2 ? parameters[2].Token : null);
                 }
 
                 if (functionExpression.Function.EqualsOrdinalInsensitively("reference"))
                 {
-                    var resourceId = parameters[0].ToString();
-                    var apiVersion = parameters.Length > 1 ? parameters[1].ToString() : null;
-                    var fullBody = parameters.Length > 2 ? parameters[2].ToString().EqualsOrdinalInsensitively("Full") : false;
+                    var resourceId = parameters[0].Token.ToString();
+                    var apiVersion = parameters.Length > 1 ? parameters[1].Token.ToString() : null;
+                    var fullBody = parameters.Length > 2 ? parameters[2].Token.ToString().EqualsOrdinalInsensitively("Full") : false;
 
                     if (resourceLookup.TryGetValue(resourceId, out var foundResource) &&
                         (apiVersion is null || StringComparer.OrdinalIgnoreCase.Equals(apiVersion, foundResource.ApiVersion.Value)))

@@ -415,3 +415,7 @@ var copyBlockInObject = {
     }
   ]
 }
+
+var joinedString = join(['I', 'love', 'Bicep!'], ' ')
+//@[04:16) [no-unused-vars (Warning)] Variable "joinedString" is declared but never used. (CodeDescription: bicep core(https://aka.ms/bicep/linter/no-unused-vars)) |joinedString|
+
