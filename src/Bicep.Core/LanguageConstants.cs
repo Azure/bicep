@@ -52,9 +52,6 @@ namespace Bicep.Core
 
         public const string BicepConfigurationFileName = "bicepconfig.json";
 
-        // An internal-only command used in code actions to edit a particular rule in the bicepconfig.json file
-        public const string EditLinterRuleCommandName = "bicep.EditLinterRule";
-
         public const string DisableNextLineDiagnosticsKeyword = "disable-next-line";
 
         public static readonly Regex ArmTemplateSchemaRegex = new(@"https?:\/\/schema\.management\.azure\.com\/schemas\/([^""\/]+\/[a-zA-Z]*[dD]eploymentTemplate\.json)#?");

@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -74,7 +74,7 @@ namespace Bicep.LanguageServer.Handlers
             if (bicepFilePath is not null)
             {
                 var dir = Path.GetDirectoryName(bicepFilePath);
-                if (dir is not null)
+                if (!string.IsNullOrWhiteSpace(dir))
                 {
                     return dir;
                 }

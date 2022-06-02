@@ -95,13 +95,13 @@ export interface CreateBicepConfigParams {
   destinationPath: string;
 }
 
-export const createBicepConfigRequestType = new ProtocolRequestType<
-  CreateBicepConfigParams,
-  void,
-  never,
-  void,
-  void
->("bicep/createConfigFile");
+// export const createBicepConfigRequestType = new ProtocolRequestType<
+//   CreateBicepConfigParams,
+//   void,
+//   never,
+//   void,
+//   void
+// >("textDocument/createConfigFile");
 
 export interface GetRecommendedConfigLocationParams {
   bicepFilePath?: string;

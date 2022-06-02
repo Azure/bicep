@@ -1,4 +1,4 @@
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -34,7 +34,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var actual = BicepGetRecommendedConfigLocationHandler.GetRecommendedConfigFileLocation((string[]?)null, bicepFilePath);
             var expected = Environment.CurrentDirectory;
 
-            actual.Should().Be(expected); 
+            actual.Should().Be(expected);
         }
 
         [TestMethod]
@@ -83,6 +83,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
         // Folders partially match
         [DataRow(new string[] { "c:\\workspace" }, "c:\\workspace1\\bicepconfig.json", "c:\\workspace1")]
         [DataRow(new string[] { "c:\\workspace1" }, "c:\\workspace\\bicepconfig.json", "c:\\workspace")]
+        // Unsaved (or otherwise non-absolute) path
+        [DataRow(new string[] { "c:\\workspace1" }, "Untitled1.bicep", "c:\\workspace1")]
+        [DataRow(new string[] { "c:\\workspace1" }, "folder\\Untitled1.bicep", "c:\\workspace1")]
 #if !WINDOWS_BUILD
         [Ignore]
 #endif
@@ -113,6 +116,9 @@ namespace Bicep.LangServer.UnitTests.Handlers
         // Folders partially match
         [DataRow(new string[] { "/workspace" }, "/workspace1/bicepconfig.json", "/workspace1")]
         [DataRow(new string[] { "/workspace1" }, "/workspace/bicepconfig.json", "/workspace")]
+        // Unsaved (or otherwise non-absolute) path
+        [DataRow(new string[] { "/workspace1" }, "Untitled1.bicep", "/workspace1")]
+        [DataRow(new string[] { "/workspace1" }, "folder/Untitled1.bicep", "/workspace1")]
 #if WINDOWS_BUILD
         [Ignore]
 #endif
