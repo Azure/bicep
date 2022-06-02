@@ -19,6 +19,17 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
     {
         public const string FileName = "README.md";
 
+        private static readonly string DescriptionSectionTemplate = @"## Description
+{{ Add detailed description for the module. }}".ReplaceLineEndings();
+
+        private static readonly string ExamplesSectionTemplate = @"## Examples
+### Example 1
+```bicep
+```
+### Example 2
+```bicep
+```".ReplaceLineEndings();
+
         public ReadmeFile(string path, string contents)
             : base(path)
         {
@@ -29,24 +40,15 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
         public static ReadmeFile Generate(IFileSystem fileSystem, MetadataFile metadataFile, MainArmTemplateFile mainArmTemplateFile)
         {
-            var examplesSection = @"## Examples
-### Example 1
-```bicep
-```
-### Example 2
-```bicep
-```".ReplaceLineEndings();
+            var descriptionSection = DescriptionSectionTemplate;
+            var examplesSection = ExamplesSectionTemplate;
 
             try
             {
                 var existingFile = ReadFromFileSystem(fileSystem);
-                var existingExamplesSection = TryReadSection(existingFile.Contents, 2, "Examples");
 
-                if (existingExamplesSection is not null && !existingExamplesSection.Equals("## Examples", StringComparison.Ordinal))
-                {
-                    // The existing examples section is not empty.
-                    examplesSection = existingExamplesSection;
-                }
+                UseExistingSectionIfNotEmpty(existingFile, "## Description", ref descriptionSection);
+                UseExistingSectionIfNotEmpty(existingFile, "## Examples", ref examplesSection);
             }
             catch (FileNotFoundException)
             {
@@ -60,6 +62,8 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             builder.AppendLine(metadataFile.Summary);
             builder.AppendLine();
+
+            builder.AppendLine(descriptionSection);
 
             BuildParametersTable(builder, mainArmTemplateFile.Parameters);
             BuildOutputsTable(builder, mainArmTemplateFile.Outputs);
@@ -121,8 +125,11 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
             builder.AppendLine();
         }
 
-        private static string? TryReadSection(string markdownText, int level, string title)
+        private static string? TryReadSection(string markdownText, string title)
         {
+            var level = title.TakeWhile(x => x == '#').Count();
+            title = title[level..].TrimStart();
+
             var document = Markdown.Parse(markdownText);
             var headingBlock = document.Descendants<HeadingBlock>().FirstOrDefault(x =>
                 x.Level == level &&
@@ -142,6 +149,16 @@ namespace Bicep.RegistryModuleTool.ModuleFiles
 
             // Normlize the section to remove trivia characters.
             return Markdown.Normalize(section);
+        }
+        private static void UseExistingSectionIfNotEmpty(ReadmeFile existingFile, string sectionTitle, ref string section)
+        {
+            var existingSection = TryReadSection(existingFile.Contents, sectionTitle);
+
+            if (existingSection is not null && !existingSection.Equals(sectionTitle, StringComparison.Ordinal))
+            {
+                // The existing section is not empty.
+                section = existingSection;
+            }
         }
     }
 }
