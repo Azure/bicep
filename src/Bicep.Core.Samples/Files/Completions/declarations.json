@@ -2241,7 +2241,7 @@
     },
     "deprecated": false,
     "preselect": false,
-    "sortText": "2_res-policyset-definition",
+    "sortText": "2_res-role-assignment",
     "insertTextFormat": "snippet",
     "insertTextMode": "adjustIndentation",
     "textEdit": {
