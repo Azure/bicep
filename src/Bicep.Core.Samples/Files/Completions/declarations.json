@@ -2246,7 +2246,7 @@
     "insertTextMode": "adjustIndentation",
     "textEdit": {
       "range": {},
-      "newText": "resource ${1:roleAssignment} 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {\n  name: ${2:'name'}\n  properties: {\n    roleDefinitionId: ${3:'roleDefinitionId'}\n principalId: ${4:'principalId'}\n  principalType: ${5:'ServicePrincipal'|'Group'|'User'}\n }\n   }\n"
+      "newText": "resource ${1:roleAssignment} 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {\n  name: ${2:'name'}\n  properties: {\n    roleDefinitionId: ${3:'roleDefinitionId'}\n principalId: ${4:'principalId'}\n  principalType: {5:|'ServicePrincipal','Group','User'|}\n }\n   }\n"
     },
     "command": {
       "title": "top level snippet completion",
