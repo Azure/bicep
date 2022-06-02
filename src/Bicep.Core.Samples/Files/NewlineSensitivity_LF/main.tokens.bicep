@@ -1,6 +1,6 @@
 var singleLineFunction = concat('abc', 'def')
-//@[0:3) Identifier |var|
-//@[4:22) Identifier |singleLineFunction|
+//@[00:03) Identifier |var|
+//@[04:22) Identifier |singleLineFunction|
 //@[23:24) Assignment |=|
 //@[25:31) Identifier |concat|
 //@[31:32) LeftParen |(|
@@ -11,26 +11,26 @@ var singleLineFunction = concat('abc', 'def')
 //@[45:47) NewLine |\n\n|
 
 var multiLineFunction = concat(
-//@[0:3) Identifier |var|
-//@[4:21) Identifier |multiLineFunction|
+//@[00:03) Identifier |var|
+//@[04:21) Identifier |multiLineFunction|
 //@[22:23) Assignment |=|
 //@[24:30) Identifier |concat|
 //@[30:31) LeftParen |(|
 //@[31:32) NewLine |\n|
   'abc',
-//@[2:7) StringComplete |'abc'|
-//@[7:8) Comma |,|
-//@[8:9) NewLine |\n|
+//@[02:07) StringComplete |'abc'|
+//@[07:08) Comma |,|
+//@[08:09) NewLine |\n|
   'def'
-//@[2:7) StringComplete |'def'|
-//@[7:8) NewLine |\n|
+//@[02:07) StringComplete |'def'|
+//@[07:08) NewLine |\n|
 )
-//@[0:1) RightParen |)|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightParen |)|
+//@[01:03) NewLine |\n\n|
 
 var singleLineArray = ['abc', 'def']
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |singleLineArray|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |singleLineArray|
 //@[20:21) Assignment |=|
 //@[22:23) LeftSquare |[|
 //@[23:28) StringComplete |'abc'|
@@ -39,8 +39,8 @@ var singleLineArray = ['abc', 'def']
 //@[35:36) RightSquare |]|
 //@[36:37) NewLine |\n|
 var singleLineArrayTrailingCommas = ['abc', 'def',]
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |singleLineArrayTrailingCommas|
+//@[00:03) Identifier |var|
+//@[04:33) Identifier |singleLineArrayTrailingCommas|
 //@[34:35) Assignment |=|
 //@[36:37) LeftSquare |[|
 //@[37:42) StringComplete |'abc'|
@@ -51,41 +51,41 @@ var singleLineArrayTrailingCommas = ['abc', 'def',]
 //@[51:53) NewLine |\n\n|
 
 var multiLineArray = [
-//@[0:3) Identifier |var|
-//@[4:18) Identifier |multiLineArray|
+//@[00:03) Identifier |var|
+//@[04:18) Identifier |multiLineArray|
 //@[19:20) Assignment |=|
 //@[21:22) LeftSquare |[|
 //@[22:23) NewLine |\n|
   'abc'
-//@[2:7) StringComplete |'abc'|
-//@[7:8) NewLine |\n|
+//@[02:07) StringComplete |'abc'|
+//@[07:08) NewLine |\n|
   'def'
-//@[2:7) StringComplete |'def'|
-//@[7:8) NewLine |\n|
+//@[02:07) StringComplete |'def'|
+//@[07:08) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:2) NewLine |\n|
+//@[00:01) RightSquare |]|
+//@[01:02) NewLine |\n|
 var multiLineArrayCommas = [
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |multiLineArrayCommas|
+//@[00:03) Identifier |var|
+//@[04:24) Identifier |multiLineArrayCommas|
 //@[25:26) Assignment |=|
 //@[27:28) LeftSquare |[|
 //@[28:29) NewLine |\n|
   'abc',
-//@[2:7) StringComplete |'abc'|
-//@[7:8) Comma |,|
-//@[8:9) NewLine |\n|
+//@[02:07) StringComplete |'abc'|
+//@[07:08) Comma |,|
+//@[08:09) NewLine |\n|
   'def',
-//@[2:7) StringComplete |'def'|
-//@[7:8) Comma |,|
-//@[8:9) NewLine |\n|
+//@[02:07) StringComplete |'def'|
+//@[07:08) Comma |,|
+//@[08:09) NewLine |\n|
 ]
-//@[0:1) RightSquare |]|
-//@[1:3) NewLine |\n\n|
+//@[00:01) RightSquare |]|
+//@[01:03) NewLine |\n\n|
 
 var mixedArray = ['abc', 'def'
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |mixedArray|
+//@[00:03) Identifier |var|
+//@[04:14) Identifier |mixedArray|
 //@[15:16) Assignment |=|
 //@[17:18) LeftSquare |[|
 //@[18:23) StringComplete |'abc'|
@@ -93,19 +93,19 @@ var mixedArray = ['abc', 'def'
 //@[25:30) StringComplete |'def'|
 //@[30:31) NewLine |\n|
 'ghi', 'jkl',
-//@[0:5) StringComplete |'ghi'|
-//@[5:6) Comma |,|
-//@[7:12) StringComplete |'jkl'|
+//@[00:05) StringComplete |'ghi'|
+//@[05:06) Comma |,|
+//@[07:12) StringComplete |'jkl'|
 //@[12:13) Comma |,|
 //@[13:14) NewLine |\n|
 'lmn']
-//@[0:5) StringComplete |'lmn'|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\n\n|
+//@[00:05) StringComplete |'lmn'|
+//@[05:06) RightSquare |]|
+//@[06:08) NewLine |\n\n|
 
 var singleLineObject = { abc: 'def', ghi: 'jkl'}
-//@[0:3) Identifier |var|
-//@[4:20) Identifier |singleLineObject|
+//@[00:03) Identifier |var|
+//@[04:20) Identifier |singleLineObject|
 //@[21:22) Assignment |=|
 //@[23:24) LeftBrace |{|
 //@[25:28) Identifier |abc|
@@ -118,8 +118,8 @@ var singleLineObject = { abc: 'def', ghi: 'jkl'}
 //@[47:48) RightBrace |}|
 //@[48:49) NewLine |\n|
 var singleLineObjectTrailingCommas = { abc: 'def', ghi: 'jkl',}
-//@[0:3) Identifier |var|
-//@[4:34) Identifier |singleLineObjectTrailingCommas|
+//@[00:03) Identifier |var|
+//@[04:34) Identifier |singleLineObjectTrailingCommas|
 //@[35:36) Assignment |=|
 //@[37:38) LeftBrace |{|
 //@[39:42) Identifier |abc|
@@ -133,48 +133,48 @@ var singleLineObjectTrailingCommas = { abc: 'def', ghi: 'jkl',}
 //@[62:63) RightBrace |}|
 //@[63:64) NewLine |\n|
 var multiLineObject = {
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |multiLineObject|
+//@[00:03) Identifier |var|
+//@[04:19) Identifier |multiLineObject|
 //@[20:21) Assignment |=|
 //@[22:23) LeftBrace |{|
 //@[23:24) NewLine |\n|
   abc: 'def'
-//@[2:5) Identifier |abc|
-//@[5:6) Colon |:|
-//@[7:12) StringComplete |'def'|
+//@[02:05) Identifier |abc|
+//@[05:06) Colon |:|
+//@[07:12) StringComplete |'def'|
 //@[12:13) NewLine |\n|
   ghi: 'jkl'
-//@[2:5) Identifier |ghi|
-//@[5:6) Colon |:|
-//@[7:12) StringComplete |'jkl'|
+//@[02:05) Identifier |ghi|
+//@[05:06) Colon |:|
+//@[07:12) StringComplete |'jkl'|
 //@[12:13) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) NewLine |\n|
 var multiLineObjectCommas = {
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |multiLineObjectCommas|
+//@[00:03) Identifier |var|
+//@[04:25) Identifier |multiLineObjectCommas|
 //@[26:27) Assignment |=|
 //@[28:29) LeftBrace |{|
 //@[29:30) NewLine |\n|
   abc: 'def',
-//@[2:5) Identifier |abc|
-//@[5:6) Colon |:|
-//@[7:12) StringComplete |'def'|
+//@[02:05) Identifier |abc|
+//@[05:06) Colon |:|
+//@[07:12) StringComplete |'def'|
 //@[12:13) Comma |,|
 //@[13:14) NewLine |\n|
   ghi: 'jkl',
-//@[2:5) Identifier |ghi|
-//@[5:6) Colon |:|
-//@[7:12) StringComplete |'jkl'|
+//@[02:05) Identifier |ghi|
+//@[05:06) Colon |:|
+//@[07:12) StringComplete |'jkl'|
 //@[12:13) Comma |,|
 //@[13:14) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) NewLine |\n|
 var mixedObject = { abc: 'abc', def: 'def'
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |mixedObject|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |mixedObject|
 //@[16:17) Assignment |=|
 //@[18:19) LeftBrace |{|
 //@[20:23) Identifier |abc|
@@ -186,9 +186,9 @@ var mixedObject = { abc: 'abc', def: 'def'
 //@[37:42) StringComplete |'def'|
 //@[42:43) NewLine |\n|
 ghi: 'ghi', jkl: 'jkl',
-//@[0:3) Identifier |ghi|
-//@[3:4) Colon |:|
-//@[5:10) StringComplete |'ghi'|
+//@[00:03) Identifier |ghi|
+//@[03:04) Colon |:|
+//@[05:10) StringComplete |'ghi'|
 //@[10:11) Comma |,|
 //@[12:15) Identifier |jkl|
 //@[15:16) Colon |:|
@@ -196,23 +196,23 @@ ghi: 'ghi', jkl: 'jkl',
 //@[22:23) Comma |,|
 //@[23:24) NewLine |\n|
 lmn: 'lmn' }
-//@[0:3) Identifier |lmn|
-//@[3:4) Colon |:|
-//@[5:10) StringComplete |'lmn'|
+//@[00:03) Identifier |lmn|
+//@[03:04) Colon |:|
+//@[05:10) StringComplete |'lmn'|
 //@[11:12) RightBrace |}|
 //@[12:14) NewLine |\n\n|
 
 var nestedMixed = {
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |nestedMixed|
+//@[00:03) Identifier |var|
+//@[04:15) Identifier |nestedMixed|
 //@[16:17) Assignment |=|
 //@[18:19) LeftBrace |{|
 //@[19:20) NewLine |\n|
   abc: { 'def': 'ghi', abc: 'def', foo: [
-//@[2:5) Identifier |abc|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[9:14) StringComplete |'def'|
+//@[02:05) Identifier |abc|
+//@[05:06) Colon |:|
+//@[07:08) LeftBrace |{|
+//@[09:14) StringComplete |'def'|
 //@[14:15) Colon |:|
 //@[16:21) StringComplete |'ghi'|
 //@[21:22) Comma |,|
@@ -225,17 +225,17 @@ var nestedMixed = {
 //@[40:41) LeftSquare |[|
 //@[41:42) NewLine |\n|
     'bar', 'blah',
-//@[4:9) StringComplete |'bar'|
-//@[9:10) Comma |,|
+//@[04:09) StringComplete |'bar'|
+//@[09:10) Comma |,|
 //@[11:17) StringComplete |'blah'|
 //@[17:18) Comma |,|
 //@[18:19) NewLine |\n|
   ] }
-//@[2:3) RightSquare |]|
-//@[4:5) RightBrace |}|
-//@[5:6) NewLine |\n|
+//@[02:03) RightSquare |]|
+//@[04:05) RightBrace |}|
+//@[05:06) NewLine |\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:2) NewLine |\n|
+//@[00:01) RightBrace |}|
+//@[01:02) NewLine |\n|
 
-//@[0:0) EndOfFile ||
+//@[00:00) EndOfFile ||
