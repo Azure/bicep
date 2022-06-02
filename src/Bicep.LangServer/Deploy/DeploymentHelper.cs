@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.IO;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Azure;
@@ -25,11 +25,14 @@ namespace Bicep.LanguageServer.Deploy
         /// <param name="armClient">arm client</param>
         /// <param name="documentPath">path to bicep file used in deployment</param>
         /// <param name="template">template used in deployment</param>
-        /// <param name="parameterFilePath">path to parameter file used in deployment</param>
+        /// <param name="parametersFilePath">path to parameter file used in deployment</param>
         /// <param name="id">id string to create the ResourceIdentifier from</param>
         /// <param name="scope">target scope</param>
         /// <param name="location">location to store the deployment data</param>
         /// <param name="deploymentId">deployment id</param>
+        /// <param name="parametersFileName">parameters file name</param>
+        /// <param name="parametersFileUpdateOption"><see cref="ParametersFileUpdateOption"/>update, create or overwrite parameters file</param>
+        /// <param name="updatedDeploymentParameters">parameters that were updated during deployment flow</param>
         /// <param name="portalUrl">azure management portal URL</param>
         /// <param name="deploymentName">deployment name</param>
         /// <param name="deploymentOperationsCache">deployment operations cache that needs to be updated</param>
@@ -39,11 +42,14 @@ namespace Bicep.LanguageServer.Deploy
             ArmClient armClient,
             string documentPath,
             string template,
-            string parameterFilePath,
+            string parametersFilePath,
             string id,
             string scope,
             string location,
             string deploymentId,
+            string parametersFileName,
+            ParametersFileUpdateOption parametersFileUpdateOption,
+            List<BicepUpdatedDeploymentParameter> updatedDeploymentParameters,
             string portalUrl,
             string deploymentName,
             IDeploymentOperationsCache deploymentOperationsCache)
@@ -73,7 +79,8 @@ namespace Bicep.LanguageServer.Deploy
 
                 try
                 {
-                    parameters = GetParameters(documentPath, parameterFilePath);
+                    var updatedParametersFileContents = DeploymentParametersHelper.GetUpdatedParametersFileContents(documentPath, parametersFileName, parametersFilePath, parametersFileUpdateOption, updatedDeploymentParameters);
+                    parameters = JsonElementFactory.CreateElement(updatedParametersFileContents);
                 }
                 catch (Exception e)
                 {
@@ -150,26 +157,6 @@ namespace Bicep.LanguageServer.Deploy
             else
             {
                 return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
-            }
-        }
-
-        private static JsonElement GetParameters(string documentPath, string parameterFilePath)
-        {
-            if (string.IsNullOrWhiteSpace(parameterFilePath))
-            {
-                return JsonElementFactory.CreateElement("{}");
-            }
-            else
-            {
-                try
-                {
-                    string text = File.ReadAllText(parameterFilePath);
-                    return JsonElementFactory.CreateElement(text);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception(string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, e.Message));
-                }
             }
         }
     }
