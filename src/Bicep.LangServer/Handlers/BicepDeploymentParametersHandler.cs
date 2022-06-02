@@ -214,8 +214,7 @@ namespace Bicep.LanguageServer.Handlers
             }
 
             var semanticModel = compilationContext.Compilation.GetEntrypointSemanticModel();
-            return semanticModel.Root.ParameterDeclarations
-                .Where(sym => semanticModel.FindReferences(sym).OfType<VariableAccessSyntax>().Any());
+            return semanticModel.Root.ParameterDeclarations;
         }
 
         private bool IsOfTypeArrayOrObject(ParameterType? parameterType)

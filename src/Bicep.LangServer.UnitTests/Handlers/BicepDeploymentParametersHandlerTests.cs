@@ -59,7 +59,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
         }
 
         [TestMethod]
-        public async Task Handle_WithUnusedParamInSourceFile_ShouldReturnEmptyListOfUpdatedDeploymentParameters()
+        public async Task Handle_WithUnusedParamInSourceFile_ShouldReturnUpdatedDeploymentParameters()
         {
             var bicepFileContents = @"param test string = 'abc'";
             var template = @"{
@@ -87,7 +87,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
-            result.deploymentParameters.Should().BeEmpty();
+            result.deploymentParameters.Should().SatisfyRespectively(
+                updatedParam =>
+                {
+                    updatedParam.name.Should().Be("test");
+                    updatedParam.value.Should().Be("abc");
+                    updatedParam.isMissingParam.Should().BeFalse();
+                    updatedParam.isExpression.Should().BeFalse();
+                    updatedParam.isSecure.Should().BeFalse();
+                });
             result.errorMessage.Should().BeNull();
         }
 
