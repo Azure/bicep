@@ -3,6 +3,6 @@ resource ${1:roleAssignment} 'Microsoft.Authorization/roleAssignments@2020-10-01
   properties: {
     roleDefinitionId: /*${3:'roleDefinitionId'}*/'roleDefinitionId'
     principalId: /*${4:'principalId'}*/'principalId'
-    principalType: /*${5:|'ServicePrincipal','Group','User'|}*/'ServicePrincipal'
+    principalType: /*${5|'ServicePrincipal','Group','User'|}*/'ServicePrincipal'
   }
 }
