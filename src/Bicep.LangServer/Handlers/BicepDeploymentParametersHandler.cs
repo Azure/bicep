@@ -84,7 +84,6 @@ namespace Bicep.LanguageServer.Handlers
                     }
                     else
                     {
-                        bool isExpression = false;
                         // If param is of type array or object, we don't want to provide an option to override.
                         // We'll simply ignore and continue
                         if (IsOfTypeArrayOrObject(parameterType))
@@ -102,18 +101,12 @@ namespace Bicep.LanguageServer.Handlers
                             continue;
                         }
 
-                        if (modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
-                            parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
-                            expressionSyntax is not null &&
-                            expressionSyntax is not StringSyntax)
-                        {
-                            isExpression = true;
-                        }
-
                         if (defaultParametersFromTemplate?[parameterName]?["defaultValue"] is JToken defaultValueObject &&
                             defaultValueObject is not null &&
                             defaultValueObject.ToString() is string defaultValue)
                         {
+                            bool isExpression = IsExpression(modifier);
+
                             if (isExpression)
                             {
                                 defaultValue = defaultValue.TrimStart('[').TrimEnd(']');
@@ -141,6 +134,16 @@ namespace Bicep.LanguageServer.Handlers
             {
                 return new BicepDeploymentParametersResponse(new List<BicepDeploymentParameter>(), parametersFileExists, parametersFileName, e.Message);
             }
+        }
+
+        private bool IsExpression(SyntaxBase modifier)
+        {
+            return modifier is ParameterDefaultValueSyntax parameterDefaultValueSyntax &&
+                parameterDefaultValueSyntax.DefaultValue is ExpressionSyntax expressionSyntax &&
+                expressionSyntax is not null &&
+                expressionSyntax is not StringSyntax &&
+                expressionSyntax is not IntegerLiteralSyntax &&
+                expressionSyntax is not BooleanLiteralSyntax;
         }
 
         private string GetParameterFileName(string documentPath, bool parametersFileExists, string parametersFilePath)

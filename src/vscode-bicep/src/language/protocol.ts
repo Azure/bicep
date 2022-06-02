@@ -107,8 +107,9 @@ export interface BicepUpdatedDeploymentParameter {
 
 export enum ParametersFileCreateOrUpdate {
   Create = 1,
-  Update = 2,
-  None = 3,
+  None = 2,
+  Overwrite = 3,
+  Update = 4,
 }
 
 export enum ParameterType {

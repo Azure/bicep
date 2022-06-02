@@ -97,7 +97,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 string.Empty,
                 ParametersFileCreateOrUpdate.Create,
                 bicepUpdatedDeploymentParameters);
-            var expectedParametersFileContents = @"{
+            var expectedParametersFileContentsWrittenToDisk = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
@@ -109,12 +109,21 @@ namespace Bicep.LangServer.UnitTests.Deploy
     }
   }
 }";
+            var expectedParametersFileContentsUsedInDeployment = @"{
+  ""sku"": {
+    ""value"": ""testSku""
+  },
+  ""location"": {
+    ""value"": ""eastus""
+  }
+}";
 
-            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContentsUsedInDeployment);
 
             var expectedParametersFilePath = Path.Combine(testOutputPath, "input.parameters.json");
             File.Exists(expectedParametersFilePath).Should().BeTrue();
-            File.ReadAllText(expectedParametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+            File.ReadAllText(expectedParametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContentsWrittenToDisk);
         }
 
         [TestMethod]
@@ -285,7 +294,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 parametersFilePath,
                 ParametersFileCreateOrUpdate.Update,
                 bicepUpdatedDeploymentParameters);
-            var expectedParametersFileContents = @"{
+            var expectedParametersFileContentsWrittenToDisk = @"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
@@ -303,9 +312,23 @@ namespace Bicep.LangServer.UnitTests.Deploy
     }
   }
 }";
+            var expectedParametersFileUsedInDeployment = @"{
+  ""count"": {
+    ""value"": 3
+  },
+  ""isSku"": {
+    ""value"": true
+  },
+  ""name"": {
+    ""value"": ""test""
+  },
+  ""location"": {
+    ""value"": ""eastus""
+  }
+}";
 
-            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
-            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileUsedInDeployment);
+            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContentsWrittenToDisk);
         }
 
         [TestMethod]
@@ -335,7 +358,7 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 parametersFilePath,
                 ParametersFileCreateOrUpdate.Update,
                 bicepUpdatedDeploymentParameters);
-            var expectedParametersFileContents = @"{
+            var expectedParametersFileContentsWrittenToDisk = @"{
   ""id"": {
     ""value"": ""testId""
   },
@@ -351,9 +374,78 @@ namespace Bicep.LangServer.UnitTests.Deploy
   }
   // comment 2
 }";
+            var expectedParametersFileContentsUsedInDeployments = @"{
+  ""id"": {
+    ""value"": ""testId""
+  },
+  ""name"": {
+    ""value"": ""test""
+  },
+  ""location"": {
+    ""value"": ""eastus""
+  },
+  ""sku"": {
+    ""value"": ""testSku""
+  }
+}";
 
-            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
-            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContents);
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContentsUsedInDeployments);
+            File.ReadAllText(parametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContentsWrittenToDisk);
+        }
+
+        [TestMethod]
+        public void GetUpdatedParametersFileContents_WithOverwriteOptionAndParametersFileWithSameNameInCurrentDirectory_ShouldUpdateParametersFile()
+        {
+            var testOutputPath = Path.Combine(TestContext.ResultsDirectory, Guid.NewGuid().ToString());
+            var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty, testOutputPath);
+            var parametersFileContents = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""location"": {
+      ""value"": ""eastus""
+    }
+  }
+}";
+            FileHelper.SaveResultFile(TestContext, "input.parameters.json", parametersFileContents, testOutputPath);
+            var bicepUpdatedDeploymentParameter1 = new BicepUpdatedDeploymentParameter("location", "westus", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameter2 = new BicepUpdatedDeploymentParameter("sku", "testSku", false, ParameterType.String);
+            var bicepUpdatedDeploymentParameters =
+                new List<BicepUpdatedDeploymentParameter> { bicepUpdatedDeploymentParameter1, bicepUpdatedDeploymentParameter2 };
+
+            var result = DeploymentParametersHelper.GetUpdatedParametersFileContents(
+                bicepFilePath,
+                "input.parameters.json",
+                string.Empty,
+                ParametersFileCreateOrUpdate.Create,
+                bicepUpdatedDeploymentParameters);
+            var expectedParametersFileContentsWrittenToDisk = @"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""sku"": {
+      ""value"": ""testSku""
+    },
+    ""location"": {
+      ""value"": ""westus""
+    }
+  }
+}";
+            var expectedParametersFileContentsUsedInDeployment = @"{
+  ""sku"": {
+    ""value"": ""testSku""
+  },
+  ""location"": {
+    ""value"": ""westus""
+  }
+}";
+
+
+            result.Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContentsUsedInDeployment);
+
+            var expectedParametersFilePath = Path.Combine(testOutputPath, "input.parameters.json");
+            File.Exists(expectedParametersFilePath).Should().BeTrue();
+            File.ReadAllText(expectedParametersFilePath).Should().BeEquivalentToIgnoringNewlines(expectedParametersFileContentsWrittenToDisk);
         }
 
         [TestMethod]

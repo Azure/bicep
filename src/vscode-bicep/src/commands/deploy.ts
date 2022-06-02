@@ -24,6 +24,10 @@ import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
+import {
+  compareStrings,
+  findOrCreateActiveBicepFile,
+} from "./findOrCreateActiveBicepFile";
 import vscode, { Uri, commands } from "vscode";
 
 import { AccessToken } from "@azure/identity";
@@ -34,7 +38,6 @@ import { Command } from "./types";
 import { LocationTreeItem } from "../tree/LocationTreeItem";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { TreeManager } from "../tree/TreeManager";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { localize } from "../utils/localize";
 
 export class DeployCommand implements Command {
@@ -46,6 +49,15 @@ export class DeployCommand implements Command {
     label: localize("browse", "$(file-directory) Browse..."),
     data: "",
   };
+  private _yes: IAzureQuickPickItem = {
+    label: localize("yes", "Yes"),
+    data: undefined,
+  };
+  private _no: IAzureQuickPickItem = {
+    label: localize("no", "No"),
+    data: undefined,
+  };
+  private _yesNoQuickPickItems: IAzureQuickPickItem[] = [this._yes, this._no];
 
   public readonly id = "bicep.deploy";
 
@@ -345,9 +357,15 @@ export class DeployCommand implements Command {
         );
 
       let updateOrCreateParametersFile = ParametersFileCreateOrUpdate.None;
-      if (updatedDeploymentParameters.length > 0) {
+
+      // If all the parameters are of type secure, we will not show an option to create or update parameters file
+      if (
+        updatedDeploymentParameters.length > 0 &&
+        !updatedDeploymentParameters.every((x) => x.isSecure)
+      ) {
         updateOrCreateParametersFile = await this.updateOrCreateParametersFile(
           context,
+          documentPath,
           await fse.pathExists(parametersFilePath),
           parametersFileName
         );
@@ -430,7 +448,6 @@ export class DeployCommand implements Command {
     _context: IActionContext,
     sourceUri: Uri
   ): Promise<string | undefined> {
-    const folder = path.dirname(sourceUri.fsPath);
     const quickPickItems: IAzureQuickPickItem<string>[] =
       await this.createParameterFileQuickPickList();
     const result: IAzureQuickPickItem<string> = await _context.ui.showQuickPick(
@@ -513,7 +530,7 @@ export class DeployCommand implements Command {
         }
       }
 
-      if (paramValue) {
+      if (paramValue != undefined) {
         const updatedDeploymentParameter: BicepUpdatedDeploymentParameter = {
           name: paramName,
           value: paramValue,
@@ -532,6 +549,7 @@ export class DeployCommand implements Command {
 
   private async updateOrCreateParametersFile(
     _context: IActionContext,
+    documentPath: string,
     parametersFileExists: boolean,
     parametersFileName: string
   ) {
@@ -545,20 +563,8 @@ export class DeployCommand implements Command {
       placeholder = `Create parameters file from values used in this deployment?`;
     }
 
-    const quickPickItems: IAzureQuickPickItem[] = [];
-    const yes: IAzureQuickPickItem = {
-      label: localize("yes", "Yes"),
-      data: undefined,
-    };
-    quickPickItems.push(yes);
-    const no: IAzureQuickPickItem = {
-      label: localize("no", "No"),
-      data: undefined,
-    };
-    quickPickItems.push(no);
-
     const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
-      quickPickItems,
+      this._yesNoQuickPickItems,
       {
         canPickMany: false,
         placeHolder: placeholder,
@@ -566,10 +572,34 @@ export class DeployCommand implements Command {
       }
     );
 
-    if (result == yes) {
-      return createOrUpdate;
+    if (result == this._yes) {
+      if (createOrUpdate == ParametersFileCreateOrUpdate.Create) {
+        const folderContainingSourceFile = path.dirname(documentPath);
+        const parametersFilePath = path.join(
+          folderContainingSourceFile,
+          parametersFileName
+        );
+
+        if (fse.existsSync(parametersFilePath)) {
+          const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
+            this._yesNoQuickPickItems,
+            {
+              canPickMany: false,
+              placeHolder: `File ${parametersFileName} already exists. Do you want to overwrite it?`,
+              suppressPersistence: true,
+            }
+          );
+
+          if (result == this._yes) {
+            return ParametersFileCreateOrUpdate.Overwrite;
+          } else {
+            return ParametersFileCreateOrUpdate.None;
+          }
+        }
+        return createOrUpdate;
+      }
     }
-    return ParametersFileCreateOrUpdate.None;
+    return createOrUpdate;
   }
 
   private async selectValueForParameterOfTypeExpression(
@@ -641,7 +671,7 @@ export class DeployCommand implements Command {
   private async getJsonFilesInFolder(): Promise<IAzureQuickPickItem<string>[]> {
     const quickPickItems: IAzureQuickPickItem<string>[] = [];
     const workspaceJsonFiles = (
-      await vscode.workspace.findFiles("**/*.json", undefined)
+      await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
     ).filter((f) => !!f.fsPath);
 
     workspaceJsonFiles.sort((a, b) => compareStrings(a.path, b.path));
@@ -661,15 +691,5 @@ export class DeployCommand implements Command {
     }
 
     return quickPickItems;
-  }
-}
-
-function compareStrings(a: string, b: string): number {
-  if (a > b) {
-    return 1;
-  } else if (b > a) {
-    return -1;
-  } else {
-    return 0;
   }
 }

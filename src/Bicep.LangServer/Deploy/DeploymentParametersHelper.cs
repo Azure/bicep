@@ -13,12 +13,32 @@ namespace Bicep.LanguageServer.Deploy
 {
     public class DeploymentParametersHelper
     {
+        // Per documentation here- https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/parameter-files
+        // parameters file should be of below format:
+        //{
+        //  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+        //  "contentVersion": "1.0.0.0",
+        //  "parameters": {
+        //    "<first-parameter-name>": {
+        //      "value": "<first-value>"
+        //    },
+        //    "<second-parameter-name>": {
+        //      "value": "<second-value>"
+        //    }
+        //  }
+        //}
+        // azure-sdk-for-net expects parameters to be of name and value pairs:
+        // https://github.com/Azure/azure-sdk-for-net/blob/1e25b1bfc9b54df35d907aa7b2c10ff07082e845/sdk/resources/Azure.ResourceManager.Resources/src/Generated/Models/ArmDeploymentProperties.cs#L27
+        // We'll work around the above issue by first detecting the format of the file.
+        // If it's in the format descibed in the docs, we'll extract the parameters value and use that for actual deployment.
+        // If the user chose to create a new parameters file during the deployment flow, we'll follow the format
+        // mentioned in the docs as a best practise.
         public static string GetUpdatedParametersFileContents(
-            string documentPath,
-            string parametersFileName,
-            string parametersFilePath,
-            ParametersFileCreateOrUpdate updateOrCreateParametersFile,
-            IEnumerable<BicepUpdatedDeploymentParameter> updatedDeploymentParameters)
+                string documentPath,
+                string parametersFileName,
+                string parametersFilePath,
+                ParametersFileCreateOrUpdate updateOrCreateParametersFile,
+                IEnumerable<BicepUpdatedDeploymentParameter> updatedDeploymentParameters)
         {
             try
             {
@@ -29,9 +49,10 @@ namespace Bicep.LanguageServer.Deploy
   ""parameters"": {
   }
 }";
-                // We will send across the secure param values to the sdk that handles deployment,
+                // We will send across the secure param values to the azure sdk that handles deployment,
                 // but will avoid writing it to the parameters file for security reasons
-                var updatedParametersFile = !string.IsNullOrWhiteSpace(parametersFilePath) ? File.ReadAllText(parametersFilePath) : armSchemaStyleParametersFile;
+                var updatedParametersFile = !string.IsNullOrWhiteSpace(parametersFilePath) ?
+                    File.ReadAllText(parametersFilePath) : armSchemaStyleParametersFile;
                 var updatedParametersFileWithoutSecureParams = updatedParametersFile;
 
                 var jObject = GetParametersObjectValue(updatedParametersFile, out bool isArmStyleTemplate);
@@ -87,7 +108,11 @@ namespace Bicep.LanguageServer.Deploy
                     {
                         File.WriteAllText(parametersFilePath, updatedParametersFileWithoutSecureParams);
                     }
-                    else if (updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Create)
+                    // ParametersFileCreateOrUpdate will have a value of "Overwrite" only if the parameters
+                    // file with name <bicep_file_name>.parameters.json already exists and user chose to
+                    // overwrite it with values from this deployment
+                    else if (updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Create ||
+                        updateOrCreateParametersFile == ParametersFileCreateOrUpdate.Overwrite)
                     {
                         var directoryContainingBicepFile = Path.GetDirectoryName(documentPath);
                         if (directoryContainingBicepFile is not null)
@@ -97,7 +122,9 @@ namespace Bicep.LanguageServer.Deploy
                     }
                 }
 
-                return updatedParametersFile;
+                var updatedJObject = GetParametersObjectValue(updatedParametersFile, out _);
+
+                return updatedJObject.ToString();
             }
             catch (Exception e)
             {
