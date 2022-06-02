@@ -33,24 +33,31 @@ namespace Bicep.Core.Emit
 
             if (!string.IsNullOrWhiteSpace(existingContent))
             {
-                var fileJToken = JToken.Parse(existingContent);
-                var existingParameters = fileJToken.SelectToken("parameters")?.ToObject<JObject>();
-                if (existingParameters is not null)
+                try
                 {
-                    var mergeSettings = new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union };
-                    foreach (var existingParameter in existingParameters)
+                    var existingParamsContent = JToken.Parse(existingContent);
+                    var existingParameters = existingParamsContent.SelectToken("parameters")?.ToObject<JObject>();
+                    if (existingParameters is not null)
                     {
-                        var existingParameterName = existingParameter.Key;
-                        var existingParameterValue = existingParameter.Value;
-
-                        if (existingParameterValue is not null)
+                        var mergeSettings = new JsonMergeSettings { MergeArrayHandling = MergeArrayHandling.Union };
+                        foreach (var existingParameter in existingParameters)
                         {
-                            if (templateJToken.SelectToken($"parameters.{existingParameterName}") is JObject existingParameterObject)
+                            var existingParameterName = existingParameter.Key;
+                            var existingParameterValue = existingParameter.Value;
+
+                            if (existingParameterValue is not null)
                             {
-                                existingParameterObject.Merge(existingParameterValue, mergeSettings);
+                                if (templateJToken.SelectToken($"parameters.{existingParameterName}") is JObject existingParameterObject)
+                                {
+                                    existingParameterObject.Merge(existingParameterValue, mergeSettings);
+                                }
                             }
                         }
                     }
+                }
+                catch
+                {
+                    // content of the existing file is not valid json, ignore merging it
                 }
             }
 
