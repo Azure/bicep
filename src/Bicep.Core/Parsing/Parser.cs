@@ -1005,8 +1005,10 @@ namespace Bicep.Core.Parsing
                         itemsOrTokens.Add(reader.Read());
                         if (Check(TokenType.NewLine))
                         {
-                            // newlines are optional after commas
-                            itemsOrTokens.AddRange(NewLines());
+                            // this may be a common mistake for anyone converting from single- to multi-line
+                            // array or object declarations. special-case the diagnostics to reduce confusion.
+                            itemsOrTokens.Add(SkipEmpty(x => x.UnexpectedNewLineAfterCommaSeparator()));
+                            itemsOrTokens.Add(NewLine());
                         }
                     }
                     else

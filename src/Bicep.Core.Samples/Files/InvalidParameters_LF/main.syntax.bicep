@@ -1277,6 +1277,7 @@ param defaultValueOneLinerCompletions string =
 //@[002:0007) | | | | | | └─StringSyntax
 //@[002:0007) | | | | | | | └─Token(StringComplete) |'abc'|
 //@[007:0008) | | | | | ├─Token(Comma) |,|
+//@[008:0008) | | | | | ├─SkippedTriviaSyntax
 //@[008:0009) | | | | | ├─Token(NewLine) |\n|
   'def'
 //@[002:0007) | | | | | ├─ArrayItemSyntax

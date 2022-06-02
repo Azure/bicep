@@ -1401,6 +1401,11 @@ namespace Bicep.Core.Diagnostics
                 TextSpan,
                 "BCP237",
                 "Expected a comma character at this location.");
+
+            public ErrorDiagnostic UnexpectedNewLineAfterCommaSeparator() => new(
+                TextSpan,
+                "BCP238",
+                "Unexpected new line character after a comma.");
         }
 
         public static DiagnosticBuilderInternal ForPosition(TextSpan span)

@@ -42,6 +42,7 @@ module addAccessPolicy './nested_addAccessPolicy.bicep' = {
     resourceId_Microsoft_DataLakeStore_accounts_parameters_dataLakeStoreName: reference(dataLakeStoreName_resource.id, '2016-11-01', 'Full')
     keyVaultName: keyVaultName
   }
+
 }
 
 module updateAdlsAccount './nested_updateAdlsAccount.bicep' = {

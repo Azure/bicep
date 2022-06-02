@@ -1,3 +1,7 @@
+@allowed(['abc', 'def', 'ghi'])
+param foo string
+//@[6:09) Parameter foo. Type: 'abc' | 'def' | 'ghi'. Declaration start char: 0, length: 48
+
 var singleLineFunction = concat('abc', 'def')
 //@[4:22) Variable singleLineFunction. Type: string. Declaration start char: 0, length: 45
 
@@ -6,6 +10,24 @@ var multiLineFunction = concat(
   'abc',
   'def'
 )
+
+var multiLineFunctionUnusualFormatting = concat(
+//@[4:38) Variable multiLineFunctionUnusualFormatting. Type: string. Declaration start char: 0, length: 101
+              'abc',          any(['hello']),
+'def')
+
+var nestedTest = concat(
+//@[4:14) Variable nestedTest. Type: string. Declaration start char: 0, length: 108
+concat(
+concat(
+concat(
+concat(
+'level',
+'one'),
+'two'),
+'three'),
+'four'),
+'five')
 
 var singleLineArray = ['abc', 'def']
 //@[4:19) Variable singleLineArray. Type: array. Declaration start char: 0, length: 36
@@ -17,15 +39,10 @@ var multiLineArray = [
   'abc'
   'def'
 ]
-var multiLineArrayCommas = [
-//@[4:24) Variable multiLineArrayCommas. Type: array. Declaration start char: 0, length: 48
-  'abc',
-  'def',
-]
 
 var mixedArray = ['abc', 'def'
-//@[4:14) Variable mixedArray. Type: array. Declaration start char: 0, length: 51
-'ghi', 'jkl',
+//@[4:14) Variable mixedArray. Type: array. Declaration start char: 0, length: 50
+'ghi', 'jkl'
 'lmn']
 
 var singleLineObject = { abc: 'def', ghi: 'jkl'}
@@ -37,20 +54,28 @@ var multiLineObject = {
   abc: 'def'
   ghi: 'jkl'
 }
-var multiLineObjectCommas = {
-//@[4:25) Variable multiLineObjectCommas. Type: object. Declaration start char: 0, length: 59
-  abc: 'def',
-  ghi: 'jkl',
-}
 var mixedObject = { abc: 'abc', def: 'def'
-//@[4:15) Variable mixedObject. Type: object. Declaration start char: 0, length: 79
-ghi: 'ghi', jkl: 'jkl',
+//@[4:15) Variable mixedObject. Type: object. Declaration start char: 0, length: 78
+ghi: 'ghi', jkl: 'jkl'
 lmn: 'lmn' }
 
 var nestedMixed = {
-//@[4:15) Variable nestedMixed. Type: object. Declaration start char: 0, length: 88
+//@[4:15) Variable nestedMixed. Type: object. Declaration start char: 0, length: 87
   abc: { 'def': 'ghi', abc: 'def', foo: [
-    'bar', 'blah',
+    'bar', 'blah'
   ] }
 }
+
+var brokenFormatting = [      /*foo */ 'bar'   /*
+//@[4:20) Variable brokenFormatting. Type: array. Declaration start char: 0, length: 172
+
+hello
+
+*/,        'asdfdsf',             12324,       /*   asdf*/ '',     '''
+
+
+'''
+123,      233535
+true
+              ]
 

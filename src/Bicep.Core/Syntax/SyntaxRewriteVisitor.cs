@@ -563,7 +563,7 @@ namespace Bicep.Core.Syntax
         {
             var hasChanges = TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.Children, out var arguments);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
             hasChanges |= TryRewriteStrict(syntax.CloseParen, out var closeParen);
 
             if (!hasChanges)
@@ -571,7 +571,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new FunctionCallSyntax(name, openParen, arguments, closeParen);
+            return new FunctionCallSyntax(name, openParen, children, closeParen);
         }
         void ISyntaxVisitor.VisitFunctionCallSyntax(FunctionCallSyntax syntax) => ReplaceCurrent(syntax, ReplaceFunctionCallSyntax);
 
@@ -581,7 +581,7 @@ namespace Bicep.Core.Syntax
             hasChanges |= TryRewriteStrict(syntax.Dot, out var dot);
             hasChanges |= TryRewriteStrict(syntax.Name, out var name);
             hasChanges |= TryRewriteStrict(syntax.OpenParen, out var openParen);
-            hasChanges |= TryRewriteStrict(syntax.Children, out var arguments);
+            hasChanges |= TryRewriteStrict(syntax.Children, out var children);
             hasChanges |= TryRewriteStrict(syntax.CloseParen, out var closeParen);
 
             if (!hasChanges)
@@ -589,7 +589,7 @@ namespace Bicep.Core.Syntax
                 return syntax;
             }
 
-            return new InstanceFunctionCallSyntax(baseExpression, dot, name, openParen, arguments, closeParen);
+            return new InstanceFunctionCallSyntax(baseExpression, dot, name, openParen, children, closeParen);
         }
 
         void ISyntaxVisitor.VisitInstanceFunctionCallSyntax(InstanceFunctionCallSyntax syntax) => ReplaceCurrent(syntax, ReplaceInstanceFunctionCallSyntax);

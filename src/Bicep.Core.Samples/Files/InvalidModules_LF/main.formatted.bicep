@@ -1,10 +1,16 @@
-module nonExistentFileRef './nonExistent.bicep' = {}
+module nonExistentFileRef './nonExistent.bicep' = {
+
+}
 
 // we should only look this file up once, but should still return the same failure
-module nonExistentFileRefDuplicate './nonExistent.bicep' = {}
+module nonExistentFileRefDuplicate './nonExistent.bicep' = {
+
+}
 
 // we should only look this file up once, but should still return the same failure
-module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {}
+module nonExistentFileRefEquivalentPath 'abc/def/../../nonExistent.bicep' = {
+
+}
 
 module moduleWithoutPath = {
 
@@ -20,13 +26,21 @@ module
 module missingValue '' = 
 
 var interp = 'hello'
-module moduleWithInterpPath './${interp}.bicep' = {}
+module moduleWithInterpPath './${interp}.bicep' = {
 
-module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {}
+}
 
-module moduleWithSelfCycle './main.bicep' = {}
+module moduleWithConditionAndInterpPath './${interp}.bicep' = if (true) {
 
-module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {}
+}
+
+module moduleWithSelfCycle './main.bicep' = {
+
+}
+
+module moduleWithConditionAndSelfCycle './main.bicep' = if ('foo' == 'bar') {
+
+}
 
 module './main.bicep' = {
 
@@ -58,23 +72,30 @@ module './main.bicep' = if ('true') {
 
 module modANoName './modulea.bicep' = {
   // #completionTest(0) -> moduleATopLevelProperties
+
 }
 
 module modANoNameWithCondition './modulea.bicep' = if (true) {
   // #completionTest(0) -> moduleAWithConditionTopLevelProperties
+
 }
 
-module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {}
+module modWithReferenceInCondition './main.bicep' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
 
-module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {}
+}
 
-module modANoName './modulea.bicep' = if ({
-  'a': b
-}.a == true) {}
+module modWithListKeysInCondition './main.bicep' = if (listKeys('foo', '2020-05-01').bar == true) {
+
+}
+
+module modANoName './modulea.bicep' = if ({'a': b}.a == true) {
+
+}
 
 module modANoInputs './modulea.bicep' = {
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleATopLevelPropertiesMinusName
+
 }
 
 module modANoInputsWithCondition './modulea.bicep' = if (length([
@@ -82,12 +103,14 @@ module modANoInputsWithCondition './modulea.bicep' = if (length([
 ]) == 1) {
   name: 'modANoInputs'
   // #completionTest(0,1,2) -> moduleAWithConditionTopLevelPropertiesMinusName
+
 }
 
 module modAEmptyInputs './modulea.bicep' = {
   name: 'modANoInputs'
   params: {
     // #completionTest(0,1,2,3,4) -> moduleAParams
+
   }
 }
 
@@ -95,6 +118,7 @@ module modAEmptyInputsWithCondition './modulea.bicep' = if (1 + 2 == 2) {
   name: 'modANoInputs'
   params: {
     // #completionTest(0,1,2,3,4) -> moduleAWithConditionParams
+
   }
 }
 
@@ -122,17 +146,24 @@ module modAUnspecifiedInputs './modulea.bicep' = {
 
 var unspecifiedOutput = modAUnspecifiedInputs.outputs.test
 
-module modCycle './cycle.bicep' = {}
+module modCycle './cycle.bicep' = {
 
-module moduleWithEmptyPath '' = {}
+}
 
-module moduleWithAbsolutePath '/abc/def.bicep' = {}
+module moduleWithEmptyPath '' = {
+}
 
-module moduleWithBackslash 'child\\file.bicep' = {}
+module moduleWithAbsolutePath '/abc/def.bicep' = {
+}
 
-module moduleWithInvalidChar 'child/fi|le.bicep' = {}
+module moduleWithBackslash 'child\\file.bicep' = {
+}
 
-module moduleWithInvalidTerminatorChar 'child/test.' = {}
+module moduleWithInvalidChar 'child/fi|le.bicep' = {
+}
+
+module moduleWithInvalidTerminatorChar 'child/test.' = {
+}
 
 module moduleWithValidScope './empty.bicep' = {
   name: 'moduleWithValidScope'
@@ -319,17 +350,22 @@ module wrongLoopBodyType 'modulea.bicep' = [for x in emptyArray:4]
 module wrongLoopBodyType2 'modulea.bicep' = [for (x,i) in emptyArray:4]
 
 // missing loop body properties
-module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {}]
-module missingLoopBodyProperties2 'modulea.bicep' = [for (x, i) in emptyArray: {}]
+module missingLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {
+}]
+module missingLoopBodyProperties2 'modulea.bicep' = [for (x, i) in emptyArray: {
+}]
 
 // wrong array type
 var notAnArray = true
-module wrongArrayType 'modulea.bicep' = [for x in notAnArray: {}]
+module wrongArrayType 'modulea.bicep' = [for x in notAnArray: {
+}]
 
 // missing fewer properties
 module missingFewerLoopBodyProperties 'modulea.bicep' = [for x in emptyArray: {
   name: 'hello-${x}'
-  params: {}
+  params: {
+
+  }
 }]
 
 // wrong parameter in the module loop
@@ -372,6 +408,7 @@ module paramNameCompletionsInFilteredLoops 'modulea.bicep' = [for (x, i) in empt
   name: 'hello-${x}'
   params: {
     // #completionTest(0,1,2) -> moduleAParams
+
   }
 }]
 
@@ -428,7 +465,9 @@ module directRefToCollectionViaLoopBodyWithExtraDependsOn 'modulea.bicep' = [for
       nonexistentArrays
     ]
   }
-  dependsOn: []
+  dependsOn: [
+
+  ]
 }]
 
 // module body that isn't an object
@@ -511,7 +550,8 @@ module issue3000 'empty.bicep' = {
   scale: {}
 }
 
-module invalidJsonMod 'modulec.json' = {}
+module invalidJsonMod 'modulec.json' = {
+}
 
 module jsonModMissingParam 'moduled.json' = {
   name: 'jsonModMissingParam'

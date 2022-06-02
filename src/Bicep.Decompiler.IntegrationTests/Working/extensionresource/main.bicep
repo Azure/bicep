@@ -34,4 +34,5 @@ resource siteLock 'Microsoft.Authorization/locks@2016-09-01' = {
     level: 'CanNotDelete'
     notes: 'Site should not be deleted.'
   }
+
 }

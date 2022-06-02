@@ -349,6 +349,7 @@ param defaultValueOneLinerCompletions string =
 })
 @allowed([
   'abc',
+//@[08:008) [BCP238 (Error)] Unexpected new line character after a comma. (CodeDescription: none) ||
   'def'
 ])
 param commaOne string

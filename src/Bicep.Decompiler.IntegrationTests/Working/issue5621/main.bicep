@@ -1,8 +1,10 @@
-var emptyObject = {}
+var emptyObject = {
+}
 var simpleObject = {
   foo: 'bar'
 }
-var emptyArray = []
+var emptyArray = [
+]
 var singletonList = [
   'boo!'
 ]
@@ -26,7 +28,8 @@ var nestedArrays = [
         5
         6
       ]
-      nestedKey2: {}
+      nestedKey2: {
+      }
     }
   }
 ]

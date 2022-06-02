@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Bicep.Core.CodeAction;
+using Bicep.Core.CodeAction.Fixes;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Extensions;
 using Bicep.Core.FileSystem;
@@ -56,7 +57,7 @@ namespace Bicep.LangServer.IntegrationTests
 
         [NotNull]
         public TestContext? TestContext { get; set; }
-        
+
         [ClassInitialize]
         public static void ClassInitialize(TestContext testContext)
         {
@@ -344,9 +345,9 @@ resource vm 'Microsoft.Compute/virtualMachines@2020-12-01' = {
                 Range = diagnostics.First().ToRange(lineStarts)
             });
 
-            codeActions.Count().Should().Be(2);
-
-            codeActions.Should().SatisfyRespectively(
+            var disableCodeActions = codeActions.Where(x => x.CodeAction!.Title.StartsWith("Disable "));
+            disableCodeActions.Count().Should().Be(2);
+            disableCodeActions.Should().SatisfyRespectively(
                 x =>
                 {
                     x.CodeAction!.Title.Should().Be("Disable BCP036 for this line");
@@ -444,8 +445,8 @@ param foo {type}
         [DataRow(@"var fo|o = 'foo'
 var foo2 = 'foo2'", "var foo2 = 'foo2'")]
         [DataRow(@"var fo|o = 'foo'", "")]
-        [DataRow(@"var ad|sf = 'asdf' /* 
-        adf 
+        [DataRow(@"var ad|sf = 'asdf' /*
+        adf
         */", "")]
         [DataRow(@"var as|df = {
           abc: 'def'
@@ -511,6 +512,184 @@ param foo2 string", "param foo2 string")]
         {
             var (codeActions, _) = await RunSyntaxTest(fileWithCursors);
             codeActions.Should().NotContain(x => x.Title.StartsWith(RemoveUnusedParameterTitle));
+        }
+
+        [DataRow(@"
+var foo = { |abc: 'def', ghi: 'jkl', }
+", @"
+var foo = {
+  abc: 'def'
+  ghi: 'jkl'
+}
+")]
+        [DataRow(@"
+var foo = { |abc: 'def'
+ghi: 'jkl', }
+", @"
+var foo = {
+  abc: 'def'
+  ghi: 'jkl'
+}
+")]
+        [DataRow(@"
+var foo = ['abc', |'def']
+", @"
+var foo = [
+  'abc'
+  'def'
+]
+")]
+        [DataRow(@"
+var foo = [|'abc', 'def'
+'ghi']
+", @"
+var foo = [
+  'abc'
+  'def'
+  'ghi'
+]
+")]
+        [DataRow(@"
+@allowed(['va|l1', 'val2'])
+param foo string
+", @"
+@allowed([
+  'val1'
+  'val2'
+])
+param foo string
+")]
+        [DataRow(@"
+var nested = [
+  { foo: [ ['bar'], 12|3 ]}
+]
+", @"
+var nested = [
+  { foo: [
+  ['bar']
+  123
+]}
+]
+")]
+        [DataTestMethod]
+        public async Task Single_line_object_and_arrays_have_multi_line_format_codefix(string fileWithCursors, string result)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription);
+            codeActions.First(x => x.Title ==  MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription).Kind.Should().Be(CodeActionKind.Refactor);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription));
+            updatedFile.Should().HaveSourceText(result);
+        }
+
+        [DataRow(@"
+var foo = {
+  abc: 'def'
+  ghi:| 'jkl'
+}
+")]
+        [DataRow(@"
+var foo = [
+  'abc'|
+  'def'
+]
+")]
+        [DataTestMethod]
+        public async Task Multi_line_object_and_arrays_should_not_show_multi_line_format_codefix(string fileWithCursors)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription);
+        }
+
+        [DataRow(@"
+var foo = {
+  abc: 'def'|
+  ghi: 'jkl'
+}
+", @"
+var foo = {abc: 'def', ghi: 'jkl'}
+")]
+        [DataRow(@"
+var foo = { |abc: 'def'
+ghi: 'jkl', }
+", @"
+var foo = {abc: 'def', ghi: 'jkl'}
+")]
+        [DataRow(@"
+var foo = [
+  'abc'|
+  'def'
+]
+", @"
+var foo = ['abc', 'def']
+")]
+        [DataRow(@"
+var foo = [|'abc', 'def'
+'ghi']
+", @"
+var foo = ['abc', 'def', 'ghi']
+")]
+        [DataRow(@"
+var nested = [
+  { foo: [ ['bar']
+   12|3 ]}
+]
+", @"
+var nested = [
+  { foo: [['bar'], 123]}
+]
+")]
+        [DataTestMethod]
+        public async Task Multi_line_object_and_arrays_have_single_line_format_codefix(string fileWithCursors, string result)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().Contain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription);
+            codeActions.First(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription).Kind.Should().Be(CodeActionKind.Refactor);
+
+            var updatedFile = ApplyCodeAction(bicepFile, codeActions.Single(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription));
+            updatedFile.Should().HaveSourceText(result);
+        }
+
+        [DataRow(@"
+var foo = {|abc: 'def', ghi: 'jkl',}
+")]
+        [DataRow(@"
+var foo = [|'abc', 'def',]
+")]
+        [DataTestMethod]
+        public async Task Single_line_object_and_arrays_should_not_show_single_line_format_codefix(string fileWithCursors)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription);
+        }
+
+        [DataRow(@"
+var foo = {
+  |,,,,
+}
+")]
+        [DataRow(@"
+var foo = {|
+  a:
+}
+")]
+        [DataRow(@"
+var foo = {| a: }
+")]
+        [DataRow(@"
+var foo = [
+  |,,,,
+]
+")]
+        [DataRow(@"
+var foo = [ |abc def ]
+")]
+        [DataTestMethod]
+        public async Task Incomplete_declarations_should_not_show_codefixes(string fileWithCursors)
+        {
+            var (codeActions, bicepFile) = await RunSyntaxTest(fileWithCursors);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToSingleLineDescription);
+            codeActions.Should().NotContain(x => x.Title == MultilineObjectsAndArraysCodeFixProvider.ConvertToMultiLineDescription);
         }
 
         private async Task<(IEnumerable<CodeAction> codeActions, BicepFile bicepFile)> RunParameterSyntaxTest(string paramType, string? decorator = null)

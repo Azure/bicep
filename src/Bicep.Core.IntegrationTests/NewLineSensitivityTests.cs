@@ -241,7 +241,7 @@ output test2 array = ['foo', 'bar',]
         }
 
         [TestMethod]
-        public void Array_item_commas_are_permitted_on_multi_line_definition()
+        public void Array_item_commas_are_not_permitted_on_multi_line_definition()
         {
             var result = CompilationHelper.Compile(@"
 output test1 array = [
@@ -254,7 +254,11 @@ output test2 array = [
 ]
 ");
 
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
+                ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
+                ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
+            });
         }
 
         [TestMethod]
@@ -335,7 +339,7 @@ output test2 object = {abc: 'foo', def: 'bar',}
         }
 
         [TestMethod]
-        public void Object_item_commas_are_permitted_on_multi_line_definition()
+        public void Object_item_commas_are_not_permitted_on_multi_line_definition()
         {
             var result = CompilationHelper.Compile(@"
 output test1 object = {
@@ -348,7 +352,11 @@ output test2 object = {
 }
 ");
 
-            result.ExcludingLinterDiagnostics().Should().NotHaveAnyDiagnostics();
+            result.ExcludingLinterDiagnostics().Should().HaveDiagnostics(new[] {
+                ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
+                ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
+                ("BCP238", DiagnosticLevel.Error, "Unexpected new line character after a comma."),
+            });
         }
 
         [TestMethod]

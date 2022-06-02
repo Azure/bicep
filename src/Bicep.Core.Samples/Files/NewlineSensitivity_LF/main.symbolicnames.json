@@ -7,12 +7,24 @@
     "_generator": {
       "name": "bicep",
       "version": "dev",
-      "templateHash": "12305921121996006745"
+      "templateHash": "3080486084791447909"
+    }
+  },
+  "parameters": {
+    "foo": {
+      "type": "string",
+      "allowedValues": [
+        "abc",
+        "def",
+        "ghi"
+      ]
     }
   },
   "variables": {
     "singleLineFunction": "[concat('abc', 'def')]",
     "multiLineFunction": "[concat('abc', 'def')]",
+    "multiLineFunctionUnusualFormatting": "[concat('abc', createArray('hello'), 'def')]",
+    "nestedTest": "[concat(concat(concat(concat(concat('level', 'one'), 'two'), 'three'), 'four'), 'five')]",
     "singleLineArray": [
       "abc",
       "def"
@@ -22,10 +34,6 @@
       "def"
     ],
     "multiLineArray": [
-      "abc",
-      "def"
-    ],
-    "multiLineArrayCommas": [
       "abc",
       "def"
     ],
@@ -48,10 +56,6 @@
       "abc": "def",
       "ghi": "jkl"
     },
-    "multiLineObjectCommas": {
-      "abc": "def",
-      "ghi": "jkl"
-    },
     "mixedObject": {
       "abc": "abc",
       "def": "def",
@@ -68,7 +72,17 @@
           "blah"
         ]
       }
-    }
+    },
+    "brokenFormatting": [
+      "bar",
+      "asdfdsf",
+      12324,
+      "",
+      "\n\n",
+      123,
+      233535,
+      true
+    ]
   },
   "resources": {}
 }

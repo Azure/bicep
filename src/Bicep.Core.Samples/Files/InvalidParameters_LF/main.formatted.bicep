@@ -107,8 +107,10 @@ param secureInt int
   'test'
   true
 ])
-@minValue({})
-@maxValue([])
+@minValue({
+})
+@maxValue([
+])
 @metadata('wrong')
 param wrongIntModifier int = true
 
@@ -179,7 +181,7 @@ param defaultValueOneLinerCompletions string =
   description: 'Name of Virtual Machine'
 })
 @allowed([
-  'abc',
+  'abc', 
   'def'
 ])
 param commaOne string

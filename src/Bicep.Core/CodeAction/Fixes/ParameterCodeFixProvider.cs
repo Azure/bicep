@@ -4,13 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Bicep.Core.CodeAction;
 using Bicep.Core.Navigation;
 using Bicep.Core.Parsing;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
 
-namespace Bicep.LanguageServer.CodeFixes
+namespace Bicep.Core.CodeAction.Fixes
 {
     public class ParameterCodeFixProvider : ICodeFixProvider
     {

@@ -81,6 +81,7 @@ resource virtualMachineName 'Microsoft.Compute/virtualMachines@2019-12-01' = {
       }
     }
   }
+
 }
 
 resource diagStorageAccountName 'Microsoft.Storage/storageAccounts@2019-06-01' = {
@@ -144,6 +145,7 @@ resource virtualNetworkName 'Microsoft.Network/virtualNetworks@2020-05-01' = {
       }
     ]
   }
+
 }
 
 resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
@@ -169,6 +171,7 @@ resource nic1 'Microsoft.Network/networkInterfaces@2020-05-01' = {
     }
   }
   dependsOn: [
+
     virtualNetworkName
   ]
 }
