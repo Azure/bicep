@@ -554,11 +554,14 @@ export class DeployCommand implements Command {
     parametersFileName: string
   ) {
     let placeholder: string;
+    let parametersFileUpdateOptionString = "None";
     let parametersFileUpdateOption: ParametersFileUpdateOption;
     if (parametersFileExists) {
+      parametersFileUpdateOptionString = "Update";
       parametersFileUpdateOption = ParametersFileUpdateOption.Update;
       placeholder = `Update ${parametersFileName} with values used in this deployment?`;
     } else {
+      parametersFileUpdateOptionString = "Create";
       parametersFileUpdateOption = ParametersFileUpdateOption.Create;
       placeholder = `Create parameters file from values used in this deployment?`;
     }
@@ -591,8 +594,10 @@ export class DeployCommand implements Command {
           );
 
           if (result == this._yes) {
+            parametersFileUpdateOptionString = "Overwrite";
             parametersFileUpdateOption = ParametersFileUpdateOption.Overwrite;
           } else {
+            parametersFileUpdateOptionString = "None";
             parametersFileUpdateOption = ParametersFileUpdateOption.None;
           }
         }
@@ -600,7 +605,7 @@ export class DeployCommand implements Command {
     }
 
     _context.telemetry.properties.parametersFileUpdateOption =
-      parametersFileUpdateOption.toString();
+    parametersFileUpdateOptionString;
     return parametersFileUpdateOption;
   }
 

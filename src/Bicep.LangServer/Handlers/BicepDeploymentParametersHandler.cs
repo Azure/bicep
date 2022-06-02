@@ -19,7 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, bool parametersFileExists, string parametersFileName, string? errorMessage);
+    public record BicepDeploymentParametersResponse(List<BicepDeploymentParameter> deploymentParameters, string parametersFileName, string? errorMessage);
 
     public record BicepDeploymentParameter(string name, string? value, bool isMissingParam, bool isExpression, bool isSecure, ParameterType? parameterType);
 
@@ -50,8 +50,7 @@ namespace Bicep.LanguageServer.Handlers
 
         private BicepDeploymentParametersResponse GetUpdatedParams(string documentPath, string parametersFilePath, string template)
         {
-            var parametersFileExists = !string.IsNullOrWhiteSpace(parametersFilePath) && File.Exists(parametersFilePath);
-            var parametersFileName = GetParameterFileName(documentPath, parametersFileExists, parametersFilePath);
+            var parametersFileName = GetParameterFileName(documentPath, parametersFilePath);
 
             try
             {
@@ -132,14 +131,13 @@ namespace Bicep.LanguageServer.Handlers
 
                 return new BicepDeploymentParametersResponse(
                     updatedDeploymentParameters,
-                    parametersFileExists,
                     parametersFileName,
                     GetErrorMessageForMissingArrayOrObjectTypes(missingArrayOrObjectTypes));
 
             }
             catch (Exception e)
             {
-                return new BicepDeploymentParametersResponse(new List<BicepDeploymentParameter>(), parametersFileExists, parametersFileName, e.Message);
+                return new BicepDeploymentParametersResponse(new List<BicepDeploymentParameter>(), parametersFileName, e.Message);
             }
         }
 
@@ -153,8 +151,10 @@ namespace Bicep.LanguageServer.Handlers
                 expressionSyntax is not BooleanLiteralSyntax;
         }
 
-        private string GetParameterFileName(string documentPath, bool parametersFileExists, string parametersFilePath)
+        private string GetParameterFileName(string documentPath, string parametersFilePath)
         {
+            var parametersFileExists = !string.IsNullOrWhiteSpace(parametersFilePath) && File.Exists(parametersFilePath);
+
             if (parametersFileExists)
             {
                 return Path.GetFileName(parametersFilePath);
