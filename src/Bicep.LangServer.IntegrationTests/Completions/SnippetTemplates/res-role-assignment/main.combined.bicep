@@ -12,3 +12,5 @@ resource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-prev
     principalType: 'ServicePrincipal'
   }
 }
+// Insert snippet here
+
