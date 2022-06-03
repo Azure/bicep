@@ -2322,6 +2322,36 @@
     }
   },
   {
+    "label": "res-role-assignment",
+    "kind": "snippet",
+    "detail": "",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource roleAssignment 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {\n  name: 'name'\n  properties: {\n    roleDefinitionId: 'roleDefinitionId'\n    principalId: 'principalId'\n    principalType: 'ServicePrincipal'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-role-assignment",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:roleAssignment} 'Microsoft.Authorization/roleAssignments@2020-10-01-preview' = {\n  name: ${2:'name'}\n  properties: {\n    roleDefinitionId: ${3:'roleDefinitionId'}\n    principalId: ${4:'principalId'}\n    principalType: ${5|'ServicePrincipal','Group','User'|}\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-role-assignment"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-route-server",
     "kind": "snippet",
     "detail": "Route Server",
