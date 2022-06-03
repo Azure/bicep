@@ -60,7 +60,7 @@ export async function findOrCreateActiveBicepFile(
     .concat(visibleBicepFiles)
     .forEach((bf) => map.set(bf.fsPath, bf));
   const bicepFilesSorted = Array.from(map.values());
-  bicepFilesSorted.sort((a, b) => compareStrings(a.path, b.path));
+  bicepFilesSorted.sort((a, b) => a.path.localeCompare(b.path));
 
   if (bicepFilesSorted.length === 1) {
     // Only a single Bicep file in the workspace/visible editors - choose it
@@ -160,14 +160,4 @@ async function queryCreateBicepFile(
   await window.showTextDocument(document);
 
   return uri;
-}
-
-export function compareStrings(a: string, b: string): number {
-  if (a > b) {
-    return 1;
-  } else if (b > a) {
-    return -1;
-  } else {
-    return 0;
-  }
 }
