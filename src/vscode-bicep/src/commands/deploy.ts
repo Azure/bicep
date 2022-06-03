@@ -668,7 +668,7 @@ export class DeployCommand implements Command {
       await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
     ).filter((f) => !!f.fsPath);
 
-    workspaceJsonFiles.sort((a, b) => a.path.localeCompare(b.path));
+    workspaceJsonFiles.sort((a, b) => compareStrings(a.path, b.path));
 
     for (const uri of workspaceJsonFiles) {
       const workspaceRoot: string | undefined =
