@@ -51,8 +51,8 @@ namespace Bicep.Core
         public const string ForKeyword = "for";
         public const string InKeyword = "in";
 
-        public const string arrayType = "array";
-        public const string objectType = "object";
+        public const string ArrayType = "array";
+        public const string ObjectType = "object";
 
         public const string TargetScopeTypeTenant = "tenant";
         public const string TargetScopeTypeManagementGroup = "managementGroup";
@@ -145,12 +145,12 @@ namespace Bicep.Core
         public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol SecureString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment | TypeSymbolValidationFlags.IsSecure);
-        public static readonly TypeSymbol Object = new ObjectType(objectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
-        public static readonly TypeSymbol SecureObject = new ObjectType(objectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
-        public static readonly TypeSymbol Array = new ArrayType(arrayType);
+        public static readonly TypeSymbol Array = new ArrayType(ArrayType);
         //Type for available loadTextContent encoding
 
         public static readonly ImmutableArray<(string name, Encoding encoding)> SupportedEncodings = new[]{
