@@ -33,7 +33,10 @@ import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
-import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import {
+  compareStrings,
+  findOrCreateActiveBicepFile,
+} from "./findOrCreateActiveBicepFile";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem<string> = {
