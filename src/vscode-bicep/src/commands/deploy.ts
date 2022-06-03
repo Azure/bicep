@@ -33,10 +33,7 @@ import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
-import {
-  compareStrings,
-  findOrCreateActiveBicepFile,
-} from "./findOrCreateActiveBicepFile";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem<string> = {
@@ -456,7 +453,7 @@ export class DeployCommand implements Command {
       {
         canPickMany: false,
         placeHolder: `Select a parameter file`,
-        suppressPersistence: true,
+        id: sourceUri.toString(),
       }
     );
 
@@ -679,7 +676,7 @@ export class DeployCommand implements Command {
       const quickPickItem: IAzureQuickPickItem<string> = {
         label: `${"$(json) "} ${relativePath}`,
         data: uri.fsPath,
-        id: uri.path,
+        id: uri.toString(),
       };
       quickPickItems.push(quickPickItem);
     }
