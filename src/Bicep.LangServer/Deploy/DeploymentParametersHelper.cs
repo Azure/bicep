@@ -57,7 +57,7 @@ namespace Bicep.LanguageServer.Deploy
 
                 var jObject = GetParametersObjectValue(updatedParametersFile, out bool isArmStyleTemplate);
 
-                foreach (var updatedDeploymentParameter in updatedDeploymentParameters)
+                foreach (var updatedDeploymentParameter in updatedDeploymentParameters.Reverse())
                 {
                     var name = updatedDeploymentParameter.name;
 

@@ -101,20 +101,20 @@ namespace Bicep.LangServer.UnitTests.Deploy
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
-    ""sku"": {
-      ""value"": ""testSku""
-    },
     ""location"": {
       ""value"": ""eastus""
+    },
+    ""sku"": {
+      ""value"": ""testSku""
     }
   }
 }";
             var expectedParametersFileContentsUsedInDeployment = @"{
-  ""sku"": {
-    ""value"": ""testSku""
-  },
   ""location"": {
     ""value"": ""eastus""
+  },
+  ""sku"": {
+    ""value"": ""testSku""
   }
 }";
 
@@ -152,11 +152,11 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileUpdateOption.Update,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
-  ""id"": {
-    ""value"": ""testId""
-  },
   ""name"": {
     ""value"": ""test""
+  },
+  ""id"": {
+    ""value"": ""testId""
   },
   ""location"": {
     ""value"": ""eastus""
@@ -221,14 +221,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileUpdateOption.Update,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContents = @"{
-  ""count"": {
-    ""value"": 2
+  ""id"": {
+    ""value"": ""test""
   },
   ""isSku"": {
     ""value"": false
   },
-  ""id"": {
-    ""value"": ""test""
+  ""count"": {
+    ""value"": 2
   },
   ""location"": {
     ""value"": ""eastus""
@@ -298,14 +298,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
-    ""count"": {
-      ""value"": 3
+    ""name"": {
+      ""value"": ""test""
     },
     ""isSku"": {
       ""value"": true
     },
-    ""name"": {
-      ""value"": ""test""
+    ""count"": {
+      ""value"": 3
     },
     ""location"": {
       ""value"": ""eastus""
@@ -313,14 +313,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
   }
 }";
             var expectedParametersFileUsedInDeployment = @"{
-  ""count"": {
-    ""value"": 3
+  ""name"": {
+    ""value"": ""test""
   },
   ""isSku"": {
     ""value"": true
   },
-  ""name"": {
-    ""value"": ""test""
+  ""count"": {
+    ""value"": 3
   },
   ""location"": {
     ""value"": ""eastus""
@@ -359,11 +359,11 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 ParametersFileUpdateOption.Update,
                 bicepUpdatedDeploymentParameters);
             var expectedParametersFileContentsWrittenToDisk = @"{
-  ""id"": {
-    ""value"": ""testId""
-  },
   ""name"": {
     ""value"": ""test""
+  },
+  ""id"": {
+    ""value"": ""testId""
   },
   // comment 1
   ""location"": {
@@ -375,11 +375,11 @@ namespace Bicep.LangServer.UnitTests.Deploy
   // comment 2
 }";
             var expectedParametersFileContentsUsedInDeployments = @"{
-  ""id"": {
-    ""value"": ""testId""
-  },
   ""name"": {
     ""value"": ""test""
+  },
+  ""id"": {
+    ""value"": ""testId""
   },
   ""location"": {
     ""value"": ""eastus""
@@ -423,20 +423,20 @@ namespace Bicep.LangServer.UnitTests.Deploy
   ""$schema"": ""https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
-    ""sku"": {
-      ""value"": ""testSku""
-    },
     ""location"": {
       ""value"": ""westus""
+    },
+    ""sku"": {
+      ""value"": ""testSku""
     }
   }
 }";
             var expectedParametersFileContentsUsedInDeployment = @"{
-  ""sku"": {
-    ""value"": ""testSku""
-  },
   ""location"": {
     ""value"": ""westus""
+  },
+  ""sku"": {
+    ""value"": ""testSku""
   }
 }";
 
