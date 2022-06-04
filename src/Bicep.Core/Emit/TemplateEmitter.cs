@@ -35,7 +35,7 @@ namespace Bicep.Core.Emit
         {
             // read content of the stream into a string
             using var reader = new StreamReader(stream);
-            var content = reader.ReadToEndAsync().GetAwaiter().GetResult();
+            var content = reader.ReadToEnd();
 
             stream.Seek(0, SeekOrigin.Begin);
 
