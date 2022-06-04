@@ -6,6 +6,7 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
 import { OutputChannelManager } from "../utils/OutputChannelManager";
 import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
+import path from "path";
 
 export class GenerateParamsCommand implements Command {
   public readonly id = "bicep.generateParams";
@@ -34,6 +35,15 @@ export class GenerateParamsCommand implements Command {
         }
       );
       this.outputChannelManager.appendToOutputChannel(generateParamsOutput);
+
+      const filePath = path.parse(documentUri.fsPath);
+
+      const openPath = vscode.Uri.parse(
+        `file://${filePath.dir}/${filePath.name}.parameters.json`
+      );
+      vscode.workspace.openTextDocument(openPath).then((doc) => {
+        vscode.window.showTextDocument(doc);
+      });
     } catch (err) {
       new Error(`Generating parameters failed: ${parseError(err).message}`);
     }
