@@ -116,7 +116,7 @@ namespace Bicep.LanguageServer.Handlers
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
             EmitResult result = emitter.EmitParametersFile(fileStream);
 
-            return "Generate Params succeeded. Created file " + compiledFile;
+            return "Generating parameters file succeeded. Processed file " + compiledFile;
         }
 
         // Returns true if the template contains $schema field, false otherwise
