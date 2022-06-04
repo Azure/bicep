@@ -35,11 +35,7 @@ export class GenerateParamsCommand implements Command {
       );
       this.outputChannelManager.appendToOutputChannel(generateParamsOutput);
     } catch (err) {
-      this.client.error(
-        "Generating parameters failed",
-        parseError(err).message,
-        true
-      );
+      new Error(`Generating parameters failed: ${parseError(err).message}`);
     }
   }
 }
