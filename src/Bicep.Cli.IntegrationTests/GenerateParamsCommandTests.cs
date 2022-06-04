@@ -72,12 +72,6 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev""
-    }
-  },
   ""parameters"": {
     ""name"": {
       ""value"": ""sampleparameter""
@@ -110,12 +104,6 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev""
-    }
-  },
   ""parameters"": {
     ""name"": {
       ""value"": ""sampleparameter""
@@ -155,12 +143,6 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev""
-    }
-  },
   ""parameters"": {
     ""name"": {
       ""value"": ""existingparameter""
@@ -195,12 +177,6 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev""
-    }
-  },
   ""parameters"": {
     ""name"": {
       ""value"": ""sampleparameter""
@@ -243,12 +219,6 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""2.0.0.0"",
-  ""metadata"": {
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev""
-    }
-  },
   ""parameters"": {
     ""name"": {
       ""value"": ""existingparameter""
@@ -286,12 +256,6 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev""
-    }
-  },
   ""parameters"": {
     ""name"": {
       ""value"": ""existingparameter""
@@ -329,12 +293,6 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""metadata"": {
-    ""_generator"": {
-      ""name"": ""bicep"",
-      ""version"": ""dev""
-    }
-  },
   ""parameters"": {
     ""name"": {
       ""value"": ""sampleparameter""

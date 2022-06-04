@@ -41,10 +41,6 @@ namespace Bicep.Core.Emit
 
             // Template is used for calcualting template hash, template jtoken is used for writing to file.
             var templateJToken = GenerateTemplate(existingContentVersion);
-            if (templateJToken.SelectToken(GeneratorMetadataPath) is not JObject generatorObject)
-            {
-                throw new InvalidOperationException($"generated template doesn't contain a generator object at the path {GeneratorMetadataPath}");
-            }
 
             if (existingParamsContent != null)
             {
@@ -82,8 +78,6 @@ namespace Bicep.Core.Emit
             emitter.EmitProperty("$schema", "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#");
 
             emitter.EmitProperty("contentVersion", contentVersion);
-
-            this.EmitMetadata(jsonWriter, emitter);
 
             if (this.context.SemanticModel.Root.ParameterDeclarations.Length > 0)
             {
