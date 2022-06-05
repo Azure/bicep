@@ -17,7 +17,7 @@
     "onigasm": "^2.2.5",
     "plist": "^3.0.5",
     "ts-jest": "^28.0.4",
-    "ts-node": "^10.8.0",
+    "ts-node": "^10.8.1",
     "typescript": "^4.7.3",
     "vscode-oniguruma": "^1.6.2",
     "vscode-textmate": "^7.0.1"
