@@ -119,7 +119,7 @@ namespace Bicep.LanguageServer.Handlers
             return "Generating parameters file succeeded. Processed file " + compiledFile;
         }
 
-        // Returns true if the template contains $schema field, false otherwise
+        // Returns true if the template contains the parameters file schema, false otherwise
         public bool TemplateContainsSchemaField(string template)
         {
             try
