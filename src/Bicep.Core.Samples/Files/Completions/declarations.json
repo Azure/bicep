@@ -2322,6 +2322,36 @@
     }
   },
   {
+    "label": "res-rg-lock",
+    "kind": "snippet",
+    "detail": "",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nresource resourceGroupLock 'Microsoft.Authorization/locks@2020-05-01' = {\n  name: 'name'\n  properties: {\n    level: 'NotSpecified'\n  }\n}\n\n```"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "2_res-rg-lock",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "resource ${1:resourceGroupLock} 'Microsoft.Authorization/locks@2020-05-01' = {\n  name: ${2:'name'}\n  properties: {\n    level: ${3|'NotSpecified','CanNotDelete','ReadOnly'|}\n  }\n}\n"
+    },
+    "command": {
+      "title": "top level snippet completion",
+      "command": "bicep.Telemetry",
+      "arguments": [
+        {
+          "EventName": "snippet/toplevel",
+          "Properties": {
+            "name": "res-rg-lock"
+          }
+        }
+      ]
+    }
+  },
+  {
     "label": "res-route-server",
     "kind": "snippet",
     "detail": "Route Server",
