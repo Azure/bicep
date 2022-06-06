@@ -365,7 +365,7 @@ export class DeployCommand implements Command {
         updatedDeploymentParameters.length > 0 &&
         !updatedDeploymentParameters.every((x) => x.isSecure)
       ) {
-        parametersFileUpdateOption = await this.updateParametersFile(
+        parametersFileUpdateOption = await this.askToUpdateParametersFile(
           context,
           documentPath,
           await fse.pathExists(parametersFilePath),
@@ -546,7 +546,7 @@ export class DeployCommand implements Command {
     ];
   }
 
-  private async updateParametersFile(
+  private async askToUpdateParametersFile(
     _context: IActionContext,
     documentPath: string,
     parametersFileExists: boolean,
