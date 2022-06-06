@@ -394,20 +394,24 @@ export class DeployCommand implements Command {
           arguments: [deploymentStartParams],
         });
 
-      // If user chose to create a parameters file at the end of deployment flow, we'll
+      // If user chose to create/update/overwrite a parameters file at the end of deployment flow, we'll
       // open it in vscode.
-      if (parametersFileUpdateOption == ParametersFileUpdateOption.Create) {
-        parametersFilePath = path.join(
-          path.dirname(documentPath),
-          parametersFileName
-        );
+      if (parametersFileUpdateOption != ParametersFileUpdateOption.None) {
+        if (
+          parametersFileUpdateOption == ParametersFileUpdateOption.Create ||
+          parametersFileUpdateOption == ParametersFileUpdateOption.Overwrite
+        ) {
+          parametersFilePath = path.join(
+            path.dirname(documentPath),
+            parametersFileName
+          );
+        }
         const parametersFileTextDocument =
           await vscode.workspace.openTextDocument(parametersFilePath);
         await vscode.window.showTextDocument(parametersFileTextDocument);
       }
       return deploymentStartResponse;
     }
-
     return undefined;
   }
 
