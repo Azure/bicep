@@ -493,7 +493,7 @@ param testProperties object";
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().BeEmpty();
-            result.errorMessage.Should().BeEquivalentToIgnoringNewlines("Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for following parameters: testProperties");
+            result.errorMessage.Should().BeEquivalentToIgnoringNewlines(string.Format(LangServerResources.MissingParamValueForArrayOrObjectType, "testProperties"));
         }
 
         [TestMethod]
