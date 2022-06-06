@@ -72,7 +72,7 @@ namespace Bicep.LanguageServer.Handlers
 
             // If the template exists and contains bicep generator metadata, we can go ahead and replace the file.
             // If not, we'll fail the generate params.
-            if (File.Exists(compiledFilePath) && !TemplateContainsSchemaField(File.ReadAllText(compiledFilePath)))
+            if (File.Exists(compiledFilePath) && !TemplateIsParametersFile(File.ReadAllText(compiledFilePath)))
             {
                 return "Generating parameters file failed. The file \"" + compiledFile + "\" already exists but does not contain the schema for a parameters file. If overwriting the file is intended, delete it manually and retry the Generate Parameters command.";
             }
@@ -119,7 +119,7 @@ namespace Bicep.LanguageServer.Handlers
         }
 
         // Returns true if the template contains the parameters file schema, false otherwise
-        public bool TemplateContainsSchemaField(string template)
+        public bool TemplateIsParametersFile(string template)
         {
             try
             {
