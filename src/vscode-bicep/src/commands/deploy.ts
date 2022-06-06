@@ -37,6 +37,7 @@ import {
   compareStrings,
   findOrCreateActiveBicepFile,
 } from "./findOrCreateActiveBicepFile";
+import { setOutputChannelManager } from "./deployHelper";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem<string> = {
@@ -72,6 +73,8 @@ export class DeployCommand implements Command {
   ): Promise<void> {
     const deployId = Math.random().toString();
     context.telemetry.properties.deployId = deployId;
+
+    setOutputChannelManager(this.outputChannelManager);
 
     documentUri = await findOrCreateActiveBicepFile(
       context,
@@ -171,7 +174,7 @@ export class DeployCommand implements Command {
         }
       }
 
-      await this.sendDeployWaitForCompletionCommand(
+      this.sendDeployWaitForCompletionCommand(
         deployId,
         deploymentStartResponse,
         documentPath
@@ -432,15 +435,10 @@ export class DeployCommand implements Command {
             deployId,
             documentPath,
           };
-        const outputMessage: string = await this.client.sendRequest(
-          "workspace/executeCommand",
-          {
-            command: "deploy/waitForCompletion",
-            arguments: [bicepDeploymentWaitForCompletionParams],
-          }
-        );
-
-        this.outputChannelManager.appendToOutputChannel(outputMessage);
+        this.client.sendRequest("workspace/executeCommand", {
+          command: "deploy/waitForCompletion",
+          arguments: [bicepDeploymentWaitForCompletionParams],
+        });
       }
     }
   }

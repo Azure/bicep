@@ -146,17 +146,24 @@ namespace Bicep.LanguageServer.Deploy
                 return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedMessage, documentPath));
             }
 
-            var response = await deploymentResourceOperation.WaitForCompletionAsync();
-
-            var status = response.GetRawResponse().Status;
-
-            if (status == 200 || status == 201)
+            try
             {
-                return new BicepDeploymentWaitForCompletionResponse(true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+                var response = await deploymentResourceOperation.WaitForCompletionAsync();
+
+                var status = response.GetRawResponse().Status;
+
+                if (status == 200 || status == 201)
+                {
+                    return new BicepDeploymentWaitForCompletionResponse(true, string.Format(LangServerResources.DeploymentSucceededMessage, documentPath));
+                }
+                else
+                {
+                    return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
+                }
             }
-            else
+            catch (Exception e)
             {
-                return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, response.ToString()));
+                return new BicepDeploymentWaitForCompletionResponse(false, string.Format(LangServerResources.DeploymentFailedWithExceptionMessage, documentPath, e.Message));
             }
         }
     }
