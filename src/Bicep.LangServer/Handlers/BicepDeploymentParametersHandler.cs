@@ -54,7 +54,8 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                var parametersFromProvidedParametersFile = GetParametersInfoFromProvidedFile(parametersFilePath);
+                var parametersFromProvidedParametersFile = GetParametersInfoFromProvidedFile(parametersFilePath)
+                    ?? new Dictionary<string, dynamic>();
                 var templateObj = JObject.Parse(template);
                 var defaultParametersFromTemplate = templateObj["parameters"];
 
@@ -70,7 +71,7 @@ namespace Bicep.LanguageServer.Handlers
 
                     if (modifier is null)
                     {
-                        if (parametersFromProvidedParametersFile is null || !parametersFromProvidedParametersFile.ContainsKey(parameterName))
+                        if (!parametersFromProvidedParametersFile.ContainsKey(parameterName))
                         {
                             if (IsOfTypeArrayOrObject(parameterType))
                             {
@@ -102,7 +103,7 @@ namespace Bicep.LanguageServer.Handlers
                         // - is also mentioned in parameters file
                         // then the value specified in the parameters file will take precedence.
                         // We will not provide an option to override in the UI
-                        if (parametersFromProvidedParametersFile is not null && parametersFromProvidedParametersFile.ContainsKey(parameterName))
+                        if (parametersFromProvidedParametersFile.ContainsKey(parameterName))
                         {
                             continue;
                         }
