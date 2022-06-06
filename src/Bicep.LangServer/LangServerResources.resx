@@ -149,7 +149,7 @@
     <value>Deployment failed for {0}. Please provide a valid location.</value>
   </data>
   <data name="MissingParamValueForArrayOrObjectType" xml:space="preserve">
-    <value>Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for following parameters: {0}</value>
+    <value>Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for the following parameters: {0}</value>
   </data>
   <data name="UnsupportedTargetScopeMessage" xml:space="preserve">
     <value>Unsupported target scope: {0}.</value>

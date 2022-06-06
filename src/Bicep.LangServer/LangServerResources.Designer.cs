@@ -151,7 +151,7 @@ namespace Bicep.LanguageServer {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for following parameters: {0}.
+        ///   Looks up a localized string similar to Parameters of type array or object should either contain a default value or must be specified in parameters.json file. Please update the value for the following parameters: {0}.
         /// </summary>
         public static string MissingParamValueForArrayOrObjectType {
             get {
