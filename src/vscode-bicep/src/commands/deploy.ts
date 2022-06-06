@@ -395,7 +395,7 @@ export class DeployCommand implements Command {
         });
 
       // If user chose to create a parameters file at the end of deployment flow, we'll
-      // create one and open it in vscode.
+      // open it in vscode.
       if (parametersFileUpdateOption == ParametersFileUpdateOption.Create) {
         parametersFilePath = path.join(
           path.dirname(documentPath),
