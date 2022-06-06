@@ -435,7 +435,7 @@ export class DeployCommand implements Command {
             deployId,
             documentPath,
           };
-        await this.client.sendRequest("workspace/executeCommand", {
+        this.client.sendRequest("workspace/executeCommand", {
           command: "deploy/waitForCompletion",
           arguments: [bicepDeploymentWaitForCompletionParams],
         });
