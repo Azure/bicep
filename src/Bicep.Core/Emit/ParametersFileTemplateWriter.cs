@@ -6,7 +6,6 @@ using Bicep.Core.Syntax;
 using Microsoft.WindowsAzure.ResourceStack.Common.Json;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System;
 using System.IO;
 
 namespace Bicep.Core.Emit
