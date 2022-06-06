@@ -602,10 +602,7 @@ export class DeployCommand implements Command {
     const quickPickItems: IAzureQuickPickItem[] = [];
     if (paramValue) {
       const useExpressionValue: IAzureQuickPickItem = {
-        label: localize(
-          "useExpressionValue",
-          `Use value of expression "${paramValue}"`
-        ),
+        label: localize("useExpressionValue", `Use value of "${paramValue}"`),
         data: undefined,
       };
       quickPickItems.push(useExpressionValue);
