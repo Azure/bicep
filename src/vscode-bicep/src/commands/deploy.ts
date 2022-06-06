@@ -618,11 +618,6 @@ export class DeployCommand implements Command {
       data: undefined,
     };
     quickPickItems.push(enterNewValue);
-    const leaveBlank: IAzureQuickPickItem = {
-      label: localize("leaveBlank", `"" (leave blank)`),
-      data: undefined,
-    };
-    quickPickItems.push(leaveBlank);
 
     const result: IAzureQuickPickItem = await _context.ui.showQuickPick(
       quickPickItems,
@@ -633,9 +628,7 @@ export class DeployCommand implements Command {
       }
     );
 
-    if (result == leaveBlank) {
-      return "";
-    } else if (result == enterNewValue) {
+    if (result == enterNewValue) {
       const paramValue = await vscode.window.showInputBox({
         placeHolder: `Please enter value for parameter "${paramName}"`,
       });
