@@ -5,13 +5,15 @@ import { OutputChannelManager } from "../utils/OutputChannelManager";
 
 let _outputChannelManager: OutputChannelManager;
 
-export async function writeToOutputChannel(outputMessage: string) {
+export async function writeDeploymentOutputMessageToBicepOperationsOutputChannel(
+  outputMessage: string
+) {
   if (_outputChannelManager) {
     _outputChannelManager.appendToOutputChannel(outputMessage);
   }
 }
 
-export function setOutputChannelManager(
+export function setOutputChannelManagerAtTheStartOfDeployment(
   outputChannelManager: OutputChannelManager
 ) {
   _outputChannelManager = outputChannelManager;

@@ -37,7 +37,7 @@ import {
   compareStrings,
   findOrCreateActiveBicepFile,
 } from "./findOrCreateActiveBicepFile";
-import { setOutputChannelManager } from "./deployHelper";
+import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem<string> = {
@@ -74,7 +74,7 @@ export class DeployCommand implements Command {
     const deployId = Math.random().toString();
     context.telemetry.properties.deployId = deployId;
 
-    setOutputChannelManager(this.outputChannelManager);
+    setOutputChannelManagerAtTheStartOfDeployment(this.outputChannelManager);
 
     documentUri = await findOrCreateActiveBicepFile(
       context,

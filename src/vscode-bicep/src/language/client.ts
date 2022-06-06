@@ -16,7 +16,7 @@ import {
   CloseAction,
   TransportKind,
 } from "vscode-languageclient/node";
-import { writeToOutputChannel } from "../commands/deployHelper";
+import { writeDeploymentOutputMessageToBicepOperationsOutputChannel } from "../commands/deployHelper";
 
 const dotnetRuntimeVersion = "6.0";
 const packagedServerPath = "bicepLanguageServer/Bicep.LangServer.dll";
@@ -157,7 +157,10 @@ async function launchLanguageService(
 
   await client.onReady();
 
-  client.onNotification("deploymentComplete", writeToOutputChannel);
+  client.onNotification(
+    "deploymentComplete",
+    writeDeploymentOutputMessageToBicepOperationsOutputChannel
+  );
 
   getLogger().info("Bicep language service ready.");
 
