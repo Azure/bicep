@@ -1,12 +1,6 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
   "contentVersion": "1.0.0.0",
-  "metadata": {
-    "_generator": {
-      "name": "bicep",
-      "version": "dev"
-    }
-  },
   "parameters": {
     "applicationName": {
       "value": "[format('to-do-app{0}', uniqueString(resourceGroup().id))]"
