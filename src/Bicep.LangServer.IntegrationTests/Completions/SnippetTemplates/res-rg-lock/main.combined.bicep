@@ -2,7 +2,7 @@
 // $2 = 'name'
 // $3 = 'NotSpecified'
 
-resource resourceGroupLock 'Microsoft.Authorization/locks@2020-05-01' = {
+resource resourceGroupLock 'Microsoft.Authorization/locks@2017-04-01' = {
   name: 'name'
   properties: {
     level: 'NotSpecified'
