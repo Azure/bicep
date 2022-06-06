@@ -45,7 +45,9 @@ export class GenerateParamsCommand implements Command {
         vscode.window.showTextDocument(doc);
       });
     } catch (err) {
-      new Error(`Generating parameters failed: ${parseError(err).message}`);
+      throw new Error(
+        `Generating parameters failed: ${parseError(err).message}`
+      );
     }
   }
 }
