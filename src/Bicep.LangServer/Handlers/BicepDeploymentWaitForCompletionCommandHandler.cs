@@ -7,36 +7,49 @@ using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Telemetry;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace Bicep.LanguageServer.Handlers
 {
-    public record BicepDeploymentWaitForCompletionParams(string deployId, string documentPath) : IRequest<string>;
+    public record BicepDeploymentWaitForCompletionParams(string deployId, string documentPath) : IRequest<bool>;
 
     public record BicepDeploymentWaitForCompletionResponse(bool isSuccess, string outputMessage);
 
-    public class BicepDeploymentWaitForCompletionCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentWaitForCompletionParams, string>
+    public class BicepDeploymentWaitForCompletionCommandHandler : ExecuteTypedResponseCommandHandlerBase<BicepDeploymentWaitForCompletionParams, bool>
     {
         private readonly IDeploymentOperationsCache deploymentOperationsCache;
+        private readonly ILanguageServerFacade server;
         private readonly ITelemetryProvider telemetryProvider;
 
-        public BicepDeploymentWaitForCompletionCommandHandler(IDeploymentOperationsCache deploymentOperationsCache, ISerializer serializer, ITelemetryProvider telemetryProvider)
+        /// <summary>
+        /// Handles "deploy/waitForCompletion" LSP request.
+        /// This handler waits for the deployment to complete and sends a "deploymentComplete" notification to the client.
+        /// This notification can be used on the client side to write success/failure messsage to the output channel without
+        /// blocking other commands.
+        /// </summary>
+        public BicepDeploymentWaitForCompletionCommandHandler(IDeploymentOperationsCache deploymentOperationsCache, ILanguageServerFacade server, ISerializer serializer, ITelemetryProvider telemetryProvider)
             : base(LangServerConstants.DeployWaitForCompletionCommand, serializer)
         {
             this.deploymentOperationsCache = deploymentOperationsCache;
+            this.server = server;
             this.telemetryProvider = telemetryProvider;
         }
 
-        public override async Task<string> Handle(BicepDeploymentWaitForCompletionParams request, CancellationToken cancellationToken)
+        public override async Task<bool> Handle(BicepDeploymentWaitForCompletionParams request, CancellationToken cancellationToken)
         {
+            // Wait for the deployment to complete
             var bicepDeployWaitForCompletionResponse = await DeploymentHelper.WaitForDeploymentCompletionAsync(
                 request.deployId,
                 request.documentPath,
                 deploymentOperationsCache);
 
+            // Send notification to client informing deployment completion, with message to be written to output channel
+            server.SendNotification(LangServerConstants.DeployCompleteMethod, bicepDeployWaitForCompletionResponse.outputMessage);
+
             PostDeployResultTelemetryEvent(request.deployId, bicepDeployWaitForCompletionResponse.isSuccess);
 
-            return bicepDeployWaitForCompletionResponse.outputMessage;
+            return true;
         }
 
         private void PostDeployResultTelemetryEvent(string deployId, bool isSuccess)
