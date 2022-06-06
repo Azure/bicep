@@ -127,7 +127,7 @@ namespace Bicep.LanguageServer.Handlers
                 if (!string.IsNullOrEmpty(template))
                 {
                     JToken jtoken = template.FromJson<JToken>();
-                    var schema = jtoken.SelectToken("$schema")?.ToObject<JObject>();
+                    var schema = jtoken.SelectToken("$schema")?.ToString();
 
                     if (schema != null && schema.ContainsInsensitively("deploymentParameters.json"))
                     {
