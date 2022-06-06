@@ -12,6 +12,7 @@ import {
 import * as path from "path";
 import * as os from "os";
 import * as fse from "fs-extra";
+import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 import { TextDocument, Uri, window, workspace } from "vscode";
 
 type TargetFile =
@@ -60,7 +61,7 @@ export async function findOrCreateActiveBicepFile(
     .concat(visibleBicepFiles)
     .forEach((bf) => map.set(bf.fsPath, bf));
   const bicepFilesSorted = Array.from(map.values());
-  bicepFilesSorted.sort((a, b) => compareStrings(a.path, b.path));
+  bicepFilesSorted.sort((a, b) => compareStringsOrdinal(a.path, b.path));
 
   if (bicepFilesSorted.length === 1) {
     // Only a single Bicep file in the workspace/visible editors - choose it
@@ -160,14 +161,4 @@ async function queryCreateBicepFile(
   await window.showTextDocument(document);
 
   return uri;
-}
-
-export function compareStrings(a: string, b: string): number {
-  if (a > b) {
-    return 1;
-  } else if (b > a) {
-    return -1;
-  } else {
-    return 0;
-  }
 }

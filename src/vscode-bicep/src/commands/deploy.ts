@@ -33,11 +33,9 @@ import {
   LanguageClient,
   TextDocumentIdentifier,
 } from "vscode-languageclient/node";
-import {
-  compareStrings,
-  findOrCreateActiveBicepFile,
-} from "./findOrCreateActiveBicepFile";
+import { findOrCreateActiveBicepFile } from "./findOrCreateActiveBicepFile";
 import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
+import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 
 export class DeployCommand implements Command {
   private _none: IAzureQuickPickItem<string> = {
@@ -660,7 +658,7 @@ export class DeployCommand implements Command {
       await vscode.workspace.findFiles("**/*.{json,jsonc}", undefined)
     ).filter((f) => !!f.fsPath);
 
-    workspaceJsonFiles.sort((a, b) => compareStrings(a.path, b.path));
+    workspaceJsonFiles.sort((a, b) => compareStringsOrdinal(a.path, b.path));
 
     for (const uri of workspaceJsonFiles) {
       const workspaceRoot: string | undefined =
