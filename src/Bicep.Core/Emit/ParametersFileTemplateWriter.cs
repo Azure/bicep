@@ -12,7 +12,7 @@ namespace Bicep.Core.Emit
 {
     public class ParametersFileTemplateWriter : TemplateWriter
     {
-        public ParametersFileTemplateWriter(SemanticModel semanticModel, EmitterSettings settings): base(semanticModel, settings)
+        public ParametersFileTemplateWriter(SemanticModel semanticModel, EmitterSettings settings) : base(semanticModel, settings)
         {
             this.context = new EmitterContext(semanticModel, settings);
             this.settings = settings;
@@ -90,7 +90,24 @@ namespace Bicep.Core.Emit
                         jsonWriter.WritePropertyName(parameterSymbol.Name);
 
                         jsonWriter.WriteStartObject();
-                        emitter.EmitProperty("value", "");
+                        switch (parameterSymbol.Type.Name)
+                        {
+                            case "string":
+                                emitter.EmitProperty("value", "");
+                                break;
+                            case "int":
+                                emitter.EmitProperty("value", () => jsonWriter.WriteValue(0));
+                                break;
+                            case "bool":
+                                emitter.EmitProperty("value", () => jsonWriter.WriteValue(false));
+                                break;
+                            case "object":
+                                emitter.EmitProperty("value", () => { jsonWriter.WriteStartObject(); jsonWriter.WriteEndObject(); });
+                                break;
+                            case "array":
+                                emitter.EmitProperty("value", () => { jsonWriter.WriteStartArray(); jsonWriter.WriteEndArray(); });
+                                break;
+                        }
                         jsonWriter.WriteEndObject();
                     }
                 }
