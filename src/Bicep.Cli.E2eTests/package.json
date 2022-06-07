@@ -24,7 +24,8 @@
   },
   "scripts": {
     "test": "jest --group=CI --runInBand",
-    "test:live": "jest --group=Live --runInBand",
+    "test:live:prod": "jest --group=live/prod --runInBand",
+    "test:live:ff": "jest --group=live/ff --runInBand",
     "lint": "eslint src --ext ts",
     "lint:fix": "eslint src --ext ts --fix"
   }

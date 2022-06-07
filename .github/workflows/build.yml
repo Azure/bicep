@@ -2,15 +2,18 @@ name: Build
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   build-bicep:
-
-    name: 'Build CLI (${{ matrix.rid }})'
+    name: Build CLI (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
 
     env:
@@ -29,48 +32,48 @@ jobs:
       # should be the full list of supported RIDs with customizations expressed via the parameters under each item
       matrix:
         include:
-        - os: 'windows-latest'
-          rid: 'win-x64'
-          configuration: 'release'
-          publishLanguageServer: 'false'
-          publishPackages: 'false'
-          runTests: 'true'
-        - os: 'ubuntu-latest'
-          rid: 'linux-x64'
-          configuration: 'release'
-          publishLanguageServer: 'true'
-          publishPackages: 'true'
-          runTests: 'true'
-        - os: 'ubuntu-latest'
-          rid: 'linux-musl-x64'
-          configuration: 'release'
-          publishLanguageServer: 'false'
-          publishPackages: 'false'
-          runTests: 'true'
-        - os: 'macos-latest'
-          rid: 'osx-x64'
-          configuration: 'release'
-          publishLanguageServer: 'false'
-          publishPackages: 'false'
-          runTests: 'true'
-        - os: 'ubuntu-latest'
-          rid: 'linux-arm64'
-          configuration: 'release'
-          publishLanguageServer: 'false'
-          publishPackages: 'false'
-          runTests: 'false'
-        - os: 'ubuntu-latest'
-          rid: 'win-arm64'
-          configuration: 'release'
-          publishLanguageServer: 'false'
-          publishPackages: 'false'
-          runTests: 'false'
-        - os: 'ubuntu-latest'
-          rid: 'osx-arm64'
-          configuration: 'release'
-          publishLanguageServer: 'false'
-          publishPackages: 'false'
-          runTests: 'false'
+          - os: windows-latest
+            rid: win-x64
+            configuration: release
+            publishLanguageServer: false
+            publishPackages: false
+            runTests: true
+          - os: ubuntu-latest
+            rid: linux-x64
+            configuration: release
+            publishLanguageServer: true
+            publishPackages: true
+            runTests: true
+          - os: ubuntu-latest
+            rid: linux-musl-x64
+            configuration: release
+            publishLanguageServer: false
+            publishPackages: false
+            runTests: true
+          - os: macos-latest
+            rid: osx-x64
+            configuration: release
+            publishLanguageServer: false
+            publishPackages: false
+            runTests: true
+          - os: ubuntu-latest
+            rid: linux-arm64
+            configuration: release
+            publishLanguageServer: false
+            publishPackages: false
+            runTests: false
+          - os: ubuntu-latest
+            rid: win-arm64
+            configuration: release
+            publishLanguageServer: false
+            publishPackages: false
+            runTests: false
+          - os: ubuntu-latest
+            rid: osx-arm64
+            configuration: release
+            publishLanguageServer: false
+            publishPackages: false
+            runTests: false
 
     steps:
       - uses: actions/checkout@v3
@@ -85,37 +88,37 @@ jobs:
         run: dotnet build --configuration ${{ matrix.configuration }}
 
       - name: Pack
-        if: ${{ matrix.publishPackages == 'true' }}
+        if: matrix.publishPackages
         run: dotnet pack --configuration ${{ matrix.configuration }}
 
       - name: Test
-        if: ${{ matrix.runTests == 'true' }}
+        if: matrix.runTests
         run: dotnet test --configuration ${{ matrix.configuration }} --logger trx --blame --collect:"XPlat Code Coverage" --settings ./.github/workflows/codecov.runsettings --results-directory ./TestResults/
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v3
-        if: ${{ always() && matrix.runTests == 'true' }}
+        if: always() && matrix.runTests
         with:
           name: Bicep.TestResults.${{ matrix.rid }}
           path: ./TestResults/**/*.trx
           if-no-files-found: error
 
       - name: Publish Language Server
-        if: ${{ matrix.publishLanguageServer == 'true' }}
+        if: matrix.publishLanguageServer
         run: dotnet publish --configuration ${{ matrix.configuration }} ./src/Bicep.LangServer/Bicep.LangServer.csproj
 
       - name: Publish Bicep
         run: dotnet publish --configuration ${{ matrix.configuration }} --self-contained true -p:PublishTrimmed=true -p:PublishSingleFile=true -p:TrimmerDefaultAction=copyused -p:SuppressTrimAnalysisWarnings=true -r ${{ matrix.rid }} ./src/Bicep.Cli/Bicep.Cli.csproj
 
       - name: Run Bicep E2E Tests
-        if: ${{ matrix.rid != 'linux-musl-x64' && matrix.runTests == 'true' }}
+        if: matrix.rid != 'linux-musl-x64' && matrix.runTests
         run: npm ci && npm test
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli/bin/${{ matrix.configuration }}/net6.0/${{ matrix.rid }}/publish/bicep
         working-directory: ./src/Bicep.Cli.E2eTests
 
       - name: Run Bicep E2E Tests (linux-musl-x64)
-        if: ${{ matrix.rid == 'linux-musl-x64' && matrix.runTests == 'true' }}
+        if: matrix.rid == 'linux-musl-x64' && matrix.runTests
         uses: docker://mcr.microsoft.com/azure-cli:latest
         with:
           entrypoint: sh
@@ -125,7 +128,7 @@ jobs:
 
       - name: Upload Language Server
         uses: actions/upload-artifact@v3
-        if: ${{ matrix.publishLanguageServer == 'true' }}
+        if: matrix.publishLanguageServer
         with:
           name: Bicep.LangServer
           path: ./src/Bicep.LangServer/bin/${{ matrix.configuration }}/net6.0/publish/*
@@ -140,111 +143,135 @@ jobs:
 
       - name: Upload Packages
         uses: actions/upload-artifact@v3
-        if: ${{ matrix.publishPackages == 'true' }}
+        if: matrix.publishPackages
         with:
           name: bicep-nupkg-any
-          path: ./out/*
+          path: out/*
           if-no-files-found: error
 
       - name: Upload Code Coverage
-        if: ${{ matrix.runTests == 'true' }}
+        if: matrix.runTests
         uses: codecov/codecov-action@v3
         with:
           flags: dotnet
 
   can-run-live-tests:
-    name: Check if the workflow run can access secrets
+    name: Check secret access
     runs-on: ubuntu-latest
     outputs:
       access_verified: ${{ steps.check-access.outputs.verified }}
     steps:
-      - name: Check access
-        id: check-access
+      - id: check-access
         env:
-          BICEP_SPN_PASSWORD: ${{ secrets.BICEP_SPN_PASSWORD }}
-        if: ${{ env.BICEP_SPN_PASSWORD != '' }}
-        run: |
-          echo "::set-output name=verified::true"
+          SECRET_TO_CHECK: ${{ secrets.SECRET_TO_CHECK }}
+        if: env.SECRET_TO_CHECK != ''
+        run: echo '::set-output name=verified::true'
 
   test-cli-live:
-    name: 'Test CLI (live) (${{ matrix.rid }})'
-    runs-on: ${{ matrix.os }}
+    name: Test CLI (live) (${{ matrix.os.rid }}) (${{ matrix.environment }})
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [prod, ff]
+        runtime:
+          # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
+          - os: windows-latest
+            rid: win-x64
+          - os: ubuntu-latest
+            rid: linux-x64
+          - os: macos-latest
+            rid: osx-x64
+    runs-on: ${{ matrix.runtime.os }}
     needs:
       - build-bicep
       - can-run-live-tests
-    if: needs.can-run-live-tests.outputs.access_verified == 'true' && github.repository == 'Azure/bicep' && github.actor != 'dependabot[bot]'
-
+    if: needs.can-run-live-tests.outputs.access_verified == 'true'
     env:
-      CI: true
-      BICEP_SPN_PASSWORD: ${{ secrets.BICEP_SPN_PASSWORD }}
       BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
-
-    strategy:
-      fail-fast: false
-
-      # should be the list of RIDs that correspond to OSs supported by GitHub hosted runners
-      matrix:
-        include:
-        - os: 'windows-latest'
-          rid: 'win-x64'
-          configuration: 'release'
-        - os: 'ubuntu-latest'
-          rid: 'linux-x64'
-          configuration: 'release'
-        - os: 'ubuntu-latest'
-          rid: 'linux-musl-x64'
-          configuration: 'release'
-        - os: 'macos-latest'
-          rid: 'osx-x64'
-          configuration: 'release'
 
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # avoid shallow clone so nbgv can do its work.
-          submodules: true
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 16
 
       - name: Download Bicep CLI
         uses: actions/download-artifact@v3
         with:
-          name: bicep-release-${{ matrix.rid }}
+          name: bicep-release-${{ matrix.runtime.rid }}
           path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
 
       - name: Make Bicep CLI executable
-        if: ${{ matrix.rid != 'win-x64' }}
+        if: matrix.runtime.rid != 'win-x64'
         run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
 
-      - name: Run Bicep E2E Tests
-        if: ${{ matrix.rid != 'linux-musl-x64' }}
-        run: npm ci && npm test
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
-
-      - name: Run Bicep Live E2E Tests
-        if: ${{ matrix.rid != 'linux-musl-x64' }}
-        run: npm ci && npm run test:live
-        env:
-          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
-        working-directory: ./src/Bicep.Cli.E2eTests
-
-      - name: Run Bicep Live E2E Tests (linux-musl-x64)
-        if: ${{ matrix.rid == 'linux-musl-x64' }}
-        uses: docker://mcr.microsoft.com/azure-cli:latest
+      - name: Az CLI login
+        uses: azure/login@v1
+        if: matrix.environment == 'prod'
         with:
-          entrypoint: sh
-          args: -c "apk add --update nodejs npm && npm ci --prefix ./src/Bicep.Cli.E2eTests && npm run test:live --prefix ./src/Bicep.Cli.E2eTests"
+          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
+          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
+          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+
+      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        run: npm ci && npm run test:live:${{ matrix.environment }}
         env:
           BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
+
+  test-cli-live-linux-musl-x64:
+    name: Test CLI (live) (linux-musl-x64) (${{ matrix.environment }})
+    strategy:
+      matrix:
+        environment:
+          - prod
+          - ff
+    runs-on: ubuntu-latest
+    container:
+      # The azure-cli image is based on Alpine linux which uses musl libc.
+      image: mcr.microsoft.com/azure-cli:latest
+    needs:
+      - build-bicep
+      - can-run-live-tests
+    if: needs.can-run-live-tests.outputs.access_verified == 'true'
+    env:
+      BICEP_SPN_PASSWORD_FF: ${{ secrets.BICEP_SPN_PASSWORD_FF }}
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # Cannot use actions/setup-node@v3 for linux-musl-x64
+      - name: Setup Node.js
+        run: apk add --update nodejs npm
+
+      - name: Download Bicep CLI
+        uses: actions/download-artifact@v3
+        with:
+          name: bicep-release-linux-musl-x64
+          path: ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli
+
+      - name: Make Bicep CLI executable
+        run: chmod +x ./src/Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+
+      - name: Az CLI login
+        uses: azure/login@v1
+        if: matrix.environment == 'prod'
+        with:
+          client-id: ${{ secrets.LIVE_TEST_CLIENT_ID_PROD }}
+          tenant-id: ${{ secrets.LIVE_TEST_TENANT_ID_PROD }}
+          subscription-id: ${{ secrets.LIVE_TEST_SUBSCRIPTION_ID_PROD }}
+
+      - name: Run Bicep Live E2E Tests (${{ matrix.environment }})
+        run: npm ci && npm run test:live:${{ matrix.environment }}
+        env:
+          BICEP_CLI_EXECUTABLE: ../../../Bicep.Cli.E2eTests/src/temp/bicep-cli/bicep
+        working-directory: ./src/Bicep.Cli.E2eTests
 
   build-windows-setup:
-    name: 'Build Windows Setup'
-    runs-on: 'windows-latest'
+    name: Build Windows Setup
+    runs-on: windows-latest
     needs: build-bicep
 
     steps:
@@ -273,7 +300,7 @@ jobs:
           if-no-files-found: error
 
   build-packages:
-    name: 'Build Packages (${{ matrix.rid }})'
+    name: Build Packages (${{ matrix.rid }})
     runs-on: ${{ matrix.os }}
     needs: build-bicep
 
@@ -287,24 +314,24 @@ jobs:
       # should be the full list of RIDs that we support in the CLI
       matrix:
         include:
-        - os: 'windows-latest'
-          rid: 'win-x64'
-          runTests: 'true'
-        - os: 'ubuntu-latest'
-          rid: 'linux-x64'
-          runTests: 'true'
-        - os: 'macos-latest'
-          rid: 'osx-x64'
-          runTests: 'true'
-        - os: 'ubuntu-latest'
-          rid: 'win-arm64'
-          runTests: 'false'
-        - os: 'ubuntu-latest'
-          rid: 'linux-arm64'
-          runTests: 'false'
-        - os: 'ubuntu-latest'
-          rid: 'osx-arm64'
-          runTests: 'false'
+          - os: windows-latest
+            rid: win-x64
+            runTests: true
+          - os: ubuntu-latest
+            rid: linux-x64
+            runTests: true
+          - os: macos-latest
+            rid: osx-x64
+            runTests: true
+          - os: ubuntu-latest
+            rid: win-arm64
+            runTests: false
+          - os: ubuntu-latest
+            rid: linux-arm64
+            runTests: false
+          - os: ubuntu-latest
+            rid: osx-arm64
+            runTests: false
 
     steps:
       - uses: actions/checkout@v3
@@ -318,20 +345,20 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 16
 
       - name: npm ci
-        if: ${{ matrix.runTests == 'true' }}
+        if: matrix.runTests
         run: npm ci
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Compile
-        if: ${{ matrix.runTests == 'true' }}
+        if: matrix.runTests
         run: npm run compile
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
       - name: Run lint
-        if: ${{ matrix.runTests == 'true' }}
+        if: matrix.runTests
         run: npm run lint
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
@@ -358,19 +385,19 @@ jobs:
           if-no-files-found: error
 
       - name: Download CLI Package
-        if: ${{ matrix.runTests == 'true' }}
+        if: matrix.runTests
         uses: actions/download-artifact@v3
         with:
           name: bicep-nupkg-${{ matrix.rid }}
           path: ./src/Bicep.MSBuild.E2eTests/examples/local-packages
 
       - name: Run E2E tests
-        if: ${{ matrix.runTests == 'true' }}
+        if: matrix.runTests
         run: npm run test
         working-directory: ./src/Bicep.MSBuild.E2eTests
 
   build-vsix:
-    name: 'Build VSIX'
+    name: Build VSIX
     runs-on: ${{ matrix.os }}
     needs: build-bicep
 
@@ -380,16 +407,11 @@ jobs:
     strategy:
       fail-fast: false
 
-      # should be the list of RIDs with corresponding OSs that are supported by GitHub hosted runners
       matrix:
-        os: [ 'windows-latest', 'ubuntu-latest', 'macos-latest' ]
-        include:
-        - os: 'windows-latest'
-          rid: 'win-x64'
-        - os: 'ubuntu-latest'
-          rid: 'linux-x64'
-        - os: 'macos-latest'
-          rid: 'osx-x64'
+        os:
+          - windows-latest
+          - ubuntu-latest
+          - macos-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -400,7 +422,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 16
 
       - name: npm ci
         run: npm ci
@@ -445,7 +467,7 @@ jobs:
 
       - name: Show extension logs of E2E tests
         run: cat ./bicep.log
-        if: ${{ always() }}
+        if: always()
         working-directory: ./src/vscode-bicep
 
       - name: Upload Code Coverage
@@ -468,8 +490,8 @@ jobs:
           if-no-files-found: error
 
   build-playground:
-    name: 'Build Playground'
-    runs-on: 'ubuntu-latest'
+    name: Build Playground
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -483,7 +505,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: 14
 
       - name: npm ci
         run: npm ci
@@ -505,8 +527,8 @@ jobs:
           if-no-files-found: error
 
   build-grammars:
-    name: 'Build Grammars'
-    runs-on: 'ubuntu-latest'
+    name: Build Grammars
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -520,7 +542,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: 16
 
       - name: TextMate Grammar
         run: |
@@ -540,5 +562,5 @@ jobs:
         run: |
           npm ci
           npm run lint
-          npm run build
+          npm test
         working-directory: ./src/monarch
