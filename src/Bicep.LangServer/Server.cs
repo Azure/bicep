@@ -24,6 +24,7 @@ using Bicep.LanguageServer.Snippets;
 using Bicep.LanguageServer.Telemetry;
 using Bicep.LanguageServer.Utils;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using System;
@@ -74,8 +75,11 @@ namespace Bicep.LanguageServer
                     .WithHandler<BicepBuildCommandHandler>()
                     .WithHandler<BicepGenerateParamsCommandHandler>()
                     .WithHandler<BicepDeploymentStartCommandHandler>()
-                    .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>()
+                    // Base handler - ExecuteTypedResponseCommandHandlerBase is serial. This blocks other commands on the client side.
+                    // To avoid the above issue, we'll change the RequestProcessType to parallel
+                    .WithHandler<BicepDeploymentWaitForCompletionCommandHandler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Parallel })
                     .WithHandler<BicepDeploymentScopeRequestHandler>()
+                    .WithHandler<BicepDeploymentParametersHandler>()
                     .WithHandler<BicepForceModulesRestoreCommandHandler>()
                     .WithHandler<BicepRegistryCacheRequestHandler>()
                     .WithHandler<InsertResourceHandler>()

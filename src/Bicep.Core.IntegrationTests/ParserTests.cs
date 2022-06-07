@@ -13,6 +13,7 @@ using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace Bicep.Core.IntegrationTests
 {
@@ -21,21 +22,11 @@ namespace Bicep.Core.IntegrationTests
     {
         private class SyntaxCollectorVisitor : SyntaxVisitor
         {
-            public class SyntaxItem
-            {
-                public SyntaxItem(SyntaxBase syntax, int depth)
-                {
-                    Syntax = syntax;
-                    Depth = depth;
-                }
+            public record SyntaxItem(SyntaxBase Syntax, SyntaxBase? Parent, int Depth);
 
-                public SyntaxBase Syntax { get; }
-
-                public int Depth { get; }
-            }
-
-            private int depth = 0;
             private readonly IList<SyntaxItem> syntaxList = new List<SyntaxItem>();
+            private SyntaxBase? parent = null;
+            private int depth = 0;
 
             private SyntaxCollectorVisitor()
             {
@@ -44,18 +35,21 @@ namespace Bicep.Core.IntegrationTests
             public static ImmutableArray<SyntaxItem> Build(ProgramSyntax syntax)
             {
                 var visitor = new SyntaxCollectorVisitor();
-                visitor.VisitProgramSyntax(syntax);
+                visitor.Visit(syntax);
 
                 return visitor.syntaxList.ToImmutableArray();
             }
 
             protected override void VisitInternal(SyntaxBase syntax)
             {
-                syntaxList.Add(new SyntaxItem(syntax, depth));
+                syntaxList.Add(new(Syntax: syntax, Parent: parent, Depth: depth));
 
+                var prevParent = parent;
+                parent = syntax;
                 depth++;
                 base.VisitInternal(syntax);
                 depth--;
+                parent = prevParent;
             }
         }
 
@@ -98,17 +92,28 @@ namespace Bicep.Core.IntegrationTests
         {
             var program = ParserHelper.Parse(dataSet.Bicep);
             var syntaxList = SyntaxCollectorVisitor.Build(program);
+            var syntaxByParent = syntaxList.ToLookup(x => x.Parent);
 
             string getLoggingString(SyntaxCollectorVisitor.SyntaxItem data)
             {
-                var depthPrefix = new string(' ', data.Depth);
-
-                if (data.Syntax is Token token)
+                // Build a visual graph with lines to help understand the syntax hierarchy
+                var graphPrefix = "";
+                if (data.Depth > 0)
                 {
-                    return $"{depthPrefix}{token.Type} |{OutputHelper.EscapeWhitespace(token.Text)}|";
+                    var lastSibling = syntaxByParent[data.Parent].Last();
+                    var isLast = data.Syntax == lastSibling.Syntax;
+
+                    graphPrefix = string.Concat(Enumerable.Repeat("| ", data.Depth - 1));
+                    graphPrefix += isLast switch {
+                        true => "└─",
+                        _ => "├─",
+                    };
                 }
 
-                return $"{depthPrefix}{data.Syntax.GetType().Name}";
+                return data.Syntax switch {
+                    Token token => $"{graphPrefix}Token({token.Type}) |{OutputHelper.EscapeWhitespace(token.Text)}|",
+                    _ => $"{graphPrefix}{data.Syntax.GetType().Name}",
+                };
             }
 
             TextSpan getSpan(SyntaxCollectorVisitor.SyntaxItem data) => data.Syntax.Span;

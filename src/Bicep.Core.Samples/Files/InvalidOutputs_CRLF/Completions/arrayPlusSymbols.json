@@ -756,6 +756,27 @@
     }
   },
   {
+    "label": "loadJsonContent",
+    "kind": "function",
+    "documentation": {
+      "kind": "markdown",
+      "value": "```bicep\nloadJsonContent(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any\n\n```\nLoads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.\n"
+    },
+    "deprecated": false,
+    "preselect": false,
+    "sortText": "3_loadJsonContent",
+    "insertTextFormat": "snippet",
+    "insertTextMode": "adjustIndentation",
+    "textEdit": {
+      "range": {},
+      "newText": "loadJsonContent($0)"
+    },
+    "command": {
+      "title": "signature help",
+      "command": "editor.action.triggerParameterHints"
+    }
+  },
+  {
     "label": "loadTextContent",
     "kind": "function",
     "documentation": {

@@ -1,5 +1,5 @@
 ? /* TODO: User defined functions are not supported and have not been decompiled */
-//@[0:1) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |?|
+//@[0:01) [BCP007 (Error)] This declaration type is not recognized. Specify a parameter, variable, resource, or output declaration. (CodeDescription: none) |?|
 
 @maxLength(11)
 param storageNamePrefix string

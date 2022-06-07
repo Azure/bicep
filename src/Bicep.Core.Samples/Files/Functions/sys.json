@@ -748,6 +748,39 @@
     ]
   },
   {
+    "name": "loadJsonContent",
+    "description": "Loads the specified JSON file as bicep object. File loading occurs during compilation, not at runtime.",
+    "fixedParameters": [
+      {
+        "name": "filePath",
+        "description": "The path to the file that will be loaded",
+        "type": "string",
+        "required": true
+      },
+      {
+        "name": "jsonPath",
+        "description": "JSONPath expression to narrow down the loaded file. If not provided, a root element indicator '$' is used",
+        "type": "string",
+        "required": false
+      },
+      {
+        "name": "encoding",
+        "description": "File encoding. If not provided, UTF-8 will be used.",
+        "type": "'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8'",
+        "required": false
+      }
+    ],
+    "minimumArgumentCount": 1,
+    "maximumArgumentCount": 3,
+    "flags": "default",
+    "typeSignature": "(filePath: string, [jsonPath: string], [encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']): any",
+    "parameterTypeSignatures": [
+      "filePath: string",
+      "[jsonPath: string]",
+      "[encoding: 'iso-8859-1' | 'us-ascii' | 'utf-16' | 'utf-16BE' | 'utf-8']"
+    ]
+  },
+  {
     "name": "loadTextContent",
     "description": "Loads the content of the specified file into a string. Content loading occurs during compilation, not at runtime. The maximum allowed content size is 131072 characters (including line endings).",
     "fixedParameters": [

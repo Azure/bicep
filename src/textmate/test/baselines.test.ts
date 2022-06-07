@@ -80,24 +80,6 @@ async function getTokensByLine(content: string) {
   }));
 }
 
-function hasOverlap(first: IToken, second: IToken) {
-  if (first.endIndex < second.startIndex) {
-    return false;
-  }
-
-  if (first.scopes.length !== second.scopes.length) {
-    return false;
-  }
-
-  for (let i = 0; i < first.scopes.length; i++) {
-    if (first.scopes[i] !== second.scopes[i]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 async function writeBaseline(filePath: string) {
   const baselineBaseName = basename(filePath, extname(filePath));
   const baselineFilePath = path.join(dirname(filePath), `${baselineBaseName}.html`);
@@ -106,6 +88,7 @@ async function writeBaseline(filePath: string) {
   const bicepFile = await readFile(filePath, { encoding: 'utf-8' });
   try {
     diffBefore = await readFile(baselineFilePath, { encoding: 'utf-8' });
+  // eslint-disable-next-line no-empty
   } catch {} // ignore and create the baseline file anyway
 
   let html = '';
@@ -168,7 +151,7 @@ const baselineFiles = readdirSync(baselinesDir)
   .map(p => path.join(baselinesDir, p));
 
 for (const filePath of baselineFiles) {
-  describe(filePath, () => {
+  describe(`Baseline: ${filePath}`, () => {
     let result = {
       baselineFilePath: '',
       diffBefore: '',
@@ -185,9 +168,9 @@ for (const filePath of baselineFiles) {
       it('can be compiled', async () => {
         const cliCsproj = `${__dirname}/../../Bicep.Cli/Bicep.Cli.csproj`;
 
+        // eslint-disable-next-line jest/no-conditional-in-test
         if (!existsSync(cliCsproj)) {
-          fail(`Unable to find '${cliCsproj}'`);
-          return;
+          throw new Error(`Unable to find '${cliCsproj}'`);
         }
 
         const result = spawnSync(`dotnet`, ['run', '-p', cliCsproj, 'build', '--stdout', filePath], { encoding: 'utf-8' });
@@ -199,7 +182,7 @@ for (const filePath of baselineFiles) {
     }
 
     it('baseline matches expected', () => {
-      expect(result.diffBefore).toEqual(result.diffAfter);
+      expect(result.diffBefore).toStrictEqual(result.diffAfter);
     });
   });
 }

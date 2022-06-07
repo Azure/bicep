@@ -58,7 +58,7 @@ export interface BicepDeploymentScopeResponse {
 
 export interface BicepDeploymentStartParams {
   documentPath: string;
-  parameterFilePath: string;
+  parametersFilePath: string;
   id: string;
   deploymentScope: string;
   location: string;
@@ -67,6 +67,9 @@ export interface BicepDeploymentStartParams {
   expiresOnTimestamp: string;
   deployId: string;
   portalUrl: string;
+  parametersFileName: string;
+  parametersFileUpdateOption: ParametersFileUpdateOption;
+  updatedDeploymentParameters: BicepUpdatedDeploymentParameter[];
 }
 
 export interface BicepDeploymentStartResponse {
@@ -78,6 +81,49 @@ export interface BicepDeploymentStartResponse {
 export interface BicepDeploymentWaitForCompletionParams {
   deployId: string;
   documentPath: string;
+}
+
+export interface BicepDeploymentParameter {
+  name: string;
+  value?: string | undefined;
+  isMissingParam: boolean;
+  isExpression: boolean;
+  isSecure: boolean;
+  parameterType: ParameterType | undefined;
+}
+
+export interface BicepDeploymentParametersResponse {
+  deploymentParameters: BicepDeploymentParameter[];
+  parametersFileName: string;
+  errorMessage?: string;
+}
+
+export interface BicepUpdatedDeploymentParameter {
+  name: string;
+  value: string;
+  isSecure: boolean;
+  parameterType: ParameterType | undefined;
+}
+
+export enum ParametersFileUpdateOption {
+  // If the user did not provide a parameters file to be used during deployment and chose to create one at the end of deployment flow
+  Create = 1,
+  // User select "No" to create/update parameters file at the end of deployment flow
+  None = 2,
+  // If the user did not provide a parameters file to be used in deployment, but chose to create one at the end of the flow and
+  // file with name <bicep_file_name>.parameters.json already exists in the same folder as bicep file
+  Overwrite = 3,
+  // If the user provided a file to be used during deployment and chose to update it with values from current deployment at the
+  // end of deployment flow
+  Update = 4,
+}
+
+export enum ParameterType {
+  Array = 1,
+  Bool = 2,
+  Int = 3,
+  Object = 4,
+  String = 5,
 }
 
 export interface BicepCacheResponse {

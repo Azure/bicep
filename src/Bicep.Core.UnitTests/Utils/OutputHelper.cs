@@ -22,17 +22,44 @@ namespace Bicep.Core.UnitTests.Utils
             .Replace("\n", "\\n")
             .Replace("\t", "\\t");
 
+        private static int CountDigits(int number)
+        {
+            if (number == 0)
+            {
+                return 1;
+            }
+
+            var count = 0;
+            while (number != 0)
+            {
+                number /= 10;
+                ++count;
+            }
+
+            return count;
+        }
+
         public static string AddDiagsToSourceText<T>(string bicepOutput, string newlineSequence, IEnumerable<T> items, Func<T, TextSpan> getSpanFunc, Func<T, string> diagsFunc)
         {
             var lineStarts = TextCoordinateConverter.GetLineStarts(bicepOutput);
 
-            var itemsByLine = items
+            var diagsByLine = items
                 .Select(item =>
                 {
-                    var (line, character) = TextCoordinateConverter.GetPosition(lineStarts, getSpanFunc(item).Position);
-                    return (line, character, item);
+                    var span = getSpanFunc(item);
+                    var (line, startChar) = TextCoordinateConverter.GetPosition(lineStarts, span.Position);
+                    var endChar = startChar + span.Length;
+
+                    var escapedText = EscapeWhitespace(diagsFunc(item));
+
+                    return (line, startChar, endChar, escapedText);
                 })
                 .ToLookup(t => t.line);
+
+            var diags = diagsByLine.SelectMany(x => x);
+
+            var startCharPadding = diags.Any() ? CountDigits(diags.Max(x => x.startChar)) : 0;
+            var endCharPadding = diags.Any() ? CountDigits(diags.Max(x => x.endChar)) : 0;
 
             var sourceTextLines = bicepOutput.Split(newlineSequence);
             var stringBuilder = new StringBuilder();
@@ -41,10 +68,14 @@ namespace Bicep.Core.UnitTests.Utils
             {
                 stringBuilder.Append(sourceTextLines[i]);
                 stringBuilder.Append(newlineSequence);
-                foreach (var (line, character, item) in itemsByLine[i])
+                foreach (var diag in diagsByLine[i])
                 {
-                    var escapedDiagsText = EscapeWhitespace(diagsFunc(item));
-                    stringBuilder.Append($"//@[{character}:{character + getSpanFunc(item).Length}) {escapedDiagsText}");
+                    var startCharPadded = diag.startChar.ToString().PadLeft(startCharPadding, '0');
+                    var endCharPadded = diag.endChar.ToString().PadLeft(endCharPadding, '0');
+
+                    // Pad the start & end char with zeros to ensure that the escaped text always starts at the same place
+                    // This makes it easier to compare lines visually
+                    stringBuilder.Append($"//@[{startCharPadded}:{endCharPadded}) {diag.escapedText}");
                     stringBuilder.Append(newlineSequence);
                 }
             }

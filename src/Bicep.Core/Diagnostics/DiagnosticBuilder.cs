@@ -1371,7 +1371,6 @@ namespace Bicep.Core.Diagnostics
                 "BCP231",
                 "Using resource-typed parameters and outputs requires enabling EXPERIMENTAL feature BICEP_RESOURCE_TYPED_PARAMS_AND_OUTPUTS_EXPERIMENTAL.");
 
-
             public ErrorDiagnostic ModuleDeleteFailed(string moduleRef) => new(
                 TextSpan,
                 "BCP232",
@@ -1387,6 +1386,11 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP234",
                 $"The ARM function \"{armFunctionName}\" failed when invoked on the value [{literalValue}]: {message}");
+
+            public ErrorDiagnostic NoJsonTokenOnPathOrPathInvalid() => new(
+                TextSpan,
+                "BCP235",
+                $"Specified JSONPath does not exist in the given file or is invalid.");
 
         }
 

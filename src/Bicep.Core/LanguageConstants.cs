@@ -27,6 +27,12 @@ namespace Bicep.Core
         public const int MaxParameterCount = 256;
         public const int MaxIdentifierLength = 255;
         public const int MaxLiteralCharacterLimit = 131072;
+        public const int MaxJsonFileCharacterLimit = 1048576; // arbitrary value of 1024*1024 characters.
+                                                              // since max ARM template size is 4MB, and it's encoded in UTF that each character can be 1-4 bytes,
+                                                              // we can limit maximum size of JSON file loaded to not exceed 1M characters.
+                                                              // even though loading files near this limit will make user eventually hit the 4MB limit
+                                                              // but it will not be hard to exceed the limit just by loading a single file.
+
 
         public const string ErrorName = "<error>";
         public const string MissingName = "<missing>";
@@ -44,6 +50,9 @@ namespace Bicep.Core
         public const string IfKeyword = "if";
         public const string ForKeyword = "for";
         public const string InKeyword = "in";
+
+        public const string ArrayType = "array";
+        public const string ObjectType = "object";
 
         public const string TargetScopeTypeTenant = "tenant";
         public const string TargetScopeTypeManagementGroup = "managementGroup";
@@ -136,12 +145,12 @@ namespace Bicep.Core
         public static readonly TypeSymbol LooseString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment);
         // SecureString should be regarded as equal to the 'string' type, but with different validation behavior
         public static readonly TypeSymbol SecureString = new PrimitiveType(TypeNameString, TypeSymbolValidationFlags.AllowLooseStringAssignment | TypeSymbolValidationFlags.IsSecure);
-        public static readonly TypeSymbol Object = new ObjectType("object", TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
-        public static readonly TypeSymbol SecureObject = new ObjectType("object", TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol Object = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
+        public static readonly TypeSymbol SecureObject = new ObjectType(ObjectType, TypeSymbolValidationFlags.Default | TypeSymbolValidationFlags.IsSecure, Enumerable.Empty<TypeProperty>(), LanguageConstants.Any);
         public static readonly TypeSymbol Int = new PrimitiveType("int", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Bool = new PrimitiveType("bool", TypeSymbolValidationFlags.Default);
         public static readonly TypeSymbol Null = new PrimitiveType(NullKeyword, TypeSymbolValidationFlags.Default);
-        public static readonly TypeSymbol Array = new ArrayType("array");
+        public static readonly TypeSymbol Array = new ArrayType(ArrayType);
         //Type for available loadTextContent encoding
 
         public static readonly ImmutableArray<(string name, Encoding encoding)> SupportedEncodings = new[]{

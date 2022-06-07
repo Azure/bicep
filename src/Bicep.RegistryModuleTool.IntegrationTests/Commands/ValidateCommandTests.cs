@@ -90,7 +90,7 @@ The file ""{fileSystem.Path.GetFullPath(MainBicepFile.FileName)}"" is invalid. D
                 $@"The file ""{fileSystem.Path.GetFullPath($"test/{MainBicepTestFile.FileName}")}"" is invalid. Could not find tests in the file. Please make sure to add at least one module referencing the main Bicep file.
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath(MetadataFile.FileName)}"" is invalid:
-  #/description: Value is not longer than or equal to 10 characters
+  #/summary: Value is not longer than or equal to 10 characters
 ".ReplaceLineEndings(),
                 $@"The file ""{fileSystem.Path.GetFullPath(ReadmeFile.FileName)}"" is modified or outdated. Please regenerate the file to fix it.
 ".ReplaceLineEndings(),

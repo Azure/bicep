@@ -1,302 +1,302 @@
 
-//@[0:2) NewLine |\r\n|
+//@[000:002) NewLine |\r\n|
 // wrong declaration
-//@[20:22) NewLine |\r\n|
+//@[020:022) NewLine |\r\n|
 bad
-//@[0:3) Identifier |bad|
-//@[3:7) NewLine |\r\n\r\n|
+//@[000:003) Identifier |bad|
+//@[003:007) NewLine |\r\n\r\n|
 
 // incomplete #completionTest(9) -> empty
-//@[41:43) NewLine |\r\n|
+//@[041:043) NewLine |\r\n|
 resource 
-//@[0:8) Identifier |resource|
-//@[9:11) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:011) NewLine |\r\n|
 resource foo
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[12:14) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[012:014) NewLine |\r\n|
 resource fo/o
-//@[0:8) Identifier |resource|
-//@[9:11) Identifier |fo|
-//@[11:12) Slash |/|
-//@[12:13) Identifier |o|
-//@[13:15) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:011) Identifier |fo|
+//@[011:012) Slash |/|
+//@[012:013) Identifier |o|
+//@[013:015) NewLine |\r\n|
 resource foo 'ddd'
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:18) StringComplete |'ddd'|
-//@[18:22) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:018) StringComplete |'ddd'|
+//@[018:022) NewLine |\r\n\r\n|
 
 // #completionTest(23) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:041) NewLine |\r\n|
 resource trailingSpace  
-//@[0:8) Identifier |resource|
-//@[9:22) Identifier |trailingSpace|
-//@[24:28) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:022) Identifier |trailingSpace|
+//@[024:028) NewLine |\r\n\r\n|
 
 // #completionTest(19,20) -> resourceObject
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 resource foo 'ddd'= 
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:18) StringComplete |'ddd'|
-//@[18:19) Assignment |=|
-//@[20:24) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:018) StringComplete |'ddd'|
+//@[018:019) Assignment |=|
+//@[020:024) NewLine |\r\n\r\n|
 
 // wrong resource type
-//@[22:24) NewLine |\r\n|
+//@[022:024) NewLine |\r\n|
 resource foo 'ddd'={
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:18) StringComplete |'ddd'|
-//@[18:19) Assignment |=|
-//@[19:20) LeftBrace |{|
-//@[20:22) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:018) StringComplete |'ddd'|
+//@[018:019) Assignment |=|
+//@[019:020) LeftBrace |{|
+//@[020:022) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource foo 'ddd'=if (1 + 1 == 2) {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:18) StringComplete |'ddd'|
-//@[18:19) Assignment |=|
-//@[19:21) Identifier |if|
-//@[22:23) LeftParen |(|
-//@[23:24) Integer |1|
-//@[25:26) Plus |+|
-//@[27:28) Integer |1|
-//@[29:31) Equals |==|
-//@[32:33) Integer |2|
-//@[33:34) RightParen |)|
-//@[35:36) LeftBrace |{|
-//@[36:38) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:018) StringComplete |'ddd'|
+//@[018:019) Assignment |=|
+//@[019:021) Identifier |if|
+//@[022:023) LeftParen |(|
+//@[023:024) Integer |1|
+//@[025:026) Plus |+|
+//@[027:028) Integer |1|
+//@[029:031) Equals |==|
+//@[032:033) Integer |2|
+//@[033:034) RightParen |)|
+//@[035:036) LeftBrace |{|
+//@[036:038) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // using string interpolation for the resource type
-//@[51:53) NewLine |\r\n|
+//@[051:053) NewLine |\r\n|
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:26) StringLeftPiece |'Microsoft.${|
-//@[26:34) Identifier |provider|
-//@[34:58) StringRightPiece |}/foos@2020-02-02-alpha'|
-//@[58:59) Assignment |=|
-//@[60:61) LeftBrace |{|
-//@[61:63) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:026) StringLeftPiece |'Microsoft.${|
+//@[026:034) Identifier |provider|
+//@[034:058) StringRightPiece |}/foos@2020-02-02-alpha'|
+//@[058:059) Assignment |=|
+//@[060:061) LeftBrace |{|
+//@[061:063) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.${provider}/foos@2020-02-02-alpha'= if (true) {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:26) StringLeftPiece |'Microsoft.${|
-//@[26:34) Identifier |provider|
-//@[34:58) StringRightPiece |}/foos@2020-02-02-alpha'|
-//@[58:59) Assignment |=|
-//@[60:62) Identifier |if|
-//@[63:64) LeftParen |(|
-//@[64:68) TrueKeyword |true|
-//@[68:69) RightParen |)|
-//@[70:71) LeftBrace |{|
-//@[71:73) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:026) StringLeftPiece |'Microsoft.${|
+//@[026:034) Identifier |provider|
+//@[034:058) StringRightPiece |}/foos@2020-02-02-alpha'|
+//@[058:059) Assignment |=|
+//@[060:062) Identifier |if|
+//@[063:064) LeftParen |(|
+//@[064:068) TrueKeyword |true|
+//@[068:069) RightParen |)|
+//@[070:071) LeftBrace |{|
+//@[071:073) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // missing required property
-//@[28:30) NewLine |\r\n|
+//@[028:030) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'={
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[51:52) LeftBrace |{|
-//@[52:54) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[051:052) LeftBrace |{|
+//@[052:054) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (name == 'value') {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[56:60) Identifier |name|
-//@[61:63) Equals |==|
-//@[64:71) StringComplete |'value'|
-//@[71:72) RightParen |)|
-//@[73:74) LeftBrace |{|
-//@[74:76) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[056:060) Identifier |name|
+//@[061:063) Equals |==|
+//@[064:071) StringComplete |'value'|
+//@[071:072) RightParen |)|
+//@[073:074) LeftBrace |{|
+//@[074:076) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if ({ 'a': b }.a == 'foo') {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[56:57) LeftBrace |{|
-//@[58:61) StringComplete |'a'|
-//@[61:62) Colon |:|
-//@[63:64) Identifier |b|
-//@[65:66) RightBrace |}|
-//@[66:67) Dot |.|
-//@[67:68) Identifier |a|
-//@[69:71) Equals |==|
-//@[72:77) StringComplete |'foo'|
-//@[77:78) RightParen |)|
-//@[79:80) LeftBrace |{|
-//@[80:82) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[056:057) LeftBrace |{|
+//@[058:061) StringComplete |'a'|
+//@[061:062) Colon |:|
+//@[063:064) Identifier |b|
+//@[065:066) RightBrace |}|
+//@[066:067) Dot |.|
+//@[067:068) Identifier |a|
+//@[069:071) Equals |==|
+//@[072:077) StringComplete |'foo'|
+//@[077:078) RightParen |)|
+//@[079:080) LeftBrace |{|
+//@[080:082) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // simulate typing if condition
-//@[31:33) NewLine |\r\n|
+//@[031:033) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[54:58) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[054:058) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[56:60) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[056:060) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[56:60) TrueKeyword |true|
-//@[60:64) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[056:060) TrueKeyword |true|
+//@[060:064) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (true)
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[56:60) TrueKeyword |true|
-//@[60:61) RightParen |)|
-//@[61:65) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[056:060) TrueKeyword |true|
+//@[060:061) RightParen |)|
+//@[061:065) NewLine |\r\n\r\n|
 
 // missing condition
-//@[20:22) NewLine |\r\n|
+//@[020:022) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftBrace |{|
-//@[56:58) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftBrace |{|
+//@[056:058) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // empty condition
-//@[18:20) NewLine |\r\n|
+//@[018:020) NewLine |\r\n|
 // #completionTest(56) -> symbols
-//@[33:35) NewLine |\r\n|
+//@[033:035) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if () {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[56:57) RightParen |)|
-//@[58:59) LeftBrace |{|
-//@[59:61) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[056:057) RightParen |)|
+//@[058:059) LeftBrace |{|
+//@[059:061) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // #completionTest(57, 59) -> symbols
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (     ) {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[61:62) RightParen |)|
-//@[63:64) LeftBrace |{|
-//@[64:66) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[061:062) RightParen |)|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // invalid condition type
-//@[25:27) NewLine |\r\n|
+//@[025:027) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= if (123) {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:54) Identifier |if|
-//@[55:56) LeftParen |(|
-//@[56:59) Integer |123|
-//@[59:60) RightParen |)|
-//@[61:62) LeftBrace |{|
-//@[62:64) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:054) Identifier |if|
+//@[055:056) LeftParen |(|
+//@[056:059) Integer |123|
+//@[059:060) RightParen |)|
+//@[061:062) LeftBrace |{|
+//@[062:064) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // runtime functions are no allowed in resource conditions
-//@[58:60) NewLine |\r\n|
+//@[058:060) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Management/managementGroups/MG', '2020-05-01').name == 'something') {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52) Assignment |=|
-//@[53:55) Identifier |if|
-//@[56:57) LeftParen |(|
-//@[57:66) Identifier |reference|
-//@[66:67) LeftParen |(|
-//@[67:109) StringComplete |'Micorosft.Management/managementGroups/MG'|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:052) Assignment |=|
+//@[053:055) Identifier |if|
+//@[056:057) LeftParen |(|
+//@[057:066) Identifier |reference|
+//@[066:067) LeftParen |(|
+//@[067:109) StringComplete |'Micorosft.Management/managementGroups/MG'|
 //@[109:110) Comma |,|
 //@[111:123) StringComplete |'2020-05-01'|
 //@[123:124) RightParen |)|
@@ -308,1077 +308,1077 @@ resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (reference('Micorosft.Ma
 //@[146:147) LeftBrace |{|
 //@[147:149) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha' = if (listKeys('foo', '2020-05-01').bar == true) {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52) Assignment |=|
-//@[53:55) Identifier |if|
-//@[56:57) LeftParen |(|
-//@[57:65) Identifier |listKeys|
-//@[65:66) LeftParen |(|
-//@[66:71) StringComplete |'foo'|
-//@[71:72) Comma |,|
-//@[73:85) StringComplete |'2020-05-01'|
-//@[85:86) RightParen |)|
-//@[86:87) Dot |.|
-//@[87:90) Identifier |bar|
-//@[91:93) Equals |==|
-//@[94:98) TrueKeyword |true|
-//@[98:99) RightParen |)|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:052) Assignment |=|
+//@[053:055) Identifier |if|
+//@[056:057) LeftParen |(|
+//@[057:065) Identifier |listKeys|
+//@[065:066) LeftParen |(|
+//@[066:071) StringComplete |'foo'|
+//@[071:072) Comma |,|
+//@[073:085) StringComplete |'2020-05-01'|
+//@[085:086) RightParen |)|
+//@[086:087) Dot |.|
+//@[087:090) Identifier |bar|
+//@[091:093) Equals |==|
+//@[094:098) TrueKeyword |true|
+//@[098:099) RightParen |)|
 //@[100:101) LeftBrace |{|
 //@[101:103) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // duplicate property at the top level
-//@[38:40) NewLine |\r\n|
+//@[038:040) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:53) LeftBrace |{|
-//@[53:55) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:053) LeftBrace |{|
+//@[053:055) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
   name: true
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) TrueKeyword |true|
-//@[12:14) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:012) TrueKeyword |true|
+//@[012:014) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // duplicate property at the top level with string literal syntax
-//@[65:67) NewLine |\r\n|
+//@[065:067) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:53) LeftBrace |{|
-//@[53:55) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:053) LeftBrace |{|
+//@[053:055) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
   'name': true
-//@[2:8) StringComplete |'name'|
-//@[8:9) Colon |:|
-//@[10:14) TrueKeyword |true|
-//@[14:16) NewLine |\r\n|
+//@[002:008) StringComplete |'name'|
+//@[008:009) Colon |:|
+//@[010:014) TrueKeyword |true|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // duplicate property inside
-//@[28:30) NewLine |\r\n|
+//@[028:030) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:53) LeftBrace |{|
-//@[53:55) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:053) LeftBrace |{|
+//@[053:055) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     foo: 'a'
-//@[4:7) Identifier |foo|
-//@[7:8) Colon |:|
-//@[9:12) StringComplete |'a'|
-//@[12:14) NewLine |\r\n|
+//@[004:007) Identifier |foo|
+//@[007:008) Colon |:|
+//@[009:012) StringComplete |'a'|
+//@[012:014) NewLine |\r\n|
     foo: 'a'
-//@[4:7) Identifier |foo|
-//@[7:8) Colon |:|
-//@[9:12) StringComplete |'a'|
-//@[12:14) NewLine |\r\n|
+//@[004:007) Identifier |foo|
+//@[007:008) Colon |:|
+//@[009:012) StringComplete |'a'|
+//@[012:014) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // duplicate property inside with string literal syntax
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:53) LeftBrace |{|
-//@[53:55) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:053) LeftBrace |{|
+//@[053:055) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     foo: 'a'
-//@[4:7) Identifier |foo|
-//@[7:8) Colon |:|
-//@[9:12) StringComplete |'a'|
-//@[12:14) NewLine |\r\n|
+//@[004:007) Identifier |foo|
+//@[007:008) Colon |:|
+//@[009:012) StringComplete |'a'|
+//@[012:014) NewLine |\r\n|
     'foo': 'a'
-//@[4:9) StringComplete |'foo'|
-//@[9:10) Colon |:|
-//@[11:14) StringComplete |'a'|
-//@[14:16) NewLine |\r\n|
+//@[004:009) StringComplete |'foo'|
+//@[009:010) Colon |:|
+//@[011:014) StringComplete |'a'|
+//@[014:016) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // wrong property types
-//@[23:25) NewLine |\r\n|
+//@[023:025) NewLine |\r\n|
 resource foo 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[50:51) Assignment |=|
-//@[52:53) LeftBrace |{|
-//@[53:55) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[050:051) Assignment |=|
+//@[052:053) LeftBrace |{|
+//@[053:055) NewLine |\r\n|
   name: 'foo'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:13) StringComplete |'foo'|
-//@[13:15) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:013) StringComplete |'foo'|
+//@[013:015) NewLine |\r\n|
   location: [
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:13) LeftSquare |[|
-//@[13:15) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:013) LeftSquare |[|
+//@[013:015) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
   tags: 'tag are not a string?'
-//@[2:6) Identifier |tags|
-//@[6:7) Colon |:|
-//@[8:31) StringComplete |'tag are not a string?'|
-//@[31:33) NewLine |\r\n|
+//@[002:006) Identifier |tags|
+//@[006:007) Colon |:|
+//@[008:031) StringComplete |'tag are not a string?'|
+//@[031:033) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource bar 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |bar|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52) Assignment |=|
-//@[53:54) LeftBrace |{|
-//@[54:56) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |bar|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:052) Assignment |=|
+//@[053:054) LeftBrace |{|
+//@[054:056) NewLine |\r\n|
   name: true ? 's' : 'a' + 1
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) TrueKeyword |true|
-//@[13:14) Question |?|
-//@[15:18) StringComplete |'s'|
-//@[19:20) Colon |:|
-//@[21:24) StringComplete |'a'|
-//@[25:26) Plus |+|
-//@[27:28) Integer |1|
-//@[28:30) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:012) TrueKeyword |true|
+//@[013:014) Question |?|
+//@[015:018) StringComplete |'s'|
+//@[019:020) Colon |:|
+//@[021:024) StringComplete |'a'|
+//@[025:026) Plus |+|
+//@[027:028) Integer |1|
+//@[028:030) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     x: foo()
-//@[4:5) Identifier |x|
-//@[5:6) Colon |:|
-//@[7:10) Identifier |foo|
-//@[10:11) LeftParen |(|
-//@[11:12) RightParen |)|
-//@[12:14) NewLine |\r\n|
+//@[004:005) Identifier |x|
+//@[005:006) Colon |:|
+//@[007:010) Identifier |foo|
+//@[010:011) LeftParen |(|
+//@[011:012) RightParen |)|
+//@[012:014) NewLine |\r\n|
     y: true && (null || !4)
-//@[4:5) Identifier |y|
-//@[5:6) Colon |:|
-//@[7:11) TrueKeyword |true|
-//@[12:14) LogicalAnd |&&|
-//@[15:16) LeftParen |(|
-//@[16:20) NullKeyword |null|
-//@[21:23) LogicalOr ||||
-//@[24:25) Exclamation |!|
-//@[25:26) Integer |4|
-//@[26:27) RightParen |)|
-//@[27:29) NewLine |\r\n|
+//@[004:005) Identifier |y|
+//@[005:006) Colon |:|
+//@[007:011) TrueKeyword |true|
+//@[012:014) LogicalAnd |&&|
+//@[015:016) LeftParen |(|
+//@[016:020) NullKeyword |null|
+//@[021:023) LogicalOr ||||
+//@[024:025) Exclamation |!|
+//@[025:026) Integer |4|
+//@[026:027) RightParen |)|
+//@[027:029) NewLine |\r\n|
     a: [
-//@[4:5) Identifier |a|
-//@[5:6) Colon |:|
-//@[7:8) LeftSquare |[|
-//@[8:10) NewLine |\r\n|
+//@[004:005) Identifier |a|
+//@[005:006) Colon |:|
+//@[007:008) LeftSquare |[|
+//@[008:010) NewLine |\r\n|
       a
-//@[6:7) Identifier |a|
-//@[7:9) NewLine |\r\n|
+//@[006:007) Identifier |a|
+//@[007:009) NewLine |\r\n|
       !null
-//@[6:7) Exclamation |!|
-//@[7:11) NullKeyword |null|
-//@[11:13) NewLine |\r\n|
+//@[006:007) Exclamation |!|
+//@[007:011) NullKeyword |null|
+//@[011:013) NewLine |\r\n|
       true && true || true + -true * 4
-//@[6:10) TrueKeyword |true|
-//@[11:13) LogicalAnd |&&|
-//@[14:18) TrueKeyword |true|
-//@[19:21) LogicalOr ||||
-//@[22:26) TrueKeyword |true|
-//@[27:28) Plus |+|
-//@[29:30) Minus |-|
-//@[30:34) TrueKeyword |true|
-//@[35:36) Asterisk |*|
-//@[37:38) Integer |4|
-//@[38:40) NewLine |\r\n|
+//@[006:010) TrueKeyword |true|
+//@[011:013) LogicalAnd |&&|
+//@[014:018) TrueKeyword |true|
+//@[019:021) LogicalOr ||||
+//@[022:026) TrueKeyword |true|
+//@[027:028) Plus |+|
+//@[029:030) Minus |-|
+//@[030:034) TrueKeyword |true|
+//@[035:036) Asterisk |*|
+//@[037:038) Integer |4|
+//@[038:040) NewLine |\r\n|
     ]
-//@[4:5) RightSquare |]|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightSquare |]|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // there should be no completions without the colon
-//@[51:53) NewLine |\r\n|
+//@[051:053) NewLine |\r\n|
 resource noCompletionsWithoutColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |noCompletionsWithoutColon|
-//@[35:85) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |noCompletionsWithoutColon|
+//@[035:085) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   // #completionTest(7,8) -> empty
-//@[34:36) NewLine |\r\n|
+//@[034:036) NewLine |\r\n|
   kind  
-//@[2:6) Identifier |kind|
-//@[8:10) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[008:010) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource noCompletionsBeforeColon 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:33) Identifier |noCompletionsBeforeColon|
-//@[34:84) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[85:86) Assignment |=|
-//@[87:88) LeftBrace |{|
-//@[88:90) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:033) Identifier |noCompletionsBeforeColon|
+//@[034:084) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[085:086) Assignment |=|
+//@[087:088) LeftBrace |{|
+//@[088:090) NewLine |\r\n|
   // #completionTest(7,8) -> empty
-//@[34:36) NewLine |\r\n|
+//@[034:036) NewLine |\r\n|
   kind  :
-//@[2:6) Identifier |kind|
-//@[8:9) Colon |:|
-//@[9:11) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[008:009) Colon |:|
+//@[009:011) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // unsupported resource ref
-//@[27:29) NewLine |\r\n|
+//@[027:029) NewLine |\r\n|
 var resrefvar = bar.name
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |resrefvar|
-//@[14:15) Assignment |=|
-//@[16:19) Identifier |bar|
-//@[19:20) Dot |.|
-//@[20:24) Identifier |name|
-//@[24:28) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |resrefvar|
+//@[014:015) Assignment |=|
+//@[016:019) Identifier |bar|
+//@[019:020) Dot |.|
+//@[020:024) Identifier |name|
+//@[024:028) NewLine |\r\n\r\n|
 
 param resrefpar string = foo.id
-//@[0:5) Identifier |param|
-//@[6:15) Identifier |resrefpar|
-//@[16:22) Identifier |string|
-//@[23:24) Assignment |=|
-//@[25:28) Identifier |foo|
-//@[28:29) Dot |.|
-//@[29:31) Identifier |id|
-//@[31:35) NewLine |\r\n\r\n|
+//@[000:005) Identifier |param|
+//@[006:015) Identifier |resrefpar|
+//@[016:022) Identifier |string|
+//@[023:024) Assignment |=|
+//@[025:028) Identifier |foo|
+//@[028:029) Dot |.|
+//@[029:031) Identifier |id|
+//@[031:035) NewLine |\r\n\r\n|
 
 output resrefout bool = bar.id
-//@[0:6) Identifier |output|
-//@[7:16) Identifier |resrefout|
-//@[17:21) Identifier |bool|
-//@[22:23) Assignment |=|
-//@[24:27) Identifier |bar|
-//@[27:28) Dot |.|
-//@[28:30) Identifier |id|
-//@[30:34) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:016) Identifier |resrefout|
+//@[017:021) Identifier |bool|
+//@[022:023) Assignment |=|
+//@[024:027) Identifier |bar|
+//@[027:028) Dot |.|
+//@[028:030) Identifier |id|
+//@[030:034) NewLine |\r\n\r\n|
 
 // attempting to set read-only properties
-//@[41:43) NewLine |\r\n|
+//@[041:043) NewLine |\r\n|
 resource baz 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |baz|
-//@[13:50) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[51:52) Assignment |=|
-//@[53:54) LeftBrace |{|
-//@[54:56) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |baz|
+//@[013:050) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[051:052) Assignment |=|
+//@[053:054) LeftBrace |{|
+//@[054:056) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   id: 2
-//@[2:4) Identifier |id|
-//@[4:5) Colon |:|
-//@[6:7) Integer |2|
-//@[7:9) NewLine |\r\n|
+//@[002:004) Identifier |id|
+//@[004:005) Colon |:|
+//@[006:007) Integer |2|
+//@[007:009) NewLine |\r\n|
   type: 'hello'
-//@[2:6) Identifier |type|
-//@[6:7) Colon |:|
-//@[8:15) StringComplete |'hello'|
-//@[15:17) NewLine |\r\n|
+//@[002:006) Identifier |type|
+//@[006:007) Colon |:|
+//@[008:015) StringComplete |'hello'|
+//@[015:017) NewLine |\r\n|
   apiVersion: true
-//@[2:12) Identifier |apiVersion|
-//@[12:13) Colon |:|
-//@[14:18) TrueKeyword |true|
-//@[18:20) NewLine |\r\n|
+//@[002:012) Identifier |apiVersion|
+//@[012:013) Colon |:|
+//@[014:018) TrueKeyword |true|
+//@[018:020) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource readOnlyPropertyAssignment 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |readOnlyPropertyAssignment|
-//@[36:82) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftBrace |{|
-//@[86:88) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |readOnlyPropertyAssignment|
+//@[036:082) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftBrace |{|
+//@[086:088) NewLine |\r\n|
   name: 'vnet-bicep'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:20) StringComplete |'vnet-bicep'|
-//@[20:22) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'vnet-bicep'|
+//@[020:022) NewLine |\r\n|
   location: 'westeurope'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:24) StringComplete |'westeurope'|
-//@[24:26) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:024) StringComplete |'westeurope'|
+//@[024:026) NewLine |\r\n|
   etag: 'assigning-to-read-only-value'
-//@[2:6) Identifier |etag|
-//@[6:7) Colon |:|
-//@[8:38) StringComplete |'assigning-to-read-only-value'|
-//@[38:40) NewLine |\r\n|
+//@[002:006) Identifier |etag|
+//@[006:007) Colon |:|
+//@[008:038) StringComplete |'assigning-to-read-only-value'|
+//@[038:040) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     resourceGuid: 'assigning-to-read-only-value'
-//@[4:16) Identifier |resourceGuid|
-//@[16:17) Colon |:|
-//@[18:48) StringComplete |'assigning-to-read-only-value'|
-//@[48:50) NewLine |\r\n|
+//@[004:016) Identifier |resourceGuid|
+//@[016:017) Colon |:|
+//@[018:048) StringComplete |'assigning-to-read-only-value'|
+//@[048:050) NewLine |\r\n|
     addressSpace: {
-//@[4:16) Identifier |addressSpace|
-//@[16:17) Colon |:|
-//@[18:19) LeftBrace |{|
-//@[19:21) NewLine |\r\n|
+//@[004:016) Identifier |addressSpace|
+//@[016:017) Colon |:|
+//@[018:019) LeftBrace |{|
+//@[019:021) NewLine |\r\n|
       addressPrefixes: [
-//@[6:21) Identifier |addressPrefixes|
-//@[21:22) Colon |:|
-//@[23:24) LeftSquare |[|
-//@[24:26) NewLine |\r\n|
+//@[006:021) Identifier |addressPrefixes|
+//@[021:022) Colon |:|
+//@[023:024) LeftSquare |[|
+//@[024:026) NewLine |\r\n|
         '10.0.0.0/16'
-//@[8:21) StringComplete |'10.0.0.0/16'|
-//@[21:23) NewLine |\r\n|
+//@[008:021) StringComplete |'10.0.0.0/16'|
+//@[021:023) NewLine |\r\n|
       ]
-//@[6:7) RightSquare |]|
-//@[7:9) NewLine |\r\n|
+//@[006:007) RightSquare |]|
+//@[007:009) NewLine |\r\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
     subnets: []
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:15) RightSquare |]|
-//@[15:17) NewLine |\r\n|
+//@[004:011) Identifier |subnets|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:015) RightSquare |]|
+//@[015:017) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource badDepends 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:19) Identifier |badDepends|
-//@[20:57) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[58:59) Assignment |=|
-//@[60:61) LeftBrace |{|
-//@[61:63) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:019) Identifier |badDepends|
+//@[020:057) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[058:059) Assignment |=|
+//@[060:061) LeftBrace |{|
+//@[061:063) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   dependsOn: [
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     baz.id
-//@[4:7) Identifier |baz|
-//@[7:8) Dot |.|
-//@[8:10) Identifier |id|
-//@[10:12) NewLine |\r\n|
+//@[004:007) Identifier |baz|
+//@[007:008) Dot |.|
+//@[008:010) Identifier |id|
+//@[010:012) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource badDepends2 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:20) Identifier |badDepends2|
-//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60) Assignment |=|
-//@[61:62) LeftBrace |{|
-//@[62:64) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:020) Identifier |badDepends2|
+//@[021:058) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:060) Assignment |=|
+//@[061:062) LeftBrace |{|
+//@[062:064) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   dependsOn: [
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     'hello'
-//@[4:11) StringComplete |'hello'|
-//@[11:13) NewLine |\r\n|
+//@[004:011) StringComplete |'hello'|
+//@[011:013) NewLine |\r\n|
     true
-//@[4:8) TrueKeyword |true|
-//@[8:10) NewLine |\r\n|
+//@[004:008) TrueKeyword |true|
+//@[008:010) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource badDepends3 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:20) Identifier |badDepends3|
-//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60) Assignment |=|
-//@[61:62) LeftBrace |{|
-//@[62:64) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:020) Identifier |badDepends3|
+//@[021:058) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:060) Assignment |=|
+//@[061:062) LeftBrace |{|
+//@[062:064) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource badDepends4 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:20) Identifier |badDepends4|
-//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60) Assignment |=|
-//@[61:62) LeftBrace |{|
-//@[62:64) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:020) Identifier |badDepends4|
+//@[021:058) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:060) Assignment |=|
+//@[061:062) LeftBrace |{|
+//@[062:064) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   dependsOn: [
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     badDepends3
-//@[4:15) Identifier |badDepends3|
-//@[15:17) NewLine |\r\n|
+//@[004:015) Identifier |badDepends3|
+//@[015:017) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource badDepends5 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:20) Identifier |badDepends5|
-//@[21:58) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[59:60) Assignment |=|
-//@[61:62) LeftBrace |{|
-//@[62:64) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:020) Identifier |badDepends5|
+//@[021:058) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[059:060) Assignment |=|
+//@[061:062) LeftBrace |{|
+//@[062:064) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   dependsOn: badDepends3.dependsOn
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:24) Identifier |badDepends3|
-//@[24:25) Dot |.|
-//@[25:34) Identifier |dependsOn|
-//@[34:36) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:024) Identifier |badDepends3|
+//@[024:025) Dot |.|
+//@[025:034) Identifier |dependsOn|
+//@[034:036) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 var interpVal = 'abc'
-//@[0:3) Identifier |var|
-//@[4:13) Identifier |interpVal|
-//@[14:15) Assignment |=|
-//@[16:21) StringComplete |'abc'|
-//@[21:23) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:013) Identifier |interpVal|
+//@[014:015) Assignment |=|
+//@[016:021) StringComplete |'abc'|
+//@[021:023) NewLine |\r\n|
 resource badInterp 'Microsoft.Foo/foos@2020-02-02-alpha' = {
-//@[0:8) Identifier |resource|
-//@[9:18) Identifier |badInterp|
-//@[19:56) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[57:58) Assignment |=|
-//@[59:60) LeftBrace |{|
-//@[60:62) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:018) Identifier |badInterp|
+//@[019:056) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[057:058) Assignment |=|
+//@[059:060) LeftBrace |{|
+//@[060:062) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   '${interpVal}': 'unsupported' // resource definition does not allow for additionalProperties
-//@[2:5) StringLeftPiece |'${|
-//@[5:14) Identifier |interpVal|
-//@[14:16) StringRightPiece |}'|
-//@[16:17) Colon |:|
-//@[18:31) StringComplete |'unsupported'|
-//@[94:96) NewLine |\r\n|
+//@[002:005) StringLeftPiece |'${|
+//@[005:014) Identifier |interpVal|
+//@[014:016) StringRightPiece |}'|
+//@[016:017) Colon |:|
+//@[018:031) StringComplete |'unsupported'|
+//@[094:096) NewLine |\r\n|
   '${undefinedSymbol}': true
-//@[2:5) StringLeftPiece |'${|
-//@[5:20) Identifier |undefinedSymbol|
-//@[20:22) StringRightPiece |}'|
-//@[22:23) Colon |:|
-//@[24:28) TrueKeyword |true|
-//@[28:30) NewLine |\r\n|
+//@[002:005) StringLeftPiece |'${|
+//@[005:020) Identifier |undefinedSymbol|
+//@[020:022) StringRightPiece |}'|
+//@[022:023) Colon |:|
+//@[024:028) TrueKeyword |true|
+//@[028:030) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 module validModule './module.bicep' = {
-//@[0:6) Identifier |module|
-//@[7:18) Identifier |validModule|
-//@[19:35) StringComplete |'./module.bicep'|
-//@[36:37) Assignment |=|
-//@[38:39) LeftBrace |{|
-//@[39:41) NewLine |\r\n|
+//@[000:006) Identifier |module|
+//@[007:018) Identifier |validModule|
+//@[019:035) StringComplete |'./module.bicep'|
+//@[036:037) Assignment |=|
+//@[038:039) LeftBrace |{|
+//@[039:041) NewLine |\r\n|
   name: 'storageDeploy'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:23) StringComplete |'storageDeploy'|
-//@[23:25) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:023) StringComplete |'storageDeploy'|
+//@[023:025) NewLine |\r\n|
   params: {
-//@[2:8) Identifier |params|
-//@[8:9) Colon |:|
-//@[10:11) LeftBrace |{|
-//@[11:13) NewLine |\r\n|
+//@[002:008) Identifier |params|
+//@[008:009) Colon |:|
+//@[010:011) LeftBrace |{|
+//@[011:013) NewLine |\r\n|
     name: 'contoso'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:19) StringComplete |'contoso'|
-//@[19:21) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:019) StringComplete |'contoso'|
+//@[019:021) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes1 'Microsoft.Compute/virtualMachines@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes1|
-//@[26:72) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[73:74) Assignment |=|
-//@[75:76) LeftBrace |{|
-//@[76:78) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes1|
+//@[026:072) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[073:074) Assignment |=|
+//@[075:076) LeftBrace |{|
+//@[076:078) NewLine |\r\n|
   name: 'name1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) StringComplete |'name1'|
-//@[15:17) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) StringComplete |'name1'|
+//@[015:017) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     evictionPolicy: 'Deallocate'
-//@[4:18) Identifier |evictionPolicy|
-//@[18:19) Colon |:|
-//@[20:32) StringComplete |'Deallocate'|
-//@[32:34) NewLine |\r\n|
+//@[004:018) Identifier |evictionPolicy|
+//@[018:019) Colon |:|
+//@[020:032) StringComplete |'Deallocate'|
+//@[032:034) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes2|
-//@[26:76) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[77:78) Assignment |=|
-//@[79:80) LeftBrace |{|
-//@[80:82) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes2|
+//@[026:076) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[077:078) Assignment |=|
+//@[079:080) LeftBrace |{|
+//@[080:082) NewLine |\r\n|
   name: concat(concat(runtimeValidRes1.id, runtimeValidRes1.name), runtimeValidRes1.type)
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) Identifier |concat|
-//@[14:15) LeftParen |(|
-//@[15:21) Identifier |concat|
-//@[21:22) LeftParen |(|
-//@[22:38) Identifier |runtimeValidRes1|
-//@[38:39) Dot |.|
-//@[39:41) Identifier |id|
-//@[41:42) Comma |,|
-//@[43:59) Identifier |runtimeValidRes1|
-//@[59:60) Dot |.|
-//@[60:64) Identifier |name|
-//@[64:65) RightParen |)|
-//@[65:66) Comma |,|
-//@[67:83) Identifier |runtimeValidRes1|
-//@[83:84) Dot |.|
-//@[84:88) Identifier |type|
-//@[88:89) RightParen |)|
-//@[89:91) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) Identifier |concat|
+//@[014:015) LeftParen |(|
+//@[015:021) Identifier |concat|
+//@[021:022) LeftParen |(|
+//@[022:038) Identifier |runtimeValidRes1|
+//@[038:039) Dot |.|
+//@[039:041) Identifier |id|
+//@[041:042) Comma |,|
+//@[043:059) Identifier |runtimeValidRes1|
+//@[059:060) Dot |.|
+//@[060:064) Identifier |name|
+//@[064:065) RightParen |)|
+//@[065:066) Comma |,|
+//@[067:083) Identifier |runtimeValidRes1|
+//@[083:084) Dot |.|
+//@[084:088) Identifier |type|
+//@[088:089) RightParen |)|
+//@[089:091) NewLine |\r\n|
   kind:'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[7:17) StringComplete |'AzureCLI'|
-//@[17:19) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[007:017) StringComplete |'AzureCLI'|
+//@[017:019) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     azCliVersion: '2.0'
-//@[4:16) Identifier |azCliVersion|
-//@[16:17) Colon |:|
-//@[18:23) StringComplete |'2.0'|
-//@[23:25) NewLine |\r\n|
+//@[004:016) Identifier |azCliVersion|
+//@[016:017) Colon |:|
+//@[018:023) StringComplete |'2.0'|
+//@[023:025) NewLine |\r\n|
     retentionInterval: runtimeValidRes1.properties.evictionPolicy
-//@[4:21) Identifier |retentionInterval|
-//@[21:22) Colon |:|
-//@[23:39) Identifier |runtimeValidRes1|
-//@[39:40) Dot |.|
-//@[40:50) Identifier |properties|
-//@[50:51) Dot |.|
-//@[51:65) Identifier |evictionPolicy|
-//@[65:67) NewLine |\r\n|
+//@[004:021) Identifier |retentionInterval|
+//@[021:022) Colon |:|
+//@[023:039) Identifier |runtimeValidRes1|
+//@[039:040) Dot |.|
+//@[040:050) Identifier |properties|
+//@[050:051) Dot |.|
+//@[051:065) Identifier |evictionPolicy|
+//@[065:067) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes3 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes3|
-//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes3|
+//@[026:085) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   name: '${runtimeValidRes1.name}_v1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:27) Identifier |runtimeValidRes1|
-//@[27:28) Dot |.|
-//@[28:32) Identifier |name|
-//@[32:37) StringRightPiece |}_v1'|
-//@[37:39) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:027) Identifier |runtimeValidRes1|
+//@[027:028) Dot |.|
+//@[028:032) Identifier |name|
+//@[032:037) StringRightPiece |}_v1'|
+//@[037:039) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes4|
-//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes4|
+//@[026:085) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   name: concat(validModule['name'], 'v1')
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) Identifier |concat|
-//@[14:15) LeftParen |(|
-//@[15:26) Identifier |validModule|
-//@[26:27) LeftSquare |[|
-//@[27:33) StringComplete |'name'|
-//@[33:34) RightSquare |]|
-//@[34:35) Comma |,|
-//@[36:40) StringComplete |'v1'|
-//@[40:41) RightParen |)|
-//@[41:43) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) Identifier |concat|
+//@[014:015) LeftParen |(|
+//@[015:026) Identifier |validModule|
+//@[026:027) LeftSquare |[|
+//@[027:033) StringComplete |'name'|
+//@[033:034) RightSquare |]|
+//@[034:035) Comma |,|
+//@[036:040) StringComplete |'v1'|
+//@[040:041) RightParen |)|
+//@[041:043) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes5|
-//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes5|
+//@[026:085) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   name: '${validModule.name}_v1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:22) Identifier |validModule|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |name|
-//@[27:32) StringRightPiece |}_v1'|
-//@[32:34) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:022) Identifier |validModule|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |name|
+//@[027:032) StringRightPiece |}_v1'|
+//@[032:034) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes1 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes1|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes1|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes1.location
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) Dot |.|
-//@[25:33) Identifier |location|
-//@[33:35) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) Dot |.|
+//@[025:033) Identifier |location|
+//@[033:035) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes2 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes2|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes2|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes1['location']
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) LeftSquare |[|
-//@[25:35) StringComplete |'location'|
-//@[35:36) RightSquare |]|
-//@[36:38) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) LeftSquare |[|
+//@[025:035) StringComplete |'location'|
+//@[035:036) RightSquare |]|
+//@[036:038) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes3 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes3|
-//@[28:78) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[79:80) Assignment |=|
-//@[81:82) LeftBrace |{|
-//@[82:84) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes3|
+//@[028:078) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[079:080) Assignment |=|
+//@[081:082) LeftBrace |{|
+//@[082:084) NewLine |\r\n|
   name: runtimeValidRes1.properties.evictionPolicy
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) Dot |.|
-//@[25:35) Identifier |properties|
-//@[35:36) Dot |.|
-//@[36:50) Identifier |evictionPolicy|
-//@[50:52) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) Dot |.|
+//@[025:035) Identifier |properties|
+//@[035:036) Dot |.|
+//@[036:050) Identifier |evictionPolicy|
+//@[050:052) NewLine |\r\n|
   kind:'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[7:17) StringComplete |'AzureCLI'|
-//@[17:19) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[007:017) StringComplete |'AzureCLI'|
+//@[017:019) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     azCliVersion: '2.0'
-//@[4:16) Identifier |azCliVersion|
-//@[16:17) Colon |:|
-//@[18:23) StringComplete |'2.0'|
-//@[23:25) NewLine |\r\n|
+//@[004:016) Identifier |azCliVersion|
+//@[016:017) Colon |:|
+//@[018:023) StringComplete |'2.0'|
+//@[023:025) NewLine |\r\n|
     retentionInterval: runtimeValidRes1.properties.evictionPolicy
-//@[4:21) Identifier |retentionInterval|
-//@[21:22) Colon |:|
-//@[23:39) Identifier |runtimeValidRes1|
-//@[39:40) Dot |.|
-//@[40:50) Identifier |properties|
-//@[50:51) Dot |.|
-//@[51:65) Identifier |evictionPolicy|
-//@[65:67) NewLine |\r\n|
+//@[004:021) Identifier |retentionInterval|
+//@[021:022) Colon |:|
+//@[023:039) Identifier |runtimeValidRes1|
+//@[039:040) Dot |.|
+//@[040:050) Identifier |properties|
+//@[050:051) Dot |.|
+//@[051:065) Identifier |evictionPolicy|
+//@[065:067) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes4 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes4|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes4|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes1['properties'].evictionPolicy
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) LeftSquare |[|
-//@[25:37) StringComplete |'properties'|
-//@[37:38) RightSquare |]|
-//@[38:39) Dot |.|
-//@[39:53) Identifier |evictionPolicy|
-//@[53:55) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) LeftSquare |[|
+//@[025:037) StringComplete |'properties'|
+//@[037:038) RightSquare |]|
+//@[038:039) Dot |.|
+//@[039:053) Identifier |evictionPolicy|
+//@[053:055) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes5 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes5|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes5|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes1['properties']['evictionPolicy']
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) LeftSquare |[|
-//@[25:37) StringComplete |'properties'|
-//@[37:38) RightSquare |]|
-//@[38:39) LeftSquare |[|
-//@[39:55) StringComplete |'evictionPolicy'|
-//@[55:56) RightSquare |]|
-//@[56:58) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) LeftSquare |[|
+//@[025:037) StringComplete |'properties'|
+//@[037:038) RightSquare |]|
+//@[038:039) LeftSquare |[|
+//@[039:055) StringComplete |'evictionPolicy'|
+//@[055:056) RightSquare |]|
+//@[056:058) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes6|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes6|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes1.properties['evictionPolicy']
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) Dot |.|
-//@[25:35) Identifier |properties|
-//@[35:36) LeftSquare |[|
-//@[36:52) StringComplete |'evictionPolicy'|
-//@[52:53) RightSquare |]|
-//@[53:55) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) Dot |.|
+//@[025:035) Identifier |properties|
+//@[035:036) LeftSquare |[|
+//@[036:052) StringComplete |'evictionPolicy'|
+//@[052:053) RightSquare |]|
+//@[053:055) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes7|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes7|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes2.properties.azCliVersion
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes2|
-//@[24:25) Dot |.|
-//@[25:35) Identifier |properties|
-//@[35:36) Dot |.|
-//@[36:48) Identifier |azCliVersion|
-//@[48:50) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes2|
+//@[024:025) Dot |.|
+//@[025:035) Identifier |properties|
+//@[035:036) Dot |.|
+//@[036:048) Identifier |azCliVersion|
+//@[048:050) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 var magicString1 = 'location'
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |magicString1|
-//@[17:18) Assignment |=|
-//@[19:29) StringComplete |'location'|
-//@[29:31) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |magicString1|
+//@[017:018) Assignment |=|
+//@[019:029) StringComplete |'location'|
+//@[029:031) NewLine |\r\n|
 resource runtimeInvalidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes8|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes8|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes2['${magicString1}']
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes2|
-//@[24:25) LeftSquare |[|
-//@[25:28) StringLeftPiece |'${|
-//@[28:40) Identifier |magicString1|
-//@[40:42) StringRightPiece |}'|
-//@[42:43) RightSquare |]|
-//@[43:45) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes2|
+//@[024:025) LeftSquare |[|
+//@[025:028) StringLeftPiece |'${|
+//@[028:040) Identifier |magicString1|
+//@[040:042) StringRightPiece |}'|
+//@[042:043) RightSquare |]|
+//@[043:045) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // note: this should be fine, but we block string interpolation all together if there's a potential runtime property usage for name.
 //@[132:134) NewLine |\r\n|
 var magicString2 = 'name'
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |magicString2|
-//@[17:18) Assignment |=|
-//@[19:25) StringComplete |'name'|
-//@[25:27) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |magicString2|
+//@[017:018) Assignment |=|
+//@[019:025) StringComplete |'name'|
+//@[025:027) NewLine |\r\n|
 resource runtimeInvalidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |runtimeInvalidRes9|
-//@[28:87) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |runtimeInvalidRes9|
+//@[028:087) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeValidRes2['${magicString2}']
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes2|
-//@[24:25) LeftSquare |[|
-//@[25:28) StringLeftPiece |'${|
-//@[28:40) Identifier |magicString2|
-//@[40:42) StringRightPiece |}'|
-//@[42:43) RightSquare |]|
-//@[43:45) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes2|
+//@[024:025) LeftSquare |[|
+//@[025:028) StringLeftPiece |'${|
+//@[028:040) Identifier |magicString2|
+//@[040:042) StringRightPiece |}'|
+//@[042:043) RightSquare |]|
+//@[043:045) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes10 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes10|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes10|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: '${runtimeValidRes3.location}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:27) Identifier |runtimeValidRes3|
-//@[27:28) Dot |.|
-//@[28:36) Identifier |location|
-//@[36:38) StringRightPiece |}'|
-//@[38:40) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:027) Identifier |runtimeValidRes3|
+//@[027:028) Dot |.|
+//@[028:036) Identifier |location|
+//@[036:038) StringRightPiece |}'|
+//@[038:040) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes11 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes11|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes11|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: validModule.params['name']
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:19) Identifier |validModule|
-//@[19:20) Dot |.|
-//@[20:26) Identifier |params|
-//@[26:27) LeftSquare |[|
-//@[27:33) StringComplete |'name'|
-//@[33:34) RightSquare |]|
-//@[34:36) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:019) Identifier |validModule|
+//@[019:020) Dot |.|
+//@[020:026) Identifier |params|
+//@[026:027) LeftSquare |[|
+//@[027:033) StringComplete |'name'|
+//@[033:034) RightSquare |]|
+//@[034:036) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes12|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes12|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: concat(runtimeValidRes1.location, runtimeValidRes2['location'], runtimeInvalidRes3['properties'].azCliVersion, validModule.params.name)
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) Identifier |concat|
-//@[14:15) LeftParen |(|
-//@[15:31) Identifier |runtimeValidRes1|
-//@[31:32) Dot |.|
-//@[32:40) Identifier |location|
-//@[40:41) Comma |,|
-//@[42:58) Identifier |runtimeValidRes2|
-//@[58:59) LeftSquare |[|
-//@[59:69) StringComplete |'location'|
-//@[69:70) RightSquare |]|
-//@[70:71) Comma |,|
-//@[72:90) Identifier |runtimeInvalidRes3|
-//@[90:91) LeftSquare |[|
-//@[91:103) StringComplete |'properties'|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) Identifier |concat|
+//@[014:015) LeftParen |(|
+//@[015:031) Identifier |runtimeValidRes1|
+//@[031:032) Dot |.|
+//@[032:040) Identifier |location|
+//@[040:041) Comma |,|
+//@[042:058) Identifier |runtimeValidRes2|
+//@[058:059) LeftSquare |[|
+//@[059:069) StringComplete |'location'|
+//@[069:070) RightSquare |]|
+//@[070:071) Comma |,|
+//@[072:090) Identifier |runtimeInvalidRes3|
+//@[090:091) LeftSquare |[|
+//@[091:103) StringComplete |'properties'|
 //@[103:104) RightSquare |]|
 //@[104:105) Dot |.|
 //@[105:117) Identifier |azCliVersion|
@@ -1391,33 +1391,33 @@ resource runtimeInvalidRes12 'Microsoft.Advisor/recommendations/suppressions@202
 //@[142:143) RightParen |)|
 //@[143:145) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes13|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes13|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: '${runtimeValidRes1.location}${runtimeValidRes2['location']}${runtimeInvalidRes3.properties['azCliVersion']}${validModule['params'].name}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:27) Identifier |runtimeValidRes1|
-//@[27:28) Dot |.|
-//@[28:36) Identifier |location|
-//@[36:39) StringMiddlePiece |}${|
-//@[39:55) Identifier |runtimeValidRes2|
-//@[55:56) LeftSquare |[|
-//@[56:66) StringComplete |'location'|
-//@[66:67) RightSquare |]|
-//@[67:70) StringMiddlePiece |}${|
-//@[70:88) Identifier |runtimeInvalidRes3|
-//@[88:89) Dot |.|
-//@[89:99) Identifier |properties|
-//@[99:100) LeftSquare |[|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:027) Identifier |runtimeValidRes1|
+//@[027:028) Dot |.|
+//@[028:036) Identifier |location|
+//@[036:039) StringMiddlePiece |}${|
+//@[039:055) Identifier |runtimeValidRes2|
+//@[055:056) LeftSquare |[|
+//@[056:066) StringComplete |'location'|
+//@[066:067) RightSquare |]|
+//@[067:070) StringMiddlePiece |}${|
+//@[070:088) Identifier |runtimeInvalidRes3|
+//@[088:089) Dot |.|
+//@[089:099) Identifier |properties|
+//@[099:100) LeftSquare |[|
 //@[100:114) StringComplete |'azCliVersion'|
 //@[114:115) RightSquare |]|
 //@[115:118) StringMiddlePiece |}${|
@@ -1430,225 +1430,225 @@ resource runtimeInvalidRes13 'Microsoft.Advisor/recommendations/suppressions@202
 //@[144:146) StringRightPiece |}'|
 //@[146:148) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // variable related runtime validation
-//@[38:40) NewLine |\r\n|
+//@[038:040) NewLine |\r\n|
 var runtimefoo1 = runtimeValidRes1['location']
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |runtimefoo1|
-//@[16:17) Assignment |=|
-//@[18:34) Identifier |runtimeValidRes1|
-//@[34:35) LeftSquare |[|
-//@[35:45) StringComplete |'location'|
-//@[45:46) RightSquare |]|
-//@[46:48) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |runtimefoo1|
+//@[016:017) Assignment |=|
+//@[018:034) Identifier |runtimeValidRes1|
+//@[034:035) LeftSquare |[|
+//@[035:045) StringComplete |'location'|
+//@[045:046) RightSquare |]|
+//@[046:048) NewLine |\r\n|
 var runtimefoo2 = runtimeValidRes2['properties'].azCliVersion
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |runtimefoo2|
-//@[16:17) Assignment |=|
-//@[18:34) Identifier |runtimeValidRes2|
-//@[34:35) LeftSquare |[|
-//@[35:47) StringComplete |'properties'|
-//@[47:48) RightSquare |]|
-//@[48:49) Dot |.|
-//@[49:61) Identifier |azCliVersion|
-//@[61:63) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |runtimefoo2|
+//@[016:017) Assignment |=|
+//@[018:034) Identifier |runtimeValidRes2|
+//@[034:035) LeftSquare |[|
+//@[035:047) StringComplete |'properties'|
+//@[047:048) RightSquare |]|
+//@[048:049) Dot |.|
+//@[049:061) Identifier |azCliVersion|
+//@[061:063) NewLine |\r\n|
 var runtimefoo3 = runtimeValidRes2
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |runtimefoo3|
-//@[16:17) Assignment |=|
-//@[18:34) Identifier |runtimeValidRes2|
-//@[34:36) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |runtimefoo3|
+//@[016:017) Assignment |=|
+//@[018:034) Identifier |runtimeValidRes2|
+//@[034:036) NewLine |\r\n|
 var runtimefoo4 = {
-//@[0:3) Identifier |var|
-//@[4:15) Identifier |runtimefoo4|
-//@[16:17) Assignment |=|
-//@[18:19) LeftBrace |{|
-//@[19:21) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:015) Identifier |runtimefoo4|
+//@[016:017) Assignment |=|
+//@[018:019) LeftBrace |{|
+//@[019:021) NewLine |\r\n|
   hop: runtimefoo2
-//@[2:5) Identifier |hop|
-//@[5:6) Colon |:|
-//@[7:18) Identifier |runtimefoo2|
-//@[18:20) NewLine |\r\n|
+//@[002:005) Identifier |hop|
+//@[005:006) Colon |:|
+//@[007:018) Identifier |runtimefoo2|
+//@[018:020) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 var runtimeInvalid = {
-//@[0:3) Identifier |var|
-//@[4:18) Identifier |runtimeInvalid|
-//@[19:20) Assignment |=|
-//@[21:22) LeftBrace |{|
-//@[22:24) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:018) Identifier |runtimeInvalid|
+//@[019:020) Assignment |=|
+//@[021:022) LeftBrace |{|
+//@[022:024) NewLine |\r\n|
   foo1: runtimefoo1
-//@[2:6) Identifier |foo1|
-//@[6:7) Colon |:|
-//@[8:19) Identifier |runtimefoo1|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |foo1|
+//@[006:007) Colon |:|
+//@[008:019) Identifier |runtimefoo1|
+//@[019:021) NewLine |\r\n|
   foo2: runtimefoo2
-//@[2:6) Identifier |foo2|
-//@[6:7) Colon |:|
-//@[8:19) Identifier |runtimefoo2|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |foo2|
+//@[006:007) Colon |:|
+//@[008:019) Identifier |runtimefoo2|
+//@[019:021) NewLine |\r\n|
   foo3: runtimefoo3
-//@[2:6) Identifier |foo3|
-//@[6:7) Colon |:|
-//@[8:19) Identifier |runtimefoo3|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |foo3|
+//@[006:007) Colon |:|
+//@[008:019) Identifier |runtimefoo3|
+//@[019:021) NewLine |\r\n|
   foo4: runtimeValidRes1.name
-//@[2:6) Identifier |foo4|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) Dot |.|
-//@[25:29) Identifier |name|
-//@[29:31) NewLine |\r\n|
+//@[002:006) Identifier |foo4|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) Dot |.|
+//@[025:029) Identifier |name|
+//@[029:031) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 var runtimeValid = {
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |runtimeValid|
-//@[17:18) Assignment |=|
-//@[19:20) LeftBrace |{|
-//@[20:22) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |runtimeValid|
+//@[017:018) Assignment |=|
+//@[019:020) LeftBrace |{|
+//@[020:022) NewLine |\r\n|
   foo1: runtimeValidRes1.name
-//@[2:6) Identifier |foo1|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) Dot |.|
-//@[25:29) Identifier |name|
-//@[29:31) NewLine |\r\n|
+//@[002:006) Identifier |foo1|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) Dot |.|
+//@[025:029) Identifier |name|
+//@[029:031) NewLine |\r\n|
   foo2: runtimeValidRes1.apiVersion
-//@[2:6) Identifier |foo2|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes1|
-//@[24:25) Dot |.|
-//@[25:35) Identifier |apiVersion|
-//@[35:37) NewLine |\r\n|
+//@[002:006) Identifier |foo2|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes1|
+//@[024:025) Dot |.|
+//@[025:035) Identifier |apiVersion|
+//@[035:037) NewLine |\r\n|
   foo3: runtimeValidRes2.type
-//@[2:6) Identifier |foo3|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes2|
-//@[24:25) Dot |.|
-//@[25:29) Identifier |type|
-//@[29:31) NewLine |\r\n|
+//@[002:006) Identifier |foo3|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes2|
+//@[024:025) Dot |.|
+//@[025:029) Identifier |type|
+//@[029:031) NewLine |\r\n|
   foo4: runtimeValidRes2.id
-//@[2:6) Identifier |foo4|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeValidRes2|
-//@[24:25) Dot |.|
-//@[25:27) Identifier |id|
-//@[27:29) NewLine |\r\n|
+//@[002:006) Identifier |foo4|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeValidRes2|
+//@[024:025) Dot |.|
+//@[025:027) Identifier |id|
+//@[027:029) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes14 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes14|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes14|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: runtimeInvalid.foo1
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) Identifier |runtimeInvalid|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |foo1|
-//@[27:29) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) Identifier |runtimeInvalid|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |foo1|
+//@[027:029) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes15 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes15|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes15|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: runtimeInvalid.foo2
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) Identifier |runtimeInvalid|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |foo2|
-//@[27:29) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) Identifier |runtimeInvalid|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |foo2|
+//@[027:029) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes16 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes16|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes16|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: runtimeInvalid.foo3.properties.azCliVersion
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) Identifier |runtimeInvalid|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |foo3|
-//@[27:28) Dot |.|
-//@[28:38) Identifier |properties|
-//@[38:39) Dot |.|
-//@[39:51) Identifier |azCliVersion|
-//@[51:53) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) Identifier |runtimeInvalid|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |foo3|
+//@[027:028) Dot |.|
+//@[028:038) Identifier |properties|
+//@[038:039) Dot |.|
+//@[039:051) Identifier |azCliVersion|
+//@[051:053) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // Note: This is actually a runtime valid value. However, other properties of the variable cannot be resolved, so we block this.
 //@[128:130) NewLine |\r\n|
 resource runtimeInvalidRes17 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes17|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes17|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: runtimeInvalid.foo4
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) Identifier |runtimeInvalid|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |foo4|
-//@[27:29) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) Identifier |runtimeInvalid|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |foo4|
+//@[027:029) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |runtimeInvalidRes18|
-//@[29:88) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |runtimeInvalidRes18|
+//@[029:088) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   name: concat(runtimeInvalid.foo1, runtimeValidRes2['properties'].azCliVersion, '${runtimeValidRes1.location}', runtimefoo4.hop)
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) Identifier |concat|
-//@[14:15) LeftParen |(|
-//@[15:29) Identifier |runtimeInvalid|
-//@[29:30) Dot |.|
-//@[30:34) Identifier |foo1|
-//@[34:35) Comma |,|
-//@[36:52) Identifier |runtimeValidRes2|
-//@[52:53) LeftSquare |[|
-//@[53:65) StringComplete |'properties'|
-//@[65:66) RightSquare |]|
-//@[66:67) Dot |.|
-//@[67:79) Identifier |azCliVersion|
-//@[79:80) Comma |,|
-//@[81:84) StringLeftPiece |'${|
-//@[84:100) Identifier |runtimeValidRes1|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) Identifier |concat|
+//@[014:015) LeftParen |(|
+//@[015:029) Identifier |runtimeInvalid|
+//@[029:030) Dot |.|
+//@[030:034) Identifier |foo1|
+//@[034:035) Comma |,|
+//@[036:052) Identifier |runtimeValidRes2|
+//@[052:053) LeftSquare |[|
+//@[053:065) StringComplete |'properties'|
+//@[065:066) RightSquare |]|
+//@[066:067) Dot |.|
+//@[067:079) Identifier |azCliVersion|
+//@[079:080) Comma |,|
+//@[081:084) StringLeftPiece |'${|
+//@[084:100) Identifier |runtimeValidRes1|
 //@[100:101) Dot |.|
 //@[101:109) Identifier |location|
 //@[109:111) StringRightPiece |}'|
@@ -1659,435 +1659,435 @@ resource runtimeInvalidRes18 'Microsoft.Advisor/recommendations/suppressions@202
 //@[128:129) RightParen |)|
 //@[129:131) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes6 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes6|
-//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes6|
+//@[026:085) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   name: runtimeValid.foo1
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:20) Identifier |runtimeValid|
-//@[20:21) Dot |.|
-//@[21:25) Identifier |foo1|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) Identifier |runtimeValid|
+//@[020:021) Dot |.|
+//@[021:025) Identifier |foo1|
+//@[025:027) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes7 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes7|
-//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes7|
+//@[026:085) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   name: runtimeValid.foo2
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:20) Identifier |runtimeValid|
-//@[20:21) Dot |.|
-//@[21:25) Identifier |foo2|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) Identifier |runtimeValid|
+//@[020:021) Dot |.|
+//@[021:025) Identifier |foo2|
+//@[025:027) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes8 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes8|
-//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes8|
+//@[026:085) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   name: runtimeValid.foo3
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:20) Identifier |runtimeValid|
-//@[20:21) Dot |.|
-//@[21:25) Identifier |foo3|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) Identifier |runtimeValid|
+//@[020:021) Dot |.|
+//@[021:025) Identifier |foo3|
+//@[025:027) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource runtimeValidRes9 'Microsoft.Advisor/recommendations/suppressions@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |runtimeValidRes9|
-//@[26:85) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |runtimeValidRes9|
+//@[026:085) StringComplete |'Microsoft.Advisor/recommendations/suppressions@2020-01-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   name: runtimeValid.foo4
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:20) Identifier |runtimeValid|
-//@[20:21) Dot |.|
-//@[21:25) Identifier |foo4|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) Identifier |runtimeValid|
+//@[020:021) Dot |.|
+//@[021:025) Identifier |foo4|
+//@[025:027) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:7) NewLine |\r\n\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:007) NewLine |\r\n\r\n\r\n|
 
 
 resource loopForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |loopForRuntimeCheck|
-//@[29:68) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[69:70) Assignment |=|
-//@[71:72) LeftSquare |[|
-//@[72:75) Identifier |for|
-//@[76:81) Identifier |thing|
-//@[82:84) Identifier |in|
-//@[85:86) LeftSquare |[|
-//@[86:87) RightSquare |]|
-//@[87:88) Colon |:|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |loopForRuntimeCheck|
+//@[029:068) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[069:070) Assignment |=|
+//@[071:072) LeftSquare |[|
+//@[072:075) Identifier |for|
+//@[076:081) Identifier |thing|
+//@[082:084) Identifier |in|
+//@[085:086) LeftSquare |[|
+//@[086:087) RightSquare |]|
+//@[087:088) Colon |:|
+//@[089:090) LeftBrace |{|
+//@[090:092) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'test'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:18) StringComplete |'test'|
-//@[18:20) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'test'|
+//@[018:020) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 var runtimeCheckVar = loopForRuntimeCheck[0].properties.zoneType
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |runtimeCheckVar|
-//@[20:21) Assignment |=|
-//@[22:41) Identifier |loopForRuntimeCheck|
-//@[41:42) LeftSquare |[|
-//@[42:43) Integer |0|
-//@[43:44) RightSquare |]|
-//@[44:45) Dot |.|
-//@[45:55) Identifier |properties|
-//@[55:56) Dot |.|
-//@[56:64) Identifier |zoneType|
-//@[64:66) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:019) Identifier |runtimeCheckVar|
+//@[020:021) Assignment |=|
+//@[022:041) Identifier |loopForRuntimeCheck|
+//@[041:042) LeftSquare |[|
+//@[042:043) Integer |0|
+//@[043:044) RightSquare |]|
+//@[044:045) Dot |.|
+//@[045:055) Identifier |properties|
+//@[055:056) Dot |.|
+//@[056:064) Identifier |zoneType|
+//@[064:066) NewLine |\r\n|
 var runtimeCheckVar2 = runtimeCheckVar
-//@[0:3) Identifier |var|
-//@[4:20) Identifier |runtimeCheckVar2|
-//@[21:22) Assignment |=|
-//@[23:38) Identifier |runtimeCheckVar|
-//@[38:42) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:020) Identifier |runtimeCheckVar2|
+//@[021:022) Assignment |=|
+//@[023:038) Identifier |runtimeCheckVar|
+//@[038:042) NewLine |\r\n\r\n|
 
 resource singleResourceForRuntimeCheck 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:38) Identifier |singleResourceForRuntimeCheck|
-//@[39:78) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[79:80) Assignment |=|
-//@[81:82) LeftBrace |{|
-//@[82:84) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:038) Identifier |singleResourceForRuntimeCheck|
+//@[039:078) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[079:080) Assignment |=|
+//@[081:082) LeftBrace |{|
+//@[082:084) NewLine |\r\n|
   name: runtimeCheckVar2
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeCheckVar2|
-//@[24:26) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeCheckVar2|
+//@[024:026) NewLine |\r\n|
   location: 'test'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:18) StringComplete |'test'|
-//@[18:20) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'test'|
+//@[018:020) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource loopForRuntimeCheck2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:29) Identifier |loopForRuntimeCheck2|
-//@[30:69) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71) Assignment |=|
-//@[72:73) LeftSquare |[|
-//@[73:76) Identifier |for|
-//@[77:82) Identifier |thing|
-//@[83:85) Identifier |in|
-//@[86:87) LeftSquare |[|
-//@[87:88) RightSquare |]|
-//@[88:89) Colon |:|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:029) Identifier |loopForRuntimeCheck2|
+//@[030:069) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:071) Assignment |=|
+//@[072:073) LeftSquare |[|
+//@[073:076) Identifier |for|
+//@[077:082) Identifier |thing|
+//@[083:085) Identifier |in|
+//@[086:087) LeftSquare |[|
+//@[087:088) RightSquare |]|
+//@[088:089) Colon |:|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: runtimeCheckVar2
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:24) Identifier |runtimeCheckVar2|
-//@[24:26) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:024) Identifier |runtimeCheckVar2|
+//@[024:026) NewLine |\r\n|
   location: 'test'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:18) StringComplete |'test'|
-//@[18:20) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'test'|
+//@[018:020) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 resource loopForRuntimeCheck3 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[0:8) Identifier |resource|
-//@[9:29) Identifier |loopForRuntimeCheck3|
-//@[30:69) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71) Assignment |=|
-//@[72:73) LeftSquare |[|
-//@[73:76) Identifier |for|
-//@[77:87) Identifier |otherThing|
-//@[88:90) Identifier |in|
-//@[91:92) LeftSquare |[|
-//@[92:93) RightSquare |]|
-//@[93:94) Colon |:|
-//@[95:96) LeftBrace |{|
-//@[96:98) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:029) Identifier |loopForRuntimeCheck3|
+//@[030:069) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:071) Assignment |=|
+//@[072:073) LeftSquare |[|
+//@[073:076) Identifier |for|
+//@[077:087) Identifier |otherThing|
+//@[088:090) Identifier |in|
+//@[091:092) LeftSquare |[|
+//@[092:093) RightSquare |]|
+//@[093:094) Colon |:|
+//@[095:096) LeftBrace |{|
+//@[096:098) NewLine |\r\n|
   name: loopForRuntimeCheck[0].properties.zoneType
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:27) Identifier |loopForRuntimeCheck|
-//@[27:28) LeftSquare |[|
-//@[28:29) Integer |0|
-//@[29:30) RightSquare |]|
-//@[30:31) Dot |.|
-//@[31:41) Identifier |properties|
-//@[41:42) Dot |.|
-//@[42:50) Identifier |zoneType|
-//@[50:52) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:027) Identifier |loopForRuntimeCheck|
+//@[027:028) LeftSquare |[|
+//@[028:029) Integer |0|
+//@[029:030) RightSquare |]|
+//@[030:031) Dot |.|
+//@[031:041) Identifier |properties|
+//@[041:042) Dot |.|
+//@[042:050) Identifier |zoneType|
+//@[050:052) NewLine |\r\n|
   location: 'test'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:18) StringComplete |'test'|
-//@[18:20) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'test'|
+//@[018:020) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 var varForRuntimeCheck4a = loopForRuntimeCheck[0].properties.zoneType
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |varForRuntimeCheck4a|
-//@[25:26) Assignment |=|
-//@[27:46) Identifier |loopForRuntimeCheck|
-//@[46:47) LeftSquare |[|
-//@[47:48) Integer |0|
-//@[48:49) RightSquare |]|
-//@[49:50) Dot |.|
-//@[50:60) Identifier |properties|
-//@[60:61) Dot |.|
-//@[61:69) Identifier |zoneType|
-//@[69:71) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:024) Identifier |varForRuntimeCheck4a|
+//@[025:026) Assignment |=|
+//@[027:046) Identifier |loopForRuntimeCheck|
+//@[046:047) LeftSquare |[|
+//@[047:048) Integer |0|
+//@[048:049) RightSquare |]|
+//@[049:050) Dot |.|
+//@[050:060) Identifier |properties|
+//@[060:061) Dot |.|
+//@[061:069) Identifier |zoneType|
+//@[069:071) NewLine |\r\n|
 var varForRuntimeCheck4b = varForRuntimeCheck4a
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |varForRuntimeCheck4b|
-//@[25:26) Assignment |=|
-//@[27:47) Identifier |varForRuntimeCheck4a|
-//@[47:49) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:024) Identifier |varForRuntimeCheck4b|
+//@[025:026) Assignment |=|
+//@[027:047) Identifier |varForRuntimeCheck4a|
+//@[047:049) NewLine |\r\n|
 resource loopForRuntimeCheck4 'Microsoft.Network/dnsZones@2018-05-01' = [for otherThing in []: {
-//@[0:8) Identifier |resource|
-//@[9:29) Identifier |loopForRuntimeCheck4|
-//@[30:69) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71) Assignment |=|
-//@[72:73) LeftSquare |[|
-//@[73:76) Identifier |for|
-//@[77:87) Identifier |otherThing|
-//@[88:90) Identifier |in|
-//@[91:92) LeftSquare |[|
-//@[92:93) RightSquare |]|
-//@[93:94) Colon |:|
-//@[95:96) LeftBrace |{|
-//@[96:98) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:029) Identifier |loopForRuntimeCheck4|
+//@[030:069) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:071) Assignment |=|
+//@[072:073) LeftSquare |[|
+//@[073:076) Identifier |for|
+//@[077:087) Identifier |otherThing|
+//@[088:090) Identifier |in|
+//@[091:092) LeftSquare |[|
+//@[092:093) RightSquare |]|
+//@[093:094) Colon |:|
+//@[095:096) LeftBrace |{|
+//@[096:098) NewLine |\r\n|
   name: varForRuntimeCheck4b
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:28) Identifier |varForRuntimeCheck4b|
-//@[28:30) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:028) Identifier |varForRuntimeCheck4b|
+//@[028:030) NewLine |\r\n|
   location: 'test'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:18) StringComplete |'test'|
-//@[18:20) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'test'|
+//@[018:020) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 resource missingTopLevelProperties 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |missingTopLevelProperties|
-//@[35:89) StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
-//@[90:91) Assignment |=|
-//@[92:93) LeftBrace |{|
-//@[93:95) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |missingTopLevelProperties|
+//@[035:089) StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
+//@[090:091) Assignment |=|
+//@[092:093) LeftBrace |{|
+//@[093:095) NewLine |\r\n|
   // #completionTest(0, 1, 2) -> topLevelProperties
-//@[51:53) NewLine |\r\n|
+//@[051:053) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource missingTopLevelPropertiesExceptName 'Microsoft.Storage/storageAccounts@2020-08-01-preview' = {
-//@[0:8) Identifier |resource|
-//@[9:44) Identifier |missingTopLevelPropertiesExceptName|
-//@[45:99) StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
+//@[000:008) Identifier |resource|
+//@[009:044) Identifier |missingTopLevelPropertiesExceptName|
+//@[045:099) StringComplete |'Microsoft.Storage/storageAccounts@2020-08-01-preview'|
 //@[100:101) Assignment |=|
 //@[102:103) LeftBrace |{|
 //@[103:105) NewLine |\r\n|
   // #completionTest(2) -> topLevelPropertiesMinusNameNoColon
-//@[61:63) NewLine |\r\n|
+//@[061:063) NewLine |\r\n|
   name: 'me'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:12) StringComplete |'me'|
-//@[12:14) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:012) StringComplete |'me'|
+//@[012:014) NewLine |\r\n|
   // do not remove whitespace before the closing curly
-//@[54:56) NewLine |\r\n|
+//@[054:056) NewLine |\r\n|
   // #completionTest(0, 1, 2) -> topLevelPropertiesMinusName
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // #completionTest(24,25,26,49,65,69,70) -> virtualNetworksResourceTypes
-//@[72:74) NewLine |\r\n|
+//@[072:074) NewLine |\r\n|
 resource unfinishedVnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:23) Identifier |unfinishedVnet|
-//@[24:70) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[71:72) Assignment |=|
-//@[73:74) LeftBrace |{|
-//@[74:76) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:023) Identifier |unfinishedVnet|
+//@[024:070) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[071:072) Assignment |=|
+//@[073:074) LeftBrace |{|
+//@[074:076) NewLine |\r\n|
   name: 'v'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringComplete |'v'|
-//@[11:13) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringComplete |'v'|
+//@[011:013) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     subnets: [
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[004:011) Identifier |subnets|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
       {
-//@[6:7) LeftBrace |{|
-//@[7:9) NewLine |\r\n|
+//@[006:007) LeftBrace |{|
+//@[007:009) NewLine |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> subnetPropertiesMinusProperties
-//@[78:80) NewLine |\r\n|
+//@[078:080) NewLine |\r\n|
        
-//@[7:9) NewLine |\r\n|
+//@[007:009) NewLine |\r\n|
         // #completionTest(0,1,2,3,4,5,6,7) -> empty
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
         properties: {
-//@[8:18) Identifier |properties|
-//@[18:19) Colon |:|
-//@[20:21) LeftBrace |{|
-//@[21:23) NewLine |\r\n|
+//@[008:018) Identifier |properties|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
           delegations: [
-//@[10:21) Identifier |delegations|
-//@[21:22) Colon |:|
-//@[23:24) LeftSquare |[|
-//@[24:26) NewLine |\r\n|
+//@[010:021) Identifier |delegations|
+//@[021:022) Colon |:|
+//@[023:024) LeftSquare |[|
+//@[024:026) NewLine |\r\n|
             {
-//@[12:13) LeftBrace |{|
-//@[13:15) NewLine |\r\n|
+//@[012:013) LeftBrace |{|
+//@[013:015) NewLine |\r\n|
               // #completionTest(0,1,2,3,4,5,6,7,8,9,10,11,12,13,14) -> delegationProperties
-//@[92:94) NewLine |\r\n|
+//@[092:094) NewLine |\r\n|
               
-//@[14:16) NewLine |\r\n|
+//@[014:016) NewLine |\r\n|
             }
-//@[12:13) RightBrace |}|
-//@[13:15) NewLine |\r\n|
+//@[012:013) RightBrace |}|
+//@[013:015) NewLine |\r\n|
           ]
-//@[10:11) RightSquare |]|
-//@[11:13) NewLine |\r\n|
+//@[010:011) RightSquare |]|
+//@[011:013) NewLine |\r\n|
         }
-//@[8:9) RightBrace |}|
-//@[9:11) NewLine |\r\n|
+//@[008:009) RightBrace |}|
+//@[009:011) NewLine |\r\n|
       }
-//@[6:7) RightBrace |}|
-//@[7:9) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:009) NewLine |\r\n|
     ]
-//@[4:5) RightSquare |]|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightSquare |]|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 /*
 Discriminator key missing
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:32) Identifier |discriminatorKeyMissing|
-//@[33:83) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[84:85) Assignment |=|
-//@[86:87) LeftBrace |{|
-//@[87:89) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:032) Identifier |discriminatorKeyMissing|
+//@[033:083) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[084:085) Assignment |=|
+//@[086:087) LeftBrace |{|
+//@[087:089) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 /*
 Discriminator key missing (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(true) {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |discriminatorKeyMissing_if|
-//@[36:86) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[87:88) Assignment |=|
-//@[89:91) Identifier |if|
-//@[91:92) LeftParen |(|
-//@[92:96) TrueKeyword |true|
-//@[96:97) RightParen |)|
-//@[98:99) LeftBrace |{|
-//@[99:101) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |discriminatorKeyMissing_if|
+//@[036:086) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[087:088) Assignment |=|
+//@[089:091) Identifier |if|
+//@[091:092) LeftParen |(|
+//@[092:096) TrueKeyword |true|
+//@[096:097) RightParen |)|
+//@[098:099) LeftBrace |{|
+//@[099:101) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 /*
 Discriminator key missing (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:36) Identifier |discriminatorKeyMissing_for|
-//@[37:87) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftSquare |[|
-//@[91:94) Identifier |for|
-//@[95:100) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:036) Identifier |discriminatorKeyMissing_for|
+//@[037:087) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftSquare |[|
+//@[091:094) Identifier |for|
+//@[095:100) Identifier |thing|
 //@[101:103) Identifier |in|
 //@[104:105) LeftSquare |[|
 //@[105:106) RightSquare |]|
@@ -2095,26 +2095,26 @@ resource discriminatorKeyMissing_for 'Microsoft.Resources/deploymentScripts@2020
 //@[108:109) LeftBrace |{|
 //@[109:111) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 /*
 Discriminator key missing (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[0:8) Identifier |resource|
-//@[9:39) Identifier |discriminatorKeyMissing_for_if|
-//@[40:90) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[91:92) Assignment |=|
-//@[93:94) LeftSquare |[|
-//@[94:97) Identifier |for|
-//@[98:103) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:039) Identifier |discriminatorKeyMissing_for_if|
+//@[040:090) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[091:092) Assignment |=|
+//@[093:094) LeftSquare |[|
+//@[094:097) Identifier |for|
+//@[098:103) Identifier |thing|
 //@[104:106) Identifier |in|
 //@[107:108) LeftSquare |[|
 //@[108:109) RightSquare |]|
@@ -2126,131 +2126,131 @@ resource discriminatorKeyMissing_for_if 'Microsoft.Resources/deploymentScripts@2
 //@[120:121) LeftBrace |{|
 //@[121:123) NewLine |\r\n|
   // #completionTest(0,1,2) -> discriminatorProperty
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyValueMissing 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:37) Identifier |discriminatorKeyValueMissing|
-//@[38:88) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[89:90) Assignment |=|
-//@[91:92) LeftBrace |{|
-//@[92:94) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:037) Identifier |discriminatorKeyValueMissing|
+//@[038:088) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[089:090) Assignment |=|
+//@[091:092) LeftBrace |{|
+//@[092:094) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols
-//@[66:68) NewLine |\r\n|
+//@[066:068) NewLine |\r\n|
   kind:   
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[010:012) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions = discriminatorKeyValueMissing.p
-//@[0:3) Identifier |var|
-//@[4:43) Identifier |discriminatorKeyValueMissingCompletions|
-//@[44:45) Assignment |=|
-//@[46:74) Identifier |discriminatorKeyValueMissing|
-//@[74:75) Dot |.|
-//@[75:76) Identifier |p|
-//@[76:78) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:043) Identifier |discriminatorKeyValueMissingCompletions|
+//@[044:045) Assignment |=|
+//@[046:074) Identifier |discriminatorKeyValueMissing|
+//@[074:075) Dot |.|
+//@[075:076) Identifier |p|
+//@[076:078) NewLine |\r\n|
 // #completionTest(76) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions2 = discriminatorKeyValueMissing.
-//@[0:3) Identifier |var|
-//@[4:44) Identifier |discriminatorKeyValueMissingCompletions2|
-//@[45:46) Assignment |=|
-//@[47:75) Identifier |discriminatorKeyValueMissing|
-//@[75:76) Dot |.|
-//@[76:80) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:044) Identifier |discriminatorKeyValueMissingCompletions2|
+//@[045:046) Assignment |=|
+//@[047:075) Identifier |discriminatorKeyValueMissing|
+//@[075:076) Dot |.|
+//@[076:080) NewLine |\r\n\r\n|
 
 // #completionTest(76) -> missingDiscriminatorPropertyIndexPlusSymbols
-//@[70:72) NewLine |\r\n|
+//@[070:072) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions3 = discriminatorKeyValueMissing[]
-//@[0:3) Identifier |var|
-//@[4:44) Identifier |discriminatorKeyValueMissingCompletions3|
-//@[45:46) Assignment |=|
-//@[47:75) Identifier |discriminatorKeyValueMissing|
-//@[75:76) LeftSquare |[|
-//@[76:77) RightSquare |]|
-//@[77:81) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:044) Identifier |discriminatorKeyValueMissingCompletions3|
+//@[045:046) Assignment |=|
+//@[047:075) Identifier |discriminatorKeyValueMissing|
+//@[075:076) LeftSquare |[|
+//@[076:077) RightSquare |]|
+//@[077:081) NewLine |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyValueMissing_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(false) {
-//@[0:8) Identifier |resource|
-//@[9:40) Identifier |discriminatorKeyValueMissing_if|
-//@[41:91) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[92:93) Assignment |=|
-//@[94:96) Identifier |if|
-//@[96:97) LeftParen |(|
-//@[97:102) FalseKeyword |false|
+//@[000:008) Identifier |resource|
+//@[009:040) Identifier |discriminatorKeyValueMissing_if|
+//@[041:091) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[092:093) Assignment |=|
+//@[094:096) Identifier |if|
+//@[096:097) LeftParen |(|
+//@[097:102) FalseKeyword |false|
 //@[102:103) RightParen |)|
 //@[104:105) LeftBrace |{|
 //@[105:107) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_if
-//@[69:71) NewLine |\r\n|
+//@[069:071) NewLine |\r\n|
   kind:   
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[010:012) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions_if = discriminatorKeyValueMissing_if.p
-//@[0:3) Identifier |var|
-//@[4:46) Identifier |discriminatorKeyValueMissingCompletions_if|
-//@[47:48) Assignment |=|
-//@[49:80) Identifier |discriminatorKeyValueMissing_if|
-//@[80:81) Dot |.|
-//@[81:82) Identifier |p|
-//@[82:84) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:046) Identifier |discriminatorKeyValueMissingCompletions_if|
+//@[047:048) Assignment |=|
+//@[049:080) Identifier |discriminatorKeyValueMissing_if|
+//@[080:081) Dot |.|
+//@[081:082) Identifier |p|
+//@[082:084) NewLine |\r\n|
 // #completionTest(82) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions2_if = discriminatorKeyValueMissing_if.
-//@[0:3) Identifier |var|
-//@[4:47) Identifier |discriminatorKeyValueMissingCompletions2_if|
-//@[48:49) Assignment |=|
-//@[50:81) Identifier |discriminatorKeyValueMissing_if|
-//@[81:82) Dot |.|
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:047) Identifier |discriminatorKeyValueMissingCompletions2_if|
+//@[048:049) Assignment |=|
+//@[050:081) Identifier |discriminatorKeyValueMissing_if|
+//@[081:082) Dot |.|
+//@[082:086) NewLine |\r\n\r\n|
 
 // #completionTest(82) -> missingDiscriminatorPropertyIndexPlusSymbols_if
-//@[73:75) NewLine |\r\n|
+//@[073:075) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions3_if = discriminatorKeyValueMissing_if[]
-//@[0:3) Identifier |var|
-//@[4:47) Identifier |discriminatorKeyValueMissingCompletions3_if|
-//@[48:49) Assignment |=|
-//@[50:81) Identifier |discriminatorKeyValueMissing_if|
-//@[81:82) LeftSquare |[|
-//@[82:83) RightSquare |]|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:047) Identifier |discriminatorKeyValueMissingCompletions3_if|
+//@[048:049) Assignment |=|
+//@[050:081) Identifier |discriminatorKeyValueMissing_if|
+//@[081:082) LeftSquare |[|
+//@[082:083) RightSquare |]|
+//@[083:087) NewLine |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access (loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:41) Identifier |discriminatorKeyValueMissing_for|
-//@[42:92) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[93:94) Assignment |=|
-//@[95:96) LeftSquare |[|
-//@[96:99) Identifier |for|
+//@[000:008) Identifier |resource|
+//@[009:041) Identifier |discriminatorKeyValueMissing_for|
+//@[042:092) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[093:094) Assignment |=|
+//@[095:096) LeftSquare |[|
+//@[096:099) Identifier |for|
 //@[100:105) Identifier |thing|
 //@[106:108) Identifier |in|
 //@[109:110) LeftSquare |[|
@@ -2259,78 +2259,78 @@ resource discriminatorKeyValueMissing_for 'Microsoft.Resources/deploymentScripts
 //@[113:114) LeftBrace |{|
 //@[114:116) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for
-//@[70:72) NewLine |\r\n|
+//@[070:072) NewLine |\r\n|
   kind:   
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[010:012) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // cannot . access properties of a resource loop
-//@[48:50) NewLine |\r\n|
+//@[048:050) NewLine |\r\n|
 var resourceListIsNotSingleResource = discriminatorKeyValueMissing_for.kind
-//@[0:3) Identifier |var|
-//@[4:35) Identifier |resourceListIsNotSingleResource|
-//@[36:37) Assignment |=|
-//@[38:70) Identifier |discriminatorKeyValueMissing_for|
-//@[70:71) Dot |.|
-//@[71:75) Identifier |kind|
-//@[75:79) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:035) Identifier |resourceListIsNotSingleResource|
+//@[036:037) Assignment |=|
+//@[038:070) Identifier |discriminatorKeyValueMissing_for|
+//@[070:071) Dot |.|
+//@[071:075) Identifier |kind|
+//@[075:079) NewLine |\r\n\r\n|
 
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions_for = discriminatorKeyValueMissing_for[0].p
-//@[0:3) Identifier |var|
-//@[4:47) Identifier |discriminatorKeyValueMissingCompletions_for|
-//@[48:49) Assignment |=|
-//@[50:82) Identifier |discriminatorKeyValueMissing_for|
-//@[82:83) LeftSquare |[|
-//@[83:84) Integer |0|
-//@[84:85) RightSquare |]|
-//@[85:86) Dot |.|
-//@[86:87) Identifier |p|
-//@[87:89) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:047) Identifier |discriminatorKeyValueMissingCompletions_for|
+//@[048:049) Assignment |=|
+//@[050:082) Identifier |discriminatorKeyValueMissing_for|
+//@[082:083) LeftSquare |[|
+//@[083:084) Integer |0|
+//@[084:085) RightSquare |]|
+//@[085:086) Dot |.|
+//@[086:087) Identifier |p|
+//@[087:089) NewLine |\r\n|
 // #completionTest(87) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions2_for = discriminatorKeyValueMissing_for[0].
-//@[0:3) Identifier |var|
-//@[4:48) Identifier |discriminatorKeyValueMissingCompletions2_for|
-//@[49:50) Assignment |=|
-//@[51:83) Identifier |discriminatorKeyValueMissing_for|
-//@[83:84) LeftSquare |[|
-//@[84:85) Integer |0|
-//@[85:86) RightSquare |]|
-//@[86:87) Dot |.|
-//@[87:91) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:048) Identifier |discriminatorKeyValueMissingCompletions2_for|
+//@[049:050) Assignment |=|
+//@[051:083) Identifier |discriminatorKeyValueMissing_for|
+//@[083:084) LeftSquare |[|
+//@[084:085) Integer |0|
+//@[085:086) RightSquare |]|
+//@[086:087) Dot |.|
+//@[087:091) NewLine |\r\n\r\n|
 
 // #completionTest(87) -> missingDiscriminatorPropertyIndexPlusSymbols_for
-//@[74:76) NewLine |\r\n|
+//@[074:076) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions3_for = discriminatorKeyValueMissing_for[0][]
-//@[0:3) Identifier |var|
-//@[4:48) Identifier |discriminatorKeyValueMissingCompletions3_for|
-//@[49:50) Assignment |=|
-//@[51:83) Identifier |discriminatorKeyValueMissing_for|
-//@[83:84) LeftSquare |[|
-//@[84:85) Integer |0|
-//@[85:86) RightSquare |]|
-//@[86:87) LeftSquare |[|
-//@[87:88) RightSquare |]|
-//@[88:92) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:048) Identifier |discriminatorKeyValueMissingCompletions3_for|
+//@[049:050) Assignment |=|
+//@[051:083) Identifier |discriminatorKeyValueMissing_for|
+//@[083:084) LeftSquare |[|
+//@[084:085) Integer |0|
+//@[085:086) RightSquare |]|
+//@[086:087) LeftSquare |[|
+//@[087:088) RightSquare |]|
+//@[088:092) NewLine |\r\n\r\n|
 
 /*
 Discriminator key value missing with property access (filtered loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[0:8) Identifier |resource|
-//@[9:44) Identifier |discriminatorKeyValueMissing_for_if|
-//@[45:95) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[96:97) Assignment |=|
-//@[98:99) LeftSquare |[|
-//@[99:102) Identifier |for|
+//@[000:008) Identifier |resource|
+//@[009:044) Identifier |discriminatorKeyValueMissing_for_if|
+//@[045:095) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[096:097) Assignment |=|
+//@[098:099) LeftSquare |[|
+//@[099:102) Identifier |for|
 //@[103:108) Identifier |thing|
 //@[109:111) Identifier |in|
 //@[112:113) LeftSquare |[|
@@ -2343,229 +2343,229 @@ resource discriminatorKeyValueMissing_for_if 'Microsoft.Resources/deploymentScri
 //@[125:126) LeftBrace |{|
 //@[126:128) NewLine |\r\n|
   // #completionTest(7,8,9,10) -> deploymentScriptKindsPlusSymbols_for_if
-//@[73:75) NewLine |\r\n|
+//@[073:075) NewLine |\r\n|
   kind:   
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[010:012) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // cannot . access properties of a resource loop
-//@[48:50) NewLine |\r\n|
+//@[048:050) NewLine |\r\n|
 var resourceListIsNotSingleResource_if = discriminatorKeyValueMissing_for_if.kind
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |resourceListIsNotSingleResource_if|
-//@[39:40) Assignment |=|
-//@[41:76) Identifier |discriminatorKeyValueMissing_for_if|
-//@[76:77) Dot |.|
-//@[77:81) Identifier |kind|
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |resourceListIsNotSingleResource_if|
+//@[039:040) Assignment |=|
+//@[041:076) Identifier |discriminatorKeyValueMissing_for_if|
+//@[076:077) Dot |.|
+//@[077:081) Identifier |kind|
+//@[081:085) NewLine |\r\n\r\n|
 
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions_for_if = discriminatorKeyValueMissing_for_if[0].p
-//@[0:3) Identifier |var|
-//@[4:50) Identifier |discriminatorKeyValueMissingCompletions_for_if|
-//@[51:52) Assignment |=|
-//@[53:88) Identifier |discriminatorKeyValueMissing_for_if|
-//@[88:89) LeftSquare |[|
-//@[89:90) Integer |0|
-//@[90:91) RightSquare |]|
-//@[91:92) Dot |.|
-//@[92:93) Identifier |p|
-//@[93:95) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:050) Identifier |discriminatorKeyValueMissingCompletions_for_if|
+//@[051:052) Assignment |=|
+//@[053:088) Identifier |discriminatorKeyValueMissing_for_if|
+//@[088:089) LeftSquare |[|
+//@[089:090) Integer |0|
+//@[090:091) RightSquare |]|
+//@[091:092) Dot |.|
+//@[092:093) Identifier |p|
+//@[093:095) NewLine |\r\n|
 // #completionTest(93) -> missingDiscriminatorPropertyAccess
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions2_for_if = discriminatorKeyValueMissing_for_if[0].
-//@[0:3) Identifier |var|
-//@[4:51) Identifier |discriminatorKeyValueMissingCompletions2_for_if|
-//@[52:53) Assignment |=|
-//@[54:89) Identifier |discriminatorKeyValueMissing_for_if|
-//@[89:90) LeftSquare |[|
-//@[90:91) Integer |0|
-//@[91:92) RightSquare |]|
-//@[92:93) Dot |.|
-//@[93:97) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:051) Identifier |discriminatorKeyValueMissingCompletions2_for_if|
+//@[052:053) Assignment |=|
+//@[054:089) Identifier |discriminatorKeyValueMissing_for_if|
+//@[089:090) LeftSquare |[|
+//@[090:091) Integer |0|
+//@[091:092) RightSquare |]|
+//@[092:093) Dot |.|
+//@[093:097) NewLine |\r\n\r\n|
 
 // #completionTest(93) -> missingDiscriminatorPropertyIndexPlusSymbols_for_if
-//@[77:79) NewLine |\r\n|
+//@[077:079) NewLine |\r\n|
 var discriminatorKeyValueMissingCompletions3_for_if = discriminatorKeyValueMissing_for_if[0][]
-//@[0:3) Identifier |var|
-//@[4:51) Identifier |discriminatorKeyValueMissingCompletions3_for_if|
-//@[52:53) Assignment |=|
-//@[54:89) Identifier |discriminatorKeyValueMissing_for_if|
-//@[89:90) LeftSquare |[|
-//@[90:91) Integer |0|
-//@[91:92) RightSquare |]|
-//@[92:93) LeftSquare |[|
-//@[93:94) RightSquare |]|
-//@[94:98) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:051) Identifier |discriminatorKeyValueMissingCompletions3_for_if|
+//@[052:053) Assignment |=|
+//@[054:089) Identifier |discriminatorKeyValueMissing_for_if|
+//@[089:090) LeftSquare |[|
+//@[090:091) Integer |0|
+//@[091:092) RightSquare |]|
+//@[092:093) LeftSquare |[|
+//@[093:094) RightSquare |]|
+//@[094:098) NewLine |\r\n\r\n|
 
 /*
 Discriminator value set 1
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetOne 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |discriminatorKeySetOne|
-//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftBrace |{|
-//@[86:88) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |discriminatorKeySetOne|
+//@[032:082) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftBrace |{|
+//@[086:088) NewLine |\r\n|
   kind: 'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'AzureCLI'|
-//@[18:20) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'AzureCLI'|
+//@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68) NewLine |\r\n|
+//@[066:068) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(75) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 var discriminatorKeySetOneCompletions = discriminatorKeySetOne.properties.a
-//@[0:3) Identifier |var|
-//@[4:37) Identifier |discriminatorKeySetOneCompletions|
-//@[38:39) Assignment |=|
-//@[40:62) Identifier |discriminatorKeySetOne|
-//@[62:63) Dot |.|
-//@[63:73) Identifier |properties|
-//@[73:74) Dot |.|
-//@[74:75) Identifier |a|
-//@[75:77) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:037) Identifier |discriminatorKeySetOneCompletions|
+//@[038:039) Assignment |=|
+//@[040:062) Identifier |discriminatorKeySetOne|
+//@[062:063) Dot |.|
+//@[063:073) Identifier |properties|
+//@[073:074) Dot |.|
+//@[074:075) Identifier |a|
+//@[075:077) NewLine |\r\n|
 // #completionTest(75) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 var discriminatorKeySetOneCompletions2 = discriminatorKeySetOne.properties.
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |discriminatorKeySetOneCompletions2|
-//@[39:40) Assignment |=|
-//@[41:63) Identifier |discriminatorKeySetOne|
-//@[63:64) Dot |.|
-//@[64:74) Identifier |properties|
-//@[74:75) Dot |.|
-//@[75:79) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |discriminatorKeySetOneCompletions2|
+//@[039:040) Assignment |=|
+//@[041:063) Identifier |discriminatorKeySetOne|
+//@[063:064) Dot |.|
+//@[064:074) Identifier |properties|
+//@[074:075) Dot |.|
+//@[075:079) NewLine |\r\n\r\n|
 
 // #completionTest(75) -> cliPropertyAccessIndexesPlusSymbols
-//@[61:63) NewLine |\r\n|
+//@[061:063) NewLine |\r\n|
 var discriminatorKeySetOneCompletions3 = discriminatorKeySetOne.properties[]
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |discriminatorKeySetOneCompletions3|
-//@[39:40) Assignment |=|
-//@[41:63) Identifier |discriminatorKeySetOne|
-//@[63:64) Dot |.|
-//@[64:74) Identifier |properties|
-//@[74:75) LeftSquare |[|
-//@[75:76) RightSquare |]|
-//@[76:80) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |discriminatorKeySetOneCompletions3|
+//@[039:040) Assignment |=|
+//@[041:063) Identifier |discriminatorKeySetOne|
+//@[063:064) Dot |.|
+//@[064:074) Identifier |properties|
+//@[074:075) LeftSquare |[|
+//@[075:076) RightSquare |]|
+//@[076:080) NewLine |\r\n\r\n|
 
 /*
 Discriminator value set 1 (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetOne_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = if(2==3) {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |discriminatorKeySetOne_if|
-//@[35:85) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[86:87) Assignment |=|
-//@[88:90) Identifier |if|
-//@[90:91) LeftParen |(|
-//@[91:92) Integer |2|
-//@[92:94) Equals |==|
-//@[94:95) Integer |3|
-//@[95:96) RightParen |)|
-//@[97:98) LeftBrace |{|
-//@[98:100) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |discriminatorKeySetOne_if|
+//@[035:085) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[086:087) Assignment |=|
+//@[088:090) Identifier |if|
+//@[090:091) LeftParen |(|
+//@[091:092) Integer |2|
+//@[092:094) Equals |==|
+//@[094:095) Integer |3|
+//@[095:096) RightParen |)|
+//@[097:098) LeftBrace |{|
+//@[098:100) NewLine |\r\n|
   kind: 'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'AzureCLI'|
-//@[18:20) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'AzureCLI'|
+//@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68) NewLine |\r\n|
+//@[066:068) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(81) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 var discriminatorKeySetOneCompletions_if = discriminatorKeySetOne_if.properties.a
-//@[0:3) Identifier |var|
-//@[4:40) Identifier |discriminatorKeySetOneCompletions_if|
-//@[41:42) Assignment |=|
-//@[43:68) Identifier |discriminatorKeySetOne_if|
-//@[68:69) Dot |.|
-//@[69:79) Identifier |properties|
-//@[79:80) Dot |.|
-//@[80:81) Identifier |a|
-//@[81:83) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:040) Identifier |discriminatorKeySetOneCompletions_if|
+//@[041:042) Assignment |=|
+//@[043:068) Identifier |discriminatorKeySetOne_if|
+//@[068:069) Dot |.|
+//@[069:079) Identifier |properties|
+//@[079:080) Dot |.|
+//@[080:081) Identifier |a|
+//@[081:083) NewLine |\r\n|
 // #completionTest(81) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 var discriminatorKeySetOneCompletions2_if = discriminatorKeySetOne_if.properties.
-//@[0:3) Identifier |var|
-//@[4:41) Identifier |discriminatorKeySetOneCompletions2_if|
-//@[42:43) Assignment |=|
-//@[44:69) Identifier |discriminatorKeySetOne_if|
-//@[69:70) Dot |.|
-//@[70:80) Identifier |properties|
-//@[80:81) Dot |.|
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:041) Identifier |discriminatorKeySetOneCompletions2_if|
+//@[042:043) Assignment |=|
+//@[044:069) Identifier |discriminatorKeySetOne_if|
+//@[069:070) Dot |.|
+//@[070:080) Identifier |properties|
+//@[080:081) Dot |.|
+//@[081:085) NewLine |\r\n\r\n|
 
 // #completionTest(81) -> cliPropertyAccessIndexesPlusSymbols_if
-//@[64:66) NewLine |\r\n|
+//@[064:066) NewLine |\r\n|
 var discriminatorKeySetOneCompletions3_if = discriminatorKeySetOne_if.properties[]
-//@[0:3) Identifier |var|
-//@[4:41) Identifier |discriminatorKeySetOneCompletions3_if|
-//@[42:43) Assignment |=|
-//@[44:69) Identifier |discriminatorKeySetOne_if|
-//@[69:70) Dot |.|
-//@[70:80) Identifier |properties|
-//@[80:81) LeftSquare |[|
-//@[81:82) RightSquare |]|
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:041) Identifier |discriminatorKeySetOneCompletions3_if|
+//@[042:043) Assignment |=|
+//@[044:069) Identifier |discriminatorKeySetOne_if|
+//@[069:070) Dot |.|
+//@[070:080) Identifier |properties|
+//@[080:081) LeftSquare |[|
+//@[081:082) RightSquare |]|
+//@[082:086) NewLine |\r\n\r\n|
 
 /*
 Discriminator value set 1 (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |discriminatorKeySetOne_for|
-//@[36:86) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftSquare |[|
-//@[91:94) Identifier |for|
-//@[95:100) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |discriminatorKeySetOne_for|
+//@[036:086) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[087:088) Assignment |=|
+//@[089:090) LeftSquare |[|
+//@[091:094) Identifier |for|
+//@[095:100) Identifier |thing|
 //@[101:103) Identifier |in|
 //@[104:105) LeftSquare |[|
 //@[105:106) RightSquare |]|
@@ -2573,91 +2573,91 @@ resource discriminatorKeySetOne_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[108:109) LeftBrace |{|
 //@[109:111) NewLine |\r\n|
   kind: 'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'AzureCLI'|
-//@[18:20) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'AzureCLI'|
+//@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68) NewLine |\r\n|
+//@[066:068) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(86) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 var discriminatorKeySetOneCompletions_for = discriminatorKeySetOne_for[0].properties.a
-//@[0:3) Identifier |var|
-//@[4:41) Identifier |discriminatorKeySetOneCompletions_for|
-//@[42:43) Assignment |=|
-//@[44:70) Identifier |discriminatorKeySetOne_for|
-//@[70:71) LeftSquare |[|
-//@[71:72) Integer |0|
-//@[72:73) RightSquare |]|
-//@[73:74) Dot |.|
-//@[74:84) Identifier |properties|
-//@[84:85) Dot |.|
-//@[85:86) Identifier |a|
-//@[86:88) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:041) Identifier |discriminatorKeySetOneCompletions_for|
+//@[042:043) Assignment |=|
+//@[044:070) Identifier |discriminatorKeySetOne_for|
+//@[070:071) LeftSquare |[|
+//@[071:072) Integer |0|
+//@[072:073) RightSquare |]|
+//@[073:074) Dot |.|
+//@[074:084) Identifier |properties|
+//@[084:085) Dot |.|
+//@[085:086) Identifier |a|
+//@[086:088) NewLine |\r\n|
 // #completionTest(94) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 var discriminatorKeySetOneCompletions2_for = discriminatorKeySetOne_for[any(true)].properties.
-//@[0:3) Identifier |var|
-//@[4:42) Identifier |discriminatorKeySetOneCompletions2_for|
-//@[43:44) Assignment |=|
-//@[45:71) Identifier |discriminatorKeySetOne_for|
-//@[71:72) LeftSquare |[|
-//@[72:75) Identifier |any|
-//@[75:76) LeftParen |(|
-//@[76:80) TrueKeyword |true|
-//@[80:81) RightParen |)|
-//@[81:82) RightSquare |]|
-//@[82:83) Dot |.|
-//@[83:93) Identifier |properties|
-//@[93:94) Dot |.|
-//@[94:98) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:042) Identifier |discriminatorKeySetOneCompletions2_for|
+//@[043:044) Assignment |=|
+//@[045:071) Identifier |discriminatorKeySetOne_for|
+//@[071:072) LeftSquare |[|
+//@[072:075) Identifier |any|
+//@[075:076) LeftParen |(|
+//@[076:080) TrueKeyword |true|
+//@[080:081) RightParen |)|
+//@[081:082) RightSquare |]|
+//@[082:083) Dot |.|
+//@[083:093) Identifier |properties|
+//@[093:094) Dot |.|
+//@[094:098) NewLine |\r\n\r\n|
 
 // #completionTest(86) -> cliPropertyAccessIndexesPlusSymbols_for
-//@[65:67) NewLine |\r\n|
+//@[065:067) NewLine |\r\n|
 var discriminatorKeySetOneCompletions3_for = discriminatorKeySetOne_for[1].properties[]
-//@[0:3) Identifier |var|
-//@[4:42) Identifier |discriminatorKeySetOneCompletions3_for|
-//@[43:44) Assignment |=|
-//@[45:71) Identifier |discriminatorKeySetOne_for|
-//@[71:72) LeftSquare |[|
-//@[72:73) Integer |1|
-//@[73:74) RightSquare |]|
-//@[74:75) Dot |.|
-//@[75:85) Identifier |properties|
-//@[85:86) LeftSquare |[|
-//@[86:87) RightSquare |]|
-//@[87:91) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:042) Identifier |discriminatorKeySetOneCompletions3_for|
+//@[043:044) Assignment |=|
+//@[045:071) Identifier |discriminatorKeySetOne_for|
+//@[071:072) LeftSquare |[|
+//@[072:073) Integer |1|
+//@[073:074) RightSquare |]|
+//@[074:075) Dot |.|
+//@[075:085) Identifier |properties|
+//@[085:086) LeftSquare |[|
+//@[086:087) RightSquare |]|
+//@[087:091) NewLine |\r\n\r\n|
 
 /*
 Discriminator value set 1 (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [ for thing in []: if(true) {
-//@[0:8) Identifier |resource|
-//@[9:38) Identifier |discriminatorKeySetOne_for_if|
-//@[39:89) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[90:91) Assignment |=|
-//@[92:93) LeftSquare |[|
-//@[94:97) Identifier |for|
-//@[98:103) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:038) Identifier |discriminatorKeySetOne_for_if|
+//@[039:089) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[090:091) Assignment |=|
+//@[092:093) LeftSquare |[|
+//@[094:097) Identifier |for|
+//@[098:103) Identifier |thing|
 //@[104:106) Identifier |in|
 //@[107:108) LeftSquare |[|
 //@[108:109) RightSquare |]|
@@ -2669,263 +2669,263 @@ resource discriminatorKeySetOne_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[120:121) LeftBrace |{|
 //@[121:123) NewLine |\r\n|
   kind: 'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'AzureCLI'|
-//@[18:20) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'AzureCLI'|
+//@[018:020) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliProperties
-//@[66:68) NewLine |\r\n|
+//@[066:068) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(92) -> cliPropertyAccess
-//@[43:45) NewLine |\r\n|
+//@[043:045) NewLine |\r\n|
 var discriminatorKeySetOneCompletions_for_if = discriminatorKeySetOne_for_if[0].properties.a
-//@[0:3) Identifier |var|
-//@[4:44) Identifier |discriminatorKeySetOneCompletions_for_if|
-//@[45:46) Assignment |=|
-//@[47:76) Identifier |discriminatorKeySetOne_for_if|
-//@[76:77) LeftSquare |[|
-//@[77:78) Integer |0|
-//@[78:79) RightSquare |]|
-//@[79:80) Dot |.|
-//@[80:90) Identifier |properties|
-//@[90:91) Dot |.|
-//@[91:92) Identifier |a|
-//@[92:94) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:044) Identifier |discriminatorKeySetOneCompletions_for_if|
+//@[045:046) Assignment |=|
+//@[047:076) Identifier |discriminatorKeySetOne_for_if|
+//@[076:077) LeftSquare |[|
+//@[077:078) Integer |0|
+//@[078:079) RightSquare |]|
+//@[079:080) Dot |.|
+//@[080:090) Identifier |properties|
+//@[090:091) Dot |.|
+//@[091:092) Identifier |a|
+//@[092:094) NewLine |\r\n|
 // #completionTest(100) -> cliPropertyAccess
-//@[44:46) NewLine |\r\n|
+//@[044:046) NewLine |\r\n|
 var discriminatorKeySetOneCompletions2_for_if = discriminatorKeySetOne_for_if[any(true)].properties.
-//@[0:3) Identifier |var|
-//@[4:45) Identifier |discriminatorKeySetOneCompletions2_for_if|
-//@[46:47) Assignment |=|
-//@[48:77) Identifier |discriminatorKeySetOne_for_if|
-//@[77:78) LeftSquare |[|
-//@[78:81) Identifier |any|
-//@[81:82) LeftParen |(|
-//@[82:86) TrueKeyword |true|
-//@[86:87) RightParen |)|
-//@[87:88) RightSquare |]|
-//@[88:89) Dot |.|
-//@[89:99) Identifier |properties|
-//@[99:100) Dot |.|
+//@[000:003) Identifier |var|
+//@[004:045) Identifier |discriminatorKeySetOneCompletions2_for_if|
+//@[046:047) Assignment |=|
+//@[048:077) Identifier |discriminatorKeySetOne_for_if|
+//@[077:078) LeftSquare |[|
+//@[078:081) Identifier |any|
+//@[081:082) LeftParen |(|
+//@[082:086) TrueKeyword |true|
+//@[086:087) RightParen |)|
+//@[087:088) RightSquare |]|
+//@[088:089) Dot |.|
+//@[089:099) Identifier |properties|
+//@[099:100) Dot |.|
 //@[100:104) NewLine |\r\n\r\n|
 
 // #completionTest(92) -> cliPropertyAccessIndexesPlusSymbols_for_if
-//@[68:70) NewLine |\r\n|
+//@[068:070) NewLine |\r\n|
 var discriminatorKeySetOneCompletions3_for_if = discriminatorKeySetOne_for_if[1].properties[]
-//@[0:3) Identifier |var|
-//@[4:45) Identifier |discriminatorKeySetOneCompletions3_for_if|
-//@[46:47) Assignment |=|
-//@[48:77) Identifier |discriminatorKeySetOne_for_if|
-//@[77:78) LeftSquare |[|
-//@[78:79) Integer |1|
-//@[79:80) RightSquare |]|
-//@[80:81) Dot |.|
-//@[81:91) Identifier |properties|
-//@[91:92) LeftSquare |[|
-//@[92:93) RightSquare |]|
-//@[93:99) NewLine |\r\n\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:045) Identifier |discriminatorKeySetOneCompletions3_for_if|
+//@[046:047) Assignment |=|
+//@[048:077) Identifier |discriminatorKeySetOne_for_if|
+//@[077:078) LeftSquare |[|
+//@[078:079) Integer |1|
+//@[079:080) RightSquare |]|
+//@[080:081) Dot |.|
+//@[081:091) Identifier |properties|
+//@[091:092) LeftSquare |[|
+//@[092:093) RightSquare |]|
+//@[093:099) NewLine |\r\n\r\n\r\n|
 
 
 /*
 Discriminator value set 2
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetTwo 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |discriminatorKeySetTwo|
-//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftBrace |{|
-//@[86:88) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |discriminatorKeySetTwo|
+//@[032:082) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftBrace |{|
+//@[086:088) NewLine |\r\n|
   kind: 'AzurePowerShell'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:25) StringComplete |'AzurePowerShell'|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'AzurePowerShell'|
+//@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67) NewLine |\r\n|
+//@[065:067) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(75) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions = discriminatorKeySetTwo.properties.a
-//@[0:3) Identifier |var|
-//@[4:37) Identifier |discriminatorKeySetTwoCompletions|
-//@[38:39) Assignment |=|
-//@[40:62) Identifier |discriminatorKeySetTwo|
-//@[62:63) Dot |.|
-//@[63:73) Identifier |properties|
-//@[73:74) Dot |.|
-//@[74:75) Identifier |a|
-//@[75:77) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:037) Identifier |discriminatorKeySetTwoCompletions|
+//@[038:039) Assignment |=|
+//@[040:062) Identifier |discriminatorKeySetTwo|
+//@[062:063) Dot |.|
+//@[063:073) Identifier |properties|
+//@[073:074) Dot |.|
+//@[074:075) Identifier |a|
+//@[075:077) NewLine |\r\n|
 // #completionTest(75) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions2 = discriminatorKeySetTwo.properties.
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |discriminatorKeySetTwoCompletions2|
-//@[39:40) Assignment |=|
-//@[41:63) Identifier |discriminatorKeySetTwo|
-//@[63:64) Dot |.|
-//@[64:74) Identifier |properties|
-//@[74:75) Dot |.|
-//@[75:79) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |discriminatorKeySetTwoCompletions2|
+//@[039:040) Assignment |=|
+//@[041:063) Identifier |discriminatorKeySetTwo|
+//@[063:064) Dot |.|
+//@[064:074) Identifier |properties|
+//@[074:075) Dot |.|
+//@[075:079) NewLine |\r\n\r\n|
 
 // #completionTest(90) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer = discriminatorKeySetTwo['properties'].a
-//@[0:3) Identifier |var|
-//@[4:49) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer|
-//@[50:51) Assignment |=|
-//@[52:74) Identifier |discriminatorKeySetTwo|
-//@[74:75) LeftSquare |[|
-//@[75:87) StringComplete |'properties'|
-//@[87:88) RightSquare |]|
-//@[88:89) Dot |.|
-//@[89:90) Identifier |a|
-//@[90:92) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:049) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer|
+//@[050:051) Assignment |=|
+//@[052:074) Identifier |discriminatorKeySetTwo|
+//@[074:075) LeftSquare |[|
+//@[075:087) StringComplete |'properties'|
+//@[087:088) RightSquare |]|
+//@[088:089) Dot |.|
+//@[089:090) Identifier |a|
+//@[090:092) NewLine |\r\n|
 // #completionTest(90) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2 = discriminatorKeySetTwo['properties'].
-//@[0:3) Identifier |var|
-//@[4:50) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2|
-//@[51:52) Assignment |=|
-//@[53:75) Identifier |discriminatorKeySetTwo|
-//@[75:76) LeftSquare |[|
-//@[76:88) StringComplete |'properties'|
-//@[88:89) RightSquare |]|
-//@[89:90) Dot |.|
-//@[90:94) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:050) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2|
+//@[051:052) Assignment |=|
+//@[053:075) Identifier |discriminatorKeySetTwo|
+//@[075:076) LeftSquare |[|
+//@[076:088) StringComplete |'properties'|
+//@[088:089) RightSquare |]|
+//@[089:090) Dot |.|
+//@[090:094) NewLine |\r\n\r\n|
 
 /*
 Discriminator value set 2 (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetTwo_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |discriminatorKeySetTwo_if|
-//@[35:85) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |discriminatorKeySetTwo_if|
+//@[035:085) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   kind: 'AzurePowerShell'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:25) StringComplete |'AzurePowerShell'|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'AzurePowerShell'|
+//@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67) NewLine |\r\n|
+//@[065:067) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(81) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions_if = discriminatorKeySetTwo_if.properties.a
-//@[0:3) Identifier |var|
-//@[4:40) Identifier |discriminatorKeySetTwoCompletions_if|
-//@[41:42) Assignment |=|
-//@[43:68) Identifier |discriminatorKeySetTwo_if|
-//@[68:69) Dot |.|
-//@[69:79) Identifier |properties|
-//@[79:80) Dot |.|
-//@[80:81) Identifier |a|
-//@[81:83) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:040) Identifier |discriminatorKeySetTwoCompletions_if|
+//@[041:042) Assignment |=|
+//@[043:068) Identifier |discriminatorKeySetTwo_if|
+//@[068:069) Dot |.|
+//@[069:079) Identifier |properties|
+//@[079:080) Dot |.|
+//@[080:081) Identifier |a|
+//@[081:083) NewLine |\r\n|
 // #completionTest(81) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions2_if = discriminatorKeySetTwo_if.properties.
-//@[0:3) Identifier |var|
-//@[4:41) Identifier |discriminatorKeySetTwoCompletions2_if|
-//@[42:43) Assignment |=|
-//@[44:69) Identifier |discriminatorKeySetTwo_if|
-//@[69:70) Dot |.|
-//@[70:80) Identifier |properties|
-//@[80:81) Dot |.|
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:041) Identifier |discriminatorKeySetTwoCompletions2_if|
+//@[042:043) Assignment |=|
+//@[044:069) Identifier |discriminatorKeySetTwo_if|
+//@[069:070) Dot |.|
+//@[070:080) Identifier |properties|
+//@[080:081) Dot |.|
+//@[081:085) NewLine |\r\n\r\n|
 
 // #completionTest(96) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer_if = discriminatorKeySetTwo_if['properties'].a
-//@[0:3) Identifier |var|
-//@[4:52) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_if|
-//@[53:54) Assignment |=|
-//@[55:80) Identifier |discriminatorKeySetTwo_if|
-//@[80:81) LeftSquare |[|
-//@[81:93) StringComplete |'properties'|
-//@[93:94) RightSquare |]|
-//@[94:95) Dot |.|
-//@[95:96) Identifier |a|
-//@[96:98) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:052) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_if|
+//@[053:054) Assignment |=|
+//@[055:080) Identifier |discriminatorKeySetTwo_if|
+//@[080:081) LeftSquare |[|
+//@[081:093) StringComplete |'properties'|
+//@[093:094) RightSquare |]|
+//@[094:095) Dot |.|
+//@[095:096) Identifier |a|
+//@[096:098) NewLine |\r\n|
 // #completionTest(96) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2_if = discriminatorKeySetTwo_if['properties'].
-//@[0:3) Identifier |var|
-//@[4:53) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
-//@[54:55) Assignment |=|
-//@[56:81) Identifier |discriminatorKeySetTwo_if|
-//@[81:82) LeftSquare |[|
-//@[82:94) StringComplete |'properties'|
-//@[94:95) RightSquare |]|
-//@[95:96) Dot |.|
-//@[96:102) NewLine |\r\n\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:053) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_if|
+//@[054:055) Assignment |=|
+//@[056:081) Identifier |discriminatorKeySetTwo_if|
+//@[081:082) LeftSquare |[|
+//@[082:094) StringComplete |'properties'|
+//@[094:095) RightSquare |]|
+//@[095:096) Dot |.|
+//@[096:102) NewLine |\r\n\r\n\r\n|
 
 
 /*
 Discriminator value set 2 (loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |discriminatorKeySetTwo_for|
-//@[36:86) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftSquare |[|
-//@[90:93) Identifier |for|
-//@[94:99) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |discriminatorKeySetTwo_for|
+//@[036:086) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[087:088) Assignment |=|
+//@[089:090) LeftSquare |[|
+//@[090:093) Identifier |for|
+//@[094:099) Identifier |thing|
 //@[100:102) Identifier |in|
 //@[103:104) LeftSquare |[|
 //@[104:105) RightSquare |]|
@@ -2933,89 +2933,89 @@ resource discriminatorKeySetTwo_for 'Microsoft.Resources/deploymentScripts@2020-
 //@[107:108) LeftBrace |{|
 //@[108:110) NewLine |\r\n|
   kind: 'AzurePowerShell'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:25) StringComplete |'AzurePowerShell'|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'AzurePowerShell'|
+//@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67) NewLine |\r\n|
+//@[065:067) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(86) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions_for = discriminatorKeySetTwo_for[0].properties.a
-//@[0:3) Identifier |var|
-//@[4:41) Identifier |discriminatorKeySetTwoCompletions_for|
-//@[42:43) Assignment |=|
-//@[44:70) Identifier |discriminatorKeySetTwo_for|
-//@[70:71) LeftSquare |[|
-//@[71:72) Integer |0|
-//@[72:73) RightSquare |]|
-//@[73:74) Dot |.|
-//@[74:84) Identifier |properties|
-//@[84:85) Dot |.|
-//@[85:86) Identifier |a|
-//@[86:88) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:041) Identifier |discriminatorKeySetTwoCompletions_for|
+//@[042:043) Assignment |=|
+//@[044:070) Identifier |discriminatorKeySetTwo_for|
+//@[070:071) LeftSquare |[|
+//@[071:072) Integer |0|
+//@[072:073) RightSquare |]|
+//@[073:074) Dot |.|
+//@[074:084) Identifier |properties|
+//@[084:085) Dot |.|
+//@[085:086) Identifier |a|
+//@[086:088) NewLine |\r\n|
 // #completionTest(86) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions2_for = discriminatorKeySetTwo_for[0].properties.
-//@[0:3) Identifier |var|
-//@[4:42) Identifier |discriminatorKeySetTwoCompletions2_for|
-//@[43:44) Assignment |=|
-//@[45:71) Identifier |discriminatorKeySetTwo_for|
-//@[71:72) LeftSquare |[|
-//@[72:73) Integer |0|
-//@[73:74) RightSquare |]|
-//@[74:75) Dot |.|
-//@[75:85) Identifier |properties|
-//@[85:86) Dot |.|
-//@[86:90) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:042) Identifier |discriminatorKeySetTwoCompletions2_for|
+//@[043:044) Assignment |=|
+//@[045:071) Identifier |discriminatorKeySetTwo_for|
+//@[071:072) LeftSquare |[|
+//@[072:073) Integer |0|
+//@[073:074) RightSquare |]|
+//@[074:075) Dot |.|
+//@[075:085) Identifier |properties|
+//@[085:086) Dot |.|
+//@[086:090) NewLine |\r\n\r\n|
 
 // #completionTest(101) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:053) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer_for = discriminatorKeySetTwo_for[0]['properties'].a
-//@[0:3) Identifier |var|
-//@[4:53) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_for|
-//@[54:55) Assignment |=|
-//@[56:82) Identifier |discriminatorKeySetTwo_for|
-//@[82:83) LeftSquare |[|
-//@[83:84) Integer |0|
-//@[84:85) RightSquare |]|
-//@[85:86) LeftSquare |[|
-//@[86:98) StringComplete |'properties'|
-//@[98:99) RightSquare |]|
-//@[99:100) Dot |.|
+//@[000:003) Identifier |var|
+//@[004:053) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_for|
+//@[054:055) Assignment |=|
+//@[056:082) Identifier |discriminatorKeySetTwo_for|
+//@[082:083) LeftSquare |[|
+//@[083:084) Integer |0|
+//@[084:085) RightSquare |]|
+//@[085:086) LeftSquare |[|
+//@[086:098) StringComplete |'properties'|
+//@[098:099) RightSquare |]|
+//@[099:100) Dot |.|
 //@[100:101) Identifier |a|
 //@[101:103) NewLine |\r\n|
 // #completionTest(101) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:053) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_for[0]['properties'].
-//@[0:3) Identifier |var|
-//@[4:54) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
-//@[55:56) Assignment |=|
-//@[57:83) Identifier |discriminatorKeySetTwo_for|
-//@[83:84) LeftSquare |[|
-//@[84:85) Integer |0|
-//@[85:86) RightSquare |]|
-//@[86:87) LeftSquare |[|
-//@[87:99) StringComplete |'properties'|
-//@[99:100) RightSquare |]|
+//@[000:003) Identifier |var|
+//@[004:054) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_for|
+//@[055:056) Assignment |=|
+//@[057:083) Identifier |discriminatorKeySetTwo_for|
+//@[083:084) LeftSquare |[|
+//@[084:085) Integer |0|
+//@[085:086) RightSquare |]|
+//@[086:087) LeftSquare |[|
+//@[087:099) StringComplete |'properties'|
+//@[099:100) RightSquare |]|
 //@[100:101) Dot |.|
 //@[101:107) NewLine |\r\n\r\n\r\n|
 
@@ -3023,15 +3023,15 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for = discriminatorKeySetTwo_
 /*
 Discriminator value set 2 (filtered loops)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@2020-10-01' = [for thing in []: if(true) {
-//@[0:8) Identifier |resource|
-//@[9:38) Identifier |discriminatorKeySetTwo_for_if|
-//@[39:89) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[90:91) Assignment |=|
-//@[92:93) LeftSquare |[|
-//@[93:96) Identifier |for|
-//@[97:102) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:038) Identifier |discriminatorKeySetTwo_for_if|
+//@[039:089) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[090:091) Assignment |=|
+//@[092:093) LeftSquare |[|
+//@[093:096) Identifier |for|
+//@[097:102) Identifier |thing|
 //@[103:105) Identifier |in|
 //@[106:107) LeftSquare |[|
 //@[107:108) RightSquare |]|
@@ -3043,88 +3043,88 @@ resource discriminatorKeySetTwo_for_if 'Microsoft.Resources/deploymentScripts@20
 //@[119:120) LeftBrace |{|
 //@[120:122) NewLine |\r\n|
   kind: 'AzurePowerShell'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:25) StringComplete |'AzurePowerShell'|
-//@[25:27) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:025) StringComplete |'AzurePowerShell'|
+//@[025:027) NewLine |\r\n|
   // #completionTest(0,1,2) -> deploymentScriptTopLevel
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
   
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptPSProperties
-//@[65:67) NewLine |\r\n|
+//@[065:067) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(92) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions_for_if = discriminatorKeySetTwo_for_if[0].properties.a
-//@[0:3) Identifier |var|
-//@[4:44) Identifier |discriminatorKeySetTwoCompletions_for_if|
-//@[45:46) Assignment |=|
-//@[47:76) Identifier |discriminatorKeySetTwo_for_if|
-//@[76:77) LeftSquare |[|
-//@[77:78) Integer |0|
-//@[78:79) RightSquare |]|
-//@[79:80) Dot |.|
-//@[80:90) Identifier |properties|
-//@[90:91) Dot |.|
-//@[91:92) Identifier |a|
-//@[92:94) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:044) Identifier |discriminatorKeySetTwoCompletions_for_if|
+//@[045:046) Assignment |=|
+//@[047:076) Identifier |discriminatorKeySetTwo_for_if|
+//@[076:077) LeftSquare |[|
+//@[077:078) Integer |0|
+//@[078:079) RightSquare |]|
+//@[079:080) Dot |.|
+//@[080:090) Identifier |properties|
+//@[090:091) Dot |.|
+//@[091:092) Identifier |a|
+//@[092:094) NewLine |\r\n|
 // #completionTest(92) -> powershellPropertyAccess
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var discriminatorKeySetTwoCompletions2_for_if = discriminatorKeySetTwo_for_if[0].properties.
-//@[0:3) Identifier |var|
-//@[4:45) Identifier |discriminatorKeySetTwoCompletions2_for_if|
-//@[46:47) Assignment |=|
-//@[48:77) Identifier |discriminatorKeySetTwo_for_if|
-//@[77:78) LeftSquare |[|
-//@[78:79) Integer |0|
-//@[79:80) RightSquare |]|
-//@[80:81) Dot |.|
-//@[81:91) Identifier |properties|
-//@[91:92) Dot |.|
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:045) Identifier |discriminatorKeySetTwoCompletions2_for_if|
+//@[046:047) Assignment |=|
+//@[048:077) Identifier |discriminatorKeySetTwo_for_if|
+//@[077:078) LeftSquare |[|
+//@[078:079) Integer |0|
+//@[079:080) RightSquare |]|
+//@[080:081) Dot |.|
+//@[081:091) Identifier |properties|
+//@[091:092) Dot |.|
+//@[092:096) NewLine |\r\n\r\n|
 
 // #completionTest(107) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:053) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer_for_if = discriminatorKeySetTwo_for_if[0]['properties'].a
-//@[0:3) Identifier |var|
-//@[4:56) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
-//@[57:58) Assignment |=|
-//@[59:88) Identifier |discriminatorKeySetTwo_for_if|
-//@[88:89) LeftSquare |[|
-//@[89:90) Integer |0|
-//@[90:91) RightSquare |]|
-//@[91:92) LeftSquare |[|
-//@[92:104) StringComplete |'properties'|
+//@[000:003) Identifier |var|
+//@[004:056) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer_for_if|
+//@[057:058) Assignment |=|
+//@[059:088) Identifier |discriminatorKeySetTwo_for_if|
+//@[088:089) LeftSquare |[|
+//@[089:090) Integer |0|
+//@[090:091) RightSquare |]|
+//@[091:092) LeftSquare |[|
+//@[092:104) StringComplete |'properties'|
 //@[104:105) RightSquare |]|
 //@[105:106) Dot |.|
 //@[106:107) Identifier |a|
 //@[107:109) NewLine |\r\n|
 // #completionTest(107) -> powershellPropertyAccess
-//@[51:53) NewLine |\r\n|
+//@[051:053) NewLine |\r\n|
 var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetTwo_for_if[0]['properties'].
-//@[0:3) Identifier |var|
-//@[4:57) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
-//@[58:59) Assignment |=|
-//@[60:89) Identifier |discriminatorKeySetTwo_for_if|
-//@[89:90) LeftSquare |[|
-//@[90:91) Integer |0|
-//@[91:92) RightSquare |]|
-//@[92:93) LeftSquare |[|
-//@[93:105) StringComplete |'properties'|
+//@[000:003) Identifier |var|
+//@[004:057) Identifier |discriminatorKeySetTwoCompletionsArrayIndexer2_for_if|
+//@[058:059) Assignment |=|
+//@[060:089) Identifier |discriminatorKeySetTwo_for_if|
+//@[089:090) LeftSquare |[|
+//@[090:091) Integer |0|
+//@[091:092) RightSquare |]|
+//@[092:093) LeftSquare |[|
+//@[093:105) StringComplete |'properties'|
 //@[105:106) RightSquare |]|
 //@[106:107) Dot |.|
 //@[107:115) NewLine |\r\n\r\n\r\n\r\n|
@@ -3132,275 +3132,275 @@ var discriminatorKeySetTwoCompletionsArrayIndexer2_for_if = discriminatorKeySetT
 
 
 resource incorrectPropertiesKey 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |incorrectPropertiesKey|
-//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftBrace |{|
-//@[86:88) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |incorrectPropertiesKey|
+//@[032:082) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftBrace |{|
+//@[086:088) NewLine |\r\n|
   kind: 'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'AzureCLI'|
-//@[18:22) NewLine |\r\n\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'AzureCLI'|
+//@[018:022) NewLine |\r\n\r\n|
 
   propertes: {
-//@[2:11) Identifier |propertes|
-//@[11:12) Colon |:|
-//@[13:14) LeftBrace |{|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |propertes|
+//@[011:012) Colon |:|
+//@[013:014) LeftBrace |{|
+//@[014:016) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 var mock = incorrectPropertiesKey.p
-//@[0:3) Identifier |var|
-//@[4:8) Identifier |mock|
-//@[9:10) Assignment |=|
-//@[11:33) Identifier |incorrectPropertiesKey|
-//@[33:34) Dot |.|
-//@[34:35) Identifier |p|
-//@[35:39) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:008) Identifier |mock|
+//@[009:010) Assignment |=|
+//@[011:033) Identifier |incorrectPropertiesKey|
+//@[033:034) Dot |.|
+//@[034:035) Identifier |p|
+//@[035:039) NewLine |\r\n\r\n|
 
 resource incorrectPropertiesKey2 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:32) Identifier |incorrectPropertiesKey2|
-//@[33:83) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[84:85) Assignment |=|
-//@[86:87) LeftBrace |{|
-//@[87:89) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:032) Identifier |incorrectPropertiesKey2|
+//@[033:083) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[084:085) Assignment |=|
+//@[086:087) LeftBrace |{|
+//@[087:089) NewLine |\r\n|
   kind: 'AzureCLI'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:18) StringComplete |'AzureCLI'|
-//@[18:20) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:018) StringComplete |'AzureCLI'|
+//@[018:020) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: ''
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:14) StringComplete |''|
-//@[14:16) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:014) StringComplete |''|
+//@[014:016) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     azCliVersion: '2'
-//@[4:16) Identifier |azCliVersion|
-//@[16:17) Colon |:|
-//@[18:21) StringComplete |'2'|
-//@[21:23) NewLine |\r\n|
+//@[004:016) Identifier |azCliVersion|
+//@[016:017) Colon |:|
+//@[018:021) StringComplete |'2'|
+//@[021:023) NewLine |\r\n|
     retentionInterval: 'PT1H'
-//@[4:21) Identifier |retentionInterval|
-//@[21:22) Colon |:|
-//@[23:29) StringComplete |'PT1H'|
-//@[29:31) NewLine |\r\n|
+//@[004:021) Identifier |retentionInterval|
+//@[021:022) Colon |:|
+//@[023:029) StringComplete |'PT1H'|
+//@[029:031) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
     // #completionTest(0,1,2,3,4) -> deploymentScriptCliPropertiesMinusSpecified
-//@[80:82) NewLine |\r\n|
+//@[080:082) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
     // #completionTest(22,23) -> cleanupPreferencesPlusSymbols
-//@[62:64) NewLine |\r\n|
+//@[062:064) NewLine |\r\n|
     cleanupPreference: 
-//@[4:21) Identifier |cleanupPreference|
-//@[21:22) Colon |:|
-//@[23:27) NewLine |\r\n\r\n|
+//@[004:021) Identifier |cleanupPreference|
+//@[021:022) Colon |:|
+//@[023:027) NewLine |\r\n\r\n|
 
     // #completionTest(25,26) -> arrayPlusSymbols
-//@[49:51) NewLine |\r\n|
+//@[049:051) NewLine |\r\n|
     supportingScriptUris: 
-//@[4:24) Identifier |supportingScriptUris|
-//@[24:25) Colon |:|
-//@[26:30) NewLine |\r\n\r\n|
+//@[004:024) Identifier |supportingScriptUris|
+//@[024:025) Colon |:|
+//@[026:030) NewLine |\r\n\r\n|
 
     // #completionTest(27,28) -> objectPlusSymbols
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
     storageAccountSettings: 
-//@[4:26) Identifier |storageAccountSettings|
-//@[26:27) Colon |:|
-//@[28:32) NewLine |\r\n\r\n|
+//@[004:026) Identifier |storageAccountSettings|
+//@[026:027) Colon |:|
+//@[028:032) NewLine |\r\n\r\n|
 
     environmentVariables: [
-//@[4:24) Identifier |environmentVariables|
-//@[24:25) Colon |:|
-//@[26:27) LeftSquare |[|
-//@[27:29) NewLine |\r\n|
+//@[004:024) Identifier |environmentVariables|
+//@[024:025) Colon |:|
+//@[026:027) LeftSquare |[|
+//@[027:029) NewLine |\r\n|
       {
-//@[6:7) LeftBrace |{|
-//@[7:9) NewLine |\r\n|
+//@[006:007) LeftBrace |{|
+//@[007:009) NewLine |\r\n|
         // #completionTest(0,2,4,6,8) -> environmentVariableProperties
-//@[70:72) NewLine |\r\n|
+//@[070:072) NewLine |\r\n|
         
-//@[8:10) NewLine |\r\n|
+//@[008:010) NewLine |\r\n|
       }
-//@[6:7) RightBrace |}|
-//@[7:9) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:009) NewLine |\r\n|
       // #completionTest(0,1,2,3,4,5,6) -> objectPlusSymbolsWithRequiredProperties
-//@[82:84) NewLine |\r\n|
+//@[082:084) NewLine |\r\n|
       
-//@[6:8) NewLine |\r\n|
+//@[006:008) NewLine |\r\n|
     ]
-//@[4:5) RightSquare |]|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightSquare |]|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // #completionTest(21) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:041) NewLine |\r\n|
 resource missingType 
-//@[0:8) Identifier |resource|
-//@[9:20) Identifier |missingType|
-//@[21:25) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:020) Identifier |missingType|
+//@[021:025) NewLine |\r\n\r\n|
 
 // #completionTest(37,38,39,40,41,42,43,44) -> resourceTypes
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 resource startedTypingTypeWithQuotes 'virma'
-//@[0:8) Identifier |resource|
-//@[9:36) Identifier |startedTypingTypeWithQuotes|
-//@[37:44) StringComplete |'virma'|
-//@[44:48) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:036) Identifier |startedTypingTypeWithQuotes|
+//@[037:044) StringComplete |'virma'|
+//@[044:048) NewLine |\r\n\r\n|
 
 // #completionTest(40,41,42,43,44,45) -> resourceTypes
-//@[54:56) NewLine |\r\n|
+//@[054:056) NewLine |\r\n|
 resource startedTypingTypeWithoutQuotes virma
-//@[0:8) Identifier |resource|
-//@[9:39) Identifier |startedTypingTypeWithoutQuotes|
-//@[40:45) Identifier |virma|
-//@[45:49) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:039) Identifier |startedTypingTypeWithoutQuotes|
+//@[040:045) Identifier |virma|
+//@[045:049) NewLine |\r\n\r\n|
 
 resource dashesInPropertyNames 'Microsoft.ContainerService/managedClusters@2020-09-01' = {
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |dashesInPropertyNames|
-//@[31:86) StringComplete |'Microsoft.ContainerService/managedClusters@2020-09-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |dashesInPropertyNames|
+//@[031:086) StringComplete |'Microsoft.ContainerService/managedClusters@2020-09-01'|
+//@[087:088) Assignment |=|
+//@[089:090) LeftBrace |{|
+//@[090:092) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
-//@[61:63) NewLine |\r\n|
+//@[061:063) NewLine |\r\n|
 var letsAccessTheDashes = dashesInPropertyNames.properties.autoScalerProfile.s
-//@[0:3) Identifier |var|
-//@[4:23) Identifier |letsAccessTheDashes|
-//@[24:25) Assignment |=|
-//@[26:47) Identifier |dashesInPropertyNames|
-//@[47:48) Dot |.|
-//@[48:58) Identifier |properties|
-//@[58:59) Dot |.|
-//@[59:76) Identifier |autoScalerProfile|
-//@[76:77) Dot |.|
-//@[77:78) Identifier |s|
-//@[78:80) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:023) Identifier |letsAccessTheDashes|
+//@[024:025) Assignment |=|
+//@[026:047) Identifier |dashesInPropertyNames|
+//@[047:048) Dot |.|
+//@[048:058) Identifier |properties|
+//@[058:059) Dot |.|
+//@[059:076) Identifier |autoScalerProfile|
+//@[076:077) Dot |.|
+//@[077:078) Identifier |s|
+//@[078:080) NewLine |\r\n|
 // #completionTest(78) -> autoScalerPropertiesRequireEscaping
-//@[61:63) NewLine |\r\n|
+//@[061:063) NewLine |\r\n|
 var letsAccessTheDashes2 = dashesInPropertyNames.properties.autoScalerProfile.
-//@[0:3) Identifier |var|
-//@[4:24) Identifier |letsAccessTheDashes2|
-//@[25:26) Assignment |=|
-//@[27:48) Identifier |dashesInPropertyNames|
-//@[48:49) Dot |.|
-//@[49:59) Identifier |properties|
-//@[59:60) Dot |.|
-//@[60:77) Identifier |autoScalerProfile|
-//@[77:78) Dot |.|
-//@[78:82) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:024) Identifier |letsAccessTheDashes2|
+//@[025:026) Assignment |=|
+//@[027:048) Identifier |dashesInPropertyNames|
+//@[048:049) Dot |.|
+//@[049:059) Identifier |properties|
+//@[059:060) Dot |.|
+//@[060:077) Identifier |autoScalerProfile|
+//@[077:078) Dot |.|
+//@[078:082) NewLine |\r\n\r\n|
 
 /* 
 Nested discriminator missing key
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminatorMissingKey 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
-//@[0:8) Identifier |resource|
-//@[9:38) Identifier |nestedDiscriminatorMissingKey|
-//@[39:97) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[98:99) Assignment |=|
+//@[000:008) Identifier |resource|
+//@[009:038) Identifier |nestedDiscriminatorMissingKey|
+//@[039:097) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[098:099) Assignment |=|
 //@[100:101) LeftBrace |{|
 //@[101:103) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     //createMode: 'Default'
-//@[27:31) NewLine |\r\n\r\n|
+//@[027:031) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(90) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:038) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions = nestedDiscriminatorMissingKey.properties.cr
-//@[0:3) Identifier |var|
-//@[4:44) Identifier |nestedDiscriminatorMissingKeyCompletions|
-//@[45:46) Assignment |=|
-//@[47:76) Identifier |nestedDiscriminatorMissingKey|
-//@[76:77) Dot |.|
-//@[77:87) Identifier |properties|
-//@[87:88) Dot |.|
-//@[88:90) Identifier |cr|
-//@[90:92) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:044) Identifier |nestedDiscriminatorMissingKeyCompletions|
+//@[045:046) Assignment |=|
+//@[047:076) Identifier |nestedDiscriminatorMissingKey|
+//@[076:077) Dot |.|
+//@[077:087) Identifier |properties|
+//@[087:088) Dot |.|
+//@[088:090) Identifier |cr|
+//@[090:092) NewLine |\r\n|
 // #completionTest(92) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:038) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2 = nestedDiscriminatorMissingKey['properties'].
-//@[0:3) Identifier |var|
-//@[4:45) Identifier |nestedDiscriminatorMissingKeyCompletions2|
-//@[46:47) Assignment |=|
-//@[48:77) Identifier |nestedDiscriminatorMissingKey|
-//@[77:78) LeftSquare |[|
-//@[78:90) StringComplete |'properties'|
-//@[90:91) RightSquare |]|
-//@[91:92) Dot |.|
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:045) Identifier |nestedDiscriminatorMissingKeyCompletions2|
+//@[046:047) Assignment |=|
+//@[048:077) Identifier |nestedDiscriminatorMissingKey|
+//@[077:078) LeftSquare |[|
+//@[078:090) StringComplete |'properties'|
+//@[090:091) RightSquare |]|
+//@[091:092) Dot |.|
+//@[092:096) NewLine |\r\n\r\n|
 
 // #completionTest(94) -> createModeIndexPlusSymbols
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions = nestedDiscriminatorMissingKey.properties['']
-//@[0:3) Identifier |var|
-//@[4:49) Identifier |nestedDiscriminatorMissingKeyIndexCompletions|
-//@[50:51) Assignment |=|
-//@[52:81) Identifier |nestedDiscriminatorMissingKey|
-//@[81:82) Dot |.|
-//@[82:92) Identifier |properties|
-//@[92:93) LeftSquare |[|
-//@[93:95) StringComplete |''|
-//@[95:96) RightSquare |]|
-//@[96:100) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:049) Identifier |nestedDiscriminatorMissingKeyIndexCompletions|
+//@[050:051) Assignment |=|
+//@[052:081) Identifier |nestedDiscriminatorMissingKey|
+//@[081:082) Dot |.|
+//@[082:092) Identifier |properties|
+//@[092:093) LeftSquare |[|
+//@[093:095) StringComplete |''|
+//@[095:096) RightSquare |]|
+//@[096:100) NewLine |\r\n\r\n|
 
 /* 
 Nested discriminator missing key (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(bool(1)) {
-//@[0:8) Identifier |resource|
-//@[9:41) Identifier |nestedDiscriminatorMissingKey_if|
-//@[42:100) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[000:008) Identifier |resource|
+//@[009:041) Identifier |nestedDiscriminatorMissingKey_if|
+//@[042:100) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
 //@[101:102) Assignment |=|
 //@[103:105) Identifier |if|
 //@[105:106) LeftParen |(|
@@ -3412,76 +3412,76 @@ resource nestedDiscriminatorMissingKey_if 'Microsoft.DocumentDB/databaseAccounts
 //@[115:116) LeftBrace |{|
 //@[116:118) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     //createMode: 'Default'
-//@[27:31) NewLine |\r\n\r\n|
+//@[027:031) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(96) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:038) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions_if = nestedDiscriminatorMissingKey_if.properties.cr
-//@[0:3) Identifier |var|
-//@[4:47) Identifier |nestedDiscriminatorMissingKeyCompletions_if|
-//@[48:49) Assignment |=|
-//@[50:82) Identifier |nestedDiscriminatorMissingKey_if|
-//@[82:83) Dot |.|
-//@[83:93) Identifier |properties|
-//@[93:94) Dot |.|
-//@[94:96) Identifier |cr|
-//@[96:98) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:047) Identifier |nestedDiscriminatorMissingKeyCompletions_if|
+//@[048:049) Assignment |=|
+//@[050:082) Identifier |nestedDiscriminatorMissingKey_if|
+//@[082:083) Dot |.|
+//@[083:093) Identifier |properties|
+//@[093:094) Dot |.|
+//@[094:096) Identifier |cr|
+//@[096:098) NewLine |\r\n|
 // #completionTest(98) -> createMode
-//@[36:38) NewLine |\r\n|
+//@[036:038) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2_if = nestedDiscriminatorMissingKey_if['properties'].
-//@[0:3) Identifier |var|
-//@[4:48) Identifier |nestedDiscriminatorMissingKeyCompletions2_if|
-//@[49:50) Assignment |=|
-//@[51:83) Identifier |nestedDiscriminatorMissingKey_if|
-//@[83:84) LeftSquare |[|
-//@[84:96) StringComplete |'properties'|
-//@[96:97) RightSquare |]|
-//@[97:98) Dot |.|
-//@[98:102) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:048) Identifier |nestedDiscriminatorMissingKeyCompletions2_if|
+//@[049:050) Assignment |=|
+//@[051:083) Identifier |nestedDiscriminatorMissingKey_if|
+//@[083:084) LeftSquare |[|
+//@[084:096) StringComplete |'properties'|
+//@[096:097) RightSquare |]|
+//@[097:098) Dot |.|
+//@[098:102) NewLine |\r\n\r\n|
 
 // #completionTest(100) -> createModeIndexPlusSymbols_if
-//@[56:58) NewLine |\r\n|
+//@[056:058) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions_if = nestedDiscriminatorMissingKey_if.properties['']
-//@[0:3) Identifier |var|
-//@[4:52) Identifier |nestedDiscriminatorMissingKeyIndexCompletions_if|
-//@[53:54) Assignment |=|
-//@[55:87) Identifier |nestedDiscriminatorMissingKey_if|
-//@[87:88) Dot |.|
-//@[88:98) Identifier |properties|
-//@[98:99) LeftSquare |[|
-//@[99:101) StringComplete |''|
+//@[000:003) Identifier |var|
+//@[004:052) Identifier |nestedDiscriminatorMissingKeyIndexCompletions_if|
+//@[053:054) Assignment |=|
+//@[055:087) Identifier |nestedDiscriminatorMissingKey_if|
+//@[087:088) Dot |.|
+//@[088:098) Identifier |properties|
+//@[098:099) LeftSquare |[|
+//@[099:101) StringComplete |''|
 //@[101:102) RightSquare |]|
 //@[102:106) NewLine |\r\n\r\n|
 
 /* 
 Nested discriminator missing key (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:42) Identifier |nestedDiscriminatorMissingKey_for|
-//@[43:101) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[000:008) Identifier |resource|
+//@[009:042) Identifier |nestedDiscriminatorMissingKey_for|
+//@[043:101) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
 //@[102:103) Assignment |=|
 //@[104:105) LeftSquare |[|
 //@[105:108) Identifier |for|
@@ -3493,73 +3493,73 @@ resource nestedDiscriminatorMissingKey_for 'Microsoft.DocumentDB/databaseAccount
 //@[122:123) LeftBrace |{|
 //@[123:125) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     //createMode: 'Default'
-//@[27:31) NewLine |\r\n\r\n|
+//@[027:031) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(101) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions_for = nestedDiscriminatorMissingKey_for[0].properties.cr
-//@[0:3) Identifier |var|
-//@[4:48) Identifier |nestedDiscriminatorMissingKeyCompletions_for|
-//@[49:50) Assignment |=|
-//@[51:84) Identifier |nestedDiscriminatorMissingKey_for|
-//@[84:85) LeftSquare |[|
-//@[85:86) Integer |0|
-//@[86:87) RightSquare |]|
-//@[87:88) Dot |.|
-//@[88:98) Identifier |properties|
-//@[98:99) Dot |.|
-//@[99:101) Identifier |cr|
+//@[000:003) Identifier |var|
+//@[004:048) Identifier |nestedDiscriminatorMissingKeyCompletions_for|
+//@[049:050) Assignment |=|
+//@[051:084) Identifier |nestedDiscriminatorMissingKey_for|
+//@[084:085) LeftSquare |[|
+//@[085:086) Integer |0|
+//@[086:087) RightSquare |]|
+//@[087:088) Dot |.|
+//@[088:098) Identifier |properties|
+//@[098:099) Dot |.|
+//@[099:101) Identifier |cr|
 //@[101:103) NewLine |\r\n|
 // #completionTest(103) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2_for = nestedDiscriminatorMissingKey_for[0]['properties'].
-//@[0:3) Identifier |var|
-//@[4:49) Identifier |nestedDiscriminatorMissingKeyCompletions2_for|
-//@[50:51) Assignment |=|
-//@[52:85) Identifier |nestedDiscriminatorMissingKey_for|
-//@[85:86) LeftSquare |[|
-//@[86:87) Integer |0|
-//@[87:88) RightSquare |]|
-//@[88:89) LeftSquare |[|
-//@[89:101) StringComplete |'properties'|
+//@[000:003) Identifier |var|
+//@[004:049) Identifier |nestedDiscriminatorMissingKeyCompletions2_for|
+//@[050:051) Assignment |=|
+//@[052:085) Identifier |nestedDiscriminatorMissingKey_for|
+//@[085:086) LeftSquare |[|
+//@[086:087) Integer |0|
+//@[087:088) RightSquare |]|
+//@[088:089) LeftSquare |[|
+//@[089:101) StringComplete |'properties'|
 //@[101:102) RightSquare |]|
 //@[102:103) Dot |.|
 //@[103:107) NewLine |\r\n\r\n|
 
 // #completionTest(105) -> createModeIndexPlusSymbols_for
-//@[57:59) NewLine |\r\n|
+//@[057:059) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissingKey_for[0].properties['']
-//@[0:3) Identifier |var|
-//@[4:53) Identifier |nestedDiscriminatorMissingKeyIndexCompletions_for|
-//@[54:55) Assignment |=|
-//@[56:89) Identifier |nestedDiscriminatorMissingKey_for|
-//@[89:90) LeftSquare |[|
-//@[90:91) Integer |0|
-//@[91:92) RightSquare |]|
-//@[92:93) Dot |.|
-//@[93:103) Identifier |properties|
+//@[000:003) Identifier |var|
+//@[004:053) Identifier |nestedDiscriminatorMissingKeyIndexCompletions_for|
+//@[054:055) Assignment |=|
+//@[056:089) Identifier |nestedDiscriminatorMissingKey_for|
+//@[089:090) LeftSquare |[|
+//@[090:091) Integer |0|
+//@[091:092) RightSquare |]|
+//@[092:093) Dot |.|
+//@[093:103) Identifier |properties|
 //@[103:104) LeftSquare |[|
 //@[104:106) StringComplete |''|
 //@[106:107) RightSquare |]|
@@ -3569,11 +3569,11 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for = nestedDiscriminatorMissi
 /* 
 Nested discriminator missing key (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[0:8) Identifier |resource|
-//@[9:45) Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[46:104) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[000:008) Identifier |resource|
+//@[009:045) Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[046:104) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
 //@[105:106) Assignment |=|
 //@[107:108) LeftSquare |[|
 //@[108:111) Identifier |for|
@@ -3589,73 +3589,73 @@ resource nestedDiscriminatorMissingKey_for_if 'Microsoft.DocumentDB/databaseAcco
 //@[134:135) LeftBrace |{|
 //@[135:137) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     //createMode: 'Default'
-//@[27:31) NewLine |\r\n\r\n|
+//@[027:031) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(107) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties.cr
-//@[0:3) Identifier |var|
-//@[4:51) Identifier |nestedDiscriminatorMissingKeyCompletions_for_if|
-//@[52:53) Assignment |=|
-//@[54:90) Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[90:91) LeftSquare |[|
-//@[91:92) Integer |0|
-//@[92:93) RightSquare |]|
-//@[93:94) Dot |.|
-//@[94:104) Identifier |properties|
+//@[000:003) Identifier |var|
+//@[004:051) Identifier |nestedDiscriminatorMissingKeyCompletions_for_if|
+//@[052:053) Assignment |=|
+//@[054:090) Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[090:091) LeftSquare |[|
+//@[091:092) Integer |0|
+//@[092:093) RightSquare |]|
+//@[093:094) Dot |.|
+//@[094:104) Identifier |properties|
 //@[104:105) Dot |.|
 //@[105:107) Identifier |cr|
 //@[107:109) NewLine |\r\n|
 // #completionTest(109) -> createMode
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyCompletions2_for_if = nestedDiscriminatorMissingKey_for_if[0]['properties'].
-//@[0:3) Identifier |var|
-//@[4:52) Identifier |nestedDiscriminatorMissingKeyCompletions2_for_if|
-//@[53:54) Assignment |=|
-//@[55:91) Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[91:92) LeftSquare |[|
-//@[92:93) Integer |0|
-//@[93:94) RightSquare |]|
-//@[94:95) LeftSquare |[|
-//@[95:107) StringComplete |'properties'|
+//@[000:003) Identifier |var|
+//@[004:052) Identifier |nestedDiscriminatorMissingKeyCompletions2_for_if|
+//@[053:054) Assignment |=|
+//@[055:091) Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[091:092) LeftSquare |[|
+//@[092:093) Integer |0|
+//@[093:094) RightSquare |]|
+//@[094:095) LeftSquare |[|
+//@[095:107) StringComplete |'properties'|
 //@[107:108) RightSquare |]|
 //@[108:109) Dot |.|
 //@[109:113) NewLine |\r\n\r\n|
 
 // #completionTest(111) -> createModeIndexPlusSymbols_for_if
-//@[60:62) NewLine |\r\n|
+//@[060:062) NewLine |\r\n|
 var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMissingKey_for_if[0].properties['']
-//@[0:3) Identifier |var|
-//@[4:56) Identifier |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
-//@[57:58) Assignment |=|
-//@[59:95) Identifier |nestedDiscriminatorMissingKey_for_if|
-//@[95:96) LeftSquare |[|
-//@[96:97) Integer |0|
-//@[97:98) RightSquare |]|
-//@[98:99) Dot |.|
-//@[99:109) Identifier |properties|
+//@[000:003) Identifier |var|
+//@[004:056) Identifier |nestedDiscriminatorMissingKeyIndexCompletions_for_if|
+//@[057:058) Assignment |=|
+//@[059:095) Identifier |nestedDiscriminatorMissingKey_for_if|
+//@[095:096) LeftSquare |[|
+//@[096:097) Integer |0|
+//@[097:098) RightSquare |]|
+//@[098:099) Dot |.|
+//@[099:109) Identifier |properties|
 //@[109:110) LeftSquare |[|
 //@[110:112) StringComplete |''|
 //@[112:113) RightSquare |]|
@@ -3665,222 +3665,222 @@ var nestedDiscriminatorMissingKeyIndexCompletions_for_if = nestedDiscriminatorMi
 /*
 Nested discriminator
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminator 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |nestedDiscriminator|
-//@[29:87) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[88:89) Assignment |=|
-//@[90:91) LeftBrace |{|
-//@[91:93) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |nestedDiscriminator|
+//@[029:087) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[088:089) Assignment |=|
+//@[090:091) LeftBrace |{|
+//@[091:093) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     createMode: 'Default'
-//@[4:14) Identifier |createMode|
-//@[14:15) Colon |:|
-//@[16:25) StringComplete |'Default'|
-//@[25:29) NewLine |\r\n\r\n|
+//@[004:014) Identifier |createMode|
+//@[014:015) Colon |:|
+//@[016:025) StringComplete |'Default'|
+//@[025:029) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(69) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions = nestedDiscriminator.properties.a
-//@[0:3) Identifier |var|
-//@[4:34) Identifier |nestedDiscriminatorCompletions|
-//@[35:36) Assignment |=|
-//@[37:56) Identifier |nestedDiscriminator|
-//@[56:57) Dot |.|
-//@[57:67) Identifier |properties|
-//@[67:68) Dot |.|
-//@[68:69) Identifier |a|
-//@[69:71) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:034) Identifier |nestedDiscriminatorCompletions|
+//@[035:036) Assignment |=|
+//@[037:056) Identifier |nestedDiscriminator|
+//@[056:057) Dot |.|
+//@[057:067) Identifier |properties|
+//@[067:068) Dot |.|
+//@[068:069) Identifier |a|
+//@[069:071) NewLine |\r\n|
 // #completionTest(73) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions2 = nestedDiscriminator['properties'].a
-//@[0:3) Identifier |var|
-//@[4:35) Identifier |nestedDiscriminatorCompletions2|
-//@[36:37) Assignment |=|
-//@[38:57) Identifier |nestedDiscriminator|
-//@[57:58) LeftSquare |[|
-//@[58:70) StringComplete |'properties'|
-//@[70:71) RightSquare |]|
-//@[71:72) Dot |.|
-//@[72:73) Identifier |a|
-//@[73:75) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:035) Identifier |nestedDiscriminatorCompletions2|
+//@[036:037) Assignment |=|
+//@[038:057) Identifier |nestedDiscriminator|
+//@[057:058) LeftSquare |[|
+//@[058:070) StringComplete |'properties'|
+//@[070:071) RightSquare |]|
+//@[071:072) Dot |.|
+//@[072:073) Identifier |a|
+//@[073:075) NewLine |\r\n|
 // #completionTest(69) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions3 = nestedDiscriminator.properties.
-//@[0:3) Identifier |var|
-//@[4:35) Identifier |nestedDiscriminatorCompletions3|
-//@[36:37) Assignment |=|
-//@[38:57) Identifier |nestedDiscriminator|
-//@[57:58) Dot |.|
-//@[58:68) Identifier |properties|
-//@[68:69) Dot |.|
-//@[69:71) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:035) Identifier |nestedDiscriminatorCompletions3|
+//@[036:037) Assignment |=|
+//@[038:057) Identifier |nestedDiscriminator|
+//@[057:058) Dot |.|
+//@[058:068) Identifier |properties|
+//@[068:069) Dot |.|
+//@[069:071) NewLine |\r\n|
 // #completionTest(72) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions4 = nestedDiscriminator['properties'].
-//@[0:3) Identifier |var|
-//@[4:35) Identifier |nestedDiscriminatorCompletions4|
-//@[36:37) Assignment |=|
-//@[38:57) Identifier |nestedDiscriminator|
-//@[57:58) LeftSquare |[|
-//@[58:70) StringComplete |'properties'|
-//@[70:71) RightSquare |]|
-//@[71:72) Dot |.|
-//@[72:76) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:035) Identifier |nestedDiscriminatorCompletions4|
+//@[036:037) Assignment |=|
+//@[038:057) Identifier |nestedDiscriminator|
+//@[057:058) LeftSquare |[|
+//@[058:070) StringComplete |'properties'|
+//@[070:071) RightSquare |]|
+//@[071:072) Dot |.|
+//@[072:076) NewLine |\r\n\r\n|
 
 // #completionTest(79) -> defaultCreateModeIndexes
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 var nestedDiscriminatorArrayIndexCompletions = nestedDiscriminator.properties[a]
-//@[0:3) Identifier |var|
-//@[4:44) Identifier |nestedDiscriminatorArrayIndexCompletions|
-//@[45:46) Assignment |=|
-//@[47:66) Identifier |nestedDiscriminator|
-//@[66:67) Dot |.|
-//@[67:77) Identifier |properties|
-//@[77:78) LeftSquare |[|
-//@[78:79) Identifier |a|
-//@[79:80) RightSquare |]|
-//@[80:84) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:044) Identifier |nestedDiscriminatorArrayIndexCompletions|
+//@[045:046) Assignment |=|
+//@[047:066) Identifier |nestedDiscriminator|
+//@[066:067) Dot |.|
+//@[067:077) Identifier |properties|
+//@[077:078) LeftSquare |[|
+//@[078:079) Identifier |a|
+//@[079:080) RightSquare |]|
+//@[080:084) NewLine |\r\n\r\n|
 
 /*
 Nested discriminator (conditional)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminator_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = if(true) {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |nestedDiscriminator_if|
-//@[32:90) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[91:92) Assignment |=|
-//@[93:95) Identifier |if|
-//@[95:96) LeftParen |(|
-//@[96:100) TrueKeyword |true|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |nestedDiscriminator_if|
+//@[032:090) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[091:092) Assignment |=|
+//@[093:095) Identifier |if|
+//@[095:096) LeftParen |(|
+//@[096:100) TrueKeyword |true|
 //@[100:101) RightParen |)|
 //@[102:103) LeftBrace |{|
 //@[103:105) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     createMode: 'Default'
-//@[4:14) Identifier |createMode|
-//@[14:15) Colon |:|
-//@[16:25) StringComplete |'Default'|
-//@[25:29) NewLine |\r\n\r\n|
+//@[004:014) Identifier |createMode|
+//@[014:015) Colon |:|
+//@[016:025) StringComplete |'Default'|
+//@[025:029) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // #completionTest(75) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions_if = nestedDiscriminator_if.properties.a
-//@[0:3) Identifier |var|
-//@[4:37) Identifier |nestedDiscriminatorCompletions_if|
-//@[38:39) Assignment |=|
-//@[40:62) Identifier |nestedDiscriminator_if|
-//@[62:63) Dot |.|
-//@[63:73) Identifier |properties|
-//@[73:74) Dot |.|
-//@[74:75) Identifier |a|
-//@[75:77) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:037) Identifier |nestedDiscriminatorCompletions_if|
+//@[038:039) Assignment |=|
+//@[040:062) Identifier |nestedDiscriminator_if|
+//@[062:063) Dot |.|
+//@[063:073) Identifier |properties|
+//@[073:074) Dot |.|
+//@[074:075) Identifier |a|
+//@[075:077) NewLine |\r\n|
 // #completionTest(79) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions2_if = nestedDiscriminator_if['properties'].a
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |nestedDiscriminatorCompletions2_if|
-//@[39:40) Assignment |=|
-//@[41:63) Identifier |nestedDiscriminator_if|
-//@[63:64) LeftSquare |[|
-//@[64:76) StringComplete |'properties'|
-//@[76:77) RightSquare |]|
-//@[77:78) Dot |.|
-//@[78:79) Identifier |a|
-//@[79:81) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |nestedDiscriminatorCompletions2_if|
+//@[039:040) Assignment |=|
+//@[041:063) Identifier |nestedDiscriminator_if|
+//@[063:064) LeftSquare |[|
+//@[064:076) StringComplete |'properties'|
+//@[076:077) RightSquare |]|
+//@[077:078) Dot |.|
+//@[078:079) Identifier |a|
+//@[079:081) NewLine |\r\n|
 // #completionTest(75) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions3_if = nestedDiscriminator_if.properties.
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |nestedDiscriminatorCompletions3_if|
-//@[39:40) Assignment |=|
-//@[41:63) Identifier |nestedDiscriminator_if|
-//@[63:64) Dot |.|
-//@[64:74) Identifier |properties|
-//@[74:75) Dot |.|
-//@[75:77) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |nestedDiscriminatorCompletions3_if|
+//@[039:040) Assignment |=|
+//@[041:063) Identifier |nestedDiscriminator_if|
+//@[063:064) Dot |.|
+//@[064:074) Identifier |properties|
+//@[074:075) Dot |.|
+//@[075:077) NewLine |\r\n|
 // #completionTest(78) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions4_if = nestedDiscriminator_if['properties'].
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |nestedDiscriminatorCompletions4_if|
-//@[39:40) Assignment |=|
-//@[41:63) Identifier |nestedDiscriminator_if|
-//@[63:64) LeftSquare |[|
-//@[64:76) StringComplete |'properties'|
-//@[76:77) RightSquare |]|
-//@[77:78) Dot |.|
-//@[78:82) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |nestedDiscriminatorCompletions4_if|
+//@[039:040) Assignment |=|
+//@[041:063) Identifier |nestedDiscriminator_if|
+//@[063:064) LeftSquare |[|
+//@[064:076) StringComplete |'properties'|
+//@[076:077) RightSquare |]|
+//@[077:078) Dot |.|
+//@[078:082) NewLine |\r\n\r\n|
 
 // #completionTest(85) -> defaultCreateModeIndexes_if
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorArrayIndexCompletions_if = nestedDiscriminator_if.properties[a]
-//@[0:3) Identifier |var|
-//@[4:47) Identifier |nestedDiscriminatorArrayIndexCompletions_if|
-//@[48:49) Assignment |=|
-//@[50:72) Identifier |nestedDiscriminator_if|
-//@[72:73) Dot |.|
-//@[73:83) Identifier |properties|
-//@[83:84) LeftSquare |[|
-//@[84:85) Identifier |a|
-//@[85:86) RightSquare |]|
-//@[86:92) NewLine |\r\n\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:047) Identifier |nestedDiscriminatorArrayIndexCompletions_if|
+//@[048:049) Assignment |=|
+//@[050:072) Identifier |nestedDiscriminator_if|
+//@[072:073) Dot |.|
+//@[073:083) Identifier |properties|
+//@[083:084) LeftSquare |[|
+//@[084:085) Identifier |a|
+//@[085:086) RightSquare |]|
+//@[086:092) NewLine |\r\n\r\n\r\n|
 
 
 /*
 Nested discriminator (loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:32) Identifier |nestedDiscriminator_for|
-//@[33:91) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[92:93) Assignment |=|
-//@[94:95) LeftSquare |[|
-//@[95:98) Identifier |for|
-//@[99:104) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:032) Identifier |nestedDiscriminator_for|
+//@[033:091) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[092:093) Assignment |=|
+//@[094:095) LeftSquare |[|
+//@[095:098) Identifier |for|
+//@[099:104) Identifier |thing|
 //@[105:107) Identifier |in|
 //@[108:109) LeftSquare |[|
 //@[109:110) RightSquare |]|
@@ -3888,123 +3888,123 @@ resource nestedDiscriminator_for 'Microsoft.DocumentDB/databaseAccounts@2020-06-
 //@[112:113) LeftBrace |{|
 //@[113:115) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     createMode: 'Default'
-//@[4:14) Identifier |createMode|
-//@[14:15) Colon |:|
-//@[16:25) StringComplete |'Default'|
-//@[25:29) NewLine |\r\n\r\n|
+//@[004:014) Identifier |createMode|
+//@[014:015) Colon |:|
+//@[016:025) StringComplete |'Default'|
+//@[025:029) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(80) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions_for = nestedDiscriminator_for[0].properties.a
-//@[0:3) Identifier |var|
-//@[4:38) Identifier |nestedDiscriminatorCompletions_for|
-//@[39:40) Assignment |=|
-//@[41:64) Identifier |nestedDiscriminator_for|
-//@[64:65) LeftSquare |[|
-//@[65:66) Integer |0|
-//@[66:67) RightSquare |]|
-//@[67:68) Dot |.|
-//@[68:78) Identifier |properties|
-//@[78:79) Dot |.|
-//@[79:80) Identifier |a|
-//@[80:82) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:038) Identifier |nestedDiscriminatorCompletions_for|
+//@[039:040) Assignment |=|
+//@[041:064) Identifier |nestedDiscriminator_for|
+//@[064:065) LeftSquare |[|
+//@[065:066) Integer |0|
+//@[066:067) RightSquare |]|
+//@[067:068) Dot |.|
+//@[068:078) Identifier |properties|
+//@[078:079) Dot |.|
+//@[079:080) Identifier |a|
+//@[080:082) NewLine |\r\n|
 // #completionTest(84) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions2_for = nestedDiscriminator_for[0]['properties'].a
-//@[0:3) Identifier |var|
-//@[4:39) Identifier |nestedDiscriminatorCompletions2_for|
-//@[40:41) Assignment |=|
-//@[42:65) Identifier |nestedDiscriminator_for|
-//@[65:66) LeftSquare |[|
-//@[66:67) Integer |0|
-//@[67:68) RightSquare |]|
-//@[68:69) LeftSquare |[|
-//@[69:81) StringComplete |'properties'|
-//@[81:82) RightSquare |]|
-//@[82:83) Dot |.|
-//@[83:84) Identifier |a|
-//@[84:86) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:039) Identifier |nestedDiscriminatorCompletions2_for|
+//@[040:041) Assignment |=|
+//@[042:065) Identifier |nestedDiscriminator_for|
+//@[065:066) LeftSquare |[|
+//@[066:067) Integer |0|
+//@[067:068) RightSquare |]|
+//@[068:069) LeftSquare |[|
+//@[069:081) StringComplete |'properties'|
+//@[081:082) RightSquare |]|
+//@[082:083) Dot |.|
+//@[083:084) Identifier |a|
+//@[084:086) NewLine |\r\n|
 // #completionTest(80) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions3_for = nestedDiscriminator_for[0].properties.
-//@[0:3) Identifier |var|
-//@[4:39) Identifier |nestedDiscriminatorCompletions3_for|
-//@[40:41) Assignment |=|
-//@[42:65) Identifier |nestedDiscriminator_for|
-//@[65:66) LeftSquare |[|
-//@[66:67) Integer |0|
-//@[67:68) RightSquare |]|
-//@[68:69) Dot |.|
-//@[69:79) Identifier |properties|
-//@[79:80) Dot |.|
-//@[80:82) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:039) Identifier |nestedDiscriminatorCompletions3_for|
+//@[040:041) Assignment |=|
+//@[042:065) Identifier |nestedDiscriminator_for|
+//@[065:066) LeftSquare |[|
+//@[066:067) Integer |0|
+//@[067:068) RightSquare |]|
+//@[068:069) Dot |.|
+//@[069:079) Identifier |properties|
+//@[079:080) Dot |.|
+//@[080:082) NewLine |\r\n|
 // #completionTest(83) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions4_for = nestedDiscriminator_for[0]['properties'].
-//@[0:3) Identifier |var|
-//@[4:39) Identifier |nestedDiscriminatorCompletions4_for|
-//@[40:41) Assignment |=|
-//@[42:65) Identifier |nestedDiscriminator_for|
-//@[65:66) LeftSquare |[|
-//@[66:67) Integer |0|
-//@[67:68) RightSquare |]|
-//@[68:69) LeftSquare |[|
-//@[69:81) StringComplete |'properties'|
-//@[81:82) RightSquare |]|
-//@[82:83) Dot |.|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:039) Identifier |nestedDiscriminatorCompletions4_for|
+//@[040:041) Assignment |=|
+//@[042:065) Identifier |nestedDiscriminator_for|
+//@[065:066) LeftSquare |[|
+//@[066:067) Integer |0|
+//@[067:068) RightSquare |]|
+//@[068:069) LeftSquare |[|
+//@[069:081) StringComplete |'properties'|
+//@[081:082) RightSquare |]|
+//@[082:083) Dot |.|
+//@[083:087) NewLine |\r\n\r\n|
 
 // #completionTest(90) -> defaultCreateModeIndexes_for
-//@[54:56) NewLine |\r\n|
+//@[054:056) NewLine |\r\n|
 var nestedDiscriminatorArrayIndexCompletions_for = nestedDiscriminator_for[0].properties[a]
-//@[0:3) Identifier |var|
-//@[4:48) Identifier |nestedDiscriminatorArrayIndexCompletions_for|
-//@[49:50) Assignment |=|
-//@[51:74) Identifier |nestedDiscriminator_for|
-//@[74:75) LeftSquare |[|
-//@[75:76) Integer |0|
-//@[76:77) RightSquare |]|
-//@[77:78) Dot |.|
-//@[78:88) Identifier |properties|
-//@[88:89) LeftSquare |[|
-//@[89:90) Identifier |a|
-//@[90:91) RightSquare |]|
-//@[91:97) NewLine |\r\n\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:048) Identifier |nestedDiscriminatorArrayIndexCompletions_for|
+//@[049:050) Assignment |=|
+//@[051:074) Identifier |nestedDiscriminator_for|
+//@[074:075) LeftSquare |[|
+//@[075:076) Integer |0|
+//@[076:077) RightSquare |]|
+//@[077:078) Dot |.|
+//@[078:088) Identifier |properties|
+//@[088:089) LeftSquare |[|
+//@[089:090) Identifier |a|
+//@[090:091) RightSquare |]|
+//@[091:097) NewLine |\r\n\r\n\r\n|
 
 
 /*
 Nested discriminator (filtered loop)
 */
-//@[2:4) NewLine |\r\n|
+//@[002:004) NewLine |\r\n|
 resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview' = [for thing in []: if(true) {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |nestedDiscriminator_for_if|
-//@[36:94) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
-//@[95:96) Assignment |=|
-//@[97:98) LeftSquare |[|
-//@[98:101) Identifier |for|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |nestedDiscriminator_for_if|
+//@[036:094) StringComplete |'Microsoft.DocumentDB/databaseAccounts@2020-06-01-preview'|
+//@[095:096) Assignment |=|
+//@[097:098) LeftSquare |[|
+//@[098:101) Identifier |for|
 //@[102:107) Identifier |thing|
 //@[108:110) Identifier |in|
 //@[111:112) LeftSquare |[|
@@ -4017,755 +4017,755 @@ resource nestedDiscriminator_for_if 'Microsoft.DocumentDB/databaseAccounts@2020-
 //@[124:125) LeftBrace |{|
 //@[125:127) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   location: 'l'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:15) StringComplete |'l'|
-//@[15:17) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:015) StringComplete |'l'|
+//@[015:017) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     createMode: 'Default'
-//@[4:14) Identifier |createMode|
-//@[14:15) Colon |:|
-//@[16:25) StringComplete |'Default'|
-//@[25:29) NewLine |\r\n\r\n|
+//@[004:014) Identifier |createMode|
+//@[014:015) Colon |:|
+//@[016:025) StringComplete |'Default'|
+//@[025:029) NewLine |\r\n\r\n|
 
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 // #completionTest(86) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions_for_if = nestedDiscriminator_for_if[0].properties.a
-//@[0:3) Identifier |var|
-//@[4:41) Identifier |nestedDiscriminatorCompletions_for_if|
-//@[42:43) Assignment |=|
-//@[44:70) Identifier |nestedDiscriminator_for_if|
-//@[70:71) LeftSquare |[|
-//@[71:72) Integer |0|
-//@[72:73) RightSquare |]|
-//@[73:74) Dot |.|
-//@[74:84) Identifier |properties|
-//@[84:85) Dot |.|
-//@[85:86) Identifier |a|
-//@[86:88) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:041) Identifier |nestedDiscriminatorCompletions_for_if|
+//@[042:043) Assignment |=|
+//@[044:070) Identifier |nestedDiscriminator_for_if|
+//@[070:071) LeftSquare |[|
+//@[071:072) Integer |0|
+//@[072:073) RightSquare |]|
+//@[073:074) Dot |.|
+//@[074:084) Identifier |properties|
+//@[084:085) Dot |.|
+//@[085:086) Identifier |a|
+//@[086:088) NewLine |\r\n|
 // #completionTest(90) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions2_for_if = nestedDiscriminator_for_if[0]['properties'].a
-//@[0:3) Identifier |var|
-//@[4:42) Identifier |nestedDiscriminatorCompletions2_for_if|
-//@[43:44) Assignment |=|
-//@[45:71) Identifier |nestedDiscriminator_for_if|
-//@[71:72) LeftSquare |[|
-//@[72:73) Integer |0|
-//@[73:74) RightSquare |]|
-//@[74:75) LeftSquare |[|
-//@[75:87) StringComplete |'properties'|
-//@[87:88) RightSquare |]|
-//@[88:89) Dot |.|
-//@[89:90) Identifier |a|
-//@[90:92) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:042) Identifier |nestedDiscriminatorCompletions2_for_if|
+//@[043:044) Assignment |=|
+//@[045:071) Identifier |nestedDiscriminator_for_if|
+//@[071:072) LeftSquare |[|
+//@[072:073) Integer |0|
+//@[073:074) RightSquare |]|
+//@[074:075) LeftSquare |[|
+//@[075:087) StringComplete |'properties'|
+//@[087:088) RightSquare |]|
+//@[088:089) Dot |.|
+//@[089:090) Identifier |a|
+//@[090:092) NewLine |\r\n|
 // #completionTest(86) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions3_for_if = nestedDiscriminator_for_if[0].properties.
-//@[0:3) Identifier |var|
-//@[4:42) Identifier |nestedDiscriminatorCompletions3_for_if|
-//@[43:44) Assignment |=|
-//@[45:71) Identifier |nestedDiscriminator_for_if|
-//@[71:72) LeftSquare |[|
-//@[72:73) Integer |0|
-//@[73:74) RightSquare |]|
-//@[74:75) Dot |.|
-//@[75:85) Identifier |properties|
-//@[85:86) Dot |.|
-//@[86:88) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:042) Identifier |nestedDiscriminatorCompletions3_for_if|
+//@[043:044) Assignment |=|
+//@[045:071) Identifier |nestedDiscriminator_for_if|
+//@[071:072) LeftSquare |[|
+//@[072:073) Integer |0|
+//@[073:074) RightSquare |]|
+//@[074:075) Dot |.|
+//@[075:085) Identifier |properties|
+//@[085:086) Dot |.|
+//@[086:088) NewLine |\r\n|
 // #completionTest(89) -> defaultCreateModeProperties
-//@[53:55) NewLine |\r\n|
+//@[053:055) NewLine |\r\n|
 var nestedDiscriminatorCompletions4_for_if = nestedDiscriminator_for_if[0]['properties'].
-//@[0:3) Identifier |var|
-//@[4:42) Identifier |nestedDiscriminatorCompletions4_for_if|
-//@[43:44) Assignment |=|
-//@[45:71) Identifier |nestedDiscriminator_for_if|
-//@[71:72) LeftSquare |[|
-//@[72:73) Integer |0|
-//@[73:74) RightSquare |]|
-//@[74:75) LeftSquare |[|
-//@[75:87) StringComplete |'properties'|
-//@[87:88) RightSquare |]|
-//@[88:89) Dot |.|
-//@[89:93) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:042) Identifier |nestedDiscriminatorCompletions4_for_if|
+//@[043:044) Assignment |=|
+//@[045:071) Identifier |nestedDiscriminator_for_if|
+//@[071:072) LeftSquare |[|
+//@[072:073) Integer |0|
+//@[073:074) RightSquare |]|
+//@[074:075) LeftSquare |[|
+//@[075:087) StringComplete |'properties'|
+//@[087:088) RightSquare |]|
+//@[088:089) Dot |.|
+//@[089:093) NewLine |\r\n\r\n|
 
 // #completionTest(96) -> defaultCreateModeIndexes_for_if
-//@[57:59) NewLine |\r\n|
+//@[057:059) NewLine |\r\n|
 var nestedDiscriminatorArrayIndexCompletions_for_if = nestedDiscriminator_for_if[0].properties[a]
-//@[0:3) Identifier |var|
-//@[4:51) Identifier |nestedDiscriminatorArrayIndexCompletions_for_if|
-//@[52:53) Assignment |=|
-//@[54:80) Identifier |nestedDiscriminator_for_if|
-//@[80:81) LeftSquare |[|
-//@[81:82) Integer |0|
-//@[82:83) RightSquare |]|
-//@[83:84) Dot |.|
-//@[84:94) Identifier |properties|
-//@[94:95) LeftSquare |[|
-//@[95:96) Identifier |a|
-//@[96:97) RightSquare |]|
-//@[97:105) NewLine |\r\n\r\n\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:051) Identifier |nestedDiscriminatorArrayIndexCompletions_for_if|
+//@[052:053) Assignment |=|
+//@[054:080) Identifier |nestedDiscriminator_for_if|
+//@[080:081) LeftSquare |[|
+//@[081:082) Integer |0|
+//@[082:083) RightSquare |]|
+//@[083:084) Dot |.|
+//@[084:094) Identifier |properties|
+//@[094:095) LeftSquare |[|
+//@[095:096) Identifier |a|
+//@[096:097) RightSquare |]|
+//@[097:105) NewLine |\r\n\r\n\r\n\r\n|
 
 
 
 // sample resource to validate completions on the next declarations
-//@[67:69) NewLine |\r\n|
+//@[067:069) NewLine |\r\n|
 resource nestedPropertyAccessOnConditional 'Microsoft.Compute/virtualMachines@2020-06-01' = if(true) {
-//@[0:8) Identifier |resource|
-//@[9:42) Identifier |nestedPropertyAccessOnConditional|
-//@[43:89) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[90:91) Assignment |=|
-//@[92:94) Identifier |if|
-//@[94:95) LeftParen |(|
-//@[95:99) TrueKeyword |true|
-//@[99:100) RightParen |)|
+//@[000:008) Identifier |resource|
+//@[009:042) Identifier |nestedPropertyAccessOnConditional|
+//@[043:089) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[090:091) Assignment |=|
+//@[092:094) Identifier |if|
+//@[094:095) LeftParen |(|
+//@[095:099) TrueKeyword |true|
+//@[099:100) RightParen |)|
 //@[101:102) LeftBrace |{|
 //@[102:104) NewLine |\r\n|
   location: 'test'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:18) StringComplete |'test'|
-//@[18:20) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:018) StringComplete |'test'|
+//@[018:020) NewLine |\r\n|
   name: 'test'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'test'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'test'|
+//@[014:016) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     additionalCapabilities: {
-//@[4:26) Identifier |additionalCapabilities|
-//@[26:27) Colon |:|
-//@[28:29) LeftBrace |{|
-//@[29:31) NewLine |\r\n|
+//@[004:026) Identifier |additionalCapabilities|
+//@[026:027) Colon |:|
+//@[028:029) LeftBrace |{|
+//@[029:031) NewLine |\r\n|
       
-//@[6:8) NewLine |\r\n|
+//@[006:008) NewLine |\r\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 // this validates that we can get nested property access completions on a conditional resource
-//@[94:96) NewLine |\r\n|
+//@[094:096) NewLine |\r\n|
 //#completionTest(56) -> vmProperties
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 var sigh = nestedPropertyAccessOnConditional.properties.
-//@[0:3) Identifier |var|
-//@[4:8) Identifier |sigh|
-//@[9:10) Assignment |=|
-//@[11:44) Identifier |nestedPropertyAccessOnConditional|
-//@[44:45) Dot |.|
-//@[45:55) Identifier |properties|
-//@[55:56) Dot |.|
-//@[56:60) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:008) Identifier |sigh|
+//@[009:010) Assignment |=|
+//@[011:044) Identifier |nestedPropertyAccessOnConditional|
+//@[044:045) Dot |.|
+//@[045:055) Identifier |properties|
+//@[055:056) Dot |.|
+//@[056:060) NewLine |\r\n\r\n|
 
 /*
   boolean property value completions
 */ 
-//@[3:5) NewLine |\r\n|
+//@[003:005) NewLine |\r\n|
 resource booleanPropertyPartialValue 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:36) Identifier |booleanPropertyPartialValue|
-//@[37:94) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[95:96) Assignment |=|
-//@[97:98) LeftBrace |{|
-//@[98:100) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:036) Identifier |booleanPropertyPartialValue|
+//@[037:094) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[095:096) Assignment |=|
+//@[097:098) LeftBrace |{|
+//@[098:100) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(28,29,30) -> boolPropertyValuesPlusSymbols
-//@[65:67) NewLine |\r\n|
+//@[065:067) NewLine |\r\n|
     autoUpgradeMinorVersion: t
-//@[4:27) Identifier |autoUpgradeMinorVersion|
-//@[27:28) Colon |:|
-//@[29:30) Identifier |t|
-//@[30:32) NewLine |\r\n|
+//@[004:027) Identifier |autoUpgradeMinorVersion|
+//@[027:028) Colon |:|
+//@[029:030) Identifier |t|
+//@[030:032) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource selfScope 'My.Rp/mockResource@2020-12-01' = {
-//@[0:8) Identifier |resource|
-//@[9:18) Identifier |selfScope|
-//@[19:50) StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[51:52) Assignment |=|
-//@[53:54) LeftBrace |{|
-//@[54:56) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:018) Identifier |selfScope|
+//@[019:050) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[051:052) Assignment |=|
+//@[053:054) LeftBrace |{|
+//@[054:056) NewLine |\r\n|
   name: 'selfScope'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'selfScope'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'selfScope'|
+//@[019:021) NewLine |\r\n|
   scope: selfScope
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:18) Identifier |selfScope|
-//@[18:20) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:018) Identifier |selfScope|
+//@[018:020) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 var notAResource = {
-//@[0:3) Identifier |var|
-//@[4:16) Identifier |notAResource|
-//@[17:18) Assignment |=|
-//@[19:20) LeftBrace |{|
-//@[20:22) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:016) Identifier |notAResource|
+//@[017:018) Assignment |=|
+//@[019:020) LeftBrace |{|
+//@[020:022) NewLine |\r\n|
   im: 'not'
-//@[2:4) Identifier |im|
-//@[4:5) Colon |:|
-//@[6:11) StringComplete |'not'|
-//@[11:13) NewLine |\r\n|
+//@[002:004) Identifier |im|
+//@[004:005) Colon |:|
+//@[006:011) StringComplete |'not'|
+//@[011:013) NewLine |\r\n|
   a: 'resource!'
-//@[2:3) Identifier |a|
-//@[3:4) Colon |:|
-//@[5:16) StringComplete |'resource!'|
-//@[16:18) NewLine |\r\n|
+//@[002:003) Identifier |a|
+//@[003:004) Colon |:|
+//@[005:016) StringComplete |'resource!'|
+//@[016:018) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 resource invalidScope 'My.Rp/mockResource@2020-12-01' = {
-//@[0:8) Identifier |resource|
-//@[9:21) Identifier |invalidScope|
-//@[22:53) StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftBrace |{|
-//@[57:59) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:021) Identifier |invalidScope|
+//@[022:053) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
   name: 'invalidScope'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) StringComplete |'invalidScope'|
-//@[22:24) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) StringComplete |'invalidScope'|
+//@[022:024) NewLine |\r\n|
   scope: notAResource
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:21) Identifier |notAResource|
-//@[21:23) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:021) Identifier |notAResource|
+//@[021:023) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource invalidScope2 'My.Rp/mockResource@2020-12-01' = {
-//@[0:8) Identifier |resource|
-//@[9:22) Identifier |invalidScope2|
-//@[23:54) StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[55:56) Assignment |=|
-//@[57:58) LeftBrace |{|
-//@[58:60) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:022) Identifier |invalidScope2|
+//@[023:054) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[055:056) Assignment |=|
+//@[057:058) LeftBrace |{|
+//@[058:060) NewLine |\r\n|
   name: 'invalidScope2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:23) StringComplete |'invalidScope2'|
-//@[23:25) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:023) StringComplete |'invalidScope2'|
+//@[023:025) NewLine |\r\n|
   scope: resourceGroup()
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:22) Identifier |resourceGroup|
-//@[22:23) LeftParen |(|
-//@[23:24) RightParen |)|
-//@[24:26) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceGroup|
+//@[022:023) LeftParen |(|
+//@[023:024) RightParen |)|
+//@[024:026) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource invalidScope3 'My.Rp/mockResource@2020-12-01' = {
-//@[0:8) Identifier |resource|
-//@[9:22) Identifier |invalidScope3|
-//@[23:54) StringComplete |'My.Rp/mockResource@2020-12-01'|
-//@[55:56) Assignment |=|
-//@[57:58) LeftBrace |{|
-//@[58:60) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:022) Identifier |invalidScope3|
+//@[023:054) StringComplete |'My.Rp/mockResource@2020-12-01'|
+//@[055:056) Assignment |=|
+//@[057:058) LeftBrace |{|
+//@[058:060) NewLine |\r\n|
   name: 'invalidScope3'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:23) StringComplete |'invalidScope3'|
-//@[23:25) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:023) StringComplete |'invalidScope3'|
+//@[023:025) NewLine |\r\n|
   scope: subscription()
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:21) Identifier |subscription|
-//@[21:22) LeftParen |(|
-//@[22:23) RightParen |)|
-//@[23:25) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:021) Identifier |subscription|
+//@[021:022) LeftParen |(|
+//@[022:023) RightParen |)|
+//@[023:025) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource invalidDuplicateName1 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |invalidDuplicateName1|
-//@[31:64) StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[65:66) Assignment |=|
-//@[67:68) LeftBrace |{|
-//@[68:70) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |invalidDuplicateName1|
+//@[031:064) StringComplete |'Mock.Rp/mockResource@2020-01-01'|
+//@[065:066) Assignment |=|
+//@[067:068) LeftBrace |{|
+//@[068:070) NewLine |\r\n|
   name: 'invalidDuplicateName'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:30) StringComplete |'invalidDuplicateName'|
-//@[30:32) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:030) StringComplete |'invalidDuplicateName'|
+//@[030:032) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 resource invalidDuplicateName2 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |invalidDuplicateName2|
-//@[31:64) StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[65:66) Assignment |=|
-//@[67:68) LeftBrace |{|
-//@[68:70) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |invalidDuplicateName2|
+//@[031:064) StringComplete |'Mock.Rp/mockResource@2020-01-01'|
+//@[065:066) Assignment |=|
+//@[067:068) LeftBrace |{|
+//@[068:070) NewLine |\r\n|
   name: 'invalidDuplicateName'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:30) StringComplete |'invalidDuplicateName'|
-//@[30:32) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:030) StringComplete |'invalidDuplicateName'|
+//@[030:032) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 resource invalidDuplicateName3 'Mock.Rp/mockResource@2019-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |invalidDuplicateName3|
-//@[31:64) StringComplete |'Mock.Rp/mockResource@2019-01-01'|
-//@[65:66) Assignment |=|
-//@[67:68) LeftBrace |{|
-//@[68:70) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |invalidDuplicateName3|
+//@[031:064) StringComplete |'Mock.Rp/mockResource@2019-01-01'|
+//@[065:066) Assignment |=|
+//@[067:068) LeftBrace |{|
+//@[068:070) NewLine |\r\n|
   name: 'invalidDuplicateName'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:30) StringComplete |'invalidDuplicateName'|
-//@[30:32) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:030) StringComplete |'invalidDuplicateName'|
+//@[030:032) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource validResourceForInvalidExtensionResourceDuplicateName 'Mock.Rp/mockResource@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:62) Identifier |validResourceForInvalidExtensionResourceDuplicateName|
-//@[63:96) StringComplete |'Mock.Rp/mockResource@2020-01-01'|
-//@[97:98) Assignment |=|
-//@[99:100) LeftBrace |{|
+//@[000:008) Identifier |resource|
+//@[009:062) Identifier |validResourceForInvalidExtensionResourceDuplicateName|
+//@[063:096) StringComplete |'Mock.Rp/mockResource@2020-01-01'|
+//@[097:098) Assignment |=|
+//@[099:100) LeftBrace |{|
 //@[100:102) NewLine |\r\n|
   name: 'validResourceForInvalidExtensionResourceDuplicateName'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:63) StringComplete |'validResourceForInvalidExtensionResourceDuplicateName'|
-//@[63:65) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:063) StringComplete |'validResourceForInvalidExtensionResourceDuplicateName'|
+//@[063:065) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource invalidExtensionResourceDuplicateName1 'Mock.Rp/mockExtResource@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:47) Identifier |invalidExtensionResourceDuplicateName1|
-//@[48:84) StringComplete |'Mock.Rp/mockExtResource@2020-01-01'|
-//@[85:86) Assignment |=|
-//@[87:88) LeftBrace |{|
-//@[88:90) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:047) Identifier |invalidExtensionResourceDuplicateName1|
+//@[048:084) StringComplete |'Mock.Rp/mockExtResource@2020-01-01'|
+//@[085:086) Assignment |=|
+//@[087:088) LeftBrace |{|
+//@[088:090) NewLine |\r\n|
   name: 'invalidExtensionResourceDuplicateName'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:47) StringComplete |'invalidExtensionResourceDuplicateName'|
-//@[47:49) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:047) StringComplete |'invalidExtensionResourceDuplicateName'|
+//@[047:049) NewLine |\r\n|
   scope: validResourceForInvalidExtensionResourceDuplicateName
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:62) Identifier |validResourceForInvalidExtensionResourceDuplicateName|
-//@[62:64) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:062) Identifier |validResourceForInvalidExtensionResourceDuplicateName|
+//@[062:064) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource invalidExtensionResourceDuplicateName2 'Mock.Rp/mockExtResource@2019-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:47) Identifier |invalidExtensionResourceDuplicateName2|
-//@[48:84) StringComplete |'Mock.Rp/mockExtResource@2019-01-01'|
-//@[85:86) Assignment |=|
-//@[87:88) LeftBrace |{|
-//@[88:90) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:047) Identifier |invalidExtensionResourceDuplicateName2|
+//@[048:084) StringComplete |'Mock.Rp/mockExtResource@2019-01-01'|
+//@[085:086) Assignment |=|
+//@[087:088) LeftBrace |{|
+//@[088:090) NewLine |\r\n|
   name: 'invalidExtensionResourceDuplicateName'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:47) StringComplete |'invalidExtensionResourceDuplicateName'|
-//@[47:49) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:047) StringComplete |'invalidExtensionResourceDuplicateName'|
+//@[047:049) NewLine |\r\n|
   scope: validResourceForInvalidExtensionResourceDuplicateName
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:62) Identifier |validResourceForInvalidExtensionResourceDuplicateName|
-//@[62:64) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:062) Identifier |validResourceForInvalidExtensionResourceDuplicateName|
+//@[062:064) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 @concat('foo', 'bar')
-//@[0:1) At |@|
-//@[1:7) Identifier |concat|
-//@[7:8) LeftParen |(|
-//@[8:13) StringComplete |'foo'|
-//@[13:14) Comma |,|
-//@[15:20) StringComplete |'bar'|
-//@[20:21) RightParen |)|
-//@[21:23) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |concat|
+//@[007:008) LeftParen |(|
+//@[008:013) StringComplete |'foo'|
+//@[013:014) Comma |,|
+//@[015:020) StringComplete |'bar'|
+//@[020:021) RightParen |)|
+//@[021:023) NewLine |\r\n|
 @secure()
-//@[0:1) At |@|
-//@[1:7) Identifier |secure|
-//@[7:8) LeftParen |(|
-//@[8:9) RightParen |)|
-//@[9:11) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:007) Identifier |secure|
+//@[007:008) LeftParen |(|
+//@[008:009) RightParen |)|
+//@[009:011) NewLine |\r\n|
 resource invalidDecorator 'Microsoft.Foo/foos@2020-02-02-alpha'= {
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |invalidDecorator|
-//@[26:63) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
-//@[63:64) Assignment |=|
-//@[65:66) LeftBrace |{|
-//@[66:68) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |invalidDecorator|
+//@[026:063) StringComplete |'Microsoft.Foo/foos@2020-02-02-alpha'|
+//@[063:064) Assignment |=|
+//@[065:066) LeftBrace |{|
+//@[066:068) NewLine |\r\n|
   name: 'invalidDecorator'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:26) StringComplete |'invalidDecorator'|
-//@[26:28) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:026) StringComplete |'invalidDecorator'|
+//@[026:028) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource cyclicRes 'Mock.Rp/mockExistingResource@2020-01-01' = {
-//@[0:8) Identifier |resource|
-//@[9:18) Identifier |cyclicRes|
-//@[19:60) StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
-//@[61:62) Assignment |=|
-//@[63:64) LeftBrace |{|
-//@[64:66) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:018) Identifier |cyclicRes|
+//@[019:060) StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[061:062) Assignment |=|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   name: 'cyclicRes'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'cyclicRes'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'cyclicRes'|
+//@[019:021) NewLine |\r\n|
   scope: cyclicRes
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:18) Identifier |cyclicRes|
-//@[18:20) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:018) Identifier |cyclicRes|
+//@[018:020) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource cyclicExistingRes 'Mock.Rp/mockExistingResource@2020-01-01' existing = {
-//@[0:8) Identifier |resource|
-//@[9:26) Identifier |cyclicExistingRes|
-//@[27:68) StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
-//@[69:77) Identifier |existing|
-//@[78:79) Assignment |=|
-//@[80:81) LeftBrace |{|
-//@[81:83) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:026) Identifier |cyclicExistingRes|
+//@[027:068) StringComplete |'Mock.Rp/mockExistingResource@2020-01-01'|
+//@[069:077) Identifier |existing|
+//@[078:079) Assignment |=|
+//@[080:081) LeftBrace |{|
+//@[081:083) NewLine |\r\n|
   name: 'cyclicExistingRes'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:27) StringComplete |'cyclicExistingRes'|
-//@[27:29) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:027) StringComplete |'cyclicExistingRes'|
+//@[027:029) NewLine |\r\n|
   scope: cyclicExistingRes
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:26) Identifier |cyclicExistingRes|
-//@[26:28) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:026) Identifier |cyclicExistingRes|
+//@[026:028) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // loop parsing cases
-//@[21:23) NewLine |\r\n|
+//@[021:023) NewLine |\r\n|
 resource expectedForKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = []
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |expectedForKeyword|
-//@[28:74) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[75:76) Assignment |=|
-//@[77:78) LeftSquare |[|
-//@[78:79) RightSquare |]|
-//@[79:83) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |expectedForKeyword|
+//@[028:074) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[075:076) Assignment |=|
+//@[077:078) LeftSquare |[|
+//@[078:079) RightSquare |]|
+//@[079:083) NewLine |\r\n\r\n|
 
 resource expectedForKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [f]
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |expectedForKeyword2|
-//@[29:75) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftSquare |[|
-//@[79:80) Identifier |f|
-//@[80:81) RightSquare |]|
-//@[81:85) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |expectedForKeyword2|
+//@[029:075) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftSquare |[|
+//@[079:080) Identifier |f|
+//@[080:081) RightSquare |]|
+//@[081:085) NewLine |\r\n\r\n|
 
 resource expectedLoopVar 'Microsoft.Storage/storageAccounts@2019-06-01' = [for]
-//@[0:8) Identifier |resource|
-//@[9:24) Identifier |expectedLoopVar|
-//@[25:71) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[72:73) Assignment |=|
-//@[74:75) LeftSquare |[|
-//@[75:78) Identifier |for|
-//@[78:79) RightSquare |]|
-//@[79:83) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:024) Identifier |expectedLoopVar|
+//@[025:071) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[072:073) Assignment |=|
+//@[074:075) LeftSquare |[|
+//@[075:078) Identifier |for|
+//@[078:079) RightSquare |]|
+//@[079:083) NewLine |\r\n\r\n|
 
 resource expectedInKeyword 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x]
-//@[0:8) Identifier |resource|
-//@[9:26) Identifier |expectedInKeyword|
-//@[27:73) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[74:75) Assignment |=|
-//@[76:77) LeftSquare |[|
-//@[77:80) Identifier |for|
-//@[81:82) Identifier |x|
-//@[82:83) RightSquare |]|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:026) Identifier |expectedInKeyword|
+//@[027:073) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[074:075) Assignment |=|
+//@[076:077) LeftSquare |[|
+//@[077:080) Identifier |for|
+//@[081:082) Identifier |x|
+//@[082:083) RightSquare |]|
+//@[083:087) NewLine |\r\n\r\n|
 
 resource expectedInKeyword2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x b]
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |expectedInKeyword2|
-//@[28:74) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[75:76) Assignment |=|
-//@[77:78) LeftSquare |[|
-//@[78:81) Identifier |for|
-//@[82:83) Identifier |x|
-//@[84:85) Identifier |b|
-//@[85:86) RightSquare |]|
-//@[86:90) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |expectedInKeyword2|
+//@[028:074) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[075:076) Assignment |=|
+//@[077:078) LeftSquare |[|
+//@[078:081) Identifier |for|
+//@[082:083) Identifier |x|
+//@[084:085) Identifier |b|
+//@[085:086) RightSquare |]|
+//@[086:090) NewLine |\r\n\r\n|
 
 resource expectedArrayExpression 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in]
-//@[0:8) Identifier |resource|
-//@[9:32) Identifier |expectedArrayExpression|
-//@[33:79) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[80:81) Assignment |=|
-//@[82:83) LeftSquare |[|
-//@[83:86) Identifier |for|
-//@[87:88) Identifier |x|
-//@[89:91) Identifier |in|
-//@[91:92) RightSquare |]|
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:032) Identifier |expectedArrayExpression|
+//@[033:079) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[080:081) Assignment |=|
+//@[082:083) LeftSquare |[|
+//@[083:086) Identifier |for|
+//@[087:088) Identifier |x|
+//@[089:091) Identifier |in|
+//@[091:092) RightSquare |]|
+//@[092:096) NewLine |\r\n\r\n|
 
 resource expectedColon 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y]
-//@[0:8) Identifier |resource|
-//@[9:22) Identifier |expectedColon|
-//@[23:69) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[70:71) Assignment |=|
-//@[72:73) LeftSquare |[|
-//@[73:76) Identifier |for|
-//@[77:78) Identifier |x|
-//@[79:81) Identifier |in|
-//@[82:83) Identifier |y|
-//@[83:84) RightSquare |]|
-//@[84:88) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:022) Identifier |expectedColon|
+//@[023:069) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[070:071) Assignment |=|
+//@[072:073) LeftSquare |[|
+//@[073:076) Identifier |for|
+//@[077:078) Identifier |x|
+//@[079:081) Identifier |in|
+//@[082:083) Identifier |y|
+//@[083:084) RightSquare |]|
+//@[084:088) NewLine |\r\n\r\n|
 
 resource expectedLoopBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y:]
-//@[0:8) Identifier |resource|
-//@[9:25) Identifier |expectedLoopBody|
-//@[26:72) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[73:74) Assignment |=|
-//@[75:76) LeftSquare |[|
-//@[76:79) Identifier |for|
-//@[80:81) Identifier |x|
-//@[82:84) Identifier |in|
-//@[85:86) Identifier |y|
-//@[86:87) Colon |:|
-//@[87:88) RightSquare |]|
-//@[88:92) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:025) Identifier |expectedLoopBody|
+//@[026:072) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[073:074) Assignment |=|
+//@[075:076) LeftSquare |[|
+//@[076:079) Identifier |for|
+//@[080:081) Identifier |x|
+//@[082:084) Identifier |in|
+//@[085:086) Identifier |y|
+//@[086:087) Colon |:|
+//@[087:088) RightSquare |]|
+//@[088:092) NewLine |\r\n\r\n|
 
 // loop index parsing cases
-//@[27:29) NewLine |\r\n|
+//@[027:029) NewLine |\r\n|
 resource expectedLoopItemName 'Microsoft.Network/dnsZones@2018-05-01' = [for ()]
-//@[0:8) Identifier |resource|
-//@[9:29) Identifier |expectedLoopItemName|
-//@[30:69) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[70:71) Assignment |=|
-//@[72:73) LeftSquare |[|
-//@[73:76) Identifier |for|
-//@[77:78) LeftParen |(|
-//@[78:79) RightParen |)|
-//@[79:80) RightSquare |]|
-//@[80:84) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:029) Identifier |expectedLoopItemName|
+//@[030:069) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[070:071) Assignment |=|
+//@[072:073) LeftSquare |[|
+//@[073:076) Identifier |for|
+//@[077:078) LeftParen |(|
+//@[078:079) RightParen |)|
+//@[079:080) RightSquare |]|
+//@[080:084) NewLine |\r\n\r\n|
 
 resource expectedLoopItemName2 'Microsoft.Network/dnsZones@2018-05-01' = [for (
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |expectedLoopItemName2|
-//@[31:70) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[71:72) Assignment |=|
-//@[73:74) LeftSquare |[|
-//@[74:77) Identifier |for|
-//@[78:79) LeftParen |(|
-//@[79:83) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |expectedLoopItemName2|
+//@[031:070) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[071:072) Assignment |=|
+//@[073:074) LeftSquare |[|
+//@[074:077) Identifier |for|
+//@[078:079) LeftParen |(|
+//@[079:083) NewLine |\r\n\r\n|
 
 resource expectedComma 'Microsoft.Network/dnsZones@2018-05-01' = [for (x)]
-//@[0:8) Identifier |resource|
-//@[9:22) Identifier |expectedComma|
-//@[23:62) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[63:64) Assignment |=|
-//@[65:66) LeftSquare |[|
-//@[66:69) Identifier |for|
-//@[70:71) LeftParen |(|
-//@[71:72) Identifier |x|
-//@[72:73) RightParen |)|
-//@[73:74) RightSquare |]|
-//@[74:78) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:022) Identifier |expectedComma|
+//@[023:062) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[063:064) Assignment |=|
+//@[065:066) LeftSquare |[|
+//@[066:069) Identifier |for|
+//@[070:071) LeftParen |(|
+//@[071:072) Identifier |x|
+//@[072:073) RightParen |)|
+//@[073:074) RightSquare |]|
+//@[074:078) NewLine |\r\n\r\n|
 
 resource expectedLoopIndexName 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, )]
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |expectedLoopIndexName|
-//@[31:70) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[71:72) Assignment |=|
-//@[73:74) LeftSquare |[|
-//@[74:77) Identifier |for|
-//@[78:79) LeftParen |(|
-//@[79:80) Identifier |x|
-//@[80:81) Comma |,|
-//@[82:83) RightParen |)|
-//@[83:84) RightSquare |]|
-//@[84:88) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |expectedLoopIndexName|
+//@[031:070) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[071:072) Assignment |=|
+//@[073:074) LeftSquare |[|
+//@[074:077) Identifier |for|
+//@[078:079) LeftParen |(|
+//@[079:080) Identifier |x|
+//@[080:081) Comma |,|
+//@[082:083) RightParen |)|
+//@[083:084) RightSquare |]|
+//@[084:088) NewLine |\r\n\r\n|
 
 resource expectedInKeyword3 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y)]
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |expectedInKeyword3|
-//@[28:67) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[68:69) Assignment |=|
-//@[70:71) LeftSquare |[|
-//@[71:74) Identifier |for|
-//@[75:76) LeftParen |(|
-//@[76:77) Identifier |x|
-//@[77:78) Comma |,|
-//@[79:80) Identifier |y|
-//@[80:81) RightParen |)|
-//@[81:82) RightSquare |]|
-//@[82:86) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |expectedInKeyword3|
+//@[028:067) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[068:069) Assignment |=|
+//@[070:071) LeftSquare |[|
+//@[071:074) Identifier |for|
+//@[075:076) LeftParen |(|
+//@[076:077) Identifier |x|
+//@[077:078) Comma |,|
+//@[079:080) Identifier |y|
+//@[080:081) RightParen |)|
+//@[081:082) RightSquare |]|
+//@[082:086) NewLine |\r\n\r\n|
 
 resource expectedInKeyword4 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) z]
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |expectedInKeyword4|
-//@[28:67) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[68:69) Assignment |=|
-//@[70:71) LeftSquare |[|
-//@[71:74) Identifier |for|
-//@[75:76) LeftParen |(|
-//@[76:77) Identifier |x|
-//@[77:78) Comma |,|
-//@[79:80) Identifier |y|
-//@[80:81) RightParen |)|
-//@[82:83) Identifier |z|
-//@[83:84) RightSquare |]|
-//@[84:88) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |expectedInKeyword4|
+//@[028:067) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[068:069) Assignment |=|
+//@[070:071) LeftSquare |[|
+//@[071:074) Identifier |for|
+//@[075:076) LeftParen |(|
+//@[076:077) Identifier |x|
+//@[077:078) Comma |,|
+//@[079:080) Identifier |y|
+//@[080:081) RightParen |)|
+//@[082:083) Identifier |z|
+//@[083:084) RightSquare |]|
+//@[084:088) NewLine |\r\n\r\n|
 
 resource expectedArrayExpression2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in ]
-//@[0:8) Identifier |resource|
-//@[9:33) Identifier |expectedArrayExpression2|
-//@[34:73) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[74:75) Assignment |=|
-//@[76:77) LeftSquare |[|
-//@[77:80) Identifier |for|
-//@[81:82) LeftParen |(|
-//@[82:83) Identifier |x|
-//@[83:84) Comma |,|
-//@[85:86) Identifier |y|
-//@[86:87) RightParen |)|
-//@[88:90) Identifier |in|
-//@[91:92) RightSquare |]|
-//@[92:96) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:033) Identifier |expectedArrayExpression2|
+//@[034:073) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[074:075) Assignment |=|
+//@[076:077) LeftSquare |[|
+//@[077:080) Identifier |for|
+//@[081:082) LeftParen |(|
+//@[082:083) Identifier |x|
+//@[083:084) Comma |,|
+//@[085:086) Identifier |y|
+//@[086:087) RightParen |)|
+//@[088:090) Identifier |in|
+//@[091:092) RightSquare |]|
+//@[092:096) NewLine |\r\n\r\n|
 
 resource expectedColon2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z]
-//@[0:8) Identifier |resource|
-//@[9:23) Identifier |expectedColon2|
-//@[24:63) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[64:65) Assignment |=|
-//@[66:67) LeftSquare |[|
-//@[67:70) Identifier |for|
-//@[71:72) LeftParen |(|
-//@[72:73) Identifier |x|
-//@[73:74) Comma |,|
-//@[75:76) Identifier |y|
-//@[76:77) RightParen |)|
-//@[78:80) Identifier |in|
-//@[81:82) Identifier |z|
-//@[82:83) RightSquare |]|
-//@[83:87) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:023) Identifier |expectedColon2|
+//@[024:063) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[064:065) Assignment |=|
+//@[066:067) LeftSquare |[|
+//@[067:070) Identifier |for|
+//@[071:072) LeftParen |(|
+//@[072:073) Identifier |x|
+//@[073:074) Comma |,|
+//@[075:076) Identifier |y|
+//@[076:077) RightParen |)|
+//@[078:080) Identifier |in|
+//@[081:082) Identifier |z|
+//@[082:083) RightSquare |]|
+//@[083:087) NewLine |\r\n\r\n|
 
 resource expectedLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z:]
-//@[0:8) Identifier |resource|
-//@[9:26) Identifier |expectedLoopBody2|
-//@[27:66) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[67:68) Assignment |=|
-//@[69:70) LeftSquare |[|
-//@[70:73) Identifier |for|
-//@[74:75) LeftParen |(|
-//@[75:76) Identifier |x|
-//@[76:77) Comma |,|
-//@[78:79) Identifier |y|
-//@[79:80) RightParen |)|
-//@[81:83) Identifier |in|
-//@[84:85) Identifier |z|
-//@[85:86) Colon |:|
-//@[86:87) RightSquare |]|
-//@[87:91) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:026) Identifier |expectedLoopBody2|
+//@[027:066) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[067:068) Assignment |=|
+//@[069:070) LeftSquare |[|
+//@[070:073) Identifier |for|
+//@[074:075) LeftParen |(|
+//@[075:076) Identifier |x|
+//@[076:077) Comma |,|
+//@[078:079) Identifier |y|
+//@[079:080) RightParen |)|
+//@[081:083) Identifier |in|
+//@[084:085) Identifier |z|
+//@[085:086) Colon |:|
+//@[086:087) RightSquare |]|
+//@[087:091) NewLine |\r\n\r\n|
 
 // loop filter parsing cases
-//@[28:30) NewLine |\r\n|
+//@[028:030) NewLine |\r\n|
 resource expectedLoopFilterOpenParen 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if]
-//@[0:8) Identifier |resource|
-//@[9:36) Identifier |expectedLoopFilterOpenParen|
-//@[37:83) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[84:85) Assignment |=|
-//@[86:87) LeftSquare |[|
-//@[87:90) Identifier |for|
-//@[91:92) Identifier |x|
-//@[93:95) Identifier |in|
-//@[96:97) Identifier |y|
-//@[97:98) Colon |:|
-//@[99:101) Identifier |if|
+//@[000:008) Identifier |resource|
+//@[009:036) Identifier |expectedLoopFilterOpenParen|
+//@[037:083) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[084:085) Assignment |=|
+//@[086:087) LeftSquare |[|
+//@[087:090) Identifier |for|
+//@[091:092) Identifier |x|
+//@[093:095) Identifier |in|
+//@[096:097) Identifier |y|
+//@[097:098) Colon |:|
+//@[099:101) Identifier |if|
 //@[101:102) RightSquare |]|
 //@[102:104) NewLine |\r\n|
 resource expectedLoopFilterOpenParen2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if]
-//@[0:8) Identifier |resource|
-//@[9:37) Identifier |expectedLoopFilterOpenParen2|
-//@[38:77) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[78:79) Assignment |=|
-//@[80:81) LeftSquare |[|
-//@[81:84) Identifier |for|
-//@[85:86) LeftParen |(|
-//@[86:87) Identifier |x|
-//@[87:88) Comma |,|
-//@[89:90) Identifier |y|
-//@[90:91) RightParen |)|
-//@[92:94) Identifier |in|
-//@[95:96) Identifier |z|
-//@[96:97) Colon |:|
-//@[98:100) Identifier |if|
+//@[000:008) Identifier |resource|
+//@[009:037) Identifier |expectedLoopFilterOpenParen2|
+//@[038:077) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[078:079) Assignment |=|
+//@[080:081) LeftSquare |[|
+//@[081:084) Identifier |for|
+//@[085:086) LeftParen |(|
+//@[086:087) Identifier |x|
+//@[087:088) Comma |,|
+//@[089:090) Identifier |y|
+//@[090:091) RightParen |)|
+//@[092:094) Identifier |in|
+//@[095:096) Identifier |z|
+//@[096:097) Colon |:|
+//@[098:100) Identifier |if|
 //@[100:101) RightSquare |]|
 //@[101:105) NewLine |\r\n\r\n|
 
 resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in y: if()]
-//@[0:8) Identifier |resource|
-//@[9:43) Identifier |expectedLoopFilterPredicateAndBody|
-//@[44:90) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[91:92) Assignment |=|
-//@[93:94) LeftSquare |[|
-//@[94:97) Identifier |for|
-//@[98:99) Identifier |x|
+//@[000:008) Identifier |resource|
+//@[009:043) Identifier |expectedLoopFilterPredicateAndBody|
+//@[044:090) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[091:092) Assignment |=|
+//@[093:094) LeftSquare |[|
+//@[094:097) Identifier |for|
+//@[098:099) Identifier |x|
 //@[100:102) Identifier |in|
 //@[103:104) Identifier |y|
 //@[104:105) Colon |:|
@@ -4775,18 +4775,18 @@ resource expectedLoopFilterPredicateAndBody 'Microsoft.Storage/storageAccounts@2
 //@[110:111) RightSquare |]|
 //@[111:113) NewLine |\r\n|
 resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for (x, y) in z: if()]
-//@[0:8) Identifier |resource|
-//@[9:44) Identifier |expectedLoopFilterPredicateAndBody2|
-//@[45:84) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[85:86) Assignment |=|
-//@[87:88) LeftSquare |[|
-//@[88:91) Identifier |for|
-//@[92:93) LeftParen |(|
-//@[93:94) Identifier |x|
-//@[94:95) Comma |,|
-//@[96:97) Identifier |y|
-//@[97:98) RightParen |)|
-//@[99:101) Identifier |in|
+//@[000:008) Identifier |resource|
+//@[009:044) Identifier |expectedLoopFilterPredicateAndBody2|
+//@[045:084) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[085:086) Assignment |=|
+//@[087:088) LeftSquare |[|
+//@[088:091) Identifier |for|
+//@[092:093) LeftParen |(|
+//@[093:094) Identifier |x|
+//@[094:095) Comma |,|
+//@[096:097) Identifier |y|
+//@[097:098) RightParen |)|
+//@[099:101) Identifier |in|
 //@[102:103) Identifier |z|
 //@[103:104) Colon |:|
 //@[105:107) Identifier |if|
@@ -4796,83 +4796,83 @@ resource expectedLoopFilterPredicateAndBody2 'Microsoft.Network/dnsZones@2018-05
 //@[110:114) NewLine |\r\n\r\n|
 
 // wrong body type
-//@[18:20) NewLine |\r\n|
+//@[018:020) NewLine |\r\n|
 var emptyArray = []
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |emptyArray|
-//@[15:16) Assignment |=|
-//@[17:18) LeftSquare |[|
-//@[18:19) RightSquare |]|
-//@[19:21) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |emptyArray|
+//@[015:016) Assignment |=|
+//@[017:018) LeftSquare |[|
+//@[018:019) RightSquare |]|
+//@[019:021) NewLine |\r\n|
 resource wrongLoopBodyType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for x in emptyArray:4]
-//@[0:8) Identifier |resource|
-//@[9:26) Identifier |wrongLoopBodyType|
-//@[27:73) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[74:75) Assignment |=|
-//@[76:77) LeftSquare |[|
-//@[77:80) Identifier |for|
-//@[81:82) Identifier |x|
-//@[83:85) Identifier |in|
-//@[86:96) Identifier |emptyArray|
-//@[96:97) Colon |:|
-//@[97:98) Integer |4|
-//@[98:99) RightSquare |]|
-//@[99:101) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:026) Identifier |wrongLoopBodyType|
+//@[027:073) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[074:075) Assignment |=|
+//@[076:077) LeftSquare |[|
+//@[077:080) Identifier |for|
+//@[081:082) Identifier |x|
+//@[083:085) Identifier |in|
+//@[086:096) Identifier |emptyArray|
+//@[096:097) Colon |:|
+//@[097:098) Integer |4|
+//@[098:099) RightSquare |]|
+//@[099:101) NewLine |\r\n|
 resource wrongLoopBodyType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (x ,i) in emptyArray:4]
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |wrongLoopBodyType2|
-//@[28:74) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[75:76) Assignment |=|
-//@[77:78) LeftSquare |[|
-//@[78:81) Identifier |for|
-//@[82:83) LeftParen |(|
-//@[83:84) Identifier |x|
-//@[85:86) Comma |,|
-//@[86:87) Identifier |i|
-//@[87:88) RightParen |)|
-//@[89:91) Identifier |in|
-//@[92:102) Identifier |emptyArray|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |wrongLoopBodyType2|
+//@[028:074) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[075:076) Assignment |=|
+//@[077:078) LeftSquare |[|
+//@[078:081) Identifier |for|
+//@[082:083) LeftParen |(|
+//@[083:084) Identifier |x|
+//@[085:086) Comma |,|
+//@[086:087) Identifier |i|
+//@[087:088) RightParen |)|
+//@[089:091) Identifier |in|
+//@[092:102) Identifier |emptyArray|
 //@[102:103) Colon |:|
 //@[103:104) Integer |4|
 //@[104:105) RightSquare |]|
 //@[105:109) NewLine |\r\n\r\n|
 
 // duplicate variable in the same scope
-//@[39:41) NewLine |\r\n|
+//@[039:041) NewLine |\r\n|
 resource itemAndIndexSameName 'Microsoft.AAD/domainServices@2020-01-01' = [for (same, same) in emptyArray: {
-//@[0:8) Identifier |resource|
-//@[9:29) Identifier |itemAndIndexSameName|
-//@[30:71) StringComplete |'Microsoft.AAD/domainServices@2020-01-01'|
-//@[72:73) Assignment |=|
-//@[74:75) LeftSquare |[|
-//@[75:78) Identifier |for|
-//@[79:80) LeftParen |(|
-//@[80:84) Identifier |same|
-//@[84:85) Comma |,|
-//@[86:90) Identifier |same|
-//@[90:91) RightParen |)|
-//@[92:94) Identifier |in|
-//@[95:105) Identifier |emptyArray|
+//@[000:008) Identifier |resource|
+//@[009:029) Identifier |itemAndIndexSameName|
+//@[030:071) StringComplete |'Microsoft.AAD/domainServices@2020-01-01'|
+//@[072:073) Assignment |=|
+//@[074:075) LeftSquare |[|
+//@[075:078) Identifier |for|
+//@[079:080) LeftParen |(|
+//@[080:084) Identifier |same|
+//@[084:085) Comma |,|
+//@[086:090) Identifier |same|
+//@[090:091) RightParen |)|
+//@[092:094) Identifier |in|
+//@[095:105) Identifier |emptyArray|
 //@[105:106) Colon |:|
 //@[107:108) LeftBrace |{|
 //@[108:110) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // errors in the array expression
-//@[33:35) NewLine |\r\n|
+//@[033:035) NewLine |\r\n|
 resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in union([], 2): {
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |arrayExpressionErrors|
-//@[31:77) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[78:79) Assignment |=|
-//@[80:81) LeftSquare |[|
-//@[81:84) Identifier |for|
-//@[85:92) Identifier |account|
-//@[93:95) Identifier |in|
-//@[96:101) Identifier |union|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |arrayExpressionErrors|
+//@[031:077) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[078:079) Assignment |=|
+//@[080:081) LeftSquare |[|
+//@[081:084) Identifier |for|
+//@[085:092) Identifier |account|
+//@[093:095) Identifier |in|
+//@[096:101) Identifier |union|
 //@[101:102) LeftParen |(|
 //@[102:103) LeftSquare |[|
 //@[103:104) RightSquare |]|
@@ -4883,22 +4883,22 @@ resource arrayExpressionErrors 'Microsoft.Storage/storageAccounts@2019-06-01' = 
 //@[110:111) LeftBrace |{|
 //@[111:113) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,k) in union([], 2): {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |arrayExpressionErrors2|
-//@[32:78) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[79:80) Assignment |=|
-//@[81:82) LeftSquare |[|
-//@[82:85) Identifier |for|
-//@[86:87) LeftParen |(|
-//@[87:94) Identifier |account|
-//@[94:95) Comma |,|
-//@[95:96) Identifier |k|
-//@[96:97) RightParen |)|
-//@[98:100) Identifier |in|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |arrayExpressionErrors2|
+//@[032:078) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[079:080) Assignment |=|
+//@[081:082) LeftSquare |[|
+//@[082:085) Identifier |for|
+//@[086:087) LeftParen |(|
+//@[087:094) Identifier |account|
+//@[094:095) Comma |,|
+//@[095:096) Identifier |k|
+//@[096:097) RightParen |)|
+//@[098:100) Identifier |in|
 //@[101:106) Identifier |union|
 //@[106:107) LeftParen |(|
 //@[107:108) LeftSquare |[|
@@ -4910,68 +4910,68 @@ resource arrayExpressionErrors2 'Microsoft.Storage/storageAccounts@2019-06-01' =
 //@[115:116) LeftBrace |{|
 //@[116:118) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // wrong array type
-//@[19:21) NewLine |\r\n|
+//@[019:021) NewLine |\r\n|
 var notAnArray = true
-//@[0:3) Identifier |var|
-//@[4:14) Identifier |notAnArray|
-//@[15:16) Assignment |=|
-//@[17:21) TrueKeyword |true|
-//@[21:23) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:014) Identifier |notAnArray|
+//@[015:016) Assignment |=|
+//@[017:021) TrueKeyword |true|
+//@[021:023) NewLine |\r\n|
 resource wrongArrayType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in notAnArray: {
-//@[0:8) Identifier |resource|
-//@[9:23) Identifier |wrongArrayType|
-//@[24:70) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[71:72) Assignment |=|
-//@[73:74) LeftSquare |[|
-//@[74:77) Identifier |for|
-//@[78:85) Identifier |account|
-//@[86:88) Identifier |in|
-//@[89:99) Identifier |notAnArray|
-//@[99:100) Colon |:|
+//@[000:008) Identifier |resource|
+//@[009:023) Identifier |wrongArrayType|
+//@[024:070) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[071:072) Assignment |=|
+//@[073:074) LeftSquare |[|
+//@[074:077) Identifier |for|
+//@[078:085) Identifier |account|
+//@[086:088) Identifier |in|
+//@[089:099) Identifier |notAnArray|
+//@[099:100) Colon |:|
 //@[101:102) LeftBrace |{|
 //@[102:104) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 resource wrongArrayType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in notAnArray: {
-//@[0:8) Identifier |resource|
-//@[9:24) Identifier |wrongArrayType2|
-//@[25:71) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[72:73) Assignment |=|
-//@[74:75) LeftSquare |[|
-//@[75:78) Identifier |for|
-//@[79:80) LeftParen |(|
-//@[80:87) Identifier |account|
-//@[87:88) Comma |,|
-//@[88:89) Identifier |i|
-//@[89:90) RightParen |)|
-//@[91:93) Identifier |in|
-//@[94:104) Identifier |notAnArray|
+//@[000:008) Identifier |resource|
+//@[009:024) Identifier |wrongArrayType2|
+//@[025:071) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[072:073) Assignment |=|
+//@[074:075) LeftSquare |[|
+//@[075:078) Identifier |for|
+//@[079:080) LeftParen |(|
+//@[080:087) Identifier |account|
+//@[087:088) Comma |,|
+//@[088:089) Identifier |i|
+//@[089:090) RightParen |)|
+//@[091:093) Identifier |in|
+//@[094:104) Identifier |notAnArray|
 //@[104:105) Colon |:|
 //@[106:107) LeftBrace |{|
 //@[107:109) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // wrong filter expression type
-//@[31:33) NewLine |\r\n|
+//@[031:033) NewLine |\r\n|
 resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in emptyArray: if(4) {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |wrongFilterExpressionType|
-//@[35:81) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[82:83) Assignment |=|
-//@[84:85) LeftSquare |[|
-//@[85:88) Identifier |for|
-//@[89:96) Identifier |account|
-//@[97:99) Identifier |in|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |wrongFilterExpressionType|
+//@[035:081) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[082:083) Assignment |=|
+//@[084:085) LeftSquare |[|
+//@[085:088) Identifier |for|
+//@[089:096) Identifier |account|
+//@[097:099) Identifier |in|
 //@[100:110) Identifier |emptyArray|
 //@[110:111) Colon |:|
 //@[112:114) Identifier |if|
@@ -4981,20 +4981,20 @@ resource wrongFilterExpressionType 'Microsoft.Storage/storageAccounts@2019-06-01
 //@[118:119) LeftBrace |{|
 //@[119:121) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in emptyArray: if(concat('s')){
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |wrongFilterExpressionType2|
-//@[36:82) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftSquare |[|
-//@[86:89) Identifier |for|
-//@[90:91) LeftParen |(|
-//@[91:98) Identifier |account|
-//@[98:99) Comma |,|
-//@[99:100) Identifier |i|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |wrongFilterExpressionType2|
+//@[036:082) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftSquare |[|
+//@[086:089) Identifier |for|
+//@[090:091) LeftParen |(|
+//@[091:098) Identifier |account|
+//@[098:099) Comma |,|
+//@[099:100) Identifier |i|
 //@[100:101) RightParen |)|
 //@[102:104) Identifier |in|
 //@[105:115) Identifier |emptyArray|
@@ -5009,41 +5009,41 @@ resource wrongFilterExpressionType2 'Microsoft.Storage/storageAccounts@2019-06-0
 //@[132:133) LeftBrace |{|
 //@[133:135) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // missing required properties
-//@[30:32) NewLine |\r\n|
+//@[030:032) NewLine |\r\n|
 resource missingRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |missingRequiredProperties|
-//@[35:81) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[82:83) Assignment |=|
-//@[84:85) LeftSquare |[|
-//@[85:88) Identifier |for|
-//@[89:96) Identifier |account|
-//@[97:99) Identifier |in|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |missingRequiredProperties|
+//@[035:081) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[082:083) Assignment |=|
+//@[084:085) LeftSquare |[|
+//@[085:088) Identifier |for|
+//@[089:096) Identifier |account|
+//@[097:099) Identifier |in|
 //@[100:101) LeftSquare |[|
 //@[101:102) RightSquare |]|
 //@[102:103) Colon |:|
 //@[104:105) LeftBrace |{|
 //@[105:107) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,j) in []: {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |missingRequiredProperties2|
-//@[36:82) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftSquare |[|
-//@[86:89) Identifier |for|
-//@[90:91) LeftParen |(|
-//@[91:98) Identifier |account|
-//@[98:99) Comma |,|
-//@[99:100) Identifier |j|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |missingRequiredProperties2|
+//@[036:082) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftSquare |[|
+//@[086:089) Identifier |for|
+//@[090:091) LeftParen |(|
+//@[091:098) Identifier |account|
+//@[098:099) Comma |,|
+//@[099:100) Identifier |j|
 //@[100:101) RightParen |)|
 //@[102:104) Identifier |in|
 //@[105:106) LeftSquare |[|
@@ -5052,20 +5052,20 @@ resource missingRequiredProperties2 'Microsoft.Storage/storageAccounts@2019-06-0
 //@[109:110) LeftBrace |{|
 //@[110:112) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // fewer missing required properties and a wrong property
-//@[57:59) NewLine |\r\n|
+//@[057:059) NewLine |\r\n|
 resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in []: {
-//@[0:8) Identifier |resource|
-//@[9:39) Identifier |missingFewerRequiredProperties|
-//@[40:86) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftSquare |[|
-//@[90:93) Identifier |for|
-//@[94:101) Identifier |account|
+//@[000:008) Identifier |resource|
+//@[009:039) Identifier |missingFewerRequiredProperties|
+//@[040:086) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[087:088) Assignment |=|
+//@[089:090) LeftSquare |[|
+//@[090:093) Identifier |for|
+//@[094:101) Identifier |account|
 //@[102:104) Identifier |in|
 //@[105:106) LeftSquare |[|
 //@[106:107) RightSquare |]|
@@ -5073,46 +5073,46 @@ resource missingFewerRequiredProperties 'Microsoft.Storage/storageAccounts@2019-
 //@[109:110) LeftBrace |{|
 //@[110:112) NewLine |\r\n|
   name: account
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) Identifier |account|
-//@[15:17) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) Identifier |account|
+//@[015:017) NewLine |\r\n|
   location: 'eastus42'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:22) StringComplete |'eastus42'|
-//@[22:24) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:022) StringComplete |'eastus42'|
+//@[022:024) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     wrong: 'test'
-//@[4:9) Identifier |wrong|
-//@[9:10) Colon |:|
-//@[11:17) StringComplete |'test'|
-//@[17:19) NewLine |\r\n|
+//@[004:009) Identifier |wrong|
+//@[009:010) Colon |:|
+//@[011:017) StringComplete |'test'|
+//@[017:019) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // wrong property inside the nested property loop
-//@[49:51) NewLine |\r\n|
+//@[049:051) NewLine |\r\n|
 resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |wrongPropertyInNestedLoop|
-//@[35:81) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[82:83) Assignment |=|
-//@[84:85) LeftSquare |[|
-//@[85:88) Identifier |for|
-//@[89:90) Identifier |i|
-//@[91:93) Identifier |in|
-//@[94:99) Identifier |range|
-//@[99:100) LeftParen |(|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |wrongPropertyInNestedLoop|
+//@[035:081) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[082:083) Assignment |=|
+//@[084:085) LeftSquare |[|
+//@[085:088) Identifier |for|
+//@[089:090) Identifier |i|
+//@[091:093) Identifier |in|
+//@[094:099) Identifier |range|
+//@[099:100) LeftParen |(|
 //@[100:101) Integer |0|
 //@[101:102) Comma |,|
 //@[103:104) Integer |3|
@@ -5121,72 +5121,72 @@ resource wrongPropertyInNestedLoop 'Microsoft.Network/virtualNetworks@2020-06-01
 //@[107:108) LeftBrace |{|
 //@[108:110) NewLine |\r\n|
   name: 'vnet-${i}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:17) Identifier |i|
-//@[17:19) StringRightPiece |}'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:016) StringLeftPiece |'vnet-${|
+//@[016:017) Identifier |i|
+//@[017:019) StringRightPiece |}'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     subnets: [for j in range(0, 4): {
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:17) Identifier |for|
-//@[18:19) Identifier |j|
-//@[20:22) Identifier |in|
-//@[23:28) Identifier |range|
-//@[28:29) LeftParen |(|
-//@[29:30) Integer |0|
-//@[30:31) Comma |,|
-//@[32:33) Integer |4|
-//@[33:34) RightParen |)|
-//@[34:35) Colon |:|
-//@[36:37) LeftBrace |{|
-//@[37:39) NewLine |\r\n|
+//@[004:011) Identifier |subnets|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:017) Identifier |for|
+//@[018:019) Identifier |j|
+//@[020:022) Identifier |in|
+//@[023:028) Identifier |range|
+//@[028:029) LeftParen |(|
+//@[029:030) Integer |0|
+//@[030:031) Comma |,|
+//@[032:033) Integer |4|
+//@[033:034) RightParen |)|
+//@[034:035) Colon |:|
+//@[036:037) LeftBrace |{|
+//@[037:039) NewLine |\r\n|
       doesNotExist: 'test'
-//@[6:18) Identifier |doesNotExist|
-//@[18:19) Colon |:|
-//@[20:26) StringComplete |'test'|
-//@[26:28) NewLine |\r\n|
+//@[006:018) Identifier |doesNotExist|
+//@[018:019) Colon |:|
+//@[020:026) StringComplete |'test'|
+//@[026:028) NewLine |\r\n|
       name: 'subnet-${i}-${j}'
-//@[6:10) Identifier |name|
-//@[10:11) Colon |:|
-//@[12:22) StringLeftPiece |'subnet-${|
-//@[22:23) Identifier |i|
-//@[23:27) StringMiddlePiece |}-${|
-//@[27:28) Identifier |j|
-//@[28:30) StringRightPiece |}'|
-//@[30:32) NewLine |\r\n|
+//@[006:010) Identifier |name|
+//@[010:011) Colon |:|
+//@[012:022) StringLeftPiece |'subnet-${|
+//@[022:023) Identifier |i|
+//@[023:027) StringMiddlePiece |}-${|
+//@[027:028) Identifier |j|
+//@[028:030) StringRightPiece |}'|
+//@[030:032) NewLine |\r\n|
     }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:006) RightSquare |]|
+//@[006:008) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-01' = [for (i,k) in range(0, 3): {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |wrongPropertyInNestedLoop2|
-//@[36:82) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftSquare |[|
-//@[86:89) Identifier |for|
-//@[90:91) LeftParen |(|
-//@[91:92) Identifier |i|
-//@[92:93) Comma |,|
-//@[93:94) Identifier |k|
-//@[94:95) RightParen |)|
-//@[96:98) Identifier |in|
-//@[99:104) Identifier |range|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |wrongPropertyInNestedLoop2|
+//@[036:082) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftSquare |[|
+//@[086:089) Identifier |for|
+//@[090:091) LeftParen |(|
+//@[091:092) Identifier |i|
+//@[092:093) Comma |,|
+//@[093:094) Identifier |k|
+//@[094:095) RightParen |)|
+//@[096:098) Identifier |in|
+//@[099:104) Identifier |range|
 //@[104:105) LeftParen |(|
 //@[105:106) Integer |0|
 //@[106:107) Comma |,|
@@ -5196,753 +5196,753 @@ resource wrongPropertyInNestedLoop2 'Microsoft.Network/virtualNetworks@2020-06-0
 //@[112:113) LeftBrace |{|
 //@[113:115) NewLine |\r\n|
   name: 'vnet-${i}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:17) Identifier |i|
-//@[17:19) StringRightPiece |}'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:016) StringLeftPiece |'vnet-${|
+//@[016:017) Identifier |i|
+//@[017:019) StringRightPiece |}'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     subnets: [for j in range(0, 4): {
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:17) Identifier |for|
-//@[18:19) Identifier |j|
-//@[20:22) Identifier |in|
-//@[23:28) Identifier |range|
-//@[28:29) LeftParen |(|
-//@[29:30) Integer |0|
-//@[30:31) Comma |,|
-//@[32:33) Integer |4|
-//@[33:34) RightParen |)|
-//@[34:35) Colon |:|
-//@[36:37) LeftBrace |{|
-//@[37:39) NewLine |\r\n|
+//@[004:011) Identifier |subnets|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:017) Identifier |for|
+//@[018:019) Identifier |j|
+//@[020:022) Identifier |in|
+//@[023:028) Identifier |range|
+//@[028:029) LeftParen |(|
+//@[029:030) Integer |0|
+//@[030:031) Comma |,|
+//@[032:033) Integer |4|
+//@[033:034) RightParen |)|
+//@[034:035) Colon |:|
+//@[036:037) LeftBrace |{|
+//@[037:039) NewLine |\r\n|
       doesNotExist: 'test'
-//@[6:18) Identifier |doesNotExist|
-//@[18:19) Colon |:|
-//@[20:26) StringComplete |'test'|
-//@[26:28) NewLine |\r\n|
+//@[006:018) Identifier |doesNotExist|
+//@[018:019) Colon |:|
+//@[020:026) StringComplete |'test'|
+//@[026:028) NewLine |\r\n|
       name: 'subnet-${i}-${j}-${k}'
-//@[6:10) Identifier |name|
-//@[10:11) Colon |:|
-//@[12:22) StringLeftPiece |'subnet-${|
-//@[22:23) Identifier |i|
-//@[23:27) StringMiddlePiece |}-${|
-//@[27:28) Identifier |j|
-//@[28:32) StringMiddlePiece |}-${|
-//@[32:33) Identifier |k|
-//@[33:35) StringRightPiece |}'|
-//@[35:37) NewLine |\r\n|
+//@[006:010) Identifier |name|
+//@[010:011) Colon |:|
+//@[012:022) StringLeftPiece |'subnet-${|
+//@[022:023) Identifier |i|
+//@[023:027) StringMiddlePiece |}-${|
+//@[027:028) Identifier |j|
+//@[028:032) StringMiddlePiece |}-${|
+//@[032:033) Identifier |k|
+//@[033:035) StringRightPiece |}'|
+//@[035:037) NewLine |\r\n|
     }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:006) RightSquare |]|
+//@[006:008) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // nonexistent arrays and loop variables
-//@[40:42) NewLine |\r\n|
+//@[040:042) NewLine |\r\n|
 resource nonexistentArrays 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in notAThing: {
-//@[0:8) Identifier |resource|
-//@[9:26) Identifier |nonexistentArrays|
-//@[27:73) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[74:75) Assignment |=|
-//@[76:77) LeftSquare |[|
-//@[77:80) Identifier |for|
-//@[81:82) Identifier |i|
-//@[83:85) Identifier |in|
-//@[86:95) Identifier |notAThing|
-//@[95:96) Colon |:|
-//@[97:98) LeftBrace |{|
-//@[98:100) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:026) Identifier |nonexistentArrays|
+//@[027:073) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[074:075) Assignment |=|
+//@[076:077) LeftSquare |[|
+//@[077:080) Identifier |for|
+//@[081:082) Identifier |i|
+//@[083:085) Identifier |in|
+//@[086:095) Identifier |notAThing|
+//@[095:096) Colon |:|
+//@[097:098) LeftBrace |{|
+//@[098:100) NewLine |\r\n|
   name: 'vnet-${justPlainWrong}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:30) Identifier |justPlainWrong|
-//@[30:32) StringRightPiece |}'|
-//@[32:34) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:016) StringLeftPiece |'vnet-${|
+//@[016:030) Identifier |justPlainWrong|
+//@[030:032) StringRightPiece |}'|
+//@[032:034) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     subnets: [for j in alsoNotAThing: {
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:17) Identifier |for|
-//@[18:19) Identifier |j|
-//@[20:22) Identifier |in|
-//@[23:36) Identifier |alsoNotAThing|
-//@[36:37) Colon |:|
-//@[38:39) LeftBrace |{|
-//@[39:41) NewLine |\r\n|
+//@[004:011) Identifier |subnets|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:017) Identifier |for|
+//@[018:019) Identifier |j|
+//@[020:022) Identifier |in|
+//@[023:036) Identifier |alsoNotAThing|
+//@[036:037) Colon |:|
+//@[038:039) LeftBrace |{|
+//@[039:041) NewLine |\r\n|
       doesNotExist: 'test'
-//@[6:18) Identifier |doesNotExist|
-//@[18:19) Colon |:|
-//@[20:26) StringComplete |'test'|
-//@[26:28) NewLine |\r\n|
+//@[006:018) Identifier |doesNotExist|
+//@[018:019) Colon |:|
+//@[020:026) StringComplete |'test'|
+//@[026:028) NewLine |\r\n|
       name: 'subnet-${fake}-${totallyFake}'
-//@[6:10) Identifier |name|
-//@[10:11) Colon |:|
-//@[12:22) StringLeftPiece |'subnet-${|
-//@[22:26) Identifier |fake|
-//@[26:30) StringMiddlePiece |}-${|
-//@[30:41) Identifier |totallyFake|
-//@[41:43) StringRightPiece |}'|
-//@[43:45) NewLine |\r\n|
+//@[006:010) Identifier |name|
+//@[010:011) Colon |:|
+//@[012:022) StringLeftPiece |'subnet-${|
+//@[022:026) Identifier |fake|
+//@[026:030) StringMiddlePiece |}-${|
+//@[030:041) Identifier |totallyFake|
+//@[041:043) StringRightPiece |}'|
+//@[043:045) NewLine |\r\n|
     }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:006) RightSquare |]|
+//@[006:008) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // property loops cannot be nested
-//@[34:36) NewLine |\r\n|
+//@[034:036) NewLine |\r\n|
 resource propertyLoopsCannotNest 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:8) Identifier |resource|
-//@[9:32) Identifier |propertyLoopsCannotNest|
-//@[33:79) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[80:81) Assignment |=|
-//@[82:83) LeftSquare |[|
-//@[83:86) Identifier |for|
-//@[87:94) Identifier |account|
-//@[95:97) Identifier |in|
-//@[98:113) Identifier |storageAccounts|
+//@[000:008) Identifier |resource|
+//@[009:032) Identifier |propertyLoopsCannotNest|
+//@[033:079) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[080:081) Assignment |=|
+//@[082:083) LeftSquare |[|
+//@[083:086) Identifier |for|
+//@[087:094) Identifier |account|
+//@[095:097) Identifier |in|
+//@[098:113) Identifier |storageAccounts|
 //@[113:114) Colon |:|
 //@[115:116) LeftBrace |{|
 //@[116:118) NewLine |\r\n|
   name: account.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) Identifier |account|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:22) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) Identifier |account|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:022) NewLine |\r\n|
   location: account.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:19) Identifier |account|
-//@[19:20) Dot |.|
-//@[20:28) Identifier |location|
-//@[28:30) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:019) Identifier |account|
+//@[019:020) Dot |.|
+//@[020:028) Identifier |location|
+//@[028:030) NewLine |\r\n|
   sku: {
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:10) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
     name: 'Standard_LRS'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:24) StringComplete |'Standard_LRS'|
-//@[24:26) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:024) StringComplete |'Standard_LRS'|
+//@[024:026) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'StorageV2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'StorageV2'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:19) NewLine |\r\n\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:019) NewLine |\r\n\r\n|
 
     networkAcls: {
-//@[4:15) Identifier |networkAcls|
-//@[15:16) Colon |:|
-//@[17:18) LeftBrace |{|
-//@[18:20) NewLine |\r\n|
+//@[004:015) Identifier |networkAcls|
+//@[015:016) Colon |:|
+//@[017:018) LeftBrace |{|
+//@[018:020) NewLine |\r\n|
       virtualNetworkRules: [for rule in []: {
-//@[6:25) Identifier |virtualNetworkRules|
-//@[25:26) Colon |:|
-//@[27:28) LeftSquare |[|
-//@[28:31) Identifier |for|
-//@[32:36) Identifier |rule|
-//@[37:39) Identifier |in|
-//@[40:41) LeftSquare |[|
-//@[41:42) RightSquare |]|
-//@[42:43) Colon |:|
-//@[44:45) LeftBrace |{|
-//@[45:47) NewLine |\r\n|
+//@[006:025) Identifier |virtualNetworkRules|
+//@[025:026) Colon |:|
+//@[027:028) LeftSquare |[|
+//@[028:031) Identifier |for|
+//@[032:036) Identifier |rule|
+//@[037:039) Identifier |in|
+//@[040:041) LeftSquare |[|
+//@[041:042) RightSquare |]|
+//@[042:043) Colon |:|
+//@[044:045) LeftBrace |{|
+//@[045:047) NewLine |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:10) Identifier |id|
-//@[10:11) Colon |:|
-//@[12:15) StringLeftPiece |'${|
-//@[15:22) Identifier |account|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |name|
-//@[27:31) StringMiddlePiece |}-${|
-//@[31:38) Identifier |account|
-//@[38:39) Dot |.|
-//@[39:47) Identifier |location|
-//@[47:49) StringRightPiece |}'|
-//@[49:51) NewLine |\r\n|
+//@[008:010) Identifier |id|
+//@[010:011) Colon |:|
+//@[012:015) StringLeftPiece |'${|
+//@[015:022) Identifier |account|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |name|
+//@[027:031) StringMiddlePiece |}-${|
+//@[031:038) Identifier |account|
+//@[038:039) Dot |.|
+//@[039:047) Identifier |location|
+//@[047:049) StringRightPiece |}'|
+//@[049:051) NewLine |\r\n|
         state: [for lol in []: 4]
-//@[8:13) Identifier |state|
-//@[13:14) Colon |:|
-//@[15:16) LeftSquare |[|
-//@[16:19) Identifier |for|
-//@[20:23) Identifier |lol|
-//@[24:26) Identifier |in|
-//@[27:28) LeftSquare |[|
-//@[28:29) RightSquare |]|
-//@[29:30) Colon |:|
-//@[31:32) Integer |4|
-//@[32:33) RightSquare |]|
-//@[33:35) NewLine |\r\n|
+//@[008:013) Identifier |state|
+//@[013:014) Colon |:|
+//@[015:016) LeftSquare |[|
+//@[016:019) Identifier |for|
+//@[020:023) Identifier |lol|
+//@[024:026) Identifier |in|
+//@[027:028) LeftSquare |[|
+//@[028:029) RightSquare |]|
+//@[029:030) Colon |:|
+//@[031:032) Integer |4|
+//@[032:033) RightSquare |]|
+//@[033:035) NewLine |\r\n|
       }]
-//@[6:7) RightBrace |}|
-//@[7:8) RightSquare |]|
-//@[8:10) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:008) RightSquare |]|
+//@[008:010) NewLine |\r\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:004) NewLine |\r\n|
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for (account,i) in storageAccounts: {
-//@[0:8) Identifier |resource|
-//@[9:33) Identifier |propertyLoopsCannotNest2|
-//@[34:80) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[81:82) Assignment |=|
-//@[83:84) LeftSquare |[|
-//@[84:87) Identifier |for|
-//@[88:89) LeftParen |(|
-//@[89:96) Identifier |account|
-//@[96:97) Comma |,|
-//@[97:98) Identifier |i|
-//@[98:99) RightParen |)|
+//@[000:008) Identifier |resource|
+//@[009:033) Identifier |propertyLoopsCannotNest2|
+//@[034:080) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[081:082) Assignment |=|
+//@[083:084) LeftSquare |[|
+//@[084:087) Identifier |for|
+//@[088:089) LeftParen |(|
+//@[089:096) Identifier |account|
+//@[096:097) Comma |,|
+//@[097:098) Identifier |i|
+//@[098:099) RightParen |)|
 //@[100:102) Identifier |in|
 //@[103:118) Identifier |storageAccounts|
 //@[118:119) Colon |:|
 //@[120:121) LeftBrace |{|
 //@[121:123) NewLine |\r\n|
   name: account.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) Identifier |account|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:22) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) Identifier |account|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:022) NewLine |\r\n|
   location: account.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:19) Identifier |account|
-//@[19:20) Dot |.|
-//@[20:28) Identifier |location|
-//@[28:30) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:019) Identifier |account|
+//@[019:020) Dot |.|
+//@[020:028) Identifier |location|
+//@[028:030) NewLine |\r\n|
   sku: {
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:10) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
     name: 'Standard_LRS'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:24) StringComplete |'Standard_LRS'|
-//@[24:26) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:024) StringComplete |'Standard_LRS'|
+//@[024:026) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'StorageV2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'StorageV2'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:19) NewLine |\r\n\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:019) NewLine |\r\n\r\n|
 
     networkAcls: {
-//@[4:15) Identifier |networkAcls|
-//@[15:16) Colon |:|
-//@[17:18) LeftBrace |{|
-//@[18:20) NewLine |\r\n|
+//@[004:015) Identifier |networkAcls|
+//@[015:016) Colon |:|
+//@[017:018) LeftBrace |{|
+//@[018:020) NewLine |\r\n|
       virtualNetworkRules: [for (rule,j) in []: {
-//@[6:25) Identifier |virtualNetworkRules|
-//@[25:26) Colon |:|
-//@[27:28) LeftSquare |[|
-//@[28:31) Identifier |for|
-//@[32:33) LeftParen |(|
-//@[33:37) Identifier |rule|
-//@[37:38) Comma |,|
-//@[38:39) Identifier |j|
-//@[39:40) RightParen |)|
-//@[41:43) Identifier |in|
-//@[44:45) LeftSquare |[|
-//@[45:46) RightSquare |]|
-//@[46:47) Colon |:|
-//@[48:49) LeftBrace |{|
-//@[49:51) NewLine |\r\n|
+//@[006:025) Identifier |virtualNetworkRules|
+//@[025:026) Colon |:|
+//@[027:028) LeftSquare |[|
+//@[028:031) Identifier |for|
+//@[032:033) LeftParen |(|
+//@[033:037) Identifier |rule|
+//@[037:038) Comma |,|
+//@[038:039) Identifier |j|
+//@[039:040) RightParen |)|
+//@[041:043) Identifier |in|
+//@[044:045) LeftSquare |[|
+//@[045:046) RightSquare |]|
+//@[046:047) Colon |:|
+//@[048:049) LeftBrace |{|
+//@[049:051) NewLine |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:10) Identifier |id|
-//@[10:11) Colon |:|
-//@[12:15) StringLeftPiece |'${|
-//@[15:22) Identifier |account|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |name|
-//@[27:31) StringMiddlePiece |}-${|
-//@[31:38) Identifier |account|
-//@[38:39) Dot |.|
-//@[39:47) Identifier |location|
-//@[47:49) StringRightPiece |}'|
-//@[49:51) NewLine |\r\n|
+//@[008:010) Identifier |id|
+//@[010:011) Colon |:|
+//@[012:015) StringLeftPiece |'${|
+//@[015:022) Identifier |account|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |name|
+//@[027:031) StringMiddlePiece |}-${|
+//@[031:038) Identifier |account|
+//@[038:039) Dot |.|
+//@[039:047) Identifier |location|
+//@[047:049) StringRightPiece |}'|
+//@[049:051) NewLine |\r\n|
         state: [for (lol,k) in []: 4]
-//@[8:13) Identifier |state|
-//@[13:14) Colon |:|
-//@[15:16) LeftSquare |[|
-//@[16:19) Identifier |for|
-//@[20:21) LeftParen |(|
-//@[21:24) Identifier |lol|
-//@[24:25) Comma |,|
-//@[25:26) Identifier |k|
-//@[26:27) RightParen |)|
-//@[28:30) Identifier |in|
-//@[31:32) LeftSquare |[|
-//@[32:33) RightSquare |]|
-//@[33:34) Colon |:|
-//@[35:36) Integer |4|
-//@[36:37) RightSquare |]|
-//@[37:39) NewLine |\r\n|
+//@[008:013) Identifier |state|
+//@[013:014) Colon |:|
+//@[015:016) LeftSquare |[|
+//@[016:019) Identifier |for|
+//@[020:021) LeftParen |(|
+//@[021:024) Identifier |lol|
+//@[024:025) Comma |,|
+//@[025:026) Identifier |k|
+//@[026:027) RightParen |)|
+//@[028:030) Identifier |in|
+//@[031:032) LeftSquare |[|
+//@[032:033) RightSquare |]|
+//@[033:034) Colon |:|
+//@[035:036) Integer |4|
+//@[036:037) RightSquare |]|
+//@[037:039) NewLine |\r\n|
       }]
-//@[6:7) RightBrace |}|
-//@[7:8) RightSquare |]|
-//@[8:10) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:008) RightSquare |]|
+//@[008:010) NewLine |\r\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // property loops cannot be nested (even more nesting)
-//@[54:56) NewLine |\r\n|
+//@[054:056) NewLine |\r\n|
 resource propertyLoopsCannotNest2 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:8) Identifier |resource|
-//@[9:33) Identifier |propertyLoopsCannotNest2|
-//@[34:80) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[81:82) Assignment |=|
-//@[83:84) LeftSquare |[|
-//@[84:87) Identifier |for|
-//@[88:95) Identifier |account|
-//@[96:98) Identifier |in|
-//@[99:114) Identifier |storageAccounts|
+//@[000:008) Identifier |resource|
+//@[009:033) Identifier |propertyLoopsCannotNest2|
+//@[034:080) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[081:082) Assignment |=|
+//@[083:084) LeftSquare |[|
+//@[084:087) Identifier |for|
+//@[088:095) Identifier |account|
+//@[096:098) Identifier |in|
+//@[099:114) Identifier |storageAccounts|
 //@[114:115) Colon |:|
 //@[116:117) LeftBrace |{|
 //@[117:119) NewLine |\r\n|
   name: account.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) Identifier |account|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:22) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) Identifier |account|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:022) NewLine |\r\n|
   location: account.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:19) Identifier |account|
-//@[19:20) Dot |.|
-//@[20:28) Identifier |location|
-//@[28:30) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:019) Identifier |account|
+//@[019:020) Dot |.|
+//@[020:028) Identifier |location|
+//@[028:030) NewLine |\r\n|
   sku: {
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:10) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
     name: 'Standard_LRS'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:24) StringComplete |'Standard_LRS'|
-//@[24:26) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:024) StringComplete |'Standard_LRS'|
+//@[024:026) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'StorageV2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'StorageV2'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     networkAcls:  {
-//@[4:15) Identifier |networkAcls|
-//@[15:16) Colon |:|
-//@[18:19) LeftBrace |{|
-//@[19:21) NewLine |\r\n|
+//@[004:015) Identifier |networkAcls|
+//@[015:016) Colon |:|
+//@[018:019) LeftBrace |{|
+//@[019:021) NewLine |\r\n|
       virtualNetworkRules: [for rule in []: {
-//@[6:25) Identifier |virtualNetworkRules|
-//@[25:26) Colon |:|
-//@[27:28) LeftSquare |[|
-//@[28:31) Identifier |for|
-//@[32:36) Identifier |rule|
-//@[37:39) Identifier |in|
-//@[40:41) LeftSquare |[|
-//@[41:42) RightSquare |]|
-//@[42:43) Colon |:|
-//@[44:45) LeftBrace |{|
-//@[45:47) NewLine |\r\n|
+//@[006:025) Identifier |virtualNetworkRules|
+//@[025:026) Colon |:|
+//@[027:028) LeftSquare |[|
+//@[028:031) Identifier |for|
+//@[032:036) Identifier |rule|
+//@[037:039) Identifier |in|
+//@[040:041) LeftSquare |[|
+//@[041:042) RightSquare |]|
+//@[042:043) Colon |:|
+//@[044:045) LeftBrace |{|
+//@[045:047) NewLine |\r\n|
         // #completionTest(15,31) -> symbolsPlusRule
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:10) Identifier |id|
-//@[10:11) Colon |:|
-//@[12:15) StringLeftPiece |'${|
-//@[15:22) Identifier |account|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |name|
-//@[27:31) StringMiddlePiece |}-${|
-//@[31:38) Identifier |account|
-//@[38:39) Dot |.|
-//@[39:47) Identifier |location|
-//@[47:49) StringRightPiece |}'|
-//@[49:51) NewLine |\r\n|
+//@[008:010) Identifier |id|
+//@[010:011) Colon |:|
+//@[012:015) StringLeftPiece |'${|
+//@[015:022) Identifier |account|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |name|
+//@[027:031) StringMiddlePiece |}-${|
+//@[031:038) Identifier |account|
+//@[038:039) Dot |.|
+//@[039:047) Identifier |location|
+//@[047:049) StringRightPiece |}'|
+//@[049:051) NewLine |\r\n|
         state: [for state in []: {
-//@[8:13) Identifier |state|
-//@[13:14) Colon |:|
-//@[15:16) LeftSquare |[|
-//@[16:19) Identifier |for|
-//@[20:25) Identifier |state|
-//@[26:28) Identifier |in|
-//@[29:30) LeftSquare |[|
-//@[30:31) RightSquare |]|
-//@[31:32) Colon |:|
-//@[33:34) LeftBrace |{|
-//@[34:36) NewLine |\r\n|
+//@[008:013) Identifier |state|
+//@[013:014) Colon |:|
+//@[015:016) LeftSquare |[|
+//@[016:019) Identifier |for|
+//@[020:025) Identifier |state|
+//@[026:028) Identifier |in|
+//@[029:030) LeftSquare |[|
+//@[030:031) RightSquare |]|
+//@[031:032) Colon |:|
+//@[033:034) LeftBrace |{|
+//@[034:036) NewLine |\r\n|
           // #completionTest(38) -> empty #completionTest(16) -> symbolsPlusAccountRuleState
-//@[92:94) NewLine |\r\n|
+//@[092:094) NewLine |\r\n|
           fake: [for something in []: true]
-//@[10:14) Identifier |fake|
-//@[14:15) Colon |:|
-//@[16:17) LeftSquare |[|
-//@[17:20) Identifier |for|
-//@[21:30) Identifier |something|
-//@[31:33) Identifier |in|
-//@[34:35) LeftSquare |[|
-//@[35:36) RightSquare |]|
-//@[36:37) Colon |:|
-//@[38:42) TrueKeyword |true|
-//@[42:43) RightSquare |]|
-//@[43:45) NewLine |\r\n|
+//@[010:014) Identifier |fake|
+//@[014:015) Colon |:|
+//@[016:017) LeftSquare |[|
+//@[017:020) Identifier |for|
+//@[021:030) Identifier |something|
+//@[031:033) Identifier |in|
+//@[034:035) LeftSquare |[|
+//@[035:036) RightSquare |]|
+//@[036:037) Colon |:|
+//@[038:042) TrueKeyword |true|
+//@[042:043) RightSquare |]|
+//@[043:045) NewLine |\r\n|
         }]
-//@[8:9) RightBrace |}|
-//@[9:10) RightSquare |]|
-//@[10:12) NewLine |\r\n|
+//@[008:009) RightBrace |}|
+//@[009:010) RightSquare |]|
+//@[010:012) NewLine |\r\n|
       }]
-//@[6:7) RightBrace |}|
-//@[7:8) RightSquare |]|
-//@[8:10) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:008) RightSquare |]|
+//@[008:010) NewLine |\r\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // loops cannot be used inside of expressions
-//@[45:47) NewLine |\r\n|
+//@[045:047) NewLine |\r\n|
 resource stuffs 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:8) Identifier |resource|
-//@[9:15) Identifier |stuffs|
-//@[16:62) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[63:64) Assignment |=|
-//@[65:66) LeftSquare |[|
-//@[66:69) Identifier |for|
-//@[70:77) Identifier |account|
-//@[78:80) Identifier |in|
-//@[81:96) Identifier |storageAccounts|
-//@[96:97) Colon |:|
-//@[98:99) LeftBrace |{|
-//@[99:101) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:015) Identifier |stuffs|
+//@[016:062) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[063:064) Assignment |=|
+//@[065:066) LeftSquare |[|
+//@[066:069) Identifier |for|
+//@[070:077) Identifier |account|
+//@[078:080) Identifier |in|
+//@[081:096) Identifier |storageAccounts|
+//@[096:097) Colon |:|
+//@[098:099) LeftBrace |{|
+//@[099:101) NewLine |\r\n|
   name: account.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) Identifier |account|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:22) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) Identifier |account|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:022) NewLine |\r\n|
   location: account.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:19) Identifier |account|
-//@[19:20) Dot |.|
-//@[20:28) Identifier |location|
-//@[28:30) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:019) Identifier |account|
+//@[019:020) Dot |.|
+//@[020:028) Identifier |location|
+//@[028:030) NewLine |\r\n|
   sku: {
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:10) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
     name: 'Standard_LRS'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:24) StringComplete |'Standard_LRS'|
-//@[24:26) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:024) StringComplete |'Standard_LRS'|
+//@[024:026) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'StorageV2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'StorageV2'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     networkAcls: {
-//@[4:15) Identifier |networkAcls|
-//@[15:16) Colon |:|
-//@[17:18) LeftBrace |{|
-//@[18:20) NewLine |\r\n|
+//@[004:015) Identifier |networkAcls|
+//@[015:016) Colon |:|
+//@[017:018) LeftBrace |{|
+//@[018:020) NewLine |\r\n|
       virtualNetworkRules: concat([for lol in []: {
-//@[6:25) Identifier |virtualNetworkRules|
-//@[25:26) Colon |:|
-//@[27:33) Identifier |concat|
-//@[33:34) LeftParen |(|
-//@[34:35) LeftSquare |[|
-//@[35:38) Identifier |for|
-//@[39:42) Identifier |lol|
-//@[43:45) Identifier |in|
-//@[46:47) LeftSquare |[|
-//@[47:48) RightSquare |]|
-//@[48:49) Colon |:|
-//@[50:51) LeftBrace |{|
-//@[51:53) NewLine |\r\n|
+//@[006:025) Identifier |virtualNetworkRules|
+//@[025:026) Colon |:|
+//@[027:033) Identifier |concat|
+//@[033:034) LeftParen |(|
+//@[034:035) LeftSquare |[|
+//@[035:038) Identifier |for|
+//@[039:042) Identifier |lol|
+//@[043:045) Identifier |in|
+//@[046:047) LeftSquare |[|
+//@[047:048) RightSquare |]|
+//@[048:049) Colon |:|
+//@[050:051) LeftBrace |{|
+//@[051:053) NewLine |\r\n|
         id: '${account.name}-${account.location}'
-//@[8:10) Identifier |id|
-//@[10:11) Colon |:|
-//@[12:15) StringLeftPiece |'${|
-//@[15:22) Identifier |account|
-//@[22:23) Dot |.|
-//@[23:27) Identifier |name|
-//@[27:31) StringMiddlePiece |}-${|
-//@[31:38) Identifier |account|
-//@[38:39) Dot |.|
-//@[39:47) Identifier |location|
-//@[47:49) StringRightPiece |}'|
-//@[49:51) NewLine |\r\n|
+//@[008:010) Identifier |id|
+//@[010:011) Colon |:|
+//@[012:015) StringLeftPiece |'${|
+//@[015:022) Identifier |account|
+//@[022:023) Dot |.|
+//@[023:027) Identifier |name|
+//@[027:031) StringMiddlePiece |}-${|
+//@[031:038) Identifier |account|
+//@[038:039) Dot |.|
+//@[039:047) Identifier |location|
+//@[047:049) StringRightPiece |}'|
+//@[049:051) NewLine |\r\n|
       }])
-//@[6:7) RightBrace |}|
-//@[7:8) RightSquare |]|
-//@[8:9) RightParen |)|
-//@[9:11) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:008) RightSquare |]|
+//@[008:009) RightParen |)|
+//@[009:011) NewLine |\r\n|
     }
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 // using the same loop variable in a new language scope should be allowed
-//@[73:75) NewLine |\r\n|
+//@[073:075) NewLine |\r\n|
 resource premiumStorages 'Microsoft.Storage/storageAccounts@2019-06-01' = [for account in storageAccounts: {
-//@[0:8) Identifier |resource|
-//@[9:24) Identifier |premiumStorages|
-//@[25:71) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
-//@[72:73) Assignment |=|
-//@[74:75) LeftSquare |[|
-//@[75:78) Identifier |for|
-//@[79:86) Identifier |account|
-//@[87:89) Identifier |in|
-//@[90:105) Identifier |storageAccounts|
+//@[000:008) Identifier |resource|
+//@[009:024) Identifier |premiumStorages|
+//@[025:071) StringComplete |'Microsoft.Storage/storageAccounts@2019-06-01'|
+//@[072:073) Assignment |=|
+//@[074:075) LeftSquare |[|
+//@[075:078) Identifier |for|
+//@[079:086) Identifier |account|
+//@[087:089) Identifier |in|
+//@[090:105) Identifier |storageAccounts|
 //@[105:106) Colon |:|
 //@[107:108) LeftBrace |{|
 //@[108:110) NewLine |\r\n|
   // #completionTest(7) -> symbolsPlusAccount1
-//@[46:48) NewLine |\r\n|
+//@[046:048) NewLine |\r\n|
   name: account.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) Identifier |account|
-//@[15:16) Dot |.|
-//@[16:20) Identifier |name|
-//@[20:22) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) Identifier |account|
+//@[015:016) Dot |.|
+//@[016:020) Identifier |name|
+//@[020:022) NewLine |\r\n|
   // #completionTest(12) -> symbolsPlusAccount2
-//@[47:49) NewLine |\r\n|
+//@[047:049) NewLine |\r\n|
   location: account.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:19) Identifier |account|
-//@[19:20) Dot |.|
-//@[20:28) Identifier |location|
-//@[28:30) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:019) Identifier |account|
+//@[019:020) Dot |.|
+//@[020:028) Identifier |location|
+//@[028:030) NewLine |\r\n|
   sku: {
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:10) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
     // #completionTest(9,10) -> storageSkuNamePlusSymbols
-//@[57:59) NewLine |\r\n|
+//@[057:059) NewLine |\r\n|
     name: 
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:12) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:012) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'StorageV2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'StorageV2'|
+//@[019:021) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 var directRefViaVar = premiumStorages
-//@[0:3) Identifier |var|
-//@[4:19) Identifier |directRefViaVar|
-//@[20:21) Assignment |=|
-//@[22:37) Identifier |premiumStorages|
-//@[37:39) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:019) Identifier |directRefViaVar|
+//@[020:021) Assignment |=|
+//@[022:037) Identifier |premiumStorages|
+//@[037:039) NewLine |\r\n|
 output directRefViaOutput array = union(premiumStorages, stuffs)
-//@[0:6) Identifier |output|
-//@[7:25) Identifier |directRefViaOutput|
-//@[26:31) Identifier |array|
-//@[32:33) Assignment |=|
-//@[34:39) Identifier |union|
-//@[39:40) LeftParen |(|
-//@[40:55) Identifier |premiumStorages|
-//@[55:56) Comma |,|
-//@[57:63) Identifier |stuffs|
-//@[63:64) RightParen |)|
-//@[64:68) NewLine |\r\n\r\n|
+//@[000:006) Identifier |output|
+//@[007:025) Identifier |directRefViaOutput|
+//@[026:031) Identifier |array|
+//@[032:033) Assignment |=|
+//@[034:039) Identifier |union|
+//@[039:040) LeftParen |(|
+//@[040:055) Identifier |premiumStorages|
+//@[055:056) Comma |,|
+//@[057:063) Identifier |stuffs|
+//@[063:064) RightParen |)|
+//@[064:068) NewLine |\r\n\r\n|
 
 resource directRefViaSingleResourceBody 'Microsoft.Network/dnszones@2018-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:39) Identifier |directRefViaSingleResourceBody|
-//@[40:79) StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
-//@[80:81) Assignment |=|
-//@[82:83) LeftBrace |{|
-//@[83:85) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:039) Identifier |directRefViaSingleResourceBody|
+//@[040:079) StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
+//@[080:081) Assignment |=|
+//@[082:083) LeftBrace |{|
+//@[083:085) NewLine |\r\n|
   name: 'myZone2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:17) StringComplete |'myZone2'|
-//@[17:19) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:017) StringComplete |'myZone2'|
+//@[017:019) NewLine |\r\n|
   location: 'global'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'global'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'global'|
+//@[020:022) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     registrationVirtualNetworks: premiumStorages
-//@[4:31) Identifier |registrationVirtualNetworks|
-//@[31:32) Colon |:|
-//@[33:48) Identifier |premiumStorages|
-//@[48:50) NewLine |\r\n|
+//@[004:031) Identifier |registrationVirtualNetworks|
+//@[031:032) Colon |:|
+//@[033:048) Identifier |premiumStorages|
+//@[048:050) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource directRefViaSingleConditionalResourceBody 'Microsoft.Network/dnszones@2018-05-01' = if(true) {
-//@[0:8) Identifier |resource|
-//@[9:50) Identifier |directRefViaSingleConditionalResourceBody|
-//@[51:90) StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
-//@[91:92) Assignment |=|
-//@[93:95) Identifier |if|
-//@[95:96) LeftParen |(|
-//@[96:100) TrueKeyword |true|
+//@[000:008) Identifier |resource|
+//@[009:050) Identifier |directRefViaSingleConditionalResourceBody|
+//@[051:090) StringComplete |'Microsoft.Network/dnszones@2018-05-01'|
+//@[091:092) Assignment |=|
+//@[093:095) Identifier |if|
+//@[095:096) LeftParen |(|
+//@[096:100) TrueKeyword |true|
 //@[100:101) RightParen |)|
 //@[102:103) LeftBrace |{|
 //@[103:105) NewLine |\r\n|
   name: 'myZone3'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:17) StringComplete |'myZone3'|
-//@[17:19) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:017) StringComplete |'myZone3'|
+//@[017:019) NewLine |\r\n|
   location: 'global'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'global'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'global'|
+//@[020:022) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     registrationVirtualNetworks: concat(premiumStorages, stuffs)
-//@[4:31) Identifier |registrationVirtualNetworks|
-//@[31:32) Colon |:|
-//@[33:39) Identifier |concat|
-//@[39:40) LeftParen |(|
-//@[40:55) Identifier |premiumStorages|
-//@[55:56) Comma |,|
-//@[57:63) Identifier |stuffs|
-//@[63:64) RightParen |)|
-//@[64:66) NewLine |\r\n|
+//@[004:031) Identifier |registrationVirtualNetworks|
+//@[031:032) Colon |:|
+//@[033:039) Identifier |concat|
+//@[039:040) LeftParen |(|
+//@[040:055) Identifier |premiumStorages|
+//@[055:056) Comma |,|
+//@[057:063) Identifier |stuffs|
+//@[063:064) RightParen |)|
+//@[064:066) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 @batchSize()
-//@[0:1) At |@|
-//@[1:10) Identifier |batchSize|
-//@[10:11) LeftParen |(|
-//@[11:12) RightParen |)|
-//@[12:14) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |batchSize|
+//@[010:011) LeftParen |(|
+//@[011:012) RightParen |)|
+//@[012:014) NewLine |\r\n|
 resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:8) Identifier |resource|
-//@[9:43) Identifier |directRefViaSingleLoopResourceBody|
-//@[44:90) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[91:92) Assignment |=|
-//@[93:94) LeftSquare |[|
-//@[94:97) Identifier |for|
-//@[98:99) Identifier |i|
+//@[000:008) Identifier |resource|
+//@[009:043) Identifier |directRefViaSingleLoopResourceBody|
+//@[044:090) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[091:092) Assignment |=|
+//@[093:094) LeftSquare |[|
+//@[094:097) Identifier |for|
+//@[098:099) Identifier |i|
 //@[100:102) Identifier |in|
 //@[103:108) Identifier |range|
 //@[108:109) LeftParen |(|
@@ -5954,41 +5954,41 @@ resource directRefViaSingleLoopResourceBody 'Microsoft.Network/virtualNetworks@2
 //@[116:117) LeftBrace |{|
 //@[117:119) NewLine |\r\n|
   name: 'vnet-${i}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:17) Identifier |i|
-//@[17:19) StringRightPiece |}'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:016) StringLeftPiece |'vnet-${|
+//@[016:017) Identifier |i|
+//@[017:019) StringRightPiece |}'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     subnets: premiumStorages
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:28) Identifier |premiumStorages|
-//@[28:30) NewLine |\r\n|
+//@[004:011) Identifier |subnets|
+//@[011:012) Colon |:|
+//@[013:028) Identifier |premiumStorages|
+//@[028:030) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 @batchSize(0)
-//@[0:1) At |@|
-//@[1:10) Identifier |batchSize|
-//@[10:11) LeftParen |(|
-//@[11:12) Integer |0|
-//@[12:13) RightParen |)|
-//@[13:15) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |batchSize|
+//@[010:011) LeftParen |(|
+//@[011:012) Integer |0|
+//@[012:013) RightParen |)|
+//@[013:015) NewLine |\r\n|
 resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network/virtualNetworks@2020-06-01' = [for i in range(0, 3): {
-//@[0:8) Identifier |resource|
-//@[9:61) Identifier |directRefViaSingleLoopResourceBodyWithExtraDependsOn|
-//@[62:108) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[000:008) Identifier |resource|
+//@[009:061) Identifier |directRefViaSingleLoopResourceBodyWithExtraDependsOn|
+//@[062:108) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
 //@[109:110) Assignment |=|
 //@[111:112) LeftSquare |[|
 //@[112:115) Identifier |for|
@@ -6004,200 +6004,200 @@ resource directRefViaSingleLoopResourceBodyWithExtraDependsOn 'Microsoft.Network
 //@[134:135) LeftBrace |{|
 //@[135:137) NewLine |\r\n|
   name: 'vnet-${i}'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringLeftPiece |'vnet-${|
-//@[16:17) Identifier |i|
-//@[17:19) StringRightPiece |}'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:016) StringLeftPiece |'vnet-${|
+//@[016:017) Identifier |i|
+//@[017:019) StringRightPiece |}'|
+//@[019:021) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     subnets: premiumStorages
-//@[4:11) Identifier |subnets|
-//@[11:12) Colon |:|
-//@[13:28) Identifier |premiumStorages|
-//@[28:30) NewLine |\r\n|
+//@[004:011) Identifier |subnets|
+//@[011:012) Colon |:|
+//@[013:028) Identifier |premiumStorages|
+//@[028:030) NewLine |\r\n|
     dependsOn: [
-//@[4:13) Identifier |dependsOn|
-//@[13:14) Colon |:|
-//@[15:16) LeftSquare |[|
-//@[16:18) NewLine |\r\n|
+//@[004:013) Identifier |dependsOn|
+//@[013:014) Colon |:|
+//@[015:016) LeftSquare |[|
+//@[016:018) NewLine |\r\n|
       premiumStorages
-//@[6:21) Identifier |premiumStorages|
-//@[21:23) NewLine |\r\n|
+//@[006:021) Identifier |premiumStorages|
+//@[021:023) NewLine |\r\n|
     ]
-//@[4:5) RightSquare |]|
-//@[5:7) NewLine |\r\n|
+//@[004:005) RightSquare |]|
+//@[005:007) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   dependsOn: [
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     
-//@[4:6) NewLine |\r\n|
+//@[004:006) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 var expressionInPropertyLoopVar = true
-//@[0:3) Identifier |var|
-//@[4:31) Identifier |expressionInPropertyLoopVar|
-//@[32:33) Assignment |=|
-//@[34:38) TrueKeyword |true|
-//@[38:40) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:031) Identifier |expressionInPropertyLoopVar|
+//@[032:033) Assignment |=|
+//@[034:038) TrueKeyword |true|
+//@[038:040) NewLine |\r\n|
 resource expressionsInPropertyLoopName 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:38) Identifier |expressionsInPropertyLoopName|
-//@[39:78) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[79:80) Assignment |=|
-//@[81:82) LeftBrace |{|
-//@[82:84) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:038) Identifier |expressionsInPropertyLoopName|
+//@[039:078) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[079:080) Assignment |=|
+//@[081:082) LeftBrace |{|
+//@[082:084) NewLine |\r\n|
   name: 'hello'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:15) StringComplete |'hello'|
-//@[15:17) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:015) StringComplete |'hello'|
+//@[015:017) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     'resolutionVirtualNetworks${expressionInPropertyLoopVar}': [for thing in []: {}]
-//@[4:32) StringLeftPiece |'resolutionVirtualNetworks${|
-//@[32:59) Identifier |expressionInPropertyLoopVar|
-//@[59:61) StringRightPiece |}'|
-//@[61:62) Colon |:|
-//@[63:64) LeftSquare |[|
-//@[64:67) Identifier |for|
-//@[68:73) Identifier |thing|
-//@[74:76) Identifier |in|
-//@[77:78) LeftSquare |[|
-//@[78:79) RightSquare |]|
-//@[79:80) Colon |:|
-//@[81:82) LeftBrace |{|
-//@[82:83) RightBrace |}|
-//@[83:84) RightSquare |]|
-//@[84:86) NewLine |\r\n|
+//@[004:032) StringLeftPiece |'resolutionVirtualNetworks${|
+//@[032:059) Identifier |expressionInPropertyLoopVar|
+//@[059:061) StringRightPiece |}'|
+//@[061:062) Colon |:|
+//@[063:064) LeftSquare |[|
+//@[064:067) Identifier |for|
+//@[068:073) Identifier |thing|
+//@[074:076) Identifier |in|
+//@[077:078) LeftSquare |[|
+//@[078:079) RightSquare |]|
+//@[079:080) Colon |:|
+//@[081:082) LeftBrace |{|
+//@[082:083) RightBrace |}|
+//@[083:084) RightSquare |]|
+//@[084:086) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // resource loop body that isn't an object
-//@[42:44) NewLine |\r\n|
+//@[042:044) NewLine |\r\n|
 @batchSize(-1)
-//@[0:1) At |@|
-//@[1:10) Identifier |batchSize|
-//@[10:11) LeftParen |(|
-//@[11:12) Minus |-|
-//@[12:13) Integer |1|
-//@[13:14) RightParen |)|
-//@[14:16) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:010) Identifier |batchSize|
+//@[010:011) LeftParen |(|
+//@[011:012) Minus |-|
+//@[012:013) Integer |1|
+//@[013:014) RightParen |)|
+//@[014:016) NewLine |\r\n|
 resource nonObjectResourceLoopBody 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: 'test']
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |nonObjectResourceLoopBody|
-//@[35:74) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[75:76) Assignment |=|
-//@[77:78) LeftSquare |[|
-//@[78:81) Identifier |for|
-//@[82:87) Identifier |thing|
-//@[88:90) Identifier |in|
-//@[91:92) LeftSquare |[|
-//@[92:93) RightSquare |]|
-//@[93:94) Colon |:|
-//@[95:101) StringComplete |'test'|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |nonObjectResourceLoopBody|
+//@[035:074) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[075:076) Assignment |=|
+//@[077:078) LeftSquare |[|
+//@[078:081) Identifier |for|
+//@[082:087) Identifier |thing|
+//@[088:090) Identifier |in|
+//@[091:092) LeftSquare |[|
+//@[092:093) RightSquare |]|
+//@[093:094) Colon |:|
+//@[095:101) StringComplete |'test'|
 //@[101:102) RightSquare |]|
 //@[102:104) NewLine |\r\n|
 resource nonObjectResourceLoopBody2 'Microsoft.Network/dnsZones@2018-05-01' = [for thing in []: environment()]
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |nonObjectResourceLoopBody2|
-//@[36:75) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftSquare |[|
-//@[79:82) Identifier |for|
-//@[83:88) Identifier |thing|
-//@[89:91) Identifier |in|
-//@[92:93) LeftSquare |[|
-//@[93:94) RightSquare |]|
-//@[94:95) Colon |:|
-//@[96:107) Identifier |environment|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |nonObjectResourceLoopBody2|
+//@[036:075) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftSquare |[|
+//@[079:082) Identifier |for|
+//@[083:088) Identifier |thing|
+//@[089:091) Identifier |in|
+//@[092:093) LeftSquare |[|
+//@[093:094) RightSquare |]|
+//@[094:095) Colon |:|
+//@[096:107) Identifier |environment|
 //@[107:108) LeftParen |(|
 //@[108:109) RightParen |)|
 //@[109:110) RightSquare |]|
 //@[110:112) NewLine |\r\n|
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: 'test']
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |nonObjectResourceLoopBody3|
-//@[36:75) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftSquare |[|
-//@[79:82) Identifier |for|
-//@[83:84) LeftParen |(|
-//@[84:89) Identifier |thing|
-//@[89:90) Comma |,|
-//@[90:91) Identifier |i|
-//@[91:92) RightParen |)|
-//@[93:95) Identifier |in|
-//@[96:97) LeftSquare |[|
-//@[97:98) RightSquare |]|
-//@[98:99) Colon |:|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |nonObjectResourceLoopBody3|
+//@[036:075) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftSquare |[|
+//@[079:082) Identifier |for|
+//@[083:084) LeftParen |(|
+//@[084:089) Identifier |thing|
+//@[089:090) Comma |,|
+//@[090:091) Identifier |i|
+//@[091:092) RightParen |)|
+//@[093:095) Identifier |in|
+//@[096:097) LeftSquare |[|
+//@[097:098) RightSquare |]|
+//@[098:099) Colon |:|
 //@[100:106) StringComplete |'test'|
 //@[106:107) RightSquare |]|
 //@[107:109) NewLine |\r\n|
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: environment()]
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |nonObjectResourceLoopBody4|
-//@[36:75) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftSquare |[|
-//@[79:82) Identifier |for|
-//@[83:84) LeftParen |(|
-//@[84:89) Identifier |thing|
-//@[89:90) Comma |,|
-//@[90:91) Identifier |i|
-//@[91:92) RightParen |)|
-//@[93:95) Identifier |in|
-//@[96:97) LeftSquare |[|
-//@[97:98) RightSquare |]|
-//@[98:99) Colon |:|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |nonObjectResourceLoopBody4|
+//@[036:075) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftSquare |[|
+//@[079:082) Identifier |for|
+//@[083:084) LeftParen |(|
+//@[084:089) Identifier |thing|
+//@[089:090) Comma |,|
+//@[090:091) Identifier |i|
+//@[091:092) RightParen |)|
+//@[093:095) Identifier |in|
+//@[096:097) LeftSquare |[|
+//@[097:098) RightSquare |]|
+//@[098:099) Colon |:|
 //@[100:111) Identifier |environment|
 //@[111:112) LeftParen |(|
 //@[112:113) RightParen |)|
 //@[113:114) RightSquare |]|
 //@[114:116) NewLine |\r\n|
 resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) 'test']
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |nonObjectResourceLoopBody3|
-//@[36:75) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftSquare |[|
-//@[79:82) Identifier |for|
-//@[83:84) LeftParen |(|
-//@[84:89) Identifier |thing|
-//@[89:90) Comma |,|
-//@[90:91) Identifier |i|
-//@[91:92) RightParen |)|
-//@[93:95) Identifier |in|
-//@[96:97) LeftSquare |[|
-//@[97:98) RightSquare |]|
-//@[98:99) Colon |:|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |nonObjectResourceLoopBody3|
+//@[036:075) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftSquare |[|
+//@[079:082) Identifier |for|
+//@[083:084) LeftParen |(|
+//@[084:089) Identifier |thing|
+//@[089:090) Comma |,|
+//@[090:091) Identifier |i|
+//@[091:092) RightParen |)|
+//@[093:095) Identifier |in|
+//@[096:097) LeftSquare |[|
+//@[097:098) RightSquare |]|
+//@[098:099) Colon |:|
 //@[100:102) Identifier |if|
 //@[102:103) LeftParen |(|
 //@[103:107) TrueKeyword |true|
@@ -6206,21 +6206,21 @@ resource nonObjectResourceLoopBody3 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[115:116) RightSquare |]|
 //@[116:118) NewLine |\r\n|
 resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [for (thing,i) in []: if(true) environment()]
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |nonObjectResourceLoopBody4|
-//@[36:75) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftSquare |[|
-//@[79:82) Identifier |for|
-//@[83:84) LeftParen |(|
-//@[84:89) Identifier |thing|
-//@[89:90) Comma |,|
-//@[90:91) Identifier |i|
-//@[91:92) RightParen |)|
-//@[93:95) Identifier |in|
-//@[96:97) LeftSquare |[|
-//@[97:98) RightSquare |]|
-//@[98:99) Colon |:|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |nonObjectResourceLoopBody4|
+//@[036:075) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftSquare |[|
+//@[079:082) Identifier |for|
+//@[083:084) LeftParen |(|
+//@[084:089) Identifier |thing|
+//@[089:090) Comma |,|
+//@[090:091) Identifier |i|
+//@[091:092) RightParen |)|
+//@[093:095) Identifier |in|
+//@[096:097) LeftSquare |[|
+//@[097:098) RightSquare |]|
+//@[098:099) Colon |:|
 //@[100:102) Identifier |if|
 //@[102:103) LeftParen |(|
 //@[103:107) TrueKeyword |true|
@@ -6232,691 +6232,691 @@ resource nonObjectResourceLoopBody4 'Microsoft.Network/dnsZones@2018-05-01' = [f
 //@[123:127) NewLine |\r\n\r\n|
 
 // #completionTest(54,55) -> objectPlusFor
-//@[42:44) NewLine |\r\n|
+//@[042:044) NewLine |\r\n|
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = 
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:52) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[53:54) Assignment |=|
-//@[55:59) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:052) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[053:054) Assignment |=|
+//@[055:059) NewLine |\r\n\r\n|
 
 resource foo 'Microsoft.Network/dnsZones@2018-05-01' = [for item in []: {
-//@[0:8) Identifier |resource|
-//@[9:12) Identifier |foo|
-//@[13:52) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[53:54) Assignment |=|
-//@[55:56) LeftSquare |[|
-//@[56:59) Identifier |for|
-//@[60:64) Identifier |item|
-//@[65:67) Identifier |in|
-//@[68:69) LeftSquare |[|
-//@[69:70) RightSquare |]|
-//@[70:71) Colon |:|
-//@[72:73) LeftBrace |{|
-//@[73:75) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:012) Identifier |foo|
+//@[013:052) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[053:054) Assignment |=|
+//@[055:056) LeftSquare |[|
+//@[056:059) Identifier |for|
+//@[060:064) Identifier |item|
+//@[065:067) Identifier |in|
+//@[068:069) LeftSquare |[|
+//@[069:070) RightSquare |]|
+//@[070:071) Colon |:|
+//@[072:073) LeftBrace |{|
+//@[073:075) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     // #completionTest(32,33) -> symbolsPlusArrayAndFor
-//@[55:57) NewLine |\r\n|
+//@[055:057) NewLine |\r\n|
     registrationVirtualNetworks: 
-//@[4:31) Identifier |registrationVirtualNetworks|
-//@[31:32) Colon |:|
-//@[33:35) NewLine |\r\n|
+//@[004:031) Identifier |registrationVirtualNetworks|
+//@[031:032) Colon |:|
+//@[033:035) NewLine |\r\n|
     resolutionVirtualNetworks: [for lol in []: {
-//@[4:29) Identifier |resolutionVirtualNetworks|
-//@[29:30) Colon |:|
-//@[31:32) LeftSquare |[|
-//@[32:35) Identifier |for|
-//@[36:39) Identifier |lol|
-//@[40:42) Identifier |in|
-//@[43:44) LeftSquare |[|
-//@[44:45) RightSquare |]|
-//@[45:46) Colon |:|
-//@[47:48) LeftBrace |{|
-//@[48:50) NewLine |\r\n|
+//@[004:029) Identifier |resolutionVirtualNetworks|
+//@[029:030) Colon |:|
+//@[031:032) LeftSquare |[|
+//@[032:035) Identifier |for|
+//@[036:039) Identifier |lol|
+//@[040:042) Identifier |in|
+//@[043:044) LeftSquare |[|
+//@[044:045) RightSquare |]|
+//@[045:046) Colon |:|
+//@[047:048) LeftBrace |{|
+//@[048:050) NewLine |\r\n|
       
-//@[6:8) NewLine |\r\n|
+//@[006:008) NewLine |\r\n|
     }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:006) RightSquare |]|
+//@[006:008) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 resource vnet 'Microsoft.Network/virtualNetworks@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:13) Identifier |vnet|
-//@[14:60) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[61:62) Assignment |=|
-//@[63:64) LeftBrace |{|
-//@[64:66) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:013) Identifier |vnet|
+//@[014:060) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[061:062) Assignment |=|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     virtualNetworkPeerings: [for item in []: {
-//@[4:26) Identifier |virtualNetworkPeerings|
-//@[26:27) Colon |:|
-//@[28:29) LeftSquare |[|
-//@[29:32) Identifier |for|
-//@[33:37) Identifier |item|
-//@[38:40) Identifier |in|
-//@[41:42) LeftSquare |[|
-//@[42:43) RightSquare |]|
-//@[43:44) Colon |:|
-//@[45:46) LeftBrace |{|
-//@[46:48) NewLine |\r\n|
+//@[004:026) Identifier |virtualNetworkPeerings|
+//@[026:027) Colon |:|
+//@[028:029) LeftSquare |[|
+//@[029:032) Identifier |for|
+//@[033:037) Identifier |item|
+//@[038:040) Identifier |in|
+//@[041:042) LeftSquare |[|
+//@[042:043) RightSquare |]|
+//@[043:044) Colon |:|
+//@[045:046) LeftBrace |{|
+//@[046:048) NewLine |\r\n|
         properties: {
-//@[8:18) Identifier |properties|
-//@[18:19) Colon |:|
-//@[20:21) LeftBrace |{|
-//@[21:23) NewLine |\r\n|
+//@[008:018) Identifier |properties|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:023) NewLine |\r\n|
           remoteAddressSpace: {
-//@[10:28) Identifier |remoteAddressSpace|
-//@[28:29) Colon |:|
-//@[30:31) LeftBrace |{|
-//@[31:33) NewLine |\r\n|
+//@[010:028) Identifier |remoteAddressSpace|
+//@[028:029) Colon |:|
+//@[030:031) LeftBrace |{|
+//@[031:033) NewLine |\r\n|
             // #completionTest(28,29) -> symbolsPlusArrayWithoutFor
-//@[67:69) NewLine |\r\n|
+//@[067:069) NewLine |\r\n|
             addressPrefixes: 
-//@[12:27) Identifier |addressPrefixes|
-//@[27:28) Colon |:|
-//@[29:31) NewLine |\r\n|
+//@[012:027) Identifier |addressPrefixes|
+//@[027:028) Colon |:|
+//@[029:031) NewLine |\r\n|
           }
-//@[10:11) RightBrace |}|
-//@[11:13) NewLine |\r\n|
+//@[010:011) RightBrace |}|
+//@[011:013) NewLine |\r\n|
         }
-//@[8:9) RightBrace |}|
-//@[9:11) NewLine |\r\n|
+//@[008:009) RightBrace |}|
+//@[009:011) NewLine |\r\n|
     }]
-//@[4:5) RightBrace |}|
-//@[5:6) RightSquare |]|
-//@[6:8) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:006) RightSquare |]|
+//@[006:008) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // parent property with 'existing' resource at different scope
-//@[62:64) NewLine |\r\n|
+//@[062:064) NewLine |\r\n|
 resource p1_res1 'Microsoft.Rp1/resource1@2020-06-01' existing = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p1_res1|
-//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:62) Identifier |existing|
-//@[63:64) Assignment |=|
-//@[65:66) LeftBrace |{|
-//@[66:68) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p1_res1|
+//@[017:053) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:062) Identifier |existing|
+//@[063:064) Assignment |=|
+//@[065:066) LeftBrace |{|
+//@[066:068) NewLine |\r\n|
   scope: subscription()
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:21) Identifier |subscription|
-//@[21:22) LeftParen |(|
-//@[22:23) RightParen |)|
-//@[23:25) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:021) Identifier |subscription|
+//@[021:022) LeftParen |(|
+//@[022:023) RightParen |)|
+//@[023:025) NewLine |\r\n|
   name: 'res1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res1'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res1'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p1_child1 'Microsoft.Rp1/resource1/child1@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:18) Identifier |p1_child1|
-//@[19:62) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
-//@[63:64) Assignment |=|
-//@[65:66) LeftBrace |{|
-//@[66:68) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:018) Identifier |p1_child1|
+//@[019:062) StringComplete |'Microsoft.Rp1/resource1/child1@2020-06-01'|
+//@[063:064) Assignment |=|
+//@[065:066) LeftBrace |{|
+//@[066:068) NewLine |\r\n|
   parent: p1_res1
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:17) Identifier |p1_res1|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:017) Identifier |p1_res1|
+//@[017:019) NewLine |\r\n|
   name: 'child1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringComplete |'child1'|
-//@[16:18) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:016) StringComplete |'child1'|
+//@[016:018) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // parent property with scope on child resource
-//@[47:49) NewLine |\r\n|
+//@[047:049) NewLine |\r\n|
 resource p2_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p2_res1|
-//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftBrace |{|
-//@[57:59) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p2_res1|
+//@[017:053) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
   name: 'res1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res1'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res1'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p2_res2 'Microsoft.Rp2/resource2@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p2_res2|
-//@[17:53) StringComplete |'Microsoft.Rp2/resource2@2020-06-01'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftBrace |{|
-//@[57:59) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p2_res2|
+//@[017:053) StringComplete |'Microsoft.Rp2/resource2@2020-06-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
   name: 'res2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res2'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res2'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p2_res2child 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:21) Identifier |p2_res2child|
-//@[22:65) StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
-//@[66:67) Assignment |=|
-//@[68:69) LeftBrace |{|
-//@[69:71) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:021) Identifier |p2_res2child|
+//@[022:065) StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[066:067) Assignment |=|
+//@[068:069) LeftBrace |{|
+//@[069:071) NewLine |\r\n|
   scope: p2_res1
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:16) Identifier |p2_res1|
-//@[16:18) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:016) Identifier |p2_res1|
+//@[016:018) NewLine |\r\n|
   parent: p2_res2
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:17) Identifier |p2_res2|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:017) Identifier |p2_res2|
+//@[017:019) NewLine |\r\n|
   name: 'child2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:16) StringComplete |'child2'|
-//@[16:18) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:016) StringComplete |'child2'|
+//@[016:018) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // parent property self-cycle
-//@[29:31) NewLine |\r\n|
+//@[029:031) NewLine |\r\n|
 resource p3_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:17) Identifier |p3_vmExt|
-//@[18:75) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftBrace |{|
-//@[79:81) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:017) Identifier |p3_vmExt|
+//@[018:075) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftBrace |{|
+//@[079:081) NewLine |\r\n|
   parent: p3_vmExt
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:18) Identifier |p3_vmExt|
-//@[18:20) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:018) Identifier |p3_vmExt|
+//@[018:020) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // parent property 2-cycle
-//@[26:28) NewLine |\r\n|
+//@[026:028) NewLine |\r\n|
 resource p4_vm 'Microsoft.Compute/virtualMachines@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |p4_vm|
-//@[15:61) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[62:63) Assignment |=|
-//@[64:65) LeftBrace |{|
-//@[65:67) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |p4_vm|
+//@[015:061) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[062:063) Assignment |=|
+//@[064:065) LeftBrace |{|
+//@[065:067) NewLine |\r\n|
   parent: p4_vmExt
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:18) Identifier |p4_vmExt|
-//@[18:20) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:018) Identifier |p4_vmExt|
+//@[018:020) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p4_vmExt 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:17) Identifier |p4_vmExt|
-//@[18:75) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[76:77) Assignment |=|
-//@[78:79) LeftBrace |{|
-//@[79:81) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:017) Identifier |p4_vmExt|
+//@[018:075) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[076:077) Assignment |=|
+//@[078:079) LeftBrace |{|
+//@[079:081) NewLine |\r\n|
   parent: p4_vm
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:15) Identifier |p4_vm|
-//@[15:17) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:015) Identifier |p4_vm|
+//@[015:017) NewLine |\r\n|
   location: 'eastus'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:20) StringComplete |'eastus'|
-//@[20:22) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:020) StringComplete |'eastus'|
+//@[020:022) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // parent property with invalid child
-//@[37:39) NewLine |\r\n|
+//@[037:039) NewLine |\r\n|
 resource p5_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p5_res1|
-//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftBrace |{|
-//@[57:59) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p5_res1|
+//@[017:053) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
   name: 'res1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res1'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res1'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p5_res2 'Microsoft.Rp2/resource2/child2@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p5_res2|
-//@[17:60) StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
-//@[61:62) Assignment |=|
-//@[63:64) LeftBrace |{|
-//@[64:66) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p5_res2|
+//@[017:060) StringComplete |'Microsoft.Rp2/resource2/child2@2020-06-01'|
+//@[061:062) Assignment |=|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   parent: p5_res1
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:17) Identifier |p5_res1|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:017) Identifier |p5_res1|
+//@[017:019) NewLine |\r\n|
   name: 'res2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res2'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res2'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // parent property with invalid parent
-//@[38:40) NewLine |\r\n|
+//@[038:040) NewLine |\r\n|
 resource p6_res1 '${true}' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p6_res1|
-//@[17:20) StringLeftPiece |'${|
-//@[20:24) TrueKeyword |true|
-//@[24:26) StringRightPiece |}'|
-//@[27:28) Assignment |=|
-//@[29:30) LeftBrace |{|
-//@[30:32) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p6_res1|
+//@[017:020) StringLeftPiece |'${|
+//@[020:024) TrueKeyword |true|
+//@[024:026) StringRightPiece |}'|
+//@[027:028) Assignment |=|
+//@[029:030) LeftBrace |{|
+//@[030:032) NewLine |\r\n|
   name: 'res1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res1'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res1'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p6_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p6_res2|
-//@[17:60) StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
-//@[61:62) Assignment |=|
-//@[63:64) LeftBrace |{|
-//@[64:66) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p6_res2|
+//@[017:060) StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[061:062) Assignment |=|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   parent: p6_res1
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:17) Identifier |p6_res1|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:017) Identifier |p6_res1|
+//@[017:019) NewLine |\r\n|
   name: 'res2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res2'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res2'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // parent property with incorrectly-formatted name
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 resource p7_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p7_res1|
-//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftBrace |{|
-//@[57:59) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p7_res1|
+//@[017:053) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
   name: 'res1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:14) StringComplete |'res1'|
-//@[14:16) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:014) StringComplete |'res1'|
+//@[014:016) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p7_res2 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p7_res2|
-//@[17:60) StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
-//@[61:62) Assignment |=|
-//@[63:64) LeftBrace |{|
-//@[64:66) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p7_res2|
+//@[017:060) StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[061:062) Assignment |=|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   parent: p7_res1
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:17) Identifier |p7_res1|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:017) Identifier |p7_res1|
+//@[017:019) NewLine |\r\n|
   name: 'res1/res2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'res1/res2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'res1/res2'|
+//@[019:021) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource p7_res3 'Microsoft.Rp1/resource1/child2@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p7_res3|
-//@[17:60) StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
-//@[61:62) Assignment |=|
-//@[63:64) LeftBrace |{|
-//@[64:66) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p7_res3|
+//@[017:060) StringComplete |'Microsoft.Rp1/resource1/child2@2020-06-01'|
+//@[061:062) Assignment |=|
+//@[063:064) LeftBrace |{|
+//@[064:066) NewLine |\r\n|
   parent: p7_res1
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:17) Identifier |p7_res1|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:017) Identifier |p7_res1|
+//@[017:019) NewLine |\r\n|
   name: '${p7_res1.name}/res2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:11) StringLeftPiece |'${|
-//@[11:18) Identifier |p7_res1|
-//@[18:19) Dot |.|
-//@[19:23) Identifier |name|
-//@[23:30) StringRightPiece |}/res2'|
-//@[30:32) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:011) StringLeftPiece |'${|
+//@[011:018) Identifier |p7_res1|
+//@[018:019) Dot |.|
+//@[019:023) Identifier |name|
+//@[023:030) StringRightPiece |}/res2'|
+//@[030:032) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // top-level resource with too many '/' characters
-//@[50:52) NewLine |\r\n|
+//@[050:052) NewLine |\r\n|
 resource p8_res1 'Microsoft.Rp1/resource1@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:16) Identifier |p8_res1|
-//@[17:53) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
-//@[54:55) Assignment |=|
-//@[56:57) LeftBrace |{|
-//@[57:59) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:016) Identifier |p8_res1|
+//@[017:053) StringComplete |'Microsoft.Rp1/resource1@2020-06-01'|
+//@[054:055) Assignment |=|
+//@[056:057) LeftBrace |{|
+//@[057:059) NewLine |\r\n|
   name: 'res1/res2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'res1/res2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'res1/res2'|
+//@[019:021) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource existingResProperty 'Microsoft.Compute/virtualMachines@2020-06-01' existing = {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |existingResProperty|
-//@[29:75) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
-//@[76:84) Identifier |existing|
-//@[85:86) Assignment |=|
-//@[87:88) LeftBrace |{|
-//@[88:90) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |existingResProperty|
+//@[029:075) StringComplete |'Microsoft.Compute/virtualMachines@2020-06-01'|
+//@[076:084) Identifier |existing|
+//@[085:086) Assignment |=|
+//@[087:088) LeftBrace |{|
+//@[088:090) NewLine |\r\n|
   name: 'existingResProperty'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:29) StringComplete |'existingResProperty'|
-//@[29:31) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:029) StringComplete |'existingResProperty'|
+//@[029:031) NewLine |\r\n|
   location: 'westeurope'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:24) StringComplete |'westeurope'|
-//@[24:26) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:024) StringComplete |'westeurope'|
+//@[024:026) NewLine |\r\n|
   properties: {}
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:16) RightBrace |}|
-//@[16:18) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:016) RightBrace |}|
+//@[016:018) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource invalidExistingLocationRef 'Microsoft.Compute/virtualMachines/extensions@2020-06-01' = {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |invalidExistingLocationRef|
-//@[36:93) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
-//@[94:95) Assignment |=|
-//@[96:97) LeftBrace |{|
-//@[97:99) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |invalidExistingLocationRef|
+//@[036:093) StringComplete |'Microsoft.Compute/virtualMachines/extensions@2020-06-01'|
+//@[094:095) Assignment |=|
+//@[096:097) LeftBrace |{|
+//@[097:099) NewLine |\r\n|
     parent: existingResProperty
-//@[4:10) Identifier |parent|
-//@[10:11) Colon |:|
-//@[12:31) Identifier |existingResProperty|
-//@[31:33) NewLine |\r\n|
+//@[004:010) Identifier |parent|
+//@[010:011) Colon |:|
+//@[012:031) Identifier |existingResProperty|
+//@[031:033) NewLine |\r\n|
     name: 'myExt'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:17) StringComplete |'myExt'|
-//@[17:19) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:017) StringComplete |'myExt'|
+//@[017:019) NewLine |\r\n|
     location: existingResProperty.location
-//@[4:12) Identifier |location|
-//@[12:13) Colon |:|
-//@[14:33) Identifier |existingResProperty|
-//@[33:34) Dot |.|
-//@[34:42) Identifier |location|
-//@[42:44) NewLine |\r\n|
+//@[004:012) Identifier |location|
+//@[012:013) Colon |:|
+//@[014:033) Identifier |existingResProperty|
+//@[033:034) Dot |.|
+//@[034:042) Identifier |location|
+//@[042:044) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource anyTypeInDependsOn 'Microsoft.Network/dnsZones@2018-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |anyTypeInDependsOn|
-//@[28:67) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
-//@[68:69) Assignment |=|
-//@[70:71) LeftBrace |{|
-//@[71:73) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |anyTypeInDependsOn|
+//@[028:067) StringComplete |'Microsoft.Network/dnsZones@2018-05-01'|
+//@[068:069) Assignment |=|
+//@[070:071) LeftBrace |{|
+//@[071:073) NewLine |\r\n|
   name: 'anyTypeInDependsOn'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:28) StringComplete |'anyTypeInDependsOn'|
-//@[28:30) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:028) StringComplete |'anyTypeInDependsOn'|
+//@[028:030) NewLine |\r\n|
   location: resourceGroup().location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:25) Identifier |resourceGroup|
-//@[25:26) LeftParen |(|
-//@[26:27) RightParen |)|
-//@[27:28) Dot |.|
-//@[28:36) Identifier |location|
-//@[36:38) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:025) Identifier |resourceGroup|
+//@[025:026) LeftParen |(|
+//@[026:027) RightParen |)|
+//@[027:028) Dot |.|
+//@[028:036) Identifier |location|
+//@[036:038) NewLine |\r\n|
   dependsOn: [
-//@[2:11) Identifier |dependsOn|
-//@[11:12) Colon |:|
-//@[13:14) LeftSquare |[|
-//@[14:16) NewLine |\r\n|
+//@[002:011) Identifier |dependsOn|
+//@[011:012) Colon |:|
+//@[013:014) LeftSquare |[|
+//@[014:016) NewLine |\r\n|
     any(invalidExistingLocationRef.properties.autoUpgradeMinorVersion)
-//@[4:7) Identifier |any|
-//@[7:8) LeftParen |(|
-//@[8:34) Identifier |invalidExistingLocationRef|
-//@[34:35) Dot |.|
-//@[35:45) Identifier |properties|
-//@[45:46) Dot |.|
-//@[46:69) Identifier |autoUpgradeMinorVersion|
-//@[69:70) RightParen |)|
-//@[70:72) NewLine |\r\n|
+//@[004:007) Identifier |any|
+//@[007:008) LeftParen |(|
+//@[008:034) Identifier |invalidExistingLocationRef|
+//@[034:035) Dot |.|
+//@[035:045) Identifier |properties|
+//@[045:046) Dot |.|
+//@[046:069) Identifier |autoUpgradeMinorVersion|
+//@[069:070) RightParen |)|
+//@[070:072) NewLine |\r\n|
     's'
-//@[4:7) StringComplete |'s'|
-//@[7:9) NewLine |\r\n|
+//@[004:007) StringComplete |'s'|
+//@[007:009) NewLine |\r\n|
     any(true)
-//@[4:7) Identifier |any|
-//@[7:8) LeftParen |(|
-//@[8:12) TrueKeyword |true|
-//@[12:13) RightParen |)|
-//@[13:15) NewLine |\r\n|
+//@[004:007) Identifier |any|
+//@[007:008) LeftParen |(|
+//@[008:012) TrueKeyword |true|
+//@[012:013) RightParen |)|
+//@[013:015) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource anyTypeInParent 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:24) Identifier |anyTypeInParent|
-//@[25:70) StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
-//@[71:72) Assignment |=|
-//@[73:74) LeftBrace |{|
-//@[74:76) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:024) Identifier |anyTypeInParent|
+//@[025:070) StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[071:072) Assignment |=|
+//@[073:074) LeftBrace |{|
+//@[074:076) NewLine |\r\n|
   parent: any(true)
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:13) Identifier |any|
-//@[13:14) LeftParen |(|
-//@[14:18) TrueKeyword |true|
-//@[18:19) RightParen |)|
-//@[19:21) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:013) Identifier |any|
+//@[013:014) LeftParen |(|
+//@[014:018) TrueKeyword |true|
+//@[018:019) RightParen |)|
+//@[019:021) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource anyTypeInParentLoop 'Microsoft.Network/dnsZones/CNAME@2018-05-01' = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:28) Identifier |anyTypeInParentLoop|
-//@[29:74) StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
-//@[75:76) Assignment |=|
-//@[77:78) LeftSquare |[|
-//@[78:81) Identifier |for|
-//@[82:87) Identifier |thing|
-//@[88:90) Identifier |in|
-//@[91:92) LeftSquare |[|
-//@[92:93) RightSquare |]|
-//@[93:94) Colon |:|
-//@[95:96) LeftBrace |{|
-//@[96:98) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:028) Identifier |anyTypeInParentLoop|
+//@[029:074) StringComplete |'Microsoft.Network/dnsZones/CNAME@2018-05-01'|
+//@[075:076) Assignment |=|
+//@[077:078) LeftSquare |[|
+//@[078:081) Identifier |for|
+//@[082:087) Identifier |thing|
+//@[088:090) Identifier |in|
+//@[091:092) LeftSquare |[|
+//@[092:093) RightSquare |]|
+//@[093:094) Colon |:|
+//@[095:096) LeftBrace |{|
+//@[096:098) NewLine |\r\n|
   parent: any(true)
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:13) Identifier |any|
-//@[13:14) LeftParen |(|
-//@[14:18) TrueKeyword |true|
-//@[18:19) RightParen |)|
-//@[19:21) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:013) Identifier |any|
+//@[013:014) LeftParen |(|
+//@[014:018) TrueKeyword |true|
+//@[018:019) RightParen |)|
+//@[019:021) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 resource anyTypeInScope 'Microsoft.Authorization/locks@2016-09-01' = {
-//@[0:8) Identifier |resource|
-//@[9:23) Identifier |anyTypeInScope|
-//@[24:66) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
-//@[67:68) Assignment |=|
-//@[69:70) LeftBrace |{|
-//@[70:72) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:023) Identifier |anyTypeInScope|
+//@[024:066) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[067:068) Assignment |=|
+//@[069:070) LeftBrace |{|
+//@[070:072) NewLine |\r\n|
   scope: any(invalidExistingLocationRef)
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:12) Identifier |any|
-//@[12:13) LeftParen |(|
-//@[13:39) Identifier |invalidExistingLocationRef|
-//@[39:40) RightParen |)|
-//@[40:42) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |any|
+//@[012:013) LeftParen |(|
+//@[013:039) Identifier |invalidExistingLocationRef|
+//@[039:040) RightParen |)|
+//@[040:042) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource anyTypeInScopeConditional 'Microsoft.Authorization/locks@2016-09-01' = if(true) {
-//@[0:8) Identifier |resource|
-//@[9:34) Identifier |anyTypeInScopeConditional|
-//@[35:77) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
-//@[78:79) Assignment |=|
-//@[80:82) Identifier |if|
-//@[82:83) LeftParen |(|
-//@[83:87) TrueKeyword |true|
-//@[87:88) RightParen |)|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:034) Identifier |anyTypeInScopeConditional|
+//@[035:077) StringComplete |'Microsoft.Authorization/locks@2016-09-01'|
+//@[078:079) Assignment |=|
+//@[080:082) Identifier |if|
+//@[082:083) LeftParen |(|
+//@[083:087) TrueKeyword |true|
+//@[087:088) RightParen |)|
+//@[089:090) LeftBrace |{|
+//@[090:092) NewLine |\r\n|
   scope: any(invalidExistingLocationRef)
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:12) Identifier |any|
-//@[12:13) LeftParen |(|
-//@[13:39) Identifier |invalidExistingLocationRef|
-//@[39:40) RightParen |)|
-//@[40:42) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |any|
+//@[012:013) LeftParen |(|
+//@[013:039) Identifier |invalidExistingLocationRef|
+//@[039:040) RightParen |)|
+//@[040:042) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource anyTypeInExistingScope 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |anyTypeInExistingScope|
-//@[32:76) StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
-//@[77:85) Identifier |existing|
-//@[86:87) Assignment |=|
-//@[88:89) LeftBrace |{|
-//@[89:91) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |anyTypeInExistingScope|
+//@[032:076) StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[077:085) Identifier |existing|
+//@[086:087) Assignment |=|
+//@[088:089) LeftBrace |{|
+//@[089:091) NewLine |\r\n|
   parent: any('')
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:13) Identifier |any|
-//@[13:14) LeftParen |(|
-//@[14:16) StringComplete |''|
-//@[16:17) RightParen |)|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:013) Identifier |any|
+//@[013:014) LeftParen |(|
+//@[014:016) StringComplete |''|
+//@[016:017) RightParen |)|
+//@[017:019) NewLine |\r\n|
   scope: any(false)
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:12) Identifier |any|
-//@[12:13) LeftParen |(|
-//@[13:18) FalseKeyword |false|
-//@[18:19) RightParen |)|
-//@[19:21) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |any|
+//@[012:013) LeftParen |(|
+//@[013:018) FalseKeyword |false|
+//@[018:019) RightParen |)|
+//@[019:021) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01' existing = [for thing in []: {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |anyTypeInExistingScopeLoop|
-//@[36:80) StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
-//@[81:89) Identifier |existing|
-//@[90:91) Assignment |=|
-//@[92:93) LeftSquare |[|
-//@[93:96) Identifier |for|
-//@[97:102) Identifier |thing|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |anyTypeInExistingScopeLoop|
+//@[036:080) StringComplete |'Microsoft.Network/dnsZones/AAAA@2018-05-01'|
+//@[081:089) Identifier |existing|
+//@[090:091) Assignment |=|
+//@[092:093) LeftSquare |[|
+//@[093:096) Identifier |for|
+//@[097:102) Identifier |thing|
 //@[103:105) Identifier |in|
 //@[106:107) LeftSquare |[|
 //@[107:108) RightSquare |]|
@@ -6924,478 +6924,478 @@ resource anyTypeInExistingScopeLoop 'Microsoft.Network/dnsZones/AAAA@2018-05-01'
 //@[110:111) LeftBrace |{|
 //@[111:113) NewLine |\r\n|
   parent: any('')
-//@[2:8) Identifier |parent|
-//@[8:9) Colon |:|
-//@[10:13) Identifier |any|
-//@[13:14) LeftParen |(|
-//@[14:16) StringComplete |''|
-//@[16:17) RightParen |)|
-//@[17:19) NewLine |\r\n|
+//@[002:008) Identifier |parent|
+//@[008:009) Colon |:|
+//@[010:013) Identifier |any|
+//@[013:014) LeftParen |(|
+//@[014:016) StringComplete |''|
+//@[016:017) RightParen |)|
+//@[017:019) NewLine |\r\n|
   scope: any(false)
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:12) Identifier |any|
-//@[12:13) LeftParen |(|
-//@[13:18) FalseKeyword |false|
-//@[18:19) RightParen |)|
-//@[19:21) NewLine |\r\n|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:012) Identifier |any|
+//@[012:013) LeftParen |(|
+//@[013:018) FalseKeyword |false|
+//@[018:019) RightParen |)|
+//@[019:021) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 resource tenantLevelResourceBlocked 'Microsoft.Management/managementGroups@2020-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:35) Identifier |tenantLevelResourceBlocked|
-//@[36:86) StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
-//@[87:88) Assignment |=|
-//@[89:90) LeftBrace |{|
-//@[90:92) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:035) Identifier |tenantLevelResourceBlocked|
+//@[036:086) StringComplete |'Microsoft.Management/managementGroups@2020-05-01'|
+//@[087:088) Assignment |=|
+//@[089:090) LeftBrace |{|
+//@[090:092) NewLine |\r\n|
   name: 'tenantLevelResourceBlocked'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:36) StringComplete |'tenantLevelResourceBlocked'|
-//@[36:38) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:036) StringComplete |'tenantLevelResourceBlocked'|
+//@[036:038) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 // #completionTest(15,36,37) -> resourceTypes
-//@[45:47) NewLine |\r\n|
+//@[045:047) NewLine |\r\n|
 resource comp1 'Microsoft.Resources/'
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp1|
-//@[15:37) StringComplete |'Microsoft.Resources/'|
-//@[37:41) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp1|
+//@[015:037) StringComplete |'Microsoft.Resources/'|
+//@[037:041) NewLine |\r\n\r\n|
 
 // #completionTest(15,16,17) -> resourceTypes
-//@[45:47) NewLine |\r\n|
+//@[045:047) NewLine |\r\n|
 resource comp2 ''
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp2|
-//@[15:17) StringComplete |''|
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp2|
+//@[015:017) StringComplete |''|
+//@[017:021) NewLine |\r\n\r\n|
 
 // #completionTest(38) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:041) NewLine |\r\n|
 resource comp3 'Microsoft.Resources/t'
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp3|
-//@[15:38) StringComplete |'Microsoft.Resources/t'|
-//@[38:42) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp3|
+//@[015:038) StringComplete |'Microsoft.Resources/t'|
+//@[038:042) NewLine |\r\n\r\n|
 
 // #completionTest(40) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:041) NewLine |\r\n|
 resource comp4 'Microsoft.Resources/t/v'
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp4|
-//@[15:40) StringComplete |'Microsoft.Resources/t/v'|
-//@[40:44) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp4|
+//@[015:040) StringComplete |'Microsoft.Resources/t/v'|
+//@[040:044) NewLine |\r\n\r\n|
 
 // #completionTest(49) -> resourceTypes
-//@[39:41) NewLine |\r\n|
+//@[039:041) NewLine |\r\n|
 resource comp5 'Microsoft.Storage/storageAccounts'
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp5|
-//@[15:50) StringComplete |'Microsoft.Storage/storageAccounts'|
-//@[50:54) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp5|
+//@[015:050) StringComplete |'Microsoft.Storage/storageAccounts'|
+//@[050:054) NewLine |\r\n\r\n|
 
 // #completionTest(50) -> storageAccountsResourceTypes
-//@[54:56) NewLine |\r\n|
+//@[054:056) NewLine |\r\n|
 resource comp6 'Microsoft.Storage/storageAccounts@'
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp6|
-//@[15:51) StringComplete |'Microsoft.Storage/storageAccounts@'|
-//@[51:55) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp6|
+//@[015:051) StringComplete |'Microsoft.Storage/storageAccounts@'|
+//@[051:055) NewLine |\r\n\r\n|
 
 // #completionTest(52) -> templateSpecsResourceTypes
-//@[52:54) NewLine |\r\n|
+//@[052:054) NewLine |\r\n|
 resource comp7 'Microsoft.Resources/templateSpecs@20'
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp7|
-//@[15:53) StringComplete |'Microsoft.Resources/templateSpecs@20'|
-//@[53:57) NewLine |\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp7|
+//@[015:053) StringComplete |'Microsoft.Resources/templateSpecs@20'|
+//@[053:057) NewLine |\r\n\r\n|
 
 // #completionTest(60,61) -> virtualNetworksResourceTypes
-//@[57:59) NewLine |\r\n|
+//@[057:059) NewLine |\r\n|
 resource comp8 'Microsoft.Network/virtualNetworks@2020-06-01'
-//@[0:8) Identifier |resource|
-//@[9:14) Identifier |comp8|
-//@[15:61) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
-//@[61:67) NewLine |\r\n\r\n\r\n|
+//@[000:008) Identifier |resource|
+//@[009:014) Identifier |comp8|
+//@[015:061) StringComplete |'Microsoft.Network/virtualNetworks@2020-06-01'|
+//@[061:067) NewLine |\r\n\r\n\r\n|
 
 
 // issue #3000
-//@[14:16) NewLine |\r\n|
+//@[014:016) NewLine |\r\n|
 resource issue3000LogicApp1 'Microsoft.Logic/workflows@2019-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |issue3000LogicApp1|
-//@[28:66) StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
-//@[67:68) Assignment |=|
-//@[69:70) LeftBrace |{|
-//@[70:72) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |issue3000LogicApp1|
+//@[028:066) StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
+//@[067:068) Assignment |=|
+//@[069:070) LeftBrace |{|
+//@[070:072) NewLine |\r\n|
   name: 'issue3000LogicApp1'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:28) StringComplete |'issue3000LogicApp1'|
-//@[28:30) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:028) StringComplete |'issue3000LogicApp1'|
+//@[028:030) NewLine |\r\n|
   location: resourceGroup().location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:25) Identifier |resourceGroup|
-//@[25:26) LeftParen |(|
-//@[26:27) RightParen |)|
-//@[27:28) Dot |.|
-//@[28:36) Identifier |location|
-//@[36:38) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:025) Identifier |resourceGroup|
+//@[025:026) LeftParen |(|
+//@[026:027) RightParen |)|
+//@[027:028) Dot |.|
+//@[028:036) Identifier |location|
+//@[036:038) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     state: 'Enabled'
-//@[4:9) Identifier |state|
-//@[9:10) Colon |:|
-//@[11:20) StringComplete |'Enabled'|
-//@[20:22) NewLine |\r\n|
+//@[004:009) Identifier |state|
+//@[009:010) Colon |:|
+//@[011:020) StringComplete |'Enabled'|
+//@[020:022) NewLine |\r\n|
     definition: ''
-//@[4:14) Identifier |definition|
-//@[14:15) Colon |:|
-//@[16:18) StringComplete |''|
-//@[18:20) NewLine |\r\n|
+//@[004:014) Identifier |definition|
+//@[014:015) Colon |:|
+//@[016:018) StringComplete |''|
+//@[018:020) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   identity: {
-//@[2:10) Identifier |identity|
-//@[10:11) Colon |:|
-//@[12:13) LeftBrace |{|
-//@[13:15) NewLine |\r\n|
+//@[002:010) Identifier |identity|
+//@[010:011) Colon |:|
+//@[012:013) LeftBrace |{|
+//@[013:015) NewLine |\r\n|
     type: 'SystemAssigned'
-//@[4:8) Identifier |type|
-//@[8:9) Colon |:|
-//@[10:26) StringComplete |'SystemAssigned'|
-//@[26:28) NewLine |\r\n|
+//@[004:008) Identifier |type|
+//@[008:009) Colon |:|
+//@[010:026) StringComplete |'SystemAssigned'|
+//@[026:028) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   extendedLocation: {}
-//@[2:18) Identifier |extendedLocation|
-//@[18:19) Colon |:|
-//@[20:21) LeftBrace |{|
-//@[21:22) RightBrace |}|
-//@[22:24) NewLine |\r\n|
+//@[002:018) Identifier |extendedLocation|
+//@[018:019) Colon |:|
+//@[020:021) LeftBrace |{|
+//@[021:022) RightBrace |}|
+//@[022:024) NewLine |\r\n|
   sku: {}
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:9) RightBrace |}|
-//@[9:11) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:009) RightBrace |}|
+//@[009:011) NewLine |\r\n|
   kind: 'V1'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:12) StringComplete |'V1'|
-//@[12:14) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:012) StringComplete |'V1'|
+//@[012:014) NewLine |\r\n|
   managedBy: 'string'
-//@[2:11) Identifier |managedBy|
-//@[11:12) Colon |:|
-//@[13:21) StringComplete |'string'|
-//@[21:23) NewLine |\r\n|
+//@[002:011) Identifier |managedBy|
+//@[011:012) Colon |:|
+//@[013:021) StringComplete |'string'|
+//@[021:023) NewLine |\r\n|
   mangedByExtended: [
-//@[2:18) Identifier |mangedByExtended|
-//@[18:19) Colon |:|
-//@[20:21) LeftSquare |[|
-//@[21:23) NewLine |\r\n|
+//@[002:018) Identifier |mangedByExtended|
+//@[018:019) Colon |:|
+//@[020:021) LeftSquare |[|
+//@[021:023) NewLine |\r\n|
    'str1'
-//@[3:9) StringComplete |'str1'|
-//@[9:11) NewLine |\r\n|
+//@[003:009) StringComplete |'str1'|
+//@[009:011) NewLine |\r\n|
    'str2'
-//@[3:9) StringComplete |'str2'|
-//@[9:11) NewLine |\r\n|
+//@[003:009) StringComplete |'str2'|
+//@[009:011) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
   zones: [
-//@[2:7) Identifier |zones|
-//@[7:8) Colon |:|
-//@[9:10) LeftSquare |[|
-//@[10:12) NewLine |\r\n|
+//@[002:007) Identifier |zones|
+//@[007:008) Colon |:|
+//@[009:010) LeftSquare |[|
+//@[010:012) NewLine |\r\n|
    'str1'
-//@[3:9) StringComplete |'str1'|
-//@[9:11) NewLine |\r\n|
+//@[003:009) StringComplete |'str1'|
+//@[009:011) NewLine |\r\n|
    'str2'
-//@[3:9) StringComplete |'str2'|
-//@[9:11) NewLine |\r\n|
+//@[003:009) StringComplete |'str2'|
+//@[009:011) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
   plan: {}
-//@[2:6) Identifier |plan|
-//@[6:7) Colon |:|
-//@[8:9) LeftBrace |{|
-//@[9:10) RightBrace |}|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |plan|
+//@[006:007) Colon |:|
+//@[008:009) LeftBrace |{|
+//@[009:010) RightBrace |}|
+//@[010:012) NewLine |\r\n|
   eTag: ''
-//@[2:6) Identifier |eTag|
-//@[6:7) Colon |:|
-//@[8:10) StringComplete |''|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |eTag|
+//@[006:007) Colon |:|
+//@[008:010) StringComplete |''|
+//@[010:012) NewLine |\r\n|
   scale: {}  
-//@[2:7) Identifier |scale|
-//@[7:8) Colon |:|
-//@[9:10) LeftBrace |{|
-//@[10:11) RightBrace |}|
-//@[13:15) NewLine |\r\n|
+//@[002:007) Identifier |scale|
+//@[007:008) Colon |:|
+//@[009:010) LeftBrace |{|
+//@[010:011) RightBrace |}|
+//@[013:015) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource issue3000LogicApp2 'Microsoft.Logic/workflows@2019-05-01' = {
-//@[0:8) Identifier |resource|
-//@[9:27) Identifier |issue3000LogicApp2|
-//@[28:66) StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
-//@[67:68) Assignment |=|
-//@[69:70) LeftBrace |{|
-//@[70:72) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:027) Identifier |issue3000LogicApp2|
+//@[028:066) StringComplete |'Microsoft.Logic/workflows@2019-05-01'|
+//@[067:068) Assignment |=|
+//@[069:070) LeftBrace |{|
+//@[070:072) NewLine |\r\n|
   name: 'issue3000LogicApp2'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:28) StringComplete |'issue3000LogicApp2'|
-//@[28:30) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:028) StringComplete |'issue3000LogicApp2'|
+//@[028:030) NewLine |\r\n|
   location: resourceGroup().location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:25) Identifier |resourceGroup|
-//@[25:26) LeftParen |(|
-//@[26:27) RightParen |)|
-//@[27:28) Dot |.|
-//@[28:36) Identifier |location|
-//@[36:38) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:025) Identifier |resourceGroup|
+//@[025:026) LeftParen |(|
+//@[026:027) RightParen |)|
+//@[027:028) Dot |.|
+//@[028:036) Identifier |location|
+//@[036:038) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     state: 'Enabled'
-//@[4:9) Identifier |state|
-//@[9:10) Colon |:|
-//@[11:20) StringComplete |'Enabled'|
-//@[20:22) NewLine |\r\n|
+//@[004:009) Identifier |state|
+//@[009:010) Colon |:|
+//@[011:020) StringComplete |'Enabled'|
+//@[020:022) NewLine |\r\n|
     definition: ''
-//@[4:14) Identifier |definition|
-//@[14:15) Colon |:|
-//@[16:18) StringComplete |''|
-//@[18:20) NewLine |\r\n|
+//@[004:014) Identifier |definition|
+//@[014:015) Colon |:|
+//@[016:018) StringComplete |''|
+//@[018:020) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   identity: 'SystemAssigned'
-//@[2:10) Identifier |identity|
-//@[10:11) Colon |:|
-//@[12:28) StringComplete |'SystemAssigned'|
-//@[28:30) NewLine |\r\n|
+//@[002:010) Identifier |identity|
+//@[010:011) Colon |:|
+//@[012:028) StringComplete |'SystemAssigned'|
+//@[028:030) NewLine |\r\n|
   extendedLocation: 'eastus'
-//@[2:18) Identifier |extendedLocation|
-//@[18:19) Colon |:|
-//@[20:28) StringComplete |'eastus'|
-//@[28:30) NewLine |\r\n|
+//@[002:018) Identifier |extendedLocation|
+//@[018:019) Colon |:|
+//@[020:028) StringComplete |'eastus'|
+//@[028:030) NewLine |\r\n|
   sku: 'Basic'
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:14) StringComplete |'Basic'|
-//@[14:16) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:014) StringComplete |'Basic'|
+//@[014:016) NewLine |\r\n|
   kind: {
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:9) LeftBrace |{|
-//@[9:11) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:009) LeftBrace |{|
+//@[009:011) NewLine |\r\n|
     name: 'V1'
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:14) StringComplete |'V1'|
-//@[14:16) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:014) StringComplete |'V1'|
+//@[014:016) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   managedBy: {}
-//@[2:11) Identifier |managedBy|
-//@[11:12) Colon |:|
-//@[13:14) LeftBrace |{|
-//@[14:15) RightBrace |}|
-//@[15:17) NewLine |\r\n|
+//@[002:011) Identifier |managedBy|
+//@[011:012) Colon |:|
+//@[013:014) LeftBrace |{|
+//@[014:015) RightBrace |}|
+//@[015:017) NewLine |\r\n|
   mangedByExtended: [
-//@[2:18) Identifier |mangedByExtended|
-//@[18:19) Colon |:|
-//@[20:21) LeftSquare |[|
-//@[21:23) NewLine |\r\n|
+//@[002:018) Identifier |mangedByExtended|
+//@[018:019) Colon |:|
+//@[020:021) LeftSquare |[|
+//@[021:023) NewLine |\r\n|
    {}
-//@[3:4) LeftBrace |{|
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[003:004) LeftBrace |{|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
    {}
-//@[3:4) LeftBrace |{|
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[003:004) LeftBrace |{|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
   zones: [
-//@[2:7) Identifier |zones|
-//@[7:8) Colon |:|
-//@[9:10) LeftSquare |[|
-//@[10:12) NewLine |\r\n|
+//@[002:007) Identifier |zones|
+//@[007:008) Colon |:|
+//@[009:010) LeftSquare |[|
+//@[010:012) NewLine |\r\n|
    {}
-//@[3:4) LeftBrace |{|
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[003:004) LeftBrace |{|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
    {}
-//@[3:4) LeftBrace |{|
-//@[4:5) RightBrace |}|
-//@[5:7) NewLine |\r\n|
+//@[003:004) LeftBrace |{|
+//@[004:005) RightBrace |}|
+//@[005:007) NewLine |\r\n|
   ]
-//@[2:3) RightSquare |]|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[003:005) NewLine |\r\n|
   plan: ''
-//@[2:6) Identifier |plan|
-//@[6:7) Colon |:|
-//@[8:10) StringComplete |''|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |plan|
+//@[006:007) Colon |:|
+//@[008:010) StringComplete |''|
+//@[010:012) NewLine |\r\n|
   eTag: {}
-//@[2:6) Identifier |eTag|
-//@[6:7) Colon |:|
-//@[8:9) LeftBrace |{|
-//@[9:10) RightBrace |}|
-//@[10:12) NewLine |\r\n|
+//@[002:006) Identifier |eTag|
+//@[006:007) Colon |:|
+//@[008:009) LeftBrace |{|
+//@[009:010) RightBrace |}|
+//@[010:012) NewLine |\r\n|
   scale: [
-//@[2:7) Identifier |scale|
-//@[7:8) Colon |:|
-//@[9:10) LeftSquare |[|
-//@[10:12) NewLine |\r\n|
+//@[002:007) Identifier |scale|
+//@[007:008) Colon |:|
+//@[009:010) LeftSquare |[|
+//@[010:012) NewLine |\r\n|
   {}
-//@[2:3) LeftBrace |{|
-//@[3:4) RightBrace |}|
-//@[4:6) NewLine |\r\n|
+//@[002:003) LeftBrace |{|
+//@[003:004) RightBrace |}|
+//@[004:006) NewLine |\r\n|
   ]  
-//@[2:3) RightSquare |]|
-//@[5:7) NewLine |\r\n|
+//@[002:003) RightSquare |]|
+//@[005:007) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource issue3000stg 'Microsoft.Storage/storageAccounts@2021-04-01' = {
-//@[0:8) Identifier |resource|
-//@[9:21) Identifier |issue3000stg|
-//@[22:68) StringComplete |'Microsoft.Storage/storageAccounts@2021-04-01'|
-//@[69:70) Assignment |=|
-//@[71:72) LeftBrace |{|
-//@[72:74) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:021) Identifier |issue3000stg|
+//@[022:068) StringComplete |'Microsoft.Storage/storageAccounts@2021-04-01'|
+//@[069:070) Assignment |=|
+//@[071:072) LeftBrace |{|
+//@[072:074) NewLine |\r\n|
   name: 'issue3000stg'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:22) StringComplete |'issue3000stg'|
-//@[22:24) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:022) StringComplete |'issue3000stg'|
+//@[022:024) NewLine |\r\n|
   kind: 'StorageV2'
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:19) StringComplete |'StorageV2'|
-//@[19:21) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:019) StringComplete |'StorageV2'|
+//@[019:021) NewLine |\r\n|
   location: 'West US'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:21) StringComplete |'West US'|
-//@[21:23) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:021) StringComplete |'West US'|
+//@[021:023) NewLine |\r\n|
   sku: {
-//@[2:5) Identifier |sku|
-//@[5:6) Colon |:|
-//@[7:8) LeftBrace |{|
-//@[8:10) NewLine |\r\n|
+//@[002:005) Identifier |sku|
+//@[005:006) Colon |:|
+//@[007:008) LeftBrace |{|
+//@[008:010) NewLine |\r\n|
     name: 'Premium_LRS'    
-//@[4:8) Identifier |name|
-//@[8:9) Colon |:|
-//@[10:23) StringComplete |'Premium_LRS'|
-//@[27:29) NewLine |\r\n|
+//@[004:008) Identifier |name|
+//@[008:009) Colon |:|
+//@[010:023) StringComplete |'Premium_LRS'|
+//@[027:029) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
   madeUpProperty: {}
-//@[2:16) Identifier |madeUpProperty|
-//@[16:17) Colon |:|
-//@[18:19) LeftBrace |{|
-//@[19:20) RightBrace |}|
-//@[20:22) NewLine |\r\n|
+//@[002:016) Identifier |madeUpProperty|
+//@[016:017) Colon |:|
+//@[018:019) LeftBrace |{|
+//@[019:020) RightBrace |}|
+//@[020:022) NewLine |\r\n|
   managedByExtended: []
-//@[2:19) Identifier |managedByExtended|
-//@[19:20) Colon |:|
-//@[21:22) LeftSquare |[|
-//@[22:23) RightSquare |]|
-//@[23:25) NewLine |\r\n|
+//@[002:019) Identifier |managedByExtended|
+//@[019:020) Colon |:|
+//@[021:022) LeftSquare |[|
+//@[022:023) RightSquare |]|
+//@[023:025) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 var issue3000stgMadeUpProperty = issue3000stg.madeUpProperty
-//@[0:3) Identifier |var|
-//@[4:30) Identifier |issue3000stgMadeUpProperty|
-//@[31:32) Assignment |=|
-//@[33:45) Identifier |issue3000stg|
-//@[45:46) Dot |.|
-//@[46:60) Identifier |madeUpProperty|
-//@[60:62) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:030) Identifier |issue3000stgMadeUpProperty|
+//@[031:032) Assignment |=|
+//@[033:045) Identifier |issue3000stg|
+//@[045:046) Dot |.|
+//@[046:060) Identifier |madeUpProperty|
+//@[060:062) NewLine |\r\n|
 var issue3000stgManagedBy = issue3000stg.managedBy
-//@[0:3) Identifier |var|
-//@[4:25) Identifier |issue3000stgManagedBy|
-//@[26:27) Assignment |=|
-//@[28:40) Identifier |issue3000stg|
-//@[40:41) Dot |.|
-//@[41:50) Identifier |managedBy|
-//@[50:52) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:025) Identifier |issue3000stgManagedBy|
+//@[026:027) Assignment |=|
+//@[028:040) Identifier |issue3000stg|
+//@[040:041) Dot |.|
+//@[041:050) Identifier |managedBy|
+//@[050:052) NewLine |\r\n|
 var issue3000stgManagedByExtended = issue3000stg.managedByExtended
-//@[0:3) Identifier |var|
-//@[4:33) Identifier |issue3000stgManagedByExtended|
-//@[34:35) Assignment |=|
-//@[36:48) Identifier |issue3000stg|
-//@[48:49) Dot |.|
-//@[49:66) Identifier |managedByExtended|
-//@[66:70) NewLine |\r\n\r\n|
+//@[000:003) Identifier |var|
+//@[004:033) Identifier |issue3000stgManagedByExtended|
+//@[034:035) Assignment |=|
+//@[036:048) Identifier |issue3000stg|
+//@[048:049) Dot |.|
+//@[049:066) Identifier |managedByExtended|
+//@[066:070) NewLine |\r\n\r\n|
 
 param dataCollectionRule object
-//@[0:5) Identifier |param|
-//@[6:24) Identifier |dataCollectionRule|
-//@[25:31) Identifier |object|
-//@[31:33) NewLine |\r\n|
+//@[000:005) Identifier |param|
+//@[006:024) Identifier |dataCollectionRule|
+//@[025:031) Identifier |object|
+//@[031:033) NewLine |\r\n|
 param tags object
-//@[0:5) Identifier |param|
-//@[6:10) Identifier |tags|
-//@[11:17) Identifier |object|
-//@[17:21) NewLine |\r\n\r\n|
+//@[000:005) Identifier |param|
+//@[006:010) Identifier |tags|
+//@[011:017) Identifier |object|
+//@[017:021) NewLine |\r\n\r\n|
 
 var defaultLogAnalyticsWorkspace = {
-//@[0:3) Identifier |var|
-//@[4:32) Identifier |defaultLogAnalyticsWorkspace|
-//@[33:34) Assignment |=|
-//@[35:36) LeftBrace |{|
-//@[36:38) NewLine |\r\n|
+//@[000:003) Identifier |var|
+//@[004:032) Identifier |defaultLogAnalyticsWorkspace|
+//@[033:034) Assignment |=|
+//@[035:036) LeftBrace |{|
+//@[036:038) NewLine |\r\n|
   subscriptionId: subscription().subscriptionId
-//@[2:16) Identifier |subscriptionId|
-//@[16:17) Colon |:|
-//@[18:30) Identifier |subscription|
-//@[30:31) LeftParen |(|
-//@[31:32) RightParen |)|
-//@[32:33) Dot |.|
-//@[33:47) Identifier |subscriptionId|
-//@[47:49) NewLine |\r\n|
+//@[002:016) Identifier |subscriptionId|
+//@[016:017) Colon |:|
+//@[018:030) Identifier |subscription|
+//@[030:031) LeftParen |(|
+//@[031:032) RightParen |)|
+//@[032:033) Dot |.|
+//@[033:047) Identifier |subscriptionId|
+//@[047:049) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-10-01' existing = [for logAnalyticsWorkspace in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |logAnalyticsWorkspaces|
-//@[32:85) StringComplete |'Microsoft.OperationalInsights/workspaces@2020-10-01'|
-//@[86:94) Identifier |existing|
-//@[95:96) Assignment |=|
-//@[97:98) LeftSquare |[|
-//@[98:101) Identifier |for|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |logAnalyticsWorkspaces|
+//@[032:085) StringComplete |'Microsoft.OperationalInsights/workspaces@2020-10-01'|
+//@[086:094) Identifier |existing|
+//@[095:096) Assignment |=|
+//@[097:098) LeftSquare |[|
+//@[098:101) Identifier |for|
 //@[102:123) Identifier |logAnalyticsWorkspace|
 //@[124:126) Identifier |in|
 //@[127:145) Identifier |dataCollectionRule|
@@ -7407,376 +7407,376 @@ resource logAnalyticsWorkspaces 'Microsoft.OperationalInsights/workspaces@2020-1
 //@[183:184) LeftBrace |{|
 //@[184:186) NewLine |\r\n|
   name: logAnalyticsWorkspace.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:29) Identifier |logAnalyticsWorkspace|
-//@[29:30) Dot |.|
-//@[30:34) Identifier |name|
-//@[34:36) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:029) Identifier |logAnalyticsWorkspace|
+//@[029:030) Dot |.|
+//@[030:034) Identifier |name|
+//@[034:036) NewLine |\r\n|
   scope: resourceGroup( union( defaultLogAnalyticsWorkspace, logAnalyticsWorkspace ).subscriptionId, logAnalyticsWorkspace.resourceGroup )
-//@[2:7) Identifier |scope|
-//@[7:8) Colon |:|
-//@[9:22) Identifier |resourceGroup|
-//@[22:23) LeftParen |(|
-//@[24:29) Identifier |union|
-//@[29:30) LeftParen |(|
-//@[31:59) Identifier |defaultLogAnalyticsWorkspace|
-//@[59:60) Comma |,|
-//@[61:82) Identifier |logAnalyticsWorkspace|
-//@[83:84) RightParen |)|
-//@[84:85) Dot |.|
-//@[85:99) Identifier |subscriptionId|
-//@[99:100) Comma |,|
+//@[002:007) Identifier |scope|
+//@[007:008) Colon |:|
+//@[009:022) Identifier |resourceGroup|
+//@[022:023) LeftParen |(|
+//@[024:029) Identifier |union|
+//@[029:030) LeftParen |(|
+//@[031:059) Identifier |defaultLogAnalyticsWorkspace|
+//@[059:060) Comma |,|
+//@[061:082) Identifier |logAnalyticsWorkspace|
+//@[083:084) RightParen |)|
+//@[084:085) Dot |.|
+//@[085:099) Identifier |subscriptionId|
+//@[099:100) Comma |,|
 //@[101:122) Identifier |logAnalyticsWorkspace|
 //@[122:123) Dot |.|
 //@[123:136) Identifier |resourceGroup|
 //@[137:138) RightParen |)|
 //@[138:140) NewLine |\r\n|
 }]
-//@[0:1) RightBrace |}|
-//@[1:2) RightSquare |]|
-//@[2:6) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:002) RightSquare |]|
+//@[002:006) NewLine |\r\n\r\n|
 
 resource dataCollectionRuleRes 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
-//@[0:8) Identifier |resource|
-//@[9:30) Identifier |dataCollectionRuleRes|
-//@[31:82) StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftBrace |{|
-//@[86:88) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:030) Identifier |dataCollectionRuleRes|
+//@[031:082) StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftBrace |{|
+//@[086:088) NewLine |\r\n|
   name: dataCollectionRule.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:26) Identifier |dataCollectionRule|
-//@[26:27) Dot |.|
-//@[27:31) Identifier |name|
-//@[31:33) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:026) Identifier |dataCollectionRule|
+//@[026:027) Dot |.|
+//@[027:031) Identifier |name|
+//@[031:033) NewLine |\r\n|
   location: dataCollectionRule.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:30) Identifier |dataCollectionRule|
-//@[30:31) Dot |.|
-//@[31:39) Identifier |location|
-//@[39:41) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:030) Identifier |dataCollectionRule|
+//@[030:031) Dot |.|
+//@[031:039) Identifier |location|
+//@[039:041) NewLine |\r\n|
   tags: tags
-//@[2:6) Identifier |tags|
-//@[6:7) Colon |:|
-//@[8:12) Identifier |tags|
-//@[12:14) NewLine |\r\n|
+//@[002:006) Identifier |tags|
+//@[006:007) Colon |:|
+//@[008:012) Identifier |tags|
+//@[012:014) NewLine |\r\n|
   kind: dataCollectionRule.kind
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:26) Identifier |dataCollectionRule|
-//@[26:27) Dot |.|
-//@[27:31) Identifier |kind|
-//@[31:33) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:026) Identifier |dataCollectionRule|
+//@[026:027) Dot |.|
+//@[027:031) Identifier |kind|
+//@[031:033) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     description: dataCollectionRule.description
-//@[4:15) Identifier |description|
-//@[15:16) Colon |:|
-//@[17:35) Identifier |dataCollectionRule|
-//@[35:36) Dot |.|
-//@[36:47) Identifier |description|
-//@[47:49) NewLine |\r\n|
+//@[004:015) Identifier |description|
+//@[015:016) Colon |:|
+//@[017:035) Identifier |dataCollectionRule|
+//@[035:036) Dot |.|
+//@[036:047) Identifier |description|
+//@[047:049) NewLine |\r\n|
     destinations: union(empty(dataCollectionRule.destinations.azureMonitorMetrics.name) ? {} : {
-//@[4:16) Identifier |destinations|
-//@[16:17) Colon |:|
-//@[18:23) Identifier |union|
-//@[23:24) LeftParen |(|
-//@[24:29) Identifier |empty|
-//@[29:30) LeftParen |(|
-//@[30:48) Identifier |dataCollectionRule|
-//@[48:49) Dot |.|
-//@[49:61) Identifier |destinations|
-//@[61:62) Dot |.|
-//@[62:81) Identifier |azureMonitorMetrics|
-//@[81:82) Dot |.|
-//@[82:86) Identifier |name|
-//@[86:87) RightParen |)|
-//@[88:89) Question |?|
-//@[90:91) LeftBrace |{|
-//@[91:92) RightBrace |}|
-//@[93:94) Colon |:|
-//@[95:96) LeftBrace |{|
-//@[96:98) NewLine |\r\n|
+//@[004:016) Identifier |destinations|
+//@[016:017) Colon |:|
+//@[018:023) Identifier |union|
+//@[023:024) LeftParen |(|
+//@[024:029) Identifier |empty|
+//@[029:030) LeftParen |(|
+//@[030:048) Identifier |dataCollectionRule|
+//@[048:049) Dot |.|
+//@[049:061) Identifier |destinations|
+//@[061:062) Dot |.|
+//@[062:081) Identifier |azureMonitorMetrics|
+//@[081:082) Dot |.|
+//@[082:086) Identifier |name|
+//@[086:087) RightParen |)|
+//@[088:089) Question |?|
+//@[090:091) LeftBrace |{|
+//@[091:092) RightBrace |}|
+//@[093:094) Colon |:|
+//@[095:096) LeftBrace |{|
+//@[096:098) NewLine |\r\n|
       azureMonitorMetrics: {
-//@[6:25) Identifier |azureMonitorMetrics|
-//@[25:26) Colon |:|
-//@[27:28) LeftBrace |{|
-//@[28:30) NewLine |\r\n|
+//@[006:025) Identifier |azureMonitorMetrics|
+//@[025:026) Colon |:|
+//@[027:028) LeftBrace |{|
+//@[028:030) NewLine |\r\n|
         name: dataCollectionRule.destinations.azureMonitorMetrics.name
-//@[8:12) Identifier |name|
-//@[12:13) Colon |:|
-//@[14:32) Identifier |dataCollectionRule|
-//@[32:33) Dot |.|
-//@[33:45) Identifier |destinations|
-//@[45:46) Dot |.|
-//@[46:65) Identifier |azureMonitorMetrics|
-//@[65:66) Dot |.|
-//@[66:70) Identifier |name|
-//@[70:72) NewLine |\r\n|
+//@[008:012) Identifier |name|
+//@[012:013) Colon |:|
+//@[014:032) Identifier |dataCollectionRule|
+//@[032:033) Dot |.|
+//@[033:045) Identifier |destinations|
+//@[045:046) Dot |.|
+//@[046:065) Identifier |azureMonitorMetrics|
+//@[065:066) Dot |.|
+//@[066:070) Identifier |name|
+//@[070:072) NewLine |\r\n|
       }
-//@[6:7) RightBrace |}|
-//@[7:9) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:009) NewLine |\r\n|
     },{
-//@[4:5) RightBrace |}|
-//@[5:6) Comma |,|
-//@[6:7) LeftBrace |{|
-//@[7:9) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:006) Comma |,|
+//@[006:007) LeftBrace |{|
+//@[007:009) NewLine |\r\n|
       logAnalytics: [for (logAnalyticsWorkspace, i) in dataCollectionRule.destinations.logAnalyticsWorkspaces: {
-//@[6:18) Identifier |logAnalytics|
-//@[18:19) Colon |:|
-//@[20:21) LeftSquare |[|
-//@[21:24) Identifier |for|
-//@[25:26) LeftParen |(|
-//@[26:47) Identifier |logAnalyticsWorkspace|
-//@[47:48) Comma |,|
-//@[49:50) Identifier |i|
-//@[50:51) RightParen |)|
-//@[52:54) Identifier |in|
-//@[55:73) Identifier |dataCollectionRule|
-//@[73:74) Dot |.|
-//@[74:86) Identifier |destinations|
-//@[86:87) Dot |.|
-//@[87:109) Identifier |logAnalyticsWorkspaces|
+//@[006:018) Identifier |logAnalytics|
+//@[018:019) Colon |:|
+//@[020:021) LeftSquare |[|
+//@[021:024) Identifier |for|
+//@[025:026) LeftParen |(|
+//@[026:047) Identifier |logAnalyticsWorkspace|
+//@[047:048) Comma |,|
+//@[049:050) Identifier |i|
+//@[050:051) RightParen |)|
+//@[052:054) Identifier |in|
+//@[055:073) Identifier |dataCollectionRule|
+//@[073:074) Dot |.|
+//@[074:086) Identifier |destinations|
+//@[086:087) Dot |.|
+//@[087:109) Identifier |logAnalyticsWorkspaces|
 //@[109:110) Colon |:|
 //@[111:112) LeftBrace |{|
 //@[112:114) NewLine |\r\n|
         name: logAnalyticsWorkspace.destinationName
-//@[8:12) Identifier |name|
-//@[12:13) Colon |:|
-//@[14:35) Identifier |logAnalyticsWorkspace|
-//@[35:36) Dot |.|
-//@[36:51) Identifier |destinationName|
-//@[51:53) NewLine |\r\n|
+//@[008:012) Identifier |name|
+//@[012:013) Colon |:|
+//@[014:035) Identifier |logAnalyticsWorkspace|
+//@[035:036) Dot |.|
+//@[036:051) Identifier |destinationName|
+//@[051:053) NewLine |\r\n|
         workspaceResourceId: logAnalyticsWorkspaces[i].id
-//@[8:27) Identifier |workspaceResourceId|
-//@[27:28) Colon |:|
-//@[29:51) Identifier |logAnalyticsWorkspaces|
-//@[51:52) LeftSquare |[|
-//@[52:53) Identifier |i|
-//@[53:54) RightSquare |]|
-//@[54:55) Dot |.|
-//@[55:57) Identifier |id|
-//@[57:59) NewLine |\r\n|
+//@[008:027) Identifier |workspaceResourceId|
+//@[027:028) Colon |:|
+//@[029:051) Identifier |logAnalyticsWorkspaces|
+//@[051:052) LeftSquare |[|
+//@[052:053) Identifier |i|
+//@[053:054) RightSquare |]|
+//@[054:055) Dot |.|
+//@[055:057) Identifier |id|
+//@[057:059) NewLine |\r\n|
       }]
-//@[6:7) RightBrace |}|
-//@[7:8) RightSquare |]|
-//@[8:10) NewLine |\r\n|
+//@[006:007) RightBrace |}|
+//@[007:008) RightSquare |]|
+//@[008:010) NewLine |\r\n|
     })
-//@[4:5) RightBrace |}|
-//@[5:6) RightParen |)|
-//@[6:8) NewLine |\r\n|
+//@[004:005) RightBrace |}|
+//@[005:006) RightParen |)|
+//@[006:008) NewLine |\r\n|
     dataSources: dataCollectionRule.dataSources
-//@[4:15) Identifier |dataSources|
-//@[15:16) Colon |:|
-//@[17:35) Identifier |dataCollectionRule|
-//@[35:36) Dot |.|
-//@[36:47) Identifier |dataSources|
-//@[47:49) NewLine |\r\n|
+//@[004:015) Identifier |dataSources|
+//@[015:016) Colon |:|
+//@[017:035) Identifier |dataCollectionRule|
+//@[035:036) Dot |.|
+//@[036:047) Identifier |dataSources|
+//@[047:049) NewLine |\r\n|
     dataFlows: dataCollectionRule.dataFlows
-//@[4:13) Identifier |dataFlows|
-//@[13:14) Colon |:|
-//@[15:33) Identifier |dataCollectionRule|
-//@[33:34) Dot |.|
-//@[34:43) Identifier |dataFlows|
-//@[43:45) NewLine |\r\n|
+//@[004:013) Identifier |dataFlows|
+//@[013:014) Colon |:|
+//@[015:033) Identifier |dataCollectionRule|
+//@[033:034) Dot |.|
+//@[034:043) Identifier |dataFlows|
+//@[043:045) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 resource dataCollectionRuleRes2 'Microsoft.Insights/dataCollectionRules@2021-04-01' = {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |dataCollectionRuleRes2|
-//@[32:83) StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
-//@[84:85) Assignment |=|
-//@[86:87) LeftBrace |{|
-//@[87:89) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |dataCollectionRuleRes2|
+//@[032:083) StringComplete |'Microsoft.Insights/dataCollectionRules@2021-04-01'|
+//@[084:085) Assignment |=|
+//@[086:087) LeftBrace |{|
+//@[087:089) NewLine |\r\n|
   name: dataCollectionRule.name
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:26) Identifier |dataCollectionRule|
-//@[26:27) Dot |.|
-//@[27:31) Identifier |name|
-//@[31:33) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:026) Identifier |dataCollectionRule|
+//@[026:027) Dot |.|
+//@[027:031) Identifier |name|
+//@[031:033) NewLine |\r\n|
   location: dataCollectionRule.location
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:30) Identifier |dataCollectionRule|
-//@[30:31) Dot |.|
-//@[31:39) Identifier |location|
-//@[39:41) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:030) Identifier |dataCollectionRule|
+//@[030:031) Dot |.|
+//@[031:039) Identifier |location|
+//@[039:041) NewLine |\r\n|
   tags: tags
-//@[2:6) Identifier |tags|
-//@[6:7) Colon |:|
-//@[8:12) Identifier |tags|
-//@[12:14) NewLine |\r\n|
+//@[002:006) Identifier |tags|
+//@[006:007) Colon |:|
+//@[008:012) Identifier |tags|
+//@[012:014) NewLine |\r\n|
   kind: dataCollectionRule.kind
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:26) Identifier |dataCollectionRule|
-//@[26:27) Dot |.|
-//@[27:31) Identifier |kind|
-//@[31:33) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:026) Identifier |dataCollectionRule|
+//@[026:027) Dot |.|
+//@[027:031) Identifier |kind|
+//@[031:033) NewLine |\r\n|
   properties: {
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:15) LeftBrace |{|
-//@[15:17) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:015) LeftBrace |{|
+//@[015:017) NewLine |\r\n|
     description: dataCollectionRule.description
-//@[4:15) Identifier |description|
-//@[15:16) Colon |:|
-//@[17:35) Identifier |dataCollectionRule|
-//@[35:36) Dot |.|
-//@[36:47) Identifier |description|
-//@[47:49) NewLine |\r\n|
+//@[004:015) Identifier |description|
+//@[015:016) Colon |:|
+//@[017:035) Identifier |dataCollectionRule|
+//@[035:036) Dot |.|
+//@[036:047) Identifier |description|
+//@[047:049) NewLine |\r\n|
     destinations: empty([]) ? [for x in []: {}] : [for x in []: {}]
-//@[4:16) Identifier |destinations|
-//@[16:17) Colon |:|
-//@[18:23) Identifier |empty|
-//@[23:24) LeftParen |(|
-//@[24:25) LeftSquare |[|
-//@[25:26) RightSquare |]|
-//@[26:27) RightParen |)|
-//@[28:29) Question |?|
-//@[30:31) LeftSquare |[|
-//@[31:34) Identifier |for|
-//@[35:36) Identifier |x|
-//@[37:39) Identifier |in|
-//@[40:41) LeftSquare |[|
-//@[41:42) RightSquare |]|
-//@[42:43) Colon |:|
-//@[44:45) LeftBrace |{|
-//@[45:46) RightBrace |}|
-//@[46:47) RightSquare |]|
-//@[48:49) Colon |:|
-//@[50:51) LeftSquare |[|
-//@[51:54) Identifier |for|
-//@[55:56) Identifier |x|
-//@[57:59) Identifier |in|
-//@[60:61) LeftSquare |[|
-//@[61:62) RightSquare |]|
-//@[62:63) Colon |:|
-//@[64:65) LeftBrace |{|
-//@[65:66) RightBrace |}|
-//@[66:67) RightSquare |]|
-//@[67:69) NewLine |\r\n|
+//@[004:016) Identifier |destinations|
+//@[016:017) Colon |:|
+//@[018:023) Identifier |empty|
+//@[023:024) LeftParen |(|
+//@[024:025) LeftSquare |[|
+//@[025:026) RightSquare |]|
+//@[026:027) RightParen |)|
+//@[028:029) Question |?|
+//@[030:031) LeftSquare |[|
+//@[031:034) Identifier |for|
+//@[035:036) Identifier |x|
+//@[037:039) Identifier |in|
+//@[040:041) LeftSquare |[|
+//@[041:042) RightSquare |]|
+//@[042:043) Colon |:|
+//@[044:045) LeftBrace |{|
+//@[045:046) RightBrace |}|
+//@[046:047) RightSquare |]|
+//@[048:049) Colon |:|
+//@[050:051) LeftSquare |[|
+//@[051:054) Identifier |for|
+//@[055:056) Identifier |x|
+//@[057:059) Identifier |in|
+//@[060:061) LeftSquare |[|
+//@[061:062) RightSquare |]|
+//@[062:063) Colon |:|
+//@[064:065) LeftBrace |{|
+//@[065:066) RightBrace |}|
+//@[066:067) RightSquare |]|
+//@[067:069) NewLine |\r\n|
     dataSources: dataCollectionRule.dataSources
-//@[4:15) Identifier |dataSources|
-//@[15:16) Colon |:|
-//@[17:35) Identifier |dataCollectionRule|
-//@[35:36) Dot |.|
-//@[36:47) Identifier |dataSources|
-//@[47:49) NewLine |\r\n|
+//@[004:015) Identifier |dataSources|
+//@[015:016) Colon |:|
+//@[017:035) Identifier |dataCollectionRule|
+//@[035:036) Dot |.|
+//@[036:047) Identifier |dataSources|
+//@[047:049) NewLine |\r\n|
     dataFlows: dataCollectionRule.dataFlows
-//@[4:13) Identifier |dataFlows|
-//@[13:14) Colon |:|
-//@[15:33) Identifier |dataCollectionRule|
-//@[33:34) Dot |.|
-//@[34:43) Identifier |dataFlows|
-//@[43:45) NewLine |\r\n|
+//@[004:013) Identifier |dataFlows|
+//@[013:014) Colon |:|
+//@[015:033) Identifier |dataCollectionRule|
+//@[033:034) Dot |.|
+//@[034:043) Identifier |dataFlows|
+//@[043:045) NewLine |\r\n|
   }
-//@[2:3) RightBrace |}|
-//@[3:5) NewLine |\r\n|
+//@[002:003) RightBrace |}|
+//@[003:005) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:5) NewLine |\r\n\r\n|
+//@[000:001) RightBrace |}|
+//@[001:005) NewLine |\r\n\r\n|
 
 @description('The language of the Deployment Script. AzurePowerShell or AzureCLI.')
-//@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:82) StringComplete |'The language of the Deployment Script. AzurePowerShell or AzureCLI.'|
-//@[82:83) RightParen |)|
-//@[83:85) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:012) Identifier |description|
+//@[012:013) LeftParen |(|
+//@[013:082) StringComplete |'The language of the Deployment Script. AzurePowerShell or AzureCLI.'|
+//@[082:083) RightParen |)|
+//@[083:085) NewLine |\r\n|
 @allowed([
-//@[0:1) At |@|
-//@[1:8) Identifier |allowed|
-//@[8:9) LeftParen |(|
-//@[9:10) LeftSquare |[|
-//@[10:12) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:008) Identifier |allowed|
+//@[008:009) LeftParen |(|
+//@[009:010) LeftSquare |[|
+//@[010:012) NewLine |\r\n|
   'AzureCLI'
-//@[2:12) StringComplete |'AzureCLI'|
-//@[12:14) NewLine |\r\n|
+//@[002:012) StringComplete |'AzureCLI'|
+//@[012:014) NewLine |\r\n|
   'AzurePowerShell'
-//@[2:19) StringComplete |'AzurePowerShell'|
-//@[19:21) NewLine |\r\n|
+//@[002:019) StringComplete |'AzurePowerShell'|
+//@[019:021) NewLine |\r\n|
 ])
-//@[0:1) RightSquare |]|
-//@[1:2) RightParen |)|
-//@[2:4) NewLine |\r\n|
+//@[000:001) RightSquare |]|
+//@[001:002) RightParen |)|
+//@[002:004) NewLine |\r\n|
 param issue4668_kind string = 'AzureCLI'
-//@[0:5) Identifier |param|
-//@[6:20) Identifier |issue4668_kind|
-//@[21:27) Identifier |string|
-//@[28:29) Assignment |=|
-//@[30:40) StringComplete |'AzureCLI'|
-//@[40:42) NewLine |\r\n|
+//@[000:005) Identifier |param|
+//@[006:020) Identifier |issue4668_kind|
+//@[021:027) Identifier |string|
+//@[028:029) Assignment |=|
+//@[030:040) StringComplete |'AzureCLI'|
+//@[040:042) NewLine |\r\n|
 @description('The identity that will be used to execute the Deployment Script.')
-//@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:79) StringComplete |'The identity that will be used to execute the Deployment Script.'|
-//@[79:80) RightParen |)|
-//@[80:82) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:012) Identifier |description|
+//@[012:013) LeftParen |(|
+//@[013:079) StringComplete |'The identity that will be used to execute the Deployment Script.'|
+//@[079:080) RightParen |)|
+//@[080:082) NewLine |\r\n|
 param issue4668_identity object
-//@[0:5) Identifier |param|
-//@[6:24) Identifier |issue4668_identity|
-//@[25:31) Identifier |object|
-//@[31:33) NewLine |\r\n|
+//@[000:005) Identifier |param|
+//@[006:024) Identifier |issue4668_identity|
+//@[025:031) Identifier |object|
+//@[031:033) NewLine |\r\n|
 @description('The properties of the Deployment Script.')
-//@[0:1) At |@|
-//@[1:12) Identifier |description|
-//@[12:13) LeftParen |(|
-//@[13:55) StringComplete |'The properties of the Deployment Script.'|
-//@[55:56) RightParen |)|
-//@[56:58) NewLine |\r\n|
+//@[000:001) At |@|
+//@[001:012) Identifier |description|
+//@[012:013) LeftParen |(|
+//@[013:055) StringComplete |'The properties of the Deployment Script.'|
+//@[055:056) RightParen |)|
+//@[056:058) NewLine |\r\n|
 param issue4668_properties object
-//@[0:5) Identifier |param|
-//@[6:26) Identifier |issue4668_properties|
-//@[27:33) Identifier |object|
-//@[33:35) NewLine |\r\n|
+//@[000:005) Identifier |param|
+//@[006:026) Identifier |issue4668_properties|
+//@[027:033) Identifier |object|
+//@[033:035) NewLine |\r\n|
 resource issue4668_mainResource 'Microsoft.Resources/deploymentScripts@2020-10-01' = {
-//@[0:8) Identifier |resource|
-//@[9:31) Identifier |issue4668_mainResource|
-//@[32:82) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
-//@[83:84) Assignment |=|
-//@[85:86) LeftBrace |{|
-//@[86:88) NewLine |\r\n|
+//@[000:008) Identifier |resource|
+//@[009:031) Identifier |issue4668_mainResource|
+//@[032:082) StringComplete |'Microsoft.Resources/deploymentScripts@2020-10-01'|
+//@[083:084) Assignment |=|
+//@[085:086) LeftBrace |{|
+//@[086:088) NewLine |\r\n|
   name: 'testscript'
-//@[2:6) Identifier |name|
-//@[6:7) Colon |:|
-//@[8:20) StringComplete |'testscript'|
-//@[20:22) NewLine |\r\n|
+//@[002:006) Identifier |name|
+//@[006:007) Colon |:|
+//@[008:020) StringComplete |'testscript'|
+//@[020:022) NewLine |\r\n|
   location: 'westeurope'
-//@[2:10) Identifier |location|
-//@[10:11) Colon |:|
-//@[12:24) StringComplete |'westeurope'|
-//@[24:26) NewLine |\r\n|
+//@[002:010) Identifier |location|
+//@[010:011) Colon |:|
+//@[012:024) StringComplete |'westeurope'|
+//@[024:026) NewLine |\r\n|
   kind: issue4668_kind
-//@[2:6) Identifier |kind|
-//@[6:7) Colon |:|
-//@[8:22) Identifier |issue4668_kind|
-//@[22:24) NewLine |\r\n|
+//@[002:006) Identifier |kind|
+//@[006:007) Colon |:|
+//@[008:022) Identifier |issue4668_kind|
+//@[022:024) NewLine |\r\n|
   identity: issue4668_identity
-//@[2:10) Identifier |identity|
-//@[10:11) Colon |:|
-//@[12:30) Identifier |issue4668_identity|
-//@[30:32) NewLine |\r\n|
+//@[002:010) Identifier |identity|
+//@[010:011) Colon |:|
+//@[012:030) Identifier |issue4668_identity|
+//@[030:032) NewLine |\r\n|
   properties: issue4668_properties
-//@[2:12) Identifier |properties|
-//@[12:13) Colon |:|
-//@[14:34) Identifier |issue4668_properties|
-//@[34:36) NewLine |\r\n|
+//@[002:012) Identifier |properties|
+//@[012:013) Colon |:|
+//@[014:034) Identifier |issue4668_properties|
+//@[034:036) NewLine |\r\n|
 }
-//@[0:1) RightBrace |}|
-//@[1:3) NewLine |\r\n|
+//@[000:001) RightBrace |}|
+//@[001:003) NewLine |\r\n|
 
-//@[0:0) EndOfFile ||
+//@[000:000) EndOfFile ||

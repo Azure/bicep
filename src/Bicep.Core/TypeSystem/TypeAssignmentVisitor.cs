@@ -45,6 +45,7 @@ namespace Bicep.Core.TypeSystem
         private readonly IFileResolver fileResolver;
         private readonly ConcurrentDictionary<SyntaxBase, TypeAssignment> assignedTypes;
         private readonly ConcurrentDictionary<FunctionCallSyntaxBase, FunctionOverload> matchedFunctionOverloads;
+        private readonly ConcurrentDictionary<FunctionCallSyntaxBase, object> matchedFunctionResultValues;
 
         public TypeAssignmentVisitor(ITypeManager typeManager, IFeatureProvider features, IBinder binder, IFileResolver fileResolver)
         {
@@ -54,6 +55,7 @@ namespace Bicep.Core.TypeSystem
             this.fileResolver = fileResolver;
             assignedTypes = new();
             matchedFunctionOverloads = new();
+            matchedFunctionResultValues = new();
         }
 
         private TypeAssignment GetTypeAssignment(SyntaxBase syntax)
@@ -83,6 +85,11 @@ namespace Bicep.Core.TypeSystem
         {
             Visit(syntax);
             return matchedFunctionOverloads.TryGetValue(syntax, out var overload) ? overload : null;
+        }
+        public object? GetMatchedFunctionResultValue(FunctionCallSyntaxBase syntax)
+        {
+            Visit(syntax);
+            return matchedFunctionResultValues.TryGetValue(syntax, out var metadata) ? metadata : null;
         }
 
         private void AssignTypeWithCaching(SyntaxBase syntax, Func<TypeAssignment> assignFunc) =>
@@ -368,7 +375,7 @@ namespace Bicep.Core.TypeSystem
                     }
 
                     if (syntax.Type is ResourceTypeSyntax resourceTypeSyntax &&
-                        resourceTypeSyntax.Type is {} &&
+                        resourceTypeSyntax.Type is { } &&
                         !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                     {
                         diagnostics.Write(DiagnosticBuilder.ForPosition(resourceTypeSyntax.Type!).ResourceTypesUnavailable(resourceType.TypeReference));
@@ -1325,7 +1332,12 @@ namespace Bicep.Core.TypeSystem
                 matchedFunctionOverloads.TryAdd(syntax, matchedOverload);
 
                 // return its type
-                return matchedOverload.ReturnTypeBuilder(binder, fileResolver, diagnosticWriter, syntax.Arguments, argumentTypes);
+                var result = matchedOverload.ResultBuilder(binder, fileResolver, diagnosticWriter, syntax.Arguments, argumentTypes);
+                if (result.Value is not null)
+                {
+                    matchedFunctionResultValues.TryAdd(syntax, result.Value);
+                }
+                return result.Type;
             }
 
             // function arguments are ambiguous (due to "any" type)
@@ -1458,7 +1470,7 @@ namespace Bicep.Core.TypeSystem
 
                 // As a special case of outputs, we don't want to double-up diagnostics on inferred resource types.
                 // The inference is based on another declaration in the file, and so the user should fix that instead.
-                if (resourceTypeSyntax.Type is {}
+                if (resourceTypeSyntax.Type is { }
                     && !resourceType.DeclaringNamespace.ResourceTypeProvider.HasDefinedType(resourceType.TypeReference))
                 {
                     diagnostics.Add(DiagnosticBuilder.ForPosition(resourceTypeSyntax.Type!).ResourceTypesUnavailable(resourceType.TypeReference));
