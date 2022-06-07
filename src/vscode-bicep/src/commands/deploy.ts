@@ -38,14 +38,8 @@ import { setOutputChannelManagerAtTheStartOfDeployment } from "./deployHelper";
 import { compareStringsOrdinal } from "../utils/compareStringsOrdinal";
 
 export class DeployCommand implements Command {
-  private _none: IAzureQuickPickItem<string> = {
-    label: localize("none", "$(circle-slash) None"),
-    data: "",
-  };
-  private _browse: IAzureQuickPickItem<string> = {
-    label: localize("browse", "$(file-directory) Browse..."),
-    data: "",
-  };
+  private _none = localize("none", "$(circle-slash) None");
+  private _browse = localize("browse", "$(file-directory) Browse...");
   private _yes: IAzureQuickPickItem = {
     label: localize("yes", "Yes"),
     data: undefined,
@@ -460,7 +454,7 @@ export class DeployCommand implements Command {
       }
     );
 
-    if (result == this._browse) {
+    if (result.label == this._browse) {
       const paramsPaths: Uri[] | undefined = await vscode.window.showOpenDialog(
         {
           canSelectMany: false,
@@ -476,7 +470,7 @@ export class DeployCommand implements Command {
         );
         return parameterFilePath;
       }
-    } else if (result == this._none) {
+    } else if (result.label == this._none) {
       return undefined;
     } else {
       this.outputChannelManager.appendToOutputChannel(
@@ -641,7 +635,17 @@ export class DeployCommand implements Command {
   private async createParameterFileQuickPickList(): Promise<
     IAzureQuickPickItem<string>[]
   > {
-    let parameterFilesQuickPickList = [this._none].concat([this._browse]);
+    const noneQuickPickItem: IAzureQuickPickItem<string> = {
+      label: this._none,
+      data: "",
+    };
+    const browseQuickPickItem: IAzureQuickPickItem<string> = {
+      label: this._browse,
+      data: "",
+    };
+    let parameterFilesQuickPickList = [noneQuickPickItem].concat([
+      browseQuickPickItem,
+    ]);
     const jsonFilesInFolder = await this.getJsonFilesInFolder();
 
     if (jsonFilesInFolder) {
