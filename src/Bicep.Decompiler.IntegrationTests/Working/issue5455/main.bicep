@@ -75,7 +75,8 @@ resource name_resource 'Microsoft.Synapse/workspaces@2021-06-01' = {
   ]
 }
 
-resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = if (allowAllConnections) {parent: name_resource
+resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' = if (allowAllConnections) {
+  parent: name_resource
   location: location
 //@[02:10) [BCP187 (Warning)] The property "location" does not exist in the resource definition, although it might still be valid. If this is an inaccuracy in the documentation, please report it to the Bicep Team. (CodeDescription: bicep(https://aka.ms/bicep-type-issues)) |location|
   name: 'allowAll'
@@ -83,7 +84,6 @@ resource name_allowAll 'Microsoft.Synapse/workspaces/firewallrules@2021-06-01' =
     startIpAddress: '0.0.0.0'
     endIpAddress: '255.255.255.255'
   }
-
 }
 
 module StorageRoleDeploymentResource './nested_StorageRoleDeploymentResource.bicep' = if (setWorkspaceIdentityRbacOnStorageAccount) {

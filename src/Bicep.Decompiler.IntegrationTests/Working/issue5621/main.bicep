@@ -3,8 +3,7 @@ var emptyObject = {
 var simpleObject = {
   foo: 'bar'
 }
-var emptyArray = [
-]
+var emptyArray = []
 var singletonList = [
   'boo!'
 ]

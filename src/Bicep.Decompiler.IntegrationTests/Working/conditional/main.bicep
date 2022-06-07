@@ -112,5 +112,4 @@ module deployFlowLogs './nested_deployFlowLogs.bicep' = if (true) {
     FlowLogsversion: FlowLogsversion
     storageAccountResourceId: storageaccountname.id
   }
-
 }

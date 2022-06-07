@@ -13,10 +13,8 @@ resource storageAccounts_ll21w7onmmpv65q24_name_resource 'Microsoft.Storage/stor
   properties: {
     networkAcls: {
       bypass: 'AzureServices'
-      virtualNetworkRules: [
-      ]
-      ipRules: [
-      ]
+      virtualNetworkRules: []
+      ipRules: []
       defaultAction: 'Allow'
     }
     supportsHttpsTrafficOnly: true
@@ -49,10 +47,8 @@ resource storageAccounts_ll22w7onmmpv65q24_name_resource 'Microsoft.Storage/stor
   properties: {
     networkAcls: {
       bypass: 'AzureServices'
-      virtualNetworkRules: [
-      ]
-      ipRules: [
-      ]
+      virtualNetworkRules: []
+      ipRules: []
       defaultAction: 'Allow'
     }
     supportsHttpsTrafficOnly: true
@@ -73,35 +69,34 @@ resource storageAccounts_ll22w7onmmpv65q24_name_resource 'Microsoft.Storage/stor
   }
 }
 
-resource storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/blobServices@2021-01-01' = {parent: storageAccounts_ll21w7onmmpv65q24_name_resource
+resource storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/blobServices@2021-01-01' = {
+  parent: storageAccounts_ll21w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
     deleteRetentionPolicy: {
       enabled: false
     }
   }
-
 }
 
-resource storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/blobServices@2021-01-01' = {parent: storageAccounts_ll22w7onmmpv65q24_name_resource
+resource storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/blobServices@2021-01-01' = {
+  parent: storageAccounts_ll22w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
     deleteRetentionPolicy: {
       enabled: false
     }
   }
-
 }
 
-resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/fileServices@2021-01-01' = {parent: storageAccounts_ll21w7onmmpv65q24_name_resource
+resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/fileServices@2021-01-01' = {
+  parent: storageAccounts_ll21w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     protocolSettings: {
@@ -109,18 +104,17 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll21w7on
       }
     }
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
     shareDeleteRetentionPolicy: {
       enabled: true
       days: 7
     }
   }
-
 }
 
-resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/fileServices@2021-01-01' = {parent: storageAccounts_ll22w7onmmpv65q24_name_resource
+resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/fileServices@2021-01-01' = {
+  parent: storageAccounts_ll22w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     protocolSettings: {
@@ -128,62 +122,57 @@ resource Microsoft_Storage_storageAccounts_fileServices_storageAccounts_ll22w7on
       }
     }
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
     shareDeleteRetentionPolicy: {
       enabled: true
       days: 7
     }
   }
-
 }
 
-resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/queueServices@2021-01-01' = {parent: storageAccounts_ll21w7onmmpv65q24_name_resource
+resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/queueServices@2021-01-01' = {
+  parent: storageAccounts_ll21w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
   }
-
 }
 
-resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/queueServices@2021-01-01' = {parent: storageAccounts_ll22w7onmmpv65q24_name_resource
+resource Microsoft_Storage_storageAccounts_queueServices_storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/queueServices@2021-01-01' = {
+  parent: storageAccounts_ll22w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
   }
-
 }
 
-resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/tableServices@2021-01-01' = {parent: storageAccounts_ll21w7onmmpv65q24_name_resource
+resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_ll21w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/tableServices@2021-01-01' = {
+  parent: storageAccounts_ll21w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
   }
-
 }
 
-resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/tableServices@2021-01-01' = {parent: storageAccounts_ll22w7onmmpv65q24_name_resource
+resource Microsoft_Storage_storageAccounts_tableServices_storageAccounts_ll22w7onmmpv65q24_name_default 'Microsoft.Storage/storageAccounts/tableServices@2021-01-01' = {
+  parent: storageAccounts_ll22w7onmmpv65q24_name_resource
   name: 'default'
   properties: {
     cors: {
-      corsRules: [
-      ]
+      corsRules: []
     }
   }
-
 }
 
-resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs11 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {parent: storageAccounts_ll21w7onmmpv65q24_name_default
+resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs11 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
+  parent: storageAccounts_ll21w7onmmpv65q24_name_default
   name: 'blobs11'
   properties: {
     defaultEncryptionScope: '$account-encryption-key'
@@ -196,7 +185,8 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs11 'Microsoft.Stora
   ]
 }
 
-resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {parent: storageAccounts_ll21w7onmmpv65q24_name_default
+resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
+  parent: storageAccounts_ll21w7onmmpv65q24_name_default
   name: 'blobs12'
   properties: {
     defaultEncryptionScope: '$account-encryption-key'
@@ -209,7 +199,8 @@ resource storageAccounts_ll21w7onmmpv65q24_name_default_blobs12 'Microsoft.Stora
   ]
 }
 
-resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {parent: storageAccounts_ll22w7onmmpv65q24_name_default
+resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
+  parent: storageAccounts_ll22w7onmmpv65q24_name_default
   name: 'blobs21'
   properties: {
     defaultEncryptionScope: '$account-encryption-key'
@@ -222,7 +213,8 @@ resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs21 'Microsoft.Stora
   ]
 }
 
-resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs22 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {parent: storageAccounts_ll22w7onmmpv65q24_name_default
+resource storageAccounts_ll22w7onmmpv65q24_name_default_blobs22 'Microsoft.Storage/storageAccounts/blobServices/containers@2021-01-01' = {
+  parent: storageAccounts_ll22w7onmmpv65q24_name_default
   name: 'blobs22'
   properties: {
     defaultEncryptionScope: '$account-encryption-key'

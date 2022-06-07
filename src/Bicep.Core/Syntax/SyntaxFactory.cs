@@ -115,11 +115,17 @@ namespace Bicep.Core.Syntax
 
         public static ArraySyntax CreateArray(IEnumerable<SyntaxBase> items)
         {
-            var children = new List<SyntaxBase> { NewlineToken };
+            var children = new List<SyntaxBase>();
 
             foreach (var item in items)
             {
+                children.Add(NewlineToken);
                 children.Add(CreateArrayItem(item));
+            }
+
+            if (children.Any())
+            {
+                // only add a newline if we actually have children
                 children.Add(NewlineToken);
             }
 
