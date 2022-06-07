@@ -85,16 +85,14 @@ namespace Bicep.Core.Emit
 
                 foreach (var parameterSymbol in this.context.SemanticModel.Root.ParameterDeclarations)
                 {
-                    jsonWriter.WritePropertyName(parameterSymbol.Name);
-
-                    jsonWriter.WriteStartObject();
-
-                    if (parameterSymbol.DeclaringParameter.Modifier is ParameterDefaultValueSyntax defaultValueSyntax)
+                    if (parameterSymbol.DeclaringParameter.Modifier is not ParameterDefaultValueSyntax)
                     {
-                        emitter.EmitProperty("value", defaultValueSyntax.DefaultValue);
-                    }
+                        jsonWriter.WritePropertyName(parameterSymbol.Name);
 
-                    jsonWriter.WriteEndObject();
+                        jsonWriter.WriteStartObject();
+                        emitter.EmitProperty("value", "");
+                        jsonWriter.WriteEndObject();
+                    }
                 }
 
                 jsonWriter.WriteEndObject();

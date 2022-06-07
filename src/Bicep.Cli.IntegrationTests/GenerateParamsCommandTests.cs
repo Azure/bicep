@@ -51,7 +51,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task GenerateParams_OneParameter_Should_Succeed()
+        public async Task GenerateParams_OneParameterWithDefaultValue_Should_Succeed()
         {
             var bicep = $@"param name string = 'sampleparameter'";
 
@@ -72,9 +72,36 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {}
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_OneParameterWithoutDefaultValue_Should_Succeed()
+        {
+            var bicep = $@"param name string";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
     ""name"": {
-      ""value"": ""sampleparameter""
+      ""value"": """"
     }
   }
 }".ReplaceLineEndings());
@@ -82,7 +109,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task GenerateParams_TwoParameter_Should_Succeed()
+        public async Task GenerateParams_TwoParameter_TwoDefaultValues_Should_Succeed()
         {
             var bicep = $@"param name string = 'sampleparameter'
                            param location string = 'westus2'";
@@ -104,12 +131,37 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {}
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_TwoParameter_OneDefaultValues_Should_Succeed()
+        {
+            var bicep = $@"param name string = 'sampleparameter'
+                           param location string";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
-    ""name"": {
-      ""value"": ""sampleparameter""
-    },
     ""location"": {
-      ""value"": ""westus2""
+      ""value"": """"
     }
   }
 }".ReplaceLineEndings());
@@ -117,9 +169,76 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task GenerateParams_OneParameter_ExistingParamsFileWithTheSameParameter_Should_Succeed()
+        public async Task GenerateParams_TwoParameter_ZeroDefaultValues_Should_Succeed()
+        {
+            var bicep = $@"param name string
+                           param location string";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {
+    ""name"": {
+      ""value"": """"
+    },
+    ""location"": {
+      ""value"": """"
+    }
+  }
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_OneParameter_WithDefaultValue_ExistingParamsFileWithTheSameParameter_Should_Succeed()
         {
             var bicep = $@"param name string = 'sampleparameter'";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var existingParamsFilePath = Path.Combine(tempDirectory, "built.parameters.json");
+            File.WriteAllText(existingParamsFilePath, @"{ ""parameters"": {
+""name"": { ""value"": ""existingparameter"" }
+} }".ReplaceLineEndings());
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {}
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_OneParameter_WithoutDefaultValue_ExistingParamsFileWithTheSameParameter_Should_Succeed()
+        {
+            var bicep = $@"param name string";
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -153,7 +272,7 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task GenerateParams_InvalidExistingParamsFile_Should_Succeed()
+        public async Task GenerateParams_WithDevaultValue_InvalidExistingParamsFile_Should_Succeed()
         {
             var bicep = $@"param name string = 'sampleparameter'";
 
@@ -177,9 +296,39 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
+  ""parameters"": {}
+}".ReplaceLineEndings());
+            }
+        }
+
+        [TestMethod]
+        public async Task GenerateParams_WithoutDevaultValue_InvalidExistingParamsFile_Should_Succeed()
+        {
+            var bicep = $@"param name string";
+
+            var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
+            Directory.CreateDirectory(tempDirectory);
+
+            var bicepFilePath = Path.Combine(tempDirectory, "built.bicep");
+            File.WriteAllText(bicepFilePath, bicep);
+
+            var existingParamsFilePath = Path.Combine(tempDirectory, "built.parameters.json");
+            File.WriteAllText(existingParamsFilePath, "{INVALID}".ReplaceLineEndings());
+
+            var (output, error, result) = await Bicep("generate-params", bicepFilePath);
+
+            var content = File.ReadAllText(Path.Combine(tempDirectory, "built.parameters.json")).ReplaceLineEndings();
+
+            using (new AssertionScope())
+            {
+                result.Should().Be(0);
+
+                content.Should().Be(@"{
+  ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
+  ""contentVersion"": ""1.0.0.0"",
   ""parameters"": {
     ""name"": {
-      ""value"": ""sampleparameter""
+      ""value"": """"
     }
   }
 }".ReplaceLineEndings());
@@ -187,9 +336,9 @@ namespace Bicep.Cli.IntegrationTests
         }
 
         [TestMethod]
-        public async Task GenerateParams_ExistingParamsFile_Should_KeepContentVersion()
+        public async Task GenerateParams_WithoutDefaultValue_ExistingParamsFile_Should_KeepContentVersion()
         {
-            var bicep = $@"param name string = 'sampleparameter'";
+            var bicep = $@"param name string";
 
             var tempDirectory = FileHelper.GetUniqueTestOutputPath(TestContext);
             Directory.CreateDirectory(tempDirectory);
@@ -203,7 +352,7 @@ namespace Bicep.Cli.IntegrationTests
   ""contentVersion"": ""2.0.0.0"",
   ""parameters"": {
     ""name"": {
-      ""value"": ""existingparameter""
+      ""value"": """"
     }
   }
 }".ReplaceLineEndings());
@@ -221,7 +370,7 @@ namespace Bicep.Cli.IntegrationTests
   ""contentVersion"": ""2.0.0.0"",
   ""parameters"": {
     ""name"": {
-      ""value"": ""existingparameter""
+      ""value"": """"
     }
   }
 }".ReplaceLineEndings());
@@ -256,11 +405,7 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""name"": {
-      ""value"": ""existingparameter""
-    }
-  }
+  ""parameters"": {}
 }".ReplaceLineEndings());
             }
         }
@@ -293,11 +438,7 @@ namespace Bicep.Cli.IntegrationTests
                 content.Should().Be(@"{
   ""$schema"": ""https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#"",
   ""contentVersion"": ""1.0.0.0"",
-  ""parameters"": {
-    ""name"": {
-      ""value"": ""sampleparameter""
-    }
-  }
+  ""parameters"": {}
 }".ReplaceLineEndings());
             }
         }
