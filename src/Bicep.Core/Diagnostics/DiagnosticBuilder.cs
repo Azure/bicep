@@ -1075,8 +1075,8 @@ namespace Bicep.Core.Diagnostics
                 DiagnosticLevel.Warning,
                 "BCP179",
                 indexVariableName is null
-                    ? $"The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
-                    : $"The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
+                    ? $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" must be referenced in at least one of the value expressions of the following properties: {ToQuotedString(expectedVariantProperties)}"
+                    : $"Unique resource or deployment name is required when looping. The loop item variable \"{itemVariableName}\" or the index variable \"{indexVariableName}\" must be referenced in at least one of the value expressions of the following properties in the loop body: {ToQuotedString(expectedVariantProperties)}");
 
             public ErrorDiagnostic FunctionOnlyValidInModuleSecureParameterAssignment(string functionName) => new(
                 TextSpan,
