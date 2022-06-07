@@ -1,6 +1,6 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
-import vscode from "vscode";
+import vscode, { Uri } from "vscode";
 import { Command } from "./types";
 import { LanguageClient } from "vscode-languageclient/node";
 import { IActionContext, parseError } from "@microsoft/vscode-azext-utils";
@@ -38,12 +38,11 @@ export class GenerateParamsCommand implements Command {
 
       const filePath = path.parse(documentUri.fsPath);
 
-      const openPath = vscode.Uri.parse(
-        `file://${filePath.dir}/${filePath.name}.parameters.json`
+      const openPath = Uri.file(
+        path.join(filePath.dir, `${filePath.name}.parameters.json`)
       );
-      vscode.workspace.openTextDocument(openPath).then((doc) => {
-        vscode.window.showTextDocument(doc);
-      });
+      const doc = await vscode.workspace.openTextDocument(openPath);
+      await vscode.window.showTextDocument(doc);
     } catch (err) {
       throw new Error(
         `Generating parameters failed: ${parseError(err).message}`
