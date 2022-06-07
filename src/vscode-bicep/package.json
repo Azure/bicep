@@ -85,7 +85,7 @@
         },
         "bicep.enableDeploy": {
           "type": "boolean",
-          "description": "(EXPERIMENTAL) Enable/disable Bicep Deploy feature",
+          "description": "(Preview) Enable/disable Bicep Deploy feature",
           "default": false
         }
       }
@@ -457,15 +457,14 @@
           {
             "id": "deployToAzure",
             "title": "Deploy to Azure",
-            "description": "It's time to get these resources into Azure. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
+            "description": "Bicep right-click deploy is in preview! To enable this feature, navigate to settings (``Ctrl/CMD + ,``) and select Bicep: Enable Deploy. If you don't have the [Azure Account Extension](command:extension.open?%5B%22ms-vscode.azure-account%22%5D) installed, you will need it to complete this step.\n[Deploy](command:bicep.deploy?%7B%22walkthrough%22%3A%22true%22%7D)",
             "media": {
               "image": "media/walkthroughs/gettingStarted/5_Deploy.gif",
               "altText": "Example of deploying Bicep file to Azure"
             },
             "completionEvents": [
               "onCommand:bicep.deploy"
-            ],
-            "when": "config.bicep.enableDeploy"
+            ]
           },
           {
             "id": "learnMore",
