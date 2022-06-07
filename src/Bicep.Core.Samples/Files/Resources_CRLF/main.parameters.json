@@ -6,13 +6,13 @@
       "value": ""
     },
     "appServicePlanInstances": {
-      "value": ""
+      "value": 0
     },
     "webSiteName": {
       "value": ""
     },
     "cosmosDb": {
-      "value": ""
+      "value": {}
     }
   }
 }
