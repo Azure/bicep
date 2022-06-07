@@ -111,8 +111,8 @@ namespace Bicep.LanguageServer.Handlers
                 return "Generating parameters file failed. Please fix below errors:\n" + DiagnosticsHelper.GetDiagnosticsMessage(diagnosticsByFile);
             }
 
-            using var fileStream = new FileStream(compiledFilePath, FileMode.Create, FileAccess.ReadWrite);
             var emitter = new TemplateEmitter(compilation.GetEntrypointSemanticModel(), emitterSettings);
+            using var fileStream = new FileStream(compiledFilePath, FileMode.OpenOrCreate, FileAccess.ReadWrite);
             EmitResult result = emitter.EmitParametersFile(fileStream);
 
             return "Generating parameters file succeeded. Processed file " + compiledFile;
