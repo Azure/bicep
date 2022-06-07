@@ -172,9 +172,9 @@
       },
       "Nerdbank.GitVersioning": {
         "type": "Direct",
-        "requested": "[3.4.255, )",
-        "resolved": "3.4.255",
-        "contentHash": "7aJa6+VzdKNDVJqGIWGtvIDh2HsIx8DIDfUg4yWViXc798awhSohPMk1oiAZqSntnrKThKJtn4vAMRdsCj8dtg=="
+        "requested": "[3.5.107, )",
+        "resolved": "3.5.107",
+        "contentHash": "oMWWTe9aTUJ1CwU4fpfpduqx7Hzve320PU2SUyFFDzlHXTdjEouWHtFrRbaXV4LysL0lBtlzJM/nmHm47p2KWw=="
       },
       "Newtonsoft.Json": {
         "type": "Direct",
