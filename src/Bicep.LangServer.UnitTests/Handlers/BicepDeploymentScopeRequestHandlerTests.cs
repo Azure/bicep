@@ -16,6 +16,7 @@ using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -52,6 +53,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
@@ -85,6 +87,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
@@ -116,6 +119,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
@@ -171,6 +175,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
                 BicepTestConstants.EmitterSettings,
                 bicepCompilationManager,
                 configurationManager,
+                new DeploymentFileCompilationCache(),
                 BicepTestConstants.Features,
                 FileResolver,
                 ModuleDispatcher,
@@ -183,6 +188,42 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepDeploymentScopeResponse = await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
 
             bicepDeploymentScopeResponse.scope.Should().Be(result);
+        }
+
+        [TestMethod]
+        public async Task Handle_WithValidInputFile_VerifyCompilationEntryIsAddedToDeploymentFileCompilationCache()
+        {
+            string bicepFileContents = @"resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
+  name: 'name'
+  location: 'global'
+}";
+            string bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
+            DocumentUri documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
+            BicepCompilationManager bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache();
+
+            BicepDeploymentScopeRequestHandler bicepDeploymentScopeRequestHandler = new BicepDeploymentScopeRequestHandler(
+                BicepTestConstants.EmitterSettings,
+                bicepCompilationManager,
+                configurationManager,
+                deploymentFileCompilationCache,
+                BicepTestConstants.Features,
+                FileResolver,
+                ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider,
+                Serializer);
+
+            var textDocumentIdentifier = new TextDocumentIdentifier(documentUri);
+            BicepDeploymentScopeParams bicepDeploymentScopeParams = new BicepDeploymentScopeParams(textDocumentIdentifier);
+
+            await bicepDeploymentScopeRequestHandler.Handle(bicepDeploymentScopeParams, CancellationToken.None);
+
+            var compilationFromDeploymentFileCompilationCache = deploymentFileCompilationCache.FindAndRemoveCompilation(documentUri);
+            var compilationFromCompilationManager = bicepCompilationManager.GetCompilation(documentUri)!.Compilation;
+
+            compilationFromCompilationManager.Should().NotBeNull();
+            compilationFromDeploymentFileCompilationCache?.Should().NotBeNull();
+            compilationFromCompilationManager.Should().BeSameAs(compilationFromDeploymentFileCompilationCache!);
         }
     }
 }
