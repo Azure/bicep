@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
 using Bicep.LanguageServer;
 using Bicep.LanguageServer.Deploy;
+using Bicep.LanguageServer.Handlers;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -52,6 +54,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope,
                 string.Empty,
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
@@ -83,6 +88,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 location,
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
@@ -113,6 +121,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeManagementGroup,
                 location,
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
@@ -144,6 +155,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeTenant,
                 string.Empty,
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
@@ -192,6 +206,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 scope,
                 location,
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 deployId,
                 new DeploymentOperationsCache());
@@ -226,22 +243,26 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 .Setup(m => m.GetDeploymentCollection(It.IsAny<ArmClient>(), It.IsAny<ResourceIdentifier>(), LanguageConstants.TargetScopeTypeSubscription))
                 .Returns(deploymentCollection);
             var documentPath = "some_path";
+            var parametersFilePath = @"c:\parameter.json";
 
             var bicepDeployStartResponse = await DeploymentHelper.StartDeploymentAsync(
                 deploymentCollectionProvider.Object,
                 CreateMockArmClient(),
                 documentPath,
                 template,
-                @"c:\parameter.json",
+                parametersFilePath,
                 "/subscriptions/07268dd7-4c50-434b-b1ff-67b8164edb41/resourceGroups/bhavyatest",
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus",
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
-            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"Could not find file");
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, parametersFilePath, @"Could not find file");
 
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
             bicepDeployStartResponse.outputMessage.Should().Contain(expectedDeploymentOutputMessage);
@@ -281,11 +302,14 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus",
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
 
-            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, @"'i' is an invalid start of a value. LineNumber: 0 | BytePositionInLine: 0.");
+            var expectedDeploymentOutputMessage = string.Format(LangServerResources.InvalidParameterFileDeploymentFailedMessage, documentPath, parametersFilePath, @"Unexpected character encountered while parsing value: i. Path '', line 0, position 0.");
 
             bicepDeployStartResponse.isSuccess.Should().BeFalse();
             bicepDeployStartResponse.outputMessage.Should().Be(expectedDeploymentOutputMessage);
@@ -323,6 +347,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
@@ -366,6 +393,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
@@ -417,6 +447,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeResourceGroup,
                 "",
                 string.Empty,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "bicep_deployment",
                 new DeploymentOperationsCache());
@@ -472,6 +505,9 @@ namespace Bicep.LangServer.UnitTests.Deploy
                 LanguageConstants.TargetScopeTypeSubscription,
                 "eastus",
                 deployId,
+                string.Empty,
+                ParametersFileUpdateOption.None,
+                new List<BicepUpdatedDeploymentParameter>(),
                 "https://portal.azure.com",
                 "deployment_name",
                 deploymentOperationsCache);
