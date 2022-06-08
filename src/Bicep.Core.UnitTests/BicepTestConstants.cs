@@ -47,6 +47,8 @@ namespace Bicep.Core.UnitTests
 
         public static readonly IModuleRegistryProvider RegistryProvider = new DefaultModuleRegistryProvider(FileResolver, ClientFactory, TemplateSpecRepositoryFactory, Features);
 
+        public static readonly ModuleDispatcher ModuleDispatcher = new ModuleDispatcher(BicepTestConstants.RegistryProvider);
+
         public static readonly IConfigurationManager ConfigurationManager = new ConfigurationManager(new IOFileSystem());
 
         public static readonly RootConfiguration BuiltInConfiguration = ConfigurationManager.GetBuiltInConfiguration();

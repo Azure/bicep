@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Syntax;
+using Bicep.Core.UnitTests;
 using Bicep.Core.UnitTests.Assertions;
 using Bicep.Core.UnitTests.Mock;
 using Bicep.Core.UnitTests.Utils;
@@ -28,7 +29,7 @@ namespace Bicep.LangServer.UnitTests.Handlers
 
         private readonly ISerializer Serializer = StrictMock.Of<ISerializer>().Object;
 
-        [TestMethod]
+[TestMethod]
         public async Task Handle_WithNoParamsInSourceFile_ShouldReturnEmptyListOfUpdatedDeploymentParameters()
         {
             var bicepFileContents = @"var test = 'abc'";
@@ -50,7 +51,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
@@ -83,9 +92,15 @@ namespace Bicep.LangServer.UnitTests.Handlers
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
-            var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer); var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().SatisfyRespectively(
                 updatedParam =>
@@ -140,7 +155,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+            var compilation =  bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
 
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
@@ -207,8 +230,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
             result.deploymentParameters.Should().SatisfyRespectively(
@@ -260,8 +290,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().SatisfyRespectively(
@@ -327,8 +364,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
             result.deploymentParameters.Should().SatisfyRespectively(
@@ -387,8 +431,15 @@ param testProperties object = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().BeEmpty();
@@ -439,8 +490,15 @@ param allowedOrigins array = [
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().BeEmpty();
@@ -488,8 +546,15 @@ param testProperties object";
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().BeEmpty();
@@ -545,8 +610,15 @@ resource blueprintName_policyArtifact 'Microsoft.Blueprint/blueprints/artifacts@
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().SatisfyRespectively(
@@ -611,8 +683,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var parametersFilePath = FileHelper.SaveResultFile(TestContext, "parameters.json", parametersFileContents);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, parametersFilePath, template, CancellationToken.None);
 
             result.errorMessage.Should().NotBeNull();
@@ -672,8 +751,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = await bicepDeploymentParametersHandler.Handle(bicepFilePath, string.Empty, template, CancellationToken.None);
 
             result.deploymentParameters.Should().SatisfyRespectively(
@@ -728,8 +814,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", bicepFileContents);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, bicepFileContents, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
             var result = bicepDeploymentParametersHandler.GetParameterType(parameterDeclarationSyntax!);
 
             result.Should().Be(expected);
@@ -745,7 +838,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
 
             var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
 
@@ -767,9 +868,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
-
-            var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer); var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
 
             result.Should().NotBeNull();
             result!.Should().ContainKey("location");
@@ -821,7 +928,15 @@ resource dnsZone 'Microsoft.Network/dnsZones@2018-05-01' = {
             var bicepFilePath = FileHelper.SaveResultFile(TestContext, "input.bicep", string.Empty);
             var documentUri = DocumentUri.FromFileSystemPath(bicepFilePath);
             var bicepCompilationManager = BicepCompilationManagerHelper.CreateCompilationManager(documentUri, string.Empty, true);
-            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(bicepCompilationManager, Serializer);
+            var compilation = bicepCompilationManager.GetCompilation(documentUri);
+            var deploymentFileCompilationCache = new DeploymentFileCompilationCache(
+                bicepCompilationManager,
+                BicepTestConstants.ConfigurationManager,
+                BicepTestConstants.Features,
+                BicepTestConstants.FileResolver,
+                BicepTestConstants.ModuleDispatcher,
+                BicepTestConstants.NamespaceProvider);
+            var bicepDeploymentParametersHandler = new BicepDeploymentParametersHandler(deploymentFileCompilationCache, Serializer);
 
             var result = bicepDeploymentParametersHandler.GetParametersInfoFromProvidedFile(parametersFilePath);
 

@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core;
-using Bicep.Core.Analyzers.Linter;
 using Bicep.Core.Configuration;
 using Bicep.Core.Diagnostics;
 using Bicep.Core.Emit;
@@ -21,6 +20,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -44,6 +44,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
+        IDeploymentFileCompilationCache deploymentFileCompilationCache;
         private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
@@ -53,6 +54,7 @@ namespace Bicep.LanguageServer.Handlers
             EmitterSettings emitterSettings,
             ICompilationManager compilationManager,
             IConfigurationManager configurationManager,
+            IDeploymentFileCompilationCache deploymentFileCompilationCache,
             IFeatureProvider features,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
@@ -62,6 +64,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
+            this.deploymentFileCompilationCache = deploymentFileCompilationCache;
             this.emitterSettings = emitterSettings;
             this.features = features;
             this.fileResolver = fileResolver;
@@ -77,7 +80,17 @@ namespace Bicep.LanguageServer.Handlers
 
             try
             {
-                compilation = GetCompilation(documentUri);
+                compilation = CompilationHelper.GetCompilation(
+                    documentUri,
+                    compilationManager,
+                    configurationManager,
+                    features,
+                    fileResolver,
+                    moduleDispatcher,
+                    namespaceProvider);
+
+                deploymentFileCompilationCache.GenerateAndCacheCompilation(documentUri);
+
                 var deploymentScope = GetDeploymentScope(compilation.GetEntrypointSemanticModel().TargetScope);
 
                 return Task.FromResult(new BicepDeploymentScopeResponse(deploymentScope, GetCompiledFile(compilation, documentUri), null));
@@ -116,32 +129,6 @@ namespace Bicep.LanguageServer.Handlers
             emitter.Emit(stringWriter);
 
             return stringBuilder.ToString();
-        }
-
-        private Compilation GetCompilation(DocumentUri documentUri)
-        {
-            var fileUri = documentUri.ToUri();
-            RootConfiguration? configuration;
-
-            try
-            {
-                configuration = this.configurationManager.GetConfiguration(fileUri);
-            }
-            catch (ConfigurationException)
-            {
-                throw;
-            }
-
-            CompilationContext? context = compilationManager.GetCompilation(documentUri);
-            if (context is null)
-            {
-                SourceFileGrouping sourceFileGrouping = SourceFileGroupingBuilder.Build(this.fileResolver, this.moduleDispatcher, new Workspace(), fileUri, configuration);
-                return new Compilation(features, namespaceProvider, sourceFileGrouping, configuration, new LinterAnalyzer(configuration));
-            }
-            else
-            {
-                return context.Compilation;
-            }
         }
     }
 }
