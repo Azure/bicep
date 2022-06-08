@@ -45,7 +45,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
-        IDeploymentFileCompilationCache deploymentFileCompilationCache;
+        private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
         private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;

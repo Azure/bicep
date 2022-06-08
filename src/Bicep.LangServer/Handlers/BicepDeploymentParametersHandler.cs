@@ -31,7 +31,7 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, BicepDeploymentParametersResponse>
     {
-        IDeploymentFileCompilationCache deploymentFileCompilationCache;
+        private readonly IDeploymentFileCompilationCache deploymentFileCompilationCache;
 
         public BicepDeploymentParametersHandler(
             IDeploymentFileCompilationCache deploymentFileCompilationCache,
