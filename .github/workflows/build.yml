@@ -168,7 +168,7 @@ jobs:
         run: echo '::set-output name=verified::true'
 
   test-cli-live:
-    name: Test CLI (live) (${{ matrix.os.rid }}) (${{ matrix.environment }})
+    name: Test CLI (live) (${{ matrix.runtime.rid }}) (${{ matrix.environment }})
     strategy:
       fail-fast: false
       matrix:
