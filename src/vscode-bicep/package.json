@@ -520,7 +520,7 @@
     "eslint": "^8.14.0",
     "eslint-config-prettier": "^8.5.0",
     "eslint-plugin-header": "^3.1.1",
-    "eslint-plugin-jest": "^26.1.5",
+    "eslint-plugin-jest": "^26.5.3",
     "eslint-plugin-prettier": "^4.0.0",
     "eslint-plugin-react": "^7.29.4",
     "fork-ts-checker-webpack-plugin": "^7.2.6",
