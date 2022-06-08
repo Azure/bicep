@@ -77,6 +77,15 @@ namespace Bicep.Core.Syntax
             this.Visit(syntax.Value);
         }
 
+        public virtual void VisitParameterSetDeclarationSyntax(ParameterSetDeclarationSyntax syntax)
+        {
+            this.VisitNodes(syntax.LeadingNodes);
+            this.Visit(syntax.Keyword);
+            this.Visit(syntax.Name);
+            this.Visit(syntax.Assignment);
+            this.Visit(syntax.Value);
+        }
+
         public virtual void VisitLocalVariableSyntax(LocalVariableSyntax syntax)
         {
             this.Visit(syntax.Name);

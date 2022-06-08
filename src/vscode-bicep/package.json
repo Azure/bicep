@@ -105,7 +105,8 @@
           "bicep"
         ],
         "extensions": [
-          ".bicep"
+          ".bicep",
+          ".bicepparam"
         ],
         "configuration": "./language-configuration.json"
       },

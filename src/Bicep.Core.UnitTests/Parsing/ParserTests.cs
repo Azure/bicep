@@ -3,6 +3,7 @@
 using System;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using Bicep.Core.Syntax;
 using Bicep.Core.UnitTests.Utils;
 using FluentAssertions;
@@ -384,6 +385,36 @@ namespace Bicep.Core.UnitTests.Parsing
             visitor.Visit(expression);
 
             return buffer.ToString();
+        }
+
+        //prototyping tests for potential params file 
+        //var myStr = 'str'
+        //@[000:0003) | ├─Token(Identifier) |var|
+        //@[004:0009) | ├─IdentifierSyntax
+        //@[004:0009) | | └─Token(Identifier) |myStr|
+        //@[010:0011) | ├─Token(Assignment) |=|
+        //@[012:0017) | └─StringSyntax
+        //@[012:0017) | | └─Token(StringComplete) |'str'|
+        //@[017:0018) ├─Token(NewLine) |\n|
+
+        //set myint = 12
+        //@[000:0003) | ├─Token(Identifier) |set|
+        //@[004:0009) | ├─IdentifierSyntax
+        //@[004:0009) | | └─Token(Identifier) |myStr|
+        //@[010:0011) | ├─Token(Assignment) |=|
+        //@[012:0017) | └─IntegerLiteralSyntax
+        //@[012:0017) | | └─Token(Integer) |12|
+        //@[017:0018) ├─Token(NewLine) |\n|
+
+        //set myint = 12
+
+        //Syntax for new declaration type? Can I use existing syntax for param, intentifier, default value?
+        [TestMethod]
+        public void testParams(){
+            var test = ParserHelper.Parse("set myint = 12 \n");
+            
+            Trace.WriteLine("Test running!");
+            Trace.WriteLine("Test ended");
         }
     }
 }
