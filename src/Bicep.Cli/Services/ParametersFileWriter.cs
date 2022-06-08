@@ -21,16 +21,13 @@ namespace Bicep.Cli.Services
 
         public EmitResult ToFile(Compilation compilation, string outputPath)
         {
-            var fileStream = CreateFileStream(outputPath);
-            using (fileStream)
+            var existingContent = string.Empty;
+            if (File.Exists(outputPath))
             {
-                return ToStream(compilation, fileStream);
+                existingContent = File.ReadAllText(outputPath);
             }
-        }
-
-        public EmitResult ToStream(Compilation compilation, Stream stream)
-        {
-            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(stream);
+            using var fileStream = CreateFileStream(outputPath);
+            return new TemplateEmitter(compilation.GetEntrypointSemanticModel(), invocationContext.EmitterSettings).EmitParametersFile(fileStream, existingContent);
         }
 
         public EmitResult ToStdout(Compilation compilation)

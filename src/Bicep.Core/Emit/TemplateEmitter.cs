@@ -31,26 +31,22 @@ namespace Bicep.Core.Emit
         /// Emits a template to the specified stream if there are no errors. No writes are made to the stream if there are compilation errors.
         /// </summary>
         /// <param name="stream">The stream to write the template</param>
-        public EmitResult EmitParametersFile(Stream stream) => EmitOrFail(() =>
+        /// <param name="existingContent">Existing content of the parameters file</param>
+        public EmitResult EmitParametersFile(Stream stream, string existingContent) => EmitOrFail(() =>
         {
-            // read content of the stream into a string
-            using var reader = new StreamReader(stream);
-            var content = reader.ReadToEnd();
-
-            stream.Seek(0, SeekOrigin.Begin);
-
             using var writer = new JsonTextWriter(new StreamWriter(stream, UTF8EncodingWithoutBom, 4096, leaveOpen: true))
             {
                 Formatting = Formatting.Indented
             };
 
-            this.EmitParametersFile(writer, content);
+            this.EmitParametersFile(writer, existingContent);
         });
 
         /// <summary>
         /// Emits a template to the specified json writer if there are no errors. No writes are made to the writer if there are compilation errors.
         /// </summary>
         /// <param name="writer">The json writer to write the template</param>
+        /// <param name="existingContent">Existing content of the parameters file</param>
         public EmitResult EmitParametersFile(JsonTextWriter writer, string existingContent) => this.EmitOrFail(() =>
         {
             new ParametersFileTemplateWriter(this.model, this.settings).Write(writer, existingContent);
