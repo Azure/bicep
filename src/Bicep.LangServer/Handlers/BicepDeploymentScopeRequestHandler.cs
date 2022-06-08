@@ -21,6 +21,7 @@ using Bicep.Core.Semantics.Namespaces;
 using Bicep.Core.TypeSystem;
 using Bicep.Core.Workspaces;
 using Bicep.LanguageServer.CompilationManager;
+using Bicep.LanguageServer.Deploy;
 using Bicep.LanguageServer.Utils;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
@@ -44,6 +45,7 @@ namespace Bicep.LanguageServer.Handlers
         private readonly EmitterSettings emitterSettings;
         private readonly ICompilationManager compilationManager;
         private readonly IConfigurationManager configurationManager;
+        IDeploymentFileCompilationCache deploymentFileCompilationCache;
         private readonly IFeatureProvider features;
         private readonly IFileResolver fileResolver;
         private readonly IModuleDispatcher moduleDispatcher;
@@ -53,6 +55,7 @@ namespace Bicep.LanguageServer.Handlers
             EmitterSettings emitterSettings,
             ICompilationManager compilationManager,
             IConfigurationManager configurationManager,
+            IDeploymentFileCompilationCache deploymentFileCompilationCache,
             IFeatureProvider features,
             IFileResolver fileResolver,
             IModuleDispatcher moduleDispatcher,
@@ -62,6 +65,7 @@ namespace Bicep.LanguageServer.Handlers
         {
             this.compilationManager = compilationManager;
             this.configurationManager = configurationManager;
+            this.deploymentFileCompilationCache = deploymentFileCompilationCache;
             this.emitterSettings = emitterSettings;
             this.features = features;
             this.fileResolver = fileResolver;
@@ -78,6 +82,10 @@ namespace Bicep.LanguageServer.Handlers
             try
             {
                 compilation = GetCompilation(documentUri);
+
+                // Cache the compilation so that it can be reused by BicepDeploymentParametersHandler
+                deploymentFileCompilationCache.CacheCompilation(documentUri, compilation);
+
                 var deploymentScope = GetDeploymentScope(compilation.GetEntrypointSemanticModel().TargetScope);
 
                 return Task.FromResult(new BicepDeploymentScopeResponse(deploymentScope, GetCompiledFile(compilation, documentUri), null));

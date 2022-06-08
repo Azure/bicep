@@ -9,7 +9,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Bicep.Core.Semantics;
 using Bicep.Core.Syntax;
-using Bicep.LanguageServer.CompilationManager;
 using Bicep.LanguageServer.Deploy;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -32,14 +31,14 @@ namespace Bicep.LanguageServer.Handlers
     /// </summary>
     public class BicepDeploymentParametersHandler : ExecuteTypedResponseCommandHandlerBase<string, string, string, BicepDeploymentParametersResponse>
     {
-        private readonly ICompilationManager compilationManager;
+        IDeploymentFileCompilationCache deploymentFileCompilationCache;
 
         public BicepDeploymentParametersHandler(
-            ICompilationManager compilationManager,
+            IDeploymentFileCompilationCache deploymentFileCompilationCache,
             ISerializer serializer)
             : base(LangServerConstants.GetDeploymentParametersCommand, serializer)
         {
-            this.compilationManager = compilationManager;
+            this.deploymentFileCompilationCache = deploymentFileCompilationCache;
         }
 
         public override Task<BicepDeploymentParametersResponse> Handle(string documentPath, string parametersFilePath, string template, CancellationToken cancellationToken)
@@ -207,14 +206,16 @@ namespace Bicep.LanguageServer.Handlers
         private IEnumerable<ParameterSymbol> GetParameterSymbols(string documentPath)
         {
             var documentUri = DocumentUri.FromFileSystemPath(documentPath);
-            var compilationContext = compilationManager.GetCompilation(documentUri);
 
-            if (compilationContext is null)
+            // Reuse the compilation cached by BicepDeploymentScopeRequestHandler
+            var compilation = deploymentFileCompilationCache.FindAndRemoveCompilation(documentUri);
+
+            if (compilation is null)
             {
                 return Enumerable.Empty<ParameterSymbol>();
             }
 
-            var semanticModel = compilationContext.Compilation.GetEntrypointSemanticModel();
+            var semanticModel = compilation.GetEntrypointSemanticModel();
             return semanticModel.Root.ParameterDeclarations;
         }
 
